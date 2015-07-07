@@ -30,6 +30,8 @@ import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -140,20 +142,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
 	}
 
-	@DebugLog
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@DebugLog
-	@Override
-	public void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
-
 	@Override
 	public void onListItemClick(View view, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
@@ -176,7 +164,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
 		showMenuItemSafely(menu, R.id.menu_filter, showOptions);
-		showMenuItemSafely(menu, R.id.menu_refresh, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
 		if (showOptions) {
 			switch (mFilterType) {
@@ -253,9 +240,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case R.id.menu_filter_pending:
 				filter(Play.SYNC_STATUS_PENDING, title);
 				return true;
-			case R.id.menu_refresh:
-				triggerRefresh();
-				return true;
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
 				return true;
@@ -274,6 +258,19 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
+	}
+
+	public void onEventMainThread(UpdateEvent event) {
+		isSyncing((event.type == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.type == UpdateService.SYNC_TYPE_PLAYS_DATE));
+	}
+
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		isSyncing(false);
+	}
+
+	@Override
+	protected boolean isRefreshable() {
+		return super.isRefreshable() || (mMode == MODE_GAME);
 	}
 
 	private void requery() {
@@ -486,6 +483,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
+	@DebugLog
+	@Override
+	protected int getSyncType() {
+		return mMode == MODE_GAME ? SyncService.FLAG_SYNC_NONE : SyncService.FLAG_SYNC_PLAYS;
+	}
+
+	@DebugLog
+	@Override
 	public void triggerRefresh() {
 		switch (mMode) {
 			case MODE_ALL:

@@ -1,57 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical">
-
-	<TextView
-		android:id="@+id/name"
-		style="@style/Text.Title"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/padding_extra"
-		tools:text="Uwe Rosenberg"/>
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/swipe_refresh"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
 	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1"
+		android:layout_height="match_parent"
 		android:fillViewport="true">
 
-		<TextView
-			android:id="@+id/description"
+		<LinearLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/padding_standard"
-			android:autoLink="web"
-			tools:text="Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here."/>
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:paddingBottom="@dimen/material_margin_vertical"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal"
+			android:paddingTop="@dimen/material_margin_vertical">
+
+			<TextView
+				android:id="@+id/name"
+				style="@style/Text.Title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingBottom="@dimen/padding_extra"
+				tools:text="Uwe Rosenberg"/>
+
+			<TextView
+				android:id="@+id/description"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:autoLink="web"
+				android:paddingBottom="@dimen/padding_standard"
+				tools:text="Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here."/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:paddingTop="@dimen/padding_standard">
+
+				<TextView
+					android:id="@+id/id"
+					style="@style/Text.Footnote2"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					tools:text="12345"/>
+
+				<TextView
+					android:id="@+id/updated"
+					style="@style/Text.Footnote2"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					tools:text="Yesterday"/>
+			</LinearLayout>
+		</LinearLayout>
 	</ScrollView>
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="@dimen/padding_standard"
-		android:gravity="center"
-		android:orientation="horizontal">
-
-		<TextView
-			android:id="@+id/id"
-			style="@style/Text.Footnote2"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			tools:text="12345"/>
-
-		<TextView
-			android:id="@+id/updated"
-			style="@style/Text.Footnote2"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			tools:text="Yesterday"/>
-	</LinearLayout>
-</LinearLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

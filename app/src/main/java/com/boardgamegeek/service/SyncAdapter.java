@@ -1,8 +1,5 @@
 package com.boardgamegeek.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ComponentName;
@@ -18,6 +15,8 @@ import android.text.TextUtils;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.SyncCompleteEvent;
+import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.BatteryUtils;
@@ -26,6 +25,10 @@ import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -85,8 +88,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 			mCurrentTask = tasks.get(i);
 			try {
+				EventBus.getDefault().postSticky(new SyncEvent(mCurrentTask.getSyncType()));
 				mCurrentTask.showNotification();
 				mCurrentTask.execute(account, syncResult);
+				EventBus.getDefault().post(new SyncCompleteEvent());
+				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
 			} catch (Exception e) {
 				Timber.e(e, "Syncing " + mCurrentTask);
 				syncResult.stats.numIoExceptions++;

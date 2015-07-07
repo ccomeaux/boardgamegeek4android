@@ -14,282 +14,288 @@
 		android:layout_gravity="center"
 		tools:visibility="gone"/>
 
-	<com.boardgamegeek.ui.widget.ObservableScrollView
-		android:id="@+id/scroll_container"
+	<android.support.v4.widget.SwipeRefreshLayout
+		android:id="@+id/swipe_refresh"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:visibility="gone"
 		tools:visibility="visible">
 
-		<LinearLayout
+		<com.boardgamegeek.ui.widget.ObservableScrollView
+			android:id="@+id/scroll_container"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:layout_height="match_parent">
 
-			<FrameLayout
-				android:id="@+id/hero_container"
-				style="@style/HeroContainer">
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
 
-				<ImageView
-					android:id="@+id/image"
-					style="@style/HeroImage"/>
+				<FrameLayout
+					android:id="@+id/hero_container"
+					style="@style/HeroContainer">
+
+					<ImageView
+						android:id="@+id/image"
+						style="@style/HeroImage"/>
+
+					<LinearLayout
+						android:id="@+id/header_container"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:orientation="vertical"
+						android:paddingBottom="@dimen/material_margin_vertical"
+						android:paddingLeft="@dimen/material_margin_horizontal"
+						android:paddingRight="@dimen/material_margin_horizontal"
+						android:paddingTop="@dimen/material_margin_vertical">
+
+						<TextView
+							android:id="@+id/name"
+							style="@style/Text.Headline.Overlay"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:ellipsize="end"
+							android:maxLines="2"
+							tools:text="Terra Mystica"/>
+
+						<TextView
+							android:id="@+id/year"
+							style="@style/Text.Overlay"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							tools:text="1996"/>
+					</LinearLayout>
+				</FrameLayout>
 
 				<LinearLayout
-					android:id="@+id/header_container"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:orientation="vertical"
-					android:paddingBottom="@dimen/material_margin_vertical"
-					android:paddingLeft="@dimen/material_margin_horizontal"
-					android:paddingRight="@dimen/material_margin_horizontal"
-					android:paddingTop="@dimen/material_margin_vertical">
-
-					<TextView
-						android:id="@+id/name"
-						style="@style/Text.Headline.Overlay"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:ellipsize="end"
-						android:maxLines="2"
-						tools:text="Terra Mystica"/>
-
-					<TextView
-						android:id="@+id/year"
-						style="@style/Text.Overlay"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						tools:text="1996"/>
-				</LinearLayout>
-			</FrameLayout>
-
-			<LinearLayout
-				android:id="@+id/status_container"
-				style="@style/GameDetailRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_horizontal"
-				android:background="@color/info_background"
-				android:elevation="@dimen/material_elevation_subtle"
-				android:gravity="center"
-				android:orientation="vertical">
-
-				<TextView
-					android:id="@+id/status"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:textStyle="bold"
-					tools:text="Own"/>
-
-				<TextView
-					android:id="@+id/last_modified"
-					style="@style/Text.Footnote"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					tools:text="Last modified Yesterday"/>
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical">
-
-				<TextView
-					android:id="@+id/rating"
-					style="@style/RatingLarge"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal"
-					android:layout_marginBottom="@dimen/padding_extra"
-					android:layout_marginTop="@dimen/padding_extra"
-					tools:background="#0f0"
-					tools:text="9.5"/>
-
-				<TextView
-					android:id="@+id/comment"
+					android:id="@+id/status_container"
 					style="@style/GameDetailRow"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:gravity="center_vertical"
-					tools:text="This game is fun!"/>
+					android:layout_gravity="center_horizontal"
+					android:background="@color/info_background"
+					android:elevation="@dimen/material_elevation_subtle"
+					android:gravity="center"
+					android:orientation="vertical">
 
-				<android.support.v7.widget.CardView
-					android:id="@+id/private_info_container"
-					style="@style/Card"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone"
-					tools:visibility="visible">
-
-					<LinearLayout
+					<TextView
+						android:id="@+id/status"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:orientation="vertical">
+						android:textStyle="bold"
+						tools:text="Own"/>
 
-						<TextView
-							android:id="@+id/card_header_private_info"
-							style="@style/Text.Header.Card"
-							android:layout_width="match_parent"
-							android:text="@string/private_info"/>
+					<TextView
+						android:id="@+id/last_modified"
+						style="@style/Text.Footnote"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						tools:text="Last modified Yesterday"/>
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/rating"
+						style="@style/RatingLarge"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_horizontal"
+						android:layout_marginBottom="@dimen/padding_extra"
+						android:layout_marginTop="@dimen/padding_extra"
+						tools:background="#0f0"
+						tools:text="9.5"/>
+
+					<TextView
+						android:id="@+id/comment"
+						style="@style/GameDetailRow"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:gravity="center_vertical"
+						tools:text="This game is fun!"/>
+
+					<android.support.v7.widget.CardView
+						android:id="@+id/private_info_container"
+						style="@style/Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:visibility="gone"
+						tools:visibility="visible">
 
 						<LinearLayout
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:orientation="vertical"
-							android:paddingBottom="@dimen/padding_half">
+							android:orientation="vertical">
 
 							<TextView
-								android:id="@+id/private_info"
+								android:id="@+id/card_header_private_info"
+								style="@style/Text.Header.Card"
 								android:layout_width="match_parent"
-								android:layout_height="wrap_content"
-								tools:text="Acquired on Jan 1, 1999"/>
+								android:text="@string/private_info"/>
 
-							<TextView
-								android:id="@+id/private_info_comments"
+							<LinearLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
-								tools:text="Don't tell anyone my true feelings about this game."/>
+								android:orientation="vertical"
+								android:paddingBottom="@dimen/padding_half">
+
+								<TextView
+									android:id="@+id/private_info"
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									tools:text="Acquired on Jan 1, 1999"/>
+
+								<TextView
+									android:id="@+id/private_info_comments"
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									tools:text="Don't tell anyone my true feelings about this game."/>
+							</LinearLayout>
 						</LinearLayout>
-					</LinearLayout>
 
-				</android.support.v7.widget.CardView>
+					</android.support.v7.widget.CardView>
 
-				<android.support.v7.widget.CardView
-					android:id="@+id/wishlist_container"
-					style="@style/Card"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone"
-					tools:visibility="visible">
+					<android.support.v7.widget.CardView
+						android:id="@+id/wishlist_container"
+						style="@style/Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:visibility="gone"
+						tools:visibility="visible">
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:orientation="vertical">
+
+							<TextView
+								android:id="@+id/card_header_wishlist"
+								style="@style/Text.Header.Card"
+								android:layout_width="match_parent"
+								android:text="@string/wishlist"/>
+
+							<TextView
+								android:id="@+id/wishlist_comment"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:paddingBottom="@dimen/padding_half"
+								tools:text="I wish I had this game. It looks gonzo!"/>
+						</LinearLayout>
+					</android.support.v7.widget.CardView>
+
+					<android.support.v7.widget.CardView
+						android:id="@+id/condition_container"
+						style="@style/Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:visibility="gone"
+						tools:visibility="visible">
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:orientation="vertical">
+
+							<TextView
+								android:id="@+id/card_header_condition"
+								style="@style/Text.Header.Card"
+								android:layout_width="match_parent"
+								android:text="@string/condition"/>
+
+							<TextView
+								android:id="@+id/condition_comment"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:paddingBottom="@dimen/padding_half"
+								tools:text="Trade condition"/>
+						</LinearLayout>
+					</android.support.v7.widget.CardView>
+
+					<android.support.v7.widget.CardView
+						android:id="@+id/want_parts_container"
+						style="@style/Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:visibility="gone"
+						tools:visibility="visible">
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:orientation="vertical">
+
+							<TextView
+								android:id="@+id/card_header_want_parts"
+								style="@style/Text.Header.Card"
+								android:layout_width="match_parent"
+								android:text="@string/want_parts"/>
+
+							<TextView
+								android:id="@+id/want_parts_comment"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:paddingBottom="@dimen/padding_half"
+								tools:text="I want some parts."/>
+						</LinearLayout>
+					</android.support.v7.widget.CardView>
+
+					<android.support.v7.widget.CardView
+						android:id="@+id/has_parts_container"
+						style="@style/Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:visibility="gone"
+						tools:visibility="visible">
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:orientation="vertical">
+
+							<TextView
+								android:id="@+id/card_header_has_parts"
+								style="@style/Text.Header.Card"
+								android:layout_width="match_parent"
+								android:text="@string/has_parts"/>
+
+							<TextView
+								android:id="@+id/has_parts_comment"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:paddingBottom="@dimen/padding_half"
+								tools:text="I have some parts."/>
+						</LinearLayout>
+					</android.support.v7.widget.CardView>
 
 					<LinearLayout
 						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical">
+						android:layout_height="@dimen/game_detail_row_height"
+						android:gravity="center"
+						android:orientation="horizontal"
+						android:paddingLeft="@dimen/material_margin_horizontal"
+						android:paddingRight="@dimen/material_margin_horizontal">
 
 						<TextView
-							android:id="@+id/card_header_wishlist"
-							style="@style/Text.Header.Card"
-							android:layout_width="match_parent"
-							android:text="@string/wishlist"/>
-
-						<TextView
-							android:id="@+id/wishlist_comment"
-							android:layout_width="match_parent"
+							android:id="@+id/collection_id"
+							style="@style/Text.Footnote2"
+							android:layout_width="0dp"
 							android:layout_height="wrap_content"
-							android:paddingBottom="@dimen/padding_half"
-							tools:text="I wish I had this game. It looks gonzo!"/>
-					</LinearLayout>
-				</android.support.v7.widget.CardView>
-
-				<android.support.v7.widget.CardView
-					android:id="@+id/condition_container"
-					style="@style/Card"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone"
-					tools:visibility="visible">
-
-					<LinearLayout
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical">
+							android:layout_weight="1"
+							tools:text="123456"/>
 
 						<TextView
-							android:id="@+id/card_header_condition"
-							style="@style/Text.Header.Card"
-							android:layout_width="match_parent"
-							android:text="@string/condition"/>
-
-						<TextView
-							android:id="@+id/condition_comment"
-							android:layout_width="match_parent"
+							android:id="@+id/updated"
+							style="@style/Text.Footnote2"
+							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:paddingBottom="@dimen/padding_half"
-							tools:text="Trade condition"/>
+							android:gravity="right"
+							tools:text="Updated: 3 days ago"/>
 					</LinearLayout>
-				</android.support.v7.widget.CardView>
-
-				<android.support.v7.widget.CardView
-					android:id="@+id/want_parts_container"
-					style="@style/Card"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone"
-					tools:visibility="visible">
-
-					<LinearLayout
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical">
-
-						<TextView
-							android:id="@+id/card_header_want_parts"
-							style="@style/Text.Header.Card"
-							android:layout_width="match_parent"
-							android:text="@string/want_parts"/>
-
-						<TextView
-							android:id="@+id/want_parts_comment"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:paddingBottom="@dimen/padding_half"
-							tools:text="I want some parts."/>
-					</LinearLayout>
-				</android.support.v7.widget.CardView>
-
-				<android.support.v7.widget.CardView
-					android:id="@+id/has_parts_container"
-					style="@style/Card"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone"
-					tools:visibility="visible">
-
-					<LinearLayout
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical">
-
-						<TextView
-							android:id="@+id/card_header_has_parts"
-							style="@style/Text.Header.Card"
-							android:layout_width="match_parent"
-							android:text="@string/has_parts"/>
-
-						<TextView
-							android:id="@+id/has_parts_comment"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:paddingBottom="@dimen/padding_half"
-							tools:text="I have some parts."/>
-					</LinearLayout>
-				</android.support.v7.widget.CardView>
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/game_detail_row_height"
-					android:gravity="center"
-					android:orientation="horizontal"
-					android:paddingLeft="@dimen/material_margin_horizontal"
-					android:paddingRight="@dimen/material_margin_horizontal">
-
-					<TextView
-						android:id="@+id/collection_id"
-						style="@style/Text.Footnote2"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						tools:text="123456"/>
-
-					<TextView
-						android:id="@+id/updated"
-						style="@style/Text.Footnote2"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:gravity="right"
-						tools:text="Updated: 3 days ago"/>
 				</LinearLayout>
 			</LinearLayout>
-		</LinearLayout>
-	</com.boardgamegeek.ui.widget.ObservableScrollView>
+		</com.boardgamegeek.ui.widget.ObservableScrollView>
+	</android.support.v4.widget.SwipeRefreshLayout>
 </FrameLayout>

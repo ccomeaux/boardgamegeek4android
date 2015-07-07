@@ -9,17 +9,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.graphics.Palette;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -27,16 +26,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
+import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
@@ -52,20 +55,23 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.InjectViews;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GameCollectionFragment extends Fragment implements
-	LoaderManager.LoaderCallbacks<Cursor>,
-	ImageUtils.Callback,
-	ObservableScrollView.Callbacks {
+	LoaderCallbacks<Cursor>,
+	Callback,
+	Callbacks, OnRefreshListener {
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
 	private Runnable mUpdaterRunnable = null;
+	private boolean mSyncing;
 	@SuppressWarnings("unused") @InjectView(R.id.progress) View progress;
+	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
 	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView image;
@@ -119,7 +125,6 @@ public class GameCollectionFragment extends Fragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 		mHandler = new Handler();
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
@@ -130,6 +135,10 @@ public class GameCollectionFragment extends Fragment implements
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		ButterKnife.inject(this, rootView);
+
+		mSwipeRefreshLayout.setOnRefreshListener(this);
+		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+
 		colorize(mPalette);
 		scrollContainer.addCallbacks(this);
 		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
@@ -141,6 +150,13 @@ public class GameCollectionFragment extends Fragment implements
 		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
 
 		return rootView;
+	}
+
+	@Override
+	@DebugLog
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override
@@ -159,6 +175,12 @@ public class GameCollectionFragment extends Fragment implements
 		if (mUpdaterRunnable != null) {
 			mHandler.removeCallbacks(mUpdaterRunnable);
 		}
+	}
+
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	@Override
@@ -187,21 +209,6 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.refresh_only, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.menu_refresh) {
-			triggerRefresh();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		if (id != CollectionItem._TOKEN || mCollectionId == BggContract.INVALID_ID) {
 			return null;
@@ -227,7 +234,7 @@ public class GameCollectionFragment extends Fragment implements
 			CollectionItem item = new CollectionItem(cursor);
 			updateUi(item);
 			AnimationUtils.fadeOut(getActivity(), progress, true);
-			AnimationUtils.fadeIn(getActivity(), scrollContainer, true);
+			AnimationUtils.fadeIn(getActivity(), mSwipeRefreshLayout, true);
 
 			if (mMightNeedRefreshing) {
 				long u = cursor.getLong(new CollectionItem().UPDATED);
@@ -255,6 +262,34 @@ public class GameCollectionFragment extends Fragment implements
 			int scrollY = scrollContainer.getScrollY();
 			image.setTranslationY(scrollY * 0.5f);
 			headerContainer.setTranslationY(scrollY * 0.5f);
+		}
+	}
+
+	@Override
+	public void onRefresh() {
+		triggerRefresh();
+	}
+
+	public void onEventMainThread(UpdateEvent event) {
+		mSyncing = event.type == UpdateService.SYNC_TYPE_GAME_COLLECTION;
+		updateRefreshStatus();
+	}
+
+	@DebugLog
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		mSyncing = false;
+		updateRefreshStatus();
+	}
+
+	@DebugLog
+	private void updateRefreshStatus() {
+		if (mSwipeRefreshLayout != null) {
+			mSwipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					mSwipeRefreshLayout.setRefreshing(mSyncing);
+				}
+			});
 		}
 	}
 

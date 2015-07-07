@@ -26,6 +26,11 @@ public class SyncBuddiesList extends SyncTask {
 	}
 
 	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_BUDDIES;
+	}
+
+	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		Timber.i("Syncing list of buddies...");
 		try {

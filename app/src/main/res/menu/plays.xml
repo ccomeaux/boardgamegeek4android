@@ -9,8 +9,8 @@
 		app:showAsAction="always"/>
 	<item
 		android:id="@+id/menu_filter"
-		android:title="@string/menu_plays_filter"
 		android:icon="@drawable/ic_action_filter_on_light"
+		android:title="@string/menu_plays_filter"
 		app:showAsAction="ifRoom">
 		<menu>
 			<group android:checkableBehavior="single">
@@ -49,14 +49,9 @@
 		</menu>
 	</item>
 	<item
-		android:id="@+id/menu_refresh"
-		android:icon="@drawable/ic_action_refresh_light"
-		android:title="@string/menu_refresh"
-		app:showAsAction="ifRoom"/>
-	<item
 		android:id="@+id/menu_refresh_on"
 		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/menu_refresh_on"
-		app:showAsAction="never"/>
+		app:showAsAction="ifRoom"/>
 
 </menu>

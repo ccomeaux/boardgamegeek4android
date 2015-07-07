@@ -14,12 +14,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.sorter.LocationsSorter;
-import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.events.LocationSelectedEvent;
 import com.boardgamegeek.events.LocationSortChangedEvent;
 import com.boardgamegeek.events.LocationsCountChangedEvent;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.sorter.LocationsSorter;
+import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.util.UIUtils;
 
@@ -35,20 +35,6 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	private LocationsAdapter mAdapter;
 	private String mSelectedName;
 	private LocationsSorter mSorter;
-
-	@DebugLog
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@DebugLog
-	@Override
-	public void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
 
 	@DebugLog
 	@Override

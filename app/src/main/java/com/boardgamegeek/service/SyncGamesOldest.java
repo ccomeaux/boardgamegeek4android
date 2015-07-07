@@ -13,9 +13,13 @@ import java.util.List;
  * Syncs a number of games that haven't been updated in a long time.
  */
 public class SyncGamesOldest extends SyncGames {
-
 	public SyncGamesOldest(Context context, BggService service) {
 		super(context, service);
+	}
+
+	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
 	@Override

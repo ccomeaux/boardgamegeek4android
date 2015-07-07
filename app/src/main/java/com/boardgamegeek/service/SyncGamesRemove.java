@@ -1,7 +1,5 @@
 package com.boardgamegeek.service;
 
-import java.util.List;
-
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -16,6 +14,8 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
+import java.util.List;
+
 import timber.log.Timber;
 
 /**
@@ -27,6 +27,11 @@ public class SyncGamesRemove extends SyncTask {
 
 	public SyncGamesRemove(Context context, BggService service) {
 		super(context, service);
+	}
+
+	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
 	@Override

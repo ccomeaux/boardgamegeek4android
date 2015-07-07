@@ -18,19 +18,18 @@
 		android:title="@string/rematch"
 		app:showAsAction="ifRoom"/>
 	<item
-		android:id="@+id/menu_share"
-		android:icon="@drawable/ic_action_share_light"
-		android:title="@string/menu_share"
-		app:showAsAction="ifRoom"/>
-	<item
-		android:id="@+id/menu_refresh"
-		android:icon="@drawable/ic_action_refresh_light"
-		android:title="@string/menu_refresh"
-		app:showAsAction="ifRoom"/>
-	<item
 		android:id="@+id/menu_send"
 		android:icon="@drawable/ic_action_send_light"
 		android:title="@string/send"
 		app:showAsAction="never"/>
+	<item
+		android:id="@+id/menu_discard"
+		android:title="@string/menu_discard_changes"
+		app:showAsAction="never"/>
+	<item
+		android:id="@+id/menu_share"
+		android:icon="@drawable/ic_action_share_light"
+		android:title="@string/menu_share"
+		app:showAsAction="ifRoom"/>
 
 </menu>

@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,16 +15,15 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.GameFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+
+import hugo.weaving.DebugLog;
 
 public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
 	private static final int REQUEST_EDIT_PLAY = 1;
@@ -33,13 +32,15 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	private String mThumbnailUrl;
 	private String mImageUrl;
 	private boolean mCustomPlayerSort;
-	private boolean mSyncing = false;
-	private Menu mOptionsMenu;
 
+	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		final ActionBar supportActionBar = getSupportActionBar();
+		if (supportActionBar != null) {
+			supportActionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		mGameId = Games.getGameId(getIntent().getData());
 		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
@@ -54,26 +55,28 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		});
 	}
 
+	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return new GameFragment();
 	}
 
+	@DebugLog
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.game;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		mOptionsMenu = menu;
-		updateRefreshStatus();
 		menu.findItem(R.id.menu_log_play).setVisible(PreferencesUtils.showLogPlay(this));
 		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
 		return true;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -110,18 +113,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, mGameId, mGameName);
 				return true;
-			case R.id.menu_link_bgg:
-				ActivityUtils.linkBgg(this, mGameId);
-				return true;
-			case R.id.menu_link_bg_prices:
-				ActivityUtils.linkBgPrices(this, mGameName);
-				return true;
-			case R.id.menu_link_amazon:
-				ActivityUtils.linkAmazon(this, mGameName);
-				return true;
-			case R.id.menu_link_ebay:
-				ActivityUtils.linkEbay(this, mGameName);
-				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -130,6 +121,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		return getIntent().getBooleanExtra(ActivityUtils.KEY_FROM_SHORTCUT, false);
 	}
 
+	@DebugLog
 	@Override
 	public void onGameInfoChanged(GameInfo gameInfo) {
 		changeName(gameInfo.gameName);
@@ -139,14 +131,19 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		mCustomPlayerSort = gameInfo.customPlayerSort;
 	}
 
+	@DebugLog
 	private void changeName(String gameName) {
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-			getSupportActionBar().setTitle(gameName);
+			final ActionBar supportActionBar = getSupportActionBar();
+			if (supportActionBar != null) {
+				supportActionBar.setTitle(gameName);
+			}
 		}
 	}
 
+	@DebugLog
 	private void changeSubtype(String subtype) {
 		if (subtype == null) {
 			return;
@@ -163,34 +160,9 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				resId = R.string.title_board_game_accessory;
 				break;
 		}
-		getSupportActionBar().setSubtitle(getString(resId));
-	}
-
-	public void onEventMainThread(UpdateEvent event) {
-		mSyncing =
-			event.type == UpdateService.SYNC_TYPE_GAME ||
-			event.type == UpdateService.SYNC_TYPE_GAME_COLLECTION ||
-			event.type == UpdateService.SYNC_TYPE_GAME_PLAYS;
-		updateRefreshStatus();
-	}
-
-	public void onEventMainThread(UpdateCompleteEvent event) {
-		mSyncing = false;
-		updateRefreshStatus();
-	}
-
-	private void updateRefreshStatus() {
-		if (mOptionsMenu == null) {
-			return;
-		}
-
-		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
-		if (refreshItem != null) {
-			if (mSyncing) {
-				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
-			} else {
-				MenuItemCompat.setActionView(refreshItem, null);
-			}
+		final ActionBar supportActionBar = getSupportActionBar();
+		if (supportActionBar != null) {
+			supportActionBar.setSubtitle(getString(resId));
 		}
 	}
 }

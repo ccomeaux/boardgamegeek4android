@@ -20,6 +20,11 @@ public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
 	}
 
 	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_BUDDIES;
+	}
+
+	@Override
 	protected String getLogMessage() {
 		return "Syncing unupdated buddies...";
 	}

@@ -6,15 +6,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
@@ -25,9 +29,10 @@ import com.boardgamegeek.util.UIUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
-public class ProducerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
@@ -35,8 +40,11 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	private static final int AGE_IN_DAYS_TO_REFRESH = 30;
 	private Uri mUri;
 	private int mToken;
+	private int mId;
+	private boolean mSyncing;
 
-	@SuppressWarnings("unused") @InjectView(R.id.id) TextView mId;
+	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@SuppressWarnings("unused") @InjectView(R.id.id) TextView mIdView;
 	@SuppressWarnings("unused") @InjectView(R.id.name) TextView mName;
 	@SuppressWarnings("unused") @InjectView(R.id.description) TextView mDescription;
 	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView mUpdated;
@@ -63,8 +71,18 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_producer, container, false);
 		ButterKnife.inject(this, rootView);
+
+		mSwipeRefreshLayout.setOnRefreshListener(this);
+		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+
 		getLoaderManager().restartLoader(mToken, null, this);
 		return rootView;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override
@@ -82,6 +100,12 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 		if (mUpdaterRunnable != null) {
 			mHandler.removeCallbacks(mUpdaterRunnable);
 		}
+	}
+
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	@Override
@@ -113,12 +137,12 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 				return;
 			}
 
-			int id = cursor.getInt(Query.ID);
+			mId = cursor.getInt(Query.ID);
 			String name = cursor.getString(Query.NAME);
 			String description = cursor.getString(Query.DESCRIPTION);
 			long updated = cursor.getLong(Query.UPDATED);
 
-			mId.setText(String.format(getString(R.string.id_list_text), id));
+			mIdView.setText(String.format(getString(R.string.id_list_text), mId));
 			mName.setText(name);
 			UIUtils.setTextMaybeHtml(mDescription, description);
 			mUpdated.setTag(updated);
@@ -137,13 +161,17 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
 
 			if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH) {
-				UpdateService.start(getActivity(), mToken, id);
+				triggerRefresh();
 			}
 		} else {
 			if (cursor != null) {
 				cursor.close();
 			}
 		}
+	}
+
+	private void triggerRefresh() {
+		UpdateService.start(getActivity(), mToken, mId);
 	}
 
 	private void updateTimeBasedUi() {
@@ -159,6 +187,32 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@Override
+	public void onRefresh() {
+		triggerRefresh();
+	}
+
+	public void onEventMainThread(UpdateEvent event) {
+		mSyncing = event.type == mToken;
+		updateRefreshStatus();
+	}
+
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		mSyncing = false;
+		updateRefreshStatus();
+	}
+
+	private void updateRefreshStatus() {
+		if (mSwipeRefreshLayout != null) {
+			mSwipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					mSwipeRefreshLayout.setRefreshing(mSyncing);
+				}
+			});
+		}
 	}
 
 	private interface Query {

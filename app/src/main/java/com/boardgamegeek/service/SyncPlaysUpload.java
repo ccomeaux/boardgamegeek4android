@@ -52,6 +52,11 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_PLAYS_UPLOAD;
+	}
+
+	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		mPostService = Adapter.createForPost(mContext);
 		mMessages = new ArrayList<>();

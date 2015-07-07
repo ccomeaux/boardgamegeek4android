@@ -7,9 +7,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +19,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
 import android.widget.Chronometer;
 import android.widget.ImageView;
@@ -24,6 +29,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -48,19 +55,26 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 
-public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_NOTIFIED = "NOTIFIED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
 	private Runnable mUpdaterRunnable = null;
+	private boolean mSyncing;
 	private int mPlayId = BggContract.INVALID_ID;
 	private Play mPlay = new Play();
 	private String mThumbnailUrl;
 	private String mImageUrl;
 
+	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@InjectView(R.id.progress) View mProgressContainer;
+	@InjectView(R.id.list_container) View mListContainer;
+	@InjectView(R.id.empty) TextView mEmpty;
 	@InjectView(R.id.thumbnail) ImageView mThumbnailView;
 	@InjectView(R.id.header) TextView mGameName;
 	@InjectView(R.id.play_date) TextView mDate;
@@ -83,12 +97,26 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	private PlayerAdapter mAdapter;
 	private boolean mNotified;
 
+	final private OnScrollListener mOnScrollListener = new OnScrollListener() {
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+		}
+
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+			if (mSwipeRefreshLayout != null) {
+				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
+				mSwipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+			}
+		}
+	};
+
 	public interface Callbacks {
-		public void onNameChanged(String mGameName);
+		void onNameChanged(String mGameName);
 
-		public void onSent();
+		void onSent();
 
-		public void onDeleted();
+		void onDeleted();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -144,7 +172,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, container, false);
 
 		ListView playersView = (ListView) rootView.findViewById(android.R.id.list);
 		playersView.setHeaderDividersEnabled(false);
@@ -155,12 +183,30 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 
 		ButterKnife.inject(this, rootView);
 
+		if (mSwipeRefreshLayout != null) {
+			mSwipeRefreshLayout.setOnRefreshListener(this);
+			mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		}
+
 		mAdapter = new PlayerAdapter();
 		playersView.setAdapter(mAdapter);
 
 		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 
 		return rootView;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getListView().setOnScrollListener(mOnScrollListener);
+	}
+
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override
@@ -183,6 +229,13 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		}
 	}
 
+	@DebugLog
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
+	}
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -203,10 +256,13 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_send).setVisible(mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		MenuItem refreshMenuItem = menu.findItem(R.id.menu_refresh);
-		refreshMenuItem.setEnabled(mPlay.hasBeenSynced());
-		if (mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-			refreshMenuItem.setTitle(R.string.menu_discard_changes);
+		MenuItem menuItem = menu.findItem(R.id.menu_discard);
+		if (menuItem != null &&
+			mPlay.hasBeenSynced() &&
+			mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+			menuItem.setVisible(true);
+		} else {
+			menuItem.setVisible(false);
 		}
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.syncStatus == Play.SYNC_STATUS_SYNCED);
 
@@ -216,21 +272,16 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.menu_refresh:
-				if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
-					DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								save(Play.SYNC_STATUS_SYNCED);
-							}
-						}).show();
-				} else {
-					triggerRefresh();
-				}
+			case R.id.menu_discard:
+				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							save(Play.SYNC_STATUS_SYNCED);
+						}
+					}).show();
 				return true;
 			case R.id.menu_edit:
-				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
-					mImageUrl);
+				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
@@ -263,6 +314,38 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		return super.onOptionsItemSelected(item);
 	}
 
+	@DebugLog
+	@Override
+	public void onRefresh() {
+		triggerRefresh();
+	}
+
+	@DebugLog
+	public void onEventMainThread(UpdateEvent event) {
+		if (event.type == UpdateService.SYNC_TYPE_GAME_PLAYS) {
+			mSyncing = true;
+			updateRefreshStatus();
+		}
+	}
+
+	@DebugLog
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		mSyncing = false;
+		updateRefreshStatus();
+	}
+
+	@DebugLog
+	private void updateRefreshStatus() {
+		if (mSwipeRefreshLayout != null) {
+			mSwipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					mSwipeRefreshLayout.setRefreshing(mSyncing);
+				}
+			});
+		}
+	}
+
 	@OnClick(R.id.header_container)
 	void viewGame(View v) {
 		ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
@@ -278,12 +361,10 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		CursorLoader loader = null;
 		switch (id) {
 			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayQuery.PROJECTION, null, null,
-					null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayQuery.PROJECTION, null, null, null);
 				break;
 			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayerQuery.PROJECTION, null,
-					null, null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayerQuery.PROJECTION, null, null, null);
 				break;
 		}
 		return loader;
@@ -298,19 +379,15 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		switch (loader.getId()) {
 			case PlayQuery._TOKEN:
 				if (onPlayQueryComplete(cursor)) {
-					setListShown(true);
+					showList();
 				}
 				break;
 			case PlayerQuery._TOKEN:
-				// HACK ensures the list header shows, not the empty text
-				setEmptyText(null);
-				getListView().setEmptyView(null);
-
 				mPlay.setPlayers(cursor);
 				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 				mAdapter.notifyDataSetChanged();
 				maybeShowNotification();
-				setListShown(true);
+				showList();
 				break;
 			default:
 				if (cursor != null) {
@@ -318,6 +395,13 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 				}
 				break;
 		}
+	}
+
+	private void showList() {
+		mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		mProgressContainer.setVisibility(View.GONE);
+		mListContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		mListContainer.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -339,7 +423,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 				setNewPlayId(newPlayId);
 				return false;
 			}
-			setEmptyText(String.format(getResources().getString(R.string.empty_play), mPlayId));
+			mEmpty.setText(String.format(getResources().getString(R.string.empty_play), mPlayId));
 			return true;
 		}
 

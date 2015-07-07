@@ -25,6 +25,8 @@ public abstract class SyncTask extends ServiceTask {
 		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
 	}
 
+	public abstract int getSyncType();
+
 	public abstract void execute(Account account, SyncResult syncResult);
 
 	public void cancel() {
