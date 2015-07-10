@@ -36,10 +36,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	private boolean mShortcut;
 	private CollectionViewAdapter mAdapter;
-	private long mViewId = -2;
+	private long mViewId;
 	private int mCount;
 	private String mSortName;
 	private boolean mIsTitleHidden;
+	private int mIndex;
 
 	@Override
 	@DebugLog
@@ -49,7 +50,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		mShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 
 		if (savedInstanceState != null) {
-			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
+			mViewId = -1;
+			mIndex = savedInstanceState.getInt(STATE_VIEW_ID);
 			mCount = savedInstanceState.getInt(STATE_COUNT);
 			mSortName = savedInstanceState.getString(STATE_SORT_NAME);
 		} else {
@@ -73,9 +75,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	@DebugLog
 	protected void onSaveInstanceState(Bundle outState) {
-		if (mAdapter != null) {
-			outState.putLong(STATE_VIEW_ID, mAdapter.getItemId(getSupportActionBar().getSelectedNavigationIndex()));
-		}
+		outState.putInt(STATE_VIEW_ID, mIndex);
 		outState.putInt(STATE_COUNT, mCount);
 		outState.putString(STATE_SORT_NAME, mSortName);
 		super.onSaveInstanceState(outState);
@@ -144,6 +144,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	public void onViewRequested(long viewId) {
 		mViewId = viewId;
+		mIndex = findViewIndex(mViewId);
 	}
 
 	@Override
@@ -169,7 +170,10 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			actionBar.setDisplayShowTitleEnabled(false);
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 			actionBar.setListNavigationCallbacks(mAdapter, this);
-			actionBar.setSelectedNavigationItem(findViewIndex(mViewId));
+			if (mViewId != -1) {
+				mIndex = findViewIndex(mViewId);
+			}
+			actionBar.setSelectedNavigationItem(mIndex);
 			mIsTitleHidden = true;
 		} else {
 			cursor.close();
@@ -188,6 +192,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		CollectionFragment fragment = (CollectionFragment) getFragment();
 		long oldId = fragment.getViewId();
 		if (itemId != oldId) {
+			mIndex = findViewIndex(itemId);
 			if (itemId < 0) {
 				fragment.clearView();
 			} else {
