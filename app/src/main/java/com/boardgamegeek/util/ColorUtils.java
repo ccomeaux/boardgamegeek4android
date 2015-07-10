@@ -59,14 +59,16 @@ public class ColorUtils {
 		}
 		if (colorString.charAt(0) == '#') {
 			// Use a long to avoid rollovers on #ffXXXXXX
-			long color = Long.parseLong(colorString.substring(1), 16);
-			if (colorString.length() == 7) {
-				// Set the alpha value
-				color |= 0x00000000ff000000;
-			} else if (colorString.length() != 9) {
+			if (colorString.length() == 7 || colorString.length() == 9) {
+				long color = Long.parseLong(colorString.substring(1), 16);
+				if (colorString.length() == 7) {
+					// Set the alpha value
+					color |= 0x00000000ff000000;
+				}
+				return (int) color;
+			} else {
 				return TRANSPARENT;
 			}
-			return (int) color;
 		} else {
 			Integer color = sColorNameMap.get(formatKey(colorString));
 			if (color != null) {
