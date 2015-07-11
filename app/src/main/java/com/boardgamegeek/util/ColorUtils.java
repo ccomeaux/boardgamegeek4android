@@ -58,8 +58,8 @@ public class ColorUtils {
 			return TRANSPARENT;
 		}
 		if (colorString.charAt(0) == '#') {
-			// Use a long to avoid rollovers on #ffXXXXXX
 			if (colorString.length() == 7 || colorString.length() == 9) {
+				// Use a long to avoid rollovers on #ffXXXXXX
 				long color = Long.parseLong(colorString.substring(1), 16);
 				if (colorString.length() == 7) {
 					// Set the alpha value

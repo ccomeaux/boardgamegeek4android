@@ -303,7 +303,7 @@ public class GameCollectionFragment extends Fragment implements
 		if (palette == null || scrollContainer == null) {
 			return;
 		}
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
 		statusContainer.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = PaletteUtils.getHeaderSwatch(palette);

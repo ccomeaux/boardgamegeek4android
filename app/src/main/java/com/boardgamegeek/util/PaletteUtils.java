@@ -1,5 +1,6 @@
 package com.boardgamegeek.util;
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v7.graphics.Palette;
@@ -65,7 +66,7 @@ public class PaletteUtils {
 	/**
 	 * Gets a swatch from the palette suitable as a dark background with inverse text on top.
 	 */
-	public static Palette.Swatch getInverseSwatch(Palette palette) {
+	public static Palette.Swatch getInverseSwatch(Palette palette, int defaultColor) {
 		Palette.Swatch swatch = palette.getLightMutedSwatch();
 		if (swatch != null) {
 			return swatch;
@@ -76,7 +77,7 @@ public class PaletteUtils {
 			return swatch;
 		}
 
-		return palette.getSwatches().get(0);
+		return new Palette.Swatch(defaultColor, 0);
 	}
 
 	/**

@@ -543,7 +543,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		if (mPalette == null || mPrimaryInfo == null) {
 			return;
 		}
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(mPalette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(mPalette, getResources().getColor(R.color.info_background));
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = PaletteUtils.getIconSwatch(mPalette);
