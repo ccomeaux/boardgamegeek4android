@@ -410,7 +410,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	public void setNewPlayId(int playId) {
 		mPlayId = playId;
-		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+		if (isAdded()) {
+			getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+		}
 	}
 
 	/**
