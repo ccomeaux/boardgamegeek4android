@@ -409,7 +409,7 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_played_not_synced">These stats are more accurate if you sync your Played games. Do you want to modify your preferences?</string>
+	<string name="play_stat_status_played_not_synced">These stats are more accurate if you sync the Played status of your Collection. Do you want to modify your preferences?</string>
 	<string name="play_stat_status_played_not_synced_message">Do you want to sync your Played games?</string>
 
 	<plurals name="msg_colors_deleted">
