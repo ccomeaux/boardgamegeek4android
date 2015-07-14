@@ -191,6 +191,10 @@
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
+	<string name="title_play_count">Play Count</string>
+	<string name="title_dates">Dates</string>
+	<string name="title_play_time">Play Time</string>
+	<string name="title_advanced">Advanced</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search collection</string>
 	<string name="search_settings_description">Games in collection</string>

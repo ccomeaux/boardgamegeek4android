@@ -52,7 +52,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
-	@InjectView(R.id.table) TableLayout mTable;
+	@InjectView(R.id.table_play_count) TableLayout mPlayCountTable;
+	@InjectView(R.id.table_dates) TableLayout mDatesTable;
+	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
+	@InjectView(R.id.table_advanced) TableLayout mAdvancedTable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +67,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		ButterKnife.inject(this, rootView);
 		return rootView;
 	}
@@ -124,58 +127,58 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
 				break;
 			case PlayQuery._TOKEN:
-				mTable.removeAllViews();
+				mPlayCountTable.removeAllViews();
+				mDatesTable.removeAllViews();
+				mPlayTimeTable.removeAllViews();
+				mAdvancedTable.removeAllViews();
 
 				Stats stats = new Stats(cursor);
 
 				if (!TextUtils.isEmpty(stats.getQuarterDate())) {
-					addStatRow("", getString(R.string.play_stat_quarter));
+					addStatRow(mPlayCountTable, "", getString(R.string.play_stat_quarter));
 				} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
-					addStatRow("", getString(R.string.play_stat_dime));
+					addStatRow(mPlayCountTable, "", getString(R.string.play_stat_dime));
 				} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
-					addStatRow("", getString(R.string.play_stat_nickel));
+					addStatRow(mPlayCountTable, "", getString(R.string.play_stat_nickel));
 				}
-				addStatRow(R.string.play_stat_play_count, stats.getPlayCount());
-				addStatRowMaybe(R.string.play_stat_play_count_incomplete, stats.getPlayCountIncomplete());
+				addStatRow(mPlayCountTable, R.string.play_stat_play_count, stats.getPlayCount());
+				addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_count_incomplete, stats.getPlayCountIncomplete());
+				addDivider(mPlayCountTable);
 				for (int i = 1; i <= stats.getMaxPlayerCount(); i++) {
-					addStatRowMaybe(getResources().getQuantityString(R.plurals.player_description, i, i),
-						stats.getPlayCount(i));
+					addStatRowMaybe(mPlayCountTable, getResources().getQuantityString(R.plurals.player_description, i, i), stats.getPlayCount(i));
 				}
+				addDivider(mPlayCountTable);
+				addStatRow(mPlayCountTable, R.string.play_stat_months_played, stats.getMonthsPlayed());
+				addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_rate, stats.getPlayRate());
 
-				addDivider();
-				addStatRow(R.string.play_stat_months_played, stats.getMonthsPlayed());
-				addStatRowMaybe(R.string.play_stat_play_rate, stats.getPlayRate());
-				addDateRow(stats.getFirstPlayDate(), R.string.play_stat_first_play);
-				addDateRow(stats.getNickelDate(), R.string.play_stat_nickel);
-				addDateRow(stats.getDimeDate(), R.string.play_stat_dime);
-				addDateRow(stats.getQuarterDate(), R.string.play_stat_quarter);
-				addDateRow(stats.getLastPlayDate(), R.string.play_stat_last_play);
+				addDateRow(mDatesTable, stats.getFirstPlayDate(), R.string.play_stat_first_play);
+				addDateRow(mDatesTable, stats.getNickelDate(), R.string.play_stat_nickel);
+				addDateRow(mDatesTable, stats.getDimeDate(), R.string.play_stat_dime);
+				addDateRow(mDatesTable, stats.getQuarterDate(), R.string.play_stat_quarter);
+				addDateRow(mDatesTable, stats.getLastPlayDate(), R.string.play_stat_last_play);
 
-				addDivider();
-				addStatRow(R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
+				addStatRow(mPlayTimeTable, R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
 				int average = stats.getAveragePlayTime();
 				if (average > 0) {
-					addStatRow(R.string.play_stat_average_play_time, DateTimeUtils.formatMinutes(average));
+					addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time, DateTimeUtils.formatMinutes(average));
 					if (mPlayingTime > 0) {
 						if (average > mPlayingTime) {
-							addStatRow(R.string.play_stat_average_play_time_slower, DateTimeUtils.formatMinutes(average - mPlayingTime));
+							addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_slower, DateTimeUtils.formatMinutes(average - mPlayingTime));
 						} else if (mPlayingTime > average) {
-							addStatRow(R.string.play_stat_average_play_time_faster, DateTimeUtils.formatMinutes(mPlayingTime - average));
+							addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_faster, DateTimeUtils.formatMinutes(mPlayingTime - average));
 						}
 						// don't display anything if the average is exactly as expected
 					}
 				}
 				int averagePerPlayer = stats.getAveragePlayTimePerPlayer();
 				if (averagePerPlayer > 0) {
-					addStatRow(R.string.play_stat_average_play_time_per_player, DateTimeUtils.formatMinutes(averagePerPlayer));
+					addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_per_player, DateTimeUtils.formatMinutes(averagePerPlayer));
 				}
 
-				addDivider();
-				addStatRow(R.string.play_stat_fhm, stats.calculateFhm(), R.string.play_stat_fhm_info);
-				addStatRow(R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
-				addStatRow(R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
-				addStatRowPercentage(R.string.play_stat_utilization, stats.calculateUtilization(),
-					R.string.play_stat_utilization_info);
+				addStatRow(mAdvancedTable, R.string.play_stat_fhm, stats.calculateFhm(), R.string.play_stat_fhm_info);
+				addStatRow(mAdvancedTable, R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
+				addStatRow(mAdvancedTable, R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
+				addStatRowPercentage(mAdvancedTable, R.string.play_stat_utilization, stats.calculateUtilization(), R.string.play_stat_utilization_info);
 
 				showData();
 				break;
@@ -201,90 +204,90 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		mDataView.setVisibility(View.VISIBLE);
 	}
 
-	private void addDateRow(String date, int resId) {
+	private void addDateRow(ViewGroup container, String date, int resId) {
 		if (!TextUtils.isEmpty(date)) {
 			try {
 				long l = FORMAT.parse(date).getTime();
-				String d = DateUtils.formatDateTime(getActivity(), l, DateUtils.FORMAT_SHOW_DATE
-					| DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
-				addStatRow(getString(resId), d);
+				String d = DateUtils.formatDateTime(getActivity(), l,
+					DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
+				addStatRow(container, getString(resId), d);
 			} catch (ParseException e) {
 				// just don't add the row
 			}
 		}
 	}
 
-	private void addStatRowMaybe(int labelId, int value) {
+	private void addStatRowMaybe(ViewGroup container, int labelId, int value) {
 		if (value > 0) {
-			addStatRow(labelId, value);
+			addStatRow(container, labelId, value);
 		}
 	}
 
-	private void addStatRowMaybe(String label, int value) {
+	private void addStatRowMaybe(ViewGroup container, String label, int value) {
 		if (value > 0) {
-			addStatRow(label, String.valueOf(value));
+			addStatRow(container, label, String.valueOf(value));
 		}
 	}
 
-	private void addStatRowMaybe(int labelId, int value, int infoId) {
+	private void addStatRowMaybe(ViewGroup container, int labelId, int value, int infoId) {
 		if (value > 0) {
-			addStatRow(labelId, value, infoId);
+			addStatRow(container, labelId, value, infoId);
 		}
 	}
 
-	private void addStatRowMaybe(int labelId, double value) {
+	private void addStatRowMaybe(ViewGroup container, int labelId, double value) {
 		if (value > 0.0) {
-			addStatRow(labelId, value);
+			addStatRow(container, labelId, value);
 		}
 	}
 
-	private void addStatRow(int labelId, int value) {
-		addStatRow(labelId, String.valueOf(value));
+	private void addStatRow(ViewGroup container, int labelId, int value) {
+		addStatRow(container, labelId, String.valueOf(value));
 	}
 
-	private void addStatRow(int labelId, int value, int infoId) {
-		addStatRow(labelId, String.valueOf(value), infoId);
+	private void addStatRow(ViewGroup container, int labelId, int value, int infoId) {
+		addStatRow(container, labelId, String.valueOf(value), infoId);
 	}
 
-	private void addStatRow(int labelId, double value) {
-		addStatRow(labelId, DOUBLE_FORMAT.format(value));
+	private void addStatRow(ViewGroup container, int labelId, double value) {
+		addStatRow(container, labelId, DOUBLE_FORMAT.format(value));
 	}
 
-	private void addStatRow(int labelId, double value, int infoId) {
-		addStatRow(labelId, DOUBLE_FORMAT.format(value), infoId);
+	private void addStatRow(ViewGroup container, int labelId, double value, int infoId) {
+		addStatRow(container, labelId, DOUBLE_FORMAT.format(value), infoId);
 	}
 
-	private void addStatRowPercentage(int labelId, double value, int infoId) {
-		addStatRow(labelId, PERCENTAGE_FORMAT.format(value * 100) + "%", infoId);
+	private void addStatRowPercentage(ViewGroup container, int labelId, double value, int infoId) {
+		addStatRow(container, labelId, PERCENTAGE_FORMAT.format(value * 100) + "%", infoId);
 	}
 
-	private void addStatRow(int labelId, String value) {
+	private void addStatRow(ViewGroup container, int labelId, String value) {
 		PlayStatView view = new PlayStatView(getActivity());
 		view.setLabel(labelId);
 		view.setValue(value);
-		mTable.addView(view);
+		container.addView(view);
 	}
 
-	private void addStatRow(int labelId, String value, int infoId) {
+	private void addStatRow(ViewGroup container, int labelId, String value, int infoId) {
 		PlayStatView view = new PlayStatView(getActivity());
 		view.setLabel(labelId);
 		view.setValue(value);
 		view.setInfoText(infoId);
-		mTable.addView(view);
+		container.addView(view);
 	}
 
-	private void addStatRow(String label, String value) {
+	private void addStatRow(ViewGroup container, String label, String value) {
 		PlayStatView view = new PlayStatView(getActivity());
 		view.setLabel(label);
 		view.setValue(value);
-		mTable.addView(view);
+		container.addView(view);
 	}
 
-	private void addDivider() {
+	private void addDivider(ViewGroup container) {
 		View view = new View(getActivity());
 		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
 		view.setBackgroundResource(R.color.primary_dark);
-		mTable.addView(view);
+		container.addView(view);
 	}
 
 	@Override
