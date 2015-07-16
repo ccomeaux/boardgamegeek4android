@@ -46,10 +46,12 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		String selection = TextUtils.isEmpty(mUsername) ? SELECTION_WITHOUT_USERNAME : SELECTION_WITH_USERNAME;
 
-		List<Integer> playIds = ResolverUtils.queryInts(mContext.getContentResolver(), Plays.buildPlayersUri(),
+		List<Integer> playIds = ResolverUtils.queryInts(mContext.getContentResolver(),
+			Plays.buildPlayersByPlayUri(),
 			Plays.PLAY_ID, Plays.SYNC_STATUS + "=? AND (" + selection + ")",
-			TextUtils.isEmpty(mUsername) ? new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), mOldName, "" }
-				: new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), mOldName, mUsername });
+			TextUtils.isEmpty(mUsername) ?
+				new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), mOldName, "" } :
+				new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), mOldName, mUsername });
 		if (playIds.size() > 0) {
 			ContentValues values = new ContentValues();
 			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
@@ -60,7 +62,7 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 		}
 
 		batch.add(ContentProviderOperation
-			.newUpdate(Plays.buildPlayersUri())
+			.newUpdate(Plays.buildPlayersByPlayUri())
 			.withValue(PlayPlayers.NAME, mNewName)
 			.withSelection(selection,
 				TextUtils.isEmpty(mUsername) ? new String[] { mOldName, "" } : new String[] { mOldName, mUsername })

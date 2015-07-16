@@ -124,12 +124,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				break;
 			case MODE_BUDDY:
 				mBuddyName = getArguments().getString(ActivityUtils.KEY_BUDDY_NAME);
-				mUri = Plays.buildPlayersUri();
+				mUri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_PLAYER:
 				mBuddyName = getArguments().getString(KEY_USER_NAME);
 				mPlayerName = getArguments().getString(KEY_PLAYER_NAME);
-				mUri = Plays.buildPlayersUri();
+				mUri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_LOCATION:
 				mLocation = getArguments().getString(KEY_LOCATION);
