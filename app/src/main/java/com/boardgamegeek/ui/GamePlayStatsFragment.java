@@ -48,6 +48,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private int mPlayingTime;
 	private double mRating;
+	private Stats mStats;
 
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
@@ -82,14 +83,21 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
-			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlayQuery.PROJECTION, PlayItems.OBJECT_ID
-					+ "=? AND " + Plays.SYNC_STATUS + "=?", new String[] { String.valueOf(mGameId),
-					String.valueOf(Play.SYNC_STATUS_SYNCED) }, Plays.DATE + " ASC");
-				break;
 			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection."
-					+ Collection.GAME_ID + "=?", new String[] { String.valueOf(mGameId) }, null);
+				loader = new CursorLoader(getActivity(),
+					Collection.CONTENT_URI,
+					GameQuery.PROJECTION,
+					"collection." + Collection.GAME_ID + "=?",
+					new String[] { String.valueOf(mGameId) },
+					null);
+				break;
+			case PlayQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Plays.CONTENT_URI,
+					PlayQuery.PROJECTION,
+					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
+					new String[] { String.valueOf(mGameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
+					Plays.DATE + " ASC");
 				break;
 		}
 		return loader;
@@ -127,12 +135,21 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
 				break;
 			case PlayQuery._TOKEN:
+				mStats = new Stats(cursor);
+				bindUi(mStats);
+				showData();
+				break;
+			default:
+				cursor.close();
+				break;
+		}
+	}
+
+	private void bindUi(Stats stats) {
 				mPlayCountTable.removeAllViews();
 				mDatesTable.removeAllViews();
 				mPlayTimeTable.removeAllViews();
 				mAdvancedTable.removeAllViews();
-
-				Stats stats = new Stats(cursor);
 
 				if (!TextUtils.isEmpty(stats.getQuarterDate())) {
 					addStatRow(mPlayCountTable, "", getString(R.string.play_stat_quarter));
@@ -179,13 +196,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				addStatRow(mAdvancedTable, R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
 				addStatRow(mAdvancedTable, R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
 				addStatRowPercentage(mAdvancedTable, R.string.play_stat_utilization, stats.calculateUtilization(), R.string.play_stat_utilization_info);
-
-				showData();
-				break;
-			default:
-				cursor.close();
-				break;
-		}
 	}
 
 	private void showEmpty() {
