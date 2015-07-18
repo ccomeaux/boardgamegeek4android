@@ -22,6 +22,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayStatView;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -146,56 +147,56 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private void bindUi(Stats stats) {
-				mPlayCountTable.removeAllViews();
-				mDatesTable.removeAllViews();
-				mPlayTimeTable.removeAllViews();
-				mAdvancedTable.removeAllViews();
+		mPlayCountTable.removeAllViews();
+		mDatesTable.removeAllViews();
+		mPlayTimeTable.removeAllViews();
+		mAdvancedTable.removeAllViews();
 
-				if (!TextUtils.isEmpty(stats.getQuarterDate())) {
-					addStatRow(mPlayCountTable, "", getString(R.string.play_stat_quarter));
-				} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
-					addStatRow(mPlayCountTable, "", getString(R.string.play_stat_dime));
-				} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
-					addStatRow(mPlayCountTable, "", getString(R.string.play_stat_nickel));
-				}
-				addStatRow(mPlayCountTable, R.string.play_stat_play_count, stats.getPlayCount());
-				addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_count_incomplete, stats.getPlayCountIncomplete());
-				addDivider(mPlayCountTable);
-				for (int i = 1; i <= stats.getMaxPlayerCount(); i++) {
-					addStatRowMaybe(mPlayCountTable, getResources().getQuantityString(R.plurals.player_description, i, i), stats.getPlayCount(i));
-				}
-				addDivider(mPlayCountTable);
-				addStatRow(mPlayCountTable, R.string.play_stat_months_played, stats.getMonthsPlayed());
-				addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_rate, stats.getPlayRate());
+		if (!TextUtils.isEmpty(stats.getQuarterDate())) {
+			addStatRow(mPlayCountTable, "", getString(R.string.play_stat_quarter));
+		} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
+			addStatRow(mPlayCountTable, "", getString(R.string.play_stat_dime));
+		} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
+			addStatRow(mPlayCountTable, "", getString(R.string.play_stat_nickel));
+		}
+		addStatRow(mPlayCountTable, R.string.play_stat_play_count, stats.getPlayCount());
+		addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_count_incomplete, stats.getPlayCountIncomplete());
+		addDivider(mPlayCountTable);
+		for (int i = 1; i <= stats.getMaxPlayerCount(); i++) {
+			addStatRowMaybe(mPlayCountTable, getResources().getQuantityString(R.plurals.player_description, i, i), stats.getPlayCount(i));
+		}
+		addDivider(mPlayCountTable);
+		addStatRow(mPlayCountTable, R.string.play_stat_months_played, stats.getMonthsPlayed());
+		addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_rate, stats.getPlayRate());
 
-				addDateRow(mDatesTable, stats.getFirstPlayDate(), R.string.play_stat_first_play);
-				addDateRow(mDatesTable, stats.getNickelDate(), R.string.play_stat_nickel);
-				addDateRow(mDatesTable, stats.getDimeDate(), R.string.play_stat_dime);
-				addDateRow(mDatesTable, stats.getQuarterDate(), R.string.play_stat_quarter);
-				addDateRow(mDatesTable, stats.getLastPlayDate(), R.string.play_stat_last_play);
+		addDateRow(mDatesTable, stats.getFirstPlayDate(), R.string.play_stat_first_play);
+		addDateRow(mDatesTable, stats.getNickelDate(), R.string.play_stat_nickel);
+		addDateRow(mDatesTable, stats.getDimeDate(), R.string.play_stat_dime);
+		addDateRow(mDatesTable, stats.getQuarterDate(), R.string.play_stat_quarter);
+		addDateRow(mDatesTable, stats.getLastPlayDate(), R.string.play_stat_last_play);
 
-				addStatRow(mPlayTimeTable, R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
-				int average = stats.getAveragePlayTime();
-				if (average > 0) {
-					addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time, DateTimeUtils.formatMinutes(average));
-					if (mPlayingTime > 0) {
-						if (average > mPlayingTime) {
-							addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_slower, DateTimeUtils.formatMinutes(average - mPlayingTime));
-						} else if (mPlayingTime > average) {
-							addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_faster, DateTimeUtils.formatMinutes(mPlayingTime - average));
-						}
-						// don't display anything if the average is exactly as expected
-					}
+		addStatRow(mPlayTimeTable, R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
+		int average = stats.getAveragePlayTime();
+		if (average > 0) {
+			addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time, DateTimeUtils.formatMinutes(average));
+			if (mPlayingTime > 0) {
+				if (average > mPlayingTime) {
+					addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_slower, DateTimeUtils.formatMinutes(average - mPlayingTime));
+				} else if (mPlayingTime > average) {
+					addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_faster, DateTimeUtils.formatMinutes(mPlayingTime - average));
 				}
-				int averagePerPlayer = stats.getAveragePlayTimePerPlayer();
-				if (averagePerPlayer > 0) {
-					addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_per_player, DateTimeUtils.formatMinutes(averagePerPlayer));
-				}
+				// don't display anything if the average is exactly as expected
+			}
+		}
+		int averagePerPlayer = stats.getAveragePlayTimePerPlayer();
+		if (averagePerPlayer > 0) {
+			addStatRow(mPlayTimeTable, R.string.play_stat_average_play_time_per_player, DateTimeUtils.formatMinutes(averagePerPlayer));
+		}
 
-				addStatRow(mAdvancedTable, R.string.play_stat_fhm, stats.calculateFhm(), R.string.play_stat_fhm_info);
-				addStatRow(mAdvancedTable, R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
-				addStatRow(mAdvancedTable, R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
-				addStatRowPercentage(mAdvancedTable, R.string.play_stat_utilization, stats.calculateUtilization(), R.string.play_stat_utilization_info);
+		addStatRow(mAdvancedTable, R.string.play_stat_fhm, stats.calculateFhm(), R.string.play_stat_fhm_info);
+		addStatRow(mAdvancedTable, R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
+		addStatRow(mAdvancedTable, R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
+		addStatRowPercentage(mAdvancedTable, R.string.play_stat_utilization, stats.calculateUtilization(), R.string.play_stat_utilization_info);
 	}
 
 	private void showEmpty() {
@@ -308,6 +309,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private double mLambda;
 		private String mCurrentYear;
 
+		private final Map<Integer, PlayModel> mPlays = new HashMap<>();
+
 		private String mFirstPlayDate;
 		private String mLastPlayDate;
 		private String mNickelDate;
@@ -327,6 +330,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mLambda = Math.log(0.1) / -10;
 			mCurrentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
+			mPlays.clear();
+
 			mFirstPlayDate = null;
 			mLastPlayDate = null;
 			mNickelDate = null;
@@ -343,55 +348,53 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mMonths.clear();
 
 			do {
-				boolean incomplete = cursor.getInt(PlayQuery.INCOMPLETE) == 1;
-				int quantity = cursor.getInt(PlayQuery.QUANTITY);
-				int length = cursor.getInt(PlayQuery.LENGTH);
-				String date = cursor.getString(PlayQuery.DATE);
-				int playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
+				PlayModel pm = new PlayModel(cursor);
+				mPlays.put(pm.playId, pm);
+			} while (cursor.moveToNext());
 
-				if (incomplete) {
-					mPlayCountIncomplete += quantity;
+			for (PlayModel pm : mPlays.values()) {
+				if (pm.incomplete) {
+					mPlayCountIncomplete += pm.quantity;
 					continue;
 				}
 
 				if (mFirstPlayDate == null) {
-					mFirstPlayDate = date;
+					mFirstPlayDate = pm.date;
 				}
-				mLastPlayDate = date;
+				mLastPlayDate = pm.date;
 
-				if (mPlayCount < 5 && (mPlayCount + quantity) >= 5) {
-					mNickelDate = date;
+				if (mPlayCount < 5 && (mPlayCount + pm.quantity) >= 5) {
+					mNickelDate = pm.date;
 				}
-				if (mPlayCount < 10 && (mPlayCount + quantity) >= 10) {
-					mDimeDate = date;
+				if (mPlayCount < 10 && (mPlayCount + pm.quantity) >= 10) {
+					mDimeDate = pm.date;
 				}
-				if (mPlayCount < 25 && (mPlayCount + quantity) >= 25) {
-					mQuarterDate = date;
+				if (mPlayCount < 25 && (mPlayCount + pm.quantity) >= 25) {
+					mQuarterDate = pm.date;
 				}
-				mPlayCount += quantity;
-				if (date.substring(0, 4).equals(mCurrentYear)) {
-					mPlayCountThisYear += quantity;
+				mPlayCount += pm.quantity;
+				if (pm.date.substring(0, 4).equals(mCurrentYear)) {
+					mPlayCountThisYear += pm.quantity;
 				}
 
-				if (length == 0) {
-					mEstimatedMinutesPlayed += mPlayingTime * quantity;
+				if (pm.length == 0) {
+					mEstimatedMinutesPlayed += mPlayingTime * pm.quantity;
 				} else {
-					mRealMinutesPlayed += length;
-					mPlayCountWithLength += quantity;
-					mPlayerCountSumWithLength += playerCount * quantity;
+					mRealMinutesPlayed += pm.length;
+					mPlayCountWithLength += pm.quantity;
+					mPlayerCountSumWithLength += pm.playerCount * pm.quantity;
 				}
 
-				if (playerCount > 0) {
+				if (pm.playerCount > 0) {
 					int previousQuantity = 0;
-					if (mPlayCountPerPlayerCount.containsKey(playerCount)) {
-						previousQuantity = mPlayCountPerPlayerCount.get(playerCount);
+					if (mPlayCountPerPlayerCount.containsKey(pm.playerCount)) {
+						previousQuantity = mPlayCountPerPlayerCount.get(pm.playerCount);
 					}
-					mPlayCountPerPlayerCount.put(playerCount, previousQuantity + quantity);
+					mPlayCountPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
 				}
 
-				mMonths.add(date.substring(0, 7));
-
-			} while (cursor.moveToNext());
+				mMonths.add(pm.date.substring(0, 7));
+			}
 		}
 
 		public int getPlayCount() {
@@ -564,10 +567,29 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 	}
 
+	private class PlayModel {
+		int playId;
+		String date;
+		int length;
+		int quantity;
+		boolean incomplete;
+		int playerCount;
+
+		PlayModel(Cursor cursor) {
+			playId = cursor.getInt(PlayQuery.PLAY_ID);
+			date = cursor.getString(PlayQuery.DATE);
+			length = cursor.getInt(PlayQuery.LENGTH);
+			quantity = cursor.getInt(PlayQuery.QUANTITY);
+			incomplete = CursorUtils.getBoolean(cursor, PlayQuery.INCOMPLETE);
+			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
+		}
+	}
+
 	private interface PlayQuery {
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
 			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL, Plays.INCOMPLETE };
+		int PLAY_ID = 1;
 		int DATE = 2;
 		int QUANTITY = 6;
 		int LENGTH = 7;
