@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -137,6 +138,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				break;
 			case PlayQuery._TOKEN:
 				mStats = new Stats(cursor);
+				mStats.calculate();
 				bindUi(mStats);
 				showData();
 				break;
@@ -309,7 +311,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private double mLambda;
 		private String mCurrentYear;
 
-		private final Map<Integer, PlayModel> mPlays = new HashMap<>();
+		private final Map<Integer, PlayModel> mPlays = new LinkedHashMap<>();
 
 		private String mFirstPlayDate;
 		private String mLastPlayDate;
@@ -327,6 +329,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private Set<String> mMonths = new HashSet<>();
 
 		public Stats(Cursor cursor) {
+			init();
+			do {
+				PlayModel pm = new PlayModel(cursor);
+				mPlays.put(pm.playId, pm);
+			} while (cursor.moveToNext());
+		}
+
+		private void init() {
 			mLambda = Math.log(0.1) / -10;
 			mCurrentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
@@ -346,12 +356,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mRealMinutesPlayed = 0;
 			mEstimatedMinutesPlayed = 0;
 			mMonths.clear();
+		}
 
-			do {
-				PlayModel pm = new PlayModel(cursor);
-				mPlays.put(pm.playId, pm);
-			} while (cursor.moveToNext());
-
+		public void calculate() {
 			for (PlayModel pm : mPlays.values()) {
 				if (pm.incomplete) {
 					mPlayCountIncomplete += pm.quantity;
@@ -373,7 +380,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					mQuarterDate = pm.date;
 				}
 				mPlayCount += pm.quantity;
-				if (pm.date.substring(0, 4).equals(mCurrentYear)) {
+				if (pm.getYear().equals(mCurrentYear)) {
 					mPlayCountThisYear += pm.quantity;
 				}
 
@@ -393,7 +400,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					mPlayCountPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
 				}
 
-				mMonths.add(pm.date.substring(0, 7));
+				mMonths.add(pm.getYearAndMonth());
 			}
 		}
 
@@ -582,6 +589,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			quantity = cursor.getInt(PlayQuery.QUANTITY);
 			incomplete = CursorUtils.getBoolean(cursor, PlayQuery.INCOMPLETE);
 			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
+		}
+
+		public String getYear() {
+			return date.substring(0, 4);
+		}
+
+		public String getYearAndMonth() {
+			return date.substring(0, 7);
 		}
 	}
 
