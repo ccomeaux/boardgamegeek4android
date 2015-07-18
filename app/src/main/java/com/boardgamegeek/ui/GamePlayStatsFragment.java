@@ -20,6 +20,7 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.util.CursorUtils;
@@ -30,10 +31,12 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.00");
@@ -78,7 +82,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
+		getLoaderManager().restartLoader(GameQuery._TOKEN, null, this);
 	}
 
 	@Override
@@ -100,6 +104,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 					new String[] { String.valueOf(mGameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 					Plays.DATE + " ASC");
+				break;
+			case PlayerQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Plays.buildPlayersUri(),
+					PlayerQuery.PROJECTION,
+					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
+					new String[] { String.valueOf(mGameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
+					null);
 				break;
 		}
 		return loader;
@@ -134,10 +146,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				} else {
 					mRating = ratingSum / ratingCount;
 				}
-				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
+				getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				break;
 			case PlayQuery._TOKEN:
 				mStats = new Stats(cursor);
+				getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+				break;
+			case PlayerQuery._TOKEN:
+				mStats.addPlayerData(cursor);
 				mStats.calculate();
 				bindUi(mStats);
 				showData();
@@ -404,6 +420,17 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			}
 		}
 
+		public void addPlayerData(Cursor cursor) {
+			do {
+				PlayerModel pm = new PlayerModel(cursor);
+				if (!mPlays.containsKey(pm.playId)) {
+					Timber.e("Play " + pm.playId + " not found in the play map!");
+					return;
+				}
+				mPlays.get(pm.playId).addPlayer(pm);
+			} while (cursor.moveToNext());
+		}
+
 		public int getPlayCount() {
 			return mPlayCount;
 		}
@@ -581,6 +608,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int quantity;
 		boolean incomplete;
 		int playerCount;
+		boolean noWinStats;
+		List<PlayerModel> mPlayers = new ArrayList<>();
 
 		PlayModel(Cursor cursor) {
 			playId = cursor.getInt(PlayQuery.PLAY_ID);
@@ -589,6 +618,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			quantity = cursor.getInt(PlayQuery.QUANTITY);
 			incomplete = CursorUtils.getBoolean(cursor, PlayQuery.INCOMPLETE);
 			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
+			mPlayers.clear();
+			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
+		}
+
+		public List<PlayerModel> getPlayers() {
+			return mPlayers;
 		}
 
 		public String getYear() {
@@ -598,18 +633,44 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public String getYearAndMonth() {
 			return date.substring(0, 7);
 		}
+
+		void addPlayer(PlayerModel player) {
+			mPlayers.add(player);
+		}
+	}
+
+	private class PlayerModel {
+		int playId;
+		String username;
+		boolean win;
+
+		PlayerModel(Cursor cursor) {
+			playId = cursor.getInt(PlayerQuery.PLAY_ID);
+			username = cursor.getString(PlayerQuery.USER_NAME);
+			win = CursorUtils.getBoolean(cursor, PlayerQuery.WIN);
+		}
 	}
 
 	private interface PlayQuery {
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL, Plays.INCOMPLETE };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
+			Plays.INCOMPLETE, Plays.NO_WIN_STATS };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int QUANTITY = 6;
 		int LENGTH = 7;
 		int PLAYER_COUNT = 9;
 		int INCOMPLETE = 11;
+		int NO_WIN_STATS = 12;
+	}
+
+	private interface PlayerQuery {
+		int _TOKEN = 0x03;
+		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN };
+		int PLAY_ID = 1;
+		int USER_NAME = 2;
+		int WIN = 3;
 	}
 
 	private interface GameQuery {
