@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -16,6 +17,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -60,6 +62,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table_play_count) TableLayout mPlayCountTable;
+	@InjectView(R.id.table_wins) TableLayout mWinTable;
 	@InjectView(R.id.table_dates) TableLayout mDatesTable;
 	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
 	@InjectView(R.id.table_advanced) TableLayout mAdvancedTable;
@@ -187,6 +190,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRow(mPlayCountTable, R.string.play_stat_months_played, stats.getMonthsPlayed());
 		addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_rate, stats.getPlayRate());
 
+		addStatRowPercentage(mWinTable, R.string.play_stat_win_percentage, stats.getWinPercentage());
+		addStatRow(mWinTable, R.string.play_stat_win_skill, stats.getWinSkill(), R.string.play_stat_win_skill_info);
+
 		addDateRow(mDatesTable, stats.getFirstPlayDate(), R.string.play_stat_first_play);
 		addDateRow(mDatesTable, stats.getNickelDate(), R.string.play_stat_nickel);
 		addDateRow(mDatesTable, stats.getDimeDate(), R.string.play_stat_dime);
@@ -286,22 +292,25 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRow(container, labelId, DOUBLE_FORMAT.format(value), infoId);
 	}
 
+	private void addStatRowPercentage(ViewGroup container, int labelId, double value) {
+		addStatRowPercentage(container, labelId, value, 0);
+	}
+
 	private void addStatRowPercentage(ViewGroup container, int labelId, double value, int infoId) {
 		addStatRow(container, labelId, PERCENTAGE_FORMAT.format(value * 100) + "%", infoId);
 	}
 
 	private void addStatRow(ViewGroup container, int labelId, String value) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(labelId);
-		view.setValue(value);
-		container.addView(view);
+		addStatRow(container, labelId, value, 0);
 	}
 
 	private void addStatRow(ViewGroup container, int labelId, String value, int infoId) {
 		PlayStatView view = new PlayStatView(getActivity());
 		view.setLabel(labelId);
 		view.setValue(value);
-		view.setInfoText(infoId);
+		if (infoId > 0) {
+			view.setInfoText(infoId);
+		}
 		container.addView(view);
 	}
 
@@ -342,7 +351,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private Map<Integer, Integer> mPlayCountPerPlayerCount;
 		private int mRealMinutesPlayed;
 		private int mEstimatedMinutesPlayed;
-		private Set<String> mMonths = new HashSet<>();
+		private int mWinnableGames;
+		private int mWinnablePlayerCount;
+		private int mWonGames;
+		private int mWonPlayerCount;
+		private final Set<String> mMonths = new HashSet<>();
 
 		public Stats(Cursor cursor) {
 			init();
@@ -364,13 +377,17 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mDimeDate = null;
 			mQuarterDate = null;
 			mPlayCount = 0;
-			mPlayCount = 0;
+			mPlayCountIncomplete = 0;
 			mPlayCountWithLength = 0;
 			mPlayCountThisYear = 0;
 			mPlayerCountSumWithLength = 0;
 			mPlayCountPerPlayerCount = new HashMap<>();
 			mRealMinutesPlayed = 0;
 			mEstimatedMinutesPlayed = 0;
+			mWinnableGames = 0;
+			mWinnablePlayerCount = 0;
+			mWonGames = 0;
+			mWonPlayerCount = 0;
 			mMonths.clear();
 		}
 
@@ -414,6 +431,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 						previousQuantity = mPlayCountPerPlayerCount.get(pm.playerCount);
 					}
 					mPlayCountPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
+				}
+
+				if (pm.isWinnable()) {
+					mWinnableGames += pm.quantity;
+					mWinnablePlayerCount += pm.quantity * pm.playerCount;
+					if (pm.didWin(AccountUtils.getUsername(getActivity()))) {
+						mWonGames += pm.quantity;
+						mWonPlayerCount += pm.quantity * pm.playerCount;
+					}
 				}
 
 				mMonths.add(pm.getYearAndMonth());
@@ -511,6 +537,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return 0;
 		}
 
+		public double getWinPercentage() {
+			return (double) mWonGames / (double) mWinnableGames;
+		}
+
+		public int getWinSkill() {
+			return (int) (((double) mWonPlayerCount / (double) mWinnableGames) * 100);
+		}
+
 		public double calculateUtilization() {
 			return 1 - Math.exp(-mLambda * mPlayCount);
 		}
@@ -602,14 +636,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private class PlayModel {
-		int playId;
-		String date;
-		int length;
-		int quantity;
-		boolean incomplete;
-		int playerCount;
-		boolean noWinStats;
-		List<PlayerModel> mPlayers = new ArrayList<>();
+		final int playId;
+		final String date;
+		final int length;
+		final int quantity;
+		final boolean incomplete;
+		final int playerCount;
+		final boolean noWinStats;
+		final List<PlayerModel> mPlayers = new ArrayList<>();
 
 		PlayModel(Cursor cursor) {
 			playId = cursor.getInt(PlayQuery.PLAY_ID);
@@ -634,15 +668,39 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return date.substring(0, 7);
 		}
 
-		void addPlayer(PlayerModel player) {
+		public void addPlayer(PlayerModel player) {
 			mPlayers.add(player);
+		}
+
+		public boolean isWinnable() {
+			if (noWinStats) {
+				return false;
+			}
+			for (PlayerModel player : mPlayers) {
+				if (player.win) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public boolean didWin(@NonNull String username) {
+			if (noWinStats) {
+				return false;
+			}
+			for (PlayerModel player : mPlayers) {
+				if (username.equals(player.username)) {
+					return player.win;
+				}
+			}
+			return false;
 		}
 	}
 
 	private class PlayerModel {
-		int playId;
-		String username;
-		boolean win;
+		final int playId;
+		final String username;
+		final boolean win;
 
 		PlayerModel(Cursor cursor) {
 			playId = cursor.getInt(PlayerQuery.PLAY_ID);

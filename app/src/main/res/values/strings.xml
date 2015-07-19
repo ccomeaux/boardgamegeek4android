@@ -195,6 +195,7 @@
 	<string name="title_dates">Dates</string>
 	<string name="title_play_time">Play Time</string>
 	<string name="title_advanced">Advanced</string>
+	<string name="title_wins">Wins</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search collection</string>
 	<string name="search_settings_description">Games in collection</string>
@@ -390,6 +391,9 @@
 	<string name="play_stat_quarter">Quarter</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
+	<string name="play_stat_win_percentage">Win percentage</string>
+	<string name="play_stat_win_skill">Win skill</string>
+	<string name="play_stat_win_skill_info">How skilled are you at winning this game?\n\n0 = you never win\n100 = you win as much as you should\nEverything else scales from these numbers</string>
 	<string name="play_stat_average_play_time">Average play time</string>
 	<string name="play_stat_average_play_time_faster">Faster than advertised</string>
 	<string name="play_stat_average_play_time_slower">Slower than advertised</string>
