@@ -183,7 +183,7 @@
 							android:minHeight="@dimen/card_row_height"
 							bgg:icon_res="@drawable/ic_designers"
 							bgg:label="@string/designers"
-							bgg:query_token="1"/>
+							bgg:query_token="@integer/query_token_designers"/>
 
 						<com.boardgamegeek.ui.widget.GameDetailRow
 							android:id="@+id/game_info_artists"
@@ -192,7 +192,7 @@
 							android:minHeight="@dimen/card_row_height"
 							bgg:icon_res="@drawable/ic_artists"
 							bgg:label="@string/artists"
-							bgg:query_token="2"/>
+							bgg:query_token="@integer/query_token_artists"/>
 
 						<com.boardgamegeek.ui.widget.GameDetailRow
 							android:id="@+id/game_info_publishers"
@@ -201,7 +201,7 @@
 							android:minHeight="@dimen/card_row_height"
 							bgg:icon_res="@drawable/ic_publishers"
 							bgg:label="@string/publishers"
-							bgg:query_token="3"/>
+							bgg:query_token="@integer/query_token_publishers"/>
 
 						<com.boardgamegeek.ui.widget.GameDetailRow
 							android:id="@+id/game_info_categories"
@@ -210,7 +210,7 @@
 							android:minHeight="@dimen/card_row_height"
 							bgg:icon_res="@drawable/ic_categories"
 							bgg:label="@string/categories"
-							bgg:query_token="4"/>
+							bgg:query_token="@integer/query_token_categories"/>
 
 						<com.boardgamegeek.ui.widget.GameDetailRow
 							android:id="@+id/game_info_mechanics"
@@ -219,7 +219,7 @@
 							android:minHeight="@dimen/card_row_height"
 							bgg:icon_res="@drawable/ic_mechanics"
 							bgg:label="@string/mechanics"
-							bgg:query_token="5"/>
+							bgg:query_token="@integer/query_token_mechanics"/>
 
 						<com.boardgamegeek.ui.widget.GameDetailRow
 							android:id="@+id/game_info_expansions"
@@ -228,7 +228,7 @@
 							android:minHeight="@dimen/card_row_height"
 							bgg:icon_res="@drawable/ic_expansions"
 							bgg:label="@string/expansions"
-							bgg:query_token="6"/>
+							bgg:query_token="@integer/query_token_expansions"/>
 
 						<com.boardgamegeek.ui.widget.GameDetailRow
 							android:id="@+id/game_info_base_games"
@@ -237,7 +237,7 @@
 							android:minHeight="@dimen/card_row_height"
 							bgg:icon_res="@drawable/ic_basegames"
 							bgg:label="@string/base_games"
-							bgg:query_token="7"/>
+							bgg:query_token="@integer/query_token_base_games"/>
 					</LinearLayout>
 				</android.support.v7.widget.CardView>
 

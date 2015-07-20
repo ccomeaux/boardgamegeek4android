@@ -33,14 +33,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class GameDetailRow extends LinearLayout {
-	private static final int DESIGNER_TOKEN = 1;
-	private static final int ARTIST_TOKEN = 2;
-	private static final int PUBLISHER_TOKEN = 3;
-	//private static final int CATEGORY_TOKEN = 4;
-	//private static final int MECHANIC_TOKEN = 5;
-	private static final int EXPANSION_TOKEN = 6;
-	private static final int BASE_GAME_TOKEN = 7;
-
 	@InjectView(android.R.id.icon) ImageView mIconView;
 	@InjectView(R.id.data) TextView mDataView;
 	private int mQueryToken;
@@ -193,25 +185,21 @@ public class GameDetailRow extends LinearLayout {
 			cursor.moveToFirst();
 			Uri uri = null;
 			int id = cursor.getInt(mIdColumnIndex);
-			switch (mQueryToken) {
-				case DESIGNER_TOKEN:
-					uri = Designers.buildDesignerUri(id);
-					break;
-				case ARTIST_TOKEN:
-					uri = Artists.buildArtistUri(id);
-					break;
-				case PUBLISHER_TOKEN:
-					uri = Publishers.buildPublisherUri(id);
-					break;
-				case EXPANSION_TOKEN:
-				case BASE_GAME_TOKEN:
-					uri = Games.buildGameUri(id);
-					break;
+			if (mQueryToken == getResources().getInteger(R.integer.query_token_designers)) {
+				uri = Designers.buildDesignerUri(id);
+			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_artists)) {
+				uri = Artists.buildArtistUri(id);
+			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_publishers)) {
+				uri = Publishers.buildPublisherUri(id);
+			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_expansions) ||
+				mQueryToken == getResources().getInteger(R.integer.query_token_base_games)) {
+				uri = Games.buildGameUri(id);
 			}
 			if (uri != null) {
 				setTag(uri);
 			}
 		}
+
 		mDataView.setText(summary);
 	}
 
