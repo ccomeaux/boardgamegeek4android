@@ -218,9 +218,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
-		private BggService mService;
-		private String mUsername;
-		private Map<String, String> mOptions;
+		private final BggService mService;
+		private final String mUsername;
+		private final Map<String, String> mOptions;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
@@ -283,7 +283,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItem> implements StickyListHeadersAdapter {
 		private List<CollectionItem> mBuddyCollection;
-		private LayoutInflater mInflater;
+		private final LayoutInflater mInflater;
 
 		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
 			super(activity, R.layout.row_text_2, collection);
@@ -349,16 +349,18 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		private String getHeaderText(int position) {
-			CollectionItem game = mBuddyCollection.get(position);
-			if (game != null) {
-				return game.gameSortName().substring(0, 1);
+			if (position < mBuddyCollection.size()) {
+				CollectionItem game = mBuddyCollection.get(position);
+				if (game != null) {
+					return game.gameSortName().substring(0, 1);
+				}
 			}
 			return "-";
 		}
 
 		class BuddyGameViewHolder {
-			public TextView title;
-			public TextView text;
+			public final TextView title;
+			public final TextView text;
 
 			public BuddyGameViewHolder(View view) {
 				title = (TextView) view.findViewById(android.R.id.title);

@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<integer name="game_info_weight_sum">3</integer>
+	<integer name="query_token_designers">1</integer>
+	<integer name="query_token_artists">2</integer>
+	<integer name="query_token_publishers">3</integer>
+	<integer name="query_token_categories">4</integer>
+	<integer name="query_token_mechanics">5</integer>
+	<integer name="query_token_expansions">6</integer>
+	<integer name="query_token_base_games">7</integer>
 </resources>

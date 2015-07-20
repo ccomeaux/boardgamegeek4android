@@ -47,7 +47,7 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 			getListView().setSelector(android.R.color.transparent);
 		}
 
-		if (mQueryToken != BggContract.INVALID_ID) {
+		if (mQuery != null) {
 			getLoaderManager().restartLoader(mQueryToken, getArguments(), this);
 		} else {
 			Toast.makeText(getActivity(), "Oops! " + mQueryToken, Toast.LENGTH_SHORT).show();
@@ -78,8 +78,7 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), mQuery.getUri(), mQuery.getProjection(), mQuery.getSelection(),
-			mQuery.getSelectionArgs(), null);
+		return new CursorLoader(getActivity(), mQuery.getUri(), mQuery.getProjection(), mQuery.getSelection(), mQuery.getSelectionArgs(), null);
 	}
 
 	@Override
@@ -115,31 +114,20 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	private void determineQuery() {
-		switch (mQueryToken) {
-			case DesignerQuery._TOKEN:
-				mQuery = new DesignerQuery();
-				break;
-			case ArtistQuery._TOKEN:
-				mQuery = new ArtistQuery();
-				break;
-			case PublisherQuery._TOKEN:
-				mQuery = new PublisherQuery();
-				break;
-			case CategoryQuery._TOKEN:
-				mQuery = new CategoryQuery();
-				break;
-			case MechanicQuery._TOKEN:
-				mQuery = new MechanicQuery();
-				break;
-			case ExpansionQuery._TOKEN:
-				mQuery = new ExpansionQuery();
-				break;
-			case BaseGameQuery._TOKEN:
-				mQuery = new BaseGameQuery();
-				break;
-			default:
-				mQueryToken = BggContract.INVALID_ID;
-				break;
+		if (mQueryToken == getResources().getInteger(R.integer.query_token_designers)) {
+			mQuery = new DesignerQuery();
+		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_artists)) {
+			mQuery = new ArtistQuery();
+		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_publishers)) {
+			mQuery = new PublisherQuery();
+		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_categories)) {
+			mQuery = new CategoryQuery();
+		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_mechanics)) {
+			mQuery = new MechanicQuery();
+		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_expansions)) {
+			mQuery = new ExpansionQuery();
+		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_base_games)) {
+			mQuery = new BaseGameQuery();
 		}
 	}
 
@@ -179,8 +167,6 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	private class DesignerQuery extends BaseQuery {
-		static final int _TOKEN = 1;
-
 		@Override
 		public String[] getProjection() {
 			return new String[] { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
@@ -203,8 +189,6 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	private class ArtistQuery extends BaseQuery {
-		static final int _TOKEN = 2;
-
 		@Override
 		public String[] getProjection() {
 			return new String[] { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
@@ -227,8 +211,6 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	private class PublisherQuery extends BaseQuery {
-		static final int _TOKEN = 3;
-
 		@Override
 		public String[] getProjection() {
 			return new String[] { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
@@ -251,8 +233,6 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	private class CategoryQuery extends BaseQuery {
-		static final int _TOKEN = 4;
-
 		@Override
 		public String[] getProjection() {
 			return new String[] { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
@@ -275,8 +255,6 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	private class MechanicQuery extends BaseQuery {
-		static final int _TOKEN = 5;
-
 		@Override
 		public String[] getProjection() {
 			return new String[] { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
@@ -325,16 +303,12 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	private class ExpansionQuery extends ExpansionBaseQuery {
-		static final int _TOKEN = 6;
-
 		public String[] getSelectionArgs() {
 			return new String[] { "0" };
 		}
 	}
 
 	private class BaseGameQuery extends ExpansionBaseQuery {
-		static final int _TOKEN = 7;
-
 		public String[] getSelectionArgs() {
 			return new String[] { "1" };
 		}

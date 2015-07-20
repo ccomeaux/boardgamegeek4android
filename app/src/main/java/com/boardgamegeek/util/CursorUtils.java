@@ -187,8 +187,11 @@ public class CursorUtils {
 
 		int cur = cursor.getPosition();
 		try {
+			String value = null;
 			cursor.moveToPosition(position);
-			String value = cursor.getString(columnIndex);
+			if (columnIndex < cursor.getColumnCount()) {
+				value = cursor.getString(columnIndex);
+			}
 			if (TextUtils.isEmpty(value)) {
 				return defaultValue;
 			}
