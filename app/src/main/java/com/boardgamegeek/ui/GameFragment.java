@@ -450,25 +450,25 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				lm.restartLoader(BaseGameQuery._TOKEN, null, this);
 				break;
 			case DesignerQuery._TOKEN:
-				onListQueryComplete(cursor, mDesignersView, DesignerQuery.DESIGNER_NAME);
+				onListQueryComplete(cursor, mDesignersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID);
 				break;
 			case ArtistQuery._TOKEN:
-				onListQueryComplete(cursor, mArtistsView, ArtistQuery.ARTIST_NAME);
+				onListQueryComplete(cursor, mArtistsView, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_ID);
 				break;
 			case PublisherQuery._TOKEN:
-				onListQueryComplete(cursor, mPublishersView, PublisherQuery.PUBLISHER_NAME);
+				onListQueryComplete(cursor, mPublishersView, PublisherQuery.PUBLISHER_NAME, PublisherQuery.PUBLISHER_ID);
 				break;
 			case CategoryQuery._TOKEN:
-				onListQueryComplete(cursor, mCategoriesView, CategoryQuery.CATEGORY_NAME);
+				onListQueryComplete(cursor, mCategoriesView, CategoryQuery.CATEGORY_NAME, CategoryQuery.CATEGORY_ID);
 				break;
 			case MechanicQuery._TOKEN:
-				onListQueryComplete(cursor, mMechanicsView, MechanicQuery.MECHANIC_NAME);
+				onListQueryComplete(cursor, mMechanicsView, MechanicQuery.MECHANIC_NAME, MechanicQuery.MECHANIC_ID);
 				break;
 			case ExpansionQuery._TOKEN:
-				onListQueryComplete(cursor, mExpansionsView, ExpansionQuery.EXPANSION_NAME);
+				onListQueryComplete(cursor, mExpansionsView, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
 				break;
 			case BaseGameQuery._TOKEN:
-				onListQueryComplete(cursor, mBaseGamesView, BaseGameQuery.EXPANSION_NAME);
+				onListQueryComplete(cursor, mBaseGamesView, BaseGameQuery.EXPANSION_NAME, BaseGameQuery.EXPANSION_ID);
 				break;
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
@@ -661,13 +661,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@DebugLog
-	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex) {
+	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex, int idColumnIndex) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
 			view.clear();
 		} else {
 			view.setVisibility(View.VISIBLE);
-			view.bind(cursor, nameColumnIndex, Games.getGameId(mGameUri), mGameName);
+			view.bind(cursor, nameColumnIndex, idColumnIndex, Games.getGameId(mGameUri), mGameName);
 		}
 	}
 
@@ -944,42 +944,49 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private interface DesignerQuery {
 		int _TOKEN = 0x12;
 		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
+		int DESIGNER_ID = 0;
 		int DESIGNER_NAME = 1;
 	}
 
 	private interface ArtistQuery {
 		int _TOKEN = 0x13;
 		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
+		int ARTIST_ID = 0;
 		int ARTIST_NAME = 1;
 	}
 
 	private interface PublisherQuery {
 		int _TOKEN = 0x14;
 		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
+		int PUBLISHER_ID = 0;
 		int PUBLISHER_NAME = 1;
 	}
 
 	private interface CategoryQuery {
 		int _TOKEN = 0x15;
 		String[] PROJECTION = { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
+		int CATEGORY_ID = 0;
 		int CATEGORY_NAME = 1;
 	}
 
 	private interface MechanicQuery {
 		int _TOKEN = 0x16;
 		String[] PROJECTION = { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
+		int MECHANIC_ID = 0;
 		int MECHANIC_NAME = 1;
 	}
 
 	private interface ExpansionQuery {
 		int _TOKEN = 0x17;
 		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
+		int EXPANSION_ID = 0;
 		int EXPANSION_NAME = 1;
 	}
 
 	private interface BaseGameQuery {
 		int _TOKEN = 0x18;
 		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
+		int EXPANSION_ID = 0;
 		int EXPANSION_NAME = 1;
 	}
 

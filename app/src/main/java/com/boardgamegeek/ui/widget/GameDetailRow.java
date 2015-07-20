@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -21,6 +22,10 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Artists;
+import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
@@ -28,12 +33,21 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class GameDetailRow extends LinearLayout {
+	private static final int DESIGNER_TOKEN = 1;
+	private static final int ARTIST_TOKEN = 2;
+	private static final int PUBLISHER_TOKEN = 3;
+	//private static final int CATEGORY_TOKEN = 4;
+	//private static final int MECHANIC_TOKEN = 5;
+	private static final int EXPANSION_TOKEN = 6;
+	private static final int BASE_GAME_TOKEN = 7;
+
 	@InjectView(android.R.id.icon) ImageView mIconView;
 	@InjectView(R.id.data) TextView mDataView;
 	private int mQueryToken;
 	private String mOneMore;
 	private String mSomeMore;
 	private int mNameColumnIndex;
+	private int mIdColumnIndex;
 	private int mCount;
 	private int mGameId;
 	private String mGameName;
@@ -113,12 +127,17 @@ public class GameDetailRow extends LinearLayout {
 		setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getContext(), GameDetailActivity.class);
-				intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
-				intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
-				getContext().startActivity(intent);
+				Uri uri = (Uri) getTag();
+				if (uri != null) {
+					getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+				} else {
+					Intent intent = new Intent(getContext(), GameDetailActivity.class);
+					intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
+					intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+					intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
+					getContext().startActivity(intent);
+				}
 			}
 		});
 	}
@@ -150,8 +169,9 @@ public class GameDetailRow extends LinearLayout {
 		mDataView.setTextColor(swatch.getRgb());
 	}
 
-	public void bind(Cursor cursor, int nameColumnIndex, int gameId, String gameName) {
+	public void bind(Cursor cursor, int nameColumnIndex, int idColumnIndex, int gameId, String gameName) {
 		mNameColumnIndex = nameColumnIndex;
+		mIdColumnIndex = idColumnIndex;
 		mGameId = gameId;
 		mGameName = gameName;
 		updateData(cursor);
@@ -167,6 +187,29 @@ public class GameDetailRow extends LinearLayout {
 			summary = TextUtils.commaEllipsize(text, paint, mDataView.getWidth() * 2, mOneMore, mSomeMore);
 			if (TextUtils.isEmpty(summary)) {
 				summary = String.format(mSomeMore, mCount);
+			}
+		}
+		if (mCount == 1 && mIdColumnIndex != -1) {
+			cursor.moveToFirst();
+			Uri uri = null;
+			int id = cursor.getInt(mIdColumnIndex);
+			switch (mQueryToken) {
+				case DESIGNER_TOKEN:
+					uri = Designers.buildDesignerUri(id);
+					break;
+				case ARTIST_TOKEN:
+					uri = Artists.buildArtistUri(id);
+					break;
+				case PUBLISHER_TOKEN:
+					uri = Publishers.buildPublisherUri(id);
+					break;
+				case EXPANSION_TOKEN:
+				case BASE_GAME_TOKEN:
+					uri = Games.buildGameUri(id);
+					break;
+			}
+			if (uri != null) {
+				setTag(uri);
 			}
 		}
 		mDataView.setText(summary);
