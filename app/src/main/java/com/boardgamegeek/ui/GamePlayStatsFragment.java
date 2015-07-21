@@ -27,6 +27,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.text.DateFormat;
@@ -50,6 +51,7 @@ import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.00");
+	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
 	private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("0.0");
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int mGameId;
@@ -63,6 +65,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table_play_count) TableLayout mPlayCountTable;
 	@InjectView(R.id.table_wins) TableLayout mWinTable;
+	@InjectView(R.id.table_score) TableLayout mScoreTable;
 	@InjectView(R.id.table_dates) TableLayout mDatesTable;
 	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
 	@InjectView(R.id.table_advanced) TableLayout mAdvancedTable;
@@ -193,6 +196,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRowPercentage(mWinTable, R.string.play_stat_win_percentage, stats.getWinPercentage());
 		addStatRow(mWinTable, R.string.play_stat_win_skill, stats.getWinSkill(), R.string.play_stat_win_skill_info);
 
+		addStatRow(mScoreTable, R.string.average, stats.getAverageScore());
+		addStatRow(mScoreTable, R.string.average_win, stats.getAverageWinningScore());
+		addStatRow(mScoreTable, R.string.high, stats.getHighScore(), 0, SCORE_FORMAT);
+		addStatRow(mScoreTable, R.string.low, stats.getLowScore(), 0, SCORE_FORMAT);
+		addStatRow(mScoreTable, "", getString(R.string.title_personal));
+		addStatRow(mScoreTable, R.string.average, stats.getPersonalAverageScore());
+		addStatRow(mScoreTable, R.string.high, stats.getPersonalHighScore(), 0, SCORE_FORMAT);
+		addStatRow(mScoreTable, R.string.low, stats.getPersonalLowScore(), 0, SCORE_FORMAT);
+
 		addDateRow(mDatesTable, stats.getFirstPlayDate(), R.string.play_stat_first_play);
 		addDateRow(mDatesTable, stats.getNickelDate(), R.string.play_stat_nickel);
 		addDateRow(mDatesTable, stats.getDimeDate(), R.string.play_stat_dime);
@@ -289,7 +301,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private void addStatRow(ViewGroup container, int labelId, double value, int infoId) {
-		addStatRow(container, labelId, DOUBLE_FORMAT.format(value), infoId);
+		addStatRow(container, labelId, value, infoId, DOUBLE_FORMAT);
+	}
+
+	private void addStatRow(ViewGroup container, int labelId, double value, int infoId, DecimalFormat format) {
+		addStatRow(container, labelId, format.format(value), infoId);
 	}
 
 	private void addStatRowPercentage(ViewGroup container, int labelId, double value) {
@@ -353,6 +369,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private int mEstimatedMinutesPlayed;
 		private int mWinnableGames;
 		private int mWinnablePlayerCount;
+		private double mTotalScore;
+		private int mTotalScoreCount;
+		private double mHighScore;
+		private double mLowScore;
+		private int mTotalWinningScoreCount;
+		private double mTotalWinningScore;
+		private double mPersonalTotalScore;
+		private int mPersonalTotalScoreCount;
+		private double mPersonalHighScore;
+		private double mPersonalLowScore;
 		private int mWonGames;
 		private int mWonPlayerCount;
 		private final Set<String> mMonths = new HashSet<>();
@@ -386,6 +412,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mEstimatedMinutesPlayed = 0;
 			mWinnableGames = 0;
 			mWinnablePlayerCount = 0;
+			mTotalScore = 0;
+			mTotalScoreCount = 0;
+			mHighScore = Integer.MIN_VALUE;
+			mLowScore = Integer.MAX_VALUE;
+			mTotalWinningScoreCount = 0;
+			mTotalWinningScore = 0;
+			mPersonalTotalScore = 0;
+			mPersonalTotalScoreCount = 0;
+			mPersonalHighScore = Integer.MIN_VALUE;
+			mPersonalLowScore = Integer.MAX_VALUE;
 			mWonGames = 0;
 			mWonPlayerCount = 0;
 			mMonths.clear();
@@ -439,6 +475,34 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					if (pm.didWin(AccountUtils.getUsername(getActivity()))) {
 						mWonGames += pm.quantity;
 						mWonPlayerCount += pm.quantity * pm.playerCount;
+					}
+				}
+
+				for (PlayerModel player : pm.getPlayers()) {
+					if (StringUtils.isNumeric(player.score)) {
+						double i = StringUtils.parseDouble(player.score);
+						mTotalScoreCount++;
+						mTotalScore += i;
+						if (i > mHighScore) {
+							mHighScore = i;
+						}
+						if (i < mLowScore) {
+							mLowScore = i;
+						}
+						if (player.win) {
+							mTotalWinningScoreCount++;
+							mTotalWinningScore += i;
+						}
+						if (AccountUtils.getUsername(getActivity()).equals(player.username)) {
+							mPersonalTotalScoreCount++;
+							mPersonalTotalScore += i;
+							if (i > mPersonalHighScore) {
+								mPersonalHighScore = i;
+							}
+							if (i < mPersonalLowScore) {
+								mPersonalLowScore = i;
+							}
+						}
 					}
 				}
 
@@ -543,6 +607,34 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		public int getWinSkill() {
 			return (int) (((double) mWonPlayerCount / (double) mWinnableGames) * 100);
+		}
+
+		public double getAverageScore() {
+			return mTotalScore / mTotalScoreCount;
+		}
+
+		public double getHighScore() {
+			return mHighScore;
+		}
+
+		public double getLowScore() {
+			return mLowScore;
+		}
+
+		public double getAverageWinningScore() {
+			return mTotalWinningScore / mTotalWinningScoreCount;
+		}
+
+		public double getPersonalAverageScore() {
+			return mPersonalTotalScore / mPersonalTotalScoreCount;
+		}
+
+		public double getPersonalHighScore() {
+			return mPersonalHighScore;
+		}
+
+		public double getPersonalLowScore() {
+			return mPersonalLowScore;
 		}
 
 		public double calculateUtilization() {
@@ -701,11 +793,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final int playId;
 		final String username;
 		final boolean win;
+		final String score;
 
 		PlayerModel(Cursor cursor) {
 			playId = cursor.getInt(PlayerQuery.PLAY_ID);
 			username = cursor.getString(PlayerQuery.USER_NAME);
 			win = CursorUtils.getBoolean(cursor, PlayerQuery.WIN);
+			score = cursor.getString(PlayerQuery.SCORE);
 		}
 	}
 
@@ -725,10 +819,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface PlayerQuery {
 		int _TOKEN = 0x03;
-		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN };
+		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN, PlayPlayers.SCORE };
 		int PLAY_ID = 1;
 		int USER_NAME = 2;
 		int WIN = 3;
+		int SCORE = 4;
 	}
 
 	private interface GameQuery {

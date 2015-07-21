@@ -79,6 +79,9 @@
 	<string name="rating">Rating</string>
 	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
+	<string name="average_win">Average win</string>
+	<string name="high">High</string>
+	<string name="low">Low</string>
 	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
@@ -156,6 +159,7 @@
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
+	<string name="title_personal">Personal</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
@@ -196,6 +200,7 @@
 	<string name="title_play_time">Play Time</string>
 	<string name="title_advanced">Advanced</string>
 	<string name="title_wins">Wins</string>
+	<string name="title_scores">Scores</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search collection</string>
 	<string name="search_settings_description">Games in collection</string>
