@@ -64,7 +64,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table_play_count) TableLayout mPlayCountTable;
+	@InjectView(R.id.card_wins) View mWins;
 	@InjectView(R.id.table_wins) TableLayout mWinTable;
+	@InjectView(R.id.card_score) View mScores;
 	@InjectView(R.id.table_score) TableLayout mScoreTable;
 	@InjectView(R.id.table_dates) TableLayout mDatesTable;
 	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
@@ -193,17 +195,27 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRow(mPlayCountTable, R.string.play_stat_months_played, stats.getMonthsPlayed());
 		addStatRowMaybe(mPlayCountTable, R.string.play_stat_play_rate, stats.getPlayRate());
 
-		addStatRowPercentage(mWinTable, R.string.play_stat_win_percentage, stats.getWinPercentage());
-		addStatRow(mWinTable, R.string.play_stat_win_skill, stats.getWinSkill(), R.string.play_stat_win_skill_info);
+		if (stats.hasWins()) {
+			addStatRowPercentage(mWinTable, R.string.play_stat_win_percentage, stats.getWinPercentage());
+			addStatRow(mWinTable, R.string.play_stat_win_skill, stats.getWinSkill(), R.string.play_stat_win_skill_info);
+			mWins.setVisibility(View.VISIBLE);
+		} else {
+			mWins.setVisibility(View.GONE);
+		}
 
-		addStatRow(mScoreTable, R.string.average, stats.getAverageScore());
-		addStatRow(mScoreTable, R.string.average_win, stats.getAverageWinningScore());
-		addStatRow(mScoreTable, R.string.high, stats.getHighScore(), 0, SCORE_FORMAT);
-		addStatRow(mScoreTable, R.string.low, stats.getLowScore(), 0, SCORE_FORMAT);
-		addStatRow(mScoreTable, "", getString(R.string.title_personal));
-		addStatRow(mScoreTable, R.string.average, stats.getPersonalAverageScore());
-		addStatRow(mScoreTable, R.string.high, stats.getPersonalHighScore(), 0, SCORE_FORMAT);
-		addStatRow(mScoreTable, R.string.low, stats.getPersonalLowScore(), 0, SCORE_FORMAT);
+		if (stats.hasScores()) {
+			addStatRow(mScoreTable, R.string.average, stats.getAverageScore());
+			addStatRow(mScoreTable, R.string.average_win, stats.getAverageWinningScore());
+			addStatRow(mScoreTable, R.string.high, stats.getHighScore(), 0, SCORE_FORMAT);
+			addStatRow(mScoreTable, R.string.low, stats.getLowScore(), 0, SCORE_FORMAT);
+			addStatRow(mScoreTable, "", getString(R.string.title_personal));
+			addStatRow(mScoreTable, R.string.average, stats.getPersonalAverageScore());
+			addStatRow(mScoreTable, R.string.high, stats.getPersonalHighScore(), 0, SCORE_FORMAT);
+			addStatRow(mScoreTable, R.string.low, stats.getPersonalLowScore(), 0, SCORE_FORMAT);
+			mScores.setVisibility(View.VISIBLE);
+		} else {
+			mScores.setVisibility(View.GONE);
+		}
 
 		addDateRow(mDatesTable, stats.getFirstPlayDate(), R.string.play_stat_first_play);
 		addDateRow(mDatesTable, stats.getNickelDate(), R.string.play_stat_nickel);
@@ -601,12 +613,20 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return 0;
 		}
 
+		public boolean hasWins() {
+			return mWinnableGames > 0;
+		}
+
 		public double getWinPercentage() {
 			return (double) mWonGames / (double) mWinnableGames;
 		}
 
 		public int getWinSkill() {
 			return (int) (((double) mWonPlayerCount / (double) mWinnableGames) * 100);
+		}
+
+		public boolean hasScores() {
+			return mTotalScoreCount > 0;
 		}
 
 		public double getAverageScore() {
