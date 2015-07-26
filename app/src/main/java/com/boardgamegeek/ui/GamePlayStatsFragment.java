@@ -206,8 +206,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		if (stats.hasScores()) {
 			addStatRow(mScoreTable, R.string.average, stats.getAverageScore());
 			addStatRow(mScoreTable, R.string.average_win, stats.getAverageWinningScore());
-			addStatRow(mScoreTable, R.string.high, stats.getHighScore(), 0, SCORE_FORMAT);
-			addStatRow(mScoreTable, R.string.low, stats.getLowScore(), 0, SCORE_FORMAT);
+			addStatRow(mScoreTable, R.string.high, stats.getHighScore(), stats.getHighScorers(), SCORE_FORMAT);
+			addStatRow(mScoreTable, R.string.low, stats.getLowScore(), stats.getLowScorers(), SCORE_FORMAT);
 			addStatRow(mScoreTable, "", getString(R.string.title_personal));
 			addStatRow(mScoreTable, R.string.average, stats.getPersonalAverageScore());
 			addStatRow(mScoreTable, R.string.high, stats.getPersonalHighScore(), 0, SCORE_FORMAT);
@@ -320,6 +320,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRow(container, labelId, format.format(value), infoId);
 	}
 
+	private void addStatRow(ViewGroup container, int labelId, double value, String infoText, DecimalFormat format) {
+		addStatRow(container, labelId, format.format(value), infoText);
+	}
+
 	private void addStatRowPercentage(ViewGroup container, int labelId, double value) {
 		addStatRowPercentage(container, labelId, value, 0);
 	}
@@ -338,6 +342,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		view.setValue(value);
 		if (infoId > 0) {
 			view.setInfoText(infoId);
+		}
+		container.addView(view);
+	}
+
+	private void addStatRow(ViewGroup container, int labelId, String value, String infoText) {
+		PlayStatView view = new PlayStatView(getActivity());
+		view.setLabel(labelId);
+		view.setValue(value);
+		if (!TextUtils.isEmpty(infoText)) {
+			view.setInfoText(infoText);
 		}
 		container.addView(view);
 	}
@@ -391,6 +405,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private int mPersonalTotalScoreCount;
 		private double mPersonalHighScore;
 		private double mPersonalLowScore;
+		private final Set<String> mHighScorers = new HashSet<>();
+		private final Set<String> mLowScorers = new HashSet<>();
 		private int mWonGames;
 		private int mWonPlayerCount;
 		private final Set<String> mMonths = new HashSet<>();
@@ -434,6 +450,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mPersonalTotalScoreCount = 0;
 			mPersonalHighScore = Integer.MIN_VALUE;
 			mPersonalLowScore = Integer.MAX_VALUE;
+			mHighScorers.clear();
+			mLowScorers.clear();
 			mWonGames = 0;
 			mWonPlayerCount = 0;
 			mMonths.clear();
@@ -497,9 +515,17 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 						mTotalScore += i;
 						if (i > mHighScore) {
 							mHighScore = i;
+							mHighScorers.clear();
+							mHighScorers.add(player.getUniqueName());
+						} else if (i == mHighScore) {
+							mHighScorers.add(player.getUniqueName());
 						}
 						if (i < mLowScore) {
 							mLowScore = i;
+							mLowScorers.clear();
+							mLowScorers.add(player.getUniqueName());
+						} else if (i == mLowScore) {
+							mLowScorers.add(player.getUniqueName());
 						}
 						if (player.win) {
 							mTotalWinningScoreCount++;
@@ -637,8 +663,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return mHighScore;
 		}
 
+		public String getHighScorers() {
+			return StringUtils.formatList(new ArrayList(mHighScorers));
+		}
+
 		public double getLowScore() {
 			return mLowScore;
+		}
+
+		public String getLowScorers() {
+			return StringUtils.formatList(new ArrayList(mLowScorers));
 		}
 
 		public double getAverageWinningScore() {
@@ -812,14 +846,23 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private class PlayerModel {
 		final int playId;
 		final String username;
+		final String name;
 		final boolean win;
 		final String score;
 
 		PlayerModel(Cursor cursor) {
 			playId = cursor.getInt(PlayerQuery.PLAY_ID);
 			username = cursor.getString(PlayerQuery.USER_NAME);
+			name = cursor.getString(PlayerQuery.NAME);
 			win = CursorUtils.getBoolean(cursor, PlayerQuery.WIN);
 			score = cursor.getString(PlayerQuery.SCORE);
+		}
+
+		public String getUniqueName() {
+			if (TextUtils.isEmpty(username)) {
+				return name;
+			}
+			return name + " (" + username + ")";
 		}
 	}
 
@@ -839,11 +882,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface PlayerQuery {
 		int _TOKEN = 0x03;
-		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN, PlayPlayers.SCORE };
+		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN, PlayPlayers.SCORE,
+			PlayPlayers.NAME };
 		int PLAY_ID = 1;
 		int USER_NAME = 2;
 		int WIN = 3;
 		int SCORE = 4;
+		int NAME = 5;
 	}
 
 	private interface GameQuery {

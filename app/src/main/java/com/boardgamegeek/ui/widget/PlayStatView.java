@@ -49,9 +49,14 @@ public class PlayStatView extends TableRow {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(int textId) {
+		setInfoText(getContext().getString(textId));
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void setInfoText(String text) {
 		mInfo.setVisibility(View.VISIBLE);
 		setClickBackground();
-		final SpannableString s = new SpannableString(getContext().getString(textId));
+		final SpannableString s = new SpannableString(text);
 		Linkify.addLinks(s, Linkify.ALL);
 		mBuilder = new AlertDialog.Builder(getContext());
 		mBuilder.setTitle(mLabel.getText()).setMessage(s);
