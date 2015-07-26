@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -56,8 +57,10 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 			ContentValues values = new ContentValues();
 			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
 			for (Integer playId : playIds) {
-				Uri uri = Plays.buildPlayUri(playId);
-				batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+				if (playId != BggContract.INVALID_ID) {
+					Uri uri = Plays.buildPlayUri(playId);
+					batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+				}
 			}
 		}
 

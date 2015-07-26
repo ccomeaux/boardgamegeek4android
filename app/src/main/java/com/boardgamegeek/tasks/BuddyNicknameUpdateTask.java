@@ -74,7 +74,9 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 		values.put(BggContract.Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
 		List<Integer> playIds = ResolverUtils.queryInts(mContext.getContentResolver(), Plays.buildPlayersByPlayUri(), Plays.PLAY_ID, SELECTION, new String[] { mUsername, mNickName });
 		for (Integer playId : playIds) {
-			mContext.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
+			if (playId != BggContract.INVALID_ID) {
+				mContext.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
+			}
 		}
 		return playIds.size();
 	}

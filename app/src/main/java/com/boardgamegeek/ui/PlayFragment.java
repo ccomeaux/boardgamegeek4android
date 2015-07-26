@@ -426,8 +426,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return false;
 			}
 			mEmpty.setText(String.format(getResources().getString(R.string.empty_play), mPlayId));
+			mEmpty.setVisibility(View.VISIBLE);
 			return true;
 		}
+		mEmpty.setVisibility(View.GONE);
 
 		ImageUtils.safelyLoadImage(mThumbnailView, mImageUrl);
 

@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.boardgamegeek.auth.Authenticator;
 
@@ -22,8 +23,8 @@ import retrofit.converter.SimpleXMLConverter;
 
 public class Adapter {
 	private static final boolean DEBUG = false;
-	public static final int COLLECTION_REQUEST_PROCESSING = 202;
-	public static final int API_RATE_EXCEEDED = 503;
+	private static final int COLLECTION_REQUEST_PROCESSING = 202;
+	private static final int API_RATE_EXCEEDED = 503;
 
 	public static BggService create() {
 		return createBuilder().build().create(BggService.class);
@@ -75,7 +76,9 @@ public class Adapter {
 			requestInterceptor = new RequestInterceptor() {
 				@Override
 				public void intercept(RequestFacade request) {
-					request.addHeader("Cookie", "bggusername=" + account.name + "; bggpassword=" + authToken);
+					if (account != null && !TextUtils.isEmpty(account.name) && !TextUtils.isEmpty(authToken)) {
+						request.addHeader("Cookie", "bggusername=" + account.name + "; bggpassword=" + authToken);
+					}
 				}
 			};
 		} catch (OperationCanceledException | AuthenticatorException | IOException e) {
