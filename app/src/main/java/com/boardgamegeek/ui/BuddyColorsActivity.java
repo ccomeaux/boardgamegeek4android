@@ -155,7 +155,9 @@ public class BuddyColorsActivity extends BaseActivity {
 				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_clear_colors, new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						mColors.clear();
+						if (mColors != null) {
+							mColors.clear();
+						}
 						if (mAdapter != null) {
 							mAdapter.notifyDataSetChanged();
 						}

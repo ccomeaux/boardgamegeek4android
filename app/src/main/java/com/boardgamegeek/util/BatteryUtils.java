@@ -20,9 +20,13 @@ public class BatteryUtils {
 
 	public static float getBatteryLevel(Context context) {
 		Intent batteryStatus = getBatteryStatus(context);
-		int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-		int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-		return (level / (float) scale);
+		if (batteryStatus != null) {
+			int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+			int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+			return (level / (float) scale);
+		} else {
+			return 0.5f;
+		}
 	}
 
 	public static boolean isBatteryLow(Context context) {

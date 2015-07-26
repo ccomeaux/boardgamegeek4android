@@ -50,7 +50,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 				}
 				result = mContext.getResources().getQuantityString(R.plurals.msg_updated_plays, count, count);
 			}
-		} else{
+		} else {
 			result = mContext.getResources().getString(R.string.msg_updated_nickname);
 		}
 		return result;
@@ -75,7 +75,9 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 		List<Integer> playIds = ResolverUtils.queryInts(mContext.getContentResolver(), Plays.buildPlayersUri(),
 			Plays.PLAY_ID, SELECTION, new String[] { mUsername, mNickName });
 		for (Integer playId : playIds) {
-			mContext.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
+			if (playId != BggContract.INVALID_ID) {
+				mContext.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
+			}
 		}
 		return playIds.size();
 	}
