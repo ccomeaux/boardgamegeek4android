@@ -27,6 +27,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -245,6 +246,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRow(mAdvancedTable, R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
 		addStatRow(mAdvancedTable, R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
 		addStatRowPercentage(mAdvancedTable, R.string.play_stat_utilization, stats.calculateUtilization(), R.string.play_stat_utilization_info);
+		int hIndexOffset = stats.getHIndexOffset();
+		if (hIndexOffset == -1) {
+			addStatRow(mAdvancedTable, R.string.play_stat_h_index_offset_in, "");
+		} else {
+			addStatRow(mAdvancedTable, R.string.play_stat_h_index_offset_out, hIndexOffset);
+		}
 	}
 
 	private void showEmpty() {
@@ -709,6 +716,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				return 0;
 			}
 			return Math.log(raw);
+		}
+
+		public int getHIndexOffset() {
+			int hIndex = PreferencesUtils.getHIndex(getActivity());
+			if (mPlayCount >= hIndex) {
+				return -1;
+			} else {
+				return hIndex - mPlayCount + 1;
+			}
 		}
 
 		// public int getMonthsPerPlay() {
