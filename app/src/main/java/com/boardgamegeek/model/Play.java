@@ -11,6 +11,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -468,6 +469,22 @@ public class Play {
 
         return false;
     }
+
+	public double getHighScore(){
+		if (getPlayerCount() == 0) {
+			return 0.0;
+		}
+
+		double highScore = Double.MIN_VALUE;
+		for (Player player : players) {
+			double score = StringUtils.parseDouble(player.score, Double.MIN_VALUE);
+			if (score > highScore){
+				highScore = score;
+			}
+		}
+
+		return highScore;
+	}
 
     /**
 	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
