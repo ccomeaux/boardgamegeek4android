@@ -1329,6 +1329,15 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				@Override
 				public void onDoneClick(String score) {
 					player.score = score;
+					double highScore = mPlay.getHighScore();
+					for (Player p : mPlay.getPlayers()) {
+						double s = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
+						if (s == highScore) {
+							p.Win(true);
+						} else {
+							p.Win(false);
+						}
+					}
 					bindUiPlayers();
 				}
 			});

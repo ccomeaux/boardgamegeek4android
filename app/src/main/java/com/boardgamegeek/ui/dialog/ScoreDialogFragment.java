@@ -30,6 +30,7 @@ public class ScoreDialogFragment extends DialogFragment {
 	@InjectView(R.id.number_readout) TextView mReadout;
 	@InjectView(R.id.num_delete) View mDelete;
 	private OnClickListener mListener;
+	private int mMaxLength = 10;
 
 	public interface OnClickListener {
 		void onDoneClick(String score);
@@ -115,9 +116,12 @@ public class ScoreDialogFragment extends DialogFragment {
 		R.id.num_decimal
 	})
 	void onNumPadClick(View v) {
-		v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-		mReadout.setText(mReadout.getText().toString() + ((TextView) v).getText());
-		enableDelete();
+		final CharSequence text = mReadout.getText();
+		if (text.length() < mMaxLength) {
+			v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+			mReadout.setText(text.toString() + ((TextView) v).getText());
+			enableDelete();
+		}
 	}
 
 	@OnClick(R.id.num_done)
