@@ -175,11 +175,17 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private void bindUi(Stats stats) {
 		mPlayCountTable.removeAllViews();
+		mWinTable.removeAllViews();
+		mScoreTable.removeAllViews();
 		mDatesTable.removeAllViews();
 		mPlayTimeTable.removeAllViews();
 		mAdvancedTable.removeAllViews();
 
-		if (!TextUtils.isEmpty(stats.getQuarterDate())) {
+		if (!TextUtils.isEmpty(stats.getDollarDate())) {
+			addStatRow(mPlayCountTable, "", getString(R.string.play_stat_dollar));
+		} else if (!TextUtils.isEmpty(stats.getHalfDollarDate())) {
+			addStatRow(mPlayCountTable, "", getString(R.string.play_stat_half_dollar));
+		} else if (!TextUtils.isEmpty(stats.getQuarterDate())) {
 			addStatRow(mPlayCountTable, "", getString(R.string.play_stat_quarter));
 		} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
 			addStatRow(mPlayCountTable, "", getString(R.string.play_stat_dime));
@@ -222,6 +228,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addDateRow(mDatesTable, stats.getNickelDate(), R.string.play_stat_nickel);
 		addDateRow(mDatesTable, stats.getDimeDate(), R.string.play_stat_dime);
 		addDateRow(mDatesTable, stats.getQuarterDate(), R.string.play_stat_quarter);
+		addDateRow(mDatesTable, stats.getHalfDollarDate(), R.string.play_stat_half_dollar);
+		addDateRow(mDatesTable, stats.getDollarDate(), R.string.play_stat_dollar);
 		addDateRow(mDatesTable, stats.getLastPlayDate(), R.string.play_stat_last_play);
 
 		addStatRow(mPlayTimeTable, R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
@@ -392,6 +400,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private String mNickelDate;
 		private String mDimeDate;
 		private String mQuarterDate;
+		private String mHalfDollarDate;
+		private String mDollarDate;
 		private int mPlayCount;
 		private int mPlayCountIncomplete;
 		private int mPlayCountWithLength;
@@ -437,6 +447,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mNickelDate = null;
 			mDimeDate = null;
 			mQuarterDate = null;
+			mHalfDollarDate = null;
+			mDollarDate = null;
 			mPlayCount = 0;
 			mPlayCountIncomplete = 0;
 			mPlayCountWithLength = 0;
@@ -484,6 +496,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				}
 				if (mPlayCount < 25 && (mPlayCount + pm.quantity) >= 25) {
 					mQuarterDate = pm.date;
+				}
+				if (mPlayCount < 50 && (mPlayCount + pm.quantity) >= 50) {
+					mHalfDollarDate = pm.date;
+				}
+				if (mPlayCount < 100 && (mPlayCount + pm.quantity) >= 100) {
+					mDollarDate = pm.date;
 				}
 				mPlayCount += pm.quantity;
 				if (pm.getYear().equals(mCurrentYear)) {
@@ -588,6 +606,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		private String getQuarterDate() {
 			return mQuarterDate;
+		}
+
+		private String getHalfDollarDate() {
+			return mHalfDollarDate;
+		}
+
+		private String getDollarDate() {
+			return mDollarDate;
 		}
 
 		public String getLastPlayDate() {

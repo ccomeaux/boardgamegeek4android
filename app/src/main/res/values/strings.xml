@@ -394,6 +394,8 @@
 	<string name="play_stat_distinct_games">Distinct games</string>
 	<string name="play_stat_quarters">Quarters</string>
 	<string name="play_stat_quarter">Quarter</string>
+	<string name="play_stat_half_dollar">Half-dollar</string>
+	<string name="play_stat_dollar">Dollar</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
 	<string name="play_stat_win_percentage">Win percentage</string>
