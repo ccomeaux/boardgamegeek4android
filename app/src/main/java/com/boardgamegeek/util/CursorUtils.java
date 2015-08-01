@@ -94,21 +94,38 @@ public class CursorUtils {
 	}
 
 	/**
-	 * Gets a string from the specified column on the current row of the cursor. Returns an empty string if the column doesn't exist.
+	 * Gets a string from the specified column on the current row of the cursor. Returns an empty string if the column doesn't exist or is null.
 	 */
 	public static String getString(Cursor cursor, String columnName) {
 		return getString(cursor, columnName, "");
 	}
 
 	/**
-	 * Gets a string from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist.
+	 * Gets a string from the specified column on the current row of the cursor. Returns an empty string if the column doesn't exist or is null.
+	 */
+	public static String getString(Cursor cursor, int columnIndex) {
+		return getString(cursor, columnIndex, "");
+	}
+
+	/**
+	 * Gets a string from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist or is null.
 	 */
 	public static String getString(Cursor cursor, String columnName, String defaultValue) {
-		int idx = cursor.getColumnIndex(columnName);
-		if (idx == -1) {
+		return getString(cursor, cursor.getColumnIndex(columnName), defaultValue);
+	}
+
+	/**
+	 * Gets a string from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist or is null.
+	 */
+	public static String getString(Cursor cursor, int columnIndex, String defaultValue) {
+		if (columnIndex == -1) {
 			return defaultValue;
 		} else {
-			return cursor.getString(idx);
+			String value = cursor.getString(columnIndex);
+			if (value == null) {
+				return defaultValue;
+			}
+			return value;
 		}
 	}
 

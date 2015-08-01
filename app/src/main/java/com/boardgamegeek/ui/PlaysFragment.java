@@ -552,7 +552,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			int quantity = cursor.getInt(PlaysQuery.QUANTITY);
 			int length = cursor.getInt(PlaysQuery.LENGTH);
 			int playerCount = cursor.getInt(PlaysQuery.PLAYER_COUNT);
-			String comments = cursor.getString(PlaysQuery.COMMENTS).trim();
+			String comments = CursorUtils.getString(cursor, PlaysQuery.COMMENTS).trim();
 			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
 
 			String info = "";
