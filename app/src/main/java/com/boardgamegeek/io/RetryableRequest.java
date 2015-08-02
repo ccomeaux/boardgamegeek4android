@@ -3,6 +3,8 @@ package com.boardgamegeek.io;
 import timber.log.Timber;
 
 public abstract class RetryableRequest<T> {
+	public static final int BACKOFF_TYPE_EXPONENTIAL = 0;
+	public static final int BACKOFF_TYPE_GEOMETRIC = 1;
 
 	private static final long MIN_WAIT_TIME = 100L;
 	private static final long MAX_WAIT_TIME = 60000L;
@@ -42,8 +44,20 @@ public abstract class RetryableRequest<T> {
 	protected abstract T request();
 
 	protected long getWaitTime(int retryCount) {
-		long waitTime = ((long) Math.pow(2, retryCount) * getMinWaitTime());
+		long waitTime = getMinWaitTime();
+		switch (getBackOffType()) {
+			case BACKOFF_TYPE_EXPONENTIAL:
+				waitTime = ((long) Math.pow(2, retryCount) * getMinWaitTime());
+				break;
+			case BACKOFF_TYPE_GEOMETRIC:
+				waitTime = retryCount * retryCount * getMinWaitTime();
+				break;
+		}
 		return Math.min(getMaxWaitTime(), waitTime);
+	}
+
+	private int getBackOffType() {
+		return BACKOFF_TYPE_EXPONENTIAL;
 	}
 
 	protected long getMinWaitTime() {
