@@ -47,7 +47,7 @@ public abstract class RetryableRequest<T> {
 		long waitTime = getMinWaitTime();
 		switch (getBackOffType()) {
 			case BACKOFF_TYPE_EXPONENTIAL:
-				waitTime = ((long) Math.pow(2, retryCount) * getMinWaitTime());
+				waitTime = ((long) Math.pow(2, retryCount - 1) * getMinWaitTime());
 				break;
 			case BACKOFF_TYPE_GEOMETRIC:
 				waitTime = retryCount * retryCount * getMinWaitTime();
