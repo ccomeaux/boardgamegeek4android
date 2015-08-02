@@ -41,20 +41,20 @@ public abstract class RetryableRequest<T> {
 
 	protected abstract T request();
 
-	protected static long getWaitTime(int retryCount) {
+	protected long getWaitTime(int retryCount) {
 		long waitTime = ((long) Math.pow(2, retryCount) * getMinWaitTime());
-		return Math.min(MAX_WAIT_TIME, waitTime);
+		return Math.min(getMaxWaitTime(), waitTime);
 	}
 
-	protected static long getMinWaitTime() {
+	protected long getMinWaitTime() {
 		return MIN_WAIT_TIME;
 	}
 
-	protected static long getMaxWaitTime() {
+	protected long getMaxWaitTime() {
 		return MAX_WAIT_TIME;
 	}
 
-	protected static int getMaxRetries() {
+	protected int getMaxRetries() {
 		return MAX_RETRIES;
 	}
 }
