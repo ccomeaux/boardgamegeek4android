@@ -6,23 +6,19 @@ import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RetryableException;
+import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.util.StringUtils;
-import com.crashlytics.android.Crashlytics;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 16;
-	private static final int MAX_RETRIES = 5;
-	private static final int RETRY_BACKOFF_IN_MS = 500;
 	private int mGamesPerFetch;
 
 	public SyncGames(Context context, BggService service) {
@@ -75,14 +71,10 @@ public abstract class SyncGames extends SyncTask {
 	}
 
 	protected ThingResponse getThingResponse(BggService service, List<String> gameIds) {
-		int retries = 0;
 		while (true) {
 			try {
 				String ids = TextUtils.join(",", gameIds);
-				if (Fabric.isInitialized()) {
-					Crashlytics.setString("GAME_IDS", ids);
-				}
-				return service.thing(ids, 1);
+				return new ThingRequest(service, ids).execute();
 			} catch (Exception e) {
 				if (e.getCause() instanceof SocketTimeoutException) {
 					if (mGamesPerFetch == 1) {
@@ -91,18 +83,6 @@ public abstract class SyncGames extends SyncTask {
 					}
 					mGamesPerFetch = mGamesPerFetch / 2;
 					Timber.i("...timeout - reducing games per fetch to " + mGamesPerFetch);
-				} else if (e.getCause() instanceof RetryableException) {
-					retries++;
-					if (retries > MAX_RETRIES) {
-						break;
-					}
-					try {
-						Timber.i("...retrying #" + retries);
-						Thread.sleep(retries * retries * RETRY_BACKOFF_IN_MS);
-					} catch (InterruptedException e1) {
-						Timber.i("Interrupted while sleeping before retry " + retries);
-						break;
-					}
 				} else {
 					throw e;
 				}
