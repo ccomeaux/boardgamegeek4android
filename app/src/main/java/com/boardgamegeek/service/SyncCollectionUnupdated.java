@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -40,7 +41,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		try {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister(mContext).includePrivateInfo().includeStats();
-			Map<String, String> options = new HashMap<>();
+			HashMap<String, String> options = new HashMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 
@@ -82,9 +83,8 @@ public class SyncCollectionUnupdated extends SyncTask {
 		}
 	}
 
-	private boolean requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
-									  SyncResult syncResult) {
-		CollectionResponse response = getCollectionResponse(mService, username, options);
+	private boolean requestAndPersist(String username, CollectionPersister persister, HashMap<String, String> options, SyncResult syncResult) {
+		CollectionResponse response = new CollectionRequest(mService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

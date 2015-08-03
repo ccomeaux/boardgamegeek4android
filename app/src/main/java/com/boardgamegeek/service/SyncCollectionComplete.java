@@ -1,11 +1,5 @@
 package com.boardgamegeek.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
@@ -14,10 +8,17 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.PreferencesUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -30,6 +31,7 @@ public class SyncCollectionComplete extends SyncTask {
 	public SyncCollectionComplete(Context context, BggService service) {
 		super(context, service);
 	}
+
 	@Override
 	public int getSyncType() {
 		return SyncService.FLAG_SYNC_COLLECTION;
@@ -61,7 +63,7 @@ public class SyncCollectionComplete extends SyncTask {
 				Timber.i("...syncing status [" + status + "]");
 				showNotification(String.format("Syncing %s collection items", status));
 
-				Map<String, String> options = new HashMap<>();
+				HashMap<String, String> options = new HashMap<>();
 				options.put(status, "1");
 				for (int j = 0; j < i; j++) {
 					options.put(statuses.get(j), "0");
@@ -91,9 +93,8 @@ public class SyncCollectionComplete extends SyncTask {
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
-								   SyncResult syncResult) {
-		CollectionResponse response = getCollectionResponse(mService, username, options);
+	private void requestAndPersist(String username, CollectionPersister persister, HashMap<String, String> options, SyncResult syncResult) {
+		CollectionResponse response = new CollectionRequest(mService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);
 			syncResult.stats.numEntries += response.items.size();

@@ -7,6 +7,7 @@ import android.content.SyncResult;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.PlaysRequest;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
@@ -50,7 +51,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays since " + date, page));
 
-					response = mService.playsByMinDate(account.name, date, page);
+					response = new PlaysRequest(mService, PlaysRequest.TYPE_MIN, account.name, page, date).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -67,7 +68,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating all plays", page));
 
-					response = mService.plays(account.name, page);
+					response = new PlaysRequest(mService, account.name, page).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -87,7 +88,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays before " + date, page));
 
-					response = mService.playsByMaxDate(account.name, date, page);
+					response = new PlaysRequest(mService, PlaysRequest.TYPE_MAX, account.name, page, date).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {

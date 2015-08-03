@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.SyncResult;
 
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RetryableException;
+import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -17,8 +17,6 @@ import java.util.List;
 import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
-	private static final int MAX_RETRIES = 4;
-	private static final int RETRY_BACKOFF_IN_MS = 5000;
 	private BuddyPersister mPersister;
 
 	public SyncBuddiesDetail(Context context, BggService service) {
@@ -46,7 +44,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						Timber.i("...canceled while syncing buddies");
 						break;
 					}
-					User user = getUser(mService, name);
+					User user = new UserRequest(mService, name).execute();
 					if (user != null) {
 						buddies.add(user);
 					}
@@ -73,37 +71,6 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 		Timber.i("...saved " + buddies.size() + " buddies");
 		syncResult.stats.numUpdates += buddies.size();
 		return count;
-	}
-
-	protected User getUser(BggService service, String name) {
-		Timber.i("...syncing username=" + name);
-		int retries = 0;
-		while (true) {
-			try {
-				return service.user(name);
-			} catch (Exception e) {
-				if (e.getCause() instanceof RetryableException) {
-					retries++;
-					if (retries > MAX_RETRIES) {
-						Timber.i("...giving up - too many retries");
-						break;
-					}
-					try {
-						long time = retries * retries * RETRY_BACKOFF_IN_MS;
-						Timber.i("...retry #" + retries + " in " + time / 1000 + "s");
-						Thread.sleep(time);
-					} catch (InterruptedException e1) {
-						Timber.i("Interrupted while sleeping before retry " + retries);
-						break;
-					}
-				} else {
-					Timber.e(e, "Syncing buddy " + name);
-					throw e;
-				}
-			}
-		}
-
-		return null;
 	}
 
 	protected abstract String getLogMessage();
