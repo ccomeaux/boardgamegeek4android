@@ -10,6 +10,7 @@ import android.content.Context;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
@@ -55,7 +56,7 @@ public class SyncGameCollection extends UpdateTask {
 		// Only one of these requests will return results
 		BggService service = Adapter.createWithAuth(context);
 
-		Map<String, String> options = new HashMap<>();
+		HashMap<String, String> options = new HashMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(mGameId));
@@ -89,8 +90,8 @@ public class SyncGameCollection extends UpdateTask {
 		return null;
 	}
 
-	private List<CollectionItem> requestItems(Account account, BggService service, Map<String, String> options) {
-		CollectionResponse response = getCollectionResponse(service, account.name, options);
+	private List<CollectionItem> requestItems(Account account, BggService service, HashMap<String, String> options) {
+		CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 		if (response == null || response.items == null || response.items.size() == 0) {
 			Timber.i("No collection items for game ID=" + mGameId + " with options=" + options);
 			return null;

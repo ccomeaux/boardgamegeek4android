@@ -21,7 +21,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RetryableException;
+import com.boardgamegeek.io.BuddyCollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -33,7 +33,6 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -44,8 +43,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
 	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
-	private static final int MAX_RETRIES = 5;
-	private static final int RETRY_BACKOFF = 100;
 
 	private BuddyCollectionAdapter mAdapter;
 	private SubMenu mSubMenu;
@@ -220,7 +217,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
 		private final BggService mService;
 		private final String mUsername;
-		private final Map<String, String> mOptions;
+		private final HashMap<String, String> mOptions;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
@@ -233,29 +230,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		@Override
 		public BuddyCollectionData loadInBackground() {
-			BuddyCollectionData collection = null;
-			int retries = 0;
-			while (true) {
-				try {
-					collection = new BuddyCollectionData(mService.collection(mUsername, mOptions));
-					break;
-				} catch (Exception e) {
-					if (e.getCause() instanceof RetryableException) {
-						retries++;
-						if (retries > MAX_RETRIES) {
-							break;
-						}
-						try {
-							Timber.i("...retrying #" + retries);
-							Thread.sleep(retries * retries * RETRY_BACKOFF);
-						} catch (InterruptedException e1) {
-							Timber.i("Interrupted while sleeping before retry " + retries);
-							break;
-						}
-					} else {
-						collection = new BuddyCollectionData(e);
-					}
-				}
+			BuddyCollectionData collection;
+			try {
+				CollectionResponse response = new BuddyCollectionRequest(mService, mUsername, mOptions).execute();
+				collection = new BuddyCollectionData(response);
+			} catch (Exception e) {
+				collection = new BuddyCollectionData(e);
 			}
 			return collection;
 		}

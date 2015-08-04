@@ -8,6 +8,7 @@ import android.content.SyncResult;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 
@@ -38,7 +39,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
 			CollectionPersister persister = new CollectionPersister(mContext).includeStats().includePrivateInfo().validStatusesOnly();
-			Map<String, String> options = new HashMap<>();
+			HashMap<String, String> options = new HashMap<>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
 			if (isCancelled()) {
@@ -65,10 +66,9 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
-								   SyncResult syncResult) {
+	private void requestAndPersist(String username, CollectionPersister persister, HashMap<String, String> options, SyncResult syncResult) {
 		CollectionResponse response;
-		response = getCollectionResponse(mService, username, options);
+		response = new CollectionRequest(mService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

@@ -87,10 +87,14 @@ public class ShortcutUtils {
 			}
 
 			mContext.sendBroadcast(mShortcut);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void nothing) {
 			if (!VersionUtils.hasJellyBean()) {
 				Toast.makeText(mContext, R.string.msg_shortcut_created, Toast.LENGTH_SHORT).show();
 			}
-			return null;
 		}
 
 		private Bitmap fetchThumbnail() {
