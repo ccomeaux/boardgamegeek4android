@@ -47,12 +47,14 @@ public abstract class Sorter {
 	 * Get the text to display in the section header.
 	 */
 	public String getHeaderText(Cursor cursor, int position) {
+		String text = "";
 		if (cursor == null || position < 0) {
-			return "";
+			return text;
 		}
 		int pos = cursor.getPosition();
-		cursor.moveToPosition(position);
-		String text = getHeaderText(cursor);
+		if (cursor.moveToPosition(position)) {
+			text = getHeaderText(cursor);
+		}
 		cursor.moveToPosition(pos);
 		return text;
 	}
@@ -65,12 +67,14 @@ public abstract class Sorter {
 	}
 
 	public long getHeaderId(Cursor cursor, int position) {
+		long id = 0;
 		if (cursor == null || position < 0) {
-			return 0;
+			return id;
 		}
 		int pos = cursor.getPosition();
-		cursor.moveToPosition(position);
-		long id = getHeaderId(cursor);
+		if (cursor.moveToPosition(position)) {
+			id = getHeaderId(cursor);
+		}
 		cursor.moveToPosition(pos);
 		return id;
 	}
