@@ -6,6 +6,8 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -15,7 +17,14 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.VersionUtils;
+
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -82,6 +91,108 @@ public class PlayStatView extends TableRow {
 				a.recycle();
 			}
 			mContainer.setBackgroundResource(resId);
+		}
+	}
+
+	public static class Builder {
+		private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("0.0");
+		private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.00");
+		private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+		private int labelId;
+		private String labelText;
+		private String value;
+		private int infoId;
+		private String infoText;
+
+		public Builder labelId(int id) {
+			this.labelId = id;
+			this.labelText = "";
+			return this;
+		}
+
+		public Builder labelText(String text) {
+			this.labelText = text;
+			this.labelId = 0;
+			return this;
+		}
+
+		public Builder value(String value) {
+			this.value = value;
+			return this;
+		}
+
+		public Builder value(int value) {
+			this.value = String.valueOf(value);
+			return this;
+		}
+
+		public Builder value(double value) {
+			return value(value, DOUBLE_FORMAT);
+		}
+
+		public Builder value(double value, DecimalFormat format) {
+			this.value = format.format(value);
+			return this;
+		}
+
+		public Builder valueInMinutes(int value) {
+			this.value = DateTimeUtils.formatMinutes(value);
+			return this;
+		}
+
+		public Builder valueAsPercentage(double value) {
+			return valueAsPercentage(value, PERCENTAGE_FORMAT);
+		}
+
+		public Builder valueAsPercentage(double value, DecimalFormat format) {
+			this.value = format.format(value * 100) + "%";
+			return this;
+		}
+
+		public Builder valueAsDate(String date, Context context) {
+			if (!TextUtils.isEmpty(date)) {
+				try {
+					long l = FORMAT.parse(date).getTime();
+					String d = DateUtils.formatDateTime(context, l,
+						DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
+					this.value = d;
+				} catch (ParseException e) {
+					this.value = date;
+				}
+			}
+			return this;
+		}
+
+		public Builder infoId(int id) {
+			this.infoId = id;
+			this.infoText = "";
+			return this;
+		}
+
+		public Builder infoText(String text) {
+			this.infoText = text;
+			this.infoId = 0;
+			return this;
+		}
+
+		public boolean hasValue() {
+			return !TextUtils.isEmpty(value);
+		}
+
+		public PlayStatView build(Context context) {
+			PlayStatView view = new PlayStatView(context);
+			if (labelId > 0) {
+				view.setLabel(labelId);
+			} else if (!TextUtils.isEmpty(labelText)) {
+				view.setLabel(labelText);
+			}
+			view.setValue(value);
+			if (infoId > 0) {
+				view.setInfoText(infoId);
+			} else if (!TextUtils.isEmpty(infoText)) {
+				view.setInfoText(infoText);
+			}
+			return view;
 		}
 	}
 }
