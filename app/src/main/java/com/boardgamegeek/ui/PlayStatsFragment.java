@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -14,8 +15,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.model.Play;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.DialogUtils;
@@ -24,7 +27,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import timber.log.Timber;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final String STATUS_PLAYED = "played";
@@ -61,8 +63,14 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		CursorLoader loader = null;
 		switch (id) {
 			case PlayCountQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.buildUniqueGameUri(), PlayCountQuery.PROJECTION,
-					Games.NUM_PLAYS + ">0", null, Games.NUM_PLAYS + " DESC");
+				Uri uri = Plays.CONTENT_SIMPLE_URI.buildUpon()
+					.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.PlayItems.OBJECT_ID)
+					.build();
+				loader = new CursorLoader(getActivity(), uri,
+					PlayCountQuery.PROJECTION,
+					Plays.SYNC_STATUS + "=?",
+					new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) },
+					Plays.SUM_QUANTITY + " DESC");
 				loader.setUpdateThrottle(2000);
 				break;
 		}
@@ -92,7 +100,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 				int hIndex = 0;
 				int hIndexCounter = 1;
 				do {
-					int playCount = cursor.getInt(PlayCountQuery.NUM_PLAYS);
+					int playCount = cursor.getInt(PlayCountQuery.SUM_QUANTITY);
 					numberOfPlays += playCount;
 					numberOfGames++;
 
@@ -174,7 +182,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	private interface PlayCountQuery {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { Games._ID, Games.NUM_PLAYS };
-		int NUM_PLAYS = 1;
+		String[] PROJECTION = { Plays._ID, Plays.SUM_QUANTITY, PlayItems.OBJECT_ID };
+		int SUM_QUANTITY = 1;
 	}
 }
