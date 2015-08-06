@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +37,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -330,7 +330,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private int mRealMinutesPlayed;
 		private int mEstimatedMinutesPlayed;
 		private int mWinnableGames;
-		private int mWinnablePlayerCount;
 		private double mTotalScore;
 		private int mTotalScoreCount;
 		private double mHighScore;
@@ -373,11 +372,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mPlayCountWithLength = 0;
 			mPlayCountThisYear = 0;
 			mPlayerCountSumWithLength = 0;
-			mPlayCountPerPlayerCount = new HashMap<>();
+			mPlayCountPerPlayerCount = new ArrayMap<>();
 			mRealMinutesPlayed = 0;
 			mEstimatedMinutesPlayed = 0;
 			mWinnableGames = 0;
-			mWinnablePlayerCount = 0;
 			mTotalScore = 0;
 			mTotalScoreCount = 0;
 			mHighScore = Integer.MIN_VALUE;
@@ -445,7 +443,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 				if (pm.isWinnable()) {
 					mWinnableGames += pm.quantity;
-					mWinnablePlayerCount += pm.quantity * pm.playerCount;
 					if (pm.didWin(AccountUtils.getUsername(getActivity()))) {
 						mWonGames += pm.quantity;
 						mWonPlayerCount += pm.quantity * pm.playerCount;
