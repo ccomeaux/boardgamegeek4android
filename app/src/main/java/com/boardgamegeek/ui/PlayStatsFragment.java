@@ -89,22 +89,12 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 				int quarters = 0;
 				int dimes = 0;
 				int nickels = 0;
-				int currentCount = Integer.MAX_VALUE;
-				int currentCounter = 0;
 				int hIndex = 0;
 				int hIndexCounter = 1;
 				do {
 					int playCount = cursor.getInt(PlayCountQuery.NUM_PLAYS);
 					numberOfPlays += playCount;
 					numberOfGames++;
-
-					if (playCount != currentCount) {
-						Timber.i(currentCount + " Plays: " + currentCounter);
-						currentCount = playCount;
-						currentCounter = 1;
-					} else {
-						currentCounter++;
-					}
 
 					if (playCount >= 25) {
 						quarters++;
@@ -120,7 +110,6 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 					hIndexCounter++;
 
 				} while (cursor.moveToNext());
-				Timber.i(currentCount + " Plays: " + currentCounter);
 
 				// Populate UI
 				mTable.removeAllViews();
