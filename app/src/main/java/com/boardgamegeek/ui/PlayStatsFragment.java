@@ -17,7 +17,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.ui.widget.PlayStatView;
+import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
@@ -124,12 +124,12 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 				// Populate UI
 				mTable.removeAllViews();
-				addStatRow(R.string.play_stat_play_count, numberOfPlays);
-				addStatRow(R.string.play_stat_distinct_games, numberOfGames);
-				addStatRow(R.string.play_stat_quarters, quarters);
-				addStatRow(R.string.play_stat_dimes, dimes);
-				addStatRow(R.string.play_stat_nickels, nickels);
-				addStatRow(R.string.play_stat_h_index, hIndex, R.string.play_stat_h_index_info);
+				addStatRow(new Builder().labelId(R.string.play_stat_play_count).value(numberOfPlays));
+				addStatRow(new Builder().labelId(R.string.play_stat_distinct_games).value(numberOfGames));
+				addStatRow(new Builder().labelId(R.string.play_stat_quarters).value(quarters));
+				addStatRow(new Builder().labelId(R.string.play_stat_dimes).value(dimes));
+				addStatRow(new Builder().labelId(R.string.play_stat_nickels).value(nickels));
+				addStatRow(new Builder().labelId(R.string.play_stat_h_index).value(hIndex).infoId(R.string.play_stat_h_index_info));
 
 				showData();
 				break;
@@ -179,19 +179,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		mDataView.setVisibility(View.VISIBLE);
 	}
 
-	private void addStatRow(int labelId, int value) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(labelId);
-		view.setValue(String.valueOf(value));
-		mTable.addView(view);
-	}
-
-	private void addStatRow(int labelId, int value, int infoId) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(labelId);
-		view.setValue(String.valueOf(value));
-		view.setInfoText(infoId);
-		mTable.addView(view);
+	private void addStatRow(Builder builder) {
+		mTable.addView(builder.build(getActivity()));
 	}
 
 	private interface PlayCountQuery {

@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -104,7 +105,7 @@ public class PlayStatView extends TableRow {
 		private int infoId;
 		private String infoText;
 
-		public Builder labelId(int id) {
+		public Builder labelId(@StringRes int id) {
 			this.labelId = id;
 			this.labelText = "";
 			return this;
@@ -163,7 +164,7 @@ public class PlayStatView extends TableRow {
 			return this;
 		}
 
-		public Builder infoId(int id) {
+		public Builder infoId(@StringRes int id) {
 			this.infoId = id;
 			this.infoText = "";
 			return this;
