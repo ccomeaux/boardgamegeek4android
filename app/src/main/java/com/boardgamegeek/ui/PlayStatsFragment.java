@@ -15,8 +15,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -63,13 +65,13 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		CursorLoader loader = null;
 		switch (id) {
 			case PlayCountQuery._TOKEN:
-				Uri uri = Plays.CONTENT_SIMPLE_URI.buildUpon()
+				Uri uri = Plays.CONTENT_URI.buildUpon()
 					.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.PlayItems.OBJECT_ID)
 					.build();
 				loader = new CursorLoader(getActivity(), uri,
 					PlayCountQuery.PROJECTION,
-					Plays.SYNC_STATUS + "=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) },
+					Plays.SYNC_STATUS + "=? AND " + Plays.INCOMPLETE + "!=? AND " + Games.SUBTYPE + "=?",
+					new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), "1", BggService.THING_SUBTYPE_BOARDGAME },
 					Plays.SUM_QUANTITY + " DESC");
 				loader.setUpdateThrottle(2000);
 				break;
@@ -182,7 +184,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	private interface PlayCountQuery {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { Plays._ID, Plays.SUM_QUANTITY, PlayItems.OBJECT_ID };
-		int SUM_QUANTITY = 1;
+		String[] PROJECTION = {Plays.SUM_QUANTITY };
+		int SUM_QUANTITY = 0;
 	}
 }
