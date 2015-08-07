@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,24 +18,17 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
-import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	public static final String STATUS_PLAYED = "played";
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table) TableLayout mTable;
-	@InjectView(R.id.sync_message) View mSyncMessage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,13 +43,6 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().restartLoader(PlayCountQuery._TOKEN, null, this);
-		setMessageVisibility();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		setMessageVisibility();
 	}
 
 	@Override
@@ -142,26 +127,6 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	@OnClick(R.id.sync_message)
-	public void onMessageClick(View v) {
-		DialogUtils.createConfirmationDialog(getActivity(), R.string.play_stat_status_played_not_synced_message,
-			new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					PreferencesUtils.addSyncStatus(getActivity(), STATUS_PLAYED);
-					setMessageVisibility();
-					SyncService.clearCollection(getActivity());
-					SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
-				}
-			}).show();
-	}
-
-	private void setMessageVisibility() {
-		if (getActivity() != null && mSyncMessage != null) {
-			final boolean arePlaysSynced = PreferencesUtils.isSyncStatus(getActivity(), STATUS_PLAYED);
-			mSyncMessage.setVisibility(arePlaysSynced ? View.GONE : View.VISIBLE);
-		}
-	}
-
 	private void showEmpty() {
 		mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
 		mEmptyView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
@@ -184,7 +149,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	private interface PlayCountQuery {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = {Plays.SUM_QUANTITY };
+		String[] PROJECTION = { Plays.SUM_QUANTITY };
 		int SUM_QUANTITY = 0;
 	}
 }

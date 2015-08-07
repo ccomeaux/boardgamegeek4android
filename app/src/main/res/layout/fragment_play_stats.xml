@@ -52,9 +52,7 @@
 				android:paddingLeft="@dimen/material_margin_horizontal"
 				android:paddingRight="@dimen/material_margin_horizontal"
 				android:paddingTop="@dimen/material_margin_vertical"
-				android:text="@string/play_stat_status_played_not_synced"
-				android:visibility="gone"
-				tools:visibility="visible"/>
+				android:text="@string/play_stat_status_accuracy"/>
 		</LinearLayout>
 
 	</ScrollView>
