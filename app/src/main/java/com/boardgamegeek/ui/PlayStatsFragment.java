@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -20,6 +21,10 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
+import com.boardgamegeek.util.PreferencesUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -55,13 +60,48 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 					.build();
 				loader = new CursorLoader(getActivity(), uri,
 					PlayCountQuery.PROJECTION,
-					Plays.SYNC_STATUS + "=? AND " + Plays.INCOMPLETE + "!=? AND " + Games.SUBTYPE + "=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), "1", BggService.THING_SUBTYPE_BOARDGAME },
+					getSelection(),
+					getSelectionArgs(),
 					Plays.SUM_QUANTITY + " DESC");
 				loader.setUpdateThrottle(2000);
 				break;
 		}
 		return loader;
+	}
+
+	@NonNull
+	private String getSelection() {
+		String selection = Plays.SYNC_STATUS + "=?";
+		if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+			selection += " AND " + Plays.INCOMPLETE + "!=?";
+		}
+		if (!PreferencesUtils.logPlayStatsExpansions(getActivity()) &&
+			!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			selection += " AND " + Games.SUBTYPE + "=?";
+		} else if (!PreferencesUtils.logPlayStatsExpansions(getActivity()) ||
+			!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			selection += " AND " + Games.SUBTYPE + "!=?";
+		}
+		return selection;
+	}
+
+	@NonNull
+	private String[] getSelectionArgs() {
+		List<String> args = new ArrayList<>();
+		args.add(String.valueOf(Play.SYNC_STATUS_SYNCED));
+		if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+			args.add("1");
+		}
+
+		if (!PreferencesUtils.logPlayStatsExpansions(getActivity()) &&
+			!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			args.add(BggService.THING_SUBTYPE_BOARDGAME);
+		} else if (!PreferencesUtils.logPlayStatsExpansions(getActivity())) {
+			args.add(BggService.THING_SUBTYPE_BOARDGAME_EXPANSION);
+		} else if (!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			args.add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+		}
+		return args.toArray(new String[args.size()]);
 	}
 
 	@Override

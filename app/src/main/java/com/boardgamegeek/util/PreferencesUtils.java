@@ -101,6 +101,18 @@ public class PreferencesUtils {
 		return getBoolean(context, "logPlayerNew", !getBoolean(context, "logHideNew", true));
 	}
 
+	public static boolean logPlayStatsIncomplete(Context context) {
+		return getBoolean(context, "logPlayStatsIncomplete", false);
+	}
+
+	public static boolean logPlayStatsExpansions(Context context) {
+		return getBoolean(context, "logPlayStatsExpansions", false);
+	}
+
+	public static boolean logPlayStatsAccessories(Context context) {
+		return getBoolean(context, "logPlayStatsAccessories", false);
+	}
+
 	public static boolean showLogPlayerWin(Context context) {
 		return getBoolean(context, "logPlayerWin", !getBoolean(context, "logHideWin", true));
 	}
