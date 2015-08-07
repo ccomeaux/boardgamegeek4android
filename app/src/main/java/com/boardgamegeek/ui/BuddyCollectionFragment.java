@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +32,6 @@ import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -217,13 +217,13 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
 		private final BggService mService;
 		private final String mUsername;
-		private final HashMap<String, String> mOptions;
+		private final ArrayMap<String, String> mOptions;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
 			mService = Adapter.create();
 			mUsername = username;
-			mOptions = new HashMap<>();
+			mOptions = new ArrayMap<>();
 			mOptions.put(status, "1");
 			mOptions.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		}

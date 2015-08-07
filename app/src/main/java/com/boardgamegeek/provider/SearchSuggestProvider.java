@@ -1,8 +1,5 @@
 package com.boardgamegeek.provider;
 
-import java.util.HashMap;
-import java.util.Locale;
-
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -10,19 +7,23 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 
+import java.util.Locale;
+import java.util.Map;
+
 public class SearchSuggestProvider extends BaseProvider {
-	public static final HashMap<String, String> sSuggestionProjectionMap = buildSuggestionProjectionMap();
+	public static final Map<String, String> sSuggestionProjectionMap = buildSuggestionProjectionMap();
 	private static final String GROUP_BY = Collection.COLLECTION_NAME + ","
 		+ Collection.COLLECTION_YEAR_PUBLISHED;
 
-	private static HashMap<String, String> buildSuggestionProjectionMap() {
-		HashMap<String, String> map = new HashMap<>();
+	private static ArrayMap<String, String> buildSuggestionProjectionMap() {
+		ArrayMap<String, String> map = new ArrayMap<>();
 		map.put(BaseColumns._ID, BaseColumns._ID);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Collection.COLLECTION_NAME + " AS "
 			+ SearchManager.SUGGEST_COLUMN_TEXT_1);
@@ -48,8 +49,7 @@ public class SearchSuggestProvider extends BaseProvider {
 	}
 
 	@Override
-	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
-		String[] selectionArgs, String sortOrder) {
+	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		String query = null;
 		if (uri.getPathSegments().size() > 1) {
 			query = uri.getLastPathSegment().toLowerCase(Locale.US);

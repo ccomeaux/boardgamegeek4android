@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -13,8 +14,6 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -39,7 +38,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
 			CollectionPersister persister = new CollectionPersister(mContext).includeStats().includePrivateInfo().validStatusesOnly();
-			HashMap<String, String> options = new HashMap<>();
+			ArrayMap<String, String> options = new ArrayMap<>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
 			if (isCancelled()) {
@@ -66,7 +65,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, HashMap<String, String> options, SyncResult syncResult) {
+	private void requestAndPersist(String username, CollectionPersister persister, ArrayMap<String, String> options, SyncResult syncResult) {
 		CollectionResponse response;
 		response = new CollectionRequest(mService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {

@@ -1,14 +1,14 @@
 package com.boardgamegeek.io;
 
-import com.boardgamegeek.model.CollectionResponse;
+import android.support.v4.util.ArrayMap;
 
-import java.util.HashMap;
+import com.boardgamegeek.model.CollectionResponse;
 
 public class CollectionRequest extends RetryableRequest<CollectionResponse> {
 	private final String username;
-	private final HashMap<String, String> options;
+	private final ArrayMap<String, String> options;
 
-	public CollectionRequest(BggService service, String username, HashMap<String, String> options) {
+	public CollectionRequest(BggService service, String username, ArrayMap<String, String> options) {
 		super(service);
 		this.username = username;
 		this.options = options;

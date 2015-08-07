@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -16,9 +17,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -63,7 +62,7 @@ public class SyncCollectionComplete extends SyncTask {
 				Timber.i("...syncing status [" + status + "]");
 				showNotification(String.format("Syncing %s collection items", status));
 
-				HashMap<String, String> options = new HashMap<>();
+				ArrayMap<String, String> options = new ArrayMap<>();
 				options.put(status, "1");
 				for (int j = 0; j < i; j++) {
 					options.put(statuses.get(j), "0");
@@ -93,7 +92,7 @@ public class SyncCollectionComplete extends SyncTask {
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, HashMap<String, String> options, SyncResult syncResult) {
+	private void requestAndPersist(String username, CollectionPersister persister, ArrayMap<String, String> options, SyncResult syncResult) {
 		CollectionResponse response = new CollectionRequest(mService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);

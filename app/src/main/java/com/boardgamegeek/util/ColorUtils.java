@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -12,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -107,7 +107,7 @@ public class ColorUtils {
 	private static final int[] RATING_COLORS = { 0x00ffffff, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
 		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
 
-	private static final HashMap<String, Integer> sColorNameMap;
+	private static final ArrayMap<String, Integer> sColorNameMap;
 	private static final ArrayList<Pair<String, Integer>> sColorNameList;
 
 	static {
@@ -137,7 +137,7 @@ public class ColorUtils {
 		// sColorNameList.add(new Pair<String, Integer>("Light Gray", LTGRAY));
 		// sColorNameList.add(new Pair<String, Integer>("Dark Gray", DKGRAY));
 
-		sColorNameMap = new HashMap<>();
+		sColorNameMap = new ArrayMap<>();
 		for (Pair<String, Integer> pair : sColorNameList) {
 			sColorNameMap.put(formatKey(pair.first), pair.second);
 		}

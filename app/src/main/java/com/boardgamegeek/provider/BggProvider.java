@@ -1,9 +1,5 @@
 package com.boardgamegeek.provider;
 
-import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import android.annotation.SuppressLint;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -12,18 +8,22 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.support.v4.util.ArrayMap;
+
+import java.io.FileNotFoundException;
+import java.util.Arrays;
 
 import timber.log.Timber;
 
 public class BggProvider extends ContentProvider {
 	private BggDatabase mOpenHelper;
 	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-	private static final HashMap<Integer, BaseProvider> providers = buildProviderMap();
+	private static final ArrayMap<Integer, BaseProvider> providers = buildProviderMap();
 	private static int sCode = 1;
 
 	@SuppressLint("UseSparseArrays")
-	private static HashMap<Integer, BaseProvider> buildProviderMap() {
-		HashMap<Integer, BaseProvider> map = new HashMap<>();
+	private static ArrayMap<Integer, BaseProvider> buildProviderMap() {
+		ArrayMap<Integer, BaseProvider> map = new ArrayMap<>();
 
 		addProvider(map, new GamesProvider());
 		addProvider(map, new GamesIdProvider());
@@ -114,7 +114,7 @@ public class BggProvider extends ContentProvider {
 		return map;
 	}
 
-	private static void addProvider(HashMap<Integer, BaseProvider> map, BaseProvider provider) {
+	private static void addProvider(ArrayMap<Integer, BaseProvider> map, BaseProvider provider) {
 		sCode++;
 		sUriMatcher.addURI(BggContract.CONTENT_AUTHORITY, provider.getPath(), sCode);
 		map.put(sCode, provider);
