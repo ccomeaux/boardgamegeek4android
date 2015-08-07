@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -14,9 +15,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -41,7 +40,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		try {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister(mContext).includePrivateInfo().includeStats();
-			HashMap<String, String> options = new HashMap<>();
+			ArrayMap<String, String> options = new ArrayMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 
@@ -83,7 +82,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		}
 	}
 
-	private boolean requestAndPersist(String username, CollectionPersister persister, HashMap<String, String> options, SyncResult syncResult) {
+	private boolean requestAndPersist(String username, CollectionPersister persister, ArrayMap<String, String> options, SyncResult syncResult) {
 		CollectionResponse response = new CollectionRequest(mService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);

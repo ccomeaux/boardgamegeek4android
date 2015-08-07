@@ -1,11 +1,8 @@
 package com.boardgamegeek.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.accounts.Account;
 import android.content.Context;
+import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
@@ -15,6 +12,8 @@ import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract;
+
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -29,7 +28,7 @@ public class SyncGameCollection extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		if (mGameId == BggContract.INVALID_ID){
+		if (mGameId == BggContract.INVALID_ID) {
 			return "update collection for unknown game";
 		}
 		return "update collection for game " + mGameId;
@@ -56,7 +55,7 @@ public class SyncGameCollection extends UpdateTask {
 		// Only one of these requests will return results
 		BggService service = Adapter.createWithAuth(context);
 
-		HashMap<String, String> options = new HashMap<>();
+		ArrayMap<String, String> options = new ArrayMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(mGameId));
@@ -90,7 +89,7 @@ public class SyncGameCollection extends UpdateTask {
 		return null;
 	}
 
-	private List<CollectionItem> requestItems(Account account, BggService service, HashMap<String, String> options) {
+	private List<CollectionItem> requestItems(Account account, BggService service, ArrayMap<String, String> options) {
 		CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 		if (response == null || response.items == null || response.items.size() == 0) {
 			Timber.i("No collection items for game ID=" + mGameId + " with options=" + options);

@@ -8,13 +8,13 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.VersionUtils;
 import com.mikepenz.aboutlibraries.Libs;
 
-import java.util.HashMap;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
@@ -24,10 +24,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
 	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
 	private final static String ACTION_ABOUT = "com.boardgamegeek.prefs.ABOUT";
-	private static final HashMap<String, Integer> mFragmentMap = buildFragmentMap();
+	private static final ArrayMap<String, Integer> mFragmentMap = buildFragmentMap();
 
-	private static HashMap<String, Integer> buildFragmentMap() {
-		HashMap<String, Integer> map = new HashMap<>();
+	private static ArrayMap<String, Integer> buildFragmentMap() {
+		ArrayMap<String, Integer> map = new ArrayMap<>();
 		map.put(ACTION_SEARCH, R.xml.preference_search);
 		map.put(ACTION_LOG, R.xml.preference_log);
 		map.put(ACTION_SYNC, R.xml.preference_sync);

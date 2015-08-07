@@ -10,6 +10,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -34,7 +35,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -193,7 +193,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayPostResponse postPlayUpdate(Play play) {
-		Map<String, String> form = new HashMap<>();
+		Map<String, String> form = new ArrayMap<>();
 		form.put("ajax", "1");
 		form.put("action", "save");
 		form.put("version", "2");
@@ -236,7 +236,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayPostResponse postPlayDelete(int playId) {
-		Map<String, String> form = new HashMap<>();
+		Map<String, String> form = new ArrayMap<>();
 		form.put("ajax", "1");
 		form.put("action", "delete");
 		form.put("playid", String.valueOf(playId));
