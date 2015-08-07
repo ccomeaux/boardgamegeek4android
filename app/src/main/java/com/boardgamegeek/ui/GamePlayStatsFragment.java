@@ -394,8 +394,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public void calculate() {
+			boolean includeIncomplete = PreferencesUtils.logPlayStatsIncomplete(getActivity());
 			for (PlayModel pm : mPlays.values()) {
-				if (pm.incomplete) {
+				if (!includeIncomplete && pm.incomplete) {
 					mPlayCountIncomplete += pm.quantity;
 					continue;
 				}
