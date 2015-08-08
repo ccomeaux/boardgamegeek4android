@@ -16,6 +16,7 @@ apply plugin: 'com.github.ben-manes.versions'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
 }
 
 def getBranchName = { ->
@@ -79,4 +80,5 @@ dependencies {
         transitive = true;
     }
     compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.3'
 }

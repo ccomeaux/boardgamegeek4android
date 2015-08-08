@@ -24,12 +24,18 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.widget.IntegerValueFormatter;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.mikephil.charting.animation.Easing.EasingOption;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -62,6 +68,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table_play_count) TableLayout mPlayCountTable;
+	@InjectView(R.id.chart_play_count) HorizontalBarChart mPlayCountChart;
 	@InjectView(R.id.card_wins) View mWins;
 	@InjectView(R.id.table_wins) TableLayout mWinTable;
 	@InjectView(R.id.card_score) View mScores;
@@ -82,6 +89,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		ButterKnife.inject(this, rootView);
+
+		mPlayCountChart.setDrawGridBackground(false);
+		mPlayCountChart.getAxisRight().setValueFormatter(new IntegerValueFormatter());
+		mPlayCountChart.getAxisLeft().setEnabled(false);
+		mPlayCountChart.getXAxis().setDrawGridLines(false);
+		mPlayCountChart.setDescription(null);
+
 		return rootView;
 	}
 
@@ -194,20 +208,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_play_count_incomplete).value(stats.getPlayCountIncomplete()));
 
 		}
-		addDivider(mPlayCountTable);
-		for (int i = 1; i <= stats.getMaxPlayerCount(); i++) {
-			final int playCount = stats.getPlayCount(i);
-			if (playCount > 0) {
-				final String label = getResources().getQuantityString(R.plurals.player_description, i, i);
-				addStatRow(mPlayCountTable, new Builder().labelText(label).value(playCount));
-
-			}
-		}
-		addDivider(mPlayCountTable);
 		addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_months_played).value(stats.getMonthsPlayed()));
 		if (stats.getPlayRate() > 0) {
 			addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_play_rate).value(stats.getPlayRate()));
 		}
+
 
 		if (stats.hasWins()) {
 			addStatRow(mWinTable, new Builder().labelId(R.string.play_stat_win_percentage).valueAsPercentage(stats.getWinPercentage()));
@@ -216,6 +221,34 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		} else {
 			mWins.setVisibility(View.GONE);
 		}
+
+		ArrayList<String> playersLabels = new ArrayList<>();
+		ArrayList<BarEntry> playCountValues = new ArrayList<>();
+		ArrayList<BarEntry> winValues = new ArrayList<>();
+		int index = 0;
+		for (int i = stats.getMinPlayerCount(); i <= stats.getMaxPlayerCount(); i++) {
+			playersLabels.add(String.valueOf(i));
+			playCountValues.add(new BarEntry(stats.getPlayCount(i), index));
+			winValues.add(new BarEntry(stats.getWins(i), index));
+			index++;
+		}
+		ArrayList<BarDataSet> dataSets = new ArrayList<>();
+
+		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
+		playCountDataSet.setDrawValues(false);
+		playCountDataSet.setHighlightEnabled(false);
+		playCountDataSet.setColor(getResources().getColor(R.color.primary));
+		dataSets.add(playCountDataSet);
+
+		BarDataSet winsDataSet = new BarDataSet(winValues, getString(R.string.title_wins));
+		winsDataSet.setDrawValues(false);
+		winsDataSet.setHighlightEnabled(false);
+		winsDataSet.setColor(getResources().getColor(R.color.primary_dark));
+		dataSets.add(winsDataSet);
+
+		BarData data = new BarData(playersLabels, dataSets);
+		mPlayCountChart.setData(data);
+		mPlayCountChart.animateY(1000, EasingOption.EaseInOutBack);
 
 		if (stats.hasScores()) {
 			addStatRow(mScoreTable, new Builder().labelId(R.string.average).value(stats.getAverageScore()));
@@ -344,6 +377,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private final Set<String> mLowScorers = new HashSet<>();
 		private int mWonGames;
 		private int mWonPlayerCount;
+		private Map<Integer, Integer> mWinsPerPlayerCount;
 		private final Set<String> mMonths = new HashSet<>();
 
 		public Stats(Cursor cursor) {
@@ -390,6 +424,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mLowScorers.clear();
 			mWonGames = 0;
 			mWonPlayerCount = 0;
+			mWinsPerPlayerCount = new ArrayMap<>();
 			mMonths.clear();
 		}
 
@@ -447,6 +482,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					if (pm.didWin(AccountUtils.getUsername(getActivity()))) {
 						mWonGames += pm.quantity;
 						mWonPlayerCount += pm.quantity * pm.playerCount;
+						int previousQuantity = 0;
+						if (mWinsPerPlayerCount.containsKey(pm.playerCount)) {
+							previousQuantity = mWinsPerPlayerCount.get(pm.playerCount);
+						}
+						mWinsPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
 					}
 				}
 
@@ -572,6 +612,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return mMonths.size();
 		}
 
+		public int getMinPlayerCount() {
+			int min = Integer.MAX_VALUE;
+			for (Integer playerCount : mPlayCountPerPlayerCount.keySet()) {
+				if (playerCount < min) {
+					min = playerCount;
+				}
+			}
+			return min;
+		}
+
 		public int getMaxPlayerCount() {
 			int max = 0;
 			for (Integer playerCount : mPlayCountPerPlayerCount.keySet()) {
@@ -585,6 +635,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public int getPlayCount(int playerCount) {
 			if (mPlayCountPerPlayerCount.containsKey(playerCount)) {
 				return mPlayCountPerPlayerCount.get(playerCount);
+			}
+			return 0;
+		}
+
+		public int getWins(int playerCount) {
+			if (mWinsPerPlayerCount.containsKey(playerCount)) {
+				return mWinsPerPlayerCount.get(playerCount);
 			}
 			return 0;
 		}
