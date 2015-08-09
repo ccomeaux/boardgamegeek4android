@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -63,7 +65,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 					PlayCountQuery.PROJECTION,
 					getSelection(),
 					getSelectionArgs(),
-					Plays.SUM_QUANTITY + " DESC");
+					Plays.SUM_QUANTITY + " DESC, " + Games.GAME_NAME + " ASC");
 				loader.setUpdateThrottle(2000);
 				break;
 		}
@@ -140,7 +142,21 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		addStatRow(mTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.quarters));
 		addStatRow(mTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.dimes));
 		addStatRow(mTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.nickels));
+
 		addStatRow(mHIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.hIndex).infoId(R.string.play_stat_h_index_info));
+		addDivider(mHIndexTable);
+		boolean addDivider = true;
+		for (Pair<String, Integer> game : stats.hIndexGames) {
+			final Builder builder = new Builder().labelText(game.first).value(game.second);
+			if (game.second == stats.hIndex) {
+				builder.backgroundResource(R.color.primary);
+				addDivider = false;
+			} else if (game.second < stats.hIndex && addDivider) {
+				addDivider(mHIndexTable);
+				addDivider = false;
+			}
+			addStatRow(mHIndexTable, builder);
+		}
 	}
 
 	private void showEmpty() {
@@ -163,7 +179,16 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		container.addView(builder.build(getActivity()));
 	}
 
+	private void addDivider(ViewGroup container) {
+		View view = new View(getActivity());
+		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
+		view.setBackgroundResource(R.color.primary_dark);
+		container.addView(view);
+	}
+
 	private static class Stats {
+		private static final int MIN_H_INDEX_GAMES = 2;
+		private static final int MAX_H_INDEX_GAMES = 6;
 		int numberOfPlays = 0;
 		int numberOfGames = 0;
 		int quarters = 0;
@@ -171,6 +196,10 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		int nickels = 0;
 		int hIndex = 0;
 		int hIndexCounter = 1;
+		List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+		private Stack<Pair<String, Integer>> hIndexGamesStack = new Stack<>();
+		private int postIndexCount = 0;
+		private int priorPlayCount;
 
 		public Stats(Cursor cursor) {
 			init(cursor);
@@ -179,6 +208,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		private void init(Cursor cursor) {
 			do {
 				int playCount = cursor.getInt(PlayCountQuery.SUM_QUANTITY);
+				String gameName = cursor.getString(PlayCountQuery.GAME_NAME);
+
 				numberOfPlays += playCount;
 				numberOfGames++;
 
@@ -190,17 +221,48 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 					nickels++;
 				}
 
-				if (hIndex == 0 && hIndexCounter > playCount) {
-					hIndex = hIndexCounter - 1;
+				if (hIndex == 0) {
+					hIndexGamesStack.push(new Pair<>(gameName, playCount));
+					if (hIndexCounter > playCount) {
+						hIndex = hIndexCounter - 1;
+						int preIndexCount = 0;
+						while (!hIndexGamesStack.isEmpty()) {
+							Pair<String, Integer> game = hIndexGamesStack.pop();
+							if (preIndexCount < MIN_H_INDEX_GAMES) {
+								hIndexGames.add(0, game);
+								if (game.second != hIndex) {
+									preIndexCount++;
+									priorPlayCount = game.second;
+								}
+							} else if (preIndexCount >= MAX_H_INDEX_GAMES) {
+								//do nothing
+							} else if (game.second == priorPlayCount) {
+								hIndexGames.add(0, game);
+								preIndexCount++;
+							}
+						}
+					}
+					hIndexCounter++;
+				} else {
+					if (postIndexCount < MIN_H_INDEX_GAMES) {
+						hIndexGames.add(new Pair<>(gameName, playCount));
+						postIndexCount++;
+						priorPlayCount = playCount;
+					} else if (postIndexCount >= MAX_H_INDEX_GAMES) {
+						// do nothing
+					} else if (playCount == priorPlayCount) {
+						hIndexGames.add(new Pair<>(gameName, playCount));
+						postIndexCount++;
+					}
 				}
-				hIndexCounter++;
 			} while (cursor.moveToNext());
 		}
 	}
 
 	private interface PlayCountQuery {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { Plays.SUM_QUANTITY };
+		String[] PROJECTION = { Plays.SUM_QUANTITY, Games.GAME_NAME };
 		int SUM_QUANTITY = 0;
+		int GAME_NAME = 1;
 	}
 }

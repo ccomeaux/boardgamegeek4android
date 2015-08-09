@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
@@ -104,6 +105,7 @@ public class PlayStatView extends TableRow {
 		private String value;
 		private int infoId;
 		private String infoText;
+		private int backgroundResource;
 
 		public Builder labelId(@StringRes int id) {
 			this.labelId = id;
@@ -176,6 +178,11 @@ public class PlayStatView extends TableRow {
 			return this;
 		}
 
+		public Builder backgroundResource(@DrawableRes int resId) {
+			this.backgroundResource = resId;
+			return this;
+		}
+
 		public boolean hasValue() {
 			return !TextUtils.isEmpty(value);
 		}
@@ -192,6 +199,9 @@ public class PlayStatView extends TableRow {
 				view.setInfoText(infoId);
 			} else if (!TextUtils.isEmpty(infoText)) {
 				view.setInfoText(infoText);
+			}
+			if (backgroundResource > 0) {
+				view.setBackgroundResource(backgroundResource);
 			}
 			return view;
 		}
