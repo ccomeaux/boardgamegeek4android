@@ -34,6 +34,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table) TableLayout mTable;
+	@InjectView(R.id.table_hindex) TableLayout mHIndexTable;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -118,43 +119,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		int token = loader.getId();
 		switch (token) {
 			case PlayCountQuery._TOKEN:
-				// Calculate data
-				int numberOfPlays = 0;
-				int numberOfGames = 0;
-				int quarters = 0;
-				int dimes = 0;
-				int nickels = 0;
-				int hIndex = 0;
-				int hIndexCounter = 1;
-				do {
-					int playCount = cursor.getInt(PlayCountQuery.SUM_QUANTITY);
-					numberOfPlays += playCount;
-					numberOfGames++;
-
-					if (playCount >= 25) {
-						quarters++;
-					} else if (playCount >= 10) {
-						dimes++;
-					} else if (playCount > 5) {
-						nickels++;
-					}
-
-					if (hIndex == 0 && hIndexCounter > playCount) {
-						hIndex = hIndexCounter - 1;
-					}
-					hIndexCounter++;
-
-				} while (cursor.moveToNext());
-
-				// Populate UI
-				mTable.removeAllViews();
-				addStatRow(new Builder().labelId(R.string.play_stat_play_count).value(numberOfPlays));
-				addStatRow(new Builder().labelId(R.string.play_stat_distinct_games).value(numberOfGames));
-				addStatRow(new Builder().labelId(R.string.play_stat_quarters).value(quarters));
-				addStatRow(new Builder().labelId(R.string.play_stat_dimes).value(dimes));
-				addStatRow(new Builder().labelId(R.string.play_stat_nickels).value(nickels));
-				addStatRow(new Builder().labelId(R.string.play_stat_h_index).value(hIndex).infoId(R.string.play_stat_h_index_info));
-
+				Stats stats = new Stats(cursor);
+				bindUi(stats);
 				showData();
 				break;
 			default:
@@ -165,6 +131,16 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	private void bindUi(Stats stats) {
+		mTable.removeAllViews();
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.numberOfPlays));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.numberOfGames));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.quarters));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.dimes));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.nickels));
+		addStatRow(mHIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.hIndex).infoId(R.string.play_stat_h_index_info));
 	}
 
 	private void showEmpty() {
@@ -183,8 +159,43 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		mDataView.setVisibility(View.VISIBLE);
 	}
 
-	private void addStatRow(Builder builder) {
-		mTable.addView(builder.build(getActivity()));
+	private void addStatRow(ViewGroup container, Builder builder) {
+		container.addView(builder.build(getActivity()));
+	}
+
+	private static class Stats {
+		int numberOfPlays = 0;
+		int numberOfGames = 0;
+		int quarters = 0;
+		int dimes = 0;
+		int nickels = 0;
+		int hIndex = 0;
+		int hIndexCounter = 1;
+
+		public Stats(Cursor cursor) {
+			init(cursor);
+		}
+
+		private void init(Cursor cursor) {
+			do {
+				int playCount = cursor.getInt(PlayCountQuery.SUM_QUANTITY);
+				numberOfPlays += playCount;
+				numberOfGames++;
+
+				if (playCount >= 25) {
+					quarters++;
+				} else if (playCount >= 10) {
+					dimes++;
+				} else if (playCount > 5) {
+					nickels++;
+				}
+
+				if (hIndex == 0 && hIndexCounter > playCount) {
+					hIndex = hIndexCounter - 1;
+				}
+				hIndexCounter++;
+			} while (cursor.moveToNext());
+		}
 	}
 
 	private interface PlayCountQuery {
