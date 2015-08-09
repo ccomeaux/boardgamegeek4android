@@ -43,11 +43,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -75,6 +79,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.table_score) TableLayout mScoreTable;
 	@InjectView(R.id.table_dates) TableLayout mDatesTable;
 	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
+	@InjectView(R.id.table_locations) TableLayout mLocationsTable;
 	@InjectView(R.id.table_advanced) TableLayout mAdvancedTable;
 
 	@Override
@@ -290,6 +295,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(mPlayTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_per_player).valueInMinutes(averagePerPlayer));
 		}
 
+		for (Entry<String, Integer> location : stats.getPlaysPerLocation()) {
+			addStatRow(mLocationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
+		}
+
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
@@ -378,6 +387,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private int mWonGames;
 		private int mWonPlayerCount;
 		private Map<Integer, Integer> mWinsPerPlayerCount;
+		private Map<String, Integer> mPlaysPerLocation;
 		private final Set<String> mMonths = new HashSet<>();
 
 		public Stats(Cursor cursor) {
@@ -425,6 +435,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mWonGames = 0;
 			mWonPlayerCount = 0;
 			mWinsPerPlayerCount = new ArrayMap<>();
+			mPlaysPerLocation = new HashMap<>();
 			mMonths.clear();
 		}
 
@@ -488,6 +499,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 						}
 						mWinsPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
 					}
+				}
+
+				if (!TextUtils.isEmpty(pm.location)) {
+					int previousPlays = 0;
+					if (mPlaysPerLocation.containsKey(pm.location)) {
+						previousPlays = mPlaysPerLocation.get(pm.location);
+					}
+					mPlaysPerLocation.put(pm.location, previousPlays + pm.quantity);
 				}
 
 				for (PlayerModel player : pm.getPlayers()) {
@@ -698,6 +717,24 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return mPersonalLowScore;
 		}
 
+		public List<Entry<String, Integer>> getPlaysPerLocation() {
+			Set<Entry<String, Integer>> set = mPlaysPerLocation.entrySet();
+			List<Entry<String, Integer>> list = new ArrayList(set);
+			Collections.sort(list, new Comparator<Entry<String, Integer>>() {
+				@Override
+				public int compare(Entry<String, Integer> lhs, Entry<String, Integer> rhs) {
+					if (lhs.getValue() > rhs.getValue()) {
+						return -1;
+					} else if (lhs.getValue() < rhs.getValue()) {
+						return 1;
+					} else {
+						return lhs.getKey().compareTo(rhs.getKey());
+					}
+				}
+			});
+			return list;
+		}
+
 		public double calculateUtilization() {
 			return 1 - Math.exp(-mLambda * mPlayCount);
 		}
@@ -805,6 +842,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final boolean incomplete;
 		final int playerCount;
 		final boolean noWinStats;
+		final String location;
 		final List<PlayerModel> mPlayers = new ArrayList<>();
 
 		PlayModel(Cursor cursor) {
@@ -814,8 +852,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			quantity = cursor.getInt(PlayQuery.QUANTITY);
 			incomplete = CursorUtils.getBoolean(cursor, PlayQuery.INCOMPLETE);
 			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
-			mPlayers.clear();
 			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
+			location = cursor.getString(PlayQuery.LOCATION);
+			mPlayers.clear();
 		}
 
 		public List<PlayerModel> getPlayers() {
@@ -889,6 +928,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			Plays.INCOMPLETE, Plays.NO_WIN_STATS };
 		int PLAY_ID = 1;
 		int DATE = 2;
+		int LOCATION = 5;
 		int QUANTITY = 6;
 		int LENGTH = 7;
 		int PLAYER_COUNT = 9;
