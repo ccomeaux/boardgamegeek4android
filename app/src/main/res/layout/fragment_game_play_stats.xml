@@ -154,7 +154,17 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
+						android:stretchColumns="0,1">
+
+						<TableRow android:minHeight="@dimen/card_row_height">
+
+							<TextView android:text="@string/title_player"/>
+
+							<TextView android:text="@string/title_plays"/>
+
+							<TextView android:text="@string/title_wins"/>
+						</TableRow>
+					</TableLayout>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 

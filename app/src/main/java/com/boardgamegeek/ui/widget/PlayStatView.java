@@ -50,7 +50,7 @@ public class PlayStatView extends TableRow {
 		mLabel.setText(text);
 	}
 
-	public void setLabel(int textId) {
+	public void setLabel(@StringRes int textId) {
 		mLabel.setText(textId);
 	}
 
@@ -59,7 +59,7 @@ public class PlayStatView extends TableRow {
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void setInfoText(int textId) {
+	public void setInfoText(@StringRes int textId) {
 		setInfoText(getContext().getString(textId));
 	}
 

@@ -27,6 +27,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.IntegerValueFormatter;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
+import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -305,7 +306,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
 			mOpponents.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
-			addStatRow(mOpponentsTable, new Builder().labelText(playerStats.getKey()).value(ps.playCount));
+
+			PlayerStatView psv = new PlayerStatView(getActivity());
+			psv.setName(playerStats.getKey());
+			psv.setPlayCount(ps.playCount);
+			psv.setWins(ps.wins);
+			mOpponentsTable.addView(psv);
 		}
 
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
@@ -362,13 +368,18 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private class PlayerStats {
 		private String key;
 		private int playCount;
+		public int wins;
 
 		public PlayerStats() {
 			playCount = 0;
+			wins = 0;
 		}
 
 		public void add(PlayModel play, PlayerModel player) {
 			playCount += play.quantity;
+			if (player.win) {
+				wins += play.quantity;
+			}
 		}
 	}
 
@@ -533,7 +544,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				}
 
 				for (PlayerModel player : pm.getPlayers()) {
-					if (!AccountUtils.getUsername(getActivity()).equals(player.username)) {
+					if (!TextUtils.isEmpty(player.getUniqueName()) &&
+						!AccountUtils.getUsername(getActivity()).equals(player.username)) {
 						PlayerStats ps = mPlayerStats.get(player.getUniqueName());
 						if (ps == null) {
 							ps = new PlayerStats();
