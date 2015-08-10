@@ -77,6 +77,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.table_wins) TableLayout mWinTable;
 	@InjectView(R.id.card_score) View mScores;
 	@InjectView(R.id.table_score) TableLayout mScoreTable;
+	@InjectView(R.id.table_opponents) TableLayout mOpponentsTable;
 	@InjectView(R.id.table_dates) TableLayout mDatesTable;
 	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
 	@InjectView(R.id.table_locations) TableLayout mLocationsTable;
@@ -218,7 +219,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_play_rate).value(stats.getPlayRate()));
 		}
 
-
 		if (stats.hasWins()) {
 			addStatRow(mWinTable, new Builder().labelId(R.string.play_stat_win_percentage).valueAsPercentage(stats.getWinPercentage()));
 			addStatRow(mWinTable, new Builder().labelId(R.string.play_stat_win_skill).value(stats.getWinSkill()).infoId(R.string.play_stat_win_skill_info));
@@ -299,6 +299,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(mLocationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
 		}
 
+		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
+			PlayerStats ps = playerStats.getValue();
+			addStatRow(mOpponentsTable, new Builder().labelText(playerStats.getKey()).value(ps.playCount));
+		}
+
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
@@ -350,11 +355,25 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	private class PlayerStats {
+		private String key;
+		private int playCount;
+
+		public PlayerStats() {
+			playCount = 0;
+		}
+
+		public void add(PlayModel play, PlayerModel player) {
+			playCount += play.quantity;
+		}
+	}
+
 	private class Stats {
 		private double mLambda;
 		private String mCurrentYear;
 
 		private final Map<Integer, PlayModel> mPlays = new LinkedHashMap<>();
+		private final Map<String, PlayerStats> mPlayerStats = new HashMap<>();
 
 		private String mFirstPlayDate;
 		private String mLastPlayDate;
@@ -510,6 +529,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				}
 
 				for (PlayerModel player : pm.getPlayers()) {
+					if (!AccountUtils.getUsername(getActivity()).equals(player.username)) {
+						PlayerStats ps = mPlayerStats.get(player.getUniqueName());
+						if (ps == null) {
+							ps = new PlayerStats();
+						}
+						ps.add(pm, player);
+						mPlayerStats.put(player.getUniqueName(), ps);
+					}
+
 					if (StringUtils.isNumeric(player.score)) {
 						double i = StringUtils.parseDouble(player.score);
 						mTotalScoreCount++;
@@ -715,6 +743,24 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		public double getPersonalLowScore() {
 			return mPersonalLowScore;
+		}
+
+		public List<Entry<String, PlayerStats>> getPlayerStats() {
+			Set<Entry<String, PlayerStats>> set = mPlayerStats.entrySet();
+			List<Entry<String, PlayerStats>> list = new ArrayList(set);
+			Collections.sort(list, new Comparator<Entry<String, PlayerStats>>() {
+				@Override
+				public int compare(Entry<String, PlayerStats> lhs, Entry<String, PlayerStats> rhs) {
+					if (lhs.getValue().playCount > rhs.getValue().playCount) {
+						return -1;
+					} else if (lhs.getValue().playCount < rhs.getValue().playCount) {
+						return 1;
+					} else {
+						return lhs.getKey().compareTo(rhs.getKey());
+					}
+				}
+			});
+			return list;
 		}
 
 		public List<Entry<String, Integer>> getPlaysPerLocation() {

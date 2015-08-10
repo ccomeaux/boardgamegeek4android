@@ -161,6 +161,7 @@
 	<string name="title_add_color">Add Color</string>
 	<string name="title_personal">Personal</string>
 	<string name="title_charts">Charts</string>
+	<string name="title_opponents">Opponents</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
