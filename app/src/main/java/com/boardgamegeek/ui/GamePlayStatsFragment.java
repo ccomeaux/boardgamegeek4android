@@ -77,9 +77,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@InjectView(R.id.table_wins) TableLayout mWinTable;
 	@InjectView(R.id.card_score) View mScores;
 	@InjectView(R.id.table_score) TableLayout mScoreTable;
+	@InjectView(R.id.card_opponents) View mOpponents;
 	@InjectView(R.id.table_opponents) TableLayout mOpponentsTable;
 	@InjectView(R.id.table_dates) TableLayout mDatesTable;
 	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
+	@InjectView(R.id.card_locations) View mLocations;
 	@InjectView(R.id.table_locations) TableLayout mLocationsTable;
 	@InjectView(R.id.table_advanced) TableLayout mAdvancedTable;
 
@@ -296,10 +298,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		for (Entry<String, Integer> location : stats.getPlaysPerLocation()) {
+			mLocations.setVisibility(View.VISIBLE);
 			addStatRow(mLocationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
 		}
 
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
+			mOpponents.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
 			addStatRow(mOpponentsTable, new Builder().labelText(playerStats.getKey()).value(ps.playCount));
 		}
