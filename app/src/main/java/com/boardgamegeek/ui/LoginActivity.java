@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog.Builder;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -26,7 +27,10 @@ import com.boardgamegeek.auth.AuthResponse;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.VersionUtils;
+
+import java.util.Arrays;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -215,7 +219,18 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		Timber.i("Creating account");
 		final Account account = new Account(mUsername, Authenticator.ACCOUNT_TYPE);
 
-		mAccountManager.setAuthToken(account, Authenticator.AUTHTOKEN_TYPE, authResponse.authToken);
+		try {
+			mAccountManager.setAuthToken(account, Authenticator.AUTHTOKEN_TYPE, authResponse.authToken);
+		} catch (SecurityException e) {
+			showError("Tried to set auth token of type " + Authenticator.AUTHTOKEN_TYPE);
+			Account[] as = mAccountManager.getAccountsByType(Authenticator.AUTHTOKEN_TYPE);
+			if (as == null) {
+				showError("No accounts of this type on the device.");
+			} else {
+				showError("Accounts of this type:\n" + StringUtils.formatList(Arrays.asList(as)));
+			}
+			return;
+		}
 		Bundle userData = new Bundle();
 		userData.putString(Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(authResponse.authTokenExpiry));
 
@@ -238,5 +253,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		setAccountAuthenticatorResult(intent.getExtras());
 		setResult(RESULT_OK, intent);
 		finish();
+	}
+
+	private void showError(String message) {
+		Builder b = new Builder(this);
+		b.setTitle("Error").setMessage(message);
+		b.create().show();
 	}
 }
