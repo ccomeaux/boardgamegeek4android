@@ -27,10 +27,7 @@ import com.boardgamegeek.auth.AuthResponse;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.VersionUtils;
-
-import java.util.Arrays;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -222,13 +219,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		try {
 			mAccountManager.setAuthToken(account, Authenticator.AUTHTOKEN_TYPE, authResponse.authToken);
 		} catch (SecurityException e) {
-			showError("Tried to set auth token of type " + Authenticator.AUTHTOKEN_TYPE);
-			Account[] as = mAccountManager.getAccountsByType(Authenticator.AUTHTOKEN_TYPE);
-			if (as == null) {
-				showError("No accounts of this type on the device.");
-			} else {
-				showError("Accounts of this type:\n" + StringUtils.formatList(Arrays.asList(as)));
-			}
+			showError("Uh-oh! This isn't an error we expect to see. If you have ScorePal installed, there's a known problem that one prevents the other from signing in. We're working to resolve the issue.");
 			return;
 		}
 		Bundle userData = new Bundle();
