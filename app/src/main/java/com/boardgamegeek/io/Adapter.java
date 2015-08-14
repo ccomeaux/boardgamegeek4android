@@ -19,6 +19,7 @@ import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
 import retrofit.android.AndroidLog;
 import retrofit.client.Response;
+import retrofit.converter.Converter;
 import retrofit.converter.SimpleXMLConverter;
 
 public class Adapter {
@@ -38,8 +39,8 @@ public class Adapter {
 		return addAuth(context, createBuilder()).build().create(BggService.class);
 	}
 
-	public static BggService createForPost(Context context) {
-		return addAuth(context, createBuilder()).setConverter(new JsonConverter()).build().create(BggService.class);
+	public static BggService createForPost(Context context, Converter converter) {
+		return addAuth(context, createBuilder()).setConverter(converter).build().create(BggService.class);
 	}
 
 	private static Builder createBuilder() {

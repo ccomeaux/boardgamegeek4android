@@ -17,6 +17,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.JsonConverter;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.Player;
@@ -58,7 +59,7 @@ public class SyncPlaysUpload extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		mPostService = Adapter.createForPost(mContext);
+		mPostService = Adapter.createForPost(mContext, new JsonConverter());
 		mMessages = new ArrayList<>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 		mPersister = new PlayPersister(mContext);
@@ -76,8 +77,11 @@ public class SyncPlaysUpload extends SyncTask {
 	private void updatePendingPlays(String username, SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
-			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
-				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
+			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
+				null,
+				Plays.SYNC_STATUS + "=?",
+				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) },
+				null);
 			String detail = String.format("Uploading %s play(s)", cursor.getCount());
 			Timber.i(detail);
 			showNotification(detail);
@@ -131,8 +135,11 @@ public class SyncPlaysUpload extends SyncTask {
 	private void deletePendingPlays(SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
-			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
-				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
+			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
+				null,
+				Plays.SYNC_STATUS + "=?",
+				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
+				null);
 			String detail = String.format("Deleting %s play(s)", cursor.getCount());
 			Timber.i(detail);
 			showNotification(detail);
