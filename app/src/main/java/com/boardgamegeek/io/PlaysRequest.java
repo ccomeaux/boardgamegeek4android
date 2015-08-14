@@ -33,7 +33,7 @@ public class PlaysRequest extends RetryableRequest<PlaysResponse> {
 		if (type == PlaysRequest.TYPE_MIN) {
 			return mService.playsByMinDate(username, date, page);
 		} else if (type == PlaysRequest.TYPE_MAX) {
-			return mService.playsByMinDate(username, date, page);
+			return mService.playsByMaxDate(username, date, page);
 		} else {
 			return mService.plays(username, page);
 		}
