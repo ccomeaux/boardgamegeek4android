@@ -11,7 +11,9 @@ import retrofit.RetrofitError;
 import retrofit.converter.ConversionException;
 
 public class PlayPostResponse {
-	private String html;
+	@SuppressWarnings("unused") private String html;
+	@SuppressWarnings("unused") private String numplays;
+	@SuppressWarnings("unused") private String playid;
 
 	private Exception mException;
 
@@ -24,35 +26,33 @@ public class PlayPostResponse {
 	}
 
 	public boolean hasAuthError() {
-		if (mException != null) {
-			if (mException instanceof RetrofitError && mException.getCause() instanceof ConversionException
-				&& mException.getCause().getCause() instanceof AuthException) {
-				return true;
-			}
-		} else {
-			if (TextUtils.isEmpty(html)) {
-				return true;
-			}
+		if (mException != null &&
+			mException instanceof RetrofitError &&
+			mException.getCause() instanceof ConversionException &&
+			mException.getCause().getCause() instanceof AuthException) {
+			return true;
+		} else if (TextUtils.isEmpty(html)) {
+			return true;
 		}
 		return false;
 	}
 
 	public boolean hasInvalidIdError() {
-		if (mException != null) {
-			if (mException instanceof RetrofitError && mException.getCause() instanceof ConversionException
-				&& mException.getCause().getCause() instanceof InvalidIdException) {
-				return true;
-			}
+		if (mException != null &&
+			mException instanceof RetrofitError &&
+			mException.getCause() instanceof ConversionException &&
+			mException.getCause().getCause() instanceof InvalidIdException) {
+			return true;
 		}
 		return false;
 	}
 
 	public boolean hasPossibleSuccessError() {
-		if (mException != null) {
-			if (mException instanceof RetrofitError && mException.getCause() instanceof ConversionException
-				&& mException.getCause().getCause() instanceof PossibleSuccessException) {
-				return true;
-			}
+		if (mException != null &&
+			mException instanceof RetrofitError &&
+			mException.getCause() instanceof ConversionException &&
+			mException.getCause().getCause() instanceof PossibleSuccessException) {
+			return true;
 		}
 		return false;
 	}

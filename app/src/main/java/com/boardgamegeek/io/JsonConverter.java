@@ -14,7 +14,7 @@ import retrofit.mime.TypedOutput;
 import com.google.gson.Gson;
 
 public class JsonConverter implements Converter {
-	private GsonConverter mGsonConverter;
+	private final GsonConverter mGsonConverter;
 
 	public JsonConverter() {
 		mGsonConverter = new GsonConverter(new Gson());
@@ -59,6 +59,6 @@ public class JsonConverter implements Converter {
 
 	@Override
 	public TypedOutput toBody(Object object) {
-		return mGsonConverter.toBody(object);
+		throw new UnsupportedOperationException();
 	}
 }
