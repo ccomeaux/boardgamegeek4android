@@ -18,6 +18,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.JsonConverter;
+import com.boardgamegeek.io.PlaySaveConverter;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.Player;
@@ -45,7 +46,8 @@ import timber.log.Timber;
 public class SyncPlaysUpload extends SyncTask {
 	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
-	private BggService mPostService;
+	private BggService mSaveService;
+	private BggService mDeleteService;
 	private PlayPersister mPersister;
 
 	public SyncPlaysUpload(Context context, BggService service) {
@@ -59,7 +61,8 @@ public class SyncPlaysUpload extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		mPostService = Adapter.createForPost(mContext, new JsonConverter());
+		mSaveService = Adapter.createForPost(mContext, new PlaySaveConverter());
+		mDeleteService = Adapter.createForPost(mContext, new JsonConverter());
 		mMessages = new ArrayList<>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 		mPersister = new PlayPersister(mContext);
@@ -232,7 +235,7 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 
 		try {
-			return mPostService.geekPlay(form);
+			return mSaveService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}
@@ -249,7 +252,7 @@ public class SyncPlaysUpload extends SyncTask {
 		form.put("playid", String.valueOf(playId));
 
 		try {
-			return mPostService.geekPlay(form);
+			return mDeleteService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}

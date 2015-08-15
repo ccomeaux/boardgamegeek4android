@@ -14,8 +14,13 @@ public class PlayPostResponse {
 	@SuppressWarnings("unused") private String html;
 	@SuppressWarnings("unused") private String numplays;
 	@SuppressWarnings("unused") private String playid;
+	@SuppressWarnings("unused") private String error;
 
 	private Exception mException;
+
+	public PlayPostResponse(String errorMessage) {
+		this.error = errorMessage;
+	}
 
 	public PlayPostResponse(Exception e) {
 		mException = e;
@@ -26,7 +31,9 @@ public class PlayPostResponse {
 	}
 
 	public boolean hasAuthError() {
-		if (mException != null &&
+		if ("You must login to save plays".equals(error)) {
+			return true;
+		} else if (mException != null &&
 			mException instanceof RetrofitError &&
 			mException.getCause() instanceof ConversionException &&
 			mException.getCause().getCause() instanceof AuthException) {
@@ -38,7 +45,9 @@ public class PlayPostResponse {
 	}
 
 	public boolean hasInvalidIdError() {
-		if (mException != null &&
+		if ("You are not permitted to edit this play.".equals(error)) {
+			return true;
+		} else if (mException != null &&
 			mException instanceof RetrofitError &&
 			mException.getCause() instanceof ConversionException &&
 			mException.getCause().getCause() instanceof InvalidIdException) {
