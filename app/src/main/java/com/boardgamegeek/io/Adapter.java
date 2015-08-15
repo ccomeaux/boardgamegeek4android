@@ -32,7 +32,7 @@ public class Adapter {
 	}
 
 	public static BggService createWithJson() {
-		return createBuilder().setConverter(new JsonConverter()).build().create(BggService.class);
+		return createBuilderWithoutConverter().build().create(BggService.class);
 	}
 
 	public static BggService createWithAuth(Context context) {
@@ -44,6 +44,10 @@ public class Adapter {
 	}
 
 	private static Builder createBuilder() {
+		return createBuilderWithoutConverter().setConverter(new SimpleXMLConverter(false));
+	}
+
+	private static Builder createBuilderWithoutConverter() {
 		ErrorHandler errorHandler = new ErrorHandler() {
 			@Override
 			public Throwable handleError(RetrofitError cause) {
@@ -59,8 +63,9 @@ public class Adapter {
 			}
 		};
 
-		Builder builder = new RestAdapter.Builder().setEndpoint("https://www.boardgamegeek.com/")
-			.setConverter(new SimpleXMLConverter(false)).setErrorHandler(errorHandler);
+		Builder builder = new RestAdapter.Builder()
+			.setEndpoint("https://www.boardgamegeek.com/")
+			.setErrorHandler(errorHandler);
 		if (DEBUG) {
 			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
 		}
