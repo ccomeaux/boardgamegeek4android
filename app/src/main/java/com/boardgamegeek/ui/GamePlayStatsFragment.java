@@ -3,12 +3,13 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,43 +17,74 @@ import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.widget.IntegerValueFormatter;
 import com.boardgamegeek.ui.widget.PlayStatView;
-import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.ui.widget.PlayStatView.Builder;
+import com.boardgamegeek.ui.widget.PlayerStatView;
+import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.mikephil.charting.animation.Easing.EasingOption;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.00");
-	private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("0.0");
+	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int mGameId;
 
 	private int mPlayingTime;
 	private double mRating;
+	private Stats mStats;
 
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
-	@InjectView(R.id.table) TableLayout mTable;
+	@InjectView(R.id.table_play_count) TableLayout mPlayCountTable;
+	@InjectView(R.id.chart_play_count) HorizontalBarChart mPlayCountChart;
+	@InjectView(R.id.card_wins) View mWins;
+	@InjectView(R.id.table_wins) TableLayout mWinTable;
+	@InjectView(R.id.card_score) View mScores;
+	@InjectView(R.id.table_score) TableLayout mScoreTable;
+	@InjectView(R.id.card_opponents) View mOpponents;
+	@InjectView(R.id.table_opponents) TableLayout mOpponentsTable;
+	@InjectView(R.id.table_dates) TableLayout mDatesTable;
+	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
+	@InjectView(R.id.card_locations) View mLocations;
+	@InjectView(R.id.table_locations) TableLayout mLocationsTable;
+	@InjectView(R.id.table_advanced) TableLayout mAdvancedTable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,29 +96,51 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		ButterKnife.inject(this, rootView);
+
+		mPlayCountChart.setDrawGridBackground(false);
+		mPlayCountChart.getAxisRight().setValueFormatter(new IntegerValueFormatter());
+		mPlayCountChart.getAxisLeft().setEnabled(false);
+		mPlayCountChart.getXAxis().setDrawGridLines(false);
+		mPlayCountChart.setDescription(null);
+
 		return rootView;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
+		getLoaderManager().restartLoader(GameQuery._TOKEN, null, this);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
-			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlayQuery.PROJECTION, PlayItems.OBJECT_ID
-					+ "=? AND " + Plays.SYNC_STATUS + "=?", new String[] { String.valueOf(mGameId),
-					String.valueOf(Play.SYNC_STATUS_SYNCED) }, Plays.DATE + " ASC");
-				break;
 			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection."
-					+ Collection.GAME_ID + "=?", new String[] { String.valueOf(mGameId) }, null);
+				loader = new CursorLoader(getActivity(),
+					Collection.CONTENT_URI,
+					GameQuery.PROJECTION,
+					"collection." + Collection.GAME_ID + "=?",
+					new String[] { String.valueOf(mGameId) },
+					null);
+				break;
+			case PlayQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Plays.CONTENT_URI,
+					PlayQuery.PROJECTION,
+					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
+					new String[] { String.valueOf(mGameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
+					Plays.DATE + " ASC");
+				break;
+			case PlayerQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Plays.buildPlayersUri(),
+					PlayerQuery.PROJECTION,
+					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
+					new String[] { String.valueOf(mGameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
+					null);
 				break;
 		}
 		return loader;
@@ -121,67 +175,160 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				} else {
 					mRating = ratingSum / ratingCount;
 				}
-				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
+				getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				break;
 			case PlayQuery._TOKEN:
-				mTable.removeAllViews();
-
-				Stats stats = new Stats(cursor);
-
-				if (!TextUtils.isEmpty(stats.getQuarterDate())) {
-					addStatRow("", getString(R.string.play_stat_quarter));
-				} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
-					addStatRow("", getString(R.string.play_stat_dime));
-				} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
-					addStatRow("", getString(R.string.play_stat_nickel));
-				}
-				addStatRow(R.string.play_stat_play_count, stats.getPlayCount());
-				addStatRowMaybe(R.string.play_stat_play_count_incomplete, stats.getPlayCountIncomplete());
-				for (int i = 1; i <= stats.getMaxPlayerCount(); i++) {
-					addStatRowMaybe(getResources().getQuantityString(R.plurals.player_description, i, i),
-						stats.getPlayCount(i));
-				}
-
-				addDivider();
-				addStatRow(R.string.play_stat_months_played, stats.getMonthsPlayed());
-				addStatRowMaybe(R.string.play_stat_play_rate, stats.getPlayRate());
-				addDateRow(stats.getFirstPlayDate(), R.string.play_stat_first_play);
-				addDateRow(stats.getNickelDate(), R.string.play_stat_nickel);
-				addDateRow(stats.getDimeDate(), R.string.play_stat_dime);
-				addDateRow(stats.getQuarterDate(), R.string.play_stat_quarter);
-				addDateRow(stats.getLastPlayDate(), R.string.play_stat_last_play);
-
-				addDivider();
-				addStatRow(R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
-				int average = stats.getAveragePlayTime();
-				if (average > 0) {
-					addStatRow(R.string.play_stat_average_play_time, DateTimeUtils.formatMinutes(average));
-					if (mPlayingTime > 0) {
-						if (average > mPlayingTime) {
-							addStatRow(R.string.play_stat_average_play_time_slower, DateTimeUtils.formatMinutes(average - mPlayingTime));
-						} else if (mPlayingTime > average) {
-							addStatRow(R.string.play_stat_average_play_time_faster, DateTimeUtils.formatMinutes(mPlayingTime - average));
-						}
-						// don't display anything if the average is exactly as expected
-					}
-				}
-				int averagePerPlayer = stats.getAveragePlayTimePerPlayer();
-				if (averagePerPlayer > 0) {
-					addStatRow(R.string.play_stat_average_play_time_per_player, DateTimeUtils.formatMinutes(averagePerPlayer));
-				}
-
-				addDivider();
-				addStatRow(R.string.play_stat_fhm, stats.calculateFhm(), R.string.play_stat_fhm_info);
-				addStatRow(R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
-				addStatRow(R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
-				addStatRowPercentage(R.string.play_stat_utilization, stats.calculateUtilization(),
-					R.string.play_stat_utilization_info);
-
+				mStats = new Stats(cursor);
+				getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+				break;
+			case PlayerQuery._TOKEN:
+				mStats.addPlayerData(cursor);
+				mStats.calculate();
+				bindUi(mStats);
 				showData();
 				break;
 			default:
 				cursor.close();
 				break;
+		}
+	}
+
+	private void bindUi(Stats stats) {
+		mPlayCountTable.removeAllViews();
+		mWinTable.removeAllViews();
+		mScoreTable.removeAllViews();
+		mDatesTable.removeAllViews();
+		mPlayTimeTable.removeAllViews();
+		mAdvancedTable.removeAllViews();
+
+		if (!TextUtils.isEmpty(stats.getDollarDate())) {
+			addStatRow(mPlayCountTable, new Builder().value(getString(R.string.play_stat_dollar)));
+		} else if (!TextUtils.isEmpty(stats.getHalfDollarDate())) {
+			addStatRow(mPlayCountTable, new Builder().value(getString(R.string.play_stat_half_dollar)));
+		} else if (!TextUtils.isEmpty(stats.getQuarterDate())) {
+			addStatRow(mPlayCountTable, new Builder().value(getString(R.string.play_stat_quarter)));
+		} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
+			addStatRow(mPlayCountTable, new Builder().value(getString(R.string.play_stat_dime)));
+		} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
+			addStatRow(mPlayCountTable, new Builder().value(getString(R.string.play_stat_nickel)));
+		}
+		addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.getPlayCount()));
+		if (stats.getPlayCountIncomplete() > 0) {
+			addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_play_count_incomplete).value(stats.getPlayCountIncomplete()));
+
+		}
+		addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_months_played).value(stats.getMonthsPlayed()));
+		if (stats.getPlayRate() > 0) {
+			addStatRow(mPlayCountTable, new Builder().labelId(R.string.play_stat_play_rate).value(stats.getPlayRate()));
+		}
+
+		if (stats.hasWins()) {
+			addStatRow(mWinTable, new Builder().labelId(R.string.play_stat_win_percentage).valueAsPercentage(stats.getWinPercentage()));
+			addStatRow(mWinTable, new Builder().labelId(R.string.play_stat_win_skill).value(stats.getWinSkill()).infoId(R.string.play_stat_win_skill_info));
+			mWins.setVisibility(View.VISIBLE);
+		} else {
+			mWins.setVisibility(View.GONE);
+		}
+
+		ArrayList<String> playersLabels = new ArrayList<>();
+		ArrayList<BarEntry> playCountValues = new ArrayList<>();
+		ArrayList<BarEntry> winValues = new ArrayList<>();
+		int index = 0;
+		for (int i = stats.getMinPlayerCount(); i <= stats.getMaxPlayerCount(); i++) {
+			playersLabels.add(String.valueOf(i));
+			playCountValues.add(new BarEntry(stats.getPlayCount(i), index));
+			winValues.add(new BarEntry(stats.getWins(i), index));
+			index++;
+		}
+		ArrayList<BarDataSet> dataSets = new ArrayList<>();
+
+		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
+		playCountDataSet.setDrawValues(false);
+		playCountDataSet.setHighlightEnabled(false);
+		playCountDataSet.setColor(getResources().getColor(R.color.primary));
+		dataSets.add(playCountDataSet);
+
+		BarDataSet winsDataSet = new BarDataSet(winValues, getString(R.string.title_wins));
+		winsDataSet.setDrawValues(false);
+		winsDataSet.setHighlightEnabled(false);
+		winsDataSet.setColor(getResources().getColor(R.color.primary_dark));
+		dataSets.add(winsDataSet);
+
+		BarData data = new BarData(playersLabels, dataSets);
+		mPlayCountChart.setData(data);
+		mPlayCountChart.animateY(1000, EasingOption.EaseInOutBack);
+
+		if (stats.hasScores()) {
+			addStatRow(mScoreTable, new Builder().labelId(R.string.average).value(stats.getAverageScore()));
+			addStatRow(mScoreTable, new Builder().labelId(R.string.average_win).value(stats.getAverageWinningScore()));
+			addStatRow(mScoreTable, new Builder().labelId(R.string.high).value(stats.getHighScore(), SCORE_FORMAT).infoText(stats.getHighScorers()));
+			addStatRow(mScoreTable, new Builder().labelId(R.string.low).value(stats.getLowScore(), SCORE_FORMAT).infoText(stats.getLowScorers()));
+			addStatRow(mScoreTable, new Builder().value(getString(R.string.title_personal)));
+			addStatRow(mScoreTable, new Builder().labelId(R.string.average).value(stats.getPersonalAverageScore()));
+			addStatRow(mScoreTable, new Builder().labelId(R.string.high).value(stats.getPersonalHighScore(), SCORE_FORMAT));
+			addStatRow(mScoreTable, new Builder().labelId(R.string.low).value(stats.getPersonalLowScore(), SCORE_FORMAT));
+			mScores.setVisibility(View.VISIBLE);
+		} else {
+			mScores.setVisibility(View.GONE);
+		}
+
+		addStatRowMaybe(mDatesTable, new Builder().labelId(R.string.play_stat_first_play).valueAsDate(stats.getFirstPlayDate(), getActivity()));
+		addStatRowMaybe(mDatesTable, new Builder().labelId(R.string.play_stat_nickel).valueAsDate(stats.getNickelDate(), getActivity()));
+		addStatRowMaybe(mDatesTable, new Builder().labelId(R.string.play_stat_dime).valueAsDate(stats.getDimeDate(), getActivity()));
+		addStatRowMaybe(mDatesTable, new Builder().labelId(R.string.play_stat_quarter).valueAsDate(stats.getQuarterDate(), getActivity()));
+		addStatRowMaybe(mDatesTable, new Builder().labelId(R.string.play_stat_half_dollar).valueAsDate(stats.getHalfDollarDate(), getActivity()));
+		addStatRowMaybe(mDatesTable, new Builder().labelId(R.string.play_stat_dollar).valueAsDate(stats.getDollarDate(), getActivity()));
+		addStatRowMaybe(mDatesTable, new Builder().labelId(R.string.play_stat_last_play).valueAsDate(stats.getLastPlayDate(), getActivity()));
+
+		addStatRow(mPlayTimeTable, new Builder().labelId(R.string.play_stat_hours_played).value((int) stats.getHoursPlayed()));
+		int average = stats.getAveragePlayTime();
+		if (average > 0) {
+			addStatRow(mPlayTimeTable, new Builder().labelId(R.string.play_stat_average_play_time).valueInMinutes(average));
+			if (mPlayingTime > 0) {
+				if (average > mPlayingTime) {
+					addStatRow(mPlayTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_slower).valueInMinutes(average - mPlayingTime));
+				} else if (mPlayingTime > average) {
+					addStatRow(mPlayTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_faster).valueInMinutes(mPlayingTime - average));
+				}
+				// don't display anything if the average is exactly as expected
+			}
+		}
+		int averagePerPlayer = stats.getAveragePlayTimePerPlayer();
+		if (averagePerPlayer > 0) {
+			addStatRow(mPlayTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_per_player).valueInMinutes(averagePerPlayer));
+		}
+
+		for (Entry<String, Integer> location : stats.getPlaysPerLocation()) {
+			mLocations.setVisibility(View.VISIBLE);
+			addStatRow(mLocationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
+		}
+
+		int row = 0;
+		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
+			mOpponents.setVisibility(View.VISIBLE);
+			PlayerStats ps = playerStats.getValue();
+
+			PlayerStatView psv = new PlayerStatView(getActivity());
+			psv.setName(playerStats.getKey());
+			psv.setPlayCount(ps.playCount);
+			psv.setWins(ps.wins);
+			psv.setAverageScore(ps.getAverageScore());
+			if (row % 2 == 1) {
+				psv.setBackgroundResource(R.color.primary_transparent);
+			}
+			mOpponentsTable.addView(psv);
+			row++;
+		}
+
+		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
+		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
+		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
+		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+		int hIndexOffset = stats.getHIndexOffset();
+		if (hIndexOffset == -1) {
+			addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_in));
+		} else {
+			addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_out).value(hIndexOffset));
 		}
 	}
 
@@ -201,105 +348,73 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		mDataView.setVisibility(View.VISIBLE);
 	}
 
-	private void addDateRow(String date, int resId) {
-		if (!TextUtils.isEmpty(date)) {
-			try {
-				long l = FORMAT.parse(date).getTime();
-				String d = DateUtils.formatDateTime(getActivity(), l, DateUtils.FORMAT_SHOW_DATE
-					| DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
-				addStatRow(getString(resId), d);
-			} catch (ParseException e) {
-				// just don't add the row
-			}
+	private void addStatRowMaybe(ViewGroup container, Builder builder) {
+		if (builder.hasValue()) {
+			PlayStatView view = builder.build(getActivity());
+			container.addView(view);
 		}
 	}
 
-	private void addStatRowMaybe(int labelId, int value) {
-		if (value > 0) {
-			addStatRow(labelId, value);
-		}
+	private void addStatRow(ViewGroup container, Builder builder) {
+		PlayStatView view = builder.build(getActivity());
+		container.addView(view);
 	}
 
-	private void addStatRowMaybe(String label, int value) {
-		if (value > 0) {
-			addStatRow(label, String.valueOf(value));
-		}
-	}
-
-	private void addStatRowMaybe(int labelId, int value, int infoId) {
-		if (value > 0) {
-			addStatRow(labelId, value, infoId);
-		}
-	}
-
-	private void addStatRowMaybe(int labelId, double value) {
-		if (value > 0.0) {
-			addStatRow(labelId, value);
-		}
-	}
-
-	private void addStatRow(int labelId, int value) {
-		addStatRow(labelId, String.valueOf(value));
-	}
-
-	private void addStatRow(int labelId, int value, int infoId) {
-		addStatRow(labelId, String.valueOf(value), infoId);
-	}
-
-	private void addStatRow(int labelId, double value) {
-		addStatRow(labelId, DOUBLE_FORMAT.format(value));
-	}
-
-	private void addStatRow(int labelId, double value, int infoId) {
-		addStatRow(labelId, DOUBLE_FORMAT.format(value), infoId);
-	}
-
-	private void addStatRowPercentage(int labelId, double value, int infoId) {
-		addStatRow(labelId, PERCENTAGE_FORMAT.format(value * 100) + "%", infoId);
-	}
-
-	private void addStatRow(int labelId, String value) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(labelId);
-		view.setValue(value);
-		mTable.addView(view);
-	}
-
-	private void addStatRow(int labelId, String value, int infoId) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(labelId);
-		view.setValue(value);
-		view.setInfoText(infoId);
-		mTable.addView(view);
-	}
-
-	private void addStatRow(String label, String value) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(label);
-		view.setValue(value);
-		mTable.addView(view);
-	}
-
-	private void addDivider() {
+	private void addDivider(ViewGroup container) {
 		View view = new View(getActivity());
 		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
 		view.setBackgroundResource(R.color.primary_dark);
-		mTable.addView(view);
+		container.addView(view);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	private class PlayerStats {
+		private String key;
+		private int playCount;
+		public int wins;
+		private double totalScore;
+		private int totalScoreCount;
+
+		public PlayerStats() {
+			playCount = 0;
+			wins = 0;
+			totalScore = 0.0;
+			totalScoreCount = 0;
+		}
+
+		public void add(PlayModel play, PlayerModel player) {
+			playCount += play.quantity;
+			if (player.win) {
+				wins += play.quantity;
+			}
+			if (StringUtils.isNumeric(player.score)) {
+				totalScore += StringUtils.parseDouble(player.score) * play.quantity;
+				totalScoreCount += play.quantity;
+			}
+		}
+
+		public double getAverageScore() {
+			return totalScore / totalScoreCount;
+		}
+	}
+
 	private class Stats {
 		private double mLambda;
 		private String mCurrentYear;
+
+		private final Map<Integer, PlayModel> mPlays = new LinkedHashMap<>();
+		private final Map<String, PlayerStats> mPlayerStats = new HashMap<>();
 
 		private String mFirstPlayDate;
 		private String mLastPlayDate;
 		private String mNickelDate;
 		private String mDimeDate;
 		private String mQuarterDate;
+		private String mHalfDollarDate;
+		private String mDollarDate;
 		private int mPlayCount;
 		private int mPlayCountIncomplete;
 		private int mPlayCountWithLength;
@@ -308,76 +423,202 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private Map<Integer, Integer> mPlayCountPerPlayerCount;
 		private int mRealMinutesPlayed;
 		private int mEstimatedMinutesPlayed;
-		private Set<String> mMonths = new HashSet<>();
+		private int mWinnableGames;
+		private double mTotalScore;
+		private int mTotalScoreCount;
+		private double mHighScore;
+		private double mLowScore;
+		private int mTotalWinningScoreCount;
+		private double mTotalWinningScore;
+		private double mPersonalTotalScore;
+		private int mPersonalTotalScoreCount;
+		private double mPersonalHighScore;
+		private double mPersonalLowScore;
+		private final Set<String> mHighScorers = new HashSet<>();
+		private final Set<String> mLowScorers = new HashSet<>();
+		private int mWonGames;
+		private int mWonPlayerCount;
+		private Map<Integer, Integer> mWinsPerPlayerCount;
+		private Map<String, Integer> mPlaysPerLocation;
+		private final Set<String> mMonths = new HashSet<>();
 
 		public Stats(Cursor cursor) {
+			init();
+			do {
+				PlayModel pm = new PlayModel(cursor);
+				mPlays.put(pm.playId, pm);
+			} while (cursor.moveToNext());
+		}
+
+		private void init() {
 			mLambda = Math.log(0.1) / -10;
 			mCurrentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+
+			mPlays.clear();
 
 			mFirstPlayDate = null;
 			mLastPlayDate = null;
 			mNickelDate = null;
 			mDimeDate = null;
 			mQuarterDate = null;
+			mHalfDollarDate = null;
+			mDollarDate = null;
 			mPlayCount = 0;
-			mPlayCount = 0;
+			mPlayCountIncomplete = 0;
 			mPlayCountWithLength = 0;
 			mPlayCountThisYear = 0;
 			mPlayerCountSumWithLength = 0;
-			mPlayCountPerPlayerCount = new HashMap<>();
+			mPlayCountPerPlayerCount = new ArrayMap<>();
 			mRealMinutesPlayed = 0;
 			mEstimatedMinutesPlayed = 0;
+			mWinnableGames = 0;
+			mTotalScore = 0;
+			mTotalScoreCount = 0;
+			mHighScore = Integer.MIN_VALUE;
+			mLowScore = Integer.MAX_VALUE;
+			mTotalWinningScoreCount = 0;
+			mTotalWinningScore = 0;
+			mPersonalTotalScore = 0;
+			mPersonalTotalScoreCount = 0;
+			mPersonalHighScore = Integer.MIN_VALUE;
+			mPersonalLowScore = Integer.MAX_VALUE;
+			mHighScorers.clear();
+			mLowScorers.clear();
+			mWonGames = 0;
+			mWonPlayerCount = 0;
+			mWinsPerPlayerCount = new ArrayMap<>();
+			mPlaysPerLocation = new HashMap<>();
 			mMonths.clear();
+		}
 
-			do {
-				boolean incomplete = cursor.getInt(PlayQuery.INCOMPLETE) == 1;
-				int quantity = cursor.getInt(PlayQuery.QUANTITY);
-				int length = cursor.getInt(PlayQuery.LENGTH);
-				String date = cursor.getString(PlayQuery.DATE);
-				int playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
-
-				if (incomplete) {
-					mPlayCountIncomplete += quantity;
+		public void calculate() {
+			boolean includeIncomplete = PreferencesUtils.logPlayStatsIncomplete(getActivity());
+			for (PlayModel pm : mPlays.values()) {
+				if (!includeIncomplete && pm.incomplete) {
+					mPlayCountIncomplete += pm.quantity;
 					continue;
 				}
 
 				if (mFirstPlayDate == null) {
-					mFirstPlayDate = date;
+					mFirstPlayDate = pm.date;
 				}
-				mLastPlayDate = date;
+				mLastPlayDate = pm.date;
 
-				if (mPlayCount < 5 && (mPlayCount + quantity) >= 5) {
-					mNickelDate = date;
+				if (mPlayCount < 5 && (mPlayCount + pm.quantity) >= 5) {
+					mNickelDate = pm.date;
 				}
-				if (mPlayCount < 10 && (mPlayCount + quantity) >= 10) {
-					mDimeDate = date;
+				if (mPlayCount < 10 && (mPlayCount + pm.quantity) >= 10) {
+					mDimeDate = pm.date;
 				}
-				if (mPlayCount < 25 && (mPlayCount + quantity) >= 25) {
-					mQuarterDate = date;
+				if (mPlayCount < 25 && (mPlayCount + pm.quantity) >= 25) {
+					mQuarterDate = pm.date;
 				}
-				mPlayCount += quantity;
-				if (date.substring(0, 4).equals(mCurrentYear)) {
-					mPlayCountThisYear += quantity;
+				if (mPlayCount < 50 && (mPlayCount + pm.quantity) >= 50) {
+					mHalfDollarDate = pm.date;
+				}
+				if (mPlayCount < 100 && (mPlayCount + pm.quantity) >= 100) {
+					mDollarDate = pm.date;
+				}
+				mPlayCount += pm.quantity;
+				if (pm.getYear().equals(mCurrentYear)) {
+					mPlayCountThisYear += pm.quantity;
 				}
 
-				if (length == 0) {
-					mEstimatedMinutesPlayed += mPlayingTime * quantity;
+				if (pm.length == 0) {
+					mEstimatedMinutesPlayed += mPlayingTime * pm.quantity;
 				} else {
-					mRealMinutesPlayed += length;
-					mPlayCountWithLength += quantity;
-					mPlayerCountSumWithLength += playerCount * quantity;
+					mRealMinutesPlayed += pm.length;
+					mPlayCountWithLength += pm.quantity;
+					mPlayerCountSumWithLength += pm.playerCount * pm.quantity;
 				}
 
-				if (playerCount > 0) {
+				if (pm.playerCount > 0) {
 					int previousQuantity = 0;
-					if (mPlayCountPerPlayerCount.containsKey(playerCount)) {
-						previousQuantity = mPlayCountPerPlayerCount.get(playerCount);
+					if (mPlayCountPerPlayerCount.containsKey(pm.playerCount)) {
+						previousQuantity = mPlayCountPerPlayerCount.get(pm.playerCount);
 					}
-					mPlayCountPerPlayerCount.put(playerCount, previousQuantity + quantity);
+					mPlayCountPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
 				}
 
-				mMonths.add(date.substring(0, 7));
+				if (pm.isWinnable()) {
+					mWinnableGames += pm.quantity;
+					if (pm.didWin(AccountUtils.getUsername(getActivity()))) {
+						mWonGames += pm.quantity;
+						mWonPlayerCount += pm.quantity * pm.playerCount;
+						int previousQuantity = 0;
+						if (mWinsPerPlayerCount.containsKey(pm.playerCount)) {
+							previousQuantity = mWinsPerPlayerCount.get(pm.playerCount);
+						}
+						mWinsPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
+					}
+				}
 
+				if (!TextUtils.isEmpty(pm.location)) {
+					int previousPlays = 0;
+					if (mPlaysPerLocation.containsKey(pm.location)) {
+						previousPlays = mPlaysPerLocation.get(pm.location);
+					}
+					mPlaysPerLocation.put(pm.location, previousPlays + pm.quantity);
+				}
+
+				for (PlayerModel player : pm.getPlayers()) {
+					if (!TextUtils.isEmpty(player.getUniqueName()) &&
+						!AccountUtils.getUsername(getActivity()).equals(player.username)) {
+						PlayerStats ps = mPlayerStats.get(player.getUniqueName());
+						if (ps == null) {
+							ps = new PlayerStats();
+						}
+						ps.add(pm, player);
+						mPlayerStats.put(player.getUniqueName(), ps);
+					}
+
+					if (StringUtils.isNumeric(player.score)) {
+						double i = StringUtils.parseDouble(player.score);
+						mTotalScoreCount++;
+						mTotalScore += i;
+						if (i > mHighScore) {
+							mHighScore = i;
+							mHighScorers.clear();
+							mHighScorers.add(player.getUniqueName());
+						} else if (i == mHighScore) {
+							mHighScorers.add(player.getUniqueName());
+						}
+						if (i < mLowScore) {
+							mLowScore = i;
+							mLowScorers.clear();
+							mLowScorers.add(player.getUniqueName());
+						} else if (i == mLowScore) {
+							mLowScorers.add(player.getUniqueName());
+						}
+						if (player.win) {
+							mTotalWinningScoreCount++;
+							mTotalWinningScore += i;
+						}
+						if (AccountUtils.getUsername(getActivity()).equals(player.username)) {
+							mPersonalTotalScoreCount++;
+							mPersonalTotalScore += i;
+							if (i > mPersonalHighScore) {
+								mPersonalHighScore = i;
+							}
+							if (i < mPersonalLowScore) {
+								mPersonalLowScore = i;
+							}
+						}
+					}
+				}
+
+				mMonths.add(pm.getYearAndMonth());
+			}
+		}
+
+		public void addPlayerData(Cursor cursor) {
+			do {
+				PlayerModel pm = new PlayerModel(cursor);
+				if (!mPlays.containsKey(pm.playId)) {
+					Timber.e("Play " + pm.playId + " not found in the play map!");
+					return;
+				}
+				mPlays.get(pm.playId).addPlayer(pm);
 			} while (cursor.moveToNext());
 		}
 
@@ -403,6 +644,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		private String getQuarterDate() {
 			return mQuarterDate;
+		}
+
+		private String getHalfDollarDate() {
+			return mHalfDollarDate;
+		}
+
+		private String getDollarDate() {
+			return mDollarDate;
 		}
 
 		public String getLastPlayDate() {
@@ -444,6 +693,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return mMonths.size();
 		}
 
+		public int getMinPlayerCount() {
+			int min = Integer.MAX_VALUE;
+			for (Integer playerCount : mPlayCountPerPlayerCount.keySet()) {
+				if (playerCount < min) {
+					min = playerCount;
+				}
+			}
+			return min;
+		}
+
 		public int getMaxPlayerCount() {
 			int max = 0;
 			for (Integer playerCount : mPlayCountPerPlayerCount.keySet()) {
@@ -459,6 +718,101 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				return mPlayCountPerPlayerCount.get(playerCount);
 			}
 			return 0;
+		}
+
+		public int getWins(int playerCount) {
+			if (mWinsPerPlayerCount.containsKey(playerCount)) {
+				return mWinsPerPlayerCount.get(playerCount);
+			}
+			return 0;
+		}
+
+		public boolean hasWins() {
+			return mWinnableGames > 0;
+		}
+
+		public double getWinPercentage() {
+			return (double) mWonGames / (double) mWinnableGames;
+		}
+
+		public int getWinSkill() {
+			return (int) (((double) mWonPlayerCount / (double) mWinnableGames) * 100);
+		}
+
+		public boolean hasScores() {
+			return mTotalScoreCount > 0;
+		}
+
+		public double getAverageScore() {
+			return mTotalScore / mTotalScoreCount;
+		}
+
+		public double getHighScore() {
+			return mHighScore;
+		}
+
+		public String getHighScorers() {
+			return StringUtils.formatList(new ArrayList(mHighScorers));
+		}
+
+		public double getLowScore() {
+			return mLowScore;
+		}
+
+		public String getLowScorers() {
+			return StringUtils.formatList(new ArrayList(mLowScorers));
+		}
+
+		public double getAverageWinningScore() {
+			return mTotalWinningScore / mTotalWinningScoreCount;
+		}
+
+		public double getPersonalAverageScore() {
+			return mPersonalTotalScore / mPersonalTotalScoreCount;
+		}
+
+		public double getPersonalHighScore() {
+			return mPersonalHighScore;
+		}
+
+		public double getPersonalLowScore() {
+			return mPersonalLowScore;
+		}
+
+		public List<Entry<String, PlayerStats>> getPlayerStats() {
+			Set<Entry<String, PlayerStats>> set = mPlayerStats.entrySet();
+			List<Entry<String, PlayerStats>> list = new ArrayList(set);
+			Collections.sort(list, new Comparator<Entry<String, PlayerStats>>() {
+				@Override
+				public int compare(Entry<String, PlayerStats> lhs, Entry<String, PlayerStats> rhs) {
+					if (lhs.getValue().playCount > rhs.getValue().playCount) {
+						return -1;
+					} else if (lhs.getValue().playCount < rhs.getValue().playCount) {
+						return 1;
+					} else {
+						return lhs.getKey().compareTo(rhs.getKey());
+					}
+				}
+			});
+			return list;
+		}
+
+		public List<Entry<String, Integer>> getPlaysPerLocation() {
+			Set<Entry<String, Integer>> set = mPlaysPerLocation.entrySet();
+			List<Entry<String, Integer>> list = new ArrayList(set);
+			Collections.sort(list, new Comparator<Entry<String, Integer>>() {
+				@Override
+				public int compare(Entry<String, Integer> lhs, Entry<String, Integer> rhs) {
+					if (lhs.getValue() > rhs.getValue()) {
+						return -1;
+					} else if (lhs.getValue() < rhs.getValue()) {
+						return 1;
+					} else {
+						return lhs.getKey().compareTo(rhs.getKey());
+					}
+				}
+			});
+			return list;
 		}
 
 		public double calculateUtilization() {
@@ -479,6 +833,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				return 0;
 			}
 			return Math.log(raw);
+		}
+
+		public int getHIndexOffset() {
+			int hIndex = PreferencesUtils.getHIndex(getActivity());
+			if (mPlayCount >= hIndex) {
+				return -1;
+			} else {
+				return hIndex - mPlayCount + 1;
+			}
 		}
 
 		// public int getMonthsPerPlay() {
@@ -551,15 +914,117 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 	}
 
+	private class PlayModel {
+		final int playId;
+		final String date;
+		final int length;
+		final int quantity;
+		final boolean incomplete;
+		final int playerCount;
+		final boolean noWinStats;
+		final String location;
+		final List<PlayerModel> mPlayers = new ArrayList<>();
+
+		PlayModel(Cursor cursor) {
+			playId = cursor.getInt(PlayQuery.PLAY_ID);
+			date = cursor.getString(PlayQuery.DATE);
+			length = cursor.getInt(PlayQuery.LENGTH);
+			quantity = cursor.getInt(PlayQuery.QUANTITY);
+			incomplete = CursorUtils.getBoolean(cursor, PlayQuery.INCOMPLETE);
+			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
+			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
+			location = cursor.getString(PlayQuery.LOCATION);
+			mPlayers.clear();
+		}
+
+		public List<PlayerModel> getPlayers() {
+			return mPlayers;
+		}
+
+		public String getYear() {
+			return date.substring(0, 4);
+		}
+
+		public String getYearAndMonth() {
+			return date.substring(0, 7);
+		}
+
+		public void addPlayer(PlayerModel player) {
+			mPlayers.add(player);
+		}
+
+		public boolean isWinnable() {
+			if (noWinStats) {
+				return false;
+			}
+			for (PlayerModel player : mPlayers) {
+				if (player.win) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public boolean didWin(@NonNull String username) {
+			if (noWinStats) {
+				return false;
+			}
+			for (PlayerModel player : mPlayers) {
+				if (username.equals(player.username)) {
+					return player.win;
+				}
+			}
+			return false;
+		}
+	}
+
+	private class PlayerModel {
+		final int playId;
+		final String username;
+		final String name;
+		final boolean win;
+		final String score;
+
+		PlayerModel(Cursor cursor) {
+			playId = cursor.getInt(PlayerQuery.PLAY_ID);
+			username = cursor.getString(PlayerQuery.USER_NAME);
+			name = cursor.getString(PlayerQuery.NAME);
+			win = CursorUtils.getBoolean(cursor, PlayerQuery.WIN);
+			score = cursor.getString(PlayerQuery.SCORE);
+		}
+
+		public String getUniqueName() {
+			if (TextUtils.isEmpty(username)) {
+				return name;
+			}
+			return name + " (" + username + ")";
+		}
+	}
+
 	private interface PlayQuery {
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL, Plays.INCOMPLETE };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
+			Plays.INCOMPLETE, Plays.NO_WIN_STATS };
+		int PLAY_ID = 1;
 		int DATE = 2;
+		int LOCATION = 5;
 		int QUANTITY = 6;
 		int LENGTH = 7;
 		int PLAYER_COUNT = 9;
 		int INCOMPLETE = 11;
+		int NO_WIN_STATS = 12;
+	}
+
+	private interface PlayerQuery {
+		int _TOKEN = 0x03;
+		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN, PlayPlayers.SCORE,
+			PlayPlayers.NAME };
+		int PLAY_ID = 1;
+		int USER_NAME = 2;
+		int WIN = 3;
+		int SCORE = 4;
+		int NAME = 5;
 	}
 
 	private interface GameQuery {

@@ -260,6 +260,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
 	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String QUERY_VALUE_COLOR = "color";
+	public static final String QUERY_VALUE_PLAY = "play";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String PARAM_LIMIT = "limit";
 
@@ -838,6 +839,10 @@ public class BggContract {
 
 		public static Uri buildPlayersUri() {
 			return CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).build();
+		}
+
+		public static Uri buildPlayersByPlayUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_PLAY).build();
 		}
 
 		public static Uri buildPlayersByNameWithoutUsernameUri() {
