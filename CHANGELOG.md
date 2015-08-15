@@ -3,7 +3,9 @@ Release Notes
 
 Coming Soon
 -----------
+ * More (and better looking) play stats<
  * Pull to refresh pretty much everywhere there used to be a menu option
+ * Bug fixes and stability improvements
 
 Version 5.1.1
 -------------
