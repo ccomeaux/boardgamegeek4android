@@ -3,6 +3,7 @@
 
 	<color name="primary">#ffe0e0ef</color>
 	<color name="primary_dark">#ff4c6099</color>
+	<color name="primary_transparent">#aae0e0ef</color>
 	<color name="accent">#ff2a2c70</color>
 	<color name="info_background">@color/primary</color>
 	<color name="info_background_dark">@color/primary_dark</color>

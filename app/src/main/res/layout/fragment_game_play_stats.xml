@@ -154,15 +154,38 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1">
+						android:stretchColumns="0">
 
-						<TableRow android:minHeight="@dimen/card_row_height">
+						<TableRow
+							android:layout_gravity="center_vertical"
+							android:minHeight="@dimen/card_row_height">
 
-							<TextView android:text="@string/title_player"/>
+							<TextView
+								style="@style/Text"
+								android:layout_gravity="center_vertical"
+								android:text="@string/title_player"
+								android:textStyle="bold"/>
 
-							<TextView android:text="@string/title_plays"/>
+							<TextView
+								style="@style/Text"
+								android:layout_gravity="center_vertical"
+								android:paddingLeft="@dimen/padding_half"
+								android:text="@string/title_plays"
+								android:textStyle="bold"/>
 
-							<TextView android:text="@string/title_wins"/>
+							<TextView
+								style="@style/Text"
+								android:layout_gravity="center_vertical"
+								android:paddingLeft="@dimen/padding_half"
+								android:text="@string/title_wins"
+								android:textStyle="bold"/>
+
+							<TextView
+								style="@style/Text"
+								android:layout_gravity="center_vertical"
+								android:paddingLeft="@dimen/padding_half"
+								android:text="@string/score"
+								android:textStyle="bold"/>
 						</TableRow>
 					</TableLayout>
 				</LinearLayout>

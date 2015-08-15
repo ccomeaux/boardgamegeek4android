@@ -7,13 +7,18 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 
+import java.text.DecimalFormat;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class PlayerStatView extends TableRow {
+	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.0");
+
 	@InjectView(R.id.name) TextView mName;
 	@InjectView(R.id.play_count) TextView mPlayCount;
 	@InjectView(R.id.wins) TextView mWins;
+	@InjectView(R.id.score) TextView mScore;
 
 	public PlayerStatView(Context context) {
 		super(context);
@@ -32,5 +37,9 @@ public class PlayerStatView extends TableRow {
 
 	public void setWins(int wins) {
 		mWins.setText(String.valueOf(wins));
+	}
+
+	public void setAverageScore(double score) {
+		mScore.setText(DOUBLE_FORMAT.format(score));
 	}
 }

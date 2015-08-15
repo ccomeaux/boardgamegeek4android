@@ -303,6 +303,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(mLocationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
 		}
 
+		int row = 0;
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
 			mOpponents.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
@@ -311,7 +312,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			psv.setName(playerStats.getKey());
 			psv.setPlayCount(ps.playCount);
 			psv.setWins(ps.wins);
+			psv.setAverageScore(ps.getAverageScore());
+			if (row % 2 == 1) {
+				psv.setBackgroundResource(R.color.primary_transparent);
+			}
 			mOpponentsTable.addView(psv);
+			row++;
 		}
 
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
@@ -369,10 +375,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private String key;
 		private int playCount;
 		public int wins;
+		private double totalScore;
+		private int totalScoreCount;
 
 		public PlayerStats() {
 			playCount = 0;
 			wins = 0;
+			totalScore = 0.0;
+			totalScoreCount = 0;
 		}
 
 		public void add(PlayModel play, PlayerModel player) {
@@ -380,6 +390,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (player.win) {
 				wins += play.quantity;
 			}
+			if (StringUtils.isNumeric(player.score)) {
+				totalScore += StringUtils.parseDouble(player.score) * play.quantity;
+				totalScoreCount += play.quantity;
+			}
+		}
+
+		public double getAverageScore() {
+			return totalScore / totalScoreCount;
 		}
 	}
 
