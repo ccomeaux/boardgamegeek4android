@@ -1,12 +1,8 @@
 package com.boardgamegeek.model;
 
-import com.boardgamegeek.io.AuthException;
-import com.boardgamegeek.io.InvalidIdException;
-import com.boardgamegeek.io.PossibleSuccessException;
-import com.boardgamegeek.util.StringUtils;
+import android.text.TextUtils;
 
-import retrofit.RetrofitError;
-import retrofit.converter.ConversionException;
+import com.boardgamegeek.util.StringUtils;
 
 public class PlayPostResponse {
 	@SuppressWarnings("unused") private String html;
@@ -25,40 +21,26 @@ public class PlayPostResponse {
 	}
 
 	public boolean hasError() {
-		return getErrorMessage() != null;
+		return !TextUtils.isEmpty(getErrorMessage());
 	}
 
+	/**
+	 * Indicates the user attempted to modify a play without being authenticated.
+	 */
 	public boolean hasAuthError() {
 		if ("You must login to save plays".equals(error)) {
-			return true;
-		} else if (mException != null &&
-			mException instanceof RetrofitError &&
-			mException.getCause() instanceof ConversionException &&
-			mException.getCause().getCause() instanceof AuthException) {
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Indicates the user attempted to modify a play that doesn't exist.
+	 */
 	public boolean hasInvalidIdError() {
 		if ("You are not permitted to edit this play.".equals(error)) {
 			return true;
 		} else if ("Play does not exist.".equals(error)) {
-			return true;
-		} else if (mException != null &&
-			mException instanceof RetrofitError &&
-			mException.getCause() instanceof ConversionException &&
-			mException.getCause().getCause() instanceof InvalidIdException) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean hasPossibleSuccessError() {
-		if (mException != null &&
-			mException instanceof RetrofitError &&
-			mException.getCause() instanceof ConversionException &&
-			mException.getCause().getCause() instanceof PossibleSuccessException) {
 			return true;
 		}
 		return false;
@@ -66,21 +48,16 @@ public class PlayPostResponse {
 
 	public String getErrorMessage() {
 		if (mException != null) {
-			if (hasPossibleSuccessError()) {
-				return null;
-			}
 			return mException.getMessage();
 		}
-		return null;
+		return error;
 	}
 
 	public int getPlayCount() {
 		if (hasError()) {
 			return 0;
 		} else {
-			int start = html.indexOf(">");
-			int end = html.indexOf("<", start);
-			return StringUtils.parseInt(html.substring(start + 1, end), 1);
+			return StringUtils.parseInt(numplays);
 		}
 	}
 }

@@ -52,8 +52,10 @@ public class PlayDeleteConverter implements Converter {
 					return response;
 				}
 				if (content.contains("<title>Plays") && content.contains("User:")) {
+					// This is the response if the delete was successful
 					return new PlayPostResponse("");
 				} else {
+					// This probably means the user wasn't authenticated
 					return new PlayPostResponse("You must login to save plays");
 				}
 			}
