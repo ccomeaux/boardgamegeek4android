@@ -3,7 +3,6 @@ package com.boardgamegeek.io;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.PlayPostResponse;
-import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,17 +11,14 @@ import java.lang.reflect.Type;
 
 import retrofit.converter.ConversionException;
 import retrofit.converter.Converter;
-import retrofit.converter.GsonConverter;
 import retrofit.mime.TypedInput;
 import retrofit.mime.TypedOutput;
 
-public class PlaySaveConverter implements Converter {
+public class PlayDeleteConverter implements Converter {
 	private static final String ERROR_DIV = "<div class='messagebox error'>";
 	private static final String CLASS_NAME = "class com.boardgamegeek.model.PlayPostResponse";
-	private final GsonConverter mGsonConverter;
 
-	public PlaySaveConverter() {
-		mGsonConverter = new GsonConverter(new Gson());
+	public PlayDeleteConverter() {
 	}
 
 	@Override
@@ -35,9 +31,6 @@ public class PlaySaveConverter implements Converter {
 			throw new ConversionException(e);
 		}
 		try {
-			return mGsonConverter.fromBody(body, type);
-		} catch (ConversionException ce) {
-			// we didn't get the expected JSON
 			StringBuilder sb = new StringBuilder();
 			BufferedReader reader;
 			try {
@@ -50,6 +43,7 @@ public class PlaySaveConverter implements Converter {
 			} catch (IOException e) {
 				throw new ConversionException(e);
 			}
+
 			String content = sb.toString().trim();
 			if (CLASS_NAME.equals(type.toString())) {
 				String errorMessage = extractErrorMessage(content);
@@ -57,8 +51,15 @@ public class PlaySaveConverter implements Converter {
 					PlayPostResponse response = new PlayPostResponse(errorMessage);
 					return response;
 				}
+				if (content.contains("<title>Plays") && content.contains("User:")) {
+					return new PlayPostResponse("");
+				} else {
+					return new PlayPostResponse("You must login to save plays");
+				}
 			}
-			throw new ConversionException(content, ce);
+			throw new ConversionException(content);
+		} catch (ConversionException e) {
+			throw new ConversionException(e);
 		}
 	}
 

@@ -1,7 +1,5 @@
 package com.boardgamegeek.model;
 
-import android.text.TextUtils;
-
 import com.boardgamegeek.io.AuthException;
 import com.boardgamegeek.io.InvalidIdException;
 import com.boardgamegeek.io.PossibleSuccessException;
@@ -38,14 +36,14 @@ public class PlayPostResponse {
 			mException.getCause() instanceof ConversionException &&
 			mException.getCause().getCause() instanceof AuthException) {
 			return true;
-		} else if (TextUtils.isEmpty(html)) {
-			return true;
 		}
 		return false;
 	}
 
 	public boolean hasInvalidIdError() {
 		if ("You are not permitted to edit this play.".equals(error)) {
+			return true;
+		} else if ("Play does not exist.".equals(error)) {
 			return true;
 		} else if (mException != null &&
 			mException instanceof RetrofitError &&
@@ -73,14 +71,7 @@ public class PlayPostResponse {
 			}
 			return mException.getMessage();
 		}
-		if (TextUtils.isEmpty(html)) {
-			return "Missing response";
-		}
-		if (html.startsWith("Plays: <a") || html.startsWith("{\"html\":\"Plays:")) {
-			return null;
-		} else {
-			return "Bad response:\n" + html;
-		}
+		return null;
 	}
 
 	public int getPlayCount() {

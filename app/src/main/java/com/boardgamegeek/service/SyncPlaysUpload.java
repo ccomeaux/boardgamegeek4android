@@ -17,7 +17,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.JsonConverter;
+import com.boardgamegeek.io.PlayDeleteConverter;
 import com.boardgamegeek.io.PlaySaveConverter;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlayPostResponse;
@@ -62,7 +62,7 @@ public class SyncPlaysUpload extends SyncTask {
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		mSaveService = Adapter.createForPost(mContext, new PlaySaveConverter());
-		mDeleteService = Adapter.createForPost(mContext, new JsonConverter());
+		mDeleteService = Adapter.createForPost(mContext, new PlayDeleteConverter());
 		mMessages = new ArrayList<>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 		mPersister = new PlayPersister(mContext);
