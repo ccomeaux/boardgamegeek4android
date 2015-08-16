@@ -29,6 +29,14 @@ public class CursorUtils {
 	 */
 	public static boolean getBoolean(Cursor cursor, String columnName, boolean defaultValue) {
 		int idx = cursor.getColumnIndex(columnName);
+		return getBoolean(cursor, idx, defaultValue);
+	}
+
+	public static boolean getBoolean(Cursor cursor, int idx) {
+		return getBoolean(cursor, idx, false);
+	}
+
+	public static boolean getBoolean(Cursor cursor, int idx, boolean defaultValue) {
 		if (idx == -1) {
 			return defaultValue;
 		} else {

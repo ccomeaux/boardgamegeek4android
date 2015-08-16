@@ -34,6 +34,10 @@
 	<string name="pref_log_player_win">Win</string>
 	<string name="pref_log_off">Add it when you need it</string>
 	<string name="pref_log_on">Always show</string>
+	<string name="pref_stats">Stats</string>
+	<string name="pref_log_stats_incomplete">Include incomplete plays</string>
+	<string name="pref_log_stats_expansions">Include board game expansions</string>
+	<string name="pref_log_stats_accessories">Include board game accessories</string>
 	<string name="pref_sync">Sync</string>
 	<string name="pref_sync_group_what">What</string>
 	<string name="pref_sync_group_how">How</string>
@@ -102,7 +106,9 @@
 <h4>What\'s New?</h4>
 <h5>Coming Soon</h5>
 <ul>
+<li>More (and better looking) play stats</li>
 <li>Pull to refresh pretty much everywhere there used to be a menu option</li>
+<li>Bug fixes and stability improvements</li>
 </ul>
 <h5>5.1.1</h5>
 <ul>

@@ -79,6 +79,9 @@
 	<string name="rating">Rating</string>
 	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
+	<string name="average_win">Average win</string>
+	<string name="high">High</string>
+	<string name="low">Low</string>
 	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
@@ -90,13 +93,13 @@
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
-    <string name="title_clear_colors">Clear Colors?</string>
-    <string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
-    <string name="msg_color_error_no_players">There are no players that need colors.</string>
-    <string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
-    <string name="msg_color_error_missing_player_name">Can\'t assign colors if a player doesn\'t have a user name or unique name.</string>
-    <string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
-    <string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
+	<string name="title_clear_colors">Clear Colors?</string>
+	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
+	<string name="msg_color_error_no_players">There are no players that need colors.</string>
+	<string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
+	<string name="msg_color_error_missing_player_name">Can\'t assign colors if a player doesn\'t have a user name or unique name.</string>
+	<string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
+	<string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
@@ -156,6 +159,9 @@
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
+	<string name="title_personal">Personal</string>
+	<string name="title_charts">Charts</string>
+	<string name="title_opponents">Opponents</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
@@ -191,6 +197,12 @@
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
+	<string name="title_play_count">Play Count</string>
+	<string name="title_dates">Dates</string>
+	<string name="title_play_time">Play Time</string>
+	<string name="title_advanced">Advanced</string>
+	<string name="title_wins">Wins</string>
+	<string name="title_scores">Scores</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search collection</string>
 	<string name="search_settings_description">Games in collection</string>
@@ -384,8 +396,13 @@
 	<string name="play_stat_distinct_games">Distinct games</string>
 	<string name="play_stat_quarters">Quarters</string>
 	<string name="play_stat_quarter">Quarter</string>
+	<string name="play_stat_half_dollar">Half-dollar</string>
+	<string name="play_stat_dollar">Dollar</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
+	<string name="play_stat_win_percentage">Win percentage</string>
+	<string name="play_stat_win_skill">Win skill</string>
+	<string name="play_stat_win_skill_info">How skilled are you at winning this game?\n\n0 = you never win\n100 = you win as much as you should\nEverything else scales from these numbers</string>
 	<string name="play_stat_average_play_time">Average play time</string>
 	<string name="play_stat_average_play_time_faster">Faster than advertised</string>
 	<string name="play_stat_average_play_time_slower">Slower than advertised</string>
@@ -396,6 +413,8 @@
 	<string name="play_stat_last_play">Last play</string>
 	<string name="play_stat_h_index">H-index</string>
 	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
+	<string name="play_stat_h_index_offset_in">This game contributes to your H-index.</string>
+	<string name="play_stat_h_index_offset_out">plays outside of your H-index.</string>
 	<string name="play_stat_fhm">FHM</string>
 	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
 	<string name="play_stat_hhm">HHM</string>
@@ -409,8 +428,7 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_played_not_synced">These stats are more accurate if you sync the Played status of your Collection. Do you want to modify your preferences?</string>
-	<string name="play_stat_status_played_not_synced_message">Do you want to sync your Played games?</string>
+	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
