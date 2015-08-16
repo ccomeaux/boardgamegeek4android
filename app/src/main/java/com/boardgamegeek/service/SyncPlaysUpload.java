@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -22,10 +21,8 @@ import com.boardgamegeek.io.PlaySaveConverter;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.Player;
-import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -40,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import retrofit.RetrofitError;
 import timber.log.Timber;
 
 public class SyncPlaysUpload extends SyncTask {
@@ -67,7 +63,7 @@ public class SyncPlaysUpload extends SyncTask {
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 		mPersister = new PlayPersister(mContext);
 
-		updatePendingPlays(account.name, syncResult);
+		updatePendingPlays(syncResult);
 		deletePendingPlays(syncResult);
 		SyncService.hIndex(mContext);
 	}
@@ -77,7 +73,7 @@ public class SyncPlaysUpload extends SyncTask {
 		return R.string.sync_notification_plays_upload;
 	}
 
-	private void updatePendingPlays(String username, SyncResult syncResult) {
+	private void updatePendingPlays(SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
@@ -97,25 +93,25 @@ public class SyncPlaysUpload extends SyncTask {
 
 				PlayPostResponse response = postPlayUpdate(play);
 				if (!response.hasError()) {
-					setStatusToSynced(play);
-					SyncGameResponse response2 = syncGame(username, play, syncResult);
+					String message = play.hasBeenSynced() ?
+						mContext.getString(R.string.msg_play_updated) :
+						mContext.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
+					notifyUser(StringUtils.boldSecondString(message, play.gameName), play);
 
-					if (!response2.hasError()) {
-						if (!play.hasBeenSynced()) {
-							deletePlay(play);
-						}
-						updateGamePlayCount(play);
+					// delete the old plays
+					int oldPlayId = play.playId;
+					deletePlay(play);
 
-						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
-							: mContext.getString(R.string.msg_play_added,
-							getPlayCountDescription(response.getPlayCount(), play.quantity));
-						if (response2.hasNewPlayId()) {
-							play.playId = response2.newPlayId;
-						}
-						notifyUser(StringUtils.boldSecondString(message, play.gameName), play);
-					} else {
-						notifyError(response2.errorMessage);
-					}
+					// then save play as a new record
+					play.playId = response.getPlayId();
+					play.syncStatus = Play.SYNC_STATUS_SYNCED;
+					mPersister.save(mContext, play);
+
+					PreferencesUtils.putNewPlayId(mContext, oldPlayId, play.playId);
+					Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
+					mBroadcaster.sendBroadcast(intent);
+
+					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
 					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_update_bad_id),
 						String.valueOf(play.playId)), null);
@@ -259,85 +255,10 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	/**
-	 * Marks the specified play as synced in the content provider
-	 */
-	private void setStatusToSynced(Play play) {
-		play.syncStatus = Play.SYNC_STATUS_SYNCED;
-		mPersister.save(mContext, play);
-		// syncResult.stats.numUpdates++;
-	}
-
-	/**
 	 * Deletes the specified play from the content provider
 	 */
 	private void deletePlay(Play play) {
 		mPersister.delete(play);
-	}
-
-	/**
-	 * Syncs the specified game from the 'Geek to the local DB.
-	 *
-	 * @return An error message, or blank if no error.
-	 */
-	private SyncGameResponse syncGame(String username, Play play, SyncResult syncResult) {
-		SyncGameResponse res = new SyncGameResponse();
-		try {
-			long startTime = System.currentTimeMillis();
-			PlaysResponse response = mService.plays(username, play.gameId, play.getDate(), play.getDate());
-			if (!play.hasBeenSynced()) {
-				res.newPlayId = getTranslatedPlayId(play, response.plays);
-				PreferencesUtils.putNewPlayId(mContext, play.playId, res.newPlayId);
-				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
-				mBroadcaster.sendBroadcast(intent);
-			}
-			mPersister.save(response.plays, startTime);
-		} catch (Exception e) {
-			if (e instanceof RetrofitError) {
-				syncResult.stats.numIoExceptions++;
-			} else {
-				syncResult.stats.numParseExceptions++;
-			}
-			res.errorMessage = e.toString();
-		}
-		return res;
-	}
-
-	private class SyncGameResponse {
-		int newPlayId = BggContract.INVALID_ID;
-		String errorMessage;
-
-		boolean hasError() {
-			return !TextUtils.isEmpty(errorMessage);
-		}
-
-		boolean hasNewPlayId() {
-			return newPlayId != BggContract.INVALID_ID;
-		}
-	}
-
-	private int getTranslatedPlayId(Play play, List<Play> parsedPlays) {
-		if (parsedPlays == null || parsedPlays.size() == 0) {
-			return BggContract.INVALID_ID;
-		}
-
-		int latestPlayId = BggContract.INVALID_ID;
-
-		for (Play parsedPlay : parsedPlays) {
-			if ((play.playId != parsedPlay.playId)
-				&& (play.gameId == parsedPlay.gameId)
-				&& (play.getDate().equals(parsedPlay.getDate()))
-				&& ((play.location == null && parsedPlay.location == null) || (play.location != null && play.location.equals(parsedPlay.location)))
-				&& (play.length == parsedPlay.length)
-				&& (play.quantity == parsedPlay.quantity) && (play.Incomplete() == parsedPlay.Incomplete())
-				&& (play.NoWinStats() == parsedPlay.NoWinStats())
-				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
-				if (parsedPlay.playId > latestPlayId) {
-					latestPlayId = parsedPlay.playId;
-				}
-			}
-		}
-
-		return latestPlayId;
 	}
 
 	private String getPlayCountDescription(int count, int quantity) {

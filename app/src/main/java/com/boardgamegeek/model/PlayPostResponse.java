@@ -2,6 +2,7 @@ package com.boardgamegeek.model;
 
 import android.text.TextUtils;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
 public class PlayPostResponse {
@@ -59,5 +60,9 @@ public class PlayPostResponse {
 		} else {
 			return StringUtils.parseInt(numplays);
 		}
+	}
+
+	public int getPlayId() {
+		return StringUtils.parseInt(playid, BggContract.INVALID_ID);
 	}
 }
