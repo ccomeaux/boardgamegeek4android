@@ -112,7 +112,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 								"RangeSeekBar",
 								"StickyListHeaders",
 								"AndroidIcons",
-								"EventBus")
+								"EventBus",
+								"MPAndroidChart")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))

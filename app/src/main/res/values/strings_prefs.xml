@@ -279,6 +279,17 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 	<string name="library_AndroidIcons_isOpenSource">true</string>
 	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
 
+	<string name="define_int_mpandroidchart"></string>
+	<string name="library_mpandroidchart_author">PhilJay</string>
+	<string name="library_mpandroidchart_authorWebsite">https://github.com/PhilJay/MPAndroidChart</string>
+	<string name="library_mpandroidchart_libraryName">MPAndroidChart</string>
+	<string name="library_mpandroidchart_libraryDescription">MPAndroidChart is a powerful and easy to use chart library for Android, supporting line-, bar-, scatter-, candlestick-, bubble-, pie- and radarcharts (spider web), as well as scaling, dragging (panning), selecting and animations.</string>
+	<string name="library_mpandroidchart_libraryWebsite">https://github.com/PhilJay/MPAndroidChart</string>
+	<string name="library_mpandroidchart_libraryVersion">v2.0.8</string>
+	<string name="library_mpandroidchart_licenseId">apache_2_0</string>
+	<string name="library_mpandroidchart_isOpenSource">true</string>
+	<string name="library_mpandroidchart_repositoryLink">https://github.com/PhilJay/MPAndroidChart</string>
+
 	<string name="define_license_CCBYSA_4_0"></string>
 	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
 	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>
