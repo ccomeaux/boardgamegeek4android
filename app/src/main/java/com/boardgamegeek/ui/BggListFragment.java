@@ -2,11 +2,17 @@ package com.boardgamegeek.ui;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.HttpUtils;
@@ -17,13 +23,16 @@ import com.squareup.picasso.Picasso;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 /**
  * A {@link android.support.v4.app.ListFragment} with a few extra features:
  * 1. retains scroll state on rotation
  * 2. sets up typical list view style (dividers, top/bottom padding, fast scroll, etc.)
  * 3. helper methods for loading thumbnails
  */
-public abstract class BggListFragment extends ListFragment {
+public abstract class BggListFragment extends Fragment {
 	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
 	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
 	private static final String STATE_POSITION = "position";
@@ -34,6 +43,31 @@ public abstract class BggListFragment extends ListFragment {
 	private Runnable mUpdaterRunnable = null;
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
+	private CharSequence mEmptyText;
+	private boolean mListShown;
+	private ListAdapter mAdapter;
+	@InjectView(android.R.id.empty) TextView mEmptyView;
+	@InjectView(R.id.progressContainer) View mProgressContainer;
+	@InjectView(R.id.listContainer) View mListContainer;
+	@InjectView(android.R.id.list) ListView mList;
+	@InjectView(R.id.fab) View mFab;
+
+	final private Runnable mRequestFocus = new Runnable() {
+		public void run() {
+			mList.focusableViewAvailable(mList);
+		}
+	};
+
+	final private OnItemClickListener mOnClickListener = new OnItemClickListener() {
+		public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+			onListItemClick(mList, view, position, id);
+		}
+	};
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_list, container, false);
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,24 +78,35 @@ public abstract class BggListFragment extends ListFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
+		ensureList();
 
 		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
-		listView.setClipToPadding(false);
+		mList.setClipToPadding(false);
 		if (padTop()) {
-			listView.setPadding(0, padding, 0, padding);
+			mList.setPadding(0, padding, 0, padding);
 		} else {
-			listView.setPadding(0, 0, 0, padding);
+			mList.setPadding(0, 0, 0, padding);
 		}
 
 		if (dividerShown()) {
 			int height = getResources().getDimensionPixelSize(R.dimen.divider_height);
-			listView.setDivider(getResources().getDrawable(R.drawable.list_divider));
-			listView.setDividerHeight(height);
+			mList.setDivider(getResources().getDrawable(R.drawable.list_divider));
+			mList.setDividerHeight(height);
 		} else {
-			listView.setDivider(null);
+			mList.setDivider(null);
 		}
-		listView.setFastScrollEnabled(true);
+		mList.setFastScrollEnabled(true);
+	}
+
+	@Override
+	public void onDestroyView() {
+		mHandler.removeCallbacks(mRequestFocus);
+		mList = null;
+		mListShown = false;
+		mProgressContainer = null;
+		mListContainer = null;
+		mEmptyView = null;
+		super.onDestroyView();
 	}
 
 	@Override
@@ -133,18 +178,92 @@ public abstract class BggListFragment extends ListFragment {
 	protected void updateTimeBasedUi() {
 	}
 
+	public void setListAdapter(ListAdapter adapter) {
+		boolean hadAdapter = mAdapter != null;
+		mAdapter = adapter;
+		if (mList != null) {
+			mList.setAdapter(adapter);
+			if (!mListShown && !hadAdapter) {
+				// The list was hidden, and previously didn't have an
+				// adapter. It is now time to show it.
+				final View view = getView();
+				setListShown(true, view != null && view.getWindowToken() != null);
+			}
+		}
+	}
+
+	public void setEmptyText(CharSequence text) {
+		ensureList();
+		mEmptyView.setText(text);
+		if (mEmptyText == null) {
+			mList.setEmptyView(mEmptyView);
+		}
+		mEmptyText = text;
+	}
+
+	public void setProgressShown(boolean shown) {
+		if (shown) {
+			if (mProgressContainer.getVisibility() != View.VISIBLE) {
+				mProgressContainer.clearAnimation();
+				mProgressContainer.setVisibility(View.VISIBLE);
+			}
+		} else {
+			if (mProgressContainer.getVisibility() != View.GONE) {
+				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+				mProgressContainer.setVisibility(View.GONE);
+			}
+		}
+	}
+
+	public void setListShown(boolean shown) {
+		setListShown(shown, true);
+	}
+
+	public void setListShownNoAnimation(boolean shown) {
+		setListShown(shown, false);
+	}
+
+	private void setListShown(boolean shown, boolean animate) {
+		ensureList();
+		if (mListShown == shown) {
+			return;
+		}
+		mListShown = shown;
+		if (shown) {
+			if (animate) {
+				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+				mListContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+			} else {
+				mProgressContainer.clearAnimation();
+				mListContainer.clearAnimation();
+			}
+			mProgressContainer.setVisibility(View.GONE);
+			mListContainer.setVisibility(View.VISIBLE);
+		} else {
+			if (animate) {
+				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+				mListContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+			} else {
+				mProgressContainer.clearAnimation();
+				mListContainer.clearAnimation();
+			}
+			mProgressContainer.setVisibility(View.VISIBLE);
+			mListContainer.setVisibility(View.GONE);
+		}
+	}
+
 	protected void saveScrollState() {
 		if (isAdded()) {
-			View v = getListView().getChildAt(0);
+			View v = mList.getChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();
-			mListViewStatePosition = getListView().getFirstVisiblePosition();
+			mListViewStatePosition = mList.getFirstVisiblePosition();
 			mListViewStateTop = top;
 		}
 	}
 
 	protected void restoreScrollState() {
 		if (mListViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
-			getListView().setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
+			mList.setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
 		}
 	}
 
@@ -170,8 +289,7 @@ public abstract class BggListFragment extends ListFragment {
 		safelyLoadThumbnail(target, queue, placeholderResId);
 	}
 
-	private static void safelyLoadThumbnail(final ImageView imageView, final Queue<String> imageUrls,
-											final int placeholderResId) {
+	private static void safelyLoadThumbnail(final ImageView imageView, final Queue<String> imageUrls, final int placeholderResId) {
 		String imageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
@@ -188,5 +306,45 @@ public abstract class BggListFragment extends ListFragment {
 					safelyLoadThumbnail(imageView, imageUrls, placeholderResId);
 				}
 			});
+	}
+
+	private void ensureList() {
+		if (mList != null) {
+			return;
+		}
+		View root = getView();
+		if (root == null) {
+			throw new IllegalStateException("Content view not yet created");
+		}
+
+		ButterKnife.inject(this, root);
+
+		mEmptyView.setVisibility(View.GONE);
+		if (mEmptyText != null) {
+			mEmptyView.setText(mEmptyText);
+			mList.setEmptyView(mEmptyView);
+		}
+		mList.setDivider(null);
+		mListShown = true;
+		mList.setOnItemClickListener(mOnClickListener);
+		//mList.setOnScrollListener(mOnScrollListener);
+
+		if (mAdapter != null) {
+			setListAdapter(mAdapter);
+		} else {
+			// We are starting without an adapter, so assume we won't
+			// have our data right away and start with the progress indicator.
+			if (mProgressContainer != null) {
+				setListShown(false, false);
+			}
+		}
+		mHandler.post(mRequestFocus);
+	}
+
+	protected ListView getListView() {
+		return mList;
+	}
+
+	protected void onListItemClick(ListView view, View convertView, int position, long id) {
 	}
 }
