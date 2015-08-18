@@ -213,7 +213,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			if (!mListShown && !hadAdapter) {
 				// The list was hidden, and previously didn't have an
 				// adapter. It is now time to show it.
-				setListShown(true, getView().getWindowToken() != null);
+				final View view = getView();
+				setListShown(true, view != null && view.getWindowToken() != null);
 			}
 		}
 	}
