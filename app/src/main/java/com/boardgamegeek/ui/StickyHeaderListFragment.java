@@ -22,6 +22,9 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -66,11 +69,12 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	private StickyListHeadersAdapter mAdapter;
-	private SwipeRefreshLayout mSwipeRefreshLayout;
 	private StickyListHeadersListView mList;
-	private TextView mEmptyView;
-	private View mProgressContainer;
-	private View mListContainer;
+	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@InjectView(android.R.id.empty) TextView mEmptyView;
+	@InjectView(R.id.progressContainer) View mProgressContainer;
+	@InjectView(R.id.listContainer) View mListContainer;
+	@InjectView(R.id.fab) View mFab;
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private int mListViewStatePosition;
@@ -318,18 +322,14 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		mSwipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_refresh);
+		ButterKnife.inject(this, root);
+
 		if (mSwipeRefreshLayout != null) {
 			mSwipeRefreshLayout.setEnabled(isRefreshable());
 			mSwipeRefreshLayout.setOnRefreshListener(this);
 			mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 		}
-
-		mEmptyView = (TextView) root.findViewById(android.R.id.empty);
 		mEmptyView.setVisibility(View.GONE);
-
-		mProgressContainer = root.findViewById(R.id.progressContainer);
-		mListContainer = root.findViewById(R.id.listContainer);
 		View rawListView = root.findViewById(android.R.id.list);
 		if (!(rawListView instanceof StickyListHeadersListView)) {
 			throw new RuntimeException("Content has view with id attribute 'android.R.id.list' that is not a StickyListHeadersListView class");
@@ -360,5 +360,14 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			}
 		}
 		mHandler.post(mRequestFocus);
+	}
+
+	protected void showFab(boolean show) {
+		mFab.setVisibility(show ? View.VISIBLE : View.GONE);
+	}
+
+	@OnClick(R.id.fab)
+	protected void onFabClicked(View v) {
+		// convenience for overriding
 	}
 }

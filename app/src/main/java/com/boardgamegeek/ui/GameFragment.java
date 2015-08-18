@@ -93,6 +93,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private Uri mGameUri;
 	private String mGameName;
 	private String mImageUrl;
+	private String mThumbnailUrl;
+	private boolean mCustomPlayerSort;
 	private boolean mSyncing;
 
 	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
@@ -567,6 +569,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		notifyChange(game);
 		mGameName = game.Name;
 		mImageUrl = game.ImageUrl;
+		mThumbnailUrl = game.ThumbnailUrl;
+		mCustomPlayerSort = game.CustomPlayerSort;
 
 		ImageUtils.safelyLoadImage(mImageView, game.ImageUrl, this);
 		mNameView.setText(game.Name);
@@ -786,6 +790,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
 		intent.setData(mGameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
+		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, mThumbnailUrl);
+		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 		startActivity(intent);
 	}
 

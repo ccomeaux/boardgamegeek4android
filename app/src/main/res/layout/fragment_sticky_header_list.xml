@@ -2,6 +2,8 @@
 <android.support.v4.widget.SwipeRefreshLayout
 	android:id="@+id/swipe_refresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -48,6 +50,19 @@
 				android:paddingRight="@dimen/material_margin_horizontal"
 				android:paddingTop="@dimen/material_margin_vertical"/>
 		</FrameLayout>
+
+			<android.support.design.widget.FloatingActionButton
+				android:id="@+id/fab"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="bottom|right"
+				android:layout_margin="@dimen/padding_fab"
+				android:src="@drawable/ic_action_add"
+				android:visibility="gone"
+				app:elevation="@dimen/fab_elevation"
+				app:pressedTranslationZ="@dimen/fab_translation"
+				app:rippleColor="@color/primary_dark"
+				tools:visibility="visible"/>
 
 	</FrameLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

@@ -104,8 +104,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				ShortcutUtils.createShortcut(this, mGameId, mGameName, mThumbnailUrl);
 				return true;
 			case R.id.menu_log_play:
-				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl,
-					mImageUrl);
+				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl, mImageUrl);
 				intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 				startActivityForResult(intent, REQUEST_EDIT_PLAY);
 				return true;
