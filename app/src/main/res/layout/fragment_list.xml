@@ -13,7 +13,7 @@
 		android:background="@android:color/white">
 
 		<LinearLayout
-			android:id="@+id/progressContainer"
+			android:id="@+id/progress_container"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:gravity="center"
@@ -27,11 +27,11 @@
 		</LinearLayout>
 
 		<android.support.design.widget.CoordinatorLayout
-			android:id="@+id/listContainer"
+			android:id="@+id/list_container"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<se.emilsjolander.stickylistheaders.StickyListHeadersListView
+			<ListView
 				android:id="@android:id/list"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"

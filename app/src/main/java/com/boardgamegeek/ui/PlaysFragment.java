@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -77,6 +78,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
+	private String mGameName;
+	private String mThumbnailUrl;
+	private String mImageUrl;
+	private boolean mCustomPlayerSort;
 	private String mBuddyName;
 	private String mPlayerName;
 	private String mLocation;
@@ -116,10 +121,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		} else {
 			mMode = getArguments().getInt(PlaysFragment.KEY_MODE, mMode);
 		}
+		showFab(mMode == MODE_GAME);
 
 		switch (mMode) {
 			case MODE_GAME:
 				mGameId = Games.getGameId(uri);
+				mGameName = getArguments().getString(ActivityUtils.KEY_GAME_NAME);
+				mThumbnailUrl = getArguments().getString(ActivityUtils.KEY_THUMBNAIL_URL);
+				mImageUrl = getArguments().getString(ActivityUtils.KEY_IMAGE_URL);
+				mCustomPlayerSort = getArguments().getBoolean(ActivityUtils.KEY_CUSTOM_PLAYER_SORT);
 				getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
 				break;
 			case MODE_BUDDY:
@@ -503,6 +513,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mGameId);
 				break;
 		}
+	}
+
+	@Override
+	protected void onFabClicked(View v) {
+		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), 0, mGameId, mGameName, mThumbnailUrl, mImageUrl);
+		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
+		startActivity(intent);
 	}
 
 	public void filter(int type, String description) {
