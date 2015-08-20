@@ -9,15 +9,8 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import timber.log.Timber;
 
 @Root(name = "player")
 public class Player implements Parcelable {
@@ -180,25 +173,6 @@ public class Player implements Parcelable {
 	@Override
 	public String toString() {
 		return String.format("%1$s (%2$s) - %3$s", name, username, color);
-	}
-
-	public List<NameValuePair> toNameValuePairs(int index) {
-		List<NameValuePair> nvps = new ArrayList<>();
-		addPair(nvps, index, "playerid", "player_" + index);
-		addPair(nvps, index, "name", name);
-		addPair(nvps, index, "username", username);
-		addPair(nvps, index, "color", color);
-		addPair(nvps, index, "position", startposition);
-		addPair(nvps, index, "score", score);
-		addPair(nvps, index, "rating", String.valueOf(rating));
-		addPair(nvps, index, "new", String.valueOf(new_));
-		addPair(nvps, index, "win", String.valueOf(win));
-		Timber.d(nvps.toString());
-		return nvps;
-	}
-
-	private void addPair(List<NameValuePair> nvps, int index, String key, String value) {
-		nvps.add(new BasicNameValuePair("players[" + index + "][" + key + "]", value));
 	}
 
 	@Override
