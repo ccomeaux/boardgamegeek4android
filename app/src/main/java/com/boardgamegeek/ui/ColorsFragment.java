@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -21,7 +22,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
@@ -187,9 +187,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 					String color = mAdapter.getColorName(position);
 					count += getActivity().getContentResolver().delete(Games.buildColorsUri(mGameId, color), null, null);
 				}
-				Toast.makeText(getActivity(),
-					getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Toast.LENGTH_SHORT)
-					.show();
+				Snackbar.make(getListContainer(), getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Snackbar.LENGTH_SHORT).show();
 				return true;
 		}
 		return false;
@@ -263,7 +261,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		@Override
 		protected void onPostExecute(Integer result) {
 			if (result > 0) {
-				Toast.makeText(getActivity(), R.string.msg_colors_generated, Toast.LENGTH_SHORT).show();
+				Snackbar.make(getListContainer(), R.string.msg_colors_generated, Snackbar.LENGTH_SHORT).show();
 			}
 		}
 	}

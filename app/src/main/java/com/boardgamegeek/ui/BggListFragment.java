@@ -48,8 +48,8 @@ public abstract class BggListFragment extends Fragment {
 	private boolean mListShown;
 	private ListAdapter mAdapter;
 	@InjectView(android.R.id.empty) TextView mEmptyView;
-	@InjectView(R.id.progressContainer) View mProgressContainer;
-	@InjectView(R.id.listContainer) View mListContainer;
+	@InjectView(R.id.progress_container) View mProgressContainer;
+	@InjectView(R.id.list_container) View mListContainer;
 	@InjectView(android.R.id.list) ListView mList;
 	@InjectView(R.id.fab) View mFab;
 
@@ -328,7 +328,6 @@ public abstract class BggListFragment extends Fragment {
 		mList.setDivider(null);
 		mListShown = true;
 		mList.setOnItemClickListener(mOnClickListener);
-		//mList.setOnScrollListener(mOnScrollListener);
 
 		if (mAdapter != null) {
 			setListAdapter(mAdapter);
@@ -344,6 +343,10 @@ public abstract class BggListFragment extends Fragment {
 
 	protected ListView getListView() {
 		return mList;
+	}
+
+	protected View getListContainer() {
+		return mListContainer;
 	}
 
 	protected void onListItemClick(ListView view, View convertView, int position, long id) {
