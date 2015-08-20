@@ -364,6 +364,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	protected void showFab(boolean show) {
+		ensureList();
 		mFab.setVisibility(show ? View.VISIBLE : View.GONE);
 	}
 
