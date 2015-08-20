@@ -29,8 +29,8 @@ def getBranchName = { ->
 }
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.0"
 
     defaultConfig {
         applicationId "com.boardgamegeek"
@@ -56,9 +56,9 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.android.support:palette-v7:22.2.1'
-    compile 'com.android.support:cardview-v7:22.2.1'
+    compile 'com.android.support:appcompat-v7:23.0.0'
+    compile 'com.android.support:palette-v7:23.0.0'
+    compile 'com.android.support:cardview-v7:23.0.0'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile('com.squareup.retrofit:converter-simplexml:1.9.0') {
@@ -80,5 +80,5 @@ dependencies {
     }
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.github.PhilJay:MPAndroidChart:2.1.3'
-    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:design:23.0.0'
 }
