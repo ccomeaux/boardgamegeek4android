@@ -62,6 +62,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		super.onViewCreated(view, savedInstanceState);
 		final ListView listView = getListView();
 		listView.setSelector(android.R.color.transparent);
+		showFab(true);
 	}
 
 	@DebugLog
@@ -94,35 +95,6 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.menu_colors_add:
-				final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				View view = inflater.inflate(R.layout.dialog_edit_text, getListView(), false);
-				final EditText editText = (EditText) view.findViewById(R.id.edit_text);
-
-				if (mDialog == null) {
-					mDialog = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_add_color).setView(view)
-						.setOnDismissListener(new OnDismissListener() {
-							@Override
-							public void onDismiss(DialogInterface dialog) {
-								editText.setText("");
-							}
-						})
-						.setNegativeButton(android.R.string.cancel, null)
-						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								String color = editText.getText().toString();
-								if (!TextUtils.isEmpty(color)) {
-									ContentValues values = new ContentValues();
-									values.put(GameColors.COLOR, color);
-									getActivity().getContentResolver().insert(Games.buildColorsUri(mGameId), values);
-								}
-							}
-						}).create();
-					mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-				}
-				mDialog.show();
-				return true;
 			case R.id.menu_colors_generate:
 				TaskUtils.executeAsyncTask(new Task());
 				return true;
@@ -221,6 +193,37 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	protected void onFabClicked(View v) {
+		final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.dialog_edit_text, getListView(), false);
+		final EditText editText = (EditText) view.findViewById(R.id.edit_text);
+
+		if (mDialog == null) {
+			mDialog = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_add_color).setView(view)
+				.setOnDismissListener(new OnDismissListener() {
+					@Override
+					public void onDismiss(DialogInterface dialog) {
+						editText.setText("");
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String color = editText.getText().toString();
+						if (!TextUtils.isEmpty(color)) {
+							ContentValues values = new ContentValues();
+							values.put(GameColors.COLOR, color);
+							getActivity().getContentResolver().insert(Games.buildColorsUri(mGameId), values);
+						}
+					}
+				}).create();
+			mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		}
+		mDialog.show();
 	}
 
 	private class Task extends AsyncTask<Void, Void, Integer> {

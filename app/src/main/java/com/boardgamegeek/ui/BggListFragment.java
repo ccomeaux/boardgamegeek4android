@@ -25,6 +25,7 @@ import java.util.Queue;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 /**
  * A {@link android.support.v4.app.ListFragment} with a few extra features:
@@ -346,5 +347,15 @@ public abstract class BggListFragment extends Fragment {
 	}
 
 	protected void onListItemClick(ListView view, View convertView, int position, long id) {
+	}
+
+	protected void showFab(boolean show) {
+		ensureList();
+		mFab.setVisibility(show ? View.VISIBLE : View.GONE);
+	}
+
+	@OnClick(R.id.fab)
+	protected void onFabClicked(View v) {
+		// convenience for overriding
 	}
 }
