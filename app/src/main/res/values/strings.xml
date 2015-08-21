@@ -204,7 +204,7 @@
 	<string name="title_wins">Wins</string>
 	<string name="title_scores">Scores</string>
 	<string name="search_label">BoardGameGeek</string>
-	<string name="search_hint">Search collection</string>
+	<string name="search_hint">Search…</string>
 	<string name="search_settings_description">Games in collection</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="search_results">%1$s matches for \"%2$s\"</string>
