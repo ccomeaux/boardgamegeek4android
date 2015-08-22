@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:layout_gravity="center"
-	android:paddingBottom="@dimen/material_margin_vertical"
-	android:paddingLeft="@dimen/material_margin_horizontal"
-	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical" >
+			 android:layout_width="match_parent"
+			 android:layout_height="wrap_content"
+			 android:layout_gravity="center"
+			 android:paddingBottom="@dimen/material_margin_vertical"
+			 android:paddingLeft="@dimen/material_margin_horizontal"
+			 android:paddingRight="@dimen/material_margin_horizontal"
+			 android:paddingTop="@dimen/material_margin_vertical">
 
 	<ProgressBar
 		android:id="@+id/progress"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center" />
+		android:layout_gravity="center"/>
 
 	<ScrollView
 		android:id="@+id/poll_scroll"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone" >
+		android:visibility="gone">
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:baselineAligned="false"
-			android:orientation="horizontal" >
+			android:orientation="horizontal">
 
 			<LinearLayout
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:orientation="vertical"
-				android:paddingRight="@dimen/padding_half" >
+				android:paddingRight="@dimen/padding_half">
 
 				<TextView
 					android:id="@+id/poll_vote_total"
 					style="@style/Text.Primary"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:gravity="center" />
+					android:gravity="center"/>
 
 				<com.boardgamegeek.ui.widget.PieChartView
 					android:id="@+id/pie_chart"
@@ -55,7 +55,7 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center"
 					android:minWidth="160dp"
-					android:orientation="vertical" />
+					android:orientation="vertical"/>
 			</LinearLayout>
 
 			<LinearLayout
@@ -64,7 +64,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:orientation="horizontal"
-				android:paddingLeft="@dimen/padding_half" >
+				android:paddingLeft="@dimen/padding_half">
 
 				<LinearLayout
 					android:id="@+id/poll_key"
@@ -73,14 +73,14 @@
 					android:layout_gravity="center"
 					android:minWidth="160dp"
 					android:orientation="vertical"
-					android:paddingRight="@dimen/padding_half" />
+					android:paddingRight="@dimen/padding_half"/>
 
 				<View
 					android:id="@+id/poll_key_divider"
 					android:layout_width="0dp"
 					android:layout_height="0dp"
 					android:background="@color/primary"
-					android:visibility="gone" />
+					android:visibility="gone"/>
 
 				<LinearLayout
 					android:id="@+id/poll_key2"
@@ -89,7 +89,7 @@
 					android:layout_gravity="center"
 					android:minWidth="160dp"
 					android:orientation="vertical"
-					android:paddingLeft="@dimen/padding_half" />
+					android:paddingLeft="@dimen/padding_half"/>
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
