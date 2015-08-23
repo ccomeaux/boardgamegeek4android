@@ -231,4 +231,31 @@ public class ColorUtils {
 	public static boolean isColorDark(int color) {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
 	}
+
+	public static final int[] FIVE_STAGE_COLORS = {
+		GREEN, BLUE, YELLOW, ORANGE, RED
+	};
+
+	/**
+	 * Calculate an array of high-contrast, alternating colors
+	 */
+	public static int[] createColors(int count) {
+		int[] colors = new int[count];
+		if (count > 0) {
+			float[] hsv = new float[3];
+			hsv[1] = 0.75f;
+			hsv[2] = 1f;
+			float factor = (float) (360.0 / count);
+			int colorIndex = 0;
+			for (int i = 0; i < count; i++) {
+				hsv[0] = i * factor;
+				colors[colorIndex] = Color.HSVToColor(hsv);
+				colorIndex += 2;
+				if (colorIndex >= colors.length) {
+					colorIndex = 1;
+				}
+			}
+		}
+		return colors;
+	}
 }
