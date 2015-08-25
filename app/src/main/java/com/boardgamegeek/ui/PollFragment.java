@@ -29,6 +29,7 @@ import com.boardgamegeek.ui.widget.PollKeyRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.mikephil.charting.animation.Easing.EasingOption;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.Legend.LegendPosition;
@@ -247,6 +248,8 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		PieData data = new PieData(labels, dataSet);
 		mPieChart.setData(data);
 		mPieChart.setCenterText(getResources().getString(R.string.votes_suffix, voteCount));
+
+		mPieChart.animateY(1000, EasingOption.EaseOutCubic);
 	}
 
 	private void addKeyRow(int color, CharSequence text) {
