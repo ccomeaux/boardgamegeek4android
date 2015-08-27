@@ -4,8 +4,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -36,7 +37,11 @@ import com.github.mikephil.charting.components.Legend.LegendPosition;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +49,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import timber.log.Timber;
 
-public class PollFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
 	public static final String LANGUAGE_DEPENDENCE = "language_dependence";
 	public static final String SUGGESTED_PLAYERAGE = "suggested_playerage";
 	public static final String SUGGESTED_NUMPLAYERS = "suggested_numplayers";
@@ -53,12 +58,15 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	private static final String RECOMMENDED = "Recommended";
 	private static final String NOT_RECOMMENDED = "Not Recommended";
 
+	private static final Format FORMAT = new DecimalFormat("#0");
+
 	private String mType;
 	private int mPollCount;
 	private int mKeyCount;
 	private boolean mBarChart;
 	private Uri mUri;
 	private int[] mColors;
+	private Snackbar mSnackbar;
 
 	@InjectView((R.id.progress)) View mProgress;
 	@InjectView(R.id.poll_scroll) ScrollView mScrollView;
@@ -91,6 +99,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		legend.setPosition(LegendPosition.BELOW_CHART_LEFT);
 		legend.setWordWrapEnabled(true);
 		mPieChart.setDescription(null);
+		mPieChart.setOnChartValueSelectedListener(this);
 
 		return rootView;
 	}
@@ -168,6 +177,27 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@Override
+	public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+		if (e == null || mPieChart == null) {
+			if (mSnackbar != null) {
+				mSnackbar.dismiss();
+			}
+			return;
+		}
+
+		String s = getString(R.string.pie_chart_click_description, FORMAT.format(e.getVal()), mPieChart.getXValue(e.getXIndex()));
+		mSnackbar = Snackbar.make(getView(), s, Snackbar.LENGTH_INDEFINITE);
+		mSnackbar.show();
+	}
+
+	@Override
+	public void onNothingSelected() {
+		if (mSnackbar != null) {
+			mSnackbar.dismiss();
+		}
 	}
 
 	private void createBarChart(Cursor cursor) {

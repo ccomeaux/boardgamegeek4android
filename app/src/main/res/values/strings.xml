@@ -429,6 +429,7 @@
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
+	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -471,8 +472,8 @@
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
 	<plurals name="player_description">
-		<item quantity="one">with %s player </item>
-		<item quantity="other">with %s players </item>
+		<item quantity="one">with %s player</item>
+		<item quantity="other">with %s players</item>
 	</plurals>
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Logging play…</item>
