@@ -291,6 +291,17 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 	<string name="library_mpandroidchart_isOpenSource">true</string>
 	<string name="library_mpandroidchart_repositoryLink">https://github.com/PhilJay/MPAndroidChart</string>
 
+	<string name="define_int_androidrandomcolor"></string>
+	<string name="library_androidrandomcolor_author">lzyzsd</string>
+	<string name="library_androidrandomcolor_authorWebsite">https://github.com/lzyzsd</string>
+	<string name="library_androidrandomcolor_libraryName">Android Random Color</string>
+	<string name="library_androidrandomcolor_libraryDescription">android random color generator library</string>
+	<string name="library_androidrandomcolor_libraryWebsite">>https://github.com/lzyzsd/AndroidRandomColor</string>
+	<string name="library_androidrandomcolor_libraryVersion">1.0.0</string>
+	<string name="library_androidrandomcolor_licenseId">mit</string>
+	<string name="library_androidrandomcolor_isOpenSource">true</string>
+	<string name="library_androidrandomcolor_repositoryLink">https://github.com/lzyzsd/AndroidRandomColor</string>
+
 	<string name="define_license_CCBYSA_4_0"></string>
 	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
 	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>

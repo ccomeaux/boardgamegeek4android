@@ -12,6 +12,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.lzyzsd.randomcolor.RandomColor;
+import com.github.lzyzsd.randomcolor.RandomColor.Luminosity;
+import com.github.lzyzsd.randomcolor.RandomColor.SaturationType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -237,25 +241,16 @@ public class ColorUtils {
 	};
 
 	/**
-	 * Calculate an array of high-contrast, alternating colors
+	 * Create an array of random, but light, colors
 	 */
 	public static int[] createColors(int count) {
+		RandomColor r = new RandomColor();
 		int[] colors = new int[count];
-		if (count > 0) {
-			float[] hsv = new float[3];
-			hsv[1] = 0.75f;
-			hsv[2] = 1f;
-			float factor = (float) (360.0 / count);
-			int colorIndex = 0;
-			for (int i = 0; i < count; i++) {
-				hsv[0] = i * factor;
-				colors[colorIndex] = Color.HSVToColor(hsv);
-				colorIndex += 2;
-				if (colorIndex >= colors.length) {
-					colorIndex = 1;
-				}
-			}
+
+		for (int i = 0; i < count; ++i) {
+			colors[i] = r.randomColor(0, SaturationType.RANDOM, Luminosity.LIGHT);
 		}
+
 		return colors;
 	}
 }

@@ -113,7 +113,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 								"StickyListHeaders",
 								"AndroidIcons",
 								"EventBus",
-								"MPAndroidChart")
+								"MPAndroidChart",
+								"AndroidRandomColor")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))
