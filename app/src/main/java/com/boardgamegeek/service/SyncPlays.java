@@ -115,6 +115,9 @@ public class SyncPlays extends SyncTask {
 
 	private void persist(PlaysResponse response, SyncResult syncResult) {
 		if (response.plays != null && response.plays.size() > 0) {
+			if (mPersister == null) {
+				mPersister = new PlayPersister(mContext);
+			}
 			mPersister.save(response.plays, mStartTime);
 			syncResult.stats.numEntries += response.plays.size();
 			Timber.i("...saved " + response.plays.size() + " plays");
