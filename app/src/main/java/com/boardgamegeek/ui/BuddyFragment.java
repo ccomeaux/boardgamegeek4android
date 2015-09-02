@@ -331,6 +331,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			mColorContainer.setVisibility(View.VISIBLE);
 			BuddyColor color = BuddyColor.fromCursor(cursor);
 			ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
+		} else {
+			mColorContainer.setVisibility(View.GONE);
 		}
 	}
 
