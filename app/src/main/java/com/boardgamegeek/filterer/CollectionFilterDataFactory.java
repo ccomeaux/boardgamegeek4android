@@ -15,6 +15,7 @@ public class CollectionFilterDataFactory {
 	public static final int TYPE_GEEK_RANKING = 9;
 	public static final int TYPE_EXPANSION_STATUS = 10;
 	public static final int TYPE_PLAY_COUNT = 11;
+	public static final int TYPE_MY_RATING = 12;
 
 	public static CollectionFilterer create(Context context, int type, String data) {
 		if (TextUtils.isEmpty(data)) {
@@ -43,6 +44,8 @@ public class CollectionFilterDataFactory {
 				return new ExpansionStatusFilterer(context, data);
 			case TYPE_PLAY_COUNT:
 				return new PlayCountFilterer(context, data);
+			case TYPE_MY_RATING:
+				return new MyRatingFilterer(context, data);
 			default:
 				return null;
 		}

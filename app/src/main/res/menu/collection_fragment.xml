@@ -71,6 +71,9 @@
 				android:id="@+id/menu_average_rating"
 				android:title="@string/menu_average_rating"/>
 			<item
+				android:id="@+id/menu_my_rating"
+				android:title="@string/menu_my_rating"/>
+			<item
 				android:id="@+id/menu_number_of_players"
 				android:title="@string/menu_number_of_players"/>
 			<item
