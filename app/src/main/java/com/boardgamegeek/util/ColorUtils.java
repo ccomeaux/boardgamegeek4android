@@ -12,6 +12,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.lzyzsd.randomcolor.RandomColor;
+import com.github.lzyzsd.randomcolor.RandomColor.Luminosity;
+import com.github.lzyzsd.randomcolor.RandomColor.SaturationType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -230,5 +234,23 @@ public class ColorUtils {
 	 */
 	public static boolean isColorDark(int color) {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
+	}
+
+	public static final int[] FIVE_STAGE_COLORS = {
+		GREEN, BLUE, YELLOW, ORANGE, RED
+	};
+
+	/**
+	 * Create an array of random, but light, colors
+	 */
+	public static int[] createColors(int count) {
+		RandomColor r = new RandomColor();
+		int[] colors = new int[count];
+
+		for (int i = 0; i < count; ++i) {
+			colors[i] = r.randomColor(0, SaturationType.RANDOM, Luminosity.LIGHT);
+		}
+
+		return colors;
 	}
 }
