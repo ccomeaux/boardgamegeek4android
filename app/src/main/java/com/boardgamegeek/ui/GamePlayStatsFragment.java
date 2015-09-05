@@ -320,9 +320,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			row++;
 		}
 
-		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
-		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
-		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
+		if (mRating > 0) {
+			addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
+			addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
+			addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
+		}
 		addStatRow(mAdvancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
 		int hIndexOffset = stats.getHIndexOffset();
 		if (hIndexOffset == -1) {
