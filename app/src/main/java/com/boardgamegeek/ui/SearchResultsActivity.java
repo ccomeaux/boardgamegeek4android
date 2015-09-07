@@ -48,11 +48,6 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 	}
 
 	@Override
-	public void onExactMatch() {
-		finish();
-	}
-
-	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		Fragment fragment;
 		String action = intent.getAction();

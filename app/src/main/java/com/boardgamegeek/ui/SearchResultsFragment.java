@@ -50,18 +50,12 @@ public class SearchResultsFragment extends BggListFragment implements
 	private MenuItem mBggLinkMenuItem;
 
 	public interface Callbacks {
-		public void onResultCount(int count);
-
-		public void onExactMatch();
+		void onResultCount(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public void onResultCount(int count) {
-		}
-
-		@Override
-		public void onExactMatch() {
 		}
 	};
 
@@ -129,7 +123,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		if (data != null && data.count() == 1 && PreferencesUtils.getSkipResults(getActivity())) {
 			SearchResult game = data.list().get(0);
 			ActivityUtils.launchGame(getActivity(), game.id, game.name);
-			mCallbacks.onExactMatch();
+			getActivity().finish();
 			return;
 		}
 
