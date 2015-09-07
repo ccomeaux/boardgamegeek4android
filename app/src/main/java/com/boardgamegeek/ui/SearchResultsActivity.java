@@ -93,6 +93,11 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 		return fragment;
 	}
 
+	@Override
+	protected int getDrawerResId() {
+		return R.string.title_search;
+	}
+
 	private Fragment buildTextFragment(String text) {
 		mFragment = new TextFragment();
 		getIntent().putExtra(ActivityUtils.KEY_TEXT, text);
