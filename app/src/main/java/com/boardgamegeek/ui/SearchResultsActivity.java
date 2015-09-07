@@ -8,11 +8,14 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.BuddiesCountChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 
-public class SearchResultsActivity extends SimpleSinglePaneActivity implements SearchResultsFragment.Callbacks {
+import hugo.weaving.DebugLog;
+
+public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	private static final String VOICE_SEARCH_ACTION = "com.google.android.gms.actions.SEARCH_ACTION";
 	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
@@ -41,9 +44,9 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 		return R.menu.search_only;
 	}
 
-	@Override
-	public void onResultCount(int subtitle) {
-		String message = String.format(getResources().getString(R.string.search_results), subtitle, mSearchText);
+	@DebugLog
+	public void onEvent(BuddiesCountChangedEvent event) {
+		String message = String.format(getResources().getString(R.string.search_results), event.count, mSearchText);
 		getSupportActionBar().setSubtitle(message);
 	}
 

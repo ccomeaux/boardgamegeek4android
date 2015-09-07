@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.BuddiesCountChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
@@ -38,6 +39,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 public class SearchResultsFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<SearchResultsFragment.SearchData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 0;
@@ -48,18 +51,6 @@ public class SearchResultsFragment extends BggListFragment implements
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
-
-	public interface Callbacks {
-		void onResultCount(int count);
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onResultCount(int count) {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,23 +71,6 @@ public class SearchResultsFragment extends BggListFragment implements
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(LOADER_ID, null, this);
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
@@ -146,7 +120,7 @@ public class SearchResultsFragment extends BggListFragment implements
 				setListShownNoAnimation(true);
 			}
 			restoreScrollState();
-			mCallbacks.onResultCount(data.count());
+			EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(data.count()));
 		}
 	}
 
