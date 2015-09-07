@@ -213,6 +213,7 @@
 	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
 	<string name="search_error_no_text">Search performed with no search text.</string>
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
+	<string name="search_initial_help">Use the search field above to search against BoardGameGeek\'s entire database. Autocomplete will show only games in your collection.</string>
 	<string name="search_error_bad_intent">Received bad intent action: </string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
