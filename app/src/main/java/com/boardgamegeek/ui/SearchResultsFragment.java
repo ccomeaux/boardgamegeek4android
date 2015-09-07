@@ -47,7 +47,7 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	private String mSearchText;
 	private SearchResultsAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
+	private final LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
@@ -134,8 +134,8 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	private static class SearchLoader extends BggLoader<SearchData> {
-		private BggService mService;
-		private String mQuery;
+		private final BggService mService;
+		private final String mQuery;
 
 		public SearchLoader(Context context, String query) {
 			super(context);
@@ -192,8 +192,8 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	public static class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
-		private LayoutInflater mInflater;
-		private Resources mResources;
+		private final LayoutInflater mInflater;
+		private final Resources mResources;
 
 		public SearchResultsAdapter(Activity activity, List<SearchResult> results) {
 			super(activity, R.layout.row_search, results);
@@ -250,9 +250,9 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	static class ViewHolder {
-		TextView name;
-		TextView year;
-		TextView gameId;
+		final TextView name;
+		final TextView year;
+		final TextView gameId;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);

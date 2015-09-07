@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -46,8 +47,11 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 
 	@DebugLog
 	public void onEvent(BuddiesCountChangedEvent event) {
-		String message = String.format(getResources().getString(R.string.search_results), event.count, mSearchText);
-		getSupportActionBar().setSubtitle(message);
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			String message = String.format(getResources().getString(R.string.search_results), event.count, mSearchText);
+			actionBar.setSubtitle(message);
+		}
 	}
 
 	@Override
@@ -64,8 +68,10 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 					if (TextUtils.isEmpty(mSearchText)) {
 						fragment = buildTextFragment(getString(R.string.search_error_no_text));
 					} else {
-						getSupportActionBar().setSubtitle(
-							String.format(getResources().getString(R.string.search_searching), mSearchText));
+						final ActionBar actionBar = getSupportActionBar();
+						if (actionBar != null) {
+							actionBar.setSubtitle(String.format(getResources().getString(R.string.search_searching), mSearchText));
+						}
 						fragment = new SearchResultsFragment();
 					}
 					break;
