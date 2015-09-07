@@ -109,6 +109,7 @@ public abstract class DrawerActivity extends BaseActivity {
         mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
 
         mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+		mDrawerList.addView(makeNavDrawerItem(R.string.title_search, R.drawable.ic_action_search, mDrawerList));
         mDrawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_whatshot_black_24dp, mDrawerList));
         mDrawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_list_black_24dp, mDrawerList));
         mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_action_forum, mDrawerList));
@@ -127,6 +128,9 @@ public abstract class DrawerActivity extends BaseActivity {
                 case R.string.title_collection:
                     intent = new Intent(this, CollectionActivity.class);
                     break;
+				case R.string.title_search:
+					intent = new Intent(this, SearchResultsActivity.class);
+					break;
                 case R.string.title_hotness:
                     intent = new Intent(this, HotnessActivity.class);
                     break;
