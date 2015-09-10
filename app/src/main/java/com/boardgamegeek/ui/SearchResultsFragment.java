@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,7 +63,7 @@ public class SearchResultsFragment extends BggListFragment implements
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		setEmptyText(getString(R.string.empty_search));
+		setEmptyText(getString(R.string.search_initial_help));
 		getListView().setOnCreateContextMenuListener(this);
 	}
 
@@ -109,17 +110,25 @@ public class SearchResultsFragment extends BggListFragment implements
 			mAdapter.notifyDataSetChanged();
 		}
 
-		if (data == null) {
-			setEmptyText(getString(R.string.empty_search));
-		} else if (data.hasError()) {
+		if (data != null && data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
-			if (isResumed()) {
-				setListShown(true);
+			if (TextUtils.isEmpty(mSearchText)) {
+				setEmptyText(getString(R.string.search_initial_help));
 			} else {
-				setListShownNoAnimation(true);
+				setEmptyText(getString(R.string.empty_search));
 			}
-			restoreScrollState();
+		}
+
+		if (isResumed()) {
+			setListShown(true);
+		} else {
+			setListShownNoAnimation(true);
+		}
+
+		restoreScrollState();
+
+		if (data != null) {
 			EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(data.count()));
 		}
 	}
@@ -146,6 +155,9 @@ public class SearchResultsFragment extends BggListFragment implements
 		@Override
 		public SearchData loadInBackground() {
 			SearchData games = null;
+			if (TextUtils.isEmpty(mQuery)) {
+				return games;
+			}
 			try {
 				if (PreferencesUtils.getExactSearch(getContext())) {
 					games = new SearchData(mService.search(mQuery, BggService.SEARCH_TYPE_BOARD_GAME, 1));
