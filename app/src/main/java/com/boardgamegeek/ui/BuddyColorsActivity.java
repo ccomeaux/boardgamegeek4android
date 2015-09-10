@@ -120,23 +120,27 @@ public class BuddyColorsActivity extends BaseActivity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (mColors != null && mColors.size() > 0) {
+		if (mColors != null) {
 			final ContentResolver resolver = getContentResolver();
-			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-			for (int i = 0; i < mColors.size(); i++) {
-				final String color = mColors.get(i).getColor();
-				final int sortOrder = mColors.get(i).getSortOrder();
+			if (mColors.size() == 0) {
+				resolver.delete(PlayerColors.buildUserUri(mBuddyName), null, null);
+			} else {
+				ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+				for (int i = 0; i < mColors.size(); i++) {
+					final String color = mColors.get(i).getColor();
+					final int sortOrder = mColors.get(i).getSortOrder();
 
-				Builder builder;
-				if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(mBuddyName, sortOrder))) {
-					builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(mBuddyName, sortOrder));
-				} else {
-					builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(mBuddyName))
-						.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
+					Builder builder;
+					if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(mBuddyName, sortOrder))) {
+						builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(mBuddyName, sortOrder));
+					} else {
+						builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(mBuddyName))
+							.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
+					}
+					batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
 				}
-				batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
+				ResolverUtils.applyBatch(this, batch);
 			}
-			ResolverUtils.applyBatch(this, batch);
 			mColors = null; // to force a load from cursor
 		}
 	}

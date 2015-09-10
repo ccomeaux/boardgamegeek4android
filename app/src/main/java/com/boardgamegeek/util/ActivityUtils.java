@@ -25,6 +25,8 @@ public class ActivityUtils {
 	public static final String KEY_COLLECTION_ID = "COLLECTION_ID";
 	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	public final static String KEY_IMAGE_URL = "IMAGE_URL";
+	public final static String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public final static String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 	public final static String KEY_SORT = "SORT";

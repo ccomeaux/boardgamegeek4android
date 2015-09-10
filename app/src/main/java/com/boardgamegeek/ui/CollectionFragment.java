@@ -32,6 +32,7 @@ import com.boardgamegeek.filterer.CollectionFilterDataFactory;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.filterer.ExpansionStatusFilterer;
+import com.boardgamegeek.filterer.MyRatingFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -47,6 +48,7 @@ import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
 import com.boardgamegeek.ui.dialog.GeekRankingFilter;
 import com.boardgamegeek.ui.dialog.GeekRatingFilter;
+import com.boardgamegeek.ui.dialog.MyRatingFilter;
 import com.boardgamegeek.ui.dialog.PlayCountFilter;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
@@ -744,7 +746,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				new PlayCountFilter().createDialog(getActivity(), this,
 					findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
 				return true;
-
+			case R.id.menu_my_rating:
+			case CollectionFilterDataFactory.TYPE_MY_RATING:
+				new MyRatingFilter().createDialog(getActivity(), this,
+					findFilter(CollectionFilterDataFactory.TYPE_MY_RATING));
+				return true;
 		}
 		return false;
 	}

@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
@@ -64,7 +65,6 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.melnykov.fab.FloatingActionButton;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 
@@ -444,8 +444,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_logplay, null), null, false);
 
 		ButterKnife.inject(this);
-
-		mFab.attachToListView(mPlayerList);
 
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);

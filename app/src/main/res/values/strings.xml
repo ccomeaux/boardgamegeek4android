@@ -77,6 +77,7 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
+	<string name="my_rating">My Rating</string>
 	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
 	<string name="average_win">Average win</string>
@@ -204,7 +205,7 @@
 	<string name="title_wins">Wins</string>
 	<string name="title_scores">Scores</string>
 	<string name="search_label">BoardGameGeek</string>
-	<string name="search_hint">Search collection</string>
+	<string name="search_hint">Search…</string>
 	<string name="search_settings_description">Games in collection</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="search_results">%1$s matches for \"%2$s\"</string>
@@ -274,6 +275,7 @@
 	<string name="menu_geek_ranking">Rank</string>
 	<string name="menu_geek_rating">Geek Rating</string>
 	<string name="menu_average_rating">Average Rating</string>
+	<string name="menu_my_rating">My Rating</string>
 	<string name="menu_average_weight">Average Weight</string>
 	<string name="menu_year_published">Year Published</string>
 	<string name="menu_collection_random_game">Random game</string>
@@ -429,6 +431,7 @@
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
+	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -471,8 +474,8 @@
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
 	<plurals name="player_description">
-		<item quantity="one">with %s player </item>
-		<item quantity="other">with %s players </item>
+		<item quantity="one">with %s player</item>
+		<item quantity="other">with %s players</item>
 	</plurals>
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Logging play…</item>
