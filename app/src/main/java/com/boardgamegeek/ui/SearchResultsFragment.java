@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -53,6 +55,18 @@ public class SearchResultsFragment extends BggListFragment implements
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
 
+	private static final int MESSAGE_QUERY_UPDATE = 1;
+	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			if (msg.what == MESSAGE_QUERY_UPDATE) {
+				requery((String) msg.obj);
+			}
+		}
+
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -91,23 +105,22 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	@Override
 	public void onLoadFinished(Loader<SearchData> loader, SearchData data) {
+		setProgressShown(false);
+
 		if (getActivity() == null) {
 			return;
 		}
+		// Don't leave this form
+		//		if (data != null && data.count() == 1 && PreferencesUtils.getSkipResults(getActivity())) {
+		//			SearchResult game = data.list().get(0);
+		//			ActivityUtils.launchGame(getActivity(), game.id, game.name);
+		//			getActivity().finish();
+		//			return;
+		//		}
 
-		if (data != null && data.count() == 1 && PreferencesUtils.getSkipResults(getActivity())) {
-			SearchResult game = data.list().get(0);
-			ActivityUtils.launchGame(getActivity(), game.id, game.name);
-			getActivity().finish();
-			return;
-		}
-
-		if (mAdapter == null && data != null) {
+		if (data != null) {
 			mAdapter = new SearchResultsAdapter(getActivity(), data.list());
 			setListAdapter(mAdapter);
-		}
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
 		}
 
 		if (data != null && data.hasError()) {
@@ -137,9 +150,36 @@ public class SearchResultsFragment extends BggListFragment implements
 	public void onLoaderReset(Loader<SearchData> results) {
 	}
 
+	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		SearchResult game = mAdapter.getItem(position);
 		ActivityUtils.launchGame(getActivity(), game.id, game.name);
+	}
+
+	public void requestQueryUpdate(String query) {
+		setProgressShown(true);
+		if (TextUtils.isEmpty(query)) {
+			requery(query);
+		} else {
+			mHandler.removeMessages(MESSAGE_QUERY_UPDATE);
+			mHandler.sendMessageDelayed(Message.obtain(mHandler, MESSAGE_QUERY_UPDATE, query), QUERY_UPDATE_DELAY_MILLIS);
+		}
+	}
+
+	public void forceQueryUpdate(String query) {
+		setProgressShown(true);
+		requery(query);
+	}
+
+	private void requery(String query) {
+		if (query == null && mSearchText == null) {
+			return;
+		}
+		if (query.equals(mSearchText)) {
+			return;
+		}
+		mSearchText = query;
+		getLoaderManager().restartLoader(LOADER_ID, null, SearchResultsFragment.this);
 	}
 
 	private static class SearchLoader extends BggLoader<SearchData> {
