@@ -32,9 +32,9 @@ public class SearchSuggestProvider extends BaseProvider {
 			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
 		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.COLLECTION + "." + Collection.GAME_ID + " AS "
 			+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
-		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.COLLECTION + "."
-			+ Collection.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
-			+ SearchManager.SUGGEST_COLUMN_ICON_2);
+//		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.COLLECTION + "."
+//			+ Collection.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
+//			+ SearchManager.SUGGEST_COLUMN_ICON_2);
 		return map;
 	}
 
