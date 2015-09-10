@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +48,7 @@ public abstract class BggListFragment extends Fragment {
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private ListAdapter mAdapter;
+	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
 	@InjectView(android.R.id.empty) TextView mEmptyView;
 	@InjectView(R.id.progress_container) View mProgressContainer;
 	@InjectView(R.id.list_container) View mListContainer;
@@ -319,6 +321,8 @@ public abstract class BggListFragment extends Fragment {
 		}
 
 		ButterKnife.inject(this, root);
+
+		mSwipeRefreshLayout.setEnabled(false);
 
 		mEmptyView.setVisibility(View.GONE);
 		if (mEmptyText != null) {
