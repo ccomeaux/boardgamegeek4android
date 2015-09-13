@@ -130,6 +130,7 @@ public abstract class DrawerActivity extends BaseActivity {
                     break;
 				case R.string.title_search:
 					intent = new Intent(this, SearchResultsActivity.class);
+					shouldFinish = false;
 					break;
                 case R.string.title_hotness:
                     intent = new Intent(this, HotnessActivity.class);
