@@ -9,7 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.BuddiesCountChangedEvent;
+import com.boardgamegeek.events.SearchResultsCountChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -45,7 +45,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	}
 
 	@DebugLog
-	public void onEvent(BuddiesCountChangedEvent event) {
+	public void onEvent(SearchResultsCountChangedEvent event) {
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			String message = String.format(getResources().getString(R.string.search_results), event.count, mSearchText);

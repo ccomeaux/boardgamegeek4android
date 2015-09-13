@@ -25,7 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.BuddiesCountChangedEvent;
+import com.boardgamegeek.events.SearchResultsCountChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
@@ -142,7 +142,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		restoreScrollState();
 
 		if (data != null) {
-			EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(data.count()));
+			EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(data.count()));
 		}
 	}
 
