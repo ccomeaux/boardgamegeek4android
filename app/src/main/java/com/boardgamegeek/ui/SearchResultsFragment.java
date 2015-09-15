@@ -121,6 +121,8 @@ public class SearchResultsFragment extends BggListFragment implements
 		if (data != null) {
 			mAdapter = new SearchResultsAdapter(getActivity(), data.list());
 			setListAdapter(mAdapter);
+		} else if (mAdapter != null) {
+			mAdapter.clear();
 		}
 
 		if (data != null && data.hasError()) {
