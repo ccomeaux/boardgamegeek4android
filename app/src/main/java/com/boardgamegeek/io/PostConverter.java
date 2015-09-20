@@ -1,6 +1,7 @@
 package com.boardgamegeek.io;
 
 import android.support.annotation.NonNull;
+import android.text.Html;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,14 +18,8 @@ public abstract class PostConverter implements Converter {
 	private static final String CLASS_NAME = "class com.boardgamegeek.model.PlayPostResponse";
 
 	protected String extractErrorMessage(String content) {
-		if (content.contains(ERROR_DIV)) {
-			int index = content.indexOf(ERROR_DIV) + ERROR_DIV.length();
-			String message = content.substring(index);
-			index = message.indexOf("<");
-			if (index > 0) {
-				message = message.substring(0, index);
-			}
-			return message.trim();
+		if (content.startsWith(ERROR_DIV)) {
+			return Html.fromHtml(content).toString().trim();
 		}
 		return null;
 	}

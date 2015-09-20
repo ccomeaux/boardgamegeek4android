@@ -1,5 +1,6 @@
 package com.boardgamegeek.io;
 
+import com.boardgamegeek.model.CollectionPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
@@ -149,6 +150,10 @@ public interface BggService {
 
 	@GET("/xmlapi2/collection")
 	CollectionResponse collection(@Query("username") String username, @QueryMap Map<String, String> options);
+
+	@FormUrlEncoded
+	@POST("/geekcollection.php")
+	CollectionPostResponse geekCollection(@FieldMap Map<String, String> form);
 
 	@GET("/xmlapi2/thing")
 	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);
