@@ -5,7 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -15,6 +19,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	private static final String SEARCH_TEXT = "search_text";
@@ -42,6 +47,49 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.search_only;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		final MenuItem searchItem = menu.findItem(R.id.menu_search);
+		if (searchItem != null) {
+			final SearchView view = (SearchView) MenuItemCompat.getActionView(searchItem);
+			if (view == null) {
+				Timber.w("Could not set up search view, view is null.");
+			} else {
+				view.setIconified(false);
+				view.setOnCloseListener(new SearchView.OnCloseListener() {
+					@Override
+					public boolean onClose() {
+						finish();
+						return true;
+					}
+				});
+				view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+					@Override
+					public boolean onQueryTextSubmit(String s) {
+						if (s != null && s.length() > 1 && s.length() <= 2) {
+							((SearchResultsFragment) getFragment()).forceQueryUpdate(s);
+						}
+						// close the auto-complete list; don't pass to a different activity
+						view.clearFocus();
+						return true;
+					}
+
+					@Override
+					public boolean onQueryTextChange(String s) {
+						if (s != null && s.length() > 2) {
+							((SearchResultsFragment) getFragment()).requestQueryUpdate(s);
+						} else {
+							((SearchResultsFragment) getFragment()).requestQueryUpdate("");
+						}
+						return true;
+					}
+				});
+			}
+		}
+		return true;
 	}
 
 	@DebugLog
