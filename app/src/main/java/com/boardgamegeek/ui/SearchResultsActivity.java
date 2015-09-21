@@ -57,7 +57,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	protected Fragment onCreatePane(Intent intent) {
 		Fragment fragment;
 		String action = intent.getAction();
-		if (action != null && action == Intent.ACTION_VIEW) {
+		if (action != null && Intent.ACTION_VIEW.equals(action)) {
 			Uri uri = intent.getData();
 			if (uri == null) {
 				Toast.makeText(this, R.string.search_error_no_data, Toast.LENGTH_LONG).show();

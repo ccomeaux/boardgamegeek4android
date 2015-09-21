@@ -57,14 +57,13 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	private static final int MESSAGE_QUERY_UPDATE = 1;
 	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
-	private Handler mHandler = new Handler() {
+	private final Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == MESSAGE_QUERY_UPDATE) {
 				requery((String) msg.obj);
 			}
 		}
-
 	};
 
 	@Override
@@ -145,6 +144,8 @@ public class SearchResultsFragment extends BggListFragment implements
 
 		if (data != null) {
 			EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(data.count()));
+		} else {
+			EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(0));
 		}
 	}
 
@@ -169,6 +170,7 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	public void forceQueryUpdate(String query) {
+		mHandler.removeMessages(MESSAGE_QUERY_UPDATE);
 		setProgressShown(true);
 		requery(query);
 	}
@@ -177,7 +179,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		if (query == null && mSearchText == null) {
 			return;
 		}
-		if (query.equals(mSearchText)) {
+		if (mSearchText.equals(query)) {
 			return;
 		}
 		mSearchText = query;
@@ -196,10 +198,10 @@ public class SearchResultsFragment extends BggListFragment implements
 
 		@Override
 		public SearchData loadInBackground() {
-			SearchData games = null;
 			if (TextUtils.isEmpty(mQuery)) {
-				return games;
+				return null;
 			}
+			SearchData games = null;
 			try {
 				if (PreferencesUtils.getExactSearch(getContext())) {
 					games = new SearchData(mService.search(mQuery, BggService.SEARCH_TYPE_BOARD_GAME, 1));
