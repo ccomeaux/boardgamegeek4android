@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -54,6 +55,7 @@ public class SearchResultsFragment extends BggListFragment implements
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
+	private Snackbar mSnackbar;
 
 	private static final int MESSAGE_QUERY_UPDATE = 1;
 	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
@@ -141,6 +143,23 @@ public class SearchResultsFragment extends BggListFragment implements
 		}
 
 		restoreScrollState();
+
+		if (TextUtils.isEmpty(mSearchText)) {
+			if (mSnackbar != null) {
+				mSnackbar.dismiss();
+			}
+		} else {
+			int count = data == null ? 0 : data.count();
+			if (mSnackbar == null) {
+				mSnackbar = Snackbar.make(getListContainer(),
+					String.format(getResources().getString(R.string.search_results), count, mSearchText),
+					Snackbar.LENGTH_INDEFINITE);
+				mSnackbar.getView().setBackgroundResource(R.color.primary_dark);
+			} else {
+				mSnackbar.setText(String.format(getResources().getString(R.string.search_results), count, mSearchText));
+			}
+			mSnackbar.show();
+		}
 
 		if (data != null) {
 			EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(data.count()));
