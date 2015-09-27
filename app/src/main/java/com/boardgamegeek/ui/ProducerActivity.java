@@ -35,9 +35,4 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 	protected Fragment onCreatePane(Intent intent) {
 		return new ProducerFragment();
 	}
-
-	@Override
-	protected int getOptionsMenuId() {
-		return R.menu.search_only;
-	}
 }

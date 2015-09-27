@@ -34,11 +34,6 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	protected int getOptionsMenuId() {
-		return R.menu.search_only;
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
