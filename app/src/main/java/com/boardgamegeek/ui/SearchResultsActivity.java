@@ -58,6 +58,8 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 			if (view == null) {
 				Timber.w("Could not set up search view, view is null.");
 			} else {
+				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+				view.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 				view.setIconified(false);
 				view.setOnCloseListener(new SearchView.OnCloseListener() {
 					@Override

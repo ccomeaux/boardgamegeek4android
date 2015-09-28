@@ -59,7 +59,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 		menuInflater.inflate(R.menu.base, menu);
 		if (getOptionsMenuId() != 0) {
 			menuInflater.inflate(getOptionsMenuId(), menu);
-			setupSearchMenuItem(menu);
 		}
 		return true;
 	}
@@ -103,17 +102,5 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@DebugLog
 	protected void signOut() {
 		Authenticator.signOut(this);
-	}
-
-	@DebugLog
-	private void setupSearchMenuItem(Menu menu) {
-		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null) {
-			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-			if (searchView != null) {
-				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-			}
-		}
 	}
 }
