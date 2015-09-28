@@ -1245,7 +1245,9 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		@DebugLog
 		@Override
 		public Object getItem(int position) {
-			return mPlay == null ? null : mPlay.getPlayers().get(position);
+			return (mPlay == null || position < mPlay.getPlayerCount()) ?
+				null :
+				mPlay.getPlayers().get(position);
 		}
 
 		@DebugLog
