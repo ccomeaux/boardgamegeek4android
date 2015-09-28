@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -76,6 +77,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 						}
 						// close the auto-complete list; don't pass to a different activity
 						view.clearFocus();
+						mSearchText = s;
 						return true;
 					}
 
@@ -83,12 +85,16 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 					public boolean onQueryTextChange(String s) {
 						if (s != null && s.length() > 2) {
 							((SearchResultsFragment) getFragment()).requestQueryUpdate(s);
+							mSearchText = s;
 						} else {
 							((SearchResultsFragment) getFragment()).requestQueryUpdate("");
 						}
 						return true;
 					}
 				});
+				if (!TextUtils.isEmpty(mSearchText)) {
+					view.setQuery(mSearchText, false);
+				}
 			}
 		}
 		return true;

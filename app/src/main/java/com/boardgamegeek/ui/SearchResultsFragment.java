@@ -198,7 +198,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		if (query == null && mSearchText == null) {
 			return;
 		}
-		if (mSearchText.equals(query)) {
+		if (mSearchText != null && mSearchText.equals(query)) {
 			return;
 		}
 		mSearchText = query;
