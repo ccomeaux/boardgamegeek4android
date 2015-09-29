@@ -111,13 +111,6 @@ public class SearchResultsFragment extends BggListFragment implements
 		if (getActivity() == null) {
 			return;
 		}
-		// Don't leave this form
-		//		if (data != null && data.count() == 1 && PreferencesUtils.getSkipResults(getActivity())) {
-		//			SearchResult game = data.list().get(0);
-		//			ActivityUtils.launchGame(getActivity(), game.id, game.name);
-		//			getActivity().finish();
-		//			return;
-		//		}
 
 		int count = data == null ? 0 : data.count();
 
