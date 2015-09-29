@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +34,7 @@ import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.Data;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -119,6 +119,8 @@ public class SearchResultsFragment extends BggListFragment implements
 		//			return;
 		//		}
 
+		int count = data == null ? 0 : data.count();
+
 		if (data != null) {
 			mAdapter = new SearchResultsAdapter(getActivity(), data.list());
 			setListAdapter(mAdapter);
@@ -149,7 +151,6 @@ public class SearchResultsFragment extends BggListFragment implements
 				mSnackbar.dismiss();
 			}
 		} else {
-			int count = data == null ? 0 : data.count();
 			if (mSnackbar == null) {
 				mSnackbar = Snackbar.make(getListContainer(),
 					String.format(getResources().getString(R.string.search_results), count, mSearchText),
@@ -161,11 +162,7 @@ public class SearchResultsFragment extends BggListFragment implements
 			mSnackbar.show();
 		}
 
-		if (data != null) {
-			EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(data.count()));
-		} else {
-			EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(0));
-		}
+		EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(count));
 	}
 
 	@Override
@@ -268,12 +265,12 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	public static class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
 		private final LayoutInflater mInflater;
-		private final Resources mResources;
+		private final String mGameString;
 
 		public SearchResultsAdapter(Activity activity, List<SearchResult> results) {
 			super(activity, R.layout.row_search, results);
 			mInflater = activity.getLayoutInflater();
-			mResources = activity.getResources();
+			mGameString = activity.getResources().getString(R.string.id_list_text);
 		}
 
 		@Override
@@ -307,17 +304,8 @@ public class SearchResultsFragment extends BggListFragment implements
 						break;
 				}
 				holder.name.setTypeface(holder.name.getTypeface(), style);
-				int year = game.getYearPublished();
-				String yearText;
-				if (year > 0) {
-					yearText = mResources.getString(R.string.year_positive, year);
-				} else if (year == 0) {
-					yearText = mResources.getString(R.string.year_zero, year);
-				} else {
-					yearText = mResources.getString(R.string.year_negative, -year);
-				}
-				holder.year.setText(yearText);
-				holder.gameId.setText(String.format(mResources.getString(R.string.id_list_text), game.id));
+				holder.year.setText(PresentationUtils.describeYear(getContext(), game.getYearPublished()));
+				holder.gameId.setText(String.format(mGameString, game.id));
 			}
 
 			return convertView;
