@@ -95,6 +95,11 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	@Override
+	protected boolean padBottomForSnackBar() {
+		return true;
+	}
+
+	@Override
 	protected boolean dividerShown() {
 		return true;
 	}
@@ -144,7 +149,7 @@ public class SearchResultsFragment extends BggListFragment implements
 				mSnackbar.dismiss();
 			}
 		} else {
-			if (mSnackbar == null) {
+			if (mSnackbar == null || !mSnackbar.isShown()) {
 				mSnackbar = Snackbar.make(getListContainer(),
 					String.format(getResources().getString(R.string.search_results), count, mSearchText),
 					Snackbar.LENGTH_INDEFINITE);
