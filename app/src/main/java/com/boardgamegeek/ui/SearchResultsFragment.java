@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.SearchResultsCountChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
@@ -42,8 +41,6 @@ import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import de.greenrobot.event.EventBus;
 
 public class SearchResultsFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<SearchResultsFragment.SearchData>, MultiChoiceModeListener {
@@ -159,8 +156,6 @@ public class SearchResultsFragment extends BggListFragment implements
 			}
 			mSnackbar.show();
 		}
-
-		EventBus.getDefault().postSticky(new SearchResultsCountChangedEvent(count));
 	}
 
 	@Override

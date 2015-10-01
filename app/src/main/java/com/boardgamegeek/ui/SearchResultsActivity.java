@@ -14,12 +14,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.SearchResultsCountChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SearchResultsActivity extends SimpleSinglePaneActivity {
@@ -30,8 +28,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTitle(R.string.title_search_results);
-
+		setTitle(null);
 		if (savedInstanceState != null) {
 			mSearchText = savedInstanceState.getString(SEARCH_TEXT);
 		}
@@ -98,15 +95,6 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 			}
 		}
 		return true;
-	}
-
-	@DebugLog
-	public void onEvent(SearchResultsCountChangedEvent event) {
-		final ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			String message = String.format(getResources().getString(R.string.search_results), event.count, mSearchText);
-			actionBar.setSubtitle(message);
-		}
 	}
 
 	@Override
