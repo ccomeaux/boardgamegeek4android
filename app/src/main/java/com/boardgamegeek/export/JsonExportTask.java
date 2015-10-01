@@ -1,8 +1,12 @@
 package com.boardgamegeek.export;
 
+import android.Manifest.permission;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -40,8 +44,15 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 
     @Override
     protected Integer doInBackground(Void... params) {
+        int permissionCheck = ContextCompat.checkSelfPermission(mContext, permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_DENIED) {
+            Timber.i("No permissions to write to external storage");
+            return ERROR_STORAGE_ACCESS;
+        }
+
         // Ensure external storage is available
         if (!FileUtils.isExtStorageAvailable()) {
+            Timber.i("External storage is unavailable");
             return ERROR_STORAGE_ACCESS;
         }
 
@@ -49,6 +60,7 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
         File exportPath = FileUtils.getExportPath(mIsAutoBackupMode);
         if (!exportPath.exists()) {
             if (!exportPath.mkdirs()) {
+                Timber.i("Export path %s can't be created", exportPath);
                 return ERROR_STORAGE_ACCESS;
             }
         }
@@ -83,7 +95,7 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
     @Override
     protected void onPostExecute(Integer result) {
         if (!mIsAutoBackupMode) {
-            int messageId;
+            @StringRes int messageId;
             switch (result) {
                 case SUCCESS:
                     messageId = R.string.pref_advanced_export_msg_success;
