@@ -113,6 +113,7 @@
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
+	<string name="title_search">Search</string>
 	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
@@ -210,9 +211,8 @@
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="search_results">%1$s matches for \"%2$s\"</string>
 	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
-	<string name="search_error_no_text">Search performed with no search text.</string>
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
-	<string name="search_error_bad_intent">Received bad intent action: </string>
+	<string name="search_initial_help">Use the search field above to search against BoardGameGeek\'s entire database. Autocomplete will show only games in your collection.</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
 	<string name="menu_view_in_browser">View in browser</string>

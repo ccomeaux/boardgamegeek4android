@@ -37,10 +37,6 @@ public class PreferencesUtils {
 		return getBoolean(context, "exactSearch", true);
 	}
 
-	public static boolean getSkipResults(Context context) {
-		return getBoolean(context, "skipResults", true);
-	}
-
 	public static boolean showLogPlay(Context context) {
 		return getBoolean(context, "logPlay", !getBoolean(context, "logHideLog", false));
 	}

@@ -6,6 +6,7 @@ Coming Soon
  * Pull to refresh pretty much everywhere there used to be a menu option
  * More (and better looking) play stats
  * 12% more Material
+ * Search improvements
  * Bug fixes and stability improvements
 
 Version 5.1.1

@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +48,7 @@ public abstract class BggListFragment extends Fragment {
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private ListAdapter mAdapter;
+	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
 	@InjectView(android.R.id.empty) TextView mEmptyView;
 	@InjectView(R.id.progress_container) View mProgressContainer;
 	@InjectView(R.id.list_container) View mListContainer;
@@ -81,12 +83,16 @@ public abstract class BggListFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		ensureList();
 
-		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		int paddingTop = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		int paddingBottom = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		if (padBottomForSnackBar()) {
+			paddingBottom = getResources().getDimensionPixelSize(R.dimen.snackbar_buffer);
+		}
 		mList.setClipToPadding(false);
 		if (padTop()) {
-			mList.setPadding(0, padding, 0, padding);
+			mList.setPadding(0, paddingTop, 0, paddingBottom);
 		} else {
-			mList.setPadding(0, 0, 0, padding);
+			mList.setPadding(0, 0, 0, paddingBottom);
 		}
 
 		if (dividerShown()) {
@@ -148,6 +154,10 @@ public abstract class BggListFragment extends Fragment {
 	}
 
 	protected boolean padTop() {
+		return false;
+	}
+
+	protected boolean padBottomForSnackBar() {
 		return false;
 	}
 
@@ -319,6 +329,8 @@ public abstract class BggListFragment extends Fragment {
 		}
 
 		ButterKnife.inject(this, root);
+
+		mSwipeRefreshLayout.setEnabled(false);
 
 		mEmptyView.setVisibility(View.GONE);
 		if (mEmptyText != null) {

@@ -107,11 +107,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
-	protected int getOptionsMenuId() {
-		return mShortcut ? 0 : R.menu.search_only;
-	}
-
-	@Override
 	protected int getDrawerResId() {
 		return R.string.title_collection;
 	}

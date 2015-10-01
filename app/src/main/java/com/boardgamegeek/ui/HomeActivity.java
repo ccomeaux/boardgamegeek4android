@@ -43,11 +43,6 @@ public class HomeActivity extends TopLevelActivity {
     }
 
     @Override
-    protected int getOptionsMenuId() {
-        return R.menu.search_only;
-    }
-
-    @Override
     protected void onSignInSuccess() {
         super.onSignInSuccess();
         startUserActivity();

@@ -6,9 +6,6 @@
 	<string name="pref_exact_search">Exact search</string>
 	<string name="pref_exact_search_off">Always perform a partial-name search</string>
 	<string name="pref_exact_search_on">Search for the exact name first, then search for a partial name if there\'s no results</string>
-	<string name="pref_skipResults">Skip results with 1 match</string>
-	<string name="pref_skipResults_off">Stop at the results page even if there is only one result</string>
-	<string name="pref_skipResults_on">Skip the results page and go directly to the game if there is only one result</string>
 	<string name="pref_search_global">Global search</string>
 	<string name="pref_search_global_description">Allows searching from the Quick Search Box. (This has been disabled in recent versions of Android.)</string>
 	<string name="pref_log">Logging plays</string>
@@ -108,7 +105,8 @@
 <ul>
 <li>Pull to refresh pretty much everywhere there used to be a menu option</li>
 <li>More (and better looking) play stats</li>
-<li>12 % more Material</i>
+<li>12 % more Material</li>
+<li>Search improvements</li>
 <li>Bug fixes and stability improvements</li>
 </ul>
 <h5>5.1.1</h5>
