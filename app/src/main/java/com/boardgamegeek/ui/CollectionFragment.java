@@ -32,7 +32,6 @@ import com.boardgamegeek.filterer.CollectionFilterDataFactory;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.filterer.ExpansionStatusFilterer;
-import com.boardgamegeek.filterer.MyRatingFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -57,6 +56,7 @@ import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
@@ -809,21 +809,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (year == 0) {
 				year = cursor.getInt(Query.YEAR_PUBLISHED);
 			}
-			String yearText;
-			if (year > 0) {
-				yearText = getString(R.string.year_positive, year);
-			} else if (year == 0) {
-				yearText = getString(R.string.year_zero, year);
-			} else {
-				yearText = getString(R.string.year_negative, -year);
-			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 			UIUtils.setActivatedCompat(view, collectionId == mSelectedCollectionId);
 
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
-			holder.year.setText(yearText);
+			holder.year.setText(PresentationUtils.describeYear(getActivity(), year));
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
 				holder.thumbnail);

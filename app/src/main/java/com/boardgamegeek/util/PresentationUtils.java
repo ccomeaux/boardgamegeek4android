@@ -32,6 +32,9 @@ public class PresentationUtils {
 	 * Given the year, return a string interpretation.
 	 */
 	public static String describeYear(Context context, int year) {
+		if (context == null) {
+			return "";
+		}
 		if (year > 0) {
 			return context.getString(R.string.year_positive, year);
 		} else if (year == Constants.YEAR_UNKNOWN) {
@@ -45,6 +48,9 @@ public class PresentationUtils {
 	 * Describe the priority of the wishlist.
 	 */
 	public static String describeWishlist(Context context, int priority) {
+		if (context == null) {
+			return "";
+		}
 		if (priority < 0 || priority > 5) {
 			return context.getString(R.string.wishlist);
 		}
