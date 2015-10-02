@@ -56,9 +56,10 @@ public class ShortcutUtils {
 
 	private static File getThumbnailFile(Context context, String url) {
 		if (!TextUtils.isEmpty(url)) {
-			return new File(
-				FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS),
-				FileUtils.getFileNameFromUrl(url));
+			String filename = FileUtils.getFileNameFromUrl(url);
+			if (filename != null) {
+				return new File(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS), filename);
+			}
 		}
 		return null;
 	}
