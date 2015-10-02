@@ -93,24 +93,24 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private String mDefaultWhereClause;
 	private LinearLayout mFilterLinearLayout;
 	private boolean mShortcut;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
+	private final LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
 	private android.view.MenuItem mLogPlayMenuItem;
 	private android.view.MenuItem mLogPlayQuickMenuItem;
 	private android.view.MenuItem mBggLinkMenuItem;
 
 	public interface Callbacks {
-		public boolean onGameSelected(int gameId, String gameName);
+		boolean onGameSelected(int gameId, String gameName);
 
-		public void onSetShortcut(Intent intent);
+		void onSetShortcut(Intent intent);
 
-		public void onCollectionCountChanged(int count);
+		void onCollectionCountChanged(int count);
 
-		public void onSortChanged(String sortName);
+		void onSortChanged(String sortName);
 
-		public void onViewRequested(long viewId);
+		void onViewRequested(long viewId);
 	}
 
-	private static Callbacks sDummyCallbacks = new Callbacks() {
+	private static final Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public boolean onGameSelected(int gameId, String gameName) {
 			return true;
@@ -187,6 +187,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	@DebugLog
 	public void onAttach(Activity activity) {
@@ -521,7 +522,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-	protected void initializeTimeBasedUi() {
+	private void initializeTimeBasedUi() {
 		updateTimeBasedUi();
 		if (mUpdaterRunnable != null) {
 			mHandler.removeCallbacks(mUpdaterRunnable);
@@ -536,14 +537,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
 	}
 
-	protected void updateTimeBasedUi() {
+	private void updateTimeBasedUi() {
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
 	}
 
 	@DebugLog
-	public void setSelectedGameId(int id) {
+	private void setSelectedGameId(int id) {
 		mSelectedCollectionId = id;
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
@@ -782,7 +783,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		private LayoutInflater mInflater;
+		private final LayoutInflater mInflater;
 
 		@DebugLog
 		public CollectionAdapter(Context context) {
@@ -845,10 +846,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		class ViewHolder {
-			TextView name;
-			TextView year;
-			TextView info;
-			ImageView thumbnail;
+			final TextView name;
+			final TextView year;
+			final TextView info;
+			final ImageView thumbnail;
 
 			public ViewHolder(View view) {
 				name = (TextView) view.findViewById(R.id.name);
