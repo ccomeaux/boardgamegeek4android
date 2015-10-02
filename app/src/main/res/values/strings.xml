@@ -209,7 +209,6 @@
 	<string name="search_hint">Search…</string>
 	<string name="search_settings_description">Games in collection</string>
 	<string name="search_searching">Searching for \"%s\"</string>
-	<string name="search_results">%1$s matches for \"%2$s\"</string>
 	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
 	<string name="search_initial_help">Use the search field above to search against BoardGameGeek\'s entire database. Autocomplete will show only games in your collection.</string>
@@ -504,6 +503,10 @@
 	<plurals name="msg_play_location_change">
 		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
 		<item quantity="other">Changed %1$s plays from \"%2$s\" to \"%3$s\"</item>
+	</plurals>
+	<plurals name="search_results">
+		<item quantity="one">%1$s match for \"%2$s\"</item>
+		<item quantity="other">%1$s matches for \"%2$s\"</item>
 	</plurals>
 
 </resources>

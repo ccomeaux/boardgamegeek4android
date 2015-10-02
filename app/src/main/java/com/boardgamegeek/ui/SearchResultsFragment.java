@@ -148,11 +148,11 @@ public class SearchResultsFragment extends BggListFragment implements
 		} else {
 			if (mSnackbar == null || !mSnackbar.isShown()) {
 				mSnackbar = Snackbar.make(getListContainer(),
-					String.format(getResources().getString(R.string.search_results), count, mSearchText),
+					getResources().getQuantityString(R.plurals.search_results, count, count, mSearchText),
 					Snackbar.LENGTH_INDEFINITE);
 				mSnackbar.getView().setBackgroundResource(R.color.primary_dark);
 			} else {
-				mSnackbar.setText(String.format(getResources().getString(R.string.search_results), count, mSearchText));
+				mSnackbar.setText(getResources().getQuantityString(R.plurals.search_results, count, count, mSearchText));
 			}
 			mSnackbar.show();
 		}
