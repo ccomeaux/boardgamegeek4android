@@ -116,6 +116,7 @@ public abstract class DrawerActivity extends BaseActivity {
         mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
 
         mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+		mDrawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_action_insert_drive_file, mDrawerList));
         mDrawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings_black_24dp, mDrawerList));
         mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
     }
@@ -164,6 +165,9 @@ public abstract class DrawerActivity extends BaseActivity {
                 case R.string.title_signin:
                     startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_SIGNIN);
                     break;
+				case R.string.title_data:
+					startActivity(new Intent(this, DataActivity.class));
+					break;
                 case R.string.title_settings:
                     startActivity(new Intent(this, SettingsActivity.class));
                     break;
