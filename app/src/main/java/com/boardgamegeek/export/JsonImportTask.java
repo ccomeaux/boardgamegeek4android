@@ -2,7 +2,7 @@ package com.boardgamegeek.export;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
@@ -74,23 +74,22 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 
 	@Override
 	protected void onPostExecute(Integer result) {
-		int messageId;
+		@StringRes int messageId;
 		switch (result) {
 			case SUCCESS:
-				messageId = R.string.pref_advanced_import_msg_success;
+				messageId = R.string.msg_import_success;
 				break;
 			case ERROR_STORAGE_ACCESS:
-				messageId = R.string.pref_advanced_import_msg_failed_nosd;
+				messageId = R.string.msg_import_failed_nosd;
 				break;
 			case ERROR_FILE_ACCESS:
-				messageId = R.string.pref_advanced_import_msg_failed_nofile;
+				messageId = R.string.msg_import_failed_nofile;
 				break;
 			default:
-				messageId = R.string.pref_advanced_import_msg_failed;
+				messageId = R.string.msg_import_failed;
 				break;
 		}
-		Toast.makeText(mContext, messageId, Toast.LENGTH_LONG).show();
-		EventBus.getDefault().post(new ImportFinishedEvent());
+		EventBus.getDefault().post(new ImportFinishedEvent(messageId));
 	}
 
 	private int importFile(File importPath, ImporterExporter importer) {

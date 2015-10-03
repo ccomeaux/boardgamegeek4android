@@ -85,7 +85,7 @@ public class DataFragment extends Fragment {
 	public void onEventMainThread(ExportFinishedEvent event) {
 		View v = getView();
 		if (v != null) {
-			Snackbar.make(v, R.string.msg_export_finished, Snackbar.LENGTH_LONG).show();
+			Snackbar.make(v, event.messageId, Snackbar.LENGTH_LONG).show();
 		}
 	}
 
@@ -94,7 +94,7 @@ public class DataFragment extends Fragment {
 	public void onEventMainThread(ImportFinishedEvent event) {
 		View v = getView();
 		if (v != null) {
-			Snackbar.make(v, R.string.msg_import_finished, Snackbar.LENGTH_LONG).show();
+			Snackbar.make(v, event.messageId, Snackbar.LENGTH_LONG).show();
 		}
 	}
 }
