@@ -1,7 +1,6 @@
 package com.boardgamegeek.export;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
@@ -17,23 +16,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
-public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
-	private static final int ERROR_FILE_ACCESS = 1;
-	private static final int SUCCESS = 0;
-	private static final int ERROR = -1;
-	private static final int ERROR_STORAGE_ACCESS = -2;
-	private final Context mContext;
-	private final boolean mIsAutoBackupMode;
-
+public class JsonImportTask extends ImporterExporterTask {
 	public JsonImportTask(Context context, boolean isAutoBackupMode) {
-		mContext = context.getApplicationContext();
-		mIsAutoBackupMode = isAutoBackupMode;
+		super(context, isAutoBackupMode);
 	}
 
 	@Override
@@ -51,16 +40,11 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 			return ERROR_STORAGE_ACCESS;
 		}
 
-		List<ImporterExporter> importers = new ArrayList<>();
-		importers.add(new CollectionViewImporterExporter());
-		importers.add(new GameImporterExporter());
-		importers.add(new UserImporterExporter());
-
 		int progress = 0;
-		for (ImporterExporter importer : importers) {
+		for (ImporterExporter importer : mExporters) {
 			int result = importFile(importPath, importer);
 			progress++;
-			publishProgress(progress, importers.size());
+			publishProgress(progress, mExporters.size());
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			} else if (result < ERROR) {

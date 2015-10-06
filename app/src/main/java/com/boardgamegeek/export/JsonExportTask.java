@@ -4,7 +4,6 @@ import android.Manifest.permission;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 
@@ -22,33 +21,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
-public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
-	private static final int SUCCESS = 1;
-	private static final int ERROR = 0;
-	private static final int ERROR_STORAGE_ACCESS = -1;
-
-	private final Context mContext;
-	private final boolean mIsAutoBackupMode;
-	private final List<ImporterExporter> mExporters = new ArrayList<>();
-
+public class JsonExportTask extends ImporterExporterTask {
 	public JsonExportTask(Context context, boolean isAutoBackupMode) {
-		mContext = context.getApplicationContext();
-		mIsAutoBackupMode = isAutoBackupMode;
-
-		mExporters.clear();
-		mExporters.add(new CollectionViewImporterExporter());
-		mExporters.add(new GameImporterExporter());
-		mExporters.add(new UserImporterExporter());
-	}
-
-	public List<ImporterExporter> getTypes() {
-		return mExporters;
+		super(context, isAutoBackupMode);
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import com.boardgamegeek.events.ExportProgressEvent;
 import com.boardgamegeek.events.ImportFinishedEvent;
 import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.export.ImporterExporter;
+import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
 import com.boardgamegeek.util.DialogUtils;
@@ -50,7 +51,7 @@ public class DataFragment extends Fragment {
 
 		mFileLocationView.setText(FileUtils.getExportPath(false).getPath());
 
-		JsonExportTask task = new JsonExportTask(getActivity(), false);
+		ImporterExporterTask task = new ImporterExporterTask(getActivity(), false);
 		for (ImporterExporter type : task.getTypes()) {
 			TextView textView = new TextView(getActivity());
 			textView.setText(getString(R.string.backup_description, type.getDescription(getActivity()), type.getFileName()));
