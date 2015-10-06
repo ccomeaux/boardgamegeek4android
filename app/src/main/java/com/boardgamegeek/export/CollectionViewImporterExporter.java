@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.export.model.CollectionView;
 import com.boardgamegeek.export.model.Filter;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -22,6 +23,11 @@ public class CollectionViewImporterExporter implements ImporterExporter {
 	@Override
 	public String getFileName() {
 		return "collection-views.json";
+	}
+
+	@Override
+	public String getDescription(Context context) {
+		return context.getString(R.string.backup_type_collection_view);
 	}
 
 	@Override

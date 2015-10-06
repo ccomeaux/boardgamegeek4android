@@ -27,8 +27,15 @@
 		style="@style/Text.Info"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:paddingBottom="@dimen/padding_standard"
 		android:paddingTop="@dimen/padding_standard"
 		tools:text="/download/export.json"/>
+
+	<LinearLayout
+		android:id="@+id/backup_types"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"/>
 
 	<LinearLayout
 		android:layout_width="match_parent"

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ImportFinishedEvent;
+import com.boardgamegeek.export.ImporterExporter;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
 import com.boardgamegeek.util.DialogUtils;
@@ -28,6 +29,7 @@ import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
 	@SuppressWarnings("unused") @InjectView(R.id.backup_location) TextView mFileLocationView;
+	@SuppressWarnings("unused") @InjectView(R.id.backup_types) ViewGroup mFileTypes;
 
 	@DebugLog
 	@Nullable
@@ -38,6 +40,13 @@ public class DataFragment extends Fragment {
 		ButterKnife.inject(this, root);
 
 		mFileLocationView.setText(FileUtils.getExportPath(false).getPath());
+
+		JsonExportTask task = new JsonExportTask(getActivity(), false);
+		for (ImporterExporter type : task.getTypes()) {
+			TextView textView = new TextView(getActivity());
+			textView.setText(getString(R.string.backup_description, type.getDescription(getActivity()), type.getFileName()));
+			mFileTypes.addView(textView);
+		}
 
 		return root;
 	}

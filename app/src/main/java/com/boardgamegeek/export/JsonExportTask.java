@@ -35,10 +35,20 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 
 	private final Context mContext;
 	private final boolean mIsAutoBackupMode;
+	private final List<ImporterExporter> mExporters = new ArrayList<>();
 
 	public JsonExportTask(Context context, boolean isAutoBackupMode) {
 		mContext = context.getApplicationContext();
 		mIsAutoBackupMode = isAutoBackupMode;
+
+		mExporters.clear();
+		mExporters.add(new CollectionViewImporterExporter());
+		mExporters.add(new GameImporterExporter());
+		mExporters.add(new UserImporterExporter());
+	}
+
+	public List<ImporterExporter> getTypes() {
+		return mExporters;
 	}
 
 	@Override
@@ -64,12 +74,7 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 			}
 		}
 
-		List<ImporterExporter> exporters = new ArrayList<>();
-		exporters.add(new CollectionViewImporterExporter());
-		exporters.add(new GameImporterExporter());
-		exporters.add(new UserImporterExporter());
-
-		for (ImporterExporter exporter : exporters) {
+		for (ImporterExporter exporter : mExporters) {
 			int result = export(exportPath, exporter);
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
@@ -80,7 +85,7 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 		//		if (mIsAutoBackupMode) {
 		//			// store current time = last backup time
 		//			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-		//			prefs.edit().putLong(KEY_LASTBACKUP, System.currentTimeMillis()).commit();
+		//			prefs.edit().putLong(KEY_LAST_BACKUP, System.currentTimeMillis()).commit();
 		//		}
 
 		return SUCCESS;
