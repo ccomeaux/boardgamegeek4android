@@ -20,7 +20,7 @@ import com.google.gson.stream.JsonWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameImporterExporter implements ImporterExporter {
+public class GameStep implements Step {
 	@Override
 	public String getFileName() {
 		return "games.json";

@@ -19,7 +19,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.util.ArrayList;
 
-public class UserImporterExporter implements ImporterExporter {
+public class UserStep implements Step {
 	@Override
 	public String getFileName() {
 		return "users.json";

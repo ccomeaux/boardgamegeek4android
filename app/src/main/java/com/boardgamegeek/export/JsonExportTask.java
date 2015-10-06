@@ -53,7 +53,7 @@ public class JsonExportTask extends ImporterExporterTask {
 			}
 		}
 
-		for (ImporterExporter exporter : mExporters) {
+		for (Step exporter : mSteps) {
 			int result = export(exportPath, exporter);
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
@@ -92,8 +92,8 @@ public class JsonExportTask extends ImporterExporterTask {
 		EventBus.getDefault().post(new ExportFinishedEvent(messageId));
 	}
 
-	private int export(File exportPath, ImporterExporter exporter) {
-		final Cursor cursor = exporter.getCursor(mContext);
+	private int export(File exportPath, Step step) {
+		final Cursor cursor = step.getCursor(mContext);
 
 		if (cursor == null) {
 			return ERROR;
@@ -105,10 +105,10 @@ public class JsonExportTask extends ImporterExporterTask {
 
 		publishProgress(cursor.getCount(), 0);
 
-		File backup = new File(exportPath, exporter.getFileName());
+		File backup = new File(exportPath, step.getFileName());
 		try {
 			OutputStream out = new FileOutputStream(backup);
-			writeJsonStream(out, cursor, exporter);
+			writeJsonStream(out, cursor, step);
 		} catch (JsonIOException | IOException e) {
 			Timber.e(e, "JSON export failed");
 			return ERROR;
@@ -119,7 +119,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		return SUCCESS;
 	}
 
-	private void writeJsonStream(OutputStream out, Cursor cursor, ImporterExporter exporter) throws IOException {
+	private void writeJsonStream(OutputStream out, Cursor cursor, Step exporter) throws IOException {
 		int numTotal = cursor.getCount();
 		int numExported = 0;
 

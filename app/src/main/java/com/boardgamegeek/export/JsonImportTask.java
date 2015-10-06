@@ -41,10 +41,10 @@ public class JsonImportTask extends ImporterExporterTask {
 		}
 
 		int progress = 0;
-		for (ImporterExporter importer : mExporters) {
+		for (Step importer : mSteps) {
 			int result = importFile(importPath, importer);
 			progress++;
-			publishProgress(progress, mExporters.size());
+			publishProgress(progress, mSteps.size());
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			} else if (result < ERROR) {
@@ -80,13 +80,13 @@ public class JsonImportTask extends ImporterExporterTask {
 		EventBus.getDefault().post(new ImportFinishedEvent(messageId));
 	}
 
-	private int importFile(File importPath, ImporterExporter importer) {
-		File file = new File(importPath, importer.getFileName());
+	private int importFile(File importPath, Step step) {
+		File file = new File(importPath, step.getFileName());
 		if (!file.exists() || !file.canRead()) {
 			return ERROR_FILE_ACCESS;
 		}
 
-		importer.initializeImport(mContext);
+		step.initializeImport(mContext);
 
 		try {
 			InputStream in = new FileInputStream(file);
@@ -97,7 +97,7 @@ public class JsonImportTask extends ImporterExporterTask {
 			reader.beginArray();
 
 			while (reader.hasNext()) {
-				importer.importRecord(mContext, gson, reader);
+				step.importRecord(mContext, gson, reader);
 			}
 
 			reader.endArray();

@@ -14,20 +14,20 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 
 	protected final Context mContext;
 	protected final boolean mIsAutoBackupMode;
-	protected final List<ImporterExporter> mExporters = new ArrayList<>();
+	protected final List<Step> mSteps = new ArrayList<>();
 
 	public ImporterExporterTask(Context context, boolean isAutoBackupMode) {
 		mContext = context.getApplicationContext();
 		mIsAutoBackupMode = isAutoBackupMode;
 
-		mExporters.clear();
-		mExporters.add(new CollectionViewImporterExporter());
-		mExporters.add(new GameImporterExporter());
-		mExporters.add(new UserImporterExporter());
+		mSteps.clear();
+		mSteps.add(new CollectionViewStep());
+		mSteps.add(new GameStep());
+		mSteps.add(new UserStep());
 	}
 
-	public List<ImporterExporter> getTypes() {
-		return mExporters;
+	public List<Step> getSteps() {
+		return mSteps;
 	}
 
 	@Override

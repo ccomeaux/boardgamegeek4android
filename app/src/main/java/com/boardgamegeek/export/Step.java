@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-public interface ImporterExporter {
+public interface Step {
 	String getFileName();
 
 	String getDescription(Context context);

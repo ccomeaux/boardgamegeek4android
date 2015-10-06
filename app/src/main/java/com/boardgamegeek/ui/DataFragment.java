@@ -21,7 +21,7 @@ import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ExportProgressEvent;
 import com.boardgamegeek.events.ImportFinishedEvent;
 import com.boardgamegeek.events.ImportProgressEvent;
-import com.boardgamegeek.export.ImporterExporter;
+import com.boardgamegeek.export.Step;
 import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
@@ -52,9 +52,9 @@ public class DataFragment extends Fragment {
 		mFileLocationView.setText(FileUtils.getExportPath(false).getPath());
 
 		ImporterExporterTask task = new ImporterExporterTask(getActivity(), false);
-		for (ImporterExporter type : task.getTypes()) {
+		for (Step step : task.getSteps()) {
 			TextView textView = new TextView(getActivity());
-			textView.setText(getString(R.string.backup_description, type.getDescription(getActivity()), type.getFileName()));
+			textView.setText(getString(R.string.backup_description, step.getDescription(getActivity()), step.getFileName()));
 			mFileTypes.addView(textView);
 		}
 
