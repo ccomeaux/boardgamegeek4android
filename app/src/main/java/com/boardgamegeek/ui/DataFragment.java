@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,10 +22,10 @@ import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ExportProgressEvent;
 import com.boardgamegeek.events.ImportFinishedEvent;
 import com.boardgamegeek.events.ImportProgressEvent;
-import com.boardgamegeek.export.Step;
 import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
+import com.boardgamegeek.export.Step;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -39,7 +40,10 @@ public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
 	@SuppressWarnings("unused") @InjectView(R.id.backup_location) TextView mFileLocationView;
 	@SuppressWarnings("unused") @InjectView(R.id.backup_types) ViewGroup mFileTypes;
+	@SuppressWarnings("unused") @InjectView(R.id.progress_container) View mProgressContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.progress) ProgressBar mProgressBar;
+	@SuppressWarnings("unused") @InjectView(R.id.progress_detail) TextView mProgressDetail;
+	private ImporterExporterTask mTask;
 
 	@DebugLog
 	@Nullable
@@ -51,8 +55,8 @@ public class DataFragment extends Fragment {
 
 		mFileLocationView.setText(FileUtils.getExportPath(false).getPath());
 
-		ImporterExporterTask task = new ImporterExporterTask(getActivity(), false);
-		for (Step step : task.getSteps()) {
+		mTask = new ImporterExporterTask(getActivity(), false);
+		for (Step step : mTask.getSteps()) {
 			TextView textView = new TextView(getActivity());
 			textView.setText(getString(R.string.backup_description, step.getDescription(getActivity()), step.getFileName()));
 			mFileTypes.addView(textView);
@@ -136,19 +140,13 @@ public class DataFragment extends Fragment {
 	@DebugLog
 	@SuppressWarnings("unused")
 	public void onEventMainThread(ExportFinishedEvent event) {
-		View v = getView();
-		if (v != null) {
-			Snackbar.make(v, event.messageId, Snackbar.LENGTH_LONG).show();
-		}
+		notifyEnd(event.messageId);
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
 	public void onEventMainThread(ImportFinishedEvent event) {
-		View v = getView();
-		if (v != null) {
-			Snackbar.make(v, event.messageId, Snackbar.LENGTH_LONG).show();
-		}
+		notifyEnd(event.messageId);
 	}
 
 	@DebugLog
@@ -157,6 +155,10 @@ public class DataFragment extends Fragment {
 		if (mProgressBar != null) {
 			mProgressBar.setMax(event.totalCount);
 			mProgressBar.setProgress(event.currentCount);
+		}
+		if (mProgressDetail != null && mTask != null && event.stepIndex < mTask.getSteps().size()) {
+			String description = mTask.getSteps().get(event.stepIndex).getDescription(getActivity());
+			mProgressDetail.setText(description);
 		}
 	}
 
@@ -170,10 +172,22 @@ public class DataFragment extends Fragment {
 	}
 
 	private void initProgressBar() {
+		if (mProgressContainer != null) {
+			mProgressContainer.setVisibility(View.VISIBLE);
+		}
 		if (mProgressBar != null) {
-			mProgressBar.setVisibility(View.VISIBLE);
 			mProgressBar.setMax(1);
 			mProgressBar.setProgress(0);
 		}
+	}
+
+	private void notifyEnd(int messageId) {
+		View v = getView();
+		if (v != null) {
+			Snackbar.make(v, messageId, Snackbar.LENGTH_LONG).show();
+		}
+
+		mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		mProgressContainer.setVisibility(View.GONE);
 	}
 }

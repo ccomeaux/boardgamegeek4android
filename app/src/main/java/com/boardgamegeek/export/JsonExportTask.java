@@ -9,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
-import com.boardgamegeek.events.ExportProgressEvent;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,8 +52,10 @@ public class JsonExportTask extends ImporterExporterTask {
 			}
 		}
 
+		int stepIndex = 0;
 		for (Step exporter : mSteps) {
-			int result = export(exportPath, exporter);
+			int result = export(exportPath, exporter, stepIndex);
+			stepIndex++;
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			}
@@ -68,11 +69,6 @@ public class JsonExportTask extends ImporterExporterTask {
 		//		}
 
 		return SUCCESS;
-	}
-
-	@Override
-	protected void onProgressUpdate(Integer... values) {
-		EventBus.getDefault().post(new ExportProgressEvent(values[0], values[1]));
 	}
 
 	@Override
@@ -92,7 +88,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		EventBus.getDefault().post(new ExportFinishedEvent(messageId));
 	}
 
-	private int export(File exportPath, Step step) {
+	private int export(File exportPath, Step step, int stepIndex) {
 		final Cursor cursor = step.getCursor(mContext);
 
 		if (cursor == null) {
@@ -103,12 +99,12 @@ public class JsonExportTask extends ImporterExporterTask {
 			return SUCCESS;
 		}
 
-		publishProgress(cursor.getCount(), 0);
+		publishProgress(cursor.getCount(), 0, stepIndex);
 
 		File backup = new File(exportPath, step.getFileName());
 		try {
 			OutputStream out = new FileOutputStream(backup);
-			writeJsonStream(out, cursor, step);
+			writeJsonStream(out, cursor, step, stepIndex);
 		} catch (JsonIOException | IOException e) {
 			Timber.e(e, "JSON export failed");
 			return ERROR;
@@ -119,7 +115,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		return SUCCESS;
 	}
 
-	private void writeJsonStream(OutputStream out, Cursor cursor, Step exporter) throws IOException {
+	private void writeJsonStream(OutputStream out, Cursor cursor, Step step, int stepIndex) throws IOException {
 		int numTotal = cursor.getCount();
 		int numExported = 0;
 
@@ -133,8 +129,8 @@ public class JsonExportTask extends ImporterExporterTask {
 				break;
 			}
 
-			exporter.writeJsonRecord(mContext, cursor, gson, writer);
-			publishProgress(numTotal, ++numExported);
+			step.writeJsonRecord(mContext, cursor, gson, writer);
+			publishProgress(numTotal, ++numExported, stepIndex);
 		}
 
 		writer.endArray();

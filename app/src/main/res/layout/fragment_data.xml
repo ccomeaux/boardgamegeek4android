@@ -59,14 +59,27 @@
 			android:text="@string/title_import"/>
 	</LinearLayout>
 
-	<ProgressBar
-		android:id="@+id/progress"
-		style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+	<LinearLayout
+		android:id="@+id/progress_container"
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/progress_bar_height"
+		android:layout_height="wrap_content"
 		android:layout_marginBottom="@dimen/padding_standard"
 		android:layout_marginTop="@dimen/padding_standard"
+		android:orientation="vertical"
 		android:visibility="gone"
-		tools:visibility="visible"/>
+		tools:visibility="visible">
+
+		<ProgressBar
+			android:id="@+id/progress"
+			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/progress_bar_height"/>
+
+		<TextView
+			android:id="@+id/progress_detail"
+			style="@style/Text.Info"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+	</LinearLayout>
 
 </LinearLayout>

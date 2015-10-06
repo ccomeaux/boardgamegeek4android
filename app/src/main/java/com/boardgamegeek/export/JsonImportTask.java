@@ -5,7 +5,6 @@ import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
-import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -44,7 +43,7 @@ public class JsonImportTask extends ImporterExporterTask {
 		for (Step importer : mSteps) {
 			int result = importFile(importPath, importer);
 			progress++;
-			publishProgress(progress, mSteps.size());
+			publishProgress(progress, mSteps.size(), progress - 1);
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			} else if (result < ERROR) {
@@ -53,11 +52,6 @@ public class JsonImportTask extends ImporterExporterTask {
 		}
 
 		return SUCCESS;
-	}
-
-	@Override
-	protected void onProgressUpdate(Integer... values) {
-		EventBus.getDefault().post(new ImportProgressEvent(values[0], values[1]));
 	}
 
 	@Override

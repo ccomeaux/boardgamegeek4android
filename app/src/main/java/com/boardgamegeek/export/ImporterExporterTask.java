@@ -3,8 +3,12 @@ package com.boardgamegeek.export;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.boardgamegeek.events.ExportProgressEvent;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 	protected static final int ERROR_FILE_ACCESS = 1;
@@ -33,5 +37,13 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 	@Override
 	protected Integer doInBackground(Void... params) {
 		return ERROR;
+	}
+
+	// 0 = current progress
+	// 1 = total progress
+	// 2 = current step
+	@Override
+	protected void onProgressUpdate(Integer... values) {
+		EventBus.getDefault().post(new ExportProgressEvent(values[0], values[1], values[2]));
 	}
 }
