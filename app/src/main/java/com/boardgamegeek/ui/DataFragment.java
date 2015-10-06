@@ -13,11 +13,14 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
+import com.boardgamegeek.events.ExportProgressEvent;
 import com.boardgamegeek.events.ImportFinishedEvent;
+import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.export.ImporterExporter;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
@@ -35,6 +38,7 @@ public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
 	@SuppressWarnings("unused") @InjectView(R.id.backup_location) TextView mFileLocationView;
 	@SuppressWarnings("unused") @InjectView(R.id.backup_types) ViewGroup mFileTypes;
+	@SuppressWarnings("unused") @InjectView(R.id.progress) ProgressBar mProgressBar;
 
 	@DebugLog
 	@Nullable
@@ -111,6 +115,7 @@ public class DataFragment extends Fragment {
 
 	@DebugLog
 	private void export() {
+		initProgressBar();
 		TaskUtils.executeAsyncTask(new JsonExportTask(getContext(), false));
 	}
 
@@ -121,6 +126,7 @@ public class DataFragment extends Fragment {
 		DialogUtils.createConfirmationDialog(getActivity(), R.string.msg_import_confirmation, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				initProgressBar();
 				TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), false));
 			}
 		}).show();
@@ -141,6 +147,32 @@ public class DataFragment extends Fragment {
 		View v = getView();
 		if (v != null) {
 			Snackbar.make(v, event.messageId, Snackbar.LENGTH_LONG).show();
+		}
+	}
+
+	@DebugLog
+	@SuppressWarnings("unused")
+	public void onEventMainThread(ExportProgressEvent event) {
+		if (mProgressBar != null) {
+			mProgressBar.setMax(event.totalCount);
+			mProgressBar.setProgress(event.currentCount);
+		}
+	}
+
+	@DebugLog
+	@SuppressWarnings("unused")
+	public void onEventMainThread(ImportProgressEvent event) {
+		if (mProgressBar != null) {
+			mProgressBar.setMax(event.totalCount);
+			mProgressBar.setProgress(event.currentCount);
+		}
+	}
+
+	private void initProgressBar() {
+		if (mProgressBar != null) {
+			mProgressBar.setVisibility(View.VISIBLE);
+			mProgressBar.setMax(1);
+			mProgressBar.setProgress(0);
 		}
 	}
 }

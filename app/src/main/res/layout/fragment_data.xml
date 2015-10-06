@@ -58,4 +58,15 @@
 			android:layout_weight="1"
 			android:text="@string/title_import"/>
 	</LinearLayout>
+
+	<ProgressBar
+		android:id="@+id/progress"
+		style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/progress_bar_height"
+		android:layout_marginBottom="@dimen/padding_standard"
+		android:layout_marginTop="@dimen/padding_standard"
+		android:visibility="gone"
+		tools:visibility="visible"/>
+
 </LinearLayout>

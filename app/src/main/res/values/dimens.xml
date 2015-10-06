@@ -58,5 +58,6 @@
 	<dimen name="drawer_status_bar_buffer_negative">-40dp</dimen>
 	<dimen name="pad_button_size">48dp</dimen>
 	<dimen name="dialog_width">320dp</dimen>
+	<dimen name="progress_bar_height">8dp</dimen>
 
 </resources>
