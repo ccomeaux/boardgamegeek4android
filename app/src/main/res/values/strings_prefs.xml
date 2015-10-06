@@ -83,19 +83,6 @@
 	<string name="pref_advanced_notify_errors">Notify errors</string>
 	<string name="pref_advanced_notify_errors_off">Leave this off if you\'re not crashing</string>
 	<string name="pref_advanced_notify_errors_on">You will see the details of a crash in the notification bar - send this info to the developers!</string>
-	<string name="pref_advanced_export">Export</string>
-	<string name="pref_advanced_export_summary">Export the data that\'s not available via syncing with the \'Geek</string>
-	<string name="pref_advanced_export_message">This will export the data below by replacing the existing files in %s. Are you sure you want to continue?\n\n- Game colors\n- Player colors\n- Collection views</string>
-	<string name="pref_advanced_export_msg_success">Export successful.</string>
-	<string name="pref_advanced_export_msg_failed">Export failed.</string>
-	<string name="pref_advanced_export_msg_failed_nosd">Export folder is not available.</string>
-	<string name="pref_advanced_import">Import</string>
-	<string name="pref_advanced_import_summary">Import data from a previous export</string>
-	<string name="pref_advanced_import_message">This will replace any data already loaded with data in files from %s. Are you sure you want to continue?</string>
-	<string name="pref_advanced_import_msg_success">Import successful.</string>
-	<string name="pref_advanced_import_msg_failed">Import failed.</string>
-	<string name="pref_advanced_import_msg_failed_nofile">Import file doesn\'t exist or can\'t be read.</string>
-	<string name="pref_advanced_import_msg_failed_nosd">Import folder is not available.</string>
 	<string name="pref_about">About</string>
 	<string name="pref_about_version">Version</string>
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>

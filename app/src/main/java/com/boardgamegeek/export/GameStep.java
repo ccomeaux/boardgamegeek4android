@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.export.model.Color;
 import com.boardgamegeek.export.model.Game;
 import com.boardgamegeek.provider.BggContract.GameColors;
@@ -19,10 +20,15 @@ import com.google.gson.stream.JsonWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameImporterExporter implements ImporterExporter {
+public class GameStep implements Step {
 	@Override
 	public String getFileName() {
 		return "games.json";
+	}
+
+	@Override
+	public String getDescription(Context context) {
+		return context.getString(R.string.backup_type_game);
 	}
 
 	@Override
