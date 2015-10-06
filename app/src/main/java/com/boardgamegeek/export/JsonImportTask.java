@@ -54,9 +54,13 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 		List<ImporterExporter> importers = new ArrayList<>();
 		importers.add(new CollectionViewImporterExporter());
 		importers.add(new GameImporterExporter());
+		importers.add(new UserImporterExporter());
 
+		int progress = 0;
 		for (ImporterExporter importer : importers) {
 			int result = importFile(importPath, importer);
+			progress++;
+			publishProgress(progress, importers.size());
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			} else if (result < ERROR) {
