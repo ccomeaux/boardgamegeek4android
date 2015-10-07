@@ -19,16 +19,21 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionCountChangedEvent;
+import com.boardgamegeek.events.CollectionSortChangedEvent;
+import com.boardgamegeek.events.CollectionViewRequestedEvent;
+import com.boardgamegeek.events.GameSelectedEvent;
+import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
-	CollectionFragment.Callbacks, OnNavigationListener {
+public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
 	private static final String STATE_COUNT = "STATE_COUNT";
@@ -111,34 +116,33 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		return R.string.title_collection;
 	}
 
-	@Override
 	@DebugLog
-	public boolean onGameSelected(int gameId, String gameName) {
-		ActivityUtils.launchGame(this, gameId, gameName);
-		return false;
+	public void onEvent(GameSelectedEvent event) {
+		ActivityUtils.launchGame(this, event.id, event.name);
 	}
 
-	@Override
-	public void onSetShortcut(Intent intent) {
+	@DebugLog
+	public void onEvent(GameShortcutCreatedEvent event) {
+		Intent intent = ShortcutUtils.createIntent(this, event.id, event.name, event.thumbnailUrl);
 		setResult(RESULT_OK, intent);
 		finish();
 	}
 
-	@Override
-	public void onCollectionCountChanged(int count) {
-		mCount = count;
+	@DebugLog
+	public void onEvent(CollectionCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 
-	@Override
-	public void onSortChanged(String sortName) {
-		mSortName = sortName;
+	@DebugLog
+	public void onEvent(CollectionSortChangedEvent event) {
+		mSortName = event.name;
 		supportInvalidateOptionsMenu();
 	}
 
-	@Override
-	public void onViewRequested(long viewId) {
-		mViewId = viewId;
+	@DebugLog
+	public void onEvent(CollectionViewRequestedEvent event) {
+		mViewId = event.viewId;
 		mIndex = findViewIndex(mViewId);
 	}
 

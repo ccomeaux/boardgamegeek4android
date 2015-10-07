@@ -28,6 +28,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionCountChangedEvent;
+import com.boardgamegeek.events.CollectionSortChangedEvent;
+import com.boardgamegeek.events.CollectionViewRequestedEvent;
+import com.boardgamegeek.events.GameSelectedEvent;
+import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.filterer.CollectionFilterDataFactory;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
@@ -59,7 +64,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
-import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -69,6 +73,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
@@ -97,43 +102,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private android.view.MenuItem mLogPlayMenuItem;
 	private android.view.MenuItem mLogPlayQuickMenuItem;
 	private android.view.MenuItem mBggLinkMenuItem;
-
-	public interface Callbacks {
-		boolean onGameSelected(int gameId, String gameName);
-
-		void onSetShortcut(Intent intent);
-
-		void onCollectionCountChanged(int count);
-
-		void onSortChanged(String sortName);
-
-		void onViewRequested(long viewId);
-	}
-
-	private static final Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public boolean onGameSelected(int gameId, String gameName) {
-			return true;
-		}
-
-		@Override
-		public void onSetShortcut(Intent intent) {
-		}
-
-		@Override
-		public void onCollectionCountChanged(int count) {
-		}
-
-		@Override
-		public void onSortChanged(String sortName) {
-		}
-
-		@Override
-		public void onViewRequested(long viewId) {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	@DebugLog
@@ -187,19 +155,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	@DebugLog
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
 	@Override
 	@DebugLog
 	public void onResume() {
@@ -218,7 +173,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-
 	@Override
 	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
@@ -234,25 +188,16 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
-	@DebugLog
 	public void onListItemClick(View view, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int gameId = cursor.getInt(Query.GAME_ID);
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (mShortcut) {
-			Intent shortcut = ShortcutUtils.createIntent(getActivity(), gameId, gameName, thumbnailUrl);
-			mCallbacks.onSetShortcut(shortcut);
+			EventBus.getDefault().post(new GameShortcutCreatedEvent(gameId, gameName, thumbnailUrl));
 		} else {
-			if (mCallbacks.onGameSelected(gameId, gameName)) {
-				setSelectedGameId(gameId);
-			}
+			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName));
+			setSelectedGameId(gameId);
 		}
 	}
 
@@ -492,8 +437,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			mAdapter.changeCursor(cursor);
 			initializeTimeBasedUi();
 			restoreScrollState();
-			mCallbacks.onCollectionCountChanged(cursor.getCount());
-			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
+			EventBus.getDefault().post(new CollectionCountChangedEvent(cursor.getCount()));
+			EventBus.getDefault().post(new CollectionSortChangedEvent(mSort == null ? "" : mSort.getDescription()));
 			bindFilterButtons();
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
@@ -609,7 +554,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void createView(long id, String name) {
 		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
-		mCallbacks.onViewRequested(id);
+		EventBus.getDefault().post(new CollectionViewRequestedEvent(id));
 	}
 
 	@Override
@@ -617,7 +562,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void deleteView(long id) {
 		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (mViewId == id) {
-			mCallbacks.onViewRequested(PreferencesUtils.getViewDefaultId(getActivity()));
+			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
 		}
 	}
 
