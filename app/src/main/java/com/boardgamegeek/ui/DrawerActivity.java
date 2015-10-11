@@ -19,6 +19,7 @@ import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
@@ -48,8 +49,16 @@ public abstract class DrawerActivity extends BaseActivity {
 			mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
 		}
+	}
 
-		// TODO open the drawer upon launch until user opens it themselves
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		if (!PreferencesUtils.hasSeenNavDrawer(this)) {
+			mDrawerLayout.openDrawer(GravityCompat.START);
+			PreferencesUtils.sawNavDrawer(this);
+		}
 	}
 
 	@Override

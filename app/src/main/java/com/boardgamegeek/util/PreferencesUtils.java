@@ -29,6 +29,7 @@ public class PreferencesUtils {
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
+	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 
 	private PreferencesUtils() {
 	}
@@ -280,10 +281,25 @@ public class PreferencesUtils {
 		return putString(context, KEY_LAST_PLAY_PLAYERS, sb.toString());
 	}
 
+	public static boolean hasSeenNavDrawer(Context context) {
+		return getBoolean(context, KEY_HAS_SEEN_NAV_DRAWER, false);
+	}
+
+	public static void sawNavDrawer(Context context) {
+		putBoolean(context, KEY_HAS_SEEN_NAV_DRAWER, true);
+	}
+
 	private static boolean remove(Context context, String key) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
 		editor.remove(key);
+		return editor.commit();
+	}
+
+	private static boolean putBoolean(Context context, String key, boolean value) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putBoolean(key, value);
 		return editor.commit();
 	}
 
