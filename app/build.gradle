@@ -80,6 +80,6 @@ dependencies {
         transitive = true;
     }
     compile 'de.greenrobot:eventbus:2.4.0'
-    compile 'com.github.PhilJay:MPAndroidChart:2.1.3'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.4'
     compile 'com.github.lzyzsd.randomcolor:library:1.0.0'
 }

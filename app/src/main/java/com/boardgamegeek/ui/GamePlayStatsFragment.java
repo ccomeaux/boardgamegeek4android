@@ -24,7 +24,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.ui.widget.IntegerValueFormatter;
+import com.boardgamegeek.ui.widget.IntegerYAxisValueFormatter;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
@@ -100,7 +100,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		ButterKnife.inject(this, rootView);
 
 		mPlayCountChart.setDrawGridBackground(false);
-		mPlayCountChart.getAxisRight().setValueFormatter(new IntegerValueFormatter());
+		mPlayCountChart.getAxisRight().setValueFormatter(new IntegerYAxisValueFormatter());
 		mPlayCountChart.getAxisLeft().setEnabled(false);
 		mPlayCountChart.getXAxis().setDrawGridLines(false);
 		mPlayCountChart.setDescription(null);
