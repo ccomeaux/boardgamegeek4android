@@ -4,10 +4,10 @@
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
 			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/padding_extra"
-			  android:paddingLeft="@dimen/padding_standard"
-			  android:paddingRight="@dimen/padding_standard"
-			  android:paddingTop="@dimen/padding_extra"
+			  android:paddingBottom="@dimen/material_margin_vertical"
+			  android:paddingLeft="@dimen/material_margin_horizontal"
+			  android:paddingRight="@dimen/material_margin_horizontal"
+			  android:paddingTop="@dimen/material_margin_vertical"
 			  tools:context=".ui.DataActivity">
 
 	<TextView
@@ -41,21 +41,27 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:orientation="horizontal">
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_standard">
 
 		<Button
 			android:id="@+id/export_button"
-			android:layout_width="0dp"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_weight="1"
 			android:gravity="center"
+			android:maxWidth="320dp"
+			android:minWidth="120dp"
 			android:text="@string/title_export"/>
 
 		<Button
 			android:id="@+id/import_button"
-			android:layout_width="0dp"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_weight="1"
+			android:gravity="center"
+			android:maxWidth="320dp"
+			android:minWidth="120dp"
 			android:text="@string/title_import"/>
 	</LinearLayout>
 
@@ -79,7 +85,9 @@
 			android:id="@+id/progress_detail"
 			style="@style/Text.Info"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"/>
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			tools:text="Some file"/>
 	</LinearLayout>
 
 </LinearLayout>
