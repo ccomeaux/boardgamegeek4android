@@ -24,6 +24,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
 	private String mSearchText;
+	private SearchView mSearchView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,18 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 		}
 
 		HelpUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		parseIntent(intent);
+		if (mSearchView != null) {
+			String query = mSearchView.getQuery().toString();
+			if (query == null || !query.equals(mSearchText)) {
+				mSearchView.setQuery(mSearchText, true);
+			}
+		}
 	}
 
 	@Override
@@ -52,28 +65,28 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 		super.onCreateOptionsMenu(menu);
 		final MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {
-			final SearchView view = (SearchView) MenuItemCompat.getActionView(searchItem);
-			if (view == null) {
+			mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+			if (mSearchView == null) {
 				Timber.w("Could not set up search view, view is null.");
 			} else {
 				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				view.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-				view.setIconified(false);
-				view.setOnCloseListener(new SearchView.OnCloseListener() {
+				mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+				mSearchView.setIconified(false);
+				mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
 					@Override
 					public boolean onClose() {
 						finish();
 						return true;
 					}
 				});
-				view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+				mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 					@Override
 					public boolean onQueryTextSubmit(String s) {
 						if (s != null && s.length() > 1 && s.length() <= 2) {
 							((SearchResultsFragment) getFragment()).forceQueryUpdate(s);
 						}
 						// close the auto-complete list; don't pass to a different activity
-						view.clearFocus();
+						mSearchView.clearFocus();
 						mSearchText = s;
 						return true;
 					}
@@ -90,7 +103,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 					}
 				});
 				if (!TextUtils.isEmpty(mSearchText)) {
-					view.setQuery(mSearchText, false);
+					mSearchView.setQuery(mSearchText, false);
 				}
 			}
 		}
@@ -99,7 +112,11 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		Fragment fragment;
+		parseIntent(intent);
+		return new SearchResultsFragment();
+	}
+
+	private void parseIntent(Intent intent) {
 		String action = intent.getAction();
 		if (action != null && Intent.ACTION_VIEW.equals(action)) {
 			Uri uri = intent.getData();
@@ -109,8 +126,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
 			}
 			finish();
-			return null;
-		} else {
+		} else if (action != null && Intent.ACTION_SEARCH.equals(action)) {
 			mSearchText = "";
 			if (intent.hasExtra(SearchManager.QUERY)) {
 				mSearchText = intent.getExtras().getString(SearchManager.QUERY);
@@ -119,9 +135,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 			if (actionBar != null) {
 				actionBar.setSubtitle(String.format(getResources().getString(R.string.search_searching), mSearchText));
 			}
-			fragment = new SearchResultsFragment();
 		}
-		return fragment;
 	}
 
 	@Override

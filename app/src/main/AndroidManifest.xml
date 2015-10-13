@@ -190,6 +190,7 @@
             android:name=".ui.SearchResultsActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
+			android:launchMode="singleTop"
             android:label="@string/search_label">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>

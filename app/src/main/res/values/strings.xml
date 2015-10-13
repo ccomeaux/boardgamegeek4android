@@ -227,6 +227,7 @@
 	<string name="title_scores">Scores</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search…</string>
+	<string name="search_voice_prompt">Name a game…</string>
 	<string name="search_settings_description">Games in collection</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
