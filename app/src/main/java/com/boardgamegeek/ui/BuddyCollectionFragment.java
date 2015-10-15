@@ -146,9 +146,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (i >= 0 && i < mStatusValues.length) {
 			status = mStatusValues[i];
 		} else if (id == R.id.menu_collection_random_game) {
-			CollectionItem ci = mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
-			ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
-			return true;
+			final int index = RandomUtils.getRandom().nextInt(mAdapter.getCount());
+			if (index < mAdapter.getCount()) {
+				CollectionItem ci = mAdapter.getItem(index);
+				ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
+				return true;
+			}
 		}
 
 		if (!TextUtils.isEmpty(status) && !status.equals(mStatusValue)) {
