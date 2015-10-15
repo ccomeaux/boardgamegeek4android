@@ -97,6 +97,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private List<CollectionFilterer> mFilters = new ArrayList<>();
 	private String mDefaultWhereClause;
 	private LinearLayout mFilterLinearLayout;
+	private View mScrollLayout;
 	private boolean mShortcut;
 	private final LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
 	private android.view.MenuItem mLogPlayMenuItem;
@@ -131,6 +132,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		mFilterLinearLayout = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
+		mScrollLayout = view.findViewById(R.id.filter_scroll_view);
 		setEmptyText();
 	}
 
@@ -583,8 +585,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (filter != null) {
 				Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
 				if (button == null) {
-					mFilterLinearLayout.addView(createFilterButton(layoutInflater, filter.getType(),
-						filter.getDisplayText()));
+					mFilterLinearLayout.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
 				} else {
 					button.setText(filter.getDisplayText());
 				}
@@ -599,16 +600,16 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				i--;
 			}
 		}
+
+		mScrollLayout.setVisibility(mFilterLinearLayout.getChildCount() > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	@DebugLog
 	private Button createFilterButton(LayoutInflater layoutInflater, final int type, String text) {
-		final Button button = (Button) layoutInflater
-			.inflate(R.layout.widget_button_filter, mFilterLinearLayout, false);
+		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, mFilterLinearLayout, false);
 		button.setText(text);
 		button.setTag(type);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-			ViewGroup.LayoutParams.WRAP_CONTENT);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		int margin = getResources().getDimensionPixelSize(R.dimen.padding_small);
 		params.setMargins(margin, margin, margin, margin);
 		button.setLayoutParams(params);

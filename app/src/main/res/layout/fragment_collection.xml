@@ -62,7 +62,9 @@
 				android:id="@+id/filter_scroll_view"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:background="@color/primary_dark"
+				android:background="@color/primary"
+				android:elevation="@dimen/material_elevation"
+				android:padding="@dimen/padding_half"
 				android:scrollbars="none">
 
 				<LinearLayout

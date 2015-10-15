@@ -94,6 +94,11 @@
 	<style name="Text.Secondary.DrawerHeader">
 	</style>
 
+	<style name="Text.FilterButton">
+		<item name="android:textColor">@color/inverse_text_body</item>
+		<item name="android:textSize">12sp</item>
+	</style>
+
 	<style name="Text.Footnote">
 		<item name="android:textSize">10sp</item>
 	</style>
