@@ -9,6 +9,7 @@ import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -87,38 +88,39 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_FILTERS = "STATE_FILTERS";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	private Handler mHandler = new Handler();
-	private Runnable mUpdaterRunnable = null;
-	private int mSelectedCollectionId;
-	private CollectionAdapter mAdapter;
-	private long mViewId;
-	private String mViewName = "";
-	private CollectionSorter mSort;
-	private List<CollectionFilterer> mFilters = new ArrayList<>();
-	private String mDefaultWhereClause;
-	private LinearLayout mFilterLinearLayout;
-	private View mScrollLayout;
-	private boolean mShortcut;
-	private final LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
-	private android.view.MenuItem mLogPlayMenuItem;
-	private android.view.MenuItem mLogPlayQuickMenuItem;
-	private android.view.MenuItem mBggLinkMenuItem;
+	private Handler timeUpdateHandler = new Handler();
+	private Runnable timeUpdateRunnable = null;
+	private int selectedCollectionId;
+	private CollectionAdapter adapter;
+	private long viewId;
+	private String viewName = "";
+	private CollectionSorter sorter;
+	private List<CollectionFilterer> filters = new ArrayList<>();
+	private String defaultWhereClause;
+	private LinearLayout filterButtonContainer;
+	private View filterButtonScroll;
+	private boolean isCreatingShortcut;
+	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
+	private Toolbar footerToolbar;
+	private android.view.MenuItem logPlayMenuItem;
+	private android.view.MenuItem logPlayQuickMenuItem;
+	private android.view.MenuItem bggLinkMenuItem;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mHandler = new Handler();
+		timeUpdateHandler = new Handler();
 		if (savedInstanceState != null) {
-			mSelectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
-			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
-			mViewName = savedInstanceState.getString(STATE_VIEW_NAME);
-			mFilters = savedInstanceState.getParcelableArrayList(STATE_FILTERS);
+			selectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
+			viewId = savedInstanceState.getLong(STATE_VIEW_ID);
+			viewName = savedInstanceState.getString(STATE_VIEW_NAME);
+			filters = savedInstanceState.getParcelableArrayList(STATE_FILTERS);
 		}
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
+		isCreatingShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
 	}
 
 	@Override
@@ -131,8 +133,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		mFilterLinearLayout = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
-		mScrollLayout = view.findViewById(R.id.filter_scroll_view);
+		filterButtonContainer = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
+		filterButtonScroll = view.findViewById(R.id.filter_scroll_view);
 		setEmptyText();
 	}
 
@@ -145,8 +147,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		mSort = CollectionSorterFactory.create(sortType, getActivity());
-		if (savedInstanceState != null || mShortcut) {
+		sorter = CollectionSorterFactory.create(sortType, getActivity());
+		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
 		}
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
@@ -161,8 +163,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onResume() {
 		super.onResume();
-		if (mUpdaterRunnable != null) {
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		if (timeUpdateRunnable != null) {
+			timeUpdateHandler.postDelayed(timeUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 		}
 	}
 
@@ -170,8 +172,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onPause() {
 		super.onPause();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeUpdateRunnable != null) {
+			timeUpdateHandler.removeCallbacks(timeUpdateRunnable);
 		}
 	}
 
@@ -179,23 +181,23 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putLong(STATE_VIEW_ID, mViewId);
-		outState.putString(STATE_VIEW_NAME, mViewName);
-		outState.putInt(STATE_SORT_TYPE, mSort == null ? CollectionSorterFactory.TYPE_UNKNOWN : mSort.getType());
-		outState.putParcelableArrayList(STATE_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
-		if (mSelectedCollectionId > 0) {
-			outState.putInt(STATE_SELECTED_ID, mSelectedCollectionId);
+		outState.putLong(STATE_VIEW_ID, viewId);
+		outState.putString(STATE_VIEW_NAME, viewName);
+		outState.putInt(STATE_SORT_TYPE, sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType());
+		outState.putParcelableArrayList(STATE_FILTERS, (ArrayList<? extends Parcelable>) filters);
+		if (selectedCollectionId > 0) {
+			outState.putInt(STATE_SELECTED_ID, selectedCollectionId);
 		}
 	}
 
 	@Override
 	@DebugLog
 	public void onListItemClick(View view, int position, long id) {
-		final Cursor cursor = (Cursor) mAdapter.getItem(position);
+		final Cursor cursor = (Cursor) adapter.getItem(position);
 		final int gameId = cursor.getInt(Query.GAME_ID);
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
-		if (mShortcut) {
+		if (isCreatingShortcut) {
 			EventBus.getDefault().post(new GameShortcutCreatedEvent(gameId, gameName, thumbnailUrl));
 		} else {
 			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName));
@@ -224,7 +226,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			menu.findItem(R.id.menu_collection_sort).setVisible(true);
 			menu.findItem(R.id.menu_collection_filter).setVisible(true);
 
-			if (mShortcut) {
+			if (isCreatingShortcut) {
 				menu.findItem(R.id.menu_collection_random_game).setVisible(false);
 				menu.findItem(R.id.menu_collection_view_save).setVisible(false);
 				menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
@@ -234,11 +236,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
 				menu.findItem(R.id.menu_collection_random_game).setEnabled(
-					mAdapter != null && mAdapter.getCount() > 0);
+					adapter != null && adapter.getCount() > 0);
 
 				menu.findItem(R.id.menu_collection_view_save).setEnabled(
-					(mFilters != null && mFilters.size() > 0)
-						|| (mSort != null && mSort.getType() != CollectionSorterFactory.TYPE_DEFAULT));
+					(filters != null && filters.size() > 0)
+						|| (sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT));
 
 				boolean hasViews = false;
 				Activity activity = getActivity();
@@ -257,11 +259,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
-				final Cursor cursor = (Cursor) mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
+				final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
 				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_view_save:
-				SaveView.createDialog(getActivity(), this, mViewName, mSort, mFilters);
+				SaveView.createDialog(getActivity(), this, viewName, sorter, filters);
 				return true;
 			case R.id.menu_collection_view_delete:
 				DeleteView.createDialog(getActivity(), this);
@@ -330,10 +332,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			StringBuilder where = new StringBuilder();
 			String[] args = {};
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
-			if (mViewId == 0 && mFilters == null || mFilters.size() == 0) {
+			if (viewId == 0 && filters == null || filters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
-				for (CollectionFilterer filter : mFilters) {
+				for (CollectionFilterer filter : filters) {
 					if (filter != null) {
 						if (!TextUtils.isEmpty(filter.getSelection())) {
 							if (where.length() > 0) {
@@ -346,12 +348,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				}
 			}
 			Uri mUri = uriBuilder.build();
-			loader = new CursorLoader(getActivity(), mUri, mSort == null ? Query.PROJECTION : StringUtils.unionArrays(
-				Query.PROJECTION, mSort.getColumns()), where.toString(), args, mSort == null ? null
-				: mSort.getOrderByClause());
+			loader = new CursorLoader(getActivity(), mUri, sorter == null ? Query.PROJECTION : StringUtils.unionArrays(
+				Query.PROJECTION, sorter.getColumns()), where.toString(), args, sorter == null ? null
+				: sorter.getOrderByClause());
 		} else if (id == ViewQuery._TOKEN) {
-			if (mViewId > 0) {
-				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(mViewId),
+			if (viewId > 0) {
+				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(viewId),
 					ViewQuery.PROJECTION, null, null, null);
 			}
 		}
@@ -359,13 +361,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private String buildDefaultWhereClause() {
-		if (!TextUtils.isEmpty(mDefaultWhereClause)) {
-			return mDefaultWhereClause;
+		if (!TextUtils.isEmpty(defaultWhereClause)) {
+			return defaultWhereClause;
 		}
 		String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
 		if (statuses == null) {
-			mDefaultWhereClause = "";
-			return mDefaultWhereClause;
+			defaultWhereClause = "";
+			return defaultWhereClause;
 		}
 		StringBuilder where = new StringBuilder();
 		for (String status : statuses) {
@@ -417,8 +419,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					break;
 			}
 		}
-		mDefaultWhereClause = where.toString();
-		return mDefaultWhereClause;
+		defaultWhereClause = where.toString();
+		return defaultWhereClause;
 	}
 
 	@Override
@@ -430,27 +432,27 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
-			if (mAdapter == null) {
-				mAdapter = new CollectionAdapter(getActivity());
-				setListAdapter(mAdapter);
+			if (adapter == null) {
+				adapter = new CollectionAdapter(getActivity());
+				setListAdapter(adapter);
 			} else {
 				setProgressShown(false);
 			}
-			mAdapter.changeCursor(cursor);
+			adapter.changeCursor(cursor);
 			initializeTimeBasedUi();
 			restoreScrollState();
 			EventBus.getDefault().post(new CollectionCountChangedEvent(cursor.getCount()));
-			EventBus.getDefault().post(new CollectionSortChangedEvent(mSort == null ? "" : mSort.getDescription()));
+			EventBus.getDefault().post(new CollectionSortChangedEvent(sorter == null ? "" : sorter.getDescription()));
 			bindFilterButtons();
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
-				mViewName = cursor.getString(ViewQuery.NAME);
-				mSort = CollectionSorterFactory.create(cursor.getInt(ViewQuery.SORT_TYPE), getActivity());
-				mFilters.clear();
+				viewName = cursor.getString(ViewQuery.NAME);
+				sorter = CollectionSorterFactory.create(cursor.getInt(ViewQuery.SORT_TYPE), getActivity());
+				filters.clear();
 				do {
 					CollectionFilterer filter = CollectionFilterDataFactory.create(getActivity(),
 						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
-					mFilters.add(filter);
+					filters.add(filter);
 				} while (cursor.moveToNext());
 				setEmptyText();
 				requery();
@@ -464,44 +466,44 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (mAdapter != null) {
-			mAdapter.changeCursor(null);
+		if (adapter != null) {
+			adapter.changeCursor(null);
 		}
 	}
 
 	private void initializeTimeBasedUi() {
 		updateTimeBasedUi();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeUpdateRunnable != null) {
+			timeUpdateHandler.removeCallbacks(timeUpdateRunnable);
 		}
-		mUpdaterRunnable = new Runnable() {
+		timeUpdateRunnable = new Runnable() {
 			@Override
 			public void run() {
 				updateTimeBasedUi();
-				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+				timeUpdateHandler.postDelayed(timeUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 			}
 		};
-		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		timeUpdateHandler.postDelayed(timeUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 	}
 
 	private void updateTimeBasedUi() {
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
 	@DebugLog
 	private void setSelectedGameId(int id) {
-		mSelectedCollectionId = id;
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
+		selectedCollectionId = id;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
 	@Override
 	@DebugLog
 	public void removeFilter(CollectionFilterer filter) {
-		mFilters.remove(filter);
+		filters.remove(filter);
 		setEmptyText();
 		resetScrollState();
 		requery();
@@ -510,9 +512,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void addFilter(CollectionFilterer filter) {
-		mFilters.remove(filter);
+		filters.remove(filter);
 		if (filter.isValid()) {
-			mFilters.add(filter);
+			filters.add(filter);
 		}
 		setEmptyText();
 		resetScrollState();
@@ -521,8 +523,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	private void setEmptyText() {
-		int resId = R.string.empty_collection;
-		if (mFilters != null && mFilters.size() > 0) {
+		@StringRes int resId = R.string.empty_collection;
+		if (filters != null && filters.size() > 0) {
 			resId = R.string.empty_collection_filter_on;
 		} else {
 			String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
@@ -538,14 +540,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
-		mSort = CollectionSorterFactory.create(sortType, getActivity());
+		sorter = CollectionSorterFactory.create(sortType, getActivity());
 		resetScrollState();
 		requery();
 	}
 
 	@DebugLog
 	private void setSort(int sortType, int sortType2) {
-		if (mSort.getType() == sortType) {
+		if (sorter.getType() == sortType) {
 			setSort(sortType2);
 		} else {
 			setSort(sortType);
@@ -563,14 +565,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void deleteView(long id) {
 		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
-		if (mViewId == id) {
+		if (viewId == id) {
 			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
 		}
 	}
 
 	@DebugLog
 	private CollectionFilterer findFilter(int type) {
-		for (CollectionFilterer filter : mFilters) {
+		for (CollectionFilterer filter : filters) {
 			if (filter != null && filter.getType() == type) {
 				return filter;
 			}
@@ -581,11 +583,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void bindFilterButtons() {
 		final LayoutInflater layoutInflater = getLayoutInflater(null);
-		for (CollectionFilterer filter : mFilters) {
+		for (CollectionFilterer filter : filters) {
 			if (filter != null) {
-				Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
+				Button button = (Button) filterButtonContainer.findViewWithTag(filter.getType());
 				if (button == null) {
-					mFilterLinearLayout.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
+					filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
 				} else {
 					button.setText(filter.getDisplayText());
 				}
@@ -593,20 +595,20 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		// Could be when button is clicked, but this keeps filters synced with collection
-		for (int i = 0; i < mFilterLinearLayout.getChildCount(); i++) {
-			Button button = (Button) mFilterLinearLayout.getChildAt(i);
-			if (!mFilters.contains(new CollectionFilterer((Integer) button.getTag()))) {
-				mFilterLinearLayout.removeView(button);
+		for (int i = 0; i < filterButtonContainer.getChildCount(); i++) {
+			Button button = (Button) filterButtonContainer.getChildAt(i);
+			if (!filters.contains(new CollectionFilterer((Integer) button.getTag()))) {
+				filterButtonContainer.removeView(button);
 				i--;
 			}
 		}
 
-		mScrollLayout.setVisibility(mFilterLinearLayout.getChildCount() > 0 ? View.VISIBLE : View.GONE);
+		filterButtonScroll.setVisibility(filterButtonContainer.getChildCount() > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	@DebugLog
 	private Button createFilterButton(LayoutInflater layoutInflater, final int type, String text) {
-		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, mFilterLinearLayout, false);
+		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, filterButtonContainer, false);
 		button.setText(text);
 		button.setTag(type);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -704,14 +706,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	public long getViewId() {
-		return mViewId;
+		return viewId;
 	}
 
 	@DebugLog
 	public void setView(long viewId) {
-		if (mViewId != viewId) {
+		if (this.viewId != viewId) {
 			setProgressShown(true);
-			mViewId = viewId;
+			this.viewId = viewId;
 			resetScrollState();
 			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
 		}
@@ -720,11 +722,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void clearView() {
 		setProgressShown(true);
-		mViewId = 0;
-		mViewName = "";
+		viewId = 0;
+		viewName = "";
 		resetScrollState();
-		mFilters.clear();
-		mSort = CollectionSorterFactory.create(CollectionSorterFactory.TYPE_DEFAULT, getActivity());
+		filters.clear();
+		sorter = CollectionSorterFactory.create(CollectionSorterFactory.TYPE_DEFAULT, getActivity());
 		requery();
 	}
 
@@ -759,11 +761,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
-			UIUtils.setActivatedCompat(view, collectionId == mSelectedCollectionId);
+			UIUtils.setActivatedCompat(view, collectionId == selectedCollectionId);
 
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.year.setText(PresentationUtils.describeYear(getActivity(), year));
-			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
+			holder.info.setText(sorter == null ? "" : sorter.getDisplayInfo(cursor));
 			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
 				holder.thumbnail);
 		}
@@ -773,7 +775,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (position < 0) {
 				return 0;
 			}
-			return mSort.getHeaderId(getCursor(), position);
+			return sorter.getHeaderId(getCursor(), position);
 		}
 
 		@Override
@@ -787,7 +789,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
 			}
-			holder.text.setText(mSort.getHeaderText(getCursor(), position));
+			holder.text.setText(sorter.getHeaderText(getCursor(), position));
 			return convertView;
 		}
 
@@ -847,10 +849,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
 		android.view.MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
-		mLogPlayMenuItem = menu.findItem(R.id.menu_log_play);
-		mLogPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
-		mBggLinkMenuItem = menu.findItem(R.id.menu_link);
-		mSelectedPositions.clear();
+		logPlayMenuItem = menu.findItem(R.id.menu_log_play);
+		logPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
+		bggLinkMenuItem = menu.findItem(R.id.menu_link);
+		selectedPositions.clear();
 		return true;
 	}
 
@@ -869,26 +871,26 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 		if (checked) {
-			mSelectedPositions.add(position);
+			selectedPositions.add(position);
 		} else {
-			mSelectedPositions.remove(position);
+			selectedPositions.remove(position);
 		}
 
-		int count = mSelectedPositions.size();
+		int count = selectedPositions.size();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 
-		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		mLogPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
-		mBggLinkMenuItem.setVisible(count == 1);
+		logPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		logPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		bggLinkMenuItem.setVisible(count == 1);
 	}
 
 	@Override
 	@DebugLog
 	public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
-		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+		if (selectedPositions == null || !selectedPositions.iterator().hasNext()) {
 			return false;
 		}
-		Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPositions.iterator().next());
+		Cursor cursor = (Cursor) adapter.getItem(selectedPositions.iterator().next());
 		int gameId = cursor.getInt(Query.GAME_ID);
 		String gameName = cursor.getString(Query.GAME_NAME);
 		String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
@@ -901,21 +903,21 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, selectedPositions.size());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-				for (int position : mSelectedPositions) {
-					Cursor c = (Cursor) mAdapter.getItem(position);
+				for (int position : selectedPositions) {
+					Cursor c = (Cursor) adapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME));
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
-				if (mSelectedPositions.size() == 1) {
+				if (selectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), gameId, gameName);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
-					for (int position : mSelectedPositions) {
-						Cursor c = (Cursor) mAdapter.getItem(position);
+					List<Pair<Integer, String>> games = new ArrayList<>(selectedPositions.size());
+					for (int position : selectedPositions) {
+						Cursor c = (Cursor) adapter.getItem(position);
 						games.add(new Pair<>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
