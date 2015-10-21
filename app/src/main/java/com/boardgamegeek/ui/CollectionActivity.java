@@ -68,7 +68,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			if (shortcut) {
 				actionBar.setHomeButtonEnabled(false);
 				actionBar.setDisplayHomeAsUpEnabled(false);
-				actionBar.setTitle(R.string.menu_create_shortcut);
+				actionBar.setTitle(R.string.app_name);
 			}
 		}
 		if (!shortcut) {

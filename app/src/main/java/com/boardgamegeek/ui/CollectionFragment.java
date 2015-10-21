@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -97,6 +98,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionSorter sorter;
 	private List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
+	private ViewGroup frameContainer;
 	private LinearLayout filterButtonContainer;
 	private View filterButtonScroll;
 	private boolean isCreatingShortcut;
@@ -132,8 +134,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		frameContainer = (ViewGroup) view.findViewById(R.id.frame_container);
 		filterButtonContainer = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
 		filterButtonScroll = view.findViewById(R.id.filter_scroll_view);
+
+		if (isCreatingShortcut) {
+			Snackbar.make(view, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
+		}
 
 		footerToolbar = (Toolbar) view.findViewById(R.id.toolbar_footer);
 		footerToolbar.inflateMenu(R.menu.collection_fragment);
