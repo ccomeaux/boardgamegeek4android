@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,11 +13,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.Toolbar.OnMenuItemClickListener;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,7 +117,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			viewName = savedInstanceState.getString(STATE_VIEW_NAME);
 			filters = savedInstanceState.getParcelableArrayList(STATE_FILTERS);
 		}
-		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		isCreatingShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
@@ -135,6 +134,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		super.onViewCreated(view, savedInstanceState);
 		filterButtonContainer = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
 		filterButtonScroll = view.findViewById(R.id.filter_scroll_view);
+
+		footerToolbar = (Toolbar) view.findViewById(R.id.toolbar_footer);
+		footerToolbar.inflateMenu(R.menu.collection_fragment);
+		footerToolbar.setOnMenuItemClickListener(footerMenuListener);
+		invalidateMenu();
+
 		setEmptyText();
 	}
 
@@ -205,112 +210,88 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-	@Override
 	@DebugLog
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.collection_fragment, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	@DebugLog
-	public void onPrepareOptionsMenu(Menu menu) {
-		DrawerActivity drawerActivity = ((DrawerActivity) getActivity());
-		if (drawerActivity != null && drawerActivity.isDrawerOpen()) {
-			menu.findItem(R.id.menu_collection_sort).setVisible(false);
-			menu.findItem(R.id.menu_collection_filter).setVisible(false);
+	private void invalidateMenu() {
+		final Menu menu = footerToolbar.getMenu();
+		if (isCreatingShortcut) {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
 		} else {
-			menu.findItem(R.id.menu_collection_sort).setVisible(true);
-			menu.findItem(R.id.menu_collection_filter).setVisible(true);
+			menu.findItem(R.id.menu_collection_random_game).setVisible(true);
+			menu.findItem(R.id.menu_collection_view_save).setVisible(true);
+			menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
-			if (isCreatingShortcut) {
-				menu.findItem(R.id.menu_collection_random_game).setVisible(false);
-				menu.findItem(R.id.menu_collection_view_save).setVisible(false);
-				menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
-			} else {
-				menu.findItem(R.id.menu_collection_random_game).setVisible(true);
-				menu.findItem(R.id.menu_collection_view_save).setVisible(true);
-				menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
+			final boolean hasFiltersApplied = (filters != null && filters.size() > 0);
+			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
+			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
+			final boolean hasItems = adapter != null && adapter.getCount() > 0;
 
-				menu.findItem(R.id.menu_collection_random_game).setEnabled(
-					adapter != null && adapter.getCount() > 0);
+			menu.findItem(R.id.menu_collection_view_save).setEnabled(hasFiltersApplied || hasSortApplied);
+			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
+			menu.findItem(R.id.menu_collection_random_game).setEnabled(hasItems);
+		}
+	}
 
-				menu.findItem(R.id.menu_collection_view_save).setEnabled(
-					(filters != null && filters.size() > 0)
-						|| (sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT));
-
-				boolean hasViews = false;
-				Activity activity = getActivity();
-				if (activity != null) {
-					hasViews = ResolverUtils.getCount(activity.getContentResolver(), CollectionViews.CONTENT_URI) > 0;
-				}
-				menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
-
+	OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
+		@DebugLog
+		@Override
+		public boolean onMenuItemClick(MenuItem item) {
+			switch (item.getItemId()) {
+				case R.id.menu_collection_random_game:
+					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
+					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+					return true;
+				case R.id.menu_collection_view_save:
+					SaveView.createDialog(getActivity(), CollectionFragment.this, viewName, sorter, filters);
+					return true;
+				case R.id.menu_collection_view_delete:
+					DeleteView.createDialog(getActivity(), CollectionFragment.this);
+					return true;
+				case R.id.menu_collection_sort_name:
+					setSort(CollectionSorterFactory.TYPE_COLLECTION_NAME);
+					return true;
+				case R.id.menu_collection_sort_rank:
+					setSort(CollectionSorterFactory.TYPE_RANK);
+					return true;
+				case R.id.menu_collection_sort_geek_rating:
+					setSort(CollectionSorterFactory.TYPE_GEEK_RATING);
+					return true;
+				case R.id.menu_collection_sort_rating:
+					setSort(CollectionSorterFactory.TYPE_AVERAGE_RATING);
+					return true;
+				case R.id.menu_collection_sort_myrating:
+					setSort(CollectionSorterFactory.TYPE_MY_RATING);
+					return true;
+				case R.id.menu_collection_sort_last_viewed:
+					setSort(CollectionSorterFactory.TYPE_LAST_VIEWED);
+					return true;
+				case R.id.menu_collection_sort_wishlist_priority:
+					setSort(CollectionSorterFactory.TYPE_WISHLIST_PRIORITY);
+					return true;
+				case R.id.menu_collection_sort_published:
+					setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
+					return true;
+				case R.id.menu_collection_sort_playtime:
+					setSort(CollectionSorterFactory.TYPE_PLAY_TIME_ASC, CollectionSorterFactory.TYPE_PLAY_TIME_DESC);
+					return true;
+				case R.id.menu_collection_sort_age:
+					setSort(CollectionSorterFactory.TYPE_AGE_ASC, CollectionSorterFactory.TYPE_AGE_DESC);
+					return true;
+				case R.id.menu_collection_sort_weight:
+					setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
+					return true;
+				case R.id.menu_collection_sort_plays:
+					setSort(CollectionSorterFactory.TYPE_PLAY_COUNT_DESC, CollectionSorterFactory.TYPE_PLAY_COUNT_ASC);
+					return true;
+				case R.id.menu_collection_sort_acquisition_date:
+					setSort(CollectionSorterFactory.TYPE_ACQUISITION_DATE);
+					return true;
 			}
-		}
-		super.onPrepareOptionsMenu(menu);
-	}
 
-	@Override
-	@DebugLog
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menu_collection_random_game:
-				final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
-				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
-				return true;
-			case R.id.menu_collection_view_save:
-				SaveView.createDialog(getActivity(), this, viewName, sorter, filters);
-				return true;
-			case R.id.menu_collection_view_delete:
-				DeleteView.createDialog(getActivity(), this);
-				return true;
-			case R.id.menu_collection_sort_name:
-				setSort(CollectionSorterFactory.TYPE_COLLECTION_NAME);
-				return true;
-			case R.id.menu_collection_sort_rank:
-				setSort(CollectionSorterFactory.TYPE_RANK);
-				return true;
-			case R.id.menu_collection_sort_geek_rating:
-				setSort(CollectionSorterFactory.TYPE_GEEK_RATING);
-				return true;
-			case R.id.menu_collection_sort_rating:
-				setSort(CollectionSorterFactory.TYPE_AVERAGE_RATING);
-				return true;
-			case R.id.menu_collection_sort_myrating:
-				setSort(CollectionSorterFactory.TYPE_MY_RATING);
-				return true;
-			case R.id.menu_collection_sort_last_viewed:
-				setSort(CollectionSorterFactory.TYPE_LAST_VIEWED);
-				return true;
-			case R.id.menu_collection_sort_wishlist_priority:
-				setSort(CollectionSorterFactory.TYPE_WISHLIST_PRIORITY);
-				return true;
-			case R.id.menu_collection_sort_published:
-				setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
-				return true;
-			case R.id.menu_collection_sort_playtime:
-				setSort(CollectionSorterFactory.TYPE_PLAY_TIME_ASC, CollectionSorterFactory.TYPE_PLAY_TIME_DESC);
-				return true;
-			case R.id.menu_collection_sort_age:
-				setSort(CollectionSorterFactory.TYPE_AGE_ASC, CollectionSorterFactory.TYPE_AGE_DESC);
-				return true;
-			case R.id.menu_collection_sort_weight:
-				setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
-				return true;
-			case R.id.menu_collection_sort_plays:
-				setSort(CollectionSorterFactory.TYPE_PLAY_COUNT_DESC, CollectionSorterFactory.TYPE_PLAY_COUNT_ASC);
-				return true;
-			case R.id.menu_collection_sort_acquisition_date:
-				setSort(CollectionSorterFactory.TYPE_ACQUISITION_DATE);
-				return true;
+			return launchFilterDialog(item.getItemId());
 		}
-
-		return launchFilterDialog(item.getItemId()) || super.onOptionsItemSelected(item);
-	}
+	};
 
 	@DebugLog
 	@Override
@@ -444,6 +425,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			EventBus.getDefault().post(new CollectionCountChangedEvent(cursor.getCount()));
 			EventBus.getDefault().post(new CollectionSortChangedEvent(sorter == null ? "" : sorter.getDescription()));
 			bindFilterButtons();
+			invalidateMenu();
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
 				viewName = cursor.getString(ViewQuery.NAME);
@@ -613,7 +595,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		button.setTag(type);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		int margin = getResources().getDimensionPixelSize(R.dimen.padding_small);
-		params.setMargins(margin, margin, margin, margin);
+		params.setMargins(margin, margin, margin, 0);
 		button.setLayoutParams(params);
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override

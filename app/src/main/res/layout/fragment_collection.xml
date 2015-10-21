@@ -73,6 +73,10 @@
 					android:layout_height="wrap_content"
 					android:orientation="horizontal"/>
 			</HorizontalScrollView>
+
+			<android.support.v7.widget.Toolbar
+				android:id="@+id/toolbar_footer"
+				style="@style/ActionBar"/>
 		</LinearLayout>
 
 		<View
