@@ -12,15 +12,11 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.CollectionCountChangedEvent;
-import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
@@ -29,20 +25,15 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
-import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
 	private static final String STATE_VIEW_INDEX = "STATE_VIEW_INDEX";
-	private static final String STATE_COUNT = "STATE_COUNT";
-	private static final String STATE_SORT_NAME = "STATE_SORT_NAME";
 
 	private CollectionViewAdapter adapter;
 	private long viewId;
-	private int rowCount;
-	private String sortName;
 	private boolean isTitleHidden;
 	private int viewIndex;
 
@@ -54,8 +45,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		if (savedInstanceState != null) {
 			viewId = -1;
 			viewIndex = savedInstanceState.getInt(STATE_VIEW_INDEX);
-			rowCount = savedInstanceState.getInt(STATE_COUNT);
-			sortName = savedInstanceState.getString(STATE_SORT_NAME);
 		} else {
 			viewId = PreferencesUtils.getViewDefaultId(this);
 		}
@@ -82,28 +71,12 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putInt(STATE_VIEW_INDEX, viewIndex);
-		outState.putInt(STATE_COUNT, rowCount);
-		outState.putString(STATE_SORT_NAME, sortName);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected boolean isTitleHidden() {
 		return isTitleHidden;
-	}
-
-	@Override
-	@DebugLog
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean hide = (isDrawerOpen() || rowCount <= 0);
-		ToolbarUtils.setCustomActionBarText(getSupportActionBar(),
-			hide ? "" : String.valueOf(rowCount),
-			hide ? "" : sortName);
-		MenuItem mi = menu.findItem(R.id.menu_search);
-		if (mi != null) {
-			mi.setVisible(!isDrawerOpen());
-		}
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -129,20 +102,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		Intent intent = ShortcutUtils.createIntent(this, event.id, event.name, event.thumbnailUrl);
 		setResult(RESULT_OK, intent);
 		finish();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEvent(CollectionCountChangedEvent event) {
-		rowCount = event.count;
-		supportInvalidateOptionsMenu();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEvent(CollectionSortChangedEvent event) {
-		sortName = event.name;
-		supportInvalidateOptionsMenu();
 	}
 
 	@SuppressWarnings("unused")
