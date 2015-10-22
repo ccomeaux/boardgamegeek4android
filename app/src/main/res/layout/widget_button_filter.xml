@@ -8,6 +8,9 @@
 	android:elevation="@dimen/material_elevation_subtle"
 	android:longClickable="true"
 	android:minHeight="24dp"
-	android:padding="@dimen/padding_half"
+	android:paddingBottom="@dimen/padding_half"
+	android:paddingLeft="@dimen/padding_standard"
+	android:paddingRight="@dimen/padding_standard"
+	android:paddingTop="@dimen/padding_half"
 	android:textAppearance="@style/Text.FilterButton"
-	tools:text="Wishlist Texting tlo"/>
+	tools:text="Wishlist"/>

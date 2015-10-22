@@ -65,8 +65,11 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:background="@color/primary"
+				android:clipToPadding="false"
 				android:elevation="@dimen/material_elevation"
-				android:padding="@dimen/padding_half"
+				android:paddingLeft="@dimen/padding_standard"
+				android:paddingRight="@dimen/padding_standard"
+				android:paddingTop="@dimen/padding_half"
 				android:scrollbars="none">
 
 				<LinearLayout

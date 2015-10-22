@@ -609,8 +609,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		button.setText(text);
 		button.setTag(type);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		int margin = getResources().getDimensionPixelSize(R.dimen.padding_small);
-		params.setMargins(margin, margin, margin, 0);
+		int margin = getResources().getDimensionPixelSize(R.dimen.padding_half);
+		params.setMargins(0, margin, margin, 0);
 		button.setLayoutParams(params);
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
