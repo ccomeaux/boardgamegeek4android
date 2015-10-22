@@ -75,6 +75,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -89,6 +91,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_FILTERS = "STATE_FILTERS";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	@InjectView(R.id.frame_container) ViewGroup frameContainer;
+	@InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
+	@InjectView(R.id.filter_scroll_view) View filterButtonScroll;
+	@InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
+
 	private Handler timeUpdateHandler = new Handler();
 	private Runnable timeUpdateRunnable = null;
 	private int selectedCollectionId;
@@ -98,12 +105,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionSorter sorter;
 	private List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
-	private ViewGroup frameContainer;
-	private LinearLayout filterButtonContainer;
-	private View filterButtonScroll;
 	private boolean isCreatingShortcut;
 	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
-	private Toolbar footerToolbar;
 	private android.view.MenuItem logPlayMenuItem;
 	private android.view.MenuItem logPlayQuickMenuItem;
 	private android.view.MenuItem bggLinkMenuItem;
@@ -127,22 +130,19 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_collection, container, false);
+		View view = inflater.inflate(R.layout.fragment_collection, container, false);
+		ButterKnife.inject(this, view);
+		return view;
 	}
 
 	@Override
 	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		frameContainer = (ViewGroup) view.findViewById(R.id.frame_container);
-		filterButtonContainer = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
-		filterButtonScroll = view.findViewById(R.id.filter_scroll_view);
-
 		if (isCreatingShortcut) {
-			Snackbar.make(view, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
+			Snackbar.make(frameContainer, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
 		}
 
-		footerToolbar = (Toolbar) view.findViewById(R.id.toolbar_footer);
 		footerToolbar.inflateMenu(R.menu.collection_fragment);
 		footerToolbar.setOnMenuItemClickListener(footerMenuListener);
 		invalidateMenu();
