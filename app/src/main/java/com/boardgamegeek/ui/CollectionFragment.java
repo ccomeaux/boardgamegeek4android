@@ -95,6 +95,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
 	@InjectView(R.id.filter_scroll_view) View filterButtonScroll;
 	@InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
+	@InjectView(R.id.row_count) TextView rowCountView;
+	@InjectView(R.id.sort_description) TextView sortDescriptionView;
 
 	private Handler timeUpdateHandler = new Handler();
 	private Runnable timeUpdateRunnable = null;
@@ -429,8 +431,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			adapter.changeCursor(cursor);
 			initializeTimeBasedUi();
 			restoreScrollState();
-			EventBus.getDefault().post(new CollectionCountChangedEvent(cursor.getCount()));
-			EventBus.getDefault().post(new CollectionSortChangedEvent(sorter == null ? "" : sorter.getDescription()));
+
+			final int rowCount = cursor.getCount();
+			final String sortDescription = sorter == null ? "" : sorter.getDescription();
+			rowCountView.setText(String.valueOf(rowCount));
+			sortDescriptionView.setText(sortDescription);
+			EventBus.getDefault().post(new CollectionCountChangedEvent(rowCount));
+			EventBus.getDefault().post(new CollectionSortChangedEvent(sortDescription));
+
 			bindFilterButtons();
 			invalidateMenu();
 		} else if (token == ViewQuery._TOKEN) {
