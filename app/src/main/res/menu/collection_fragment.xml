@@ -102,7 +102,7 @@
 		android:id="@+id/menu_collection_view_delete"
 		android:icon="@drawable/ic_action_delete_light"
 		android:title="@string/menu_collection_view_delete"
-		app:showAsAction="always"/>
+		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="@drawable/ic_action_help_light"
