@@ -2,6 +2,8 @@ package com.boardgamegeek.ui;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -50,13 +52,13 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		}
 	};
 
-	final private OnScrollListener onScrollListener = new OnScrollListener() {
+	@Nullable final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 		}
 
 		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		public void onScroll(@Nullable AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if (swipeRefreshLayout != null) {
 				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
 				swipeRefreshLayout.setEnabled(isRefreshable() && (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
@@ -69,20 +71,21 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(android.R.id.empty) TextView emptyTextView;
-	@SuppressWarnings("unused") @InjectView(R.id.progressContainer) View progressContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.listContainer) View listContainer;
+	@Nullable @SuppressWarnings("unused") @InjectView(android.R.id.empty) TextView emptyTextView;
+	@Nullable @SuppressWarnings("unused") @InjectView(R.id.progressContainer) View progressContainer;
+	@Nullable @SuppressWarnings("unused") @InjectView(R.id.listContainer) View listContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.fab) View fabView;
-	private StickyListHeadersListView listView;
-	private StickyListHeadersAdapter adapter;
+	@Nullable private StickyListHeadersListView listView;
+	@Nullable private StickyListHeadersAdapter adapter;
 	private CharSequence emptyText;
 	private boolean isListShown;
 	private int listViewStatePosition;
 	private int listViewStateTop;
 	private boolean isSyncing;
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_sticky_header_list, container, false);
 	}
 
@@ -116,7 +119,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		if (savedInstanceState != null) {
 			listViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
@@ -141,7 +144,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		saveScrollState();
 		outState.putInt(STATE_POSITION, listViewStatePosition);
 		outState.putInt(STATE_TOP, listViewStateTop);
@@ -157,7 +160,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(SyncEvent event) {
+	public void onEventMainThread(@NonNull SyncEvent event) {
 		if ((event.type & getSyncType()) == getSyncType()) {
 			isSyncing(true);
 		}
@@ -221,6 +224,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		}
 	}
 
+	@Nullable
 	public StickyListHeadersListView getListView() {
 		ensureList();
 		return listView;
