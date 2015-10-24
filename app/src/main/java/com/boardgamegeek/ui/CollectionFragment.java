@@ -8,9 +8,11 @@ import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -82,8 +84,7 @@ import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class CollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	CollectionView, MultiChoiceModeListener {
+public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
 	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
 	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
@@ -98,14 +99,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@InjectView(R.id.row_count) TextView rowCountView;
 	@InjectView(R.id.sort_description) TextView sortDescriptionView;
 
-	private Handler timeUpdateHandler = new Handler();
-	private Runnable timeUpdateRunnable = null;
+	@NonNull private Handler timeUpdateHandler = new Handler();
+	@Nullable private Runnable timeUpdateRunnable = null;
 	private int selectedCollectionId;
 	private CollectionAdapter adapter;
 	private long viewId;
-	private String viewName = "";
-	private CollectionSorter sorter;
-	private List<CollectionFilterer> filters = new ArrayList<>();
+	@Nullable private String viewName = "";
+	@Nullable private CollectionSorter sorter;
+	@Nullable private List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
 	private boolean isCreatingShortcut;
 	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
@@ -115,7 +116,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		timeUpdateHandler = new Handler();
 		if (savedInstanceState != null) {
@@ -131,7 +132,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_collection, container, false);
 		ButterKnife.inject(this, view);
 		return view;
@@ -154,7 +155,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
 		int sortType = CollectionSorterFactory.TYPE_DEFAULT;
@@ -193,7 +194,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putLong(STATE_VIEW_ID, viewId);
 		outState.putString(STATE_VIEW_NAME, viewName);
@@ -242,10 +243,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-	OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
+	@NonNull OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
 		@DebugLog
 		@Override
-		public boolean onMenuItemClick(MenuItem item) {
+		public boolean onMenuItemClick(@NonNull MenuItem item) {
 			switch (item.getItemId()) {
 				case R.id.menu_collection_random_game:
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
@@ -314,6 +315,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
+	@Nullable
 	@Override
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -415,7 +417,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
 		if (getActivity() == null) {
 			return;
 		}
@@ -508,7 +510,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void addFilter(CollectionFilterer filter) {
+	public void addFilter(@NonNull CollectionFilterer filter) {
 		filters.remove(filter);
 		if (filter.isValid()) {
 			filters.add(filter);
@@ -603,8 +605,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		filterButtonScroll.setVisibility(filterButtonContainer.getChildCount() > 0 ? View.VISIBLE : View.GONE);
 	}
 
+	@NonNull
 	@DebugLog
-	private Button createFilterButton(LayoutInflater layoutInflater, final int type, String text) {
+	private Button createFilterButton(@NonNull LayoutInflater layoutInflater, final int type, String text) {
 		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, filterButtonContainer, false);
 		button.setText(text);
 		button.setTag(type);
@@ -614,7 +617,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		button.setLayoutParams(params);
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v) {
+			public void onClick(@NonNull View v) {
 				launchFilterDialog((Integer) v.getTag());
 			}
 		});
@@ -728,7 +731,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		private final LayoutInflater mInflater;
+		@NonNull private final LayoutInflater mInflater;
 
 		@DebugLog
 		public CollectionAdapter(Context context) {
@@ -747,7 +750,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		@Override
 		@DebugLog
-		public void bindView(View view, Context context, Cursor cursor) {
+		public void bindView(@NonNull View view, Context context, @NonNull Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
@@ -775,8 +778,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			return sorter.getHeaderId(getCursor(), position);
 		}
 
+		@Nullable
 		@Override
-		public View getHeaderView(int position, View convertView, ViewGroup parent) {
+		public View getHeaderView(int position, @Nullable View convertView, ViewGroup parent) {
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
@@ -791,12 +795,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		class ViewHolder {
-			final TextView name;
-			final TextView year;
-			final TextView info;
-			final ImageView thumbnail;
+			@NonNull final TextView name;
+			@NonNull final TextView year;
+			@NonNull final TextView info;
+			@NonNull final ImageView thumbnail;
 
-			public ViewHolder(View view) {
+			public ViewHolder(@NonNull View view) {
 				name = (TextView) view.findViewById(R.id.name);
 				year = (TextView) view.findViewById(R.id.year);
 				info = (TextView) view.findViewById(R.id.info);
@@ -843,7 +847,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
+	public boolean onCreateActionMode(@NonNull ActionMode mode, @NonNull android.view.Menu menu) {
 		android.view.MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
 		logPlayMenuItem = menu.findItem(R.id.menu_log_play);
@@ -866,7 +870,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+	public void onItemCheckedStateChanged(@NonNull ActionMode mode, int position, long id, boolean checked) {
 		if (checked) {
 			selectedPositions.add(position);
 		} else {
@@ -883,7 +887,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
+	public boolean onActionItemClicked(@NonNull ActionMode mode, @NonNull android.view.MenuItem item) {
 		if (selectedPositions == null || !selectedPositions.iterator().hasNext()) {
 			return false;
 		}
