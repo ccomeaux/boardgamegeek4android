@@ -63,6 +63,29 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
 				swipeRefreshLayout.setEnabled(isRefreshable() && (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
 			}
+
+			if (totalItemCount == 0) {
+				return;
+			}
+			int newScrollY = getTopItemScrollY();
+			if (isSameRow(firstVisibleItem)) {
+				boolean isSignificantDelta = Math.abs(lastScrollY - newScrollY) > scrollThreshold;
+				if (isSignificantDelta) {
+					if (lastScrollY > newScrollY) {
+						onScrollUp();
+					} else {
+						onScrollDown();
+					}
+				}
+			} else {
+				if (firstVisibleItem > previousFirstVisibleItem) {
+					onScrollUp();
+				} else {
+					onScrollDown();
+				}
+				previousFirstVisibleItem = firstVisibleItem;
+			}
+			lastScrollY = newScrollY;
 		}
 	};
 
@@ -82,6 +105,9 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	private int listViewStatePosition;
 	private int listViewStateTop;
 	private boolean isSyncing;
+	private int previousFirstVisibleItem;
+	private int lastScrollY;
+	private int scrollThreshold = 20;
 
 	@Nullable
 	@Override
@@ -377,5 +403,22 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@OnClick(R.id.fab)
 	protected void onFabClicked(View v) {
 		// convenience for overriding
+	}
+
+	protected void onScrollUp() {
+	}
+
+	protected void onScrollDown() {
+	}
+
+	private boolean isSameRow(int firstVisibleItem) {
+		return firstVisibleItem == previousFirstVisibleItem;
+	}
+
+	private int getTopItemScrollY() {
+		StickyListHeadersListView listView = getListView();
+		if (listView == null || listView.getChildAt(0) == null) return 0;
+		View topChild = listView.getChildAt(0);
+		return topChild.getTop();
 	}
 }

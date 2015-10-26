@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -93,6 +94,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	@InjectView(R.id.frame_container) ViewGroup frameContainer;
+	@InjectView(R.id.footer_container) ViewGroup footerContainer;
 	@InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
 	@InjectView(R.id.filter_scroll_view) View filterButtonScroll;
 	@InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
@@ -470,6 +472,24 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
+	@Override
+	@DebugLog
+	protected void onScrollDown() {
+		if (footerContainer.getVisibility() != View.VISIBLE) {
+			footerContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up));
+			footerContainer.setVisibility(View.VISIBLE);
+		}
+	}
+
+	@Override
+	@DebugLog
+	protected void onScrollUp() {
+		if (footerContainer.getVisibility() != View.GONE) {
+			footerContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
+			footerContainer.setVisibility(View.GONE);
+		}
+	}
+
 	private void initializeTimeBasedUi() {
 		updateTimeBasedUi();
 		if (timeUpdateRunnable != null) {
@@ -485,6 +505,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		timeUpdateHandler.postDelayed(timeUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 	}
 
+	@DebugLog
 	private void updateTimeBasedUi() {
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
