@@ -2,6 +2,8 @@ package com.boardgamegeek.ui;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -36,31 +38,54 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
 
-	final private Handler mHandler = new Handler();
+	final private Handler focusHandler = new Handler();
 
-	final private Runnable mRequestFocus = new Runnable() {
+	final private Runnable listViewFocusRunnable = new Runnable() {
 		public void run() {
-			mList.focusableViewAvailable(mList);
+			listView.focusableViewAvailable(listView);
 		}
 	};
 
-	final private OnItemClickListener mOnClickListener = new OnItemClickListener() {
+	final private OnItemClickListener onItemClickListener = new OnItemClickListener() {
 		public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
 			onListItemClick(view, position, id);
 		}
 	};
 
-	final private OnScrollListener mOnScrollListener = new OnScrollListener() {
+	@Nullable final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 		}
 
 		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			if (mSwipeRefreshLayout != null) {
+		public void onScroll(@Nullable AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+			if (swipeRefreshLayout != null) {
 				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
-				mSwipeRefreshLayout.setEnabled(isRefreshable() && (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
+				swipeRefreshLayout.setEnabled(isRefreshable() && (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
 			}
+
+			if (totalItemCount == 0) {
+				return;
+			}
+			int newScrollY = getTopItemScrollY();
+			if (isSameRow(firstVisibleItem)) {
+				boolean isSignificantDelta = Math.abs(lastScrollY - newScrollY) > scrollThreshold;
+				if (isSignificantDelta) {
+					if (lastScrollY > newScrollY) {
+						onScrollUp();
+					} else {
+						onScrollDown();
+					}
+				}
+			} else {
+				if (firstVisibleItem > previousFirstVisibleItem) {
+					onScrollUp();
+				} else {
+					onScrollDown();
+				}
+				previousFirstVisibleItem = firstVisibleItem;
+			}
+			lastScrollY = newScrollY;
 		}
 	};
 
@@ -68,21 +93,25 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		return getSyncType() != SyncService.FLAG_SYNC_NONE;
 	}
 
-	private StickyListHeadersAdapter mAdapter;
-	private StickyListHeadersListView mList;
-	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@InjectView(android.R.id.empty) TextView mEmptyView;
-	@InjectView(R.id.progressContainer) View mProgressContainer;
-	@InjectView(R.id.listContainer) View mListContainer;
-	@InjectView(R.id.fab) View mFab;
-	private CharSequence mEmptyText;
-	private boolean mListShown;
-	private int mListViewStatePosition;
-	private int mListViewStateTop;
-	private boolean mSyncing;
+	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@Nullable @SuppressWarnings("unused") @InjectView(android.R.id.empty) TextView emptyTextView;
+	@Nullable @SuppressWarnings("unused") @InjectView(R.id.progressContainer) View progressContainer;
+	@Nullable @SuppressWarnings("unused") @InjectView(R.id.listContainer) View listContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.fab) View fabView;
+	@Nullable private StickyListHeadersListView listView;
+	@Nullable private StickyListHeadersAdapter adapter;
+	private CharSequence emptyText;
+	private boolean isListShown;
+	private int listViewStatePosition;
+	private int listViewStateTop;
+	private boolean isSyncing;
+	private int previousFirstVisibleItem;
+	private int lastScrollY;
+	private int scrollThreshold = 20;
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_sticky_header_list, container, false);
 	}
 
@@ -107,23 +136,23 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@Override
 	public void onDestroyView() {
-		mHandler.removeCallbacks(mRequestFocus);
-		mList = null;
-		mListShown = false;
-		mProgressContainer = mListContainer = null;
-		mEmptyView = null;
+		focusHandler.removeCallbacks(listViewFocusRunnable);
+		listView = null;
+		isListShown = false;
+		progressContainer = listContainer = null;
+		emptyTextView = null;
 		super.onDestroyView();
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		if (savedInstanceState != null) {
-			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
-			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, LIST_VIEW_STATE_TOP_DEFAULT);
+			listViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
+			listViewStateTop = savedInstanceState.getInt(STATE_TOP, LIST_VIEW_STATE_TOP_DEFAULT);
 		} else {
-			mListViewStatePosition = LIST_VIEW_STATE_POSITION_DEFAULT;
-			mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
+			listViewStatePosition = LIST_VIEW_STATE_POSITION_DEFAULT;
+			listViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
 		}
 	}
 
@@ -141,10 +170,10 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		saveScrollState();
-		outState.putInt(STATE_POSITION, mListViewStatePosition);
-		outState.putInt(STATE_TOP, mListViewStateTop);
+		outState.putInt(STATE_POSITION, listViewStatePosition);
+		outState.putInt(STATE_TOP, listViewStateTop);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -155,13 +184,15 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		super.onStop();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(SyncEvent event) {
+	public void onEventMainThread(@NonNull SyncEvent event) {
 		if ((event.type & getSyncType()) == getSyncType()) {
 			isSyncing(true);
 		}
 	}
 
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	public void onEventMainThread(SyncCompleteEvent event) {
 		isSyncing(false);
@@ -174,17 +205,17 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@DebugLog
 	protected void isSyncing(boolean value) {
-		mSyncing = value;
+		isSyncing = value;
 		updateRefreshStatus();
 	}
 
 	@DebugLog
 	private void updateRefreshStatus() {
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.post(new Runnable() {
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					mSwipeRefreshLayout.setRefreshing(mSyncing);
+					swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
@@ -202,47 +233,48 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		return false;
 	}
 
+	@SuppressWarnings("UnusedParameters")
 	protected void onListItemClick(View view, int position, long id) {
 	}
 
 	public void setListAdapter(StickyListHeadersAdapter adapter) {
-		boolean hadAdapter = mAdapter != null;
-		mAdapter = adapter;
-		if (mList != null) {
-			mList.setAdapter(adapter);
-			if (!mListShown && !hadAdapter) {
-				// The list was hidden, and previously didn't have an
-				// adapter. It is now time to show it.
+		boolean hadAdapter = this.adapter != null;
+		this.adapter = adapter;
+		if (listView != null) {
+			listView.setAdapter(adapter);
+			if (!isListShown && !hadAdapter) {
+				// The list was hidden, and previously didn't have an adapter. It is now time to show it.
 				final View view = getView();
 				setListShown(true, view != null && view.getWindowToken() != null);
 			}
 		}
 	}
 
+	@Nullable
 	public StickyListHeadersListView getListView() {
 		ensureList();
-		return mList;
+		return listView;
 	}
 
 	public void setEmptyText(CharSequence text) {
 		ensureList();
-		mEmptyView.setText(text);
-		if (mEmptyText == null) {
-			mList.setEmptyView(mEmptyView);
+		emptyTextView.setText(text);
+		if (emptyText == null) {
+			listView.setEmptyView(emptyTextView);
 		}
-		mEmptyText = text;
+		emptyText = text;
 	}
 
 	public void setProgressShown(boolean shown) {
 		if (shown) {
-			if (mProgressContainer.getVisibility() != View.VISIBLE) {
-				mProgressContainer.clearAnimation();
-				mProgressContainer.setVisibility(View.VISIBLE);
+			if (progressContainer.getVisibility() != View.VISIBLE) {
+				progressContainer.clearAnimation();
+				progressContainer.setVisibility(View.VISIBLE);
 			}
 		} else {
-			if (mProgressContainer.getVisibility() != View.GONE) {
-				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-				mProgressContainer.setVisibility(View.GONE);
+			if (progressContainer.getVisibility() != View.GONE) {
+				progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+				progressContainer.setVisibility(View.GONE);
 			}
 		}
 	}
@@ -257,51 +289,51 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	private void setListShown(boolean shown, boolean animate) {
 		ensureList();
-		if (mListShown == shown) {
+		if (isListShown == shown) {
 			return;
 		}
-		mListShown = shown;
+		isListShown = shown;
 		if (shown) {
 			if (animate) {
-				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-				mListContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+				progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+				listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
 			} else {
-				mProgressContainer.clearAnimation();
-				mListContainer.clearAnimation();
+				progressContainer.clearAnimation();
+				listContainer.clearAnimation();
 			}
-			mProgressContainer.setVisibility(View.GONE);
-			mListContainer.setVisibility(View.VISIBLE);
+			progressContainer.setVisibility(View.GONE);
+			listContainer.setVisibility(View.VISIBLE);
 		} else {
 			if (animate) {
-				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-				mListContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+				progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+				listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
 			} else {
-				mProgressContainer.clearAnimation();
-				mListContainer.clearAnimation();
+				progressContainer.clearAnimation();
+				listContainer.clearAnimation();
 			}
-			mProgressContainer.setVisibility(View.VISIBLE);
-			mListContainer.setVisibility(View.GONE);
+			progressContainer.setVisibility(View.VISIBLE);
+			listContainer.setVisibility(View.GONE);
 		}
 	}
 
 	private void saveScrollState() {
 		if (isAdded()) {
-			View v = mList.getChildAt(0);
+			View v = listView.getChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();
-			mListViewStatePosition = mList.getFirstVisiblePosition();
-			mListViewStateTop = top;
+			listViewStatePosition = listView.getFirstVisiblePosition();
+			listViewStateTop = top;
 		}
 	}
 
 	protected void restoreScrollState() {
-		if (mListViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
-			mList.setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
+		if (listViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
+			listView.setSelectionFromTop(listViewStatePosition, listViewStateTop);
 		}
 	}
 
 	protected void resetScrollState() {
-		mListViewStatePosition = 0;
-		mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
+		listViewStatePosition = 0;
+		listViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
 	}
 
 	protected void loadThumbnail(String path, ImageView target) {
@@ -315,7 +347,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	private void ensureList() {
-		if (mList != null) {
+		if (listView != null) {
 			return;
 		}
 		View root = getView();
@@ -325,51 +357,68 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 		ButterKnife.inject(this, root);
 
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.setEnabled(isRefreshable());
-			mSwipeRefreshLayout.setOnRefreshListener(this);
-			mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.setEnabled(isRefreshable());
+			swipeRefreshLayout.setOnRefreshListener(this);
+			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 		}
-		mEmptyView.setVisibility(View.GONE);
+		emptyTextView.setVisibility(View.GONE);
 		View rawListView = root.findViewById(android.R.id.list);
 		if (!(rawListView instanceof StickyListHeadersListView)) {
 			throw new RuntimeException("Content has view with id attribute 'android.R.id.list' that is not a StickyListHeadersListView class");
 		}
-		mList = (StickyListHeadersListView) rawListView;
+		listView = (StickyListHeadersListView) rawListView;
 		//noinspection ConstantConditions
-		if (mList == null) {
+		if (listView == null) {
 			throw new RuntimeException("Your content must have a ListView whose id attribute is 'android.R.id.list'");
 		}
-		if (mEmptyText != null) {
-			mEmptyView.setText(mEmptyText);
-			mList.setEmptyView(mEmptyView);
+		if (emptyText != null) {
+			emptyTextView.setText(emptyText);
+			listView.setEmptyView(emptyTextView);
 		}
-		mList.setDivider(null);
-		mListShown = true;
-		mList.setOnItemClickListener(mOnClickListener);
-		mList.setOnScrollListener(mOnScrollListener);
+		listView.setDivider(null);
+		isListShown = true;
+		listView.setOnItemClickListener(onItemClickListener);
+		listView.setOnScrollListener(onScrollListener);
 
-		if (mAdapter != null) {
-			StickyListHeadersAdapter adapter = mAdapter;
-			mAdapter = null;
+		if (adapter != null) {
+			StickyListHeadersAdapter adapter = this.adapter;
+			this.adapter = null;
 			setListAdapter(adapter);
 		} else {
-			// We are starting without an adapter, so assume we won't
-			// have our data right away and start with the progress indicator.
-			if (mProgressContainer != null) {
+			// We are starting without an adapter, so assume we won't have our data right away and start with the progress indicator.
+			if (progressContainer != null) {
 				setListShown(false, false);
 			}
 		}
-		mHandler.post(mRequestFocus);
+		focusHandler.post(listViewFocusRunnable);
 	}
 
 	protected void showFab(boolean show) {
 		ensureList();
-		mFab.setVisibility(show ? View.VISIBLE : View.GONE);
+		fabView.setVisibility(show ? View.VISIBLE : View.GONE);
 	}
 
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@OnClick(R.id.fab)
 	protected void onFabClicked(View v) {
 		// convenience for overriding
+	}
+
+	protected void onScrollUp() {
+	}
+
+	protected void onScrollDown() {
+	}
+
+	private boolean isSameRow(int firstVisibleItem) {
+		return firstVisibleItem == previousFirstVisibleItem;
+	}
+
+	private int getTopItemScrollY() {
+		StickyListHeadersListView listView = getListView();
+		if (listView == null || listView.getChildAt(0) == null) return 0;
+		View topChild = listView.getChildAt(0);
+		return topChild.getTop();
 	}
 }

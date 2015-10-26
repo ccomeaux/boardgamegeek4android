@@ -12,60 +12,55 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionViewRequestedEvent;
+import com.boardgamegeek.events.GameSelectedEvent;
+import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.ToolbarUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 
 import hugo.weaving.DebugLog;
 
-public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
-	CollectionFragment.Callbacks, OnNavigationListener {
+public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
-	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
-	private static final String STATE_COUNT = "STATE_COUNT";
-	private static final String STATE_SORT_NAME = "STATE_SORT_NAME";
+	private static final String STATE_VIEW_INDEX = "STATE_VIEW_INDEX";
 
-	private boolean mShortcut;
-	private CollectionViewAdapter mAdapter;
-	private long mViewId;
-	private int mCount;
-	private String mSortName;
-	private boolean mIsTitleHidden;
-	private int mIndex;
+	private CollectionViewAdapter adapter;
+	private long viewId;
+	private boolean isTitleHidden;
+	private int viewIndex;
 
 	@Override
 	@DebugLog
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
-
 		if (savedInstanceState != null) {
-			mViewId = -1;
-			mIndex = savedInstanceState.getInt(STATE_VIEW_ID);
-			mCount = savedInstanceState.getInt(STATE_COUNT);
-			mSortName = savedInstanceState.getString(STATE_SORT_NAME);
+			viewId = -1;
+			viewIndex = savedInstanceState.getInt(STATE_VIEW_INDEX);
 		} else {
-			mViewId = PreferencesUtils.getViewDefaultId(this);
+			viewId = PreferencesUtils.getViewDefaultId(this);
 		}
 
+		boolean shortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-		actionBar.setCustomView(R.layout.actionbar_text_2line);
-		if (mShortcut) {
-			actionBar.setHomeButtonEnabled(false);
-			actionBar.setDisplayHomeAsUpEnabled(false);
-			actionBar.setTitle(R.string.menu_create_shortcut);
-		} else {
+		if (actionBar != null) {
+			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
+			actionBar.setCustomView(R.layout.actionbar_text_2line);
+			if (shortcut) {
+				actionBar.setHomeButtonEnabled(false);
+				actionBar.setDisplayHomeAsUpEnabled(false);
+				actionBar.setTitle(R.string.app_name);
+			}
+		}
+		if (!shortcut) {
 			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
 		}
 
@@ -75,29 +70,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	@DebugLog
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_VIEW_ID, mIndex);
-		outState.putInt(STATE_COUNT, mCount);
-		outState.putString(STATE_SORT_NAME, mSortName);
+		outState.putInt(STATE_VIEW_INDEX, viewIndex);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected boolean isTitleHidden() {
-		return mIsTitleHidden;
-	}
-
-	@Override
-	@DebugLog
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean hide = (isDrawerOpen() || mCount <= 0);
-		ToolbarUtils.setCustomActionBarText(getSupportActionBar(),
-			hide ? "" : String.valueOf(mCount),
-			hide ? "" : mSortName);
-		MenuItem mi = menu.findItem(R.id.menu_search);
-		if (mi != null) {
-			mi.setVisible(!isDrawerOpen());
-		}
-		return super.onPrepareOptionsMenu(menu);
+		return isTitleHidden;
 	}
 
 	@Override
@@ -111,35 +90,25 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		return R.string.title_collection;
 	}
 
-	@Override
+	@SuppressWarnings("unused")
 	@DebugLog
-	public boolean onGameSelected(int gameId, String gameName) {
-		ActivityUtils.launchGame(this, gameId, gameName);
-		return false;
+	public void onEvent(GameSelectedEvent event) {
+		ActivityUtils.launchGame(this, event.id, event.name);
 	}
 
-	@Override
-	public void onSetShortcut(Intent intent) {
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEvent(GameShortcutCreatedEvent event) {
+		Intent intent = ShortcutUtils.createIntent(this, event.id, event.name, event.thumbnailUrl);
 		setResult(RESULT_OK, intent);
 		finish();
 	}
 
-	@Override
-	public void onCollectionCountChanged(int count) {
-		mCount = count;
-		supportInvalidateOptionsMenu();
-	}
-
-	@Override
-	public void onSortChanged(String sortName) {
-		mSortName = sortName;
-		supportInvalidateOptionsMenu();
-	}
-
-	@Override
-	public void onViewRequested(long viewId) {
-		mViewId = viewId;
-		mIndex = findViewIndex(mViewId);
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEvent(CollectionViewRequestedEvent event) {
+		viewId = event.viewId;
+		viewIndex = findViewIndex(viewId);
 	}
 
 	@Override
@@ -156,20 +125,22 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (loader.getId() == Query._TOKEN) {
-			if (mAdapter == null) {
-				mAdapter = new CollectionViewAdapter(this, cursor);
+			if (adapter == null) {
+				adapter = new CollectionViewAdapter(this, cursor);
 			} else {
-				mAdapter.changeCursor(cursor);
+				adapter.changeCursor(cursor);
+			}
+			if (viewId != -1) {
+				viewIndex = findViewIndex(viewId);
 			}
 			final ActionBar actionBar = getSupportActionBar();
-			actionBar.setDisplayShowTitleEnabled(false);
-			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-			actionBar.setListNavigationCallbacks(mAdapter, this);
-			if (mViewId != -1) {
-				mIndex = findViewIndex(mViewId);
+			if (actionBar != null) {
+				actionBar.setDisplayShowTitleEnabled(false);
+				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+				actionBar.setListNavigationCallbacks(adapter, this);
+				actionBar.setSelectedNavigationItem(viewIndex);
 			}
-			actionBar.setSelectedNavigationItem(mIndex);
-			mIsTitleHidden = true;
+			isTitleHidden = true;
 		} else {
 			cursor.close();
 		}
@@ -178,7 +149,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		adapter.changeCursor(null);
 	}
 
 	@Override
@@ -187,7 +158,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		CollectionFragment fragment = (CollectionFragment) getFragment();
 		long oldId = fragment.getViewId();
 		if (itemId != oldId) {
-			mIndex = findViewIndex(itemId);
+			viewIndex = findViewIndex(itemId);
 			if (itemId < 0) {
 				fragment.clearView();
 			} else {
@@ -201,7 +172,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	private int findViewIndex(long viewId) {
 		int index = 0;
 		if (viewId > 0) {
-			Cursor c = mAdapter.getCursor();
+			Cursor c = adapter.getCursor();
 			if (c != null && c.moveToFirst()) {
 				do {
 					if (viewId == c.getLong(Query._ID)) {
@@ -214,7 +185,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	private static class CollectionViewAdapter extends SimpleCursorAdapter {
-		private LayoutInflater mInflater;
+		private final LayoutInflater mInflater;
 
 		public CollectionViewAdapter(Context context, Cursor cursor) {
 			super(context, android.R.layout.simple_spinner_item, cursor, new String[] { CollectionViews._ID,
