@@ -185,6 +185,9 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	private void requery(String query) {
+		if (!isAdded()) {
+			return;
+		}
 		if (query == null && mSearchText == null) {
 			return;
 		}
