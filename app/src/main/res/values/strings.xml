@@ -184,6 +184,7 @@
 	<string name="backup_description">- %1$s: %2$s</string>
 	<string name="msg_export_permission_rationale">To write the export files, the app needs permission to write to the external storage.</string>
 	<string name="msg_export_permission_denied">Can\'t export without the proper permission.</string>
+	<string name="msg_shortcut_create">Select a game  to place it on the home screen.</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
