@@ -7,11 +7,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class LocationsNameSorter extends LocationsSorter {
-
 	public LocationsNameSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Plays.LOCATION, false);
-		mDescriptionId = R.string.menu_sort_name;
+		orderByClause = getClause(Plays.LOCATION, false);
+		descriptionId = R.string.menu_sort_name;
 	}
 
 	@Override

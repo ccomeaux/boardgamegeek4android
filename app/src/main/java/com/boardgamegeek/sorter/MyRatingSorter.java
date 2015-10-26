@@ -10,12 +10,12 @@ import com.boardgamegeek.provider.BggContract.Collection;
 
 public class MyRatingSorter extends CollectionSorter {
 	private static final String DEFAULT_VALUE = "?";
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.0");
+	private final DecimalFormat displayFormat = new DecimalFormat("0.0");
 
 	public MyRatingSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.RATING, true);
-        mDescriptionId = R.string.menu_collection_sort_myrating;
+		orderByClause = getClause(Collection.RATING, true);
+        descriptionId = R.string.menu_collection_sort_myrating;
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class MyRatingSorter extends CollectionSorter {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return getInfo(cursor, mDisplayFormat);
+		return getInfo(cursor, displayFormat);
 	}
 
 	private String getInfo(Cursor cursor, DecimalFormat format) {

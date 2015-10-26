@@ -8,8 +8,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class YearPublishedDescendingSorter extends YearPublishedSorter {
 	public YearPublishedDescendingSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.YEAR_PUBLISHED, true);
-		mSubDescriptionId = R.string.newest;
+		orderByClause = getClause(Collection.YEAR_PUBLISHED, true);
+		subDescriptionId = R.string.newest;
 	}
 
 	@Override

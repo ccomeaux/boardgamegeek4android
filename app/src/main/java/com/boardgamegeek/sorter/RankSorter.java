@@ -8,16 +8,16 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class RankSorter extends CollectionSorter {
-	private String mDefaultHeaderText;
-	private String mDefaultText;
-	private static SparseArray<String> mRanks = buildRanks();
+	private final String defaultHeaderText;
+	private final String defaultText;
+	private static final SparseArray<String> RANKS = buildRanks();
 
 	public RankSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Games.GAME_RANK, false);
-		mDescriptionId = R.string.menu_collection_sort_rank;
-		mDefaultHeaderText = context.getResources().getString(R.string.unranked);
-		mDefaultText = context.getResources().getString(R.string.text_not_available);
+		orderByClause = getClause(Games.GAME_RANK, false);
+		descriptionId = R.string.menu_collection_sort_rank;
+		defaultHeaderText = context.getResources().getString(R.string.unranked);
+		defaultText = context.getResources().getString(R.string.text_not_available);
 	}
 
 	private static SparseArray<String> buildRanks() {
@@ -46,20 +46,20 @@ public class RankSorter extends CollectionSorter {
 	@Override
 	public String getHeaderText(Cursor cursor) {
 		int rank = getInt(cursor, Games.GAME_RANK, Integer.MAX_VALUE);
-		for (int i = 0; i < mRanks.size(); i++) {
-			int key = mRanks.keyAt(i);
+		for (int i = 0; i < RANKS.size(); i++) {
+			int key = RANKS.keyAt(i);
 			if (rank <= key) {
-				return mRanks.get(key);
+				return RANKS.get(key);
 			}
 		}
-		return mDefaultHeaderText;
+		return defaultHeaderText;
 	}
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
 		int rank = getInt(cursor, Games.GAME_RANK, Integer.MAX_VALUE);
 		if (rank == Integer.MAX_VALUE) {
-			return mDefaultText;
+			return defaultText;
 		}
 		return String.valueOf(rank);
 	}

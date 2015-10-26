@@ -8,8 +8,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class AverageWeightAscendingSorter extends AverageWeightSorter {
 	public AverageWeightAscendingSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.STATS_AVERAGE_WEIGHT, false);
-		mSubDescriptionId = R.string.lightest;
+		orderByClause = getClause(Collection.STATS_AVERAGE_WEIGHT, false);
+		subDescriptionId = R.string.lightest;
 	}
 
 	@Override

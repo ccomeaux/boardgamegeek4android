@@ -8,8 +8,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class PlayCountAscendingSorter extends PlayCountSorter {
 	public PlayCountAscendingSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.NUM_PLAYS, false);
-		mDescriptionId = R.string.menu_collection_sort_played_least;
+		orderByClause = getClause(Collection.NUM_PLAYS, false);
+		descriptionId = R.string.menu_collection_sort_played_least;
 	}
 
 	@Override

@@ -7,13 +7,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class WishlistPrioritySorter extends CollectionSorter {
-	String[] mPriorityText;
+	private final String[] priorityText;
 
 	public WishlistPrioritySorter(Context context) {
 		super(context);
-		mPriorityText = mContext.getResources().getStringArray(R.array.wishlist_priority);
-		mOrderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
-		mDescriptionId = R.string.menu_collection_sort_wishlist_priority;
+		priorityText = context.getResources().getStringArray(R.array.wishlist_priority);
+		orderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
+		descriptionId = R.string.menu_collection_sort_wishlist_priority;
 	}
 
 	@Override
@@ -29,10 +29,10 @@ public class WishlistPrioritySorter extends CollectionSorter {
 	@Override
 	public String getHeaderText(Cursor cursor) {
 		int level = getInt(cursor, Collection.STATUS_WISHLIST_PRIORITY);
-		if (level >= mPriorityText.length) {
+		if (level >= priorityText.length) {
 			level = 0;
 		}
-		return mPriorityText[level];
+		return priorityText[level];
 	}
 
 	@Override

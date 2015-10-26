@@ -9,7 +9,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public abstract class PlayTimeSorter extends CollectionSorter {
 	public PlayTimeSorter(Context context) {
 		super(context);
-		mDescriptionId = R.string.menu_collection_sort_playtime;
+		descriptionId = R.string.menu_collection_sort_playtime;
 	}
 
 	@Override
@@ -24,15 +24,14 @@ public abstract class PlayTimeSorter extends CollectionSorter {
 			return "?";
 		}
 		if (minutes >= 120) {
-			return (minutes / 60) + " " + mContext.getString(R.string.hours_abbr);
+			return (minutes / 60) + " " + context.getString(R.string.hours_abbr);
 		} else {
-			return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " "
-				+ mContext.getString(R.string.minutes_abbr);
+			return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + context.getString(R.string.minutes_abbr);
 		}
 	}
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + mContext.getString(R.string.minutes);
+		return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + context.getString(R.string.minutes);
 	}
 }

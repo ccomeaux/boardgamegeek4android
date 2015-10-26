@@ -8,8 +8,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class SuggestedAgeDescendingSorter extends SuggestedAgeSorter {
 	public SuggestedAgeDescendingSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.MINIMUM_AGE, true);
-		mSubDescriptionId = R.string.oldest;
+		orderByClause = getClause(Collection.MINIMUM_AGE, true);
+		subDescriptionId = R.string.oldest;
 	}
 
 	@Override

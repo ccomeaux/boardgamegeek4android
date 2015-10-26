@@ -15,13 +15,13 @@ public class AcquisitionDateSorter extends CollectionSorter {
 	private static final String COLUMN_NAME = Collection.PRIVATE_INFO_ACQUISITION_DATE;
 	private static final SimpleDateFormat API_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private static final SimpleDateFormat DISPLAY_FORMAT = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
-	private String mDefaultValue;
+	private final String defaultValue;
 
 	public AcquisitionDateSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(COLUMN_NAME, true);
-		mDescriptionId = R.string.menu_collection_sort_acquisition_date;
-		mDefaultValue = context.getString(R.string.text_unknown);
+		orderByClause = getClause(COLUMN_NAME, true);
+		descriptionId = R.string.menu_collection_sort_acquisition_date;
+		defaultValue = context.getString(R.string.text_unknown);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class AcquisitionDateSorter extends CollectionSorter {
 	public String getHeaderText(Cursor cursor) {
 		long time = getTime(cursor);
 		if (time == DateTimeUtils.UNKNOWN_DATE) {
-			return mDefaultValue;
+			return defaultValue;
 		}
 		return DISPLAY_FORMAT.format(time);
 	}
@@ -47,13 +47,13 @@ public class AcquisitionDateSorter extends CollectionSorter {
 	public String getDisplayInfo(Cursor cursor) {
 		long time = getTime(cursor);
 		if (time == DateTimeUtils.UNKNOWN_DATE) {
-			return mDefaultValue;
+			return defaultValue;
 		}
 		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS).toString();
 	}
 
 	private long getTime(Cursor cursor) {
-		String date = getString(cursor, Collection.PRIVATE_INFO_ACQUISITION_DATE, mDefaultValue);
+		String date = getString(cursor, Collection.PRIVATE_INFO_ACQUISITION_DATE, defaultValue);
 		return DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, date, API_FORMAT);
 	}
 }

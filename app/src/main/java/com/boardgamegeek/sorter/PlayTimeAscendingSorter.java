@@ -8,8 +8,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class PlayTimeAscendingSorter extends PlayTimeSorter {
 	public PlayTimeAscendingSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.PLAYING_TIME, false);
-		mSubDescriptionId = R.string.shortest;
+		orderByClause = getClause(Collection.PLAYING_TIME, false);
+		subDescriptionId = R.string.shortest;
 	}
 
 	@Override

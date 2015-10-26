@@ -11,7 +11,7 @@ public abstract class SuggestedAgeSorter extends CollectionSorter {
 
 	public SuggestedAgeSorter(Context context) {
 		super(context);
-		mDescriptionId = R.string.menu_collection_sort_age;
+		descriptionId = R.string.menu_collection_sort_age;
 	}
 
 	@Override
@@ -30,6 +30,6 @@ public abstract class SuggestedAgeSorter extends CollectionSorter {
 		if (!DEFAULT_VALUE.equals(info)) {
 			info += "+";
 		}
-		return mContext.getString(R.string.ages) + " " + info;
+		return context.getString(R.string.ages) + " " + info;
 	}
 }

@@ -9,7 +9,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public abstract class YearPublishedSorter extends CollectionSorter {
 	public YearPublishedSorter(Context context) {
 		super(context);
-		mDescriptionId = R.string.menu_collection_sort_published;
+		descriptionId = R.string.menu_collection_sort_published;
 	}
 
 	@Override

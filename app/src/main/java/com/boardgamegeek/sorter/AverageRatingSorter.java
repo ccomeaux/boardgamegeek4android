@@ -11,12 +11,12 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class AverageRatingSorter extends CollectionSorter {
 	private static final String COLUMN = Collection.STATS_AVERAGE;
 	private static final String DEFAULT_VALUE = "?";
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.00");
+	private final DecimalFormat displayFormat = new DecimalFormat("0.00");
 
 	public AverageRatingSorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(COLUMN, true);
-		mDescriptionId = R.string.menu_collection_sort_rating;
+		orderByClause = getClause(COLUMN, true);
+		descriptionId = R.string.menu_collection_sort_rating;
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class AverageRatingSorter extends CollectionSorter {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return getInfo(cursor, mDisplayFormat);
+		return getInfo(cursor, displayFormat);
 	}
 
 	private String getInfo(Cursor cursor, DecimalFormat format) {

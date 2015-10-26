@@ -9,12 +9,12 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class CollectionNameSorter extends CollectionSorter {
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.00");
+	private DecimalFormat displayFormat = new DecimalFormat("0.00");
 
 	public CollectionNameSorter(Context context) {
 		super(context);
-		mOrderByClause = Collection.DEFAULT_SORT;
-		mDescriptionId = R.string.name;
+		orderByClause = Collection.DEFAULT_SORT;
+		descriptionId = R.string.name;
 	}
 
 	@Override
@@ -34,6 +34,6 @@ public class CollectionNameSorter extends CollectionSorter {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return getDoubleAsString(cursor, Collection.STATS_AVERAGE, "?", true, mDisplayFormat);
+		return getDoubleAsString(cursor, Collection.STATS_AVERAGE, "?", true, displayFormat);
 	}
 }

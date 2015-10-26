@@ -7,11 +7,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class PlayersQuantitySorter extends PlayersSorter {
-
 	public PlayersQuantitySorter(Context context) {
 		super(context);
-		mOrderByClause = getClause(Plays.SUM_QUANTITY, true);
-		mDescriptionId = R.string.menu_sort_quantity;
+		orderByClause = getClause(Plays.SUM_QUANTITY, true);
+		descriptionId = R.string.menu_sort_quantity;
 	}
 
 	@Override

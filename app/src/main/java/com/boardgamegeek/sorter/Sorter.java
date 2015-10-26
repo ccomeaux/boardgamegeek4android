@@ -11,29 +11,28 @@ import java.text.DecimalFormat;
 import java.util.Locale;
 
 public abstract class Sorter {
-	protected Context mContext;
-	protected String mOrderByClause;
-	protected int mDescriptionId;
-	private DecimalFormat mDoubleFormat = new DecimalFormat("#.0");
+	protected final Context context;
+	protected String orderByClause;
+	protected int descriptionId;
+	private final DecimalFormat doubleFormat = new DecimalFormat("#.0");
 
 	public Sorter(Context context) {
-		mContext = context;
+		this.context = context;
 	}
 
 	/**
-	 * Gets the description to display in the UI when this sort is applied. Subclasses should set mDescriptionId and
-	 * mSubDescriptionId to control this value.
+	 * Gets the description to display in the UI when this sort is applied. Subclasses should set descriptionId
+	 * to control this value.
 	 */
 	public String getDescription() {
-		return String.format(mContext.getString(R.string.sort_description),
-			mContext.getString(mDescriptionId));
+		return String.format(context.getString(R.string.sort_description), context.getString(descriptionId));
 	}
 
 	/**
 	 * Gets the sort order clause to use in the query.
 	 */
 	public String getOrderByClause() {
-		return mOrderByClause;
+		return orderByClause;
 	}
 
 	/**
@@ -140,11 +139,10 @@ public abstract class Sorter {
 	}
 
 	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue) {
-		return getDoubleAsString(cursor, columnName, defaultValue, false, mDoubleFormat);
+		return getDoubleAsString(cursor, columnName, defaultValue, false, doubleFormat);
 	}
 
-	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull,
-									   DecimalFormat format) {
+	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull, DecimalFormat format) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;
@@ -156,7 +154,7 @@ public abstract class Sorter {
 		}
 
 		if (format == null) {
-			return mDoubleFormat.format(value);
+			return doubleFormat.format(value);
 		} else {
 			return format.format(value);
 		}
