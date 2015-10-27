@@ -16,6 +16,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -40,6 +41,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		this.context = context;
 	}
 
+	@NonNull
 	@Override
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType,
 							 String[] requiredFeatures, Bundle options) throws NetworkErrorException {
@@ -47,6 +49,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return createLoginIntent(response, null);
 	}
 
+	@Nullable
 	@Override
 	public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options)
 		throws NetworkErrorException {
@@ -55,14 +58,16 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return null;
 	}
 
+	@NonNull
 	@Override
 	public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
 		Timber.v("editProperties");
 		throw new UnsupportedOperationException();
 	}
 
+	@NonNull
 	@Override
-	public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType,
+	public Bundle getAuthToken(AccountAuthenticatorResponse response, @NonNull Account account, @NonNull String authTokenType,
 							   Bundle options) throws NetworkErrorException {
 		Timber.v("getting auth token...");
 
@@ -103,7 +108,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return createLoginIntent(response, account.name);
 	}
 
-	private Bundle createAuthTokenBundle(Account account, String authToken) {
+	@NonNull
+	private Bundle createAuthTokenBundle(@NonNull Account account, String authToken) {
 		final Bundle result = new Bundle();
 		result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
 		result.putString(AccountManager.KEY_ACCOUNT_TYPE, Authenticator.ACCOUNT_TYPE);
@@ -111,6 +117,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return result;
 	}
 
+	@NonNull
 	private Bundle createLoginIntent(AccountAuthenticatorResponse response, String accountName) {
 		final Intent intent = new Intent(context, LoginActivity.class);
 		if (!TextUtils.isEmpty(accountName)) {
@@ -122,17 +129,19 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return bundle;
 	}
 
-	private boolean isKeyExpired(final AccountManager am, Account account, String key) {
+	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, String key) {
 		String expiration = am.getUserData(account, key);
 		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
 	}
 
+	@Nullable
 	@Override
 	public String getAuthTokenLabel(String authTokenType) {
 		Timber.v("getAuthTokenLabel - we don't support multiple auth tokens");
 		return null;
 	}
 
+	@NonNull
 	@Override
 	public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features)
 		throws NetworkErrorException {
@@ -142,6 +151,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return result;
 	}
 
+	@Nullable
 	@Override
 	public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType,
 									Bundle options) throws NetworkErrorException {
@@ -150,11 +160,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return null;
 	}
 
+	@Nullable
 	public static Account getAccount(Context context) {
 		return getAccount(AccountManager.get(context));
 	}
 
-	public static Account getAccount(AccountManager accountManager) {
+	public static Account getAccount(@NonNull AccountManager accountManager) {
 		Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
 		if (accounts == null || accounts.length == 0) {
 			Timber.w("no account!");
@@ -213,12 +224,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return getLong(accountManager, account, key, defaultValue);
 	}
 
-	public static long getLong(AccountManager accountManager, Account account, String key) {
+	public static long getLong(@NonNull AccountManager accountManager, Account account, String key) {
 		String s = accountManager.getUserData(account, key);
 		return TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
 	}
 
-	public static long getLong(AccountManager accountManager, Account account, String key, long defaultValue) {
+	public static long getLong(@NonNull AccountManager accountManager, Account account, String key, long defaultValue) {
 		String s = accountManager.getUserData(account, key);
 		return TextUtils.isEmpty(s) ? defaultValue : Long.parseLong(s);
 	}
@@ -252,16 +263,16 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	@SuppressWarnings("deprecation")
-	private static void removeAccount(final Context context, AccountManager am, Account account) {
+	private static void removeAccount(final Context context, @NonNull AccountManager am, Account account) {
 		am.removeAccount(account, new AccountManagerCallback<Boolean>() {
 			@Override
-			public void run(AccountManagerFuture<Boolean> future) {
+			public void run(@NonNull AccountManagerFuture<Boolean> future) {
 				if (future.isDone()) {
 					try {
 						if (future.getResult()) {
 							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
 						}
-					} catch (OperationCanceledException | AuthenticatorException | IOException e) {
+					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e(e, "removeAccount");
 					}
 				}
@@ -270,16 +281,16 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	@TargetApi(VERSION_CODES.LOLLIPOP_MR1)
-	private static void removeAccountWithActivity(final Context context, AccountManager am, Account account) {
+	private static void removeAccountWithActivity(final Context context, @NonNull AccountManager am, Account account) {
 		am.removeAccount(account, null, new AccountManagerCallback<Bundle>() {
 			@Override
-			public void run(AccountManagerFuture<Bundle> future) {
+			public void run(@NonNull AccountManagerFuture<Bundle> future) {
 				if (future.isDone()) {
 					try {
 						if (future.getResult().getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
 							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
 						}
-					} catch (OperationCanceledException | AuthenticatorException | IOException e) {
+					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e(e, "removeAccount");
 					}
 				}

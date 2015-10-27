@@ -1,5 +1,7 @@
 package com.boardgamegeek.auth;
 
+import android.support.annotation.NonNull;
+
 import com.boardgamegeek.util.HttpUtils;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -23,7 +25,7 @@ public class NetworkAuthenticator {
 	 * Authenticates to BGG with the specified username and password, returning the cookie store to use on subsequent
 	 * requests, or null if authentication fails.
 	 */
-	public static AuthResponse authenticate(String username, String password) {
+	public static AuthResponse authenticate(@NonNull String username, @NonNull String password) {
 		if (MOCK_LOGIN) {
 			return AuthResponse.getMock();
 		}
@@ -59,7 +61,7 @@ public class NetworkAuthenticator {
 			} else {
 				Timber.w("Bad response code - " + resp.code());
 			}
-		} catch (final IOException e) {
+		} catch (@NonNull final IOException e) {
 			Timber.w(e, "IOException when attempting to authenticate");
 		} finally {
 			Timber.w("Authentication complete");

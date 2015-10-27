@@ -1,5 +1,8 @@
 package com.boardgamegeek.auth;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.util.Date;
@@ -17,6 +20,7 @@ public class AuthResponse {
 	private AuthResponse() {
 	}
 
+	@NonNull
 	public static AuthResponse getMock() {
 		AuthResponse authResponse = new AuthResponse();
 		authResponse.authToken = "password";
@@ -26,7 +30,7 @@ public class AuthResponse {
 		return authResponse;
 	}
 
-	public static AuthResponse fromCookieStore(CookieStore cookieStore) {
+	public static AuthResponse fromCookieStore(@Nullable CookieStore cookieStore) {
 		if (cookieStore == null) {
 			Timber.w("missing cookies");
 			return null;
@@ -57,11 +61,12 @@ public class AuthResponse {
 		}
 	}
 
-	private static long getExpiryTime(HttpCookie cookie) {
+	private static long getExpiryTime(@NonNull HttpCookie cookie) {
 		long seconds = cookie.getMaxAge();
 		return System.currentTimeMillis() + seconds * 1000;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return "token: " + authToken + " (" + new Date(authTokenExpiry) + ")" +
