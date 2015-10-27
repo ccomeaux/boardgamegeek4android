@@ -5,6 +5,7 @@ import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 	private final String mNewLocation;
 
 	@DebugLog
-	public RenameLocationTask(Context context, String oldLocation, String newLocation) {
+	public RenameLocationTask(@NonNull Context context, String oldLocation, String newLocation) {
 		mContext = context.getApplicationContext();
 		mOldLocation = oldLocation;
 		mNewLocation = newLocation;

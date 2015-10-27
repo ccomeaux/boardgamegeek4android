@@ -3,6 +3,8 @@ package com.boardgamegeek.tasks;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -34,12 +36,12 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private static final int TYPE_PLAYER_USER = 1;
 	private static final int TYPE_PLAYER_NON_USER = 2;
 
-	private final Random mRandom;
+	@NonNull private final Random mRandom;
 	private final Context mContext;
 	private final Play mPlay;
 	private List<String> mRemainingColors;
 	private List<PlayerColors> mRemainingPlayers;
-	private final Results mResults;
+	@NonNull private final Results mResults;
 
 	public ColorAssignerTask(Context context, Play play) {
 		mContext = context;
@@ -48,6 +50,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		mRandom = new Random();
 	}
 
+	@NonNull
 	@Override
 	protected Results doInBackground(Void... params) {
 		// extract list of players
@@ -96,7 +99,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	}
 
 	@Override
-	protected void onPostExecute(Results results) {
+	protected void onPostExecute(@Nullable Results results) {
 		if (results == null) {
 			results = new Results();
 			results.resultCode = ERROR;
@@ -151,7 +154,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 						com.boardgamegeek.provider.BggContract.PlayerColors.buildUserUri(player.name),
 						new String[] { com.boardgamegeek.provider.BggContract.PlayerColors.PLAYER_COLOR, com.boardgamegeek.provider.BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER },
 						null, null, null);
-					while (cursor.moveToNext()) {
+					while (cursor != null ? cursor.moveToNext() : false) {
 						String color = cursor.getString(0);
 						if (mRemainingColors.contains(color)) {
 							player.colors.add(new ColorChoice(color, cursor.getInt(1)));
@@ -214,11 +217,13 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 					savedPlayer.getTopChoice().color.equals(currentTopChoice.color)) {
 					ColorChoice currentSecondChoice = player.getSecondChoice();
 					ColorChoice savedSecondChoice = savedPlayer.getSecondChoice();
+					//noinspection StatementWithEmptyBody
 					if (currentSecondChoice == null && savedSecondChoice == null) {
 						// TODO: random
 					} else if (currentSecondChoice == null) {
 						savedPlayer = player;
-					} else if (savedSecondChoice == null) {
+					} else //noinspection StatementWithEmptyBody
+						if (savedSecondChoice == null) {
 						// else keep saved player
 					} else if (currentSecondChoice.sortOrder > savedSecondChoice.sortOrder) {
 						savedPlayer = player;
@@ -268,7 +273,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	/**
 	 * Gets the player from the play based on the player result. Returns null if the player couldn't be found or their color is already set.
 	 */
-	private Player getPlayerFromResult(PlayerResult pr) {
+	private Player getPlayerFromResult(@NonNull PlayerResult pr) {
 		for (Player player : mPlay.getPlayers()) {
 			if ((pr.type == TYPE_PLAYER_USER && pr.name.equals(player.username)) ||
 				pr.type == TYPE_PLAYER_NON_USER && pr.name.equals(player.name) && TextUtils.isEmpty(player.username)) {
@@ -284,7 +289,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	 * Assign a color to a player, and remove both from the list of remaining colors and players. This can't be called
 	 * from a for each loop without ending the ending the iteration.
 	 */
-	private void assignColorToPlayer(String color, PlayerColors player, String reason) {
+	private void assignColorToPlayer(@NonNull String color, @NonNull PlayerColors player, String reason) {
 		PlayerResult pr = new PlayerResult();
 		pr.color = color;
 		pr.name = player.name;
@@ -311,6 +316,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		int type;
 		String color;
 
+		@NonNull
 		@Override
 		public String toString() {
 			return name + " (" + type + ") - " + color;
@@ -320,7 +326,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private class PlayerColors {
 		final String name;
 		final int type;
-		final List<ColorChoice> colors;
+		@NonNull final List<ColorChoice> colors;
 
 		public PlayerColors(String name, int type) {
 			this.name = name;
@@ -331,6 +337,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		/**
 		 * Gets the player's top remaining color choice, or <code>null</code> if they have no choices left.
 		 */
+		@Nullable
 		public ColorChoice getTopChoice() {
 			if (colors.size() > 0) {
 				return colors.get(0);
@@ -341,6 +348,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		/**
 		 * Gets the player's second remaining color choice, or <code>null</code> if they have fewer than 2 choices left.
 		 */
+		@Nullable
 		public ColorChoice getSecondChoice() {
 			if (colors.size() > 1) {
 				return colors.get(1);
@@ -348,7 +356,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			return null;
 		}
 
-		public boolean removeChoice(String color) {
+		public boolean removeChoice(@NonNull String color) {
 			if (TextUtils.isEmpty(color)) {
 				return false;
 			}
@@ -389,6 +397,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			this.sortOrder = sortOrder;
 		}
 
+		@NonNull
 		@Override
 		public String toString() {
 			return "#" + sortOrder + ": " + color;

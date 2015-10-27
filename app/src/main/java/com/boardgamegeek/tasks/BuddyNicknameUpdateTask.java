@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private final String mNickName;
 	private final boolean mUpdatePlays;
 
-	public BuddyNicknameUpdateTask(Context context, String username, String nickName, boolean updatePlays) {
+	public BuddyNicknameUpdateTask(@NonNull Context context, String username, String nickName, boolean updatePlays) {
 		mContext = context.getApplicationContext();
 		mUsername = username;
 		mNickName = nickName;
@@ -63,7 +64,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 		}
 	}
 
-	private void updateNickname(final Uri uri) {
+	private void updateNickname(@NonNull final Uri uri) {
 		ContentValues values = new ContentValues(1);
 		values.put(Buddies.PLAY_NICKNAME, mNickName);
 		mContext.getContentResolver().update(uri, values, null, null);

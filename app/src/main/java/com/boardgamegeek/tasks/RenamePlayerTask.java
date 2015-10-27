@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -35,13 +36,14 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	private final String mOldName;
 	private final String mNewName;
 
-	public RenamePlayerTask(Context context, String username, String oldName, String newName) {
+	public RenamePlayerTask(@NonNull Context context, String username, String oldName, String newName) {
 		mContext = context.getApplicationContext();
 		mUsername = username;
 		mOldName = oldName;
 		mNewName = newName;
 	}
 
+	@NonNull
 	@Override
 	protected String doInBackground(Void... params) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
