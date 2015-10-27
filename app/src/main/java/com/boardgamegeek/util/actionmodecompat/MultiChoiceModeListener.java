@@ -35,5 +35,5 @@ public interface MultiChoiceModeListener extends ActionMode.Callback {
 	 * @param checked  <code>true</code> if the item is now checked, <code>false</code> if the
 	 *                 item is now unchecked.
 	 */
-	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked);
+	void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked);
 }
