@@ -4,6 +4,7 @@ import android.Manifest.permission;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 
@@ -72,7 +73,7 @@ public class JsonExportTask extends ImporterExporterTask {
 	}
 
 	@Override
-	protected void onPostExecute(Integer result) {
+	protected void onPostExecute(@NonNull Integer result) {
 		@StringRes int messageId;
 		switch (result) {
 			case SUCCESS:
@@ -88,7 +89,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		EventBus.getDefault().post(new ExportFinishedEvent(messageId));
 	}
 
-	private int export(File exportPath, Step step, int stepIndex) {
+	private int export(File exportPath, @NonNull Step step, int stepIndex) {
 		final Cursor cursor = step.getCursor(mContext);
 
 		if (cursor == null) {
@@ -105,7 +106,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		try {
 			OutputStream out = new FileOutputStream(backup);
 			writeJsonStream(out, cursor, step, stepIndex);
-		} catch (JsonIOException | IOException e) {
+		} catch (@NonNull JsonIOException | IOException e) {
 			Timber.e(e, "JSON export failed");
 			return ERROR;
 		} finally {
@@ -115,7 +116,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		return SUCCESS;
 	}
 
-	private void writeJsonStream(OutputStream out, Cursor cursor, Step step, int stepIndex) throws IOException {
+	private void writeJsonStream(@NonNull OutputStream out, @NonNull Cursor cursor, @NonNull Step step, int stepIndex) throws IOException {
 		int numTotal = cursor.getCount();
 		int numExported = 0;
 

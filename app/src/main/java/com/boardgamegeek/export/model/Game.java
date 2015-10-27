@@ -2,6 +2,7 @@ package com.boardgamegeek.export.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Games;
 import com.google.gson.annotations.Expose;
@@ -31,13 +32,14 @@ public class Game {
 		return colors;
 	}
 
-	public static Game fromCursor(Cursor cursor) {
+	@NonNull
+	public static Game fromCursor(@NonNull Cursor cursor) {
 		Game game = new Game();
 		game.id = cursor.getInt(GAME_ID);
 		return game;
 	}
 
-	public void addColors(Context context) {
+	public void addColors(@NonNull Context context) {
 		colors = new ArrayList<>();
 
 		final Cursor cursor = context.getContentResolver().query(

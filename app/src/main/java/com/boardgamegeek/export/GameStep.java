@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -21,18 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameStep implements Step {
+	@NonNull
 	@Override
 	public String getFileName() {
 		return "games.json";
 	}
 
+	@NonNull
 	@Override
-	public String getDescription(Context context) {
+	public String getDescription(@NonNull Context context) {
 		return context.getString(R.string.backup_type_game);
 	}
 
+	@Nullable
 	@Override
-	public Cursor getCursor(Context context) {
+	public Cursor getCursor(@NonNull Context context) {
 		return context.getContentResolver().query(
 			Games.CONTENT_URI,
 			Game.PROJECTION,
@@ -40,7 +45,7 @@ public class GameStep implements Step {
 	}
 
 	@Override
-	public void writeJsonRecord(Context context, Cursor cursor, Gson gson, JsonWriter writer) {
+	public void writeJsonRecord(@NonNull Context context, @NonNull Cursor cursor, @NonNull Gson gson, @NonNull JsonWriter writer) {
 		Game game = Game.fromCursor(cursor);
 		game.addColors(context);
 		if (game.hasColors()) {
@@ -53,7 +58,7 @@ public class GameStep implements Step {
 	}
 
 	@Override
-	public void importRecord(Context context, Gson gson, JsonReader reader) {
+	public void importRecord(@NonNull Context context, @NonNull Gson gson, @NonNull JsonReader reader) {
 		Game game = gson.fromJson(reader, Game.class);
 
 		ContentResolver resolver = context.getContentResolver();

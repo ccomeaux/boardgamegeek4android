@@ -2,6 +2,7 @@ package com.boardgamegeek.export;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.events.ExportProgressEvent;
 
@@ -20,7 +21,7 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 	protected final boolean mIsAutoBackupMode;
 	protected final List<Step> mSteps = new ArrayList<>();
 
-	public ImporterExporterTask(Context context, boolean isAutoBackupMode) {
+	public ImporterExporterTask(@NonNull Context context, boolean isAutoBackupMode) {
 		mContext = context.getApplicationContext();
 		mIsAutoBackupMode = isAutoBackupMode;
 
@@ -30,6 +31,7 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 		mSteps.add(new UserStep());
 	}
 
+	@NonNull
 	public List<Step> getSteps() {
 		return mSteps;
 	}

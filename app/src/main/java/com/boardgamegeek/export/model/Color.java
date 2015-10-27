@@ -1,6 +1,7 @@
 package com.boardgamegeek.export.model;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.google.gson.annotations.Expose;
@@ -18,7 +19,8 @@ public class Color {
 		return color;
 	}
 
-	public static Color fromCursor(Cursor cursor) {
+	@NonNull
+	public static Color fromCursor(@NonNull Cursor cursor) {
 		Color color = new Color();
 		color.color = cursor.getString(COLOR);
 		return color;

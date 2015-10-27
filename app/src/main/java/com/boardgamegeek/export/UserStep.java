@@ -5,6 +5,8 @@ import android.content.ContentProviderOperation.Builder;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -20,18 +22,21 @@ import com.google.gson.stream.JsonWriter;
 import java.util.ArrayList;
 
 public class UserStep implements Step {
+	@NonNull
 	@Override
 	public String getFileName() {
 		return "users.json";
 	}
 
+	@NonNull
 	@Override
-	public String getDescription(Context context) {
+	public String getDescription(@NonNull Context context) {
 		return context.getString(R.string.backup_type_user);
 	}
 
+	@Nullable
 	@Override
-	public Cursor getCursor(Context context) {
+	public Cursor getCursor(@NonNull Context context) {
 		return context.getContentResolver().query(
 			Buddies.CONTENT_URI,
 			User.PROJECTION,
@@ -39,7 +44,7 @@ public class UserStep implements Step {
 	}
 
 	@Override
-	public void writeJsonRecord(Context context, Cursor cursor, Gson gson, JsonWriter writer) {
+	public void writeJsonRecord(@NonNull Context context, @NonNull Cursor cursor, @NonNull Gson gson, @NonNull JsonWriter writer) {
 		User user = User.fromCursor(cursor);
 		user.addColors(context);
 		if (user.hasColors()) {
@@ -52,7 +57,7 @@ public class UserStep implements Step {
 	}
 
 	@Override
-	public void importRecord(Context context, Gson gson, JsonReader reader) {
+	public void importRecord(@NonNull Context context, @NonNull Gson gson, @NonNull JsonReader reader) {
 		User user = gson.fromJson(reader, User.class);
 
 		ContentResolver resolver = context.getContentResolver();

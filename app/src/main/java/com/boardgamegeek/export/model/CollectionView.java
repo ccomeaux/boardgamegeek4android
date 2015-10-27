@@ -2,6 +2,7 @@ package com.boardgamegeek.export.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.google.gson.annotations.Expose;
@@ -44,7 +45,8 @@ public class CollectionView {
 		return filters;
 	}
 
-	public static CollectionView fromCursor(Cursor cursor) {
+	@NonNull
+	public static CollectionView fromCursor(@NonNull Cursor cursor) {
 		CollectionView cv = new CollectionView();
 		cv.id = cursor.getInt(_ID);
 		cv.name = cursor.getString(NAME);
@@ -53,7 +55,7 @@ public class CollectionView {
 		return cv;
 	}
 
-	public void addFilters(Context context) {
+	public void addFilters(@NonNull Context context) {
 		filters = new ArrayList<>();
 
 		final Cursor cursor = context.getContentResolver().query(

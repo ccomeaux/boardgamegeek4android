@@ -1,6 +1,7 @@
 package com.boardgamegeek.export;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
@@ -55,7 +56,7 @@ public class JsonImportTask extends ImporterExporterTask {
 	}
 
 	@Override
-	protected void onPostExecute(Integer result) {
+	protected void onPostExecute(@NonNull Integer result) {
 		@StringRes int messageId;
 		switch (result) {
 			case SUCCESS:
@@ -74,7 +75,7 @@ public class JsonImportTask extends ImporterExporterTask {
 		EventBus.getDefault().post(new ImportFinishedEvent(messageId));
 	}
 
-	private int importFile(File importPath, Step step) {
+	private int importFile(File importPath, @NonNull Step step) {
 		File file = new File(importPath, step.getFileName());
 		if (!file.exists() || !file.canRead()) {
 			return ERROR_FILE_ACCESS;
@@ -96,7 +97,7 @@ public class JsonImportTask extends ImporterExporterTask {
 
 			reader.endArray();
 			reader.close();
-		} catch (JsonParseException | IOException e) {
+		} catch (@NonNull JsonParseException | IOException e) {
 			// the given Json might not be valid or unreadable
 			Timber.e(e, "JSON show import failed");
 			return ERROR;
