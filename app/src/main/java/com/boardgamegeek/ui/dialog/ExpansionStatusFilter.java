@@ -35,7 +35,7 @@ public class ExpansionStatusFilter {
 		if (filter == null) {
 			mSelected = 0;
 		} else {
-			mSelected = filter.getSelected();
+			mSelected = filter.getSelectedSubtype();
 		}
 	}
 }

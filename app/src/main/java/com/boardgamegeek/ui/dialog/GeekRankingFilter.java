@@ -68,7 +68,7 @@ public class GeekRankingFilter extends SliderFilter {
 			GeekRankingFilterer data = (GeekRankingFilterer) filter;
 			mMinRanking = data.getMin();
 			mMaxRanking = data.getMax();
-			mUnranked = data.isUnranked();
+			mUnranked = data.includeUnranked();
 		}
 	}
 

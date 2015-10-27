@@ -9,40 +9,39 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class PlayCountFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 25;
+	private static final String DELIMITER = ":";
 
-	private static final String delimiter = ":";
-
-	private int mMin;
-	private int mMax;
+	private int min;
+	private int max;
 
 	public PlayCountFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_PLAY_COUNT);
 	}
 
 	public PlayCountFilterer(Context context, int min, int max) {
-		mMin = min;
-		mMax = max;
+		this.min = min;
+		this.max = max;
 		init(context);
 	}
 
 	public PlayCountFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Integer.valueOf(d[0]);
-		mMax = Integer.valueOf(d[1]);
+		String[] d = data.split(DELIMITER);
+		min = Integer.valueOf(d[0]);
+		max = Integer.valueOf(d[1]);
 		init(context);
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax);
+		return String.valueOf(min) + DELIMITER + String.valueOf(max);
 	}
 
 	public int getMax() {
-		return mMax;
+		return max;
 	}
 
 	public int getMin() {
-		return mMin;
+		return min;
 	}
 
 	private void init(Context context) {
@@ -53,24 +52,24 @@ public class PlayCountFilterer extends CollectionFilterer {
 
 	private void setDisplayText(Resources r) {
 		String text;
-		if (mMax >= MAX_RANGE) {
-			text = mMin + "+";
-		} else if (mMin == mMax) {
-			text = String.valueOf(mMax);
+		if (max >= MAX_RANGE) {
+			text = min + "+";
+		} else if (min == max) {
+			text = String.valueOf(max);
 		} else {
-			text = mMin + "-" + mMax;
+			text = min + "-" + max;
 		}
 		displayText(text + " " + r.getString(R.string.plays));
 	}
 
 	private void setSelection() {
 		String selection;
-		if (mMax >= MAX_RANGE) {
+		if (max >= MAX_RANGE) {
 			selection = Collection.NUM_PLAYS + ">=?";
-			selectionArgs(String.valueOf(mMin));
+			selectionArgs(String.valueOf(min));
 		} else {
 			selection = "(" + Collection.NUM_PLAYS + ">=? AND " + Collection.NUM_PLAYS + "<=?)";
-			selectionArgs(String.valueOf(mMin), String.valueOf(mMax));
+			selectionArgs(String.valueOf(min), String.valueOf(max));
 		}
 		selection(selection);
 	}

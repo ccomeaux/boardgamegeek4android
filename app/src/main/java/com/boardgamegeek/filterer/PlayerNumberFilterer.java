@@ -9,29 +9,28 @@ import com.boardgamegeek.provider.BggContract.Games;
 public class PlayerNumberFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 12;
+	private static final String DELIMITER = ":";
 
-	private static final String delimiter = ":";
-
-	private int mMin;
-	private int mMax;
-	private boolean mExact;
+	private int min;
+	private int max;
+	private boolean isExact;
 
 	public PlayerNumberFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 	}
 
 	public PlayerNumberFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Integer.valueOf(d[0]);
-		mMax = Integer.valueOf(d[1]);
-		mExact = (d[2].equals("1"));
+		String[] d = data.split(DELIMITER);
+		min = Integer.valueOf(d[0]);
+		max = Integer.valueOf(d[1]);
+		isExact = (d[2].equals("1"));
 		init(context);
 	}
 
-	public PlayerNumberFilterer(Context context, int min, int max, boolean exact) {
-		mMin = min;
-		mMax = max;
-		mExact = exact;
+	public PlayerNumberFilterer(Context context, int min, int max, boolean isExact) {
+		this.min = min;
+		this.max = max;
+		this.isExact = isExact;
 		init(context);
 	}
 
@@ -43,22 +42,22 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 
 	private void setDisplayText(Resources r) {
 		String range = "";
-		if (mExact) {
+		if (isExact) {
 			range = r.getString(R.string.exactly) + " ";
 		}
-		if (mMin == mMax) {
-			range += String.valueOf(mMax);
+		if (min == max) {
+			range += String.valueOf(max);
 		} else {
-			range += String.valueOf(mMin) + "-" + String.valueOf(mMax);
+			range += String.valueOf(min) + "-" + String.valueOf(max);
 		}
 		displayText(range + " " + r.getString(R.string.players));
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minValue = String.valueOf(min);
+		String maxValue = String.valueOf(max);
 
-		if (mExact) {
+		if (isExact) {
 			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
 			selectionArgs(minValue, maxValue);
 		} else {
@@ -69,19 +68,19 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 	}
 
 	public int getMin() {
-		return mMin;
+		return min;
 	}
 
 	public int getMax() {
-		return mMax;
+		return max;
 	}
 
 	public boolean isExact() {
-		return mExact;
+		return isExact;
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mExact ? "1" : "0");
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (isExact ? "1" : "0");
 	}
 }

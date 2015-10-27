@@ -10,26 +10,25 @@ import java.util.Calendar;
 public class YearPublishedFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1970;
 	public static final int MAX_RANGE = Calendar.getInstance().get(Calendar.YEAR) + 1;
+	private static final String DELIMITER = ":";
 
-	private static final String delimiter = ":";
-
-	private int mMin;
-	private int mMax;
+	private int min;
+	private int max;
 
 	public YearPublishedFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
 	}
 
 	public YearPublishedFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Integer.valueOf(d[0]);
-		mMax = Integer.valueOf(d[1]);
+		String[] d = data.split(DELIMITER);
+		min = Integer.valueOf(d[0]);
+		max = Integer.valueOf(d[1]);
 		init(context);
 	}
 
 	public YearPublishedFilterer(Context context, int min, int max) {
-		mMin = min;
-		mMax = max;
+		this.min = min;
+		this.max = max;
 		init(context);
 	}
 
@@ -41,38 +40,38 @@ public class YearPublishedFilterer extends CollectionFilterer {
 
 	private void setDisplayText(Resources r) {
 		String text;
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minText = String.valueOf(min);
+		String maxText = String.valueOf(max);
 
-		if (mMin == MIN_RANGE && mMax == MAX_RANGE) {
+		if (min == MIN_RANGE && max == MAX_RANGE) {
 			text = "ALL";
-		} else if (mMin == MIN_RANGE) {
-			text = maxValue + "-";
-		} else if (mMax == MAX_RANGE) {
-			text = minValue + "+";
-		} else if (mMin == mMax) {
-			text = maxValue;
+		} else if (min == MIN_RANGE) {
+			text = maxText + "-";
+		} else if (max == MAX_RANGE) {
+			text = minText + "+";
+		} else if (min == max) {
+			text = maxText;
 		} else {
-			text = minValue + "-" + maxValue;
+			text = minText + "-" + maxText;
 		}
 
 		displayText(text);
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minValue = String.valueOf(min);
+		String maxValue = String.valueOf(max);
 
 		String selection;
-		if (mMin == MIN_RANGE && mMax == MAX_RANGE) {
+		if (min == MIN_RANGE && max == MAX_RANGE) {
 			selection = "";
-		} else if (mMin == MIN_RANGE) {
+		} else if (min == MIN_RANGE) {
 			selection = Games.YEAR_PUBLISHED + "<=?";
 			selectionArgs(maxValue);
-		} else if (mMax == MAX_RANGE) {
+		} else if (max == MAX_RANGE) {
 			selection = Games.YEAR_PUBLISHED + ">=?";
 			selectionArgs(minValue);
-		} else if (mMin == mMax) {
+		} else if (min == max) {
 			selection = Games.YEAR_PUBLISHED + "=?";
 			selectionArgs(minValue);
 		} else {
@@ -83,15 +82,15 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	}
 
 	public int getMin() {
-		return mMin;
+		return min;
 	}
 
 	public int getMax() {
-		return mMax;
+		return max;
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax);
+		return String.valueOf(min) + DELIMITER + String.valueOf(max);
 	}
 }

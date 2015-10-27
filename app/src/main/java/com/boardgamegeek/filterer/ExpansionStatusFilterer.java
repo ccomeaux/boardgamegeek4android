@@ -8,19 +8,19 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class ExpansionStatusFilterer extends CollectionFilterer {
-	private int mSelected;
+	private int selectedSubtype;
 
 	public ExpansionStatusFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
 	}
 
 	public ExpansionStatusFilterer(Context context, String data) {
-		mSelected = Integer.valueOf(data);
+		selectedSubtype = Integer.valueOf(data);
 		init(context);
 	}
 
-	public ExpansionStatusFilterer(Context context, int selected) {
-		mSelected = selected;
+	public ExpansionStatusFilterer(Context context, int selectedSubtype) {
+		this.selectedSubtype = selectedSubtype;
 		init(context);
 	}
 
@@ -32,27 +32,27 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 
 	private void createDisplayText(Resources resources) {
 		String text = "";
-		String[] statuses = resources.getStringArray(R.array.expansion_status_filter);
-		if (statuses != null && mSelected != 0 && mSelected < statuses.length) {
-			text = statuses[mSelected];
+		String[] subtypes = resources.getStringArray(R.array.expansion_status_filter);
+		if (subtypes != null && selectedSubtype != 0 && selectedSubtype < subtypes.length) {
+			text = subtypes[selectedSubtype];
 		}
 		displayText(text);
 	}
 
-	public int getSelected() {
-		return mSelected;
+	public int getSelectedSubtype() {
+		return selectedSubtype;
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mSelected);
+		return String.valueOf(selectedSubtype);
 	}
 
 	private void setSelection(Resources resources) {
 		String value = "";
 		String[] values = resources.getStringArray(R.array.expansion_status_filter_values);
-		if (values != null && mSelected != 0 && mSelected < values.length) {
-			value = values[mSelected];
+		if (values != null && selectedSubtype != 0 && selectedSubtype < values.length) {
+			value = values[selectedSubtype];
 		}
 
 		if (!TextUtils.isEmpty(value)) {

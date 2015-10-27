@@ -9,29 +9,28 @@ import com.boardgamegeek.provider.BggContract.Games;
 public class AverageWeightFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 5.0;
+	private static final String DELIMITER = ":";
 
-	private static final String delimiter = ":";
-
-	private double mMin;
-	private double mMax;
-	private boolean mUndefined;
+	private double min;
+	private double max;
+	private boolean includeUndefined;
 
 	public AverageWeightFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
 	}
 
 	public AverageWeightFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Double.valueOf(d[0]);
-		mMax = Double.valueOf(d[1]);
-		mUndefined = (d[2].equals("1"));
+		String[] d = data.split(DELIMITER);
+		min = Double.valueOf(d[0]);
+		max = Double.valueOf(d[1]);
+		includeUndefined = (d[2].equals("1"));
 		init(context);
 	}
 
-	public AverageWeightFilterer(Context context, double min, double max, boolean undefined) {
-		mMin = min;
-		mMax = max;
-		mUndefined = undefined;
+	public AverageWeightFilterer(Context context, double min, double max, boolean includeUndefined) {
+		this.min = min;
+		this.max = max;
+		this.includeUndefined = includeUndefined;
 		init(context);
 	}
 
@@ -42,16 +41,16 @@ public class AverageWeightFilterer extends CollectionFilterer {
 	}
 
 	private void setDisplayText(Resources r) {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minText = String.valueOf(min);
+		String maxText = String.valueOf(max);
 
 		String text;
-		if (mMin == mMax) {
-			text = maxValue;
+		if (min == max) {
+			text = maxText;
 		} else {
-			text = minValue + "-" + maxValue;
+			text = minText + "-" + maxText;
 		}
-		if (mUndefined) {
+		if (includeUndefined) {
 			text += " (+?)";
 		}
 
@@ -59,32 +58,32 @@ public class AverageWeightFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minValue = String.valueOf(min);
+		String maxValue = String.valueOf(max);
 
 		String selection;
 		selection = "(" + Games.STATS_AVERAGE_WEIGHT + ">=? AND " + Games.STATS_AVERAGE_WEIGHT + "<=?)";
 		selectionArgs(minValue, maxValue);
-		if (mUndefined) {
+		if (includeUndefined) {
 			selection += " OR " + Games.STATS_AVERAGE_WEIGHT + "=0 OR " + Games.STATS_AVERAGE_WEIGHT + " IS NULL";
 		}
 		selection(selection);
 	}
 
 	public double getMin() {
-		return mMin;
+		return min;
 	}
 
 	public double getMax() {
-		return mMax;
+		return max;
 	}
 
-	public boolean isUndefined() {
-		return mUndefined;
+	public boolean includeUndefined() {
+		return includeUndefined;
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mUndefined ? "1" : "0");
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUndefined ? "1" : "0");
 	}
 }

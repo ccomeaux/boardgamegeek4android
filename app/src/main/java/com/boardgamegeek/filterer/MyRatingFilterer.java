@@ -9,40 +9,39 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class MyRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 0.0;
 	public static final double MAX_RANGE = 10.0;
+	private static final String DELIMITER = ":";
 
-	private static final String delimiter = ":";
-
-	private double mMin;
-	private double mMax;
+	private double min;
+	private double max;
 
 	public MyRatingFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_MY_RATING);
 	}
 
 	public MyRatingFilterer(Context context, double min, double max) {
-		mMin = min;
-		mMax = max;
+		this.min = min;
+		this.max = max;
 		init(context);
 	}
 
 	public MyRatingFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Double.valueOf(d[0]);
-		mMax = Double.valueOf(d[1]);
+		String[] d = data.split(DELIMITER);
+		min = Double.valueOf(d[0]);
+		max = Double.valueOf(d[1]);
 		init(context);
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax);
+		return String.valueOf(min) + DELIMITER + String.valueOf(max);
 	}
 
 	public double getMax() {
-		return mMax;
+		return max;
 	}
 
 	public double getMin() {
-		return mMin;
+		return min;
 	}
 
 	private void init(Context context) {
@@ -52,24 +51,24 @@ public class MyRatingFilterer extends CollectionFilterer {
 	}
 
 	private void setDisplayText(Resources r) {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minText = String.valueOf(min);
+		String maxText = String.valueOf(max);
 
 		String text;
-		if (mMin == mMax) {
-			text = maxValue;
+		if (min == max) {
+			text = maxText;
 		} else {
-			text = minValue + "-" + maxValue;
+			text = minText + "-" + maxText;
 		}
 		displayText(r.getString(R.string.my_rating) + " " + text);
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minValue = String.valueOf(min);
+		String maxValue = String.valueOf(max);
 
 		String selection;
-		if (mMin == mMax) {
+		if (min == max) {
 			selection = Collection.RATING + "=?";
 			selectionArgs(minValue);
 		} else {

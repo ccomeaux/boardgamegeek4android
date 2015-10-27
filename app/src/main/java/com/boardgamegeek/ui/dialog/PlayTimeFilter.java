@@ -73,7 +73,7 @@ public class PlayTimeFilter extends SliderFilter {
 			PlayTimeFilterer data = (PlayTimeFilterer) filter;
 			mMinTime = data.getMin();
 			mMaxTime = data.getMax();
-			mUndefined = data.isUndefined();
+			mUndefined = data.includeUndefined();
 		}
 	}
 

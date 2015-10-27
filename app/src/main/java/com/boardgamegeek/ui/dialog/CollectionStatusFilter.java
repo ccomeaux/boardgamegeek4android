@@ -45,7 +45,7 @@ public class CollectionStatusFilter {
 		if (filter == null) {
 			mSelected = new boolean[mStatusEntries.length];
 		} else {
-			mSelected = filter.getSelected();
+			mSelected = filter.getSelectedStatuses();
 		}
 	}
 }

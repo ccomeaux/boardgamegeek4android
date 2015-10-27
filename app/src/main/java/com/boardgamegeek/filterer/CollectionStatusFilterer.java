@@ -1,36 +1,36 @@
 package com.boardgamegeek.filterer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.res.Resources;
 
 import com.boardgamegeek.R;
 
-public class CollectionStatusFilterer extends CollectionFilterer {
-	private static final String delimiter = ":";
+import java.util.ArrayList;
+import java.util.List;
 
-	private boolean[] mSelected;
-	private boolean mOr;
+public class CollectionStatusFilterer extends CollectionFilterer {
+	private static final String DELIMITER = ":";
+
+	private boolean[] selectedStatuses;
+	private boolean shouldJoinWithOr;
 
 	public CollectionStatusFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 	}
 
 	public CollectionStatusFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mOr = (d[0].equals("1"));
-		mSelected = new boolean[d.length - 1];
+		String[] d = data.split(DELIMITER);
+		shouldJoinWithOr = (d[0].equals("1"));
+		selectedStatuses = new boolean[d.length - 1];
 		for (int i = 0; i < d.length - 1; i++) {
-			mSelected[i] = (d[i + 1].equals("1"));
+			selectedStatuses[i] = (d[i + 1].equals("1"));
 		}
 		init(context);
 	}
 
-	public CollectionStatusFilterer(Context context, boolean[] selected, boolean or) {
-		mSelected = selected;
-		mOr = or;
+	public CollectionStatusFilterer(Context context, boolean[] selectedStatuses, boolean shouldJoinWithOr) {
+		this.selectedStatuses = selectedStatuses;
+		this.shouldJoinWithOr = shouldJoinWithOr;
 		init(context);
 	}
 
@@ -44,10 +44,10 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		String[] entries = r.getStringArray(R.array.collection_status_filter_entries);
 		String displayText = "";
 
-		for (int i = 0; i < mSelected.length; i++) {
-			if (mSelected[i]) {
+		for (int i = 0; i < selectedStatuses.length; i++) {
+			if (selectedStatuses[i]) {
 				if (displayText.length() > 0) {
-					displayText += " " + (mOr ? "|" : "&") + " ";
+					displayText += " " + (shouldJoinWithOr ? "|" : "&") + " ";
 				}
 				displayText += entries[i];
 			}
@@ -59,12 +59,12 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	private void createSelection(Resources r) {
 		String[] values = r.getStringArray(R.array.collection_status_filter_values);
 		String selection = "";
-		List<String> selectionArgs = new ArrayList<>(mSelected.length);
+		List<String> selectionArgs = new ArrayList<>(selectedStatuses.length);
 
-		for (int i = 0; i < mSelected.length; i++) {
-			if (mSelected[i]) {
+		for (int i = 0; i < selectedStatuses.length; i++) {
+			if (selectedStatuses[i]) {
 				if (selection.length() > 0) {
-					selection += " " + (mOr ? "OR" : "AND") + " ";
+					selection += " " + (shouldJoinWithOr ? "OR" : "AND") + " ";
 				}
 				selection += values[i] + "=?";
 				selectionArgs.add("1");
@@ -74,20 +74,16 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		selectionArgs(selectionArgs.toArray(new String[selectionArgs.size()]));
 	}
 
-	public boolean[] getSelected() {
-		return mSelected;
-	}
-
-	public boolean getOr() {
-		return mOr;
+	public boolean[] getSelectedStatuses() {
+		return selectedStatuses;
 	}
 
 	@Override
 	public String flatten() {
-		String s = (mOr ? "1" : "0");
-		for (boolean selected : mSelected) {
+		String s = (shouldJoinWithOr ? "1" : "0");
+		for (boolean selected : selectedStatuses) {
 			if (s.length() > 0) {
-				s += delimiter;
+				s += DELIMITER;
 			}
 			s += (selected ? "1" : "0");
 		}

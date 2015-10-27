@@ -21,7 +21,7 @@ public class SuggestedAgeFilter extends SliderFilter {
 			SuggestedAgeFilterer data = (SuggestedAgeFilterer) filter;
 			mMinAge = data.getMin();
 			mMaxAge = data.getMax();
-			mUndefined = data.isUndefined();
+			mUndefined = data.includeUndefined();
 		}
 	}
 

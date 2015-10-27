@@ -74,7 +74,7 @@ public class AverageWeightFilter extends SliderFilter {
 			AverageWeightFilterer data = (AverageWeightFilterer) filter;
 			mMinWeight = data.getMin();
 			mMaxWeight = data.getMax();
-			mUndefined = data.isUndefined();
+			mUndefined = data.includeUndefined();
 		}
 	}
 

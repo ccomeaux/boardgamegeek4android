@@ -9,29 +9,28 @@ import com.boardgamegeek.provider.BggContract.Games;
 public class SuggestedAgeFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 21;
+	private static final String DELIMITER = ":";
 
-	private static final String delimiter = ":";
-
-	private int mMin;
-	private int mMax;
-	private boolean mUndefined;
+	private int min;
+	private int max;
+	private boolean includeUndefined;
 
 	public SuggestedAgeFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
 	}
 
 	public SuggestedAgeFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Integer.valueOf(d[0]);
-		mMax = Integer.valueOf(d[1]);
-		mUndefined = (d[2].equals("1"));
+		String[] d = data.split(DELIMITER);
+		min = Integer.valueOf(d[0]);
+		max = Integer.valueOf(d[1]);
+		includeUndefined = (d[2].equals("1"));
 		init(context);
 	}
 
-	public SuggestedAgeFilterer(Context context, int min, int max, boolean undefined) {
-		mMin = min;
-		mMax = max;
-		mUndefined = undefined;
+	public SuggestedAgeFilterer(Context context, int min, int max, boolean includeUndefined) {
+		this.min = min;
+		this.max = max;
+		this.includeUndefined = includeUndefined;
 		init(context);
 	}
 
@@ -43,54 +42,54 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 
 	private void setDisplayText(Resources r) {
 		String text;
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minText = String.valueOf(min);
+		String maxText = String.valueOf(max);
 
-		if (mMax == MAX_RANGE) {
-			text = minValue + "+";
-		} else if (mMin == mMax) {
-			text = maxValue;
+		if (max == MAX_RANGE) {
+			text = minText + "+";
+		} else if (min == max) {
+			text = maxText;
 		} else {
-			text = minValue + "-" + maxValue;
+			text = minText + "-" + maxText;
 		}
-		if (mUndefined) {
+		if (includeUndefined) {
 			text += " (+?)";
 		}
 		displayText(r.getString(R.string.ages) + " " + text);
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minValue = String.valueOf(min);
+		String maxValue = String.valueOf(max);
 
 		String selection;
-		if (mMax == MAX_RANGE) {
+		if (max == MAX_RANGE) {
 			selection = "(" + Games.MINIMUM_AGE + ">=?)";
 			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.MINIMUM_AGE + ">=? AND " + Games.MINIMUM_AGE + "<=?)";
 			selectionArgs(minValue, maxValue);
 		}
-		if (mUndefined) {
+		if (includeUndefined) {
 			selection += " OR " + Games.MINIMUM_AGE + "=0 OR " + Games.MINIMUM_AGE + " IS NULL";
 		}
 		selection(selection);
 	}
 
 	public int getMin() {
-		return mMin;
+		return min;
 	}
 
 	public int getMax() {
-		return mMax;
+		return max;
 	}
 
-	public boolean isUndefined() {
-		return mUndefined;
+	public boolean includeUndefined() {
+		return includeUndefined;
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mUndefined ? "1" : "0");
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUndefined ? "1" : "0");
 	}
 }

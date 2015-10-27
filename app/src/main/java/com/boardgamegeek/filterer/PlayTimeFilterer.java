@@ -9,29 +9,28 @@ import com.boardgamegeek.provider.BggContract.Games;
 public class PlayTimeFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 300;
+	private static final String DELIMITER = ":";
 
-	private static final String delimiter = ":";
-
-	private int mMin;
-	private int mMax;
-	private boolean mUndefined;
+	private int min;
+	private int max;
+	private boolean includeUndefined;
 
 	public PlayTimeFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
 	}
 
 	public PlayTimeFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Integer.valueOf(d[0]);
-		mMax = Integer.valueOf(d[1]);
-		mUndefined = (d[2].equals("1"));
+		String[] d = data.split(DELIMITER);
+		min = Integer.valueOf(d[0]);
+		max = Integer.valueOf(d[1]);
+		includeUndefined = (d[2].equals("1"));
 		init(context);
 	}
 
-	public PlayTimeFilterer(Context context, int min, int max, boolean undefined) {
-		mMin = min;
-		mMax = max;
-		mUndefined = undefined;
+	public PlayTimeFilterer(Context context, int min, int max, boolean includeUndefined) {
+		this.min = min;
+		this.max = max;
+		this.includeUndefined = includeUndefined;
 		init(context);
 	}
 
@@ -42,27 +41,27 @@ public class PlayTimeFilterer extends CollectionFilterer {
 	}
 
 	private void setDisplayText(Resources r) {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minText = String.valueOf(min);
+		String maxText = String.valueOf(max);
 
-		if (mMax == MAX_RANGE) {
-			displayText(minValue + "+");
-		} else if (mMin == mMax) {
-			displayText(maxValue);
+		if (max == MAX_RANGE) {
+			displayText(minText + "+");
+		} else if (min == max) {
+			displayText(maxText);
 		} else {
-			displayText(minValue + "-" + maxValue);
+			displayText(minText + "-" + maxText);
 		}
-		if (mUndefined) {
+		if (includeUndefined) {
 			displayText(getDisplayText() + " (+?)");
 		}
 		displayText(getDisplayText() + " " + r.getString(R.string.minutes_abbr));
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+		String minValue = String.valueOf(min);
+		String maxValue = String.valueOf(max);
 
-		if (mMax == MAX_RANGE) {
+		if (max == MAX_RANGE) {
 			selection("(" + Games.PLAYING_TIME + ">=?)");
 			selectionArgs(minValue);
 		} else {
@@ -70,25 +69,25 @@ public class PlayTimeFilterer extends CollectionFilterer {
 			selectionArgs(minValue, maxValue);
 		}
 
-		if (mUndefined) {
+		if (includeUndefined) {
 			selection(getSelection() + " OR " + Games.PLAYING_TIME + " IS NULL");
 		}
 	}
 
 	public int getMin() {
-		return mMin;
+		return min;
 	}
 
 	public int getMax() {
-		return mMax;
+		return max;
 	}
 
-	public boolean isUndefined() {
-		return mUndefined;
+	public boolean includeUndefined() {
+		return includeUndefined;
 	}
 
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mUndefined ? "1" : "0");
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUndefined ? "1" : "0");
 	}
 }
