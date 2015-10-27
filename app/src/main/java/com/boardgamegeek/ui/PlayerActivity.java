@@ -93,12 +93,12 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
+		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@DebugLog
 	public void onEvent(PlaysCountChangedEvent event) {
-		mCount = event.count;
+		mCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 

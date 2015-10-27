@@ -431,7 +431,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	public void onEventMainThread(ColorAssignmentCompleteEvent event) {
-		if (event.success) {
+		if (event.isSuccessful()) {
 			bindUiPlayers();
 		}
 		EventBus.getDefault().removeStickyEvent(event);

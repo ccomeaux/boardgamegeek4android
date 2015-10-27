@@ -1,11 +1,8 @@
 package com.boardgamegeek.ui;
 
-import android.app.SearchManager;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,7 +45,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 	@DebugLog
 	public void onEventMainThread(UpdateErrorEvent event) {
-		Toast.makeText(this, event.message, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
 	}
 
 	@DebugLog

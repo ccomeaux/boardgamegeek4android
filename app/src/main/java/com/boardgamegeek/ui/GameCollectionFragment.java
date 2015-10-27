@@ -271,7 +271,7 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	public void onEventMainThread(UpdateEvent event) {
-		mSyncing = event.type == UpdateService.SYNC_TYPE_GAME_COLLECTION;
+		mSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION;
 		updateRefreshStatus();
 	}
 

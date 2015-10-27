@@ -41,12 +41,12 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 
 	@DebugLog
 	public void onEvent(BuddiesCountChangedEvent event) {
-		mCount = event.count;
+		mCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 
 	@DebugLog
 	public void onEvent(BuddySelectedEvent event) {
-		ActivityUtils.startBuddyActivity(this, event.buddyName);
+		ActivityUtils.startBuddyActivity(this, event.getBuddyName());
 	}
 }

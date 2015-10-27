@@ -187,7 +187,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEventMainThread(@NonNull SyncEvent event) {
-		if ((event.type & getSyncType()) == getSyncType()) {
+		if ((event.getType() & getSyncType()) == getSyncType()) {
 			isSyncing(true);
 		}
 	}

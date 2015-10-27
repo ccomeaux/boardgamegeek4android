@@ -518,7 +518,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@DebugLog
 	public void onEventMainThread(UpdateEvent event) {
-		mSyncing = event.type == UpdateService.SYNC_TYPE_GAME;
+		mSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME;
 		updateRefreshStatus();
 	}
 

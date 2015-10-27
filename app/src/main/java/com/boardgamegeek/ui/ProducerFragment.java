@@ -195,7 +195,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	}
 
 	public void onEventMainThread(UpdateEvent event) {
-		mSyncing = event.type == mToken;
+		mSyncing = event.getType() == mToken;
 		updateRefreshStatus();
 	}
 

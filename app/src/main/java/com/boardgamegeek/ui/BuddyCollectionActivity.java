@@ -50,8 +50,8 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	public void onEvent(CollectionStatusChangedEvent event) {
 		String text = getString(R.string.title_collection);
-		if (!TextUtils.isEmpty(event.description)) {
-			text += " - " + event.description;
+		if (!TextUtils.isEmpty(event.getDescription())) {
+			text += " - " + event.getDescription();
 		}
 		getSupportActionBar().setTitle(text);
 	}

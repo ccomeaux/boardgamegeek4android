@@ -53,7 +53,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	public void onEvent(LocationSelectedEvent event) {
-		mSelectedName = event.locationName;
+		mSelectedName = event.getLocationName();
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
@@ -61,7 +61,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	public void onEvent(LocationSortChangedEvent event) {
-		setSort(event.sortType);
+		setSort(event.getSortType());
 	}
 
 	@DebugLog

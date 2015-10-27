@@ -322,7 +322,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@DebugLog
 	public void onEventMainThread(UpdateEvent event) {
-		if (event.type == UpdateService.SYNC_TYPE_GAME_PLAYS) {
+		if (event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) {
 			mSyncing = true;
 			updateRefreshStatus();
 		}

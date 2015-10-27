@@ -140,24 +140,24 @@ public class DataFragment extends Fragment {
 	@DebugLog
 	@SuppressWarnings("unused")
 	public void onEventMainThread(ExportFinishedEvent event) {
-		notifyEnd(event.messageId);
+		notifyEnd(event.getMessageId());
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
 	public void onEventMainThread(ImportFinishedEvent event) {
-		notifyEnd(event.messageId);
+		notifyEnd(event.getMessageId());
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
 	public void onEventMainThread(ExportProgressEvent event) {
 		if (mProgressBar != null) {
-			mProgressBar.setMax(event.totalCount);
-			mProgressBar.setProgress(event.currentCount);
+			mProgressBar.setMax(event.getTotalCount());
+			mProgressBar.setProgress(event.getCurrentCount());
 		}
-		if (mProgressDetail != null && mTask != null && event.stepIndex < mTask.getSteps().size()) {
-			String description = mTask.getSteps().get(event.stepIndex).getDescription(getActivity());
+		if (mProgressDetail != null && mTask != null && event.getStepIndex() < mTask.getSteps().size()) {
+			String description = mTask.getSteps().get(event.getStepIndex()).getDescription(getActivity());
 			mProgressDetail.setText(description);
 		}
 	}
@@ -166,8 +166,8 @@ public class DataFragment extends Fragment {
 	@SuppressWarnings("unused")
 	public void onEventMainThread(ImportProgressEvent event) {
 		if (mProgressBar != null) {
-			mProgressBar.setMax(event.totalCount);
-			mProgressBar.setProgress(event.currentCount);
+			mProgressBar.setMax(event.getTotalCount());
+			mProgressBar.setProgress(event.getCurrentCount());
 		}
 	}
 

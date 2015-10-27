@@ -74,19 +74,19 @@ public class LocationsActivity extends TopLevelSinglePaneActivity {
 
 	@DebugLog
 	public void onEvent(LocationsCountChangedEvent event) {
-		mCount = event.count;
+		mCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 
 	@DebugLog
 	public void onEvent(LocationSelectedEvent event) {
 		Intent intent = new Intent(this, LocationActivity.class);
-		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, event.locationName);
+		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, event.getLocationName());
 		startActivity(intent);
 	}
 
 	@DebugLog
 	public void onEvent(LocationSortChangedEvent event) {
-		mSortType = event.sortType;
+		mSortType = event.getSortType();
 	}
 }

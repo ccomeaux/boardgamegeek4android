@@ -1,9 +1,13 @@
 package com.boardgamegeek.events;
 
 public class UpdateEvent {
-	public int type;
+	private final int type;
 
 	public UpdateEvent(int type) {
 		this.type = type;
+	}
+
+	public int getType() {
+		return type;
 	}
 }

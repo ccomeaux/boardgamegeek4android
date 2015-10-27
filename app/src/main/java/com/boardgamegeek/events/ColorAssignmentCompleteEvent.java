@@ -1,9 +1,13 @@
 package com.boardgamegeek.events;
 
 public class ColorAssignmentCompleteEvent {
-    public boolean success;
+    private final boolean isSuccessful;
 
-    public ColorAssignmentCompleteEvent(boolean success) {
-        this.success = success;
+    public ColorAssignmentCompleteEvent(boolean isSuccessful) {
+        this.isSuccessful = isSuccessful;
     }
+
+	public boolean isSuccessful() {
+		return isSuccessful;
+	}
 }

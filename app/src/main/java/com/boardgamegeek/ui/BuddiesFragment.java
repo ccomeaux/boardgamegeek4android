@@ -62,7 +62,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 	@DebugLog
 	public void onEvent(BuddySelectedEvent event) {
-		mSelectedBuddyId = event.buddyId;
+		mSelectedBuddyId = event.getBuddyId();
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}

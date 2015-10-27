@@ -150,7 +150,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	public void onEventMainThread(UpdateEvent event) {
-		mSyncing = event.type == UpdateService.SYNC_TYPE_BUDDY;
+		mSyncing = event.getType() == UpdateService.SYNC_TYPE_BUDDY;
 		updateRefreshStatus();
 	}
 

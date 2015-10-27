@@ -264,14 +264,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
-		mSelectedPlayId = event.playId;
+		mSelectedPlayId = event.getPlayId();
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
 	}
 
 	public void onEventMainThread(UpdateEvent event) {
-		isSyncing((event.type == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.type == UpdateService.SYNC_TYPE_PLAYS_DATE));
+		isSyncing((event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.getType() == UpdateService.SYNC_TYPE_PLAYS_DATE));
 	}
 
 	public void onEventMainThread(UpdateCompleteEvent event) {
@@ -293,11 +293,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	public void onEvent(PlaysSortChangedEvent event) {
-		setSort(event.type);
+		setSort(event.getType());
 	}
 
 	public void onEvent(PlaysFilterChangedEvent event) {
-		filter(event.type, event.description);
+		filter(event.getType(), event.getDescription());
 	}
 
 	private void setSort(int sortType) {

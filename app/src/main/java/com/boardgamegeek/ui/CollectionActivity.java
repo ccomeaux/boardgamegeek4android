@@ -93,13 +93,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(GameSelectedEvent event) {
-		ActivityUtils.launchGame(this, event.id, event.name);
+		ActivityUtils.launchGame(this, event.getId(), event.getName());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(GameShortcutCreatedEvent event) {
-		Intent intent = ShortcutUtils.createIntent(this, event.id, event.name, event.thumbnailUrl);
+		Intent intent = ShortcutUtils.createIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		setResult(RESULT_OK, intent);
 		finish();
 	}
@@ -107,7 +107,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(CollectionViewRequestedEvent event) {
-		viewId = event.viewId;
+		viewId = event.getViewId();
 		viewIndex = findViewIndex(viewId);
 	}
 
