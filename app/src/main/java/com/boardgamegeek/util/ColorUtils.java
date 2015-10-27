@@ -152,6 +152,7 @@ public class ColorUtils {
 	}
 
 	public static List<Pair<String, Integer>> getColorList() {
+		//noinspection unchecked
 		return (List<Pair<String, Integer>>) sColorNameList.clone();
 	}
 

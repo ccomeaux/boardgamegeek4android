@@ -58,9 +58,12 @@ public class NotificationUtils {
 	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Class<?> cls) {
+		@SuppressWarnings("deprecation")
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-			.setSmallIcon(R.drawable.ic_stat_bgg).setColor(context.getResources().getColor(R.color.primary_dark))
-			.setContentTitle(title).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+			.setSmallIcon(R.drawable.ic_stat_bgg)
+			.setColor(context.getResources().getColor(R.color.primary_dark))
+			.setContentTitle(title)
+			.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		Intent intent = new Intent(context, cls);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent,
 			PendingIntent.FLAG_UPDATE_CURRENT);

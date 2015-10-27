@@ -53,6 +53,7 @@ public class ScrimUtils {
 	}
 
 	public static Drawable makeDefaultScrimDrawable(Context context) {
+		//noinspection deprecation
 		return ScrimUtils.makeCubicGradientScrimDrawable(
 			context.getResources().getColor(R.color.black_overlay), 4, Gravity.TOP);
 	}

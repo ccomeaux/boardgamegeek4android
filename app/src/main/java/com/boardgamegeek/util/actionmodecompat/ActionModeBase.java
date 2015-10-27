@@ -45,8 +45,8 @@ import java.util.List;
  * for the action mode.
  */
 class ActionModeBase extends ActionMode implements DialogInterface.OnClickListener {
-	private FragmentActivity mActivity;
-	private Callback mCallback;
+	private final FragmentActivity mActivity;
+	private final Callback mCallback;
 	private MenuInflater mMenuInflater;
 
 	private ContextMenuDialog mDialog;

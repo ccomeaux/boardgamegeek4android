@@ -20,7 +20,6 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ListView;
 
 import com.boardgamegeek.util.VersionUtils;
@@ -80,7 +79,6 @@ public abstract class ActionMode {
 	 *
 	 * @param title Title string to set
 	 * @see #setTitle(int)
-	 * @see #setCustomView(View)
 	 */
 	public abstract void setTitle(CharSequence title);
 
@@ -90,7 +88,6 @@ public abstract class ActionMode {
 	 *
 	 * @param resId Resource ID of a string to set as the title
 	 * @see #setTitle(CharSequence)
-	 * @see #setCustomView(View)
 	 */
 	public abstract void setTitle(int resId);
 
@@ -127,7 +124,6 @@ public abstract class ActionMode {
 	 * present an action mode UI that requires focus, such as an EditText as a custom view.
 	 *
 	 * @return true if the UI used to show this action mode can take focus
-	 * @hide Internal use only
 	 */
 	public boolean isUiFocusable() {
 		return true;
@@ -136,7 +132,7 @@ public abstract class ActionMode {
 
 	/**
 	 * Callback interface for action modes. Supplied to
-	 * {@link View#startActionMode(Callback)}, a Callback
+	 * View.startActionMode(Callback), a Callback
 	 * configures and handles events raised by a user's interaction with an action mode.
 	 * <p/>
 	 * <p>An action mode's lifecycle is as follows:

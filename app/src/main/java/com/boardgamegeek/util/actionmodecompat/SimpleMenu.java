@@ -35,10 +35,10 @@ import android.view.SubMenu;
  */
 public class SimpleMenu implements Menu {
 
-    private Context mContext;
-    private Resources mResources;
+    private final Context mContext;
+    private final Resources mResources;
 
-    private ArrayList<SimpleMenuItem> mItems;
+    private final ArrayList<SimpleMenuItem> mItems;
 
     public SimpleMenu(Context context) {
         mContext = context;
