@@ -2,12 +2,13 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class LocationsNameSorter extends LocationsSorter {
-	public LocationsNameSorter(Context context) {
+	public LocationsNameSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Plays.LOCATION, false);
 		descriptionId = R.string.menu_sort_name;
@@ -23,8 +24,9 @@ public class LocationsNameSorter extends LocationsSorter {
 		return new String[] { Plays.LOCATION };
 	}
 
+	@NonNull
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		return getFirstChar(cursor, Plays.LOCATION);
 	}
 }

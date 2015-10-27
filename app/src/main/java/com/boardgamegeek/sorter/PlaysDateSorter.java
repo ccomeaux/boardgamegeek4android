@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -16,7 +17,7 @@ public class PlaysDateSorter extends PlaysSorter {
 	private final SimpleDateFormat formatter = new SimpleDateFormat("MMMM", Locale.getDefault());
 	private final GregorianCalendar calendar = new GregorianCalendar();
 
-	public PlaysDateSorter(Context context) {
+	public PlaysDateSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = Plays.DEFAULT_SORT;
 		descriptionId = R.string.menu_plays_sort_date;
@@ -36,15 +37,16 @@ public class PlaysDateSorter extends PlaysSorter {
 		return new String[] { Plays.DATE };
 	}
 
+	@NonNull
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		String date = getYearAndMonth(cursor);
 		int month = Integer.parseInt(date.substring(5, 7));
 		calendar.set(Calendar.MONTH, month - 1);
 		return formatter.format(calendar.getTime()) + " " + date.substring(0, 4);
 	}
 
-	private String getYearAndMonth(Cursor cursor) {
+	private String getYearAndMonth(@NonNull Cursor cursor) {
 		String date = getString(cursor, Plays.DATE);
 		if (TextUtils.isEmpty(date)) {
 			return "1969-01";

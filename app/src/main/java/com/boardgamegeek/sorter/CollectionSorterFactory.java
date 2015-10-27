@@ -1,6 +1,7 @@
 package com.boardgamegeek.sorter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 public class CollectionSorterFactory {
 	public static final int TYPE_UNKNOWN = 0;
@@ -24,7 +25,7 @@ public class CollectionSorterFactory {
 	public static final int TYPE_ACQUISITION_DATE = 18;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
-	public static CollectionSorter create(int type, Context context) {
+	public static CollectionSorter create(@NonNull Context context, int type) {
 		switch (type) {
 			case TYPE_COLLECTION_NAME:
 				return new CollectionNameSorter(context);

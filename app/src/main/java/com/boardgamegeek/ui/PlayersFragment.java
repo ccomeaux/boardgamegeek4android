@@ -84,7 +84,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		mSorter = PlayersSorterFactory.create(sortType, getActivity());
+		mSorter = PlayersSorterFactory.create(getActivity(), sortType);
 
 		setEmptyText(getString(R.string.empty_players));
 		requery();
@@ -128,9 +128,9 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	public void setSort(int sort) {
 		if (mSorter.getType() != sort) {
-			mSorter = PlayersSorterFactory.create(sort, getActivity());
+			mSorter = PlayersSorterFactory.create(getActivity(), sort);
 			if (mSorter == null) {
-				mSorter = PlayersSorterFactory.create(PlayersSorterFactory.TYPE_DEFAULT, getActivity());
+				mSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
 			}
 			requery();
 		}

@@ -164,7 +164,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		sorter = CollectionSorterFactory.create(sortType, getActivity());
+		sorter = CollectionSorterFactory.create(getActivity(), sortType);
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
 		}
@@ -448,7 +448,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
 				viewName = cursor.getString(ViewQuery.NAME);
-				sorter = CollectionSorterFactory.create(cursor.getInt(ViewQuery.SORT_TYPE), getActivity());
+				sorter = CollectionSorterFactory.create(getActivity(), cursor.getInt(ViewQuery.SORT_TYPE));
 				filters.clear();
 				do {
 					CollectionFilterer filter = CollectionFilterDataFactory.create(getActivity(),
@@ -560,7 +560,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
-		sorter = CollectionSorterFactory.create(sortType, getActivity());
+		sorter = CollectionSorterFactory.create(getActivity(), sortType);
 		resetScrollState();
 		requery();
 	}
@@ -747,7 +747,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		viewName = "";
 		resetScrollState();
 		filters.clear();
-		sorter = CollectionSorterFactory.create(CollectionSorterFactory.TYPE_DEFAULT, getActivity());
+		sorter = CollectionSorterFactory.create(getActivity(), CollectionSorterFactory.TYPE_DEFAULT);
 		requery();
 	}
 

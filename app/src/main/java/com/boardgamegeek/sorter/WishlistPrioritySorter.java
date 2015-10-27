@@ -2,6 +2,7 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -9,7 +10,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class WishlistPrioritySorter extends CollectionSorter {
 	private final String[] priorityText;
 
-	public WishlistPrioritySorter(Context context) {
+	public WishlistPrioritySorter(@NonNull Context context) {
 		super(context);
 		priorityText = context.getResources().getStringArray(R.array.wishlist_priority);
 		orderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
@@ -27,7 +28,7 @@ public class WishlistPrioritySorter extends CollectionSorter {
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		int level = getInt(cursor, Collection.STATUS_WISHLIST_PRIORITY);
 		if (level >= priorityText.length) {
 			level = 0;
@@ -35,8 +36,9 @@ public class WishlistPrioritySorter extends CollectionSorter {
 		return priorityText[level];
 	}
 
+	@NonNull
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
+	public String getDisplayInfo(@NonNull Cursor cursor) {
 		return getIntAsString(cursor, Collection.STATUS_WISHLIST_PRIORITY, "?", true) + " - " + getHeaderText(cursor);
 	}
 }

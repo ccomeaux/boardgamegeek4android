@@ -2,17 +2,18 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class PlaysLengthSorter extends PlaysSorter {
 	private static final String AND_MORE_SUFFIX = "+ ";
-	private final String noLength;
-	private final String hoursSuffix;
-	private final String minutesSuffix;
+	@NonNull private final String noLength;
+	@NonNull private final String hoursSuffix;
+	@NonNull private final String minutesSuffix;
 
-	public PlaysLengthSorter(Context context) {
+	public PlaysLengthSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Plays.LENGTH, true);
 		descriptionId = R.string.menu_plays_sort_length;
@@ -31,8 +32,9 @@ public class PlaysLengthSorter extends PlaysSorter {
 		return new String[] { Plays.LENGTH };
 	}
 
+	@NonNull
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		int minutes = getInt(cursor, Plays.LENGTH);
 		if (minutes == 0) {
 			return noLength;

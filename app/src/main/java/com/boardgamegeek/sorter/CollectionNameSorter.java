@@ -4,14 +4,15 @@ import java.text.DecimalFormat;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class CollectionNameSorter extends CollectionSorter {
-	private DecimalFormat displayFormat = new DecimalFormat("0.00");
+	@NonNull private final DecimalFormat displayFormat = new DecimalFormat("0.00");
 
-	public CollectionNameSorter(Context context) {
+	public CollectionNameSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = Collection.DEFAULT_SORT;
 		descriptionId = R.string.name;
@@ -27,13 +28,14 @@ public class CollectionNameSorter extends CollectionSorter {
 		return new String[] { Collection.COLLECTION_SORT_NAME, Collection.STATS_AVERAGE };
 	}
 
+	@NonNull
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		return getFirstChar(cursor, Collection.COLLECTION_SORT_NAME);
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
+	public String getDisplayInfo(@NonNull Cursor cursor) {
 		return getDoubleAsString(cursor, Collection.STATS_AVERAGE, "?", true, displayFormat);
 	}
 }

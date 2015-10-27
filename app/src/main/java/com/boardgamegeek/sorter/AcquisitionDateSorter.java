@@ -2,6 +2,7 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
@@ -15,9 +16,9 @@ public class AcquisitionDateSorter extends CollectionSorter {
 	private static final String COLUMN_NAME = Collection.PRIVATE_INFO_ACQUISITION_DATE;
 	private static final SimpleDateFormat API_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private static final SimpleDateFormat DISPLAY_FORMAT = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
-	private final String defaultValue;
+	@NonNull private final String defaultValue;
 
-	public AcquisitionDateSorter(Context context) {
+	public AcquisitionDateSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(COLUMN_NAME, true);
 		descriptionId = R.string.menu_collection_sort_acquisition_date;
@@ -29,13 +30,14 @@ public class AcquisitionDateSorter extends CollectionSorter {
 		return CollectionSorterFactory.TYPE_ACQUISITION_DATE;
 	}
 
+	@NonNull
 	@Override
 	public String[] getColumns() {
 		return new String[] { Collection.PRIVATE_INFO_ACQUISITION_DATE };
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		long time = getTime(cursor);
 		if (time == DateTimeUtils.UNKNOWN_DATE) {
 			return defaultValue;
@@ -43,8 +45,9 @@ public class AcquisitionDateSorter extends CollectionSorter {
 		return DISPLAY_FORMAT.format(time);
 	}
 
+	@NonNull
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
+	public String getDisplayInfo(@NonNull Cursor cursor) {
 		long time = getTime(cursor);
 		if (time == DateTimeUtils.UNKNOWN_DATE) {
 			return defaultValue;
@@ -52,7 +55,7 @@ public class AcquisitionDateSorter extends CollectionSorter {
 		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS).toString();
 	}
 
-	private long getTime(Cursor cursor) {
+	private long getTime(@NonNull Cursor cursor) {
 		String date = getString(cursor, Collection.PRIVATE_INFO_ACQUISITION_DATE, defaultValue);
 		return DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, date, API_FORMAT);
 	}

@@ -2,17 +2,18 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class RankSorter extends CollectionSorter {
-	private final String defaultHeaderText;
-	private final String defaultText;
+	@NonNull private final String defaultHeaderText;
+	@NonNull private final String defaultText;
 	private static final SparseArray<String> RANKS = buildRanks();
 
-	public RankSorter(Context context) {
+	public RankSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Games.GAME_RANK, false);
 		descriptionId = R.string.menu_collection_sort_rank;
@@ -20,6 +21,7 @@ public class RankSorter extends CollectionSorter {
 		defaultText = context.getResources().getString(R.string.text_not_available);
 	}
 
+	@NonNull
 	private static SparseArray<String> buildRanks() {
 		SparseArray<String> ranks = new SparseArray<>();
 		ranks.put(100, "1 - 100");
@@ -44,7 +46,7 @@ public class RankSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		int rank = getInt(cursor, Games.GAME_RANK, Integer.MAX_VALUE);
 		for (int i = 0; i < RANKS.size(); i++) {
 			int key = RANKS.keyAt(i);
@@ -55,8 +57,9 @@ public class RankSorter extends CollectionSorter {
 		return defaultHeaderText;
 	}
 
+	@NonNull
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
+	public String getDisplayInfo(@NonNull Cursor cursor) {
 		int rank = getInt(cursor, Games.GAME_RANK, Integer.MAX_VALUE);
 		if (rank == Integer.MAX_VALUE) {
 			return defaultText;

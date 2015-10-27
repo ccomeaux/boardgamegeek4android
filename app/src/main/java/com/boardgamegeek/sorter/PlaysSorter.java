@@ -1,12 +1,13 @@
 package com.boardgamegeek.sorter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public abstract class PlaysSorter extends Sorter {
 
-	public PlaysSorter(Context context) {
+	public PlaysSorter(@NonNull Context context) {
 		super(context);
 	}
 
