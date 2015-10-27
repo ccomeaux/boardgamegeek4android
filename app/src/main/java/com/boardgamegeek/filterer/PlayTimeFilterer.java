@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -18,7 +19,7 @@ public class PlayTimeFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
 	}
 
-	public PlayTimeFilterer(Context context, String data) {
+	public PlayTimeFilterer(@NonNull Context context, @NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
@@ -26,20 +27,20 @@ public class PlayTimeFilterer extends CollectionFilterer {
 		init(context);
 	}
 
-	public PlayTimeFilterer(Context context, int min, int max, boolean includeUndefined) {
+	public PlayTimeFilterer(@NonNull Context context, int min, int max, boolean includeUndefined) {
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
 		init(context);
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
 		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(Resources r) {
+	private void setDisplayText(@NonNull Resources r) {
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
@@ -85,6 +86,7 @@ public class PlayTimeFilterer extends CollectionFilterer {
 		return includeUndefined;
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUndefined ? "1" : "0");

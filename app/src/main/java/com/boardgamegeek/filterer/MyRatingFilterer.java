@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -17,19 +18,20 @@ public class MyRatingFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_MY_RATING);
 	}
 
-	public MyRatingFilterer(Context context, double min, double max) {
+	public MyRatingFilterer(@NonNull Context context, double min, double max) {
 		this.min = min;
 		this.max = max;
 		init(context);
 	}
 
-	public MyRatingFilterer(Context context, String data) {
+	public MyRatingFilterer(@NonNull Context context, @NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
 		init(context);
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		return String.valueOf(min) + DELIMITER + String.valueOf(max);
@@ -43,13 +45,13 @@ public class MyRatingFilterer extends CollectionFilterer {
 		return min;
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
 		setType(CollectionFilterDataFactory.TYPE_MY_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(Resources r) {
+	private void setDisplayText(@NonNull Resources r) {
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 

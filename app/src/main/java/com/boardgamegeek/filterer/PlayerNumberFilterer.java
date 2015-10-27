@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -18,7 +19,7 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 	}
 
-	public PlayerNumberFilterer(Context context, String data) {
+	public PlayerNumberFilterer(@NonNull Context context, @NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
@@ -26,20 +27,20 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		init(context);
 	}
 
-	public PlayerNumberFilterer(Context context, int min, int max, boolean isExact) {
+	public PlayerNumberFilterer(@NonNull Context context, int min, int max, boolean isExact) {
 		this.min = min;
 		this.max = max;
 		this.isExact = isExact;
 		init(context);
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
 		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(Resources r) {
+	private void setDisplayText(@NonNull Resources r) {
 		String range = "";
 		if (isExact) {
 			range = r.getString(R.string.exactly) + " ";
@@ -78,6 +79,7 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		return isExact;
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (isExact ? "1" : "0");

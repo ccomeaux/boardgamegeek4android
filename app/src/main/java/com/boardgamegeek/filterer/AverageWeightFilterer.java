@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -18,7 +19,7 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
 	}
 
-	public AverageWeightFilterer(Context context, String data) {
+	public AverageWeightFilterer(@NonNull Context context, @NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
@@ -26,20 +27,20 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		init(context);
 	}
 
-	public AverageWeightFilterer(Context context, double min, double max, boolean includeUndefined) {
+	public AverageWeightFilterer(@NonNull Context context, double min, double max, boolean includeUndefined) {
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
 		init(context);
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(Resources r) {
+	private void setDisplayText(@NonNull Resources r) {
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
@@ -81,6 +82,7 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		return includeUndefined;
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUndefined ? "1" : "0");

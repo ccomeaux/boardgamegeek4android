@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -14,23 +15,23 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
 	}
 
-	public ExpansionStatusFilterer(Context context, String data) {
+	public ExpansionStatusFilterer(@NonNull Context context, String data) {
 		selectedSubtype = Integer.valueOf(data);
 		init(context);
 	}
 
-	public ExpansionStatusFilterer(Context context, int selectedSubtype) {
+	public ExpansionStatusFilterer(@NonNull Context context, int selectedSubtype) {
 		this.selectedSubtype = selectedSubtype;
 		init(context);
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
 		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
 		createDisplayText(context.getResources());
 		setSelection(context.getResources());
 	}
 
-	private void createDisplayText(Resources resources) {
+	private void createDisplayText(@NonNull Resources resources) {
 		String text = "";
 		String[] subtypes = resources.getStringArray(R.array.expansion_status_filter);
 		if (subtypes != null && selectedSubtype != 0 && selectedSubtype < subtypes.length) {
@@ -43,12 +44,13 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 		return selectedSubtype;
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		return String.valueOf(selectedSubtype);
 	}
 
-	private void setSelection(Resources resources) {
+	private void setSelection(@NonNull Resources resources) {
 		String value = "";
 		String[] values = resources.getStringArray(R.array.expansion_status_filter_values);
 		if (values != null && selectedSubtype != 0 && selectedSubtype < values.length) {

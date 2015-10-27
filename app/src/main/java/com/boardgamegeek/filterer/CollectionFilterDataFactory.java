@@ -1,6 +1,7 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 public class CollectionFilterDataFactory {
@@ -17,7 +18,7 @@ public class CollectionFilterDataFactory {
 	public static final int TYPE_PLAY_COUNT = 11;
 	public static final int TYPE_MY_RATING = 12;
 
-	public static CollectionFilterer create(Context context, int type, String data) {
+	public static CollectionFilterer create(@NonNull Context context, int type, @NonNull String data) {
 		if (TextUtils.isEmpty(data)) {
 			return null;
 		}

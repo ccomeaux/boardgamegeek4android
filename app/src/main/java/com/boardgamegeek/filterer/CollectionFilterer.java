@@ -2,6 +2,8 @@ package com.boardgamegeek.filterer;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 public class CollectionFilterer implements Parcelable {
@@ -55,7 +57,7 @@ public class CollectionFilterer implements Parcelable {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (o == null || !(o instanceof CollectionFilterer)) {
 			return false;
 		}
@@ -74,7 +76,7 @@ public class CollectionFilterer implements Parcelable {
 	}
 
 	@Override
-	public void writeToParcel(Parcel out, int flags) {
+	public void writeToParcel(@NonNull Parcel out, int flags) {
 		out.writeInt(type);
 		out.writeString(displayText);
 		out.writeString(selection);
@@ -82,16 +84,18 @@ public class CollectionFilterer implements Parcelable {
 	}
 
 	public static final Parcelable.Creator<CollectionFilterer> CREATOR = new Parcelable.Creator<CollectionFilterer>() {
-		public CollectionFilterer createFromParcel(Parcel in) {
+		@NonNull
+		public CollectionFilterer createFromParcel(@NonNull Parcel in) {
 			return new CollectionFilterer(in);
 		}
 
+		@NonNull
 		public CollectionFilterer[] newArray(int size) {
 			return new CollectionFilterer[size];
 		}
 	};
 
-	private CollectionFilterer(Parcel in) {
+	private CollectionFilterer(@NonNull Parcel in) {
 		type = in.readInt();
 		displayText = in.readString();
 		selection = in.readString();

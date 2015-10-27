@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -17,26 +18,26 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
 	}
 
-	public AverageRatingFilterer(Context context, String data) {
+	public AverageRatingFilterer(@NonNull Context context, @NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
 		init(context);
 	}
 
-	public AverageRatingFilterer(Context context, double min, double max) {
+	public AverageRatingFilterer(@NonNull Context context, double min, double max) {
 		this.min = min;
 		this.max = max;
 		init(context);
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(Resources r) {
+	private void setDisplayText(@NonNull Resources r) {
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
@@ -72,6 +73,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		return max;
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		return String.valueOf(min) + DELIMITER + String.valueOf(max);

@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 
@@ -16,7 +17,7 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 	}
 
-	public CollectionStatusFilterer(Context context, String data) {
+	public CollectionStatusFilterer(@NonNull Context context, @NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		shouldJoinWithOr = (d[0].equals("1"));
 		selectedStatuses = new boolean[d.length - 1];
@@ -26,19 +27,19 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		init(context);
 	}
 
-	public CollectionStatusFilterer(Context context, boolean[] selectedStatuses, boolean shouldJoinWithOr) {
+	public CollectionStatusFilterer(@NonNull Context context, boolean[] selectedStatuses, boolean shouldJoinWithOr) {
 		this.selectedStatuses = selectedStatuses;
 		this.shouldJoinWithOr = shouldJoinWithOr;
 		init(context);
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
 		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 		createDisplayText(context.getResources());
 		createSelection(context.getResources());
 	}
 
-	private void createDisplayText(Resources r) {
+	private void createDisplayText(@NonNull Resources r) {
 		String[] entries = r.getStringArray(R.array.collection_status_filter_entries);
 		String displayText = "";
 
@@ -54,7 +55,7 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		displayText(displayText);
 	}
 
-	private void createSelection(Resources r) {
+	private void createSelection(@NonNull Resources r) {
 		String[] values = r.getStringArray(R.array.collection_status_filter_values);
 		String selection = "";
 		List<String> selectionArgs = new ArrayList<>(selectedStatuses.length);
@@ -76,6 +77,7 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		return selectedStatuses;
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		String s = (shouldJoinWithOr ? "1" : "0");

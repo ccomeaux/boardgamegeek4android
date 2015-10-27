@@ -1,5 +1,7 @@
 package com.boardgamegeek.filterer;
 
+import android.support.annotation.NonNull;
+
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class GeekRankingFilterer extends CollectionFilterer {
@@ -21,7 +23,7 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		init();
 	}
 
-	public GeekRankingFilterer(String data) {
+	public GeekRankingFilterer(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
@@ -29,6 +31,7 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		init();
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
 		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUnranked ? "1" : "0");
