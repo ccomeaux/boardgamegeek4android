@@ -19,6 +19,7 @@ import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
 import retrofit.android.AndroidLog;
 import retrofit.client.Response;
+import retrofit.converter.Converter;
 import retrofit.converter.SimpleXMLConverter;
 
 public class Adapter {
@@ -31,18 +32,22 @@ public class Adapter {
 	}
 
 	public static BggService createWithJson() {
-		return createBuilder().setConverter(new JsonConverter()).build().create(BggService.class);
+		return createBuilderWithoutConverter().build().create(BggService.class);
 	}
 
 	public static BggService createWithAuth(Context context) {
 		return addAuth(context, createBuilder()).build().create(BggService.class);
 	}
 
-	public static BggService createForPost(Context context) {
-		return addAuth(context, createBuilder()).setConverter(new JsonConverter()).build().create(BggService.class);
+	public static BggService createForPost(Context context, Converter converter) {
+		return addAuth(context, createBuilder()).setConverter(converter).build().create(BggService.class);
 	}
 
 	private static Builder createBuilder() {
+		return createBuilderWithoutConverter().setConverter(new SimpleXMLConverter(false));
+	}
+
+	private static Builder createBuilderWithoutConverter() {
 		ErrorHandler errorHandler = new ErrorHandler() {
 			@Override
 			public Throwable handleError(RetrofitError cause) {
@@ -58,8 +63,9 @@ public class Adapter {
 			}
 		};
 
-		Builder builder = new RestAdapter.Builder().setEndpoint("https://www.boardgamegeek.com/")
-			.setConverter(new SimpleXMLConverter(false)).setErrorHandler(errorHandler);
+		Builder builder = new RestAdapter.Builder()
+			.setEndpoint("https://www.boardgamegeek.com/")
+			.setErrorHandler(errorHandler);
 		if (DEBUG) {
 			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
 		}
