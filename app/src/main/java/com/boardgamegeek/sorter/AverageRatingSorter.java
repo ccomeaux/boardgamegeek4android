@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -11,12 +12,12 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class AverageRatingSorter extends CollectionSorter {
 	private static final String COLUMN = Collection.STATS_AVERAGE;
 	private static final String DEFAULT_VALUE = "?";
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.00");
+	private final DecimalFormat displayFormat = new DecimalFormat("0.00");
 
-	public AverageRatingSorter(Context context) {
+	public AverageRatingSorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = getClause(COLUMN, true);
-		mDescriptionId = R.string.menu_collection_sort_rating;
+		orderByClause = getClause(COLUMN, true);
+		descriptionId = R.string.menu_collection_sort_rating;
 	}
 
 	@Override
@@ -24,22 +25,23 @@ public class AverageRatingSorter extends CollectionSorter {
 		return CollectionSorterFactory.TYPE_AVERAGE_RATING;
 	}
 
+	@NonNull
 	@Override
 	public String[] getColumns() {
 		return new String[] { COLUMN };
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		return getInfo(cursor, null);
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
-		return getInfo(cursor, mDisplayFormat);
+	public String getDisplayInfo(@NonNull Cursor cursor) {
+		return getInfo(cursor, displayFormat);
 	}
 
-	private String getInfo(Cursor cursor, DecimalFormat format) {
+	private String getInfo(@NonNull Cursor cursor, DecimalFormat format) {
 		return getDoubleAsString(cursor, COLUMN, DEFAULT_VALUE, true, format);
 	}
 }

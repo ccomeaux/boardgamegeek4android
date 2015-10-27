@@ -217,13 +217,13 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		final Account account = new Account(mUsername, Authenticator.ACCOUNT_TYPE);
 
 		try {
-			mAccountManager.setAuthToken(account, Authenticator.AUTHTOKEN_TYPE, authResponse.authToken);
+			mAccountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, authResponse.authToken);
 		} catch (SecurityException e) {
 			showError("Uh-oh! This isn't an error we expect to see. If you have ScorePal installed, there's a known problem that one prevents the other from signing in. We're working to resolve the issue.");
 			return;
 		}
 		Bundle userData = new Bundle();
-		userData.putString(Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(authResponse.authTokenExpiry));
+		userData.putString(Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(authResponse.authTokenExpiry));
 
 		if (mRequestNewAccount) {
 			if (!mAccountManager.addAccountExplicitly(account, mPassword, userData)) {

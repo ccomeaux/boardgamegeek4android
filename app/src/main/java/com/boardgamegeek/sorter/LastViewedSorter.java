@@ -2,19 +2,20 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class LastViewedSorter extends CollectionSorter {
-	private String mNever;
+	@NonNull private final String never;
 
-	public LastViewedSorter(Context context) {
+	public LastViewedSorter(@NonNull Context context) {
 		super(context);
-		mDescriptionId = R.string.menu_collection_sort_last_viewed;
-		mOrderByClause = getClause(Games.LAST_VIEWED, true);
-		mNever = context.getString(R.string.never);
+		descriptionId = R.string.menu_collection_sort_last_viewed;
+		orderByClause = getClause(Games.LAST_VIEWED, true);
+		never = context.getString(R.string.never);
 	}
 
 	@Override
@@ -27,23 +28,23 @@ public class LastViewedSorter extends CollectionSorter {
 		return new String[] { Games.LAST_VIEWED };
 	}
 
+	@NonNull
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		long time = getLong(cursor, Games.LAST_VIEWED);
 		if (time == 0) {
-			return mNever;
+			return never;
 		}
-		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS)
-			.toString();
+		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS).toString();
 	}
 
+	@NonNull
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
+	public String getDisplayInfo(@NonNull Cursor cursor) {
 		long time = getLong(cursor, Games.LAST_VIEWED);
 		if (time == 0) {
-			return mNever;
+			return never;
 		}
-		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)
-			.toString();
+		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
 	}
 }

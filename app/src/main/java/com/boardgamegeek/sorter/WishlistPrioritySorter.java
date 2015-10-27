@@ -2,18 +2,19 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class WishlistPrioritySorter extends CollectionSorter {
-	String[] mPriorityText;
+	private final String[] priorityText;
 
-	public WishlistPrioritySorter(Context context) {
+	public WishlistPrioritySorter(@NonNull Context context) {
 		super(context);
-		mPriorityText = mContext.getResources().getStringArray(R.array.wishlist_priority);
-		mOrderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
-		mDescriptionId = R.string.menu_collection_sort_wishlist_priority;
+		priorityText = context.getResources().getStringArray(R.array.wishlist_priority);
+		orderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
+		descriptionId = R.string.menu_collection_sort_wishlist_priority;
 	}
 
 	@Override
@@ -27,16 +28,17 @@ public class WishlistPrioritySorter extends CollectionSorter {
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		int level = getInt(cursor, Collection.STATUS_WISHLIST_PRIORITY);
-		if (level >= mPriorityText.length) {
+		if (level >= priorityText.length) {
 			level = 0;
 		}
-		return mPriorityText[level];
+		return priorityText[level];
 	}
 
+	@NonNull
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
+	public String getDisplayInfo(@NonNull Cursor cursor) {
 		return getIntAsString(cursor, Collection.STATUS_WISHLIST_PRIORITY, "?", true) + " - " + getHeaderText(cursor);
 	}
 }

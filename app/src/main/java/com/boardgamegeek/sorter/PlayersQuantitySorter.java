@@ -2,16 +2,16 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class PlayersQuantitySorter extends PlayersSorter {
-
-	public PlayersQuantitySorter(Context context) {
+	public PlayersQuantitySorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = getClause(Plays.SUM_QUANTITY, true);
-		mDescriptionId = R.string.menu_sort_quantity;
+		orderByClause = getClause(Plays.SUM_QUANTITY, true);
+		descriptionId = R.string.menu_sort_quantity;
 	}
 
 	@Override
@@ -24,8 +24,9 @@ public class PlayersQuantitySorter extends PlayersSorter {
 		return new String[] { Plays.SUM_QUANTITY };
 	}
 
+	@NonNull
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		int q = getInt(cursor, Plays.SUM_QUANTITY);
 		String prefix = String.valueOf(q).substring(0, 1);
 		String suffix = "";

@@ -2,18 +2,19 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class PlaysLocationSorter extends PlaysSorter {
-	private final String mNoLocation;
+	@NonNull private final String noLocation;
 
-	public PlaysLocationSorter(Context context) {
+	public PlaysLocationSorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = getClause(Plays.LOCATION, false);
-		mDescriptionId = R.string.menu_plays_sort_location;
-		mNoLocation = context.getString(R.string.no_location);
+		orderByClause = getClause(Plays.LOCATION, false);
+		descriptionId = R.string.menu_plays_sort_location;
+		noLocation = context.getString(R.string.no_location);
 	}
 
 	@Override
@@ -27,7 +28,7 @@ public class PlaysLocationSorter extends PlaysSorter {
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
-		return getString(cursor, Plays.LOCATION, mNoLocation);
+	public String getHeaderText(@NonNull Cursor cursor) {
+		return getString(cursor, Plays.LOCATION, noLocation);
 	}
 }

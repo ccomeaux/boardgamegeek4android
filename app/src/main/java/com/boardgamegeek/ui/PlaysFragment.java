@@ -105,7 +105,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		super.onActivityCreated(savedInstanceState);
 
 		int sortType = PlaysSorterFactory.TYPE_DEFAULT;
-		mSorter = PlaysSorterFactory.create(sortType, getActivity());
+		mSorter = PlaysSorterFactory.create(getActivity(), sortType);
 
 		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
@@ -307,7 +307,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (sortType == PlaysSorterFactory.TYPE_UNKNOWN) {
 			sortType = PlaysSorterFactory.TYPE_DEFAULT;
 		}
-		mSorter = PlaysSorterFactory.create(sortType, getActivity());
+		mSorter = PlaysSorterFactory.create(getActivity(), sortType);
 		resetScrollState();
 		requery();
 	}

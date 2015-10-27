@@ -15,7 +15,6 @@ public class AuthResponse {
 	public long sessionIdExpiry;
 
 	private AuthResponse() {
-		//noop
 	}
 
 	public static AuthResponse getMock() {
