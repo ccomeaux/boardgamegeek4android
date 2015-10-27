@@ -45,7 +45,7 @@ public class GeekRankingFilter extends SliderFilter {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context) {
-		return new GeekRankingFilterer(context, mMinRanking, mMaxRanking, mUnranked);
+		return new GeekRankingFilterer(mMinRanking, mMaxRanking, mUnranked);
 	}
 
 	@Override

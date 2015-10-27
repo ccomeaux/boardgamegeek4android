@@ -1,8 +1,5 @@
 package com.boardgamegeek.filterer;
 
-import android.content.Context;
-import android.content.res.Resources;
-
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class GeekRankingFilterer extends CollectionFilterer {
@@ -17,19 +14,19 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
 	}
 
-	public GeekRankingFilterer(Context context, int min, int max, boolean includeUnranked) {
+	public GeekRankingFilterer(int min, int max, boolean includeUnranked) {
 		this.min = min;
 		this.max = max;
 		this.includeUnranked = includeUnranked;
-		init(context);
+		init();
 	}
 
-	public GeekRankingFilterer(Context context, String data) {
+	public GeekRankingFilterer(String data) {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		includeUnranked = Boolean.valueOf(d[2]);
-		init(context);
+		init();
 	}
 
 	@Override
@@ -49,13 +46,13 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		return includeUnranked;
 	}
 
-	private void init(Context context) {
+	private void init() {
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
-		setDisplayText(context.getResources());
+		setDisplayText();
 		setSelection();
 	}
 
-	private void setDisplayText(Resources r) {
+	private void setDisplayText() {
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 

@@ -33,13 +33,13 @@ public class CollectionFilterDataFactory {
 			case TYPE_AVERAGE_WEIGHT:
 				return new AverageWeightFilterer(context, data);
 			case TYPE_YEAR_PUBLISHED:
-				return new YearPublishedFilterer(context, data);
+				return new YearPublishedFilterer(data);
 			case TYPE_AVERAGE_RATING:
 				return new AverageRatingFilterer(context, data);
 			case TYPE_GEEK_RATING:
 				return new GeekRatingFilterer(context, data);
 			case TYPE_GEEK_RANKING:
-				return new GeekRankingFilterer(context, data);
+				return new GeekRankingFilterer(data);
 			case TYPE_EXPANSION_STATUS:
 				return new ExpansionStatusFilterer(context, data);
 			case TYPE_PLAY_COUNT:

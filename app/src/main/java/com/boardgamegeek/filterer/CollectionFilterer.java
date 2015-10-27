@@ -38,19 +38,16 @@ public class CollectionFilterer implements Parcelable {
 		return selectionArgs;
 	}
 
-	public CollectionFilterer displayText(String displayText) {
+	public void displayText(String displayText) {
 		this.displayText = displayText;
-		return this;
 	}
 
-	public CollectionFilterer selection(String selection) {
+	public void selection(String selection) {
 		this.selection = selection;
-		return this;
 	}
 
-	public CollectionFilterer selectionArgs(String... selectionArgs) {
+	public void selectionArgs(String... selectionArgs) {
 		this.selectionArgs = selectionArgs;
-		return this;
 	}
 
 	public boolean isValid() {
