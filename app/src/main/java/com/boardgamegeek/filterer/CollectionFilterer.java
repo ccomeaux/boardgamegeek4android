@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 public class CollectionFilterer implements Parcelable {
+	protected static final String DELIMITER = ":";
 	private int type;
 	private String displayText;
 	private String selection;

@@ -9,7 +9,6 @@ import com.boardgamegeek.provider.BggContract.Games;
 public class AverageWeightFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 5.0;
-	private static final String DELIMITER = ":";
 
 	private double min;
 	private double max;

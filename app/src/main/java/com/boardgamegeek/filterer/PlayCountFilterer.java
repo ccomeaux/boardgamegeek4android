@@ -9,7 +9,6 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class PlayCountFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 25;
-	private static final String DELIMITER = ":";
 
 	private int min;
 	private int max;

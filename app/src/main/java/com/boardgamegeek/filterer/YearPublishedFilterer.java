@@ -10,7 +10,6 @@ import java.util.Calendar;
 public class YearPublishedFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1970;
 	public static final int MAX_RANGE = Calendar.getInstance().get(Calendar.YEAR) + 1;
-	private static final String DELIMITER = ":";
 
 	private int min;
 	private int max;

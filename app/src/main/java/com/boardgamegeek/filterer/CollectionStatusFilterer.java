@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollectionStatusFilterer extends CollectionFilterer {
-	private static final String DELIMITER = ":";
-
 	private boolean[] selectedStatuses;
 	private boolean shouldJoinWithOr;
 
