@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollectionView {
-	public static String[] PROJECTION = new String[] {
+	public static final String[] PROJECTION = new String[] {
 		CollectionViews._ID,
 		CollectionViews.NAME,
 		CollectionViews.SORT_TYPE,

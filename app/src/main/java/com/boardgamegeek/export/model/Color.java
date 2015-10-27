@@ -6,7 +6,7 @@ import com.boardgamegeek.provider.BggContract.GameColors;
 import com.google.gson.annotations.Expose;
 
 public class Color {
-	public static String[] PROJECTION = new String[] {
+	public static final String[] PROJECTION = new String[] {
 		GameColors.COLOR,
 	};
 

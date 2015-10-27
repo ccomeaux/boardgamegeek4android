@@ -6,7 +6,7 @@ import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.google.gson.annotations.Expose;
 
 public class Filter {
-	public static String[] PROJECTION = new String[] {
+	public static final String[] PROJECTION = new String[] {
 		CollectionViewFilters._ID,
 		CollectionViewFilters.TYPE,
 		CollectionViewFilters.DATA

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-	public static String[] PROJECTION = new String[] {
+	public static final String[] PROJECTION = new String[] {
 		Games.GAME_ID,
 	};
 

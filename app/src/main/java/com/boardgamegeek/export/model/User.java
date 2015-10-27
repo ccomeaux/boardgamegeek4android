@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    public static String[] PROJECTION = new String[]{
+    public static final String[] PROJECTION = new String[]{
             Buddies.BUDDY_NAME,
     };
 
