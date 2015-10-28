@@ -3,7 +3,6 @@ package com.boardgamegeek.io;
 import com.boardgamegeek.model.User;
 
 public class UserRequest extends RetryableRequest<User> {
-
 	private final String name;
 
 	public UserRequest(BggService service, String name) {
@@ -13,7 +12,7 @@ public class UserRequest extends RetryableRequest<User> {
 
 	@Override
 	protected User request() {
-		return mService.user(name);
+		return bggService.user(name);
 	}
 
 	@Override

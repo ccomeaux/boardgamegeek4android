@@ -16,7 +16,7 @@ public class CollectionRequest extends RetryableRequest<CollectionResponse> {
 
 	@Override
 	protected CollectionResponse request() {
-		return mService.collection(username, options);
+		return bggService.collection(username, options);
 	}
 
 	@Override

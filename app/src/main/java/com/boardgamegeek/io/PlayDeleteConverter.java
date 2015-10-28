@@ -20,8 +20,7 @@ public class PlayDeleteConverter extends PostConverter {
 		if (typeIsExpected(type)) {
 			String errorMessage = extractErrorMessage(content);
 			if (!TextUtils.isEmpty(errorMessage)) {
-				PlayPostResponse response = new PlayPostResponse(errorMessage);
-				return response;
+				return new PlayPostResponse(errorMessage);
 			}
 			if (content.contains("<title>Plays") && content.contains("User:")) {
 				// This is the response if the delete was successful

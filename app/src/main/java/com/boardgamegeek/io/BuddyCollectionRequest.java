@@ -16,7 +16,7 @@ public class BuddyCollectionRequest extends RetryableRequest<CollectionResponse>
 
 	@Override
 	protected CollectionResponse request() {
-		return mService.collection(username, options);
+		return bggService.collection(username, options);
 	}
 
 	@Override

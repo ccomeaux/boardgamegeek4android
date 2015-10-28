@@ -77,4 +77,3 @@ public class CollectionConverter extends PostConverter {
 //<a href="/login">login</a> to use the collection utilities.
 //
 //</div>
-

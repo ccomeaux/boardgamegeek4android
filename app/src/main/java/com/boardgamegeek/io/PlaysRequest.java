@@ -3,7 +3,7 @@ package com.boardgamegeek.io;
 import com.boardgamegeek.model.PlaysResponse;
 
 public class PlaysRequest extends RetryableRequest<PlaysResponse> {
-	public static final int TYPE_ALL = 0;
+	private static final int TYPE_ALL = 0;
 	public static final int TYPE_MIN = 1;
 	public static final int TYPE_MAX = 2;
 
@@ -31,11 +31,11 @@ public class PlaysRequest extends RetryableRequest<PlaysResponse> {
 	@Override
 	protected PlaysResponse request() {
 		if (type == PlaysRequest.TYPE_MIN) {
-			return mService.playsByMinDate(username, date, page);
+			return bggService.playsByMinDate(username, date, page);
 		} else if (type == PlaysRequest.TYPE_MAX) {
-			return mService.playsByMaxDate(username, date, page);
+			return bggService.playsByMaxDate(username, date, page);
 		} else {
-			return mService.plays(username, page);
+			return bggService.plays(username, page);
 		}
 	}
 }

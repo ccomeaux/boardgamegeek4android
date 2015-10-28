@@ -12,7 +12,7 @@ public class ThingRequest extends RetryableRequest<ThingResponse> {
 
 	@Override
 	protected ThingResponse request() {
-		return mService.thing(ids, 1);
+		return bggService.thing(ids, 1);
 	}
 
 	@Override
