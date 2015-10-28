@@ -39,6 +39,7 @@ public class VersionPreference extends DialogPreference {
 
 	@Override
 	protected void onBindDialogView(@NonNull View view) {
+		super.onBindDialogView(view);
 		TextView nameAndVersionView = (TextView) view.findViewById(R.id.app_name_and_version);
 		TextView aboutBodyView = (TextView) view.findViewById(R.id.about_body);
 
