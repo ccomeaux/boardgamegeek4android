@@ -8,6 +8,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -202,7 +204,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		requery(query, true);
 	}
 
-	private void requery(String query, boolean shouldSearchExact) {
+	private void requery(@Nullable String query, boolean shouldSearchExact) {
 		if (!isAdded()) {
 			return;
 		}
@@ -242,7 +244,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 				return null;
 			}
 			SearchData games = null;
-			if (shouldSearchExact && PreferencesUtils.getExactSearch(getContext())) {
+			if (shouldSearchExact) {
 				try {
 					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
 				} catch (Exception e) {
@@ -298,10 +300,10 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	}
 
 	public static class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
-		private final LayoutInflater layoutInflater;
-		private final String gameIdFormat;
+		@NonNull private final LayoutInflater layoutInflater;
+		@NonNull private final String gameIdFormat;
 
-		public SearchResultsAdapter(Activity activity, List<SearchResult> results) {
+		public SearchResultsAdapter(@NonNull Activity activity, @NonNull List<SearchResult> results) {
 			super(activity, R.layout.row_search, results);
 			layoutInflater = activity.getLayoutInflater();
 			gameIdFormat = activity.getResources().getString(R.string.id_list_text);
@@ -347,11 +349,11 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	}
 
 	static class ViewHolder {
-		final TextView name;
-		final TextView year;
-		final TextView gameId;
+		@NonNull final TextView name;
+		@NonNull final TextView year;
+		@NonNull final TextView gameId;
 
-		public ViewHolder(View view) {
+		public ViewHolder(@NonNull View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 			gameId = (TextView) view.findViewById(R.id.gameId);

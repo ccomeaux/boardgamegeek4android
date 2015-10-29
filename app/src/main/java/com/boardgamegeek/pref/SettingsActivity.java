@@ -19,7 +19,6 @@ import java.util.List;
 
 @SuppressWarnings("deprecation")
 public class SettingsActivity extends AppCompatPreferenceActivity {
-	private final static String ACTION_SEARCH = "com.boardgamegeek.prefs.SEARCH";
 	private final static String ACTION_LOG = "com.boardgamegeek.prefs.LOG";
 	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
 	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
@@ -28,7 +27,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 	private static ArrayMap<String, Integer> buildFragmentMap() {
 		ArrayMap<String, Integer> map = new ArrayMap<>();
-		map.put(ACTION_SEARCH, R.xml.preference_search);
 		map.put(ACTION_LOG, R.xml.preference_log);
 		map.put(ACTION_SYNC, R.xml.preference_sync);
 		map.put(ACTION_ADVANCED, R.xml.preference_advanced);

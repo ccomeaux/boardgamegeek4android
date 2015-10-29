@@ -3,14 +3,6 @@
 
 	<header
 		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
-		android:icon="@drawable/ic_action_search_light"
-		android:title="@string/pref_search" >
-		<extra
-			android:name="fragment"
-			android:value="com.boardgamegeek.prefs.SEARCH" />
-	</header>
-	<header
-		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
 		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/pref_sync" >
 		<extra
