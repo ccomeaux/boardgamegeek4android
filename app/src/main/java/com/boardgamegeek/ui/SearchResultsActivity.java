@@ -129,7 +129,8 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
 			}
 			finish();
-		} else if (action != null && Intent.ACTION_SEARCH.equals(action)) {
+		} else if (action != null &&
+			(Intent.ACTION_SEARCH.equals(action) || "com.google.android.gms.actions.SEARCH_ACTION".equals(action))) {
 			searchText = "";
 			if (intent.hasExtra(SearchManager.QUERY)) {
 				searchText = intent.getExtras().getString(SearchManager.QUERY);
