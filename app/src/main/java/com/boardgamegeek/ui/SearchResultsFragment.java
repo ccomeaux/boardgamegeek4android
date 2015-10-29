@@ -47,8 +47,9 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	private static final int LOADER_ID = 0;
 	private static final int MESSAGE_QUERY_UPDATE = 1;
 	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
+	private static final String KEY_SEARCH_TEXT = "SEARCH_TEXT";
 
-	private String searchText;
+	private String previousSearchText;
 	private SearchResultsAdapter searchResultsAdapter;
 	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
 	private MenuItem logPlayMenuItem;
@@ -66,13 +67,6 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	};
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		searchText = intent.getStringExtra(SearchManager.QUERY);
-	}
-
-	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getString(R.string.search_initial_help));
@@ -82,8 +76,9 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(LOADER_ID, null, this);
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		restartLoader(intent.getStringExtra(SearchManager.QUERY));
 	}
 
 	@Override
@@ -103,7 +98,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 	@Override
 	public Loader<SearchData> onCreateLoader(int id, Bundle data) {
-		return new SearchLoader(getActivity(), searchText);
+		return new SearchLoader(getActivity(), data.getString(KEY_SEARCH_TEXT));
 	}
 
 	@Override
@@ -115,6 +110,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		}
 
 		int count = data == null ? 0 : data.count();
+		String searchText = data == null ? "" : data.getSearchText();
 
 		if (data != null) {
 			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.list());
@@ -188,59 +184,72 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		if (!isAdded()) {
 			return;
 		}
-		if (query == null && searchText == null) {
+		if (query == null && previousSearchText == null) {
 			return;
 		}
-		if (searchText != null && searchText.equals(query)) {
+		if (previousSearchText != null && previousSearchText.equals(query)) {
 			return;
 		}
-		searchText = query;
-		getLoaderManager().restartLoader(LOADER_ID, null, SearchResultsFragment.this);
+		restartLoader(query);
+	}
+
+	private void restartLoader(String query) {
+		previousSearchText = query;
+		Bundle args = new Bundle();
+		args.putString(KEY_SEARCH_TEXT, query);
+		getLoaderManager().restartLoader(LOADER_ID, args, SearchResultsFragment.this);
 	}
 
 	private static class SearchLoader extends BggLoader<SearchData> {
 		private final BggService bggService;
-		private final String query;
+		private final String searchText;
 
-		public SearchLoader(Context context, String query) {
+		public SearchLoader(Context context, String searchText) {
 			super(context);
 			bggService = Adapter.create();
-			this.query = query;
+			this.searchText = searchText;
 		}
 
 		@Override
 		public SearchData loadInBackground() {
-			if (TextUtils.isEmpty(query)) {
+			if (TextUtils.isEmpty(searchText)) {
 				return null;
 			}
 			SearchData games = null;
 			try {
 				if (PreferencesUtils.getExactSearch(getContext())) {
-					games = new SearchData(bggService.search(query, BggService.SEARCH_TYPE_BOARD_GAME, 1));
+					games = new SearchData(searchText, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
 				}
 			} catch (Exception e) {
 				// we'll try it again below
 			}
 			try {
 				if (games == null || games.count() == 0) {
-					games = new SearchData(bggService.search(query, BggService.SEARCH_TYPE_BOARD_GAME, 0));
+					games = new SearchData(searchText, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0));
 				}
 			} catch (Exception e) {
-				games = new SearchData(e);
+				games = new SearchData(searchText, e);
 			}
 			return games;
 		}
 	}
 
 	static class SearchData extends Data<SearchResult> {
+		private String searchText;
 		private SearchResponse response;
 
-		public SearchData(SearchResponse response) {
+		public SearchData(String searchText, SearchResponse response) {
+			this.searchText = searchText;
 			this.response = response;
 		}
 
-		public SearchData(Exception e) {
+		public SearchData(String searchText, Exception e) {
 			super(e);
+			this.searchText = searchText;
+		}
+
+		public String getSearchText() {
+			return searchText;
 		}
 
 		public int count() {
