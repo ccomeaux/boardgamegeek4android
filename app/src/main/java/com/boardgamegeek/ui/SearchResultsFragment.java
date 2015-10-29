@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.PluralsRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -18,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -48,8 +50,10 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	private static final int MESSAGE_QUERY_UPDATE = 1;
 	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
 	private static final String KEY_SEARCH_TEXT = "SEARCH_TEXT";
+	private static final String KEY_SEARCH_EXACT = "SEARCH_EXACT";
 
 	private String previousSearchText;
+	private boolean previousShouldSearchExact;
 	private SearchResultsAdapter searchResultsAdapter;
 	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
 	private MenuItem logPlayMenuItem;
@@ -61,7 +65,8 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == MESSAGE_QUERY_UPDATE) {
-				requery((String) msg.obj);
+				Pair<String, Boolean> pair = (Pair<String, Boolean>) msg.obj;
+				requery(pair.first, pair.second);
 			}
 		}
 	};
@@ -78,7 +83,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		super.onActivityCreated(savedInstanceState);
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		restartLoader(intent.getStringExtra(SearchManager.QUERY));
+		restartLoader(intent.getStringExtra(SearchManager.QUERY), true);
 	}
 
 	@Override
@@ -98,7 +103,9 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 	@Override
 	public Loader<SearchData> onCreateLoader(int id, Bundle data) {
-		return new SearchLoader(getActivity(), data.getString(KEY_SEARCH_TEXT));
+		return new SearchLoader(getActivity(),
+			data.getString(KEY_SEARCH_TEXT),
+			data.getBoolean(KEY_SEARCH_EXACT, true));
 	}
 
 	@Override
@@ -110,7 +117,8 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		}
 
 		int count = data == null ? 0 : data.count();
-		String searchText = data == null ? "" : data.getSearchText();
+		final String searchText = data == null ? "" : data.getSearchText();
+		boolean isExactMatch = data == null ? false : data.isExactMatch;
 
 		if (data != null) {
 			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.list());
@@ -142,13 +150,27 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 				snackbar.dismiss();
 			}
 		} else {
+			@PluralsRes final int messageId = isExactMatch ? R.plurals.search_results_exact : R.plurals.search_results;
 			if (snackbar == null || !snackbar.isShown()) {
 				snackbar = Snackbar.make(getListContainer(),
-					getResources().getQuantityString(R.plurals.search_results, count, count, searchText),
+					getResources().getQuantityString(messageId, count, count, searchText),
 					Snackbar.LENGTH_INDEFINITE);
 				snackbar.getView().setBackgroundResource(R.color.primary_dark);
+				snackbar.setActionTextColor(getResources().getColor(R.color.inverse_text));
 			} else {
-				snackbar.setText(getResources().getQuantityString(R.plurals.search_results, count, count, searchText));
+				snackbar.setText(getResources().getQuantityString(messageId, count, count, searchText));
+			}
+			if (isExactMatch) {
+				snackbar.setAction(R.string.more, new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
+						setProgressShown(true);
+						requery(searchText, false);
+					}
+				});
+			} else {
+				snackbar.setAction("", null);
 			}
 			snackbar.show();
 		}
@@ -167,47 +189,51 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	public void requestQueryUpdate(String query) {
 		setProgressShown(true);
 		if (TextUtils.isEmpty(query)) {
-			requery(query);
+			requery(query, true);
 		} else {
 			requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
-			requeryHandler.sendMessageDelayed(Message.obtain(requeryHandler, MESSAGE_QUERY_UPDATE, query), QUERY_UPDATE_DELAY_MILLIS);
+			requeryHandler.sendMessageDelayed(Message.obtain(requeryHandler, MESSAGE_QUERY_UPDATE, new Pair<String, Boolean>(query, true)), QUERY_UPDATE_DELAY_MILLIS);
 		}
 	}
 
 	public void forceQueryUpdate(String query) {
 		requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
 		setProgressShown(true);
-		requery(query);
+		requery(query, true);
 	}
 
-	private void requery(String query) {
+	private void requery(String query, boolean shouldSearchExact) {
 		if (!isAdded()) {
 			return;
 		}
 		if (query == null && previousSearchText == null) {
 			return;
 		}
-		if (previousSearchText != null && previousSearchText.equals(query)) {
+		if (previousSearchText != null && previousSearchText.equals(query) && shouldSearchExact == previousShouldSearchExact) {
 			return;
 		}
-		restartLoader(query);
+		restartLoader(query, shouldSearchExact);
 	}
 
-	private void restartLoader(String query) {
+	private void restartLoader(String query, boolean shouldSearchExact) {
 		previousSearchText = query;
+		previousShouldSearchExact = shouldSearchExact;
 		Bundle args = new Bundle();
 		args.putString(KEY_SEARCH_TEXT, query);
+		args.putBoolean(KEY_SEARCH_EXACT, shouldSearchExact);
 		getLoaderManager().restartLoader(LOADER_ID, args, SearchResultsFragment.this);
 	}
 
 	private static class SearchLoader extends BggLoader<SearchData> {
 		private final BggService bggService;
 		private final String searchText;
+		private final boolean shouldSearchExact;
 
-		public SearchLoader(Context context, String searchText) {
+		public SearchLoader(Context context, String searchText, boolean shouldSearchExact) {
 			super(context);
 			bggService = Adapter.create();
 			this.searchText = searchText;
+			this.shouldSearchExact = shouldSearchExact;
 		}
 
 		@Override
@@ -216,16 +242,16 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 				return null;
 			}
 			SearchData games = null;
-			try {
-				if (PreferencesUtils.getExactSearch(getContext())) {
-					games = new SearchData(searchText, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
+			if (shouldSearchExact && PreferencesUtils.getExactSearch(getContext())) {
+				try {
+					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
+				} catch (Exception e) {
+					// we'll try it again below
 				}
-			} catch (Exception e) {
-				// we'll try it again below
 			}
 			try {
 				if (games == null || games.count() == 0) {
-					games = new SearchData(searchText, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0));
+					games = new SearchData(searchText, false, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0));
 				}
 			} catch (Exception e) {
 				games = new SearchData(searchText, e);
@@ -236,16 +262,19 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 	static class SearchData extends Data<SearchResult> {
 		private String searchText;
+		private boolean isExactMatch;
 		private SearchResponse response;
 
-		public SearchData(String searchText, SearchResponse response) {
+		public SearchData(String searchText, boolean isExactMatch, SearchResponse response) {
 			this.searchText = searchText;
+			this.isExactMatch = isExactMatch;
 			this.response = response;
 		}
 
 		public SearchData(String searchText, Exception e) {
 			super(e);
 			this.searchText = searchText;
+			this.isExactMatch = false;
 		}
 
 		public String getSearchText() {
