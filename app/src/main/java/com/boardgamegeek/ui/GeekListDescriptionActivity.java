@@ -30,7 +30,7 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_view_share;
+		return R.menu.view_share;
 	}
 
 	@Override

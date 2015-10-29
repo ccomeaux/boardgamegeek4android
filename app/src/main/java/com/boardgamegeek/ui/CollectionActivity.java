@@ -12,6 +12,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -72,6 +73,22 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putInt(STATE_VIEW_INDEX, viewIndex);
 		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	protected int getOptionsMenuId() {
+		return R.menu.search;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_search) {
+			Intent intent = new Intent(this, SearchResultsActivity.class);
+			startActivity(intent);
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

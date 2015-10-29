@@ -59,7 +59,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search;
+		return R.menu.search_widget;
 	}
 
 	@Override

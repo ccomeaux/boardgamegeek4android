@@ -44,7 +44,7 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_view;
+		return R.menu.view;
 	}
 
 	@Override
