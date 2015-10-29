@@ -65,7 +65,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == MESSAGE_QUERY_UPDATE) {
-				Pair<String, Boolean> pair = (Pair<String, Boolean>) msg.obj;
+				@SuppressWarnings("unchecked") Pair<String, Boolean> pair = (Pair<String, Boolean>) msg.obj;
 				requery(pair.first, pair.second);
 			}
 		}
@@ -118,7 +118,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 		int count = data == null ? 0 : data.count();
 		final String searchText = data == null ? "" : data.getSearchText();
-		boolean isExactMatch = data == null ? false : data.isExactMatch;
+		boolean isExactMatch = data != null && data.isExactMatch;
 
 		if (data != null) {
 			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.list());
@@ -192,7 +192,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			requery(query, true);
 		} else {
 			requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
-			requeryHandler.sendMessageDelayed(Message.obtain(requeryHandler, MESSAGE_QUERY_UPDATE, new Pair<String, Boolean>(query, true)), QUERY_UPDATE_DELAY_MILLIS);
+			requeryHandler.sendMessageDelayed(Message.obtain(requeryHandler, MESSAGE_QUERY_UPDATE, new Pair<>(query, true)), QUERY_UPDATE_DELAY_MILLIS);
 		}
 	}
 
@@ -261,8 +261,8 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	}
 
 	static class SearchData extends Data<SearchResult> {
-		private String searchText;
-		private boolean isExactMatch;
+		private final String searchText;
+		private final boolean isExactMatch;
 		private SearchResponse response;
 
 		public SearchData(String searchText, boolean isExactMatch, SearchResponse response) {
