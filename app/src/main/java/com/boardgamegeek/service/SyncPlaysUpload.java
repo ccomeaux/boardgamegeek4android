@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
@@ -40,11 +42,11 @@ import java.util.Map;
 import timber.log.Timber;
 
 public class SyncPlaysUpload extends SyncTask {
-	private List<CharSequence> mMessages;
-	private LocalBroadcastManager mBroadcaster;
-	private BggService mSaveService;
-	private BggService mDeleteService;
-	private PlayPersister mPersister;
+	private List<CharSequence> notificationMessages;
+	private LocalBroadcastManager broadcastManager;
+	private BggService bggSaveService;
+	private BggService bggDeleteService;
+	private PlayPersister persister;
 
 	public SyncPlaysUpload(Context context, BggService service) {
 		super(context, service);
@@ -56,16 +58,16 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
-		mSaveService = Adapter.createForPost(mContext, new PlaySaveConverter());
-		mDeleteService = Adapter.createForPost(mContext, new PlayDeleteConverter());
-		mMessages = new ArrayList<>();
-		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
-		mPersister = new PlayPersister(mContext);
+	public void execute(Account account, @NonNull SyncResult syncResult) {
+		bggSaveService = Adapter.createForPost(context, new PlaySaveConverter());
+		bggDeleteService = Adapter.createForPost(context, new PlayDeleteConverter());
+		notificationMessages = new ArrayList<>();
+		broadcastManager = LocalBroadcastManager.getInstance(context);
+		persister = new PlayPersister(context);
 
 		updatePendingPlays(syncResult);
 		deletePendingPlays(syncResult);
-		SyncService.hIndex(mContext);
+		SyncService.hIndex(context);
 	}
 
 	@Override
@@ -73,29 +75,29 @@ public class SyncPlaysUpload extends SyncTask {
 		return R.string.sync_notification_plays_upload;
 	}
 
-	private void updatePendingPlays(SyncResult syncResult) {
+	private void updatePendingPlays(@NonNull SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
-			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
+			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
 				null,
 				Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) },
 				null);
-			String detail = String.format("Uploading %s play(s)", cursor.getCount());
+			String detail = String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);
 			showNotification(detail);
 
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = PlayBuilder.fromCursor(cursor, mContext, true);
+				Play play = PlayBuilder.fromCursor(cursor, context, true);
 
 				PlayPostResponse response = postPlayUpdate(play);
 				if (!response.hasError()) {
 					String message = play.hasBeenSynced() ?
-						mContext.getString(R.string.msg_play_updated) :
-						mContext.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
+						context.getString(R.string.msg_play_updated) :
+						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 					notifyUser(StringUtils.boldSecondString(message, play.gameName), play);
 
 					// delete the old plays
@@ -105,19 +107,19 @@ public class SyncPlaysUpload extends SyncTask {
 					// then save play as a new record
 					play.playId = response.getPlayId();
 					play.syncStatus = Play.SYNC_STATUS_SYNCED;
-					mPersister.save(mContext, play);
+					persister.save(context, play);
 
-					PreferencesUtils.putNewPlayId(mContext, oldPlayId, play.playId);
+					PreferencesUtils.putNewPlayId(context, oldPlayId, play.playId);
 					Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
-					mBroadcaster.sendBroadcast(intent);
+					broadcastManager.sendBroadcast(intent);
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_update_bad_id),
+					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id),
 						String.valueOf(play.playId)), null);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
-					Authenticator.clearPassword(mContext);
+					Authenticator.clearPassword(context);
 					break;
 				} else {
 					syncResult.stats.numIoExceptions++;
@@ -131,19 +133,19 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private void deletePendingPlays(SyncResult syncResult) {
+	private void deletePendingPlays(@NonNull SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
-			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
+			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
 				null,
 				Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
 				null);
-			String detail = String.format("Deleting %s play(s)", cursor.getCount());
+			String detail = String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);
 			showNotification(detail);
 
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
 					break;
 				}
@@ -159,7 +161,7 @@ public class SyncPlaysUpload extends SyncTask {
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
-						Authenticator.clearPassword(mContext);
+						Authenticator.clearPassword(context);
 					} else {
 						syncResult.stats.numIoExceptions++;
 						notifyError(response.getErrorMessage());
@@ -176,8 +178,8 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private void updateGamePlayCount(Play play) {
-		ContentResolver resolver = mContext.getContentResolver();
+	private void updateGamePlayCount(@NonNull Play play) {
+		ContentResolver resolver = context.getContentResolver();
 		Cursor cursor = null;
 		try {
 			cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
@@ -198,7 +200,7 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private PlayPostResponse postPlayUpdate(Play play) {
+	private PlayPostResponse postPlayUpdate(@NonNull Play play) {
 		Map<String, String> form = new ArrayMap<>();
 		form.put("ajax", "1");
 		form.put("action", "save");
@@ -231,12 +233,13 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 
 		try {
-			return mSaveService.geekPlay(form);
+			return bggSaveService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}
 	}
 
+	@NonNull
 	private static String getMapKey(int index, String key) {
 		return "players[" + index + "][" + key + "]";
 	}
@@ -248,7 +251,7 @@ public class SyncPlaysUpload extends SyncTask {
 		form.put("playid", String.valueOf(playId));
 
 		try {
-			return mDeleteService.geekPlay(form);
+			return bggDeleteService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}
@@ -258,7 +261,7 @@ public class SyncPlaysUpload extends SyncTask {
 	 * Deletes the specified play from the content provider
 	 */
 	private void deletePlay(Play play) {
-		mPersister.delete(play);
+		persister.delete(play);
 	}
 
 	private String getPlayCountDescription(int count, int quantity) {
@@ -277,37 +280,35 @@ public class SyncPlaysUpload extends SyncTask {
 		return countDescription;
 	}
 
-	private void notifyUserOfDelete(int messageId, Play play) {
-		notifyUser(StringUtils.boldSecondString(mContext.getString(messageId), play.gameName), null);
+	private void notifyUserOfDelete(int messageId, @NonNull Play play) {
+		notifyUser(StringUtils.boldSecondString(context.getString(messageId), play.gameName), null);
 	}
 
-	private void notifyUser(CharSequence message, Play play) {
-		mMessages.add(message);
+	private void notifyUser(CharSequence message, @Nullable Play play) {
+		notificationMessages.add(message);
 
 		NotificationCompat.Builder builder = createNotificationBuilder().setCategory(NotificationCompat.CATEGORY_SERVICE);
 
-		if (mMessages.size() == 1) {
+		if (notificationMessages.size() == 1) {
 			builder.setContentText(message);
 			NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 			detail.bigText(message);
 			if (play != null) {
-				Intent intent = ActivityUtils.createRematchIntent(mContext, play.playId, play.gameId, play.gameName, null, null);
-				PendingIntent pi = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-				NotificationCompat.Action.Builder b = new NotificationCompat.Action.Builder(
-					R.drawable.ic_replay_black_24dp, mContext.getString(R.string.rematch), pi);
+				Intent intent = ActivityUtils.createRematchIntent(context, play.playId, play.gameId, play.gameName, null, null);
+				PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				NotificationCompat.Action.Builder b = new NotificationCompat.Action.Builder(R.drawable.ic_replay_black_24dp, context.getString(R.string.rematch), pi);
 				builder.addAction(b.build());
 			}
 		} else {
-			String summary = String.format(mContext.getString(R.string.sync_notification_upload_summary),
-				mMessages.size());
+			String summary = String.format(context.getString(R.string.sync_notification_upload_summary), notificationMessages.size());
 			builder.setContentText(summary);
 			NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
 			detail.setSummaryText(summary);
-			for (int i = mMessages.size() - 1; i >= 0; i--) {
-				detail.addLine(mMessages.get(i));
+			for (int i = notificationMessages.size() - 1; i >= 0; i--) {
+				detail.addLine(notificationMessages.get(i));
 			}
 		}
-		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_PLAY_UPLOAD, builder);
+		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_PLAY_UPLOAD, builder);
 	}
 
 	private void notifyError(String error) {
@@ -315,11 +316,11 @@ public class SyncPlaysUpload extends SyncTask {
 			NotificationCompat.CATEGORY_ERROR);
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(error);
-		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR, builder);
+		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR, builder);
 	}
 
 	private NotificationCompat.Builder createNotificationBuilder() {
-		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title_play_upload,
+		return NotificationUtils.createNotificationBuilder(context, R.string.sync_notification_title_play_upload,
 			PlaysActivity.class);
 	}
 }

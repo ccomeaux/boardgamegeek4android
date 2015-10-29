@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -23,11 +24,13 @@ public class SyncGamesUnupdated extends SyncGames {
 		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
+	@NonNull
 	@Override
 	protected String getIntroLogMessage() {
 		return "Syncing unupdated games in the collection...";
 	}
 
+	@NonNull
 	@Override
 	protected String getExitLogMessage() {
 		return "...no more unupdated games";
@@ -35,7 +38,7 @@ public class SyncGamesUnupdated extends SyncGames {
 
 	@Override
 	protected List<String> getGameIds(int gamesPerFetch) {
-		return ResolverUtils.queryStrings(mContext.getContentResolver(), Games.CONTENT_URI,
+		return ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
 			Games.GAME_ID, "games." + Games.UPDATED + "=0 OR games." + Games.UPDATED + " IS NULL", null,
 			"games." + Games.UPDATED_LIST + " DESC LIMIT " + gamesPerFetch);
 	}

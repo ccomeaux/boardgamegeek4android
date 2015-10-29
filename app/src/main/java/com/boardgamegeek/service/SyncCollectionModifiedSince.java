@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
@@ -31,13 +32,13 @@ public class SyncCollectionModifiedSince extends SyncTask {
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
-		AccountManager accountManager = AccountManager.get(mContext);
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+		AccountManager accountManager = AccountManager.get(context);
 		long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 
 		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
-			CollectionPersister persister = new CollectionPersister(mContext).includeStats().includePrivateInfo().validStatusesOnly();
+			CollectionPersister persister = new CollectionPersister(context).includeStats().includePrivateInfo().validStatusesOnly();
 			ArrayMap<String, String> options = new ArrayMap<>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
@@ -59,15 +60,15 @@ public class SyncCollectionModifiedSince extends SyncTask {
 			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 			requestAndPersist(account.name, persister, options, syncResult);
 
-			Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
+			Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 		} finally {
 			Timber.i("...complete!");
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, ArrayMap<String, String> options, SyncResult syncResult) {
+	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		CollectionResponse response;
-		response = new CollectionRequest(mService, username, options).execute();
+		response = new CollectionRequest(bggService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

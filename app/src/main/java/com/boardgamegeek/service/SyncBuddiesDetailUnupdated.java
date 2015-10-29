@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -24,6 +25,7 @@ public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
 		return SyncService.FLAG_SYNC_BUDDIES;
 	}
 
+	@NonNull
 	@Override
 	protected String getLogMessage() {
 		return "Syncing unupdated buddies...";
@@ -31,7 +33,7 @@ public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
 
 	@Override
 	protected List<String> getBuddyNames() {
-		return ResolverUtils.queryStrings(mContext.getContentResolver(), Buddies.CONTENT_URI,
+		return ResolverUtils.queryStrings(context.getContentResolver(), Buddies.CONTENT_URI,
 			Buddies.BUDDY_NAME,
 			Buddies.UPDATED + "=0 OR " + Buddies.UPDATED + " IS NULL", null,
 			Buddies.BUDDY_NAME + " LIMIT " + SYNC_LIMIT);

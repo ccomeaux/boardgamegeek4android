@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
@@ -32,15 +33,15 @@ import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-	private final Context mContext;
-	private boolean mShowNotifications = true;
-	private SyncTask mCurrentTask;
-	private boolean mIsCancelled;
+	private final Context context;
+	private boolean shouldShowNotifications = true;
+	private SyncTask currentTask;
+	private boolean isCancelled;
 
-	public SyncAdapter(Context context, boolean autoInitialize) {
-		super(context, autoInitialize);
-		mContext = context;
-		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
+	public SyncAdapter(Context context) {
+		super(context, false);
+		this.context = context;
+		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 
 		// // noinspection ConstantConditions,PointlessBooleanExpression
 		if (!BuildConfig.DEBUG) {
@@ -54,9 +55,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	@Override
-	public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider,
-							  SyncResult syncResult) {
-		mIsCancelled = false;
+	public void onPerformSync(@NonNull Account account, @NonNull Bundle extras, String authority, ContentProviderClient provider, @NonNull SyncResult syncResult) {
+		isCancelled = false;
 		final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
 		final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
 		final boolean initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false);
@@ -77,38 +77,38 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		toggleReceiver(true);
-		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
-		List<SyncTask> tasks = createTasks(mContext, type);
+		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(context);
+		List<SyncTask> tasks = createTasks(context, type);
 		for (int i = 0; i < tasks.size(); i++) {
-			if (mIsCancelled) {
-				if (mCurrentTask != null) {
-					showCancel(mCurrentTask.getNotification());
+			if (isCancelled) {
+				if (currentTask != null) {
+					showCancel(currentTask.getNotification());
 				}
 				break;
 			}
-			mCurrentTask = tasks.get(i);
+			currentTask = tasks.get(i);
 			try {
-				EventBus.getDefault().postSticky(new SyncEvent(mCurrentTask.getSyncType()));
-				mCurrentTask.showNotification();
-				mCurrentTask.execute(account, syncResult);
+				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
+				currentTask.showNotification();
+				currentTask.execute(account, syncResult);
 				EventBus.getDefault().post(new SyncCompleteEvent());
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
 			} catch (Exception e) {
-				Timber.e(e, "Syncing " + mCurrentTask);
+				Timber.e(e, "Syncing " + currentTask);
 				syncResult.stats.numIoExceptions++;
-				showError(mCurrentTask, e);
+				showError(currentTask, e);
 			}
 		}
 		toggleReceiver(false);
-		NotificationUtils.cancel(mContext, NotificationUtils.ID_SYNC);
+		NotificationUtils.cancel(context, NotificationUtils.ID_SYNC);
 	}
 
 	@Override
 	public void onSyncCanceled() {
 		super.onSyncCanceled();
-		mIsCancelled = true;
-		if (mCurrentTask != null) {
-			mCurrentTask.cancel();
+		isCancelled = true;
+		if (currentTask != null) {
+			currentTask.cancel();
 		}
 	}
 
@@ -118,22 +118,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return false;
 		}
 
-		if (NetworkUtils.isOffline(mContext)) {
+		if (NetworkUtils.isOffline(context)) {
 			Timber.i("Skipping sync; offline");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyCharging(mContext) && !BatteryUtils.isCharging(mContext)) {
+		if (PreferencesUtils.getSyncOnlyCharging(context) && !BatteryUtils.isCharging(context)) {
 			Timber.i("Skipping sync; not charging");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyWifi(mContext) && !NetworkUtils.isOnWiFi(mContext)) {
+		if (PreferencesUtils.getSyncOnlyWifi(context) && !NetworkUtils.isOnWiFi(context)) {
 			Timber.i("Skipping sync; not on wifi");
 			return false;
 		}
 
-		if (BatteryUtils.isBatteryLow(mContext)) {
+		if (BatteryUtils.isBatteryLow(context)) {
 			Timber.i("Skipping sync; battery low");
 			return false;
 		}
@@ -141,6 +141,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		return true;
 	}
 
+	@NonNull
 	private List<SyncTask> createTasks(Context context, final int type) {
 		BggService service = Adapter.createWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
@@ -176,14 +177,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	private void toggleReceiver(boolean enable) {
-		ComponentName receiver = new ComponentName(mContext, CancelReceiver.class);
-		PackageManager pm = mContext.getPackageManager();
+		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
+		PackageManager pm = context.getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 			: PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 	}
 
-	private void showError(SyncTask task, Throwable t) {
-		if (!mShowNotifications) {
+	private void showError(@NonNull SyncTask task, @NonNull Throwable t) {
+		if (!shouldShowNotifications) {
 			return;
 		}
 
@@ -195,24 +196,24 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
-		CharSequence text = mContext.getText(task.getNotification());
+		CharSequence text = context.getText(task.getNotification());
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(mContext, R.string.sync_notification_title_error).setContentText(text)
+			.createNotificationBuilder(context, R.string.sync_notification_title_error).setContentText(text)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		if (!TextUtils.isEmpty(message)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 		}
-		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_ERROR, builder);
+		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 
 	private void showCancel(int messageId) {
-		if (!mShowNotifications) {
+		if (!shouldShowNotifications) {
 			return;
 		}
 
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(mContext, R.string.sync_notification_title_cancel)
-			.setContentText(mContext.getText(messageId)).setCategory(NotificationCompat.CATEGORY_SERVICE);
-		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_ERROR, builder);
+			.createNotificationBuilder(context, R.string.sync_notification_title_cancel)
+			.setContentText(context.getText(messageId)).setCategory(NotificationCompat.CATEGORY_SERVICE);
+		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 }

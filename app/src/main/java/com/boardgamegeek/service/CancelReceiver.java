@@ -3,13 +3,14 @@ package com.boardgamegeek.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.util.PreferencesUtils;
 
 public class CancelReceiver extends BroadcastReceiver {
 
 	@Override
-	public void onReceive(Context context, Intent intent) {
+	public void onReceive(Context context, @NonNull Intent intent) {
 		String action = intent.getAction();
 		if (SyncService.ACTION_CANCEL_SYNC.equals(action)) {
 			cancel(context);

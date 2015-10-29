@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -31,18 +32,18 @@ public class SyncPlays extends SyncTask {
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing plays...");
 		try {
-			if (!PreferencesUtils.getSyncPlays(mContext)) {
+			if (!PreferencesUtils.getSyncPlays(context)) {
 				Timber.i("...plays not set to sync");
 				return;
 			}
 
 			mStartTime = System.currentTimeMillis();
-			mPersister = new PlayPersister(mContext);
+			mPersister = new PlayPersister(context);
 			PlaysResponse response;
-			long newestSyncDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+			long newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
 				Timber.i("...syncing plays since " + date);
@@ -51,7 +52,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays since " + date, page));
 
-					response = new PlaysRequest(mService, PlaysRequest.TYPE_MIN, account.name, page, date).execute();
+					response = new PlaysRequest(bggService, PlaysRequest.TYPE_MIN, account.name, page, date).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -68,7 +69,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating all plays", page));
 
-					response = new PlaysRequest(mService, account.name, page).execute();
+					response = new PlaysRequest(bggService, account.name, page).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -79,7 +80,7 @@ public class SyncPlays extends SyncTask {
 				} while (response.hasMorePages());
 			}
 
-			long oldestDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
+			long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(oldestDate);
 				Timber.i("...syncing plays before " + date);
@@ -88,7 +89,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays before " + date, page));
 
-					response = new PlaysRequest(mService, PlaysRequest.TYPE_MAX, account.name, page, date).execute();
+					response = new PlaysRequest(bggService, PlaysRequest.TYPE_MAX, account.name, page, date).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -98,9 +99,9 @@ public class SyncPlays extends SyncTask {
 					page++;
 				} while (response.hasMorePages());
 				deleteUnupdatedPlaysBefore(oldestDate, syncResult);
-				Authenticator.putLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
+				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
-			SyncService.hIndex(mContext);
+			SyncService.hIndex(context);
 		} finally {
 			Timber.i("...complete!");
 		}
@@ -113,10 +114,10 @@ public class SyncPlays extends SyncTask {
 		return detail;
 	}
 
-	private void persist(PlaysResponse response, SyncResult syncResult) {
+	private void persist(@NonNull PlaysResponse response, @NonNull SyncResult syncResult) {
 		if (response.plays != null && response.plays.size() > 0) {
 			if (mPersister == null) {
-				mPersister = new PlayPersister(mContext);
+				mPersister = new PlayPersister(context);
 			}
 			mPersister.save(response.plays, mStartTime);
 			syncResult.stats.numEntries += response.plays.size();
@@ -126,34 +127,34 @@ public class SyncPlays extends SyncTask {
 		}
 	}
 
-	private void deleteUnupdatedPlaysSince(long time, SyncResult syncResult) {
+	private void deleteUnupdatedPlaysSince(long time, @NonNull SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "="
 				+ Play.SYNC_STATUS_SYNCED,
 			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 
-	private void deleteUnupdatedPlaysBefore(long time, SyncResult syncResult) {
+	private void deleteUnupdatedPlaysBefore(long time, @NonNull SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "="
 				+ Play.SYNC_STATUS_SYNCED,
 			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 
-	private void deletePlays(String selection, String[] selectionArgs, SyncResult syncResult) {
-		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
+	private void deletePlays(String selection, String[] selectionArgs, @NonNull SyncResult syncResult) {
+		int count = context.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
 		// TODO: verify this number is correct
 		syncResult.stats.numDeletes += count;
 		Timber.i("...deleted " + count + " unupdated plays");
 	}
 
-	private void updateTimeStamps(PlaysResponse response) {
-		long newestDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+	private void updateTimeStamps(@NonNull PlaysResponse response) {
+		long newestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 		if (response.getNewestDate() > newestDate) {
-			Authenticator.putLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.getNewestDate());
+			Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.getNewestDate());
 		}
 
-		long oldestDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
+		long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 		if (response.getOldestDate() < oldestDate) {
-			Authenticator.putLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, response.getOldestDate());
+			Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, response.getOldestDate());
 		}
 	}
 

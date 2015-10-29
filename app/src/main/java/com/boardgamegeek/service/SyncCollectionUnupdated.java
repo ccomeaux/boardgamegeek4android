@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
@@ -35,11 +36,11 @@ public class SyncCollectionUnupdated extends SyncTask {
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing unupdated collection list...");
 		try {
 			int numberOfFetches = 0;
-			CollectionPersister persister = new CollectionPersister(mContext).includePrivateInfo().includeStats();
+			CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 			ArrayMap<String, String> options = new ArrayMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
@@ -49,7 +50,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 					break;
 				}
 				numberOfFetches++;
-				List<Integer> gameIds = ResolverUtils.queryInts(mContext.getContentResolver(), Collection.CONTENT_URI,
+				List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(), Collection.CONTENT_URI,
 					Collection.GAME_ID, "collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED
 						+ " IS NULL AND " + Collection.COLLECTION_ID + " IS NOT NULL", null, "collection."
 						+ Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
@@ -82,8 +83,8 @@ public class SyncCollectionUnupdated extends SyncTask {
 		}
 	}
 
-	private boolean requestAndPersist(String username, CollectionPersister persister, ArrayMap<String, String> options, SyncResult syncResult) {
-		CollectionResponse response = new CollectionRequest(mService, username, options).execute();
+	private boolean requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
+		CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

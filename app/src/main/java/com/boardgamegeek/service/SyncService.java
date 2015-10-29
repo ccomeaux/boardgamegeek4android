@@ -11,6 +11,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.text.SpannableString;
 
@@ -43,23 +46,23 @@ public class SyncService extends Service {
 	public static final String TIMESTAMP_PLAYS_NEWEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE";
 	public static final String TIMESTAMP_PLAYS_OLDEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE";
 
-	public static final int INVALID_H_INDEX = -1;
+	private static final int INVALID_H_INDEX = -1;
 
-	private static final Object sSyncAdapterLock = new Object();
-	private static SyncAdapter sSyncAdapter = null;
+	private static final Object SYNC_ADAPTER_LOCK = new Object();
+	@Nullable private static SyncAdapter syncAdapter = null;
 
 	@Override
 	public void onCreate() {
-		synchronized (sSyncAdapterLock) {
-			if (sSyncAdapter == null) {
-				sSyncAdapter = new SyncAdapter(getApplicationContext(), false);
+		synchronized (SYNC_ADAPTER_LOCK) {
+			if (syncAdapter == null) {
+				syncAdapter = new SyncAdapter(getApplicationContext());
 			}
 		}
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		return sSyncAdapter.getSyncAdapterBinder();
+		return syncAdapter.getSyncAdapterBinder();
 	}
 
 	public static void sync(Context context, int syncType) {
@@ -122,7 +125,7 @@ public class SyncService extends Service {
 		return false;
 	}
 
-	public static void hIndex(Context context) {
+	public static void hIndex(@NonNull Context context) {
 		int hIndex = calculateHIndex(context);
 		if (hIndex != INVALID_H_INDEX) {
 			int oldHIndex = PreferencesUtils.getHIndex(context);
@@ -133,7 +136,7 @@ public class SyncService extends Service {
 		}
 	}
 
-	private static int calculateHIndex(Context context) {
+	private static int calculateHIndex(@NonNull Context context) {
 		int hIndex = INVALID_H_INDEX;
 		Cursor cursor = null;
 		try {
@@ -170,8 +173,8 @@ public class SyncService extends Service {
 		return hIndex;
 	}
 
-	private static void notifyHIndex(Context context, int hIndex, int oldHIndex) {
-		int messageId;
+	private static void notifyHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
+		@StringRes int messageId;
 		if (hIndex > oldHIndex) {
 			messageId = R.string.sync_notification_h_index_increase;
 		} else {

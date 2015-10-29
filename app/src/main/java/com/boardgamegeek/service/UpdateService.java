@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.text.TextUtils;
@@ -20,9 +21,9 @@ import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class UpdateService extends IntentService {
-	public static final String KEY_SYNC_TYPE = "KEY_SYNC_TYPE";
-	public static final String KEY_SYNC_ID = "KEY_SYNC_ID";
-	public static final String KEY_SYNC_KEY = "KEY_SYNC_KEY";
+	private static final String KEY_SYNC_TYPE = "KEY_SYNC_TYPE";
+	private static final String KEY_SYNC_ID = "KEY_SYNC_ID";
+	private static final String KEY_SYNC_KEY = "KEY_SYNC_KEY";
 
 	public static final int SYNC_TYPE_GAME = 1;
 	public static final int SYNC_TYPE_GAME_PLAYS = 2;
@@ -35,24 +36,24 @@ public class UpdateService extends IntentService {
 	public static final int SYNC_TYPE_PLAYS_DATE = 20;
 	private static final int SYNC_TYPE_UNKNOWN = 0;
 
-	public static void start(Context context, int type, int id) {
+	public static void start(@NonNull Context context, int type, int id) {
 		context.startService(new Intent(Intent.ACTION_SYNC, null, context, UpdateService.class)
 			.putExtra(KEY_SYNC_TYPE, type)
 			.putExtra(KEY_SYNC_ID, id));
 	}
 
-	public static void start(Context context, int type, String key) {
+	public static void start(@NonNull Context context, int type, String key) {
 		context.startService(new Intent(Intent.ACTION_SYNC, null, context, UpdateService.class)
 			.putExtra(KEY_SYNC_TYPE, type)
 			.putExtra(KEY_SYNC_KEY, key));
 	}
 
-	public UpdateService() {
+	private UpdateService() {
 		super("BGG-UpdateService");
 	}
 
 	@Override
-	protected void onHandleIntent(Intent intent) {
+	protected void onHandleIntent(@NonNull Intent intent) {
 		Timber.d("onHandleIntent(intent=" + intent + ")");
 
 		if (NetworkUtils.isOffline(getApplicationContext())) {
@@ -104,7 +105,7 @@ public class UpdateService extends IntentService {
 		}
 		if (syncType != SYNC_TYPE_BUDDY_SELF &&
 			syncId == BggContract.INVALID_ID && TextUtils.isEmpty(syncKey)) {
-			postError(String.format("Unable to " + task.getDescription() + "."));
+			postError("Unable to " + task.getDescription() + ".");
 			return;
 		}
 

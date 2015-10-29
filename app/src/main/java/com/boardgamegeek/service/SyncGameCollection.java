@@ -2,6 +2,7 @@ package com.boardgamegeek.service;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.auth.Authenticator;
@@ -20,18 +21,20 @@ import timber.log.Timber;
 public class SyncGameCollection extends UpdateTask {
 	private static final String STATUS_PLAYED = "played";
 
-	private int mGameId;
+	private final int gameId;
 
 	public SyncGameCollection(int gameId) {
-		mGameId = gameId;
+		this.gameId = gameId;
 	}
 
+	@NonNull
 	@Override
 	public String getDescription() {
-		if (mGameId == BggContract.INVALID_ID) {
+		// TODO use resources for description
+		if (gameId == BggContract.INVALID_ID) {
 			return "update collection for unknown game";
 		}
-		return "update collection for game " + mGameId;
+		return "update collection for game " + gameId;
 	}
 
 	@Override
@@ -44,21 +47,21 @@ public class SyncGameCollection extends UpdateTask {
 		List<CollectionItem> items = request(context, account);
 		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 		persister.save(items);
-		Timber.i("Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + mGameId);
+		Timber.i("Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + gameId);
 
 		// XXX: this deleted more games that I expected. need to rework
-		// int deleteCount = persister.delete(items, mGameId);
-		// Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + mGameId);
+		// int deleteCount = persister.delete(items, gameId);
+		// Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + gameId);
 	}
 
-	protected List<CollectionItem> request(Context context, Account account) {
+	private List<CollectionItem> request(Context context, @NonNull Account account) {
 		// Only one of these requests will return results
 		BggService service = Adapter.createWithAuth(context);
 
 		ArrayMap<String, String> options = new ArrayMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
-		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(mGameId));
+		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(gameId));
 		List<CollectionItem> items;
 
 		items = requestItems(account, service, options);
@@ -85,14 +88,14 @@ public class SyncGameCollection extends UpdateTask {
 			return items;
 		}
 
-		Timber.i("No collection items for game ID=" + mGameId);
+		Timber.i("No collection items for game ID=" + gameId);
 		return null;
 	}
 
-	private List<CollectionItem> requestItems(Account account, BggService service, ArrayMap<String, String> options) {
+	private List<CollectionItem> requestItems(@NonNull Account account, BggService service, ArrayMap<String, String> options) {
 		CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 		if (response == null || response.items == null || response.items.size() == 0) {
-			Timber.i("No collection items for game ID=" + mGameId + " with options=" + options);
+			Timber.i("No collection items for game ID=" + gameId + " with options=" + options);
 			return null;
 		} else {
 			return response.items;

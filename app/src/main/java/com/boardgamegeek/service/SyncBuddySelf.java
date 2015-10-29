@@ -2,6 +2,7 @@ package com.boardgamegeek.service;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
@@ -14,8 +15,10 @@ import com.boardgamegeek.util.PresentationUtils;
 import timber.log.Timber;
 
 public class SyncBuddySelf extends UpdateTask {
+	@NonNull
 	@Override
 	public String getDescription() {
+		// TODO use resources for description
 		return "update self";
 	}
 

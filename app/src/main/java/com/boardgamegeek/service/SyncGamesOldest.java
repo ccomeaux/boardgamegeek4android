@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -22,11 +23,13 @@ public class SyncGamesOldest extends SyncGames {
 		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
+	@NonNull
 	@Override
 	protected String getIntroLogMessage() {
 		return "Syncing oldest games in the collection...";
 	}
 
+	@NonNull
 	@Override
 	protected String getExitLogMessage() {
 		return "...found no old games to update (this should only happen with empty collections)";
@@ -34,7 +37,7 @@ public class SyncGamesOldest extends SyncGames {
 
 	@Override
 	protected List<String> getGameIds(int gamesPerFetch) {
-		return ResolverUtils.queryStrings(mContext.getContentResolver(), Games.CONTENT_URI,
+		return ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
 			Games.GAME_ID, null, null, "games." + Games.UPDATED + " LIMIT " + gamesPerFetch);
 	}
 

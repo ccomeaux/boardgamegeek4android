@@ -58,8 +58,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	@Override
 	protected void onStart() {
 		super.onStart();
-		LocalBroadcastManager.getInstance(this).registerReceiver((mReceiver),
-			new IntentFilter(SyncService.ACTION_PLAY_ID_CHANGED));
+		LocalBroadcastManager.getInstance(this).registerReceiver((mReceiver), new IntentFilter(SyncService.ACTION_PLAY_ID_CHANGED));
 	}
 
 	@Override

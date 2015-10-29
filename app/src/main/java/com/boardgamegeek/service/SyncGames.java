@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.io.BggService;
@@ -19,35 +20,35 @@ import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 16;
-	private int mGamesPerFetch;
+	private int fetchSize;
 
 	public SyncGames(Context context, BggService service) {
 		super(context, service);
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
+	public void execute(Account account, @NonNull SyncResult syncResult) {
 		Timber.i(getIntroLogMessage());
 		try {
-			mGamesPerFetch = GAMES_PER_FETCH;
+			fetchSize = GAMES_PER_FETCH;
 			int numberOfFetches = 0;
 			do {
 				if (isCancelled()) {
 					break;
 				}
 				numberOfFetches++;
-				List<String> gameIds = getGameIds(mGamesPerFetch);
+				List<String> gameIds = getGameIds(fetchSize);
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
 					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
-					String detail = mGamesPerFetch + " games: " + gameIdDescription;
+					String detail = fetchSize + " games: " + gameIdDescription;
 					if (numberOfFetches > 1) {
 						detail += " (page " + numberOfFetches + ")";
 					}
 					showNotification(detail);
 
-					GamePersister persister = new GamePersister(mContext);
-					ThingResponse response = getThingResponse(mService, gameIds);
+					GamePersister persister = new GamePersister(context);
+					ThingResponse response = getThingResponse(bggService, gameIds);
 					final List<Game> games = response.getGames();
 					if (games != null && games.size() > 0) {
 						int count = persister.save(games, detail);
@@ -70,19 +71,19 @@ public abstract class SyncGames extends SyncTask {
 		return 1;
 	}
 
-	protected ThingResponse getThingResponse(BggService service, List<String> gameIds) {
+	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
 		while (true) {
 			try {
 				String ids = TextUtils.join(",", gameIds);
 				return new ThingRequest(service, ids).execute();
 			} catch (Exception e) {
 				if (e.getCause() instanceof SocketTimeoutException) {
-					if (mGamesPerFetch == 1) {
+					if (fetchSize == 1) {
 						Timber.i("...timeout with only 1 game; aborting.");
 						break;
 					}
-					mGamesPerFetch = mGamesPerFetch / 2;
-					Timber.i("...timeout - reducing games per fetch to " + mGamesPerFetch);
+					fetchSize = fetchSize / 2;
+					Timber.i("...timeout - reducing games per fetch to " + fetchSize);
 				} else {
 					throw e;
 				}
@@ -91,8 +92,10 @@ public abstract class SyncGames extends SyncTask {
 		return new ThingResponse();
 	}
 
+	@NonNull
 	protected abstract String getIntroLogMessage();
 
+	@NonNull
 	protected abstract String getExitLogMessage();
 
 	protected abstract List<String> getGameIds(int gamesPerFetch);

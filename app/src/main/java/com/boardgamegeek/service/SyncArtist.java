@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -13,30 +14,33 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import timber.log.Timber;
 
 public class SyncArtist extends UpdateTask {
-	private int mArtistId;
+	private final int artistId;
 
 	public SyncArtist(int artistId) {
-		mArtistId = artistId;
+		this.artistId = artistId;
 	}
 
+	@NonNull
 	@Override
 	public String getDescription() {
-		if (mArtistId == BggContract.INVALID_ID){
+		// TODO use resources for description
+		if (artistId == BggContract.INVALID_ID){
 			return "update an unknown artist";
 		}
-		return "update artist " + mArtistId;
+		return "update artist " + artistId;
 	}
 
 	@Override
-	public void execute(Context context) {
+	public void execute(@NonNull Context context) {
 		BggService service = Adapter.create();
-		Person person = service.person(BggService.PERSON_TYPE_ARTIST, mArtistId);
-		Uri uri = Artists.buildArtistUri(mArtistId);
+		Person person = service.person(BggService.PERSON_TYPE_ARTIST, artistId);
+		Uri uri = Artists.buildArtistUri(artistId);
 		context.getContentResolver().update(uri, toValues(person), null, null);
-		Timber.i("Synced Artist " + mArtistId);
+		Timber.i("Synced Artist " + artistId);
 	}
 
-	private static ContentValues toValues(Person artist) {
+	@NonNull
+	private static ContentValues toValues(@NonNull Person artist) {
 		ContentValues values = new ContentValues();
 		values.put(Artists.ARTIST_NAME, artist.name);
 		values.put(Artists.ARTIST_DESCRIPTION, artist.description);

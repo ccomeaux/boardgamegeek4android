@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
@@ -37,13 +38,13 @@ public class SyncCollectionComplete extends SyncTask {
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing full collection list...");
 		boolean success = true;
 		try {
-			CollectionPersister persister = new CollectionPersister(mContext);
+			CollectionPersister persister = new CollectionPersister(context);
 
-			List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(mContext)));
+			List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
 			if (statuses.remove(STATUS_PLAYED)) {
 				statuses.add(0, STATUS_PLAYED);
 			}
@@ -78,22 +79,22 @@ public class SyncCollectionComplete extends SyncTask {
 			if (success) {
 				Timber.i("...deleting old collection entries");
 				// Delete all collection items that weren't updated in the sync above
-				int count = mContext.getContentResolver().delete(Collection.CONTENT_URI,
+				int count = context.getContentResolver().delete(Collection.CONTENT_URI,
 					Collection.UPDATED_LIST + "<?", new String[] { String.valueOf(persister.getTimeStamp()) });
 				Timber.i("...deleted " + count + " old collection entries");
 				// TODO: delete games as well?!
 				// TODO: delete thumbnail images associated with this list (both collection and game)
 
-				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_COMPLETE, persister.getTimeStamp());
-				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
+				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, persister.getTimeStamp());
+				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 			}
 		} finally {
 			Timber.i("...complete!");
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, ArrayMap<String, String> options, SyncResult syncResult) {
-		CollectionResponse response = new CollectionRequest(mService, username, options).execute();
+	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
+		CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);
 			syncResult.stats.numEntries += response.items.size();
