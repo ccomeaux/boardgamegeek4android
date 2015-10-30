@@ -34,10 +34,6 @@ public class PreferencesUtils {
 	private PreferencesUtils() {
 	}
 
-	public static boolean getExactSearch(Context context) {
-		return getBoolean(context, "exactSearch", true);
-	}
-
 	public static boolean showLogPlay(Context context) {
 		return getBoolean(context, "logPlay", !getBoolean(context, "logHideLog", false));
 	}

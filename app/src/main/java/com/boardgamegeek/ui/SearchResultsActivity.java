@@ -4,6 +4,8 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -23,100 +25,101 @@ import timber.log.Timber;
 public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
-	private String mSearchText;
-	private SearchView mSearchView;
+	@Nullable private String searchText;
+	private SearchView searchView;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTitle(null);
 		if (savedInstanceState != null) {
-			mSearchText = savedInstanceState.getString(SEARCH_TEXT);
+			searchText = savedInstanceState.getString(SEARCH_TEXT);
 		}
 
 		HelpUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent) {
+	protected void onNewIntent(@NonNull Intent intent) {
 		super.onNewIntent(intent);
 		parseIntent(intent);
-		if (mSearchView != null) {
-			String query = mSearchView.getQuery().toString();
-			if (query == null || !query.equals(mSearchText)) {
-				mSearchView.setQuery(mSearchText, true);
+		if (searchView != null) {
+			String query = searchView.getQuery().toString();
+			if (!query.equals(searchText)) {
+				searchView.setQuery(searchText, true);
 			}
 		}
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		outState.putString(SEARCH_TEXT, mSearchText);
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		outState.putString(SEARCH_TEXT, searchText);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search;
+		return R.menu.search_widget;
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		final MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {
-			mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-			if (mSearchView == null) {
+			searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+			if (searchView == null) {
 				Timber.w("Could not set up search view, view is null.");
 			} else {
 				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-				mSearchView.setIconified(false);
-				mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+				searchView.setIconified(false);
+				searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 					@Override
 					public boolean onClose() {
 						finish();
 						return true;
 					}
 				});
-				mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+				searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 					@Override
-					public boolean onQueryTextSubmit(String s) {
-						if (s != null && s.length() > 1 && s.length() <= 2) {
-							((SearchResultsFragment) getFragment()).forceQueryUpdate(s);
+					public boolean onQueryTextSubmit(@Nullable String query) {
+						if (query != null && query.length() > 1 && query.length() <= 2) {
+							((SearchResultsFragment) getFragment()).forceQueryUpdate(query);
 						}
 						// close the auto-complete list; don't pass to a different activity
-						mSearchView.clearFocus();
-						mSearchText = s;
+						searchView.clearFocus();
+						searchText = query;
 						return true;
 					}
 
 					@Override
-					public boolean onQueryTextChange(String s) {
-						if (s != null && s.length() > 2) {
-							((SearchResultsFragment) getFragment()).requestQueryUpdate(s);
-							mSearchText = s;
+					public boolean onQueryTextChange(@Nullable String newText) {
+						if (newText != null && newText.length() > 2) {
+							((SearchResultsFragment) getFragment()).requestQueryUpdate(newText);
+							searchText = newText;
 						} else {
 							((SearchResultsFragment) getFragment()).requestQueryUpdate("");
 						}
 						return true;
 					}
 				});
-				if (!TextUtils.isEmpty(mSearchText)) {
-					mSearchView.setQuery(mSearchText, false);
+				if (!TextUtils.isEmpty(searchText)) {
+					searchView.setQuery(searchText, false);
 				}
 			}
 		}
 		return true;
 	}
 
+	@NonNull
 	@Override
-	protected Fragment onCreatePane(Intent intent) {
+	protected Fragment onCreatePane(@NonNull Intent intent) {
 		parseIntent(intent);
 		return new SearchResultsFragment();
 	}
 
-	private void parseIntent(Intent intent) {
+	private void parseIntent(@NonNull Intent intent) {
 		String action = intent.getAction();
 		if (action != null && Intent.ACTION_VIEW.equals(action)) {
 			Uri uri = intent.getData();
@@ -126,14 +129,15 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
 			}
 			finish();
-		} else if (action != null && Intent.ACTION_SEARCH.equals(action)) {
-			mSearchText = "";
+		} else if (action != null &&
+			(Intent.ACTION_SEARCH.equals(action) || "com.google.android.gms.actions.SEARCH_ACTION".equals(action))) {
+			searchText = "";
 			if (intent.hasExtra(SearchManager.QUERY)) {
-				mSearchText = intent.getExtras().getString(SearchManager.QUERY);
+				searchText = intent.getExtras().getString(SearchManager.QUERY);
 			}
 			final ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
-				actionBar.setSubtitle(String.format(getResources().getString(R.string.search_searching), mSearchText));
+				actionBar.setSubtitle(String.format(getResources().getString(R.string.search_searching), searchText));
 			}
 		}
 	}

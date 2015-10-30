@@ -530,5 +530,9 @@
 		<item quantity="one">%1$s match for \"%2$s\"</item>
 		<item quantity="other">%1$s matches for \"%2$s\"</item>
 	</plurals>
+	<plurals name="search_results_exact">
+		<item quantity="one">%1$s exact match for \"%2$s\"</item>
+		<item quantity="other">%1$s exact matches for \"%2$s\"</item>
+	</plurals>
 
 </resources>
