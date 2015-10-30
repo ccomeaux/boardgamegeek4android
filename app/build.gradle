@@ -38,6 +38,7 @@ android {
         targetSdkVersion 23
         versionCode 50
         versionName "5.1.1"
+        buildConfigField "String", "BRANCH", "\"" + getBranchName() + "\""
     }
     buildTypes {
         release {
@@ -45,6 +46,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
+            // applicationIdSuffix ".debug"
             versionNameSuffix '-' + getBranchName()
         }
     }

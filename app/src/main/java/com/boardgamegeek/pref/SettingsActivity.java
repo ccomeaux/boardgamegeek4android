@@ -23,7 +23,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
 	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
 	private final static String ACTION_ABOUT = "com.boardgamegeek.prefs.ABOUT";
-	private static final ArrayMap<String, Integer> mFragmentMap = buildFragmentMap();
+	private static final ArrayMap<String, Integer> FRAGMENT_MAP = buildFragmentMap();
 
 	private static ArrayMap<String, Integer> buildFragmentMap() {
 		ArrayMap<String, Integer> map = new ArrayMap<>();
@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			String action = getIntent().getAction();
 			if (action != null) {
-				Integer fragmentId = mFragmentMap.get(action);
+				Integer fragmentId = FRAGMENT_MAP.get(action);
 				if (fragmentId != null) {
 					addPreferencesFromResource(fragmentId);
 				}
@@ -90,7 +90,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 			super.onCreate(savedInstanceState);
 			String fragment = getArguments().getString("fragment");
 			if (fragment != null) {
-				Integer fragmentId = mFragmentMap.get(fragment);
+				Integer fragmentId = FRAGMENT_MAP.get(fragment);
 				if (fragmentId != null) {
 					addPreferencesFromResource(fragmentId);
 				}

@@ -3,6 +3,8 @@
 
 	<com.boardgamegeek.pref.VersionPreference android:title="@string/pref_about_version"/>
 
+	<com.boardgamegeek.pref.ChangeLogPreference android:title="@string/pref_change_log"/>
+
 	<PreferenceScreen android:title="Authors">
 		<com.boardgamegeek.pref.BuddyPreference
 			android:summary="rjnfc"
