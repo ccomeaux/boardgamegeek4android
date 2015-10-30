@@ -33,6 +33,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static final String AUTH_TOKEN_TYPE = "com.boardgamegeek";
 	public static final String KEY_AUTH_TOKEN_EXPIRY = "AUTHTOKEN_EXPIRY";
 	public static final String KEY_USER_ID = "com.boardgamegeek.USER_ID";
+	public static final String INVALID_USER_ID = "0";
 
 	private final Context context;
 
@@ -43,32 +44,28 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@NonNull
 	@Override
-	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType,
-							 String[] requiredFeatures, Bundle options) throws NetworkErrorException {
+	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
 		Timber.v("Adding account: accountType=" + accountType + ", authTokenType=" + authTokenType);
 		return createLoginIntent(response, null);
 	}
 
 	@Nullable
 	@Override
-	public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options)
-		throws NetworkErrorException {
-		// TODO: is this needed? if so prompt for password only
-		Timber.v("confirmCredentials - not supported");
+	public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) throws NetworkErrorException {
+		Timber.v("confirmCredentials is not supported. If it was we would ask the user for their password.");
 		return null;
 	}
 
 	@NonNull
 	@Override
 	public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
-		Timber.v("editProperties");
+		Timber.v("editProperties is not supported.");
 		throw new UnsupportedOperationException();
 	}
 
 	@NonNull
 	@Override
-	public Bundle getAuthToken(AccountAuthenticatorResponse response, @NonNull Account account, @NonNull String authTokenType,
-							   Bundle options) throws NetworkErrorException {
+	public Bundle getAuthToken(AccountAuthenticatorResponse response, @NonNull Account account, @NonNull String authTokenType, Bundle options) throws NetworkErrorException {
 		Timber.v("getting auth token...");
 
 		// If the caller requested an authToken type we don't support, then return an error
@@ -108,32 +105,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return createLoginIntent(response, account.name);
 	}
 
-	@NonNull
-	private Bundle createAuthTokenBundle(@NonNull Account account, String authToken) {
-		final Bundle result = new Bundle();
-		result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-		result.putString(AccountManager.KEY_ACCOUNT_TYPE, Authenticator.ACCOUNT_TYPE);
-		result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-		return result;
-	}
-
-	@NonNull
-	private Bundle createLoginIntent(AccountAuthenticatorResponse response, String accountName) {
-		final Intent intent = new Intent(context, LoginActivity.class);
-		if (!TextUtils.isEmpty(accountName)) {
-			intent.putExtra(ActivityUtils.KEY_USERNAME, accountName);
-		}
-		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-		final Bundle bundle = new Bundle();
-		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-		return bundle;
-	}
-
-	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, String key) {
-		String expiration = am.getUserData(account, key);
-		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
-	}
-
 	@Nullable
 	@Override
 	public String getAuthTokenLabel(String authTokenType) {
@@ -143,8 +114,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@NonNull
 	@Override
-	public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features)
-		throws NetworkErrorException {
+	public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
 		Timber.v("hasFeatures - we don't support any features");
 		final Bundle result = new Bundle();
 		result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
@@ -153,18 +123,26 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@Nullable
 	@Override
-	public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType,
-									Bundle options) throws NetworkErrorException {
-		// TODO: is this needed? if so prompt for password only
-		Timber.v("updateCredentials - not supported");
+	public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
+		Timber.v("updateCredentials is not supported. If it was we would ask the user for their password.");
 		return null;
 	}
 
+	/**
+	 * Gets the account associated with BoardGameGeek. Returns null if their is a problem getting the account.
+	 */
 	@Nullable
 	public static Account getAccount(Context context) {
-		return getAccount(AccountManager.get(context));
+		if (context != null) {
+			return getAccount(AccountManager.get(context));
+		}
+		return null;
 	}
 
+	/**
+	 * Gets the account associated with BoardGameGeek. Returns null if their is a problem getting the account.
+	 */
+	@Nullable
 	public static Account getAccount(@NonNull AccountManager accountManager) {
 		Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
 		if (accounts == null || accounts.length == 0) {
@@ -177,20 +155,24 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return accounts[0];
 	}
 
+	/**
+	 * Get the BGG user ID of the authenticated user.
+	 */
 	public static String getUserId(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
 		String userId = accountManager.getUserData(account, KEY_USER_ID);
 		if (userId == null) {
-			return "0";
+			return INVALID_USER_ID;
 		}
 		return userId;
 	}
 
+	/**
+	 * Determines if the user is signed in.
+	 */
 	public static boolean isSignedIn(Context context) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = getAccount(accountManager);
-		return account != null;
+		return getAccount(context) != null;
 	}
 
 	public static void clearPassword(Context context) {
@@ -260,6 +242,32 @@ public class Authenticator extends AbstractAccountAuthenticator {
 				removeAccount(context, am, account);
 			}
 		}
+	}
+
+	@NonNull
+	private Bundle createAuthTokenBundle(@NonNull Account account, String authToken) {
+		final Bundle result = new Bundle();
+		result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+		result.putString(AccountManager.KEY_ACCOUNT_TYPE, Authenticator.ACCOUNT_TYPE);
+		result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+		return result;
+	}
+
+	@NonNull
+	private Bundle createLoginIntent(AccountAuthenticatorResponse response, String accountName) {
+		final Intent intent = new Intent(context, LoginActivity.class);
+		if (!TextUtils.isEmpty(accountName)) {
+			intent.putExtra(ActivityUtils.KEY_USERNAME, accountName);
+		}
+		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+		final Bundle bundle = new Bundle();
+		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+		return bundle;
+	}
+
+	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, String key) {
+		String expiration = am.getUserData(account, key);
+		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
 	}
 
 	@SuppressWarnings("deprecation")
