@@ -26,11 +26,11 @@ public class ScoreDialogFragment extends DialogFragment {
 	private static final String KEY_SCORE = "SCORE";
 	private static final String KEY_COLOR = "COLOR";
 
-	@InjectView(R.id.player_name) TextView mPlayerName;
-	@InjectView(R.id.number_readout) TextView mReadout;
-	@InjectView(R.id.num_delete) View mDelete;
-	private OnClickListener mListener;
-	private int mMaxLength = 10;
+	@SuppressWarnings("unused") @InjectView(R.id.title) TextView titleView;
+	@SuppressWarnings("unused") @InjectView(R.id.output) TextView outputView;
+	@SuppressWarnings("unused") @InjectView(R.id.num_delete) View deleteView;
+	private OnClickListener clickListener;
+	private int maxLength = 10;
 
 	public interface OnClickListener {
 		void onDoneClick(String score);
@@ -52,7 +52,7 @@ public class ScoreDialogFragment extends DialogFragment {
 	}
 
 	public void setOnDoneClickListener(OnClickListener listener) {
-		mListener = listener;
+		clickListener = listener;
 	}
 
 	@Override
@@ -82,19 +82,19 @@ public class ScoreDialogFragment extends DialogFragment {
 		Bundle args = getArguments();
 		if (args != null) {
 			if (args.containsKey(KEY_TITLE)) {
-				mPlayerName.setText(args.getString(KEY_TITLE));
+				titleView.setText(args.getString(KEY_TITLE));
 			}
 			if (args.containsKey(KEY_SCORE)) {
-				mReadout.setText(args.getString(KEY_SCORE));
+				outputView.setText(args.getString(KEY_SCORE));
 				enableDelete();
 			}
 			if (args.containsKey(KEY_COLOR)) {
 				int color = args.getInt(KEY_COLOR);
-				mPlayerName.setBackgroundColor(color);
+				titleView.setBackgroundColor(color);
 				if (color != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(color)) {
-					mPlayerName.setTextColor(Color.WHITE);
+					titleView.setTextColor(Color.WHITE);
 				} else {
-					mPlayerName.setTextColor(Color.BLACK);
+					titleView.setTextColor(Color.BLACK);
 				}
 			}
 		}
@@ -102,6 +102,7 @@ public class ScoreDialogFragment extends DialogFragment {
 		return view;
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick({
 		R.id.num_0,
 		R.id.num_1,
@@ -116,40 +117,43 @@ public class ScoreDialogFragment extends DialogFragment {
 		R.id.num_decimal
 	})
 	void onNumPadClick(View v) {
-		final CharSequence text = mReadout.getText();
-		if (text.length() < mMaxLength) {
+		final CharSequence text = outputView.getText();
+		if (text.length() < maxLength) {
 			v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-			mReadout.setText(text.toString() + ((TextView) v).getText());
+			outputView.setText(text.toString() + ((TextView) v).getText());
 			enableDelete();
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.num_done)
-	void onDoneClick(View v) {
-		if (mListener != null) {
-			mListener.onDoneClick(mReadout.getText().toString());
+	void onDoneClick(@SuppressWarnings("UnusedParameters") View v) {
+		if (clickListener != null) {
+			clickListener.onDoneClick(outputView.getText().toString());
 		}
 		dismiss();
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.num_delete)
 	void onDeleteClick(View v) {
 		v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-		CharSequence score = mReadout.getText();
+		CharSequence score = outputView.getText();
 		if (score.length() > 0) {
-			mReadout.setText(score.subSequence(0, score.length() - 1));
+			outputView.setText(score.subSequence(0, score.length() - 1));
 			enableDelete();
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@OnLongClick(R.id.num_delete)
 	boolean onDeleteLongClick() {
-		mReadout.setText("");
+		outputView.setText("");
 		enableDelete();
 		return true;
 	}
 
 	private void enableDelete() {
-		mDelete.setEnabled(mReadout.length() > 0);
+		deleteView.setEnabled(outputView.length() > 0);
 	}
 }
