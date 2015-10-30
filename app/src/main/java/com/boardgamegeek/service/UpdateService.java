@@ -48,7 +48,7 @@ public class UpdateService extends IntentService {
 			.putExtra(KEY_SYNC_KEY, key));
 	}
 
-	private UpdateService() {
+	public UpdateService() {
 		super("BGG-UpdateService");
 	}
 
