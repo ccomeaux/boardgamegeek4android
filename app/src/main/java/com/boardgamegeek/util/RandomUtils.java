@@ -6,12 +6,12 @@ import java.util.Random;
  * A random singleton.
  */
 public class RandomUtils {
-	private static Random mRandom;
+	private static Random random;
 
 	public static Random getRandom() {
-		if (mRandom == null) {
-			mRandom = new Random();
+		if (random == null) {
+			random = new Random();
 		}
-		return mRandom;
+		return random;
 	}
 }

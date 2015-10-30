@@ -1,8 +1,11 @@
 package com.boardgamegeek;
 
 import android.app.Application;
+import android.os.StrictMode;
+import android.os.StrictMode.ThreadPolicy.Builder;
 
 import com.boardgamegeek.util.CrashReportingTree;
+import com.boardgamegeek.util.VersionUtils;
 import com.crashlytics.android.Crashlytics;
 
 import hugo.weaving.DebugLog;
@@ -18,9 +21,26 @@ public class BggApplication extends Application {
 		super.onCreate();
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
+			enableStrictMode();
 		} else {
 			Fabric.with(this, new Crashlytics());
 			Timber.plant(new CrashReportingTree());
 		}
+	}
+
+	private void enableStrictMode() {
+		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+			.detectAll()
+			.penaltyLog()
+			.build());
+		Builder builder = new Builder()
+			.detectAll()
+			.penaltyLog();
+		if (VersionUtils.hasHoneycomb()) {
+			builder.penaltyFlashScreen();
+		} else {
+			builder.penaltyDialog();
+		}
+		StrictMode.setThreadPolicy(builder.build());
 	}
 }
