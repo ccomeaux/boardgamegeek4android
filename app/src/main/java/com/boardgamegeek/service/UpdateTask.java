@@ -8,4 +8,6 @@ public abstract class UpdateTask extends ServiceTask {
 
 	@NonNull
 	public abstract String getDescription();
+
+	public abstract boolean isValid();
 }

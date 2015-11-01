@@ -24,10 +24,15 @@ public class SyncArtist extends UpdateTask {
 	@Override
 	public String getDescription() {
 		// TODO use resources for description
-		if (artistId == BggContract.INVALID_ID){
-			return "update an unknown artist";
+		if (isValid()) {
+			return "update artist " + artistId;
 		}
-		return "update artist " + artistId;
+		return "update an unknown artist";
+	}
+
+	@Override
+	public boolean isValid() {
+		return artistId != BggContract.INVALID_ID;
 	}
 
 	@Override

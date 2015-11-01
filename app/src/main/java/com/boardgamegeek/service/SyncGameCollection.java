@@ -31,10 +31,15 @@ public class SyncGameCollection extends UpdateTask {
 	@Override
 	public String getDescription() {
 		// TODO use resources for description
-		if (gameId == BggContract.INVALID_ID) {
-			return "update collection for unknown game";
+		if (isValid()) {
+			return "update collection for game " + gameId;
 		}
-		return "update collection for game " + gameId;
+		return "update collection for unknown game";
+	}
+
+	@Override
+	public boolean isValid() {
+		return gameId != BggContract.INVALID_ID;
 	}
 
 	@Override

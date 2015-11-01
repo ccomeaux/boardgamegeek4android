@@ -24,10 +24,15 @@ public class SyncPublisher extends UpdateTask {
 	@Override
 	public String getDescription() {
 		// TODO use resources for description
-		if (publisherId == BggContract.INVALID_ID){
-			return "update an unknown publisher";
+		if (isValid()) {
+			return "update publisher " + publisherId;
 		}
-		return "update publisher " + publisherId;
+		return "update an unknown publisher";
+	}
+
+	@Override
+	public boolean isValid() {
+		return publisherId != BggContract.INVALID_ID;
 	}
 
 	@Override

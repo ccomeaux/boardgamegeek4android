@@ -24,10 +24,15 @@ public class SyncDesigner extends UpdateTask {
 	@Override
 	public String getDescription() {
 		// TODO use resources for description
-		if (designerId == BggContract.INVALID_ID) {
-			return "update an unknown designer";
+		if (isValid()) {
+			return "update designer " + designerId;
 		}
-		return "update designer " + designerId;
+		return "update an unknown designer";
+	}
+
+	@Override
+	public boolean isValid() {
+		return designerId != BggContract.INVALID_ID;
 	}
 
 	@Override

@@ -23,10 +23,15 @@ public class SyncBuddy extends UpdateTask {
 	@Override
 	public String getDescription() {
 		// TODO use resources for description
-		if (TextUtils.isEmpty(name)) {
-			return "update an unknown buddy";
+		if (isValid()) {
+			return "update buddy " + name;
 		}
-		return "update buddy " + name;
+		return "update an unknown buddy";
+	}
+
+	@Override
+	public boolean isValid() {
+		return !TextUtils.isEmpty(name);
 	}
 
 	@Override

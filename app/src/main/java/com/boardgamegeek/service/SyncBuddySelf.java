@@ -23,6 +23,11 @@ public class SyncBuddySelf extends UpdateTask {
 	}
 
 	@Override
+	public boolean isValid() {
+		return true;
+	}
+
+	@Override
 	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
 		if (account == null) {

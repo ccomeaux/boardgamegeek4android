@@ -26,10 +26,15 @@ public class SyncGamePlays extends UpdateTask {
 	@Override
 	public String getDescription() {
 		// TODO use resources for description
-		if (gameId == BggContract.INVALID_ID) {
-			return "update plays for unknown game";
+		if (isValid()) {
+			return "update plays for game " + gameId;
 		}
-		return "update plays for game " + gameId;
+		return "update plays for unknown game";
+	}
+
+	@Override
+	public boolean isValid() {
+		return gameId != BggContract.INVALID_ID;
 	}
 
 	@Override

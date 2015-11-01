@@ -24,10 +24,15 @@ public class SyncPlaysByDate extends UpdateTask {
 	@Override
 	public String getDescription() {
 		// TODO use resources for description
-		if (TextUtils.isEmpty(date)) {
-			return "update plays for an unknown date";
+		if (isValid()) {
+			return "update plays for " + date;
 		}
-		return "update plays for " + date;
+		return "update plays for an unknown date";
+	}
+
+	@Override
+	public boolean isValid() {
+		return !TextUtils.isEmpty(date);
 	}
 
 	@Override
