@@ -905,7 +905,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, Games.getGameId(mGameUri));
+		int gameId = Games.getGameId(mGameUri);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, gameId);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, gameId);
 	}
 
 	private interface GameQuery {
