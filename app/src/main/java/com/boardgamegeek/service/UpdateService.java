@@ -68,7 +68,41 @@ public class UpdateService extends IntentService {
 		int syncId = intent.getIntExtra(KEY_SYNC_ID, BggContract.INVALID_ID);
 		String syncKey = intent.getStringExtra(KEY_SYNC_KEY);
 
-		UpdateTask task = null;
+		UpdateTask task = createUpdateTask(syncType, syncId, syncKey);
+		if (task.isValid()) {
+			executeTask(syncType, task);
+		} else {
+			postError(getString(R.string.sync_msg_invalid, task.getDescription(getApplicationContext())));
+		}
+	}
+
+	private void executeTask(int syncType, @NonNull UpdateTask task) {
+		final long startTime = signalStart(syncType);
+		try {
+			task.execute(this);
+		} catch (Exception e) {
+			String message = createErrorMessage(task, e);
+			maybeShowNotification(message);
+			postError(message);
+		} finally {
+			signalEnd(startTime);
+		}
+	}
+
+	private long signalStart(int syncType) {
+		EventBus.getDefault().postSticky(new UpdateEvent(syncType));
+		return System.currentTimeMillis();
+	}
+
+	private void signalEnd(long startTime) {
+		Timber.d("Sync took " + (System.currentTimeMillis() - startTime) + "ms");
+		EventBus.getDefault().removeStickyEvent(UpdateEvent.class);
+		EventBus.getDefault().post(new UpdateCompleteEvent());
+	}
+
+	@NonNull
+	private UpdateTask createUpdateTask(int syncType, int syncId, String syncKey) {
+		UpdateTask task = new InvalidUpdateTask(syncType);
 		switch (syncType) {
 			case SYNC_TYPE_GAME:
 				task = new SyncGame(syncId);
@@ -98,39 +132,26 @@ public class UpdateService extends IntentService {
 				task = new SyncPlaysByDate(syncKey);
 				break;
 		}
+		return task;
+	}
 
-		if (task == null) {
-			postError(getResources().getString(R.string.sync_update_invalid_sync_type, syncType));
-			return;
+	@NonNull
+	private String createErrorMessage(@NonNull UpdateTask task, @NonNull Exception e) {
+		String message = getString(R.string.sync_msg_error, task.getDescription(getApplicationContext()));
+		String error = e.getLocalizedMessage();
+		if (!TextUtils.isEmpty(error)) {
+			message += "\n" + error;
 		}
-		if (syncType != SYNC_TYPE_BUDDY_SELF &&
-			syncId == BggContract.INVALID_ID && TextUtils.isEmpty(syncKey)) {
-			postError("Unable to " + task.getDescription() + ".");
-			return;
-		}
+		return message;
+	}
 
-		final long startTime = System.currentTimeMillis();
-		EventBus.getDefault().postSticky(new UpdateEvent(syncType));
-		try {
-			task.execute(this);
-		} catch (Exception e) {
-			String message = "Failed trying to " + task.getDescription() + "!";
-			String error = e.getLocalizedMessage();
-			if (!TextUtils.isEmpty(error)) {
-				message += "\n" + error;
-			}
-			if (PreferencesUtils.getSyncShowNotifications(this)) {
-				Builder builder = NotificationUtils
-					.createNotificationBuilder(getApplicationContext(), R.string.title_error)
-					.setCategory(NotificationCompat.CATEGORY_ERROR);
-				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
-				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
-			}
-			postError(message);
-		} finally {
-			Timber.d("Sync took " + (System.currentTimeMillis() - startTime) + "ms");
-			EventBus.getDefault().removeStickyEvent(UpdateEvent.class);
-			EventBus.getDefault().post(new UpdateCompleteEvent());
+	private void maybeShowNotification(String message) {
+		if (PreferencesUtils.getSyncShowNotifications(this)) {
+			Builder builder = NotificationUtils
+				.createNotificationBuilder(getApplicationContext(), R.string.title_error)
+				.setCategory(NotificationCompat.CATEGORY_ERROR);
+			builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+			NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 		}
 	}
 
