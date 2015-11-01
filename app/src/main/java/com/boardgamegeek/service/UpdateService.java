@@ -72,8 +72,7 @@ public class UpdateService extends IntentService {
 		if (task.isValid()) {
 			executeTask(syncType, task);
 		} else {
-			// TODO externalize string
-			postError("Unable to " + task.getDescription() + ".");
+			postError(getString(R.string.sync_msg_invalid, task.getDescription(getApplicationContext())));
 		}
 	}
 
@@ -138,8 +137,7 @@ public class UpdateService extends IntentService {
 
 	@NonNull
 	private String createErrorMessage(@NonNull UpdateTask task, @NonNull Exception e) {
-		//TODO externalize string
-		String message = "Failed trying to " + task.getDescription() + "!";
+		String message = getString(R.string.sync_msg_error, task.getDescription(getApplicationContext()));
 		String error = e.getLocalizedMessage();
 		if (!TextUtils.isEmpty(error)) {
 			message += "\n" + error;

@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -24,12 +25,11 @@ public class SyncGamePlays extends UpdateTask {
 
 	@NonNull
 	@Override
-	public String getDescription() {
-		// TODO use resources for description
+	public String getDescription(Context context) {
 		if (isValid()) {
-			return "update plays for game " + gameId;
+			return context.getString(R.string.sync_msg_game_plays_valid, gameId);
 		}
-		return "update plays for unknown game";
+		return context.getString(R.string.sync_msg_game_plays_invalid);
 	}
 
 	@Override

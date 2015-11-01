@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
@@ -22,12 +23,11 @@ public class SyncArtist extends UpdateTask {
 
 	@NonNull
 	@Override
-	public String getDescription() {
-		// TODO use resources for description
+	public String getDescription(Context context) {
 		if (isValid()) {
-			return "update artist " + artistId;
+			return context.getString(R.string.sync_msg_artist_valid, artistId);
 		}
-		return "update an unknown artist";
+		return context.getString(R.string.sync_msg_artist_invalid);
 	}
 
 	@Override
