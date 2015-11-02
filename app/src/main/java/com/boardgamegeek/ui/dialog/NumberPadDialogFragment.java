@@ -21,9 +21,9 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 
-public class ScoreDialogFragment extends DialogFragment {
+public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_TITLE = "TITLE";
-	private static final String KEY_SCORE = "SCORE";
+	private static final String KEY_OUTPUT = "OUTPUT";
 	private static final String KEY_COLOR = "COLOR";
 
 	@SuppressWarnings("unused") @InjectView(R.id.title) TextView titleView;
@@ -36,14 +36,14 @@ public class ScoreDialogFragment extends DialogFragment {
 		void onDoneClick(String score);
 	}
 
-	public static ScoreDialogFragment newInstance(String title, String score, String color) {
-		final ScoreDialogFragment fragment = new ScoreDialogFragment();
+	public static NumberPadDialogFragment newInstance(String title, String output, String colorDescription) {
+		final NumberPadDialogFragment fragment = new NumberPadDialogFragment();
 		Bundle args = new Bundle();
 		args.putString(KEY_TITLE, title);
-		if (StringUtils.isNumeric(score)) {
-			args.putString(KEY_SCORE, score);
+		if (StringUtils.isNumeric(output)) {
+			args.putString(KEY_OUTPUT, output);
 		}
-		int c = ColorUtils.parseColor(color);
+		int c = ColorUtils.parseColor(colorDescription);
 		if (c != Color.TRANSPARENT) {
 			args.putInt(KEY_COLOR, c);
 		}
@@ -76,7 +76,7 @@ public class ScoreDialogFragment extends DialogFragment {
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.dialog_score, container, false);
+		View view = inflater.inflate(R.layout.dialog_number_pad, container, false);
 		ButterKnife.inject(this, view);
 
 		Bundle args = getArguments();
@@ -84,8 +84,8 @@ public class ScoreDialogFragment extends DialogFragment {
 			if (args.containsKey(KEY_TITLE)) {
 				titleView.setText(args.getString(KEY_TITLE));
 			}
-			if (args.containsKey(KEY_SCORE)) {
-				outputView.setText(args.getString(KEY_SCORE));
+			if (args.containsKey(KEY_OUTPUT)) {
+				outputView.setText(args.getString(KEY_OUTPUT));
 				enableDelete();
 			}
 			if (args.containsKey(KEY_COLOR)) {
@@ -138,14 +138,14 @@ public class ScoreDialogFragment extends DialogFragment {
 	@OnClick(R.id.num_delete)
 	void onDeleteClick(View v) {
 		v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-		CharSequence score = outputView.getText();
-		if (score.length() > 0) {
-			outputView.setText(score.subSequence(0, score.length() - 1));
+		CharSequence output = outputView.getText();
+		if (output.length() > 0) {
+			outputView.setText(output.subSequence(0, output.length() - 1));
 			enableDelete();
 		}
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "SameReturnValue" })
 	@OnLongClick(R.id.num_delete)
 	boolean onDeleteLongClick() {
 		outputView.setText("");

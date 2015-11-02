@@ -51,7 +51,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
-import com.boardgamegeek.ui.dialog.ScoreDialogFragment;
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.AutoCompleteAdapter;
@@ -1324,8 +1324,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		@Override
 		public void onClick(View v) {
 			final Player player = mPlay.getPlayers().get(mPosition);
-			final ScoreDialogFragment fragment = ScoreDialogFragment.newInstance(player.getDescription(), player.score, player.color);
-			fragment.setOnDoneClickListener(new ScoreDialogFragment.OnClickListener() {
+			final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.score, player.color);
+			fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 				@Override
 				public void onDoneClick(String score) {
 					player.score = score;
