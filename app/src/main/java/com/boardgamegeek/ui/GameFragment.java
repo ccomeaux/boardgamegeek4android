@@ -88,83 +88,83 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	private Handler mHandler = new Handler();
-	private Runnable mTimeHintUpdaterRunnable = null;
-	private Uri mGameUri;
-	private String mGameName;
-	private String mImageUrl;
-	private String mThumbnailUrl;
-	private boolean mCustomPlayerSort;
-	private boolean mSyncing;
+	private Handler timeHintUpdateHandler = new Handler();
+	private Runnable timeHintUpdateRunnable = null;
+	private Uri gameUri;
+	private String gameName;
+	private String imageUrl;
+	private String thumbnailUrl;
+	private boolean arePlayersCustomSorted;
+	private boolean isSyncing;
 
-	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@InjectView(R.id.scroll_root) ObservableScrollView mScrollRoot;
-	@InjectView(R.id.progress) View mProgressView;
-	@InjectView(R.id.hero_container) View mHeroContainer;
-	@InjectView(R.id.image) ImageView mImageView;
-	@InjectView(R.id.header_container) View mHeaderContainer;
-	@InjectView(R.id.game_info_name) TextView mNameView;
-	@InjectView(R.id.game_info_rating) TextView mRatingView;
-	@InjectView(R.id.game_info_description) TextView mDescriptionView;
-	@InjectView(R.id.game_info_rank) TextView mRankView;
-	@InjectView(R.id.game_info_year) TextView mYearPublishedView;
+	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@SuppressWarnings("unused") @InjectView(R.id.scroll_root) ObservableScrollView scrollRoot;
+	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
+	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView imageView;
+	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_name) TextView nameView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_rating) TextView ratingView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_description) TextView descriptionView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_rank) TextView rankView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_year) TextView yearPublishedView;
 
-	@InjectView(R.id.primary_info_container) View mPrimaryInfo;
-	@InjectView(R.id.number_of_players) TextView mNumberOfPlayersView;
-	@InjectView(R.id.play_time) TextView mPlayTimeView;
-	@InjectView(R.id.player_age) TextView mPlayerAgeView;
+	@SuppressWarnings("unused") @InjectView(R.id.primary_info_container) View primaryInfoContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.number_of_players) TextView numberOfPlayersView;
+	@SuppressWarnings("unused") @InjectView(R.id.play_time) TextView playTimeView;
+	@SuppressWarnings("unused") @InjectView(R.id.player_age) TextView playerAgeView;
 
-	@InjectView(R.id.game_info_designers) GameDetailRow mDesignersView;
-	@InjectView(R.id.game_info_artists) GameDetailRow mArtistsView;
-	@InjectView(R.id.game_info_publishers) GameDetailRow mPublishersView;
-	@InjectView(R.id.game_info_categories) GameDetailRow mCategoriesView;
-	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
-	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
-	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_designers) GameDetailRow designersView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_artists) GameDetailRow artistsView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_publishers) GameDetailRow publishersView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_categories) GameDetailRow categoriesView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_mechanics) GameDetailRow mechanicsView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_expansions) GameDetailRow expansionsView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_base_games) GameDetailRow baseGamesView;
 
-	@InjectView(R.id.collection_card) View mCollectionCard;
-	@InjectView(R.id.collection_container) ViewGroup mCollectionContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
+	@SuppressWarnings("unused") @InjectView(R.id.collection_container) ViewGroup collectionContainer;
 
-	@InjectView(R.id.plays_card) View mPlaysCard;
-	@InjectView(R.id.plays_root) View mPlaysRoot;
-	@InjectView(R.id.plays_label) TextView mPlaysLabel;
-	@InjectView(R.id.play_stats_root) View mPlayStatsRoot;
-	@InjectView(R.id.colors_root) View mColorsRoot;
-	@InjectView(R.id.game_colors_label) TextView mColorsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_card) View playsCard;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_root) View playsRoot;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.play_stats_root) View playStatsRoot;
+	@SuppressWarnings("unused") @InjectView(R.id.colors_root) View colorsRoot;
+	@SuppressWarnings("unused") @InjectView(R.id.game_colors_label) TextView colorsLabel;
 
-	@InjectView(R.id.game_comments_label) TextView mCommentsLabel;
-	@InjectView(R.id.game_ratings_label) TextView mRatingsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.game_comments_label) TextView commentsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_label) TextView ratingsLabel;
 
-	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
-	@InjectView(R.id.game_stats_content) View mStatsContent;
-	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
-	@InjectView(R.id.game_stats_rating_count) TextView mRatingsCount;
-	@InjectView(R.id.game_stats_average_bar) StatBar mAverageStatBar;
-	@InjectView(R.id.game_stats_bayes_bar) StatBar mBayesAverageBar;
-	@InjectView(R.id.game_stats_median_bar) StatBar mMedianBar;
-	@InjectView(R.id.game_stats_stddev_bar) StatBar mStdDevBar;
-	@InjectView(R.id.game_stats_weight_count) TextView mWeightCount;
-	@InjectView(R.id.game_stats_weight_bar) StatBar mWeightBar;
-	@InjectView(R.id.game_stats_users_count) TextView mUserCount;
-	@InjectView(R.id.game_stats_owning_bar) StatBar mNumOwningBar;
-	@InjectView(R.id.game_stats_rating_bar) StatBar mNumRatingBar;
-	@InjectView(R.id.game_stats_trading_bar) StatBar mNumTradingBar;
-	@InjectView(R.id.game_stats_wanting_bar) StatBar mNumWantingBar;
-	@InjectView(R.id.game_stats_wishing_bar) StatBar mNumWishingBar;
-	@InjectView(R.id.game_stats_weighting_bar) StatBar mNumWeightingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_label) TextView statsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_content) View statsContent;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rank_root) LinearLayout rankRoot;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_count) TextView ratingsCountView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_average_bar) StatBar averageStatBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_bayes_bar) StatBar bayesAverageBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_median_bar) StatBar medianBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_stddev_bar) StatBar standardDeviationBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weight_count) TextView weightCountView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weight_bar) StatBar weightBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_users_count) TextView userCountView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_owning_bar) StatBar numberOwningBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_bar) StatBar numberRatingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_trading_bar) StatBar numberTradingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wanting_bar) StatBar numberWantingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wishing_bar) StatBar numberWishingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weighting_bar) StatBar numberWeightingBar;
 
-	@InjectView(R.id.game_links_label) TextView mLinksLabel;
-	@InjectView(R.id.game_links_content) View mLinksContent;
+	@SuppressWarnings("unused") @InjectView(R.id.game_links_label) TextView linksLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.game_links_content) View linksContent;
 
-	@InjectView(R.id.game_info_id) TextView mIdView;
-	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_id) TextView idView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_info_last_updated) TextView updatedView;
 
-	@InjectViews({
+	@SuppressWarnings("unused") @InjectViews({
 		R.id.number_of_players,
 		R.id.play_time,
 		R.id.player_age
-	}) List<TextView> mColorizedTextViews;
-	@InjectViews({
+	}) List<TextView> colorizedTextViews;
+	@SuppressWarnings("unused") @InjectViews({
 		R.id.game_info_designers,
 		R.id.game_info_artists,
 		R.id.game_info_publishers,
@@ -172,14 +172,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.game_info_mechanics,
 		R.id.game_info_expansions,
 		R.id.game_info_base_games
-	}) List<GameDetailRow> mColorizedRows;
-	@InjectViews({
+	}) List<GameDetailRow> colorizedRows;
+	@SuppressWarnings("unused") @InjectViews({
 		R.id.card_header_details,
 		R.id.card_header_collection,
 		R.id.card_header_plays,
 		R.id.card_header_user_feedback
-	}) List<TextView> mColorizedHeaders;
-	@InjectViews({
+	}) List<TextView> colorizedHeaders;
+	@SuppressWarnings("unused") @InjectViews({
 		R.id.icon_plays,
 		R.id.icon_play_stats,
 		R.id.icon_colors,
@@ -188,14 +188,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_ratings,
 		R.id.icon_stats,
 		R.id.icon_links
-	}) List<ImageView> mColorizedIcons;
+	}) List<ImageView> colorizedIcons;
 
-	private boolean mIsDescriptionExpanded;
-	private boolean mIsStatsExpanded;
-	private boolean mIsLinksExpanded;
-	private final NumberFormat mFormat = NumberFormat.getInstance();
-	private boolean mMightNeedRefreshing;
-	private Palette mPalette;
+	private boolean isDescriptionExpanded;
+	private boolean isStatsExpanded;
+	private boolean isLinksExpanded;
+	private final NumberFormat numberFormat = NumberFormat.getInstance();
+	private boolean mightNeedRefreshing;
+	private Palette palette;
 
 	static class GameInfo {
 		String gameName;
@@ -206,7 +206,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	public interface Callbacks {
-		public void onGameInfoChanged(GameInfo gameInfo);
+		void onGameInfoChanged(GameInfo gameInfo);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -217,11 +217,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	private Callbacks mCallbacks = sDummyCallbacks;
 
-	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+	private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
-			ImageUtils.resizeImagePerAspectRatio(mImageView, mScrollRoot.getHeight() / 2, mHeroContainer);
+			ImageUtils.resizeImagePerAspectRatio(imageView, scrollRoot.getHeight() / 2, heroContainer);
 		}
 	};
 
@@ -230,19 +230,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mHandler = new Handler();
+		timeHintUpdateHandler = new Handler();
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameUri = intent.getData();
+		gameUri = intent.getData();
 
-		if (mGameUri == null) {
+		if (gameUri == null) {
 			return;
 		}
 
 		if (savedInstanceState != null) {
-			mIsDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
-			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
-			mIsLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
+			isDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
+			isStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
+			isLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
 
 		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -254,21 +254,21 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
 
-		mSwipeRefreshLayout.setOnRefreshListener(this);
-		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 
 		colorize();
 		openOrCloseDescription();
 		openOrCloseStats();
 		openOrCloseLinks();
-		ScrimUtils.applyDefaultScrim(mHeaderContainer);
-		mScrollRoot.addCallbacks(this);
-		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
+		ScrimUtils.applyDefaultScrim(headerContainer);
+		scrollRoot.addCallbacks(this);
+		ViewTreeObserver vto = scrollRoot.getViewTreeObserver();
 		if (vto.isAlive()) {
-			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+			vto.addOnGlobalLayoutListener(globalLayoutListener);
 		}
 
-		mMightNeedRefreshing = true;
+		mightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
@@ -293,8 +293,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onResume() {
 		super.onResume();
-		if (mTimeHintUpdaterRunnable != null) {
-			mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 		}
 	}
 
@@ -314,8 +314,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onPause() {
 		super.onPause();
-		if (mTimeHintUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
 	}
 
@@ -343,17 +343,17 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onDestroy() {
 		super.onDestroy();
-		if (mScrollRoot == null) {
+		if (scrollRoot == null) {
 			return;
 		}
 
-		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
+		ViewTreeObserver vto = scrollRoot.getViewTreeObserver();
 		if (vto.isAlive()) {
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
 				//noinspection deprecation
-				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+				vto.removeGlobalOnLayoutListener(globalLayoutListener);
 			} else {
-				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+				vto.removeOnGlobalLayoutListener(globalLayoutListener);
 			}
 		}
 	}
@@ -362,9 +362,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
-		outState.putBoolean(KEY_STATS_EXPANDED, mIsStatsExpanded);
-		outState.putBoolean(KEY_LINKS_EXPANDED, mIsLinksExpanded);
+		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, isDescriptionExpanded);
+		outState.putBoolean(KEY_STATS_EXPANDED, isStatsExpanded);
+		outState.putBoolean(KEY_LINKS_EXPANDED, isLinksExpanded);
 	}
 
 	@Override
@@ -376,10 +376,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		int gameId = Games.getGameId(mGameUri);
+		int gameId = Games.getGameId(gameUri);
 		switch (id) {
 			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), mGameUri, GameQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), gameUri, GameQuery.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId),
@@ -452,25 +452,25 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				lm.restartLoader(BaseGameQuery._TOKEN, null, this);
 				break;
 			case DesignerQuery._TOKEN:
-				onListQueryComplete(cursor, mDesignersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID);
+				onListQueryComplete(cursor, designersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID);
 				break;
 			case ArtistQuery._TOKEN:
-				onListQueryComplete(cursor, mArtistsView, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_ID);
+				onListQueryComplete(cursor, artistsView, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_ID);
 				break;
 			case PublisherQuery._TOKEN:
-				onListQueryComplete(cursor, mPublishersView, PublisherQuery.PUBLISHER_NAME, PublisherQuery.PUBLISHER_ID);
+				onListQueryComplete(cursor, publishersView, PublisherQuery.PUBLISHER_NAME, PublisherQuery.PUBLISHER_ID);
 				break;
 			case CategoryQuery._TOKEN:
-				onListQueryComplete(cursor, mCategoriesView, CategoryQuery.CATEGORY_NAME, CategoryQuery.CATEGORY_ID);
+				onListQueryComplete(cursor, categoriesView, CategoryQuery.CATEGORY_NAME, CategoryQuery.CATEGORY_ID);
 				break;
 			case MechanicQuery._TOKEN:
-				onListQueryComplete(cursor, mMechanicsView, MechanicQuery.MECHANIC_NAME, MechanicQuery.MECHANIC_ID);
+				onListQueryComplete(cursor, mechanicsView, MechanicQuery.MECHANIC_NAME, MechanicQuery.MECHANIC_ID);
 				break;
 			case ExpansionQuery._TOKEN:
-				onListQueryComplete(cursor, mExpansionsView, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
+				onListQueryComplete(cursor, expansionsView, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
 				break;
 			case BaseGameQuery._TOKEN:
-				onListQueryComplete(cursor, mBaseGamesView, BaseGameQuery.EXPANSION_NAME, BaseGameQuery.EXPANSION_ID);
+				onListQueryComplete(cursor, baseGamesView, BaseGameQuery.EXPANSION_NAME, BaseGameQuery.EXPANSION_ID);
 				break;
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
@@ -482,10 +482,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				onPlaysQueryComplete(cursor);
 				break;
 			case ColorQuery._TOKEN:
-				mPlaysCard.setVisibility(View.VISIBLE);
-				mColorsRoot.setVisibility(View.VISIBLE);
+				playsCard.setVisibility(View.VISIBLE);
+				colorsRoot.setVisibility(View.VISIBLE);
 				int count = cursor.getCount();
-				mColorsLabel.setText(getResources().getQuantityString(R.plurals.colors_suffix, count, count));
+				colorsLabel.setText(getResources().getQuantityString(R.plurals.colors_suffix, count, count));
 				break;
 			default:
 				cursor.close();
@@ -503,38 +503,40 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onScrollChanged(int deltaX, int deltaY) {
 		if (VersionUtils.hasHoneycomb()) {
-			int scrollY = mScrollRoot.getScrollY();
-			mImageView.setTranslationY(scrollY * 0.5f);
-			mHeaderContainer.setTranslationY(scrollY * 0.5f);
+			int scrollY = scrollRoot.getScrollY();
+			imageView.setTranslationY(scrollY * 0.5f);
+			headerContainer.setTranslationY(scrollY * 0.5f);
 		}
 	}
 
 	@Override
 	@DebugLog
 	public void onPaletteGenerated(Palette palette) {
-		mPalette = palette;
+		this.palette = palette;
 		colorize();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEventMainThread(UpdateEvent event) {
-		mSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME;
+		isSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME;
 		updateRefreshStatus();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEventMainThread(UpdateCompleteEvent event) {
-		mSyncing = false;
+		isSyncing = false;
 		updateRefreshStatus();
 	}
 
 	@DebugLog
 	private void updateRefreshStatus() {
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.post(new Runnable() {
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					mSwipeRefreshLayout.setRefreshing(mSyncing);
+					swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
@@ -542,23 +544,23 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@DebugLog
 	private void colorize() {
-		if (mPalette == null || mPrimaryInfo == null) {
+		if (palette == null || primaryInfoContainer == null) {
 			return;
 		}
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(mPalette, getResources().getColor(R.color.info_background));
-		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = PaletteUtils.getIconSwatch(mPalette);
-		ButterKnife.apply(mColorizedRows, GameDetailRow.colorIconSetter, swatch);
-		ButterKnife.apply(mColorizedIcons, PaletteUtils.colorIconSetter, swatch);
-		swatch = PaletteUtils.getHeaderSwatch(mPalette);
-		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
+		primaryInfoContainer.setBackgroundColor(swatch.getRgb());
+		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+		swatch = PaletteUtils.getIconSwatch(palette);
+		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
+		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		swatch = PaletteUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
 	@DebugLog
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			if (mMightNeedRefreshing) {
+			if (mightNeedRefreshing) {
 				triggerRefresh();
 			}
 			return;
@@ -567,74 +569,74 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		Game game = new Game(cursor);
 
 		notifyChange(game);
-		mGameName = game.Name;
-		mImageUrl = game.ImageUrl;
-		mThumbnailUrl = game.ThumbnailUrl;
-		mCustomPlayerSort = game.CustomPlayerSort;
+		gameName = game.Name;
+		imageUrl = game.ImageUrl;
+		thumbnailUrl = game.ThumbnailUrl;
+		arePlayersCustomSorted = game.CustomPlayerSort;
 
-		ImageUtils.safelyLoadImage(mImageView, game.ImageUrl, this);
-		mNameView.setText(game.Name);
-		mRankView.setText(game.getRankDescription());
-		mYearPublishedView.setText(game.getYearPublished());
-		mRatingView.setText(game.getRatingDescription());
-		ColorUtils.setViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
-		mIdView.setText(String.valueOf(game.Id));
-		mUpdatedView.setTag(game.Updated);
-		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
-		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
-		mPlayTimeView.setText(game.getPlayingTimeDescription());
-		mPlayerAgeView.setText(game.getAgeDescription());
-		mCommentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
-		mRatingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
+		ImageUtils.safelyLoadImage(imageView, game.ImageUrl, this);
+		nameView.setText(game.Name);
+		rankView.setText(game.getRankDescription());
+		yearPublishedView.setText(game.getYearPublished());
+		ratingView.setText(game.getRatingDescription());
+		ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
+		idView.setText(String.valueOf(game.Id));
+		updatedView.setTag(game.Updated);
+		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
+		numberOfPlayersView.setText(game.getPlayerRangeDescription());
+		playTimeView.setText(game.getPlayingTimeDescription());
+		playerAgeView.setText(game.getAgeDescription());
+		commentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
+		ratingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
 
-		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count), mFormat.format(game.UsersRated)));
-		mAverageStatBar.setBar(R.string.average_meter_text, game.Rating);
-		mBayesAverageBar.setBar(R.string.bayes_meter_text, game.BayesAverage);
+		ratingsCountView.setText(String.format(getResources().getString(R.string.rating_count), numberFormat.format(game.UsersRated)));
+		averageStatBar.setBar(R.string.average_meter_text, game.Rating);
+		bayesAverageBar.setBar(R.string.bayes_meter_text, game.BayesAverage);
 		if (game.Median <= 0) {
-			mMedianBar.setVisibility(View.GONE);
+			medianBar.setVisibility(View.GONE);
 		} else {
-			mMedianBar.setVisibility(View.VISIBLE);
-			mMedianBar.setBar(R.string.median_meter_text, game.Median);
+			medianBar.setVisibility(View.VISIBLE);
+			medianBar.setBar(R.string.median_meter_text, game.Median);
 		}
-		mStdDevBar.setBar(R.string.stdDev_meter_text, game.StandardDeviation, 5.0);
+		standardDeviationBar.setBar(R.string.stdDev_meter_text, game.StandardDeviation, 5.0);
 
-		mWeightCount.setText(String.format(getResources().getString(R.string.weight_count), mFormat.format(game.NumberWeights)));
-		mWeightBar.setBar(game.getWeightDescriptionResId(), game.AverageWeight, 5.0, 1.0);
+		weightCountView.setText(String.format(getResources().getString(R.string.weight_count), numberFormat.format(game.NumberWeights)));
+		weightBar.setBar(game.getWeightDescriptionResId(), game.AverageWeight, 5.0, 1.0);
 
-		mUserCount.setText(String.format(getResources().getString(R.string.user_total), mFormat.format(game.getMaxUsers())));
-		mNumOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
-		mNumRatingBar.setBar(R.string.rating_meter_text, game.UsersRated, game.getMaxUsers());
-		mNumTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, game.getMaxUsers());
-		mNumWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, game.getMaxUsers());
-		mNumWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
-		mNumWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
+		userCountView.setText(String.format(getResources().getString(R.string.user_total), numberFormat.format(game.getMaxUsers())));
+		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
+		numberRatingBar.setBar(R.string.rating_meter_text, game.UsersRated, game.getMaxUsers());
+		numberTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, game.getMaxUsers());
+		numberWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, game.getMaxUsers());
+		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
+		numberWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
 
 		if (shouldShowPlays()) {
-			mPlaysCard.setVisibility(View.VISIBLE);
-			mPlayStatsRoot.setVisibility(View.VISIBLE);
+			playsCard.setVisibility(View.VISIBLE);
+			playStatsRoot.setVisibility(View.VISIBLE);
 		}
 
 		updateTimeBasedUi();
-		if (mTimeHintUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
-		mTimeHintUpdaterRunnable = new Runnable() {
+		timeHintUpdateRunnable = new Runnable() {
 			@Override
 			public void run() {
 				updateTimeBasedUi();
-				mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 			}
 		};
-		mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 
-		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
-		AnimationUtils.fadeIn(getActivity(), mSwipeRefreshLayout, true);
+		AnimationUtils.fadeOut(getActivity(), progressView, true);
+		AnimationUtils.fadeIn(getActivity(), swipeRefreshLayout, true);
 
-		if (mMightNeedRefreshing
+		if (mightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
-		mMightNeedRefreshing = false;
+		mightNeedRefreshing = false;
 	}
 
 	@DebugLog
@@ -642,9 +644,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		if (!isAdded()) {
 			return;
 		}
-		if (mUpdatedView != null) {
-			long updatedTime = (long) mUpdatedView.getTag();
-			mUpdatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
+		if (updatedView != null) {
+			long updatedTime = (long) updatedView.getTag();
+			updatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
 		}
 	}
 
@@ -671,17 +673,17 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			view.clear();
 		} else {
 			view.setVisibility(View.VISIBLE);
-			view.bind(cursor, nameColumnIndex, idColumnIndex, Games.getGameId(mGameUri), mGameName);
+			view.bind(cursor, nameColumnIndex, idColumnIndex, Games.getGameId(gameUri), gameName);
 		}
 	}
 
 	@DebugLog
 	private void onRankQueryComplete(Cursor cursor) {
-		mRankRoot.removeAllViews();
+		rankRoot.removeAllViews();
 		if (cursor == null || cursor.getCount() == 0) {
-			mRankRoot.setVisibility(View.GONE);
+			rankRoot.setVisibility(View.GONE);
 		} else {
-			mRankRoot.setVisibility(View.VISIBLE);
+			rankRoot.setVisibility(View.VISIBLE);
 
 			while (cursor.moveToNext()) {
 				Rank rank = new Rank(cursor);
@@ -693,7 +695,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
 		LinearLayout layout = (LinearLayout) getLayoutInflater(null)
-			.inflate(R.layout.widget_rank_row, mRankRoot, false);
+			.inflate(R.layout.widget_rank_row, rankRoot, false);
 
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
 		setText(tv, label, bold);
@@ -708,18 +710,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			LinearLayout.LayoutParams.MATCH_PARENT));
 		sb.setBar(R.string.average_meter_text, rating);
 
-		mRankRoot.addView(layout);
-		mRankRoot.addView(sb);
+		rankRoot.addView(layout);
+		rankRoot.addView(sb);
 	}
 
 	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
 		if (cursor.moveToFirst()) {
-			mCollectionCard.setVisibility(View.VISIBLE);
-			mCollectionContainer.removeViews(1, mCollectionContainer.getChildCount() - 1);
+			collectionCard.setVisibility(View.VISIBLE);
+			collectionContainer.removeViews(1, collectionContainer.getChildCount() - 1);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
-				row.bind(Games.getGameId(mGameUri), mGameName, cursor.getInt(CollectionQuery.COLLECTION_ID));
+				row.bind(Games.getGameId(gameUri), gameName, cursor.getInt(CollectionQuery.COLLECTION_ID));
 				row.setThumbnail(cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL));
 				row.setName(cursor.getString(CollectionQuery.COLLECTION_NAME));
 				row.setYear(cursor.getInt(CollectionQuery.COLLECTION_YEAR));
@@ -736,7 +738,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 					}
 				}
 				row.setStatus(status, cursor.getInt(CollectionQuery.NUM_PLAYS));
-				mCollectionContainer.addView(row);
+				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
 		}
 	}
@@ -744,14 +746,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor.moveToFirst()) {
-			mPlaysCard.setVisibility(View.VISIBLE);
-			mPlaysRoot.setVisibility(View.VISIBLE);
+			playsCard.setVisibility(View.VISIBLE);
+			playsRoot.setVisibility(View.VISIBLE);
 			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
 			if (sum > 0) {
 				String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.MAX_DATE);
-				mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
+				playsLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
 			} else {
-				mPlaysLabel.setText(getResources().getString(R.string.no_plays));
+				playsLabel.setText(getResources().getString(R.string.no_plays));
 			}
 		}
 	}
@@ -767,145 +769,157 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.image)
 	@DebugLog
 	public void onThumbnailClick(View v) {
-		if (!TextUtils.isEmpty(mImageUrl)) {
+		if (!TextUtils.isEmpty(imageUrl)) {
 			final Intent intent = new Intent(getActivity(), ImageActivity.class);
-			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
+			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 			startActivity(intent);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.game_info_description)
 	@DebugLog
 	public void onDescriptionClick(View v) {
-		mIsDescriptionExpanded = !mIsDescriptionExpanded;
+		isDescriptionExpanded = !isDescriptionExpanded;
 		openOrCloseDescription();
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
 	@DebugLog
 	public void onPlaysClick(View v) {
 		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
-		intent.setData(mGameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
-		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
-		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, mThumbnailUrl);
-		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.play_stats_root)
 	@DebugLog
 	public void onPlayStatsClick(View v) {
 		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
-		intent.setData(mGameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.colors_root)
 	@DebugLog
 	public void onColorsClick(View v) {
 		Intent intent = new Intent(getActivity(), ColorsActivity.class);
-		intent.setData(mGameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.forums_root)
 	@DebugLog
 	public void onForumsClick(View v) {
 		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
-		intent.setData(mGameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.comments_root)
 	@DebugLog
-	public void onCommentsClick(View v) {
+	public void onCommentsClick(@SuppressWarnings("UnusedParameters") View v) {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
-		intent.setData(mGameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.ratings_root)
-	public void onRatingsClick(View v) {
+	public void onRatingsClick(@SuppressWarnings("UnusedParameters") View v) {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
-		intent.setData(mGameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		intent.putExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_RATING);
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.game_info_stats_root)
 	@DebugLog
-	public void onStatsClick(View v) {
-		mIsStatsExpanded = !mIsStatsExpanded;
+	public void onStatsClick(@SuppressWarnings("UnusedParameters") View v) {
+		isStatsExpanded = !isStatsExpanded;
 		openOrCloseStats();
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.game_info_links_root)
 	@DebugLog
-	public void onLinksClick(View v) {
-		mIsLinksExpanded = !mIsLinksExpanded;
+	public void onLinksClick(@SuppressWarnings("UnusedParameters") View v) {
+		isLinksExpanded = !isLinksExpanded;
 		openOrCloseLinks();
 	}
 
 	@DebugLog
 	private void openOrCloseDescription() {
-		mDescriptionView.setMaxLines(mIsDescriptionExpanded ? Integer.MAX_VALUE : 3);
-		mDescriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
-			mIsDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
+		descriptionView.setMaxLines(isDescriptionExpanded ? Integer.MAX_VALUE : 3);
+		descriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
+			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
 	@DebugLog
 	private void openOrCloseStats() {
-		mStatsContent.setVisibility(mIsStatsExpanded ? View.VISIBLE : View.GONE);
-		mStatsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsStatsExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
+		statsContent.setVisibility(isStatsExpanded ? View.VISIBLE : View.GONE);
+		statsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, isStatsExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
 	}
 
 	@DebugLog
 	private void openOrCloseLinks() {
-		mLinksContent.setVisibility(mIsLinksExpanded ? View.VISIBLE : View.GONE);
-		mLinksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsLinksExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
+		linksContent.setVisibility(isLinksExpanded ? View.VISIBLE : View.GONE);
+		linksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, isLinksExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_ebay })
 	void onLinkClick(View v) {
 		switch (v.getId()) {
 			case R.id.link_bgg:
-				ActivityUtils.linkBgg(getActivity(), Games.getGameId(mGameUri));
+				ActivityUtils.linkBgg(getActivity(), Games.getGameId(gameUri));
 				break;
 			case R.id.link_bg_prices:
-				ActivityUtils.linkBgPrices(getActivity(), mGameName);
+				ActivityUtils.linkBgPrices(getActivity(), gameName);
 				break;
 			case R.id.link_amazon:
-				ActivityUtils.linkAmazon(getActivity(), mGameName);
+				ActivityUtils.linkAmazon(getActivity(), gameName);
 				break;
 			case R.id.link_ebay:
-				ActivityUtils.linkEbay(getActivity(), mGameName);
+				ActivityUtils.linkEbay(getActivity(), gameName);
 				break;
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick({ R.id.number_of_players, R.id.player_age })
 	@DebugLog
 	public void onPollClick(View v) {
 		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(mGameUri));
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
 		arguments.putString(ActivityUtils.KEY_TYPE, (String) v.getTag());
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
 	@DebugLog
 	private void triggerRefresh() {
-		mMightNeedRefreshing = false;
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, Games.getGameId(mGameUri));
+		mightNeedRefreshing = false;
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, Games.getGameId(gameUri));
 	}
 
 	private interface GameQuery {
@@ -1028,7 +1042,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private interface PlaysQuery {
 		String[] PROJECTION = { Plays._ID, Plays.MAX_DATE, Plays.SUM_QUANTITY, Plays.MAX_DATE };
 		int _TOKEN = 0x21;
-		int _ID = 0;
 		int MAX_DATE = 1;
 		int SUM_QUANTITY = 2;
 	}
@@ -1038,33 +1051,33 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	private class Game {
-		String Name;
-		String ThumbnailUrl;
-		String ImageUrl;
-		int Id;
-		float Rating;
-		int YearPublished;
-		int MinPlayers;
-		int MaxPlayers;
-		int PlayingTime;
-		int MinimumAge;
-		String Description;
-		int UsersRated;
-		int UsersCommented;
-		long Updated;
-		int Rank;
-		double BayesAverage;
-		double Median;
-		double StandardDeviation;
-		double AverageWeight;
-		int NumberWeights;
-		int NumberOwned;
-		int NumberTrading;
-		int NumberWanting;
-		int NumberWishing;
-		int PollsCount;
-		String Subtype;
-		boolean CustomPlayerSort;
+		final String Name;
+		final String ThumbnailUrl;
+		final String ImageUrl;
+		final int Id;
+		final float Rating;
+		final int YearPublished;
+		final int MinPlayers;
+		final int MaxPlayers;
+		final int PlayingTime;
+		final int MinimumAge;
+		final String Description;
+		final int UsersRated;
+		final int UsersCommented;
+		final long Updated;
+		final int Rank;
+		final double BayesAverage;
+		final double Median;
+		final double StandardDeviation;
+		final double AverageWeight;
+		final int NumberWeights;
+		final int NumberOwned;
+		final int NumberTrading;
+		final int NumberWanting;
+		final int NumberWishing;
+		final int PollsCount;
+		final String Subtype;
+		final boolean CustomPlayerSort;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -1169,10 +1182,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	private class Rank {
-		String Name;
-		int Rank;
-		double Rating;
-		String Type;
+		final String Name;
+		final int Rank;
+		final double Rating;
+		final String Type;
 
 		Rank(Cursor cursor) {
 			Name = cursor.getString(RankQuery.GAME_RANK_FRIENDLY_NAME);
