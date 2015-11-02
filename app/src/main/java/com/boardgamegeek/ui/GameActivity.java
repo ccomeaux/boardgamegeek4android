@@ -27,11 +27,11 @@ import hugo.weaving.DebugLog;
 
 public class GameActivity extends SimpleSinglePaneActivity {
 	private static final int REQUEST_EDIT_PLAY = 1;
-	private int mGameId;
-	private String mGameName;
-	private String mThumbnailUrl;
-	private String mImageUrl;
-	private boolean mCustomPlayerSort;
+	private int gameId;
+	private String gameName;
+	private String imageUrl;
+	private String thumbnailUrl;
+	private boolean arePlayersCustomSorted;
 
 	@DebugLog
 	@Override
@@ -42,7 +42,7 @@ public class GameActivity extends SimpleSinglePaneActivity {
 			supportActionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
-		mGameId = Games.getGameId(getIntent().getData());
+		gameId = Games.getGameId(getIntent().getData());
 		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
 
 		new Handler().post(new Runnable() {
@@ -93,24 +93,24 @@ public class GameActivity extends SimpleSinglePaneActivity {
 				return true;
 			case R.id.menu_language_poll:
 				Bundle arguments = new Bundle(2);
-				arguments.putInt(ActivityUtils.KEY_GAME_ID, mGameId);
+				arguments.putInt(ActivityUtils.KEY_GAME_ID, gameId);
 				arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
 				DialogUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.shareGame(this, mGameId, mGameName);
+				ActivityUtils.shareGame(this, gameId, gameName);
 				return true;
 			case R.id.menu_shortcut:
-				ShortcutUtils.createShortcut(this, mGameId, mGameName, mThumbnailUrl);
+				ShortcutUtils.createShortcut(this, gameId, gameName, thumbnailUrl);
 				return true;
 			case R.id.menu_log_play:
-				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl, mImageUrl);
-				intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
+				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
+				intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 				startActivityForResult(intent, REQUEST_EDIT_PLAY);
 				return true;
 			case R.id.menu_log_play_quick:
 				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
-				ActivityUtils.logQuickPlay(this, mGameId, mGameName);
+				ActivityUtils.logQuickPlay(this, gameId, gameName);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -120,18 +120,19 @@ public class GameActivity extends SimpleSinglePaneActivity {
 		return getIntent().getBooleanExtra(ActivityUtils.KEY_FROM_SHORTCUT, false);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEventMainThread(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
 		changeSubtype(event.getSubtype());
-		mThumbnailUrl = event.getThumbnailUrl();
-		mImageUrl = event.getImageUrl();
-		mCustomPlayerSort = event.arePlayersCustomSorted();
+		imageUrl = event.getImageUrl();
+		thumbnailUrl = event.getThumbnailUrl();
+		arePlayersCustomSorted = event.arePlayersCustomSorted();
 	}
 
 	@DebugLog
 	private void changeName(String gameName) {
-		mGameName = gameName;
+		this.gameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 			final ActionBar supportActionBar = getSupportActionBar();

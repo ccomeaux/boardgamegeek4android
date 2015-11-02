@@ -197,7 +197,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 
-	private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
+	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
