@@ -15,9 +15,9 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.GameFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -25,7 +25,7 @@ import com.boardgamegeek.util.ShortcutUtils;
 
 import hugo.weaving.DebugLog;
 
-public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
+public class GameActivity extends SimpleSinglePaneActivity {
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private int mGameId;
 	private String mGameName;
@@ -121,13 +121,12 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	}
 
 	@DebugLog
-	@Override
-	public void onGameInfoChanged(GameInfo gameInfo) {
-		changeName(gameInfo.gameName);
-		changeSubtype(gameInfo.subtype);
-		mThumbnailUrl = gameInfo.thumbnailUrl;
-		mImageUrl = gameInfo.imageUrl;
-		mCustomPlayerSort = gameInfo.customPlayerSort;
+	public void onEventMainThread(GameInfoChangedEvent event) {
+		changeName(event.getGameName());
+		changeSubtype(event.getSubtype());
+		mThumbnailUrl = event.getThumbnailUrl();
+		mImageUrl = event.getImageUrl();
+		mCustomPlayerSort = event.arePlayersCustomSorted();
 	}
 
 	@DebugLog

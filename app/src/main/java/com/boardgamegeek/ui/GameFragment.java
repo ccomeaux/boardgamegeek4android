@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -31,6 +30,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -197,26 +197,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 
-	static class GameInfo {
-		String gameName;
-		String subtype;
-		String thumbnailUrl;
-		String imageUrl;
-		boolean customPlayerSort;
-	}
-
-	public interface Callbacks {
-		void onGameInfoChanged(GameInfo gameInfo);
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onGameInfoChanged(GameInfo gameInfo) {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
 	private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
@@ -300,30 +280,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@Override
 	@DebugLog
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	@DebugLog
 	public void onPause() {
 		super.onPause();
 		if (timeHintUpdateRunnable != null) {
 			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
-	}
-
-	@Override
-	@DebugLog
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
@@ -657,13 +618,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@DebugLog
 	private void notifyChange(Game game) {
-		GameInfo gameInfo = new GameInfo();
-		gameInfo.gameName = game.Name;
-		gameInfo.subtype = game.Subtype;
-		gameInfo.thumbnailUrl = game.ThumbnailUrl;
-		gameInfo.imageUrl = game.ImageUrl;
-		gameInfo.customPlayerSort = game.CustomPlayerSort;
-		mCallbacks.onGameInfoChanged(gameInfo);
+		GameInfoChangedEvent event = new GameInfoChangedEvent(game.Name, game.Subtype, game.ImageUrl, game.ThumbnailUrl, game.CustomPlayerSort);
+		EventBus.getDefault().post(event);
 	}
 
 	@DebugLog
