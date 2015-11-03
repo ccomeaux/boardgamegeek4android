@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -22,12 +23,16 @@ public class SyncPlaysByDate extends UpdateTask {
 
 	@NonNull
 	@Override
-	public String getDescription() {
-		// TODO use resources for description
-		if (TextUtils.isEmpty(date)) {
-			return "update plays for an unknown date";
+	public String getDescription(Context context) {
+		if (isValid()) {
+			return context.getString(R.string.sync_msg_plays_date_valid, date);
 		}
-		return "update plays for " + date;
+		return context.getString(R.string.sync_msg_plays_date_invalid);
+	}
+
+	@Override
+	public boolean isValid() {
+		return !TextUtils.isEmpty(date);
 	}
 
 	@Override

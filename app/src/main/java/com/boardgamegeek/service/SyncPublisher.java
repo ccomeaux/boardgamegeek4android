@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Company;
@@ -22,12 +23,16 @@ public class SyncPublisher extends UpdateTask {
 
 	@NonNull
 	@Override
-	public String getDescription() {
-		// TODO use resources for description
-		if (publisherId == BggContract.INVALID_ID){
-			return "update an unknown publisher";
+	public String getDescription(Context context) {
+		if (isValid()) {
+			return context.getString(R.string.sync_msg_publisher_valid, publisherId);
 		}
-		return "update publisher " + publisherId;
+		return context.getString(R.string.sync_msg_publisher_invalid);
+	}
+
+	@Override
+	public boolean isValid() {
+		return publisherId != BggContract.INVALID_ID;
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.User;
@@ -21,12 +22,16 @@ public class SyncBuddy extends UpdateTask {
 
 	@NonNull
 	@Override
-	public String getDescription() {
-		// TODO use resources for description
-		if (TextUtils.isEmpty(name)) {
-			return "update an unknown buddy";
+	public String getDescription(Context context) {
+		if (isValid()) {
+			return context.getString(R.string.sync_msg_buddy_valid, name);
 		}
-		return "update buddy " + name;
+		return context.getString(R.string.sync_msg_buddy_invalid);
+	}
+
+	@Override
+	public boolean isValid() {
+		return !TextUtils.isEmpty(name);
 	}
 
 	@Override

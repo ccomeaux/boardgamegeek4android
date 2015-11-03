@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -29,12 +30,16 @@ public class SyncGameCollection extends UpdateTask {
 
 	@NonNull
 	@Override
-	public String getDescription() {
-		// TODO use resources for description
-		if (gameId == BggContract.INVALID_ID) {
-			return "update collection for unknown game";
+	public String getDescription(Context context) {
+		if (isValid()) {
+			return context.getString(R.string.sync_msg_game_collection_valid, gameId);
 		}
-		return "update collection for game " + gameId;
+		return context.getString(R.string.sync_msg_game_collection_invalid);
+	}
+
+	@Override
+	public boolean isValid() {
+		return gameId != BggContract.INVALID_ID;
 	}
 
 	@Override
