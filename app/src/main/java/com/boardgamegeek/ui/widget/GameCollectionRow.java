@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.model.Constants;
 import com.boardgamegeek.ui.GameCollectionActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -27,14 +28,15 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class GameCollectionRow extends LinearLayout {
-	@InjectView(R.id.thumbnail) ImageView mThumbnail;
-	@InjectView(R.id.name) TextView mNameView;
-	@InjectView(R.id.year) TextView mYearView;
-	@InjectView(R.id.status) TextView mStatusView;
+	@SuppressWarnings("unused") @InjectView(R.id.thumbnail) ImageView thumbnailView;
+	@SuppressWarnings("unused") @InjectView(R.id.status) TextView statusView;
+	@SuppressWarnings("unused") @InjectView(R.id.description) TextView descriptionView;
+	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView commentView;
 
-	private int mGameId;
-	private String mGameName;
-	private int mCollectionId;
+	private int gameId;
+	private String gameName;
+	private int collectionId;
+	private int yearPublished;
 
 	public GameCollectionRow(Context context) {
 		super(context);
@@ -71,42 +73,57 @@ public class GameCollectionRow extends LinearLayout {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getContext(), GameCollectionActivity.class);
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
-				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, mCollectionId);
-				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, mNameView.getText());
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, collectionId);
+				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, descriptionView.getText());
 				getContext().startActivity(intent);
 			}
 		});
 	}
 
-	public void bind(int gameId, String gameName, int collectionId) {
-		mGameId = gameId;
-		mGameName = gameName;
-		mCollectionId = collectionId;
-	}
-
-	public void setName(String name) {
-		mNameView.setText(name);
-	}
-
-	public void setYear(int year) {
-		if (year > 0) {
-			mYearView.setVisibility(View.VISIBLE);
-			mYearView.setText(PresentationUtils.describeYear(getContext(), year));
-		}
+	public void bind(int gameId, String gameName, int collectionId, int yearPublished) {
+		this.gameId = gameId;
+		this.gameName = gameName;
+		this.collectionId = collectionId;
+		this.yearPublished = yearPublished;
 	}
 
 	public void setStatus(List<String> status, int playCount) {
-		String d = StringUtils.formatList(status);
-		if (TextUtils.isEmpty(d)) {
+		String description = StringUtils.formatList(status);
+		if (TextUtils.isEmpty(description)) {
 			if (playCount > 0) {
-				d = getContext().getString(R.string.played);
+				description = getContext().getString(R.string.played);
 			}
 		}
-		if (!TextUtils.isEmpty(d)) {
-			mStatusView.setVisibility(View.VISIBLE);
-			mStatusView.setText(d);
+		if (TextUtils.isEmpty(description)) {
+			statusView.setVisibility(View.GONE);
+		} else {
+			statusView.setText(description);
+			statusView.setVisibility(View.VISIBLE);
+		}
+	}
+
+	public void setDescription(String name, int yearPublished) {
+		if ((TextUtils.isEmpty(name) && !name.equals(gameName)) ||
+			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
+			if (yearPublished == Constants.YEAR_UNKNOWN) {
+				descriptionView.setText(name);
+			} else {
+				descriptionView.setText(name + " (" + PresentationUtils.describeYear(getContext(), yearPublished) + ")");
+			}
+			descriptionView.setVisibility(View.VISIBLE);
+		} else {
+			descriptionView.setVisibility(View.GONE);
+		}
+	}
+
+	public void setComment(String comment) {
+		if (TextUtils.isEmpty(comment)) {
+			commentView.setVisibility(View.GONE);
+		} else {
+			commentView.setText(comment);
+			commentView.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -117,6 +134,6 @@ public class GameCollectionRow extends LinearLayout {
 			.error(R.drawable.thumbnail_image_empty)
 			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size)
 			.centerCrop()
-			.into(mThumbnail);
+			.into(thumbnailView);
 	}
 }

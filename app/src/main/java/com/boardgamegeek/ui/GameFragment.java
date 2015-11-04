@@ -677,10 +677,17 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			collectionContainer.removeViews(1, collectionContainer.getChildCount() - 1);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
-				row.bind(Games.getGameId(gameUri), gameName, cursor.getInt(CollectionQuery.COLLECTION_ID));
-				row.setThumbnail(cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL));
-				row.setName(cursor.getString(CollectionQuery.COLLECTION_NAME));
-				row.setYear(cursor.getInt(CollectionQuery.COLLECTION_YEAR));
+				
+				final int gameId = Games.getGameId(gameUri);
+				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
+				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);
+				row.bind(gameId, gameName, collectionId, yearPublished);
+
+				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL);
+				final String collectionName = cursor.getString(CollectionQuery.COLLECTION_NAME);
+				final int collectionYearPublished = cursor.getInt(CollectionQuery.COLLECTION_YEAR);
+				final int numberOfPlays = cursor.getInt(CollectionQuery.NUM_PLAYS);
+				final String comment = cursor.getString(CollectionQuery.COMMENT);
 				List<String> status = new ArrayList<>();
 				for (int i = CollectionQuery.STATUS_1; i <= CollectionQuery.STATUS_N; i++) {
 					if (cursor.getInt(i) == 1) {
@@ -693,7 +700,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 						}
 					}
 				}
-				row.setStatus(status, cursor.getInt(CollectionQuery.NUM_PLAYS));
+
+				row.setThumbnail(thumbnailUrl);
+				row.setStatus(status, numberOfPlays);
+				row.setDescription(collectionName, collectionYearPublished);
+				row.setComment(comment);
+
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
 		}
@@ -982,10 +994,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	private interface CollectionQuery {
 		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_IMAGE_URL, Collection.STATUS_OWN,
+			Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_THUMBNAIL_URL, Collection.STATUS_OWN,
 			Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE, Collection.STATUS_WANT,
 			Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST, Collection.STATUS_WANT_TO_PLAY,
-			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS };
+			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS,
+			Collection.COMMENT, Games.YEAR_PUBLISHED };
 		int _TOKEN = 0x20;
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
@@ -996,6 +1009,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		int STATUS_WISHLIST = 10;
 		int STATUS_WISHLIST_PRIORITY = 13;
 		int NUM_PLAYS = 14;
+		int COMMENT = 15;
+		int YEAR_PUBLISHED = 16;
 	}
 
 	private interface PlaysQuery {
