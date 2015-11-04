@@ -677,7 +677,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			collectionContainer.removeViews(1, collectionContainer.getChildCount() - 1);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
-				
+
 				final int gameId = Games.getGameId(gameUri);
 				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
 				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);

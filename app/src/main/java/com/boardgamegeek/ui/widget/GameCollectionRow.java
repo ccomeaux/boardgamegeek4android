@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,25 +39,9 @@ public class GameCollectionRow extends LinearLayout {
 
 	public GameCollectionRow(Context context) {
 		super(context);
-		init(context, null);
-	}
 
-	public GameCollectionRow(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init(context, attrs);
-	}
-
-	private void init(Context context, AttributeSet attrs) {
 		setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-		int backgroundResId = 0;
-		TypedArray a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
-		try {
-			backgroundResId = a.getResourceId(0, backgroundResId);
-		} finally {
-			a.recycle();
-		}
-		setBackgroundResource(backgroundResId);
-
+		setBackgroundResource(obtainBackgroundResId(context));
 		setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		setGravity(Gravity.CENTER_VERTICAL);
 		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.edit_row_height));
@@ -80,6 +63,22 @@ public class GameCollectionRow extends LinearLayout {
 				getContext().startActivity(intent);
 			}
 		});
+	}
+
+	private int obtainBackgroundResId(Context context) {
+		int backgroundResId = 0;
+		TypedArray a = null;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+			a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
+		}
+		try {
+			backgroundResId = a != null ? a.getResourceId(0, backgroundResId) : 0;
+		} finally {
+			if (a != null) {
+				a.recycle();
+			}
+		}
+		return backgroundResId;
 	}
 
 	public void bind(int gameId, String gameName, int collectionId, int yearPublished) {
@@ -107,11 +106,13 @@ public class GameCollectionRow extends LinearLayout {
 	public void setDescription(String name, int yearPublished) {
 		if ((TextUtils.isEmpty(name) && !name.equals(gameName)) ||
 			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
+			String description;
 			if (yearPublished == Constants.YEAR_UNKNOWN) {
-				descriptionView.setText(name);
+				description = name;
 			} else {
-				descriptionView.setText(name + " (" + PresentationUtils.describeYear(getContext(), yearPublished) + ")");
+				description = name + " (" + PresentationUtils.describeYear(getContext(), yearPublished) + ")";
 			}
+			descriptionView.setText(description);
 			descriptionView.setVisibility(View.VISIBLE);
 		} else {
 			descriptionView.setVisibility(View.GONE);
@@ -132,7 +133,7 @@ public class GameCollectionRow extends LinearLayout {
 			.load(HttpUtils.ensureScheme(thumbnailUrl))
 			.placeholder(R.drawable.thumbnail_image_empty)
 			.error(R.drawable.thumbnail_image_empty)
-			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size)
+			.resizeDimen(R.dimen.thumbnail_list_size_small, R.dimen.thumbnail_list_size)
 			.centerCrop()
 			.into(thumbnailView);
 	}

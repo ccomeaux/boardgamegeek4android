@@ -8,7 +8,7 @@
 		android:id="@+id/thumbnail"
 		style="@style/ImageList"
 		android:layout_width="@dimen/thumbnail_list_size_small"
-		android:layout_height="@dimen/thumbnail_list_size_small"
+		android:layout_height="@dimen/thumbnail_list_size"
 		android:layout_marginRight="@dimen/thumbnail_list_size_small_margin"
 		android:contentDescription="@string/thumbnail"
 		android:src="@drawable/thumbnail_image_empty"/>
