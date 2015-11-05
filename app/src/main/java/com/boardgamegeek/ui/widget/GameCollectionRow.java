@@ -16,6 +16,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
 import com.boardgamegeek.ui.GameCollectionActivity;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -31,6 +32,7 @@ public class GameCollectionRow extends LinearLayout {
 	@SuppressWarnings("unused") @InjectView(R.id.status) TextView statusView;
 	@SuppressWarnings("unused") @InjectView(R.id.description) TextView descriptionView;
 	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView commentView;
+	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView ratingView;
 
 	private int gameId;
 	private String gameName;
@@ -125,6 +127,16 @@ public class GameCollectionRow extends LinearLayout {
 		} else {
 			commentView.setText(comment);
 			commentView.setVisibility(View.VISIBLE);
+		}
+	}
+
+	public void setRating(double rating) {
+		if (rating == 0.0) {
+			ratingView.setVisibility(View.GONE);
+		} else {
+			ratingView.setText(PresentationUtils.describeRating(getContext(), rating));
+			ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(rating));
+			ratingView.setVisibility(View.VISIBLE);
 		}
 	}
 

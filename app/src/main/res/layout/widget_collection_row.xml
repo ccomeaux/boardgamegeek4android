@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge
-	android:id="@+id/plays_root"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools">
 
@@ -49,4 +48,14 @@
 			tools:text="I like it a lot."
 			tools:visibility="visible"/>
 	</LinearLayout>
+
+	<TextView
+		android:id="@+id/rating"
+		style="@style/RatingSmall"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="right"
+		android:visibility="visible"
+		tools:background="#0f0"
+		tools:text="9.5"/>
 </merge>
