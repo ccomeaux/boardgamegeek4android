@@ -3,9 +3,6 @@
 
 	<string-array name="pref_sync_status_entries">
 		<item>Own</item>
-		<item>Played</item>
-		<item>Rated</item>
-		<item>Commented</item>
 		<item>Previously Owned</item>
 		<item>For Trade</item>
 		<item>Want in Trade</item>
@@ -13,14 +10,14 @@
 		<item>Wishlist</item>
 		<item>Want to Play</item>
 		<item>Preordered</item>
+		<item>Played</item>
+		<item>Rated</item>
+		<item>Commented</item>
 		<item>Has Parts</item>
 		<item>Want Parts</item>
 	</string-array>
 	<string-array name="pref_sync_status_values">
 		<item>own</item>
-		<item>played</item>
-		<item>rated</item>
-		<item>comment</item>
 		<item>prevowned</item>
 		<item>trade</item>
 		<item>want</item>
@@ -28,6 +25,9 @@
 		<item>wishlist</item>
 		<item>wanttoplay</item>
 		<item>preordered</item>
+		<item>played</item>
+		<item>rated</item>
+		<item>comment</item>
 		<item>hasparts</item>
 		<item>wantparts</item>
 	</string-array>
