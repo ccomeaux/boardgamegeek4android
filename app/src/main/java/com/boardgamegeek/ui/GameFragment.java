@@ -702,7 +702,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				}
 
 				row.setThumbnail(thumbnailUrl);
-				row.setStatus(status, numberOfPlays);
+				row.setStatus(status, numberOfPlays, rating, comment);
 				row.setDescription(collectionName, collectionYearPublished);
 				row.setComment(comment);
 				row.setRating(rating);

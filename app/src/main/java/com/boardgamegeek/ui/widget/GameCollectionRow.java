@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.widget;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -90,13 +91,20 @@ public class GameCollectionRow extends LinearLayout {
 		this.yearPublished = yearPublished;
 	}
 
-	public void setStatus(List<String> status, int playCount) {
-		String description = StringUtils.formatList(status);
-		if (TextUtils.isEmpty(description)) {
+	public void setStatus(@NonNull List<String> statuses, int playCount, double rating, String comment) {
+		if (statuses.size() == 0) {
 			if (playCount > 0) {
-				description = getContext().getString(R.string.played);
+				statuses.add(getContext().getString(R.string.played));
+			} else {
+				if (rating > 0.0) {
+					statuses.add(getContext().getString(R.string.rated));
+				}
+				if (!TextUtils.isEmpty(comment)) {
+					statuses.add(getContext().getString(R.string.commented));
+				}
 			}
 		}
+		String description = StringUtils.formatList(statuses);
 		if (TextUtils.isEmpty(description)) {
 			statusView.setVisibility(View.GONE);
 		} else {
