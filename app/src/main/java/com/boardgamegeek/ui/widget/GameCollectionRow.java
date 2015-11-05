@@ -40,7 +40,7 @@ public class GameCollectionRow extends LinearLayout {
 	public GameCollectionRow(Context context) {
 		super(context);
 
-		setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		setBackgroundResource(obtainBackgroundResId(context));
 		setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		setGravity(Gravity.CENTER_VERTICAL);
