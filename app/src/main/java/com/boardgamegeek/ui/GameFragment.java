@@ -67,7 +67,6 @@ import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -1029,7 +1028,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		final String ThumbnailUrl;
 		final String ImageUrl;
 		final int Id;
-		final float Rating;
+		final double Rating;
 		final int YearPublished;
 		final int MinPlayers;
 		final int MaxPlayers;
@@ -1058,7 +1057,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			ThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
 			ImageUrl = cursor.getString(GameQuery.IMAGE_URL);
 			Id = cursor.getInt(GameQuery.GAME_ID);
-			Rating = (float) cursor.getDouble(GameQuery.STATS_AVERAGE);
+			Rating = cursor.getDouble(GameQuery.STATS_AVERAGE);
 			YearPublished = cursor.getInt(GameQuery.YEAR_PUBLISHED);
 			MinPlayers = cursor.getInt(GameQuery.MIN_PLAYERS);
 			MaxPlayers = cursor.getInt(GameQuery.MAX_PLAYERS);
@@ -1131,12 +1130,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		public String getRatingDescription() {
-			return new DecimalFormat("#0.00").format(Rating);
+			return PresentationUtils.describeRating(getContext(), Rating);
 		}
 
 		@DebugLog
 		public String getYearPublished() {
-			return PresentationUtils.describeYear(getActivity(), YearPublished);
+			return PresentationUtils.describeYear(getContext(), YearPublished);
 		}
 
 		@DebugLog

@@ -549,11 +549,7 @@ public class GameCollectionFragment extends Fragment implements
 		}
 
 		String getRatingDescription() {
-			if (rating > 0.0) {
-				return new DecimalFormat("#0.00").format(rating);
-			} else {
-				return getString(R.string.unrated);
-			}
+			return PresentationUtils.describeRating(getActivity(), rating);
 		}
 
 		String getYearDescription() {
