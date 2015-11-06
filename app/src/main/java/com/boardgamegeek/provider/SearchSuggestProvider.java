@@ -11,7 +11,6 @@ import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 
 import java.util.Locale;
@@ -32,9 +31,9 @@ public class SearchSuggestProvider extends BaseProvider {
 			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
 		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.COLLECTION + "." + Collection.GAME_ID + " AS "
 			+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
-//		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.COLLECTION + "."
-//			+ Collection.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
-//			+ SearchManager.SUGGEST_COLUMN_ICON_2);
+		//		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.COLLECTION + "."
+		//			+ Collection.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
+		//			+ SearchManager.SUGGEST_COLUMN_ICON_2);
 		return map;
 	}
 
@@ -62,8 +61,7 @@ public class SearchSuggestProvider extends BaseProvider {
 			qb.appendWhere("(" + Tables.COLLECTION + "." + Collection.COLLECTION_NAME + " like '" + query + "%' OR "
 				+ Tables.COLLECTION + "." + Collection.COLLECTION_NAME + " like '% " + query + "%')");
 		}
-		Cursor cursor = qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, getSortOrder(sortOrder),
-			uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT));
+		Cursor cursor = qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, getSortOrder(sortOrder), uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT));
 		cursor.setNotificationUri(resolver, uri);
 		return cursor;
 	}

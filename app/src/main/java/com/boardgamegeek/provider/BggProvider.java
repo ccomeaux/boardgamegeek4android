@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.annotation.SuppressLint;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -8,22 +7,22 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.support.v4.util.ArrayMap;
+import android.support.annotation.NonNull;
+import android.support.v4.util.SimpleArrayMap;
 
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 
-import timber.log.Timber;
+import hugo.weaving.DebugLog;
 
 public class BggProvider extends ContentProvider {
-	private BggDatabase mOpenHelper;
-	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-	private static final ArrayMap<Integer, BaseProvider> providers = buildProviderMap();
-	private static int sCode = 1;
+	private static final UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+	private static final SimpleArrayMap<Integer, BaseProvider> PROVIDERS = buildProviderMap();
+	private static int URI_MATCH_CODE = 1;
+	private BggDatabase openHelper;
 
-	@SuppressLint("UseSparseArrays")
-	private static ArrayMap<Integer, BaseProvider> buildProviderMap() {
-		ArrayMap<Integer, BaseProvider> map = new ArrayMap<>();
+	@DebugLog
+	private static SimpleArrayMap<Integer, BaseProvider> buildProviderMap() {
+		SimpleArrayMap<Integer, BaseProvider> map = new SimpleArrayMap<>();
 
 		addProvider(map, new GamesProvider());
 		addProvider(map, new GamesIdProvider());
@@ -114,75 +113,75 @@ public class BggProvider extends ContentProvider {
 		return map;
 	}
 
-	private static void addProvider(ArrayMap<Integer, BaseProvider> map, BaseProvider provider) {
-		sCode++;
-		sUriMatcher.addURI(BggContract.CONTENT_AUTHORITY, provider.getPath(), sCode);
-		map.put(sCode, provider);
+	@DebugLog
+	private static void addProvider(SimpleArrayMap<Integer, BaseProvider> map, BaseProvider provider) {
+		URI_MATCH_CODE++;
+		URI_MATCHER.addURI(BggContract.CONTENT_AUTHORITY, provider.getPath(), URI_MATCH_CODE);
+		map.put(URI_MATCH_CODE, provider);
 	}
 
+	@DebugLog
 	@Override
 	public boolean onCreate() {
-		mOpenHelper = new BggDatabase(getContext());
+		openHelper = new BggDatabase(getContext());
 		return true;
 	}
 
+	@DebugLog
 	@Override
-	public String getType(Uri uri) {
+	public String getType(@NonNull Uri uri) {
 		return getProvider(uri).getType(uri);
 	}
 
+	@DebugLog
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		Timber.v("query(uri=" + uri + ", projection=" + Arrays.toString(projection) + ")");
-		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-		Cursor cursor = getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection,
-			selectionArgs, sortOrder);
-		cursor.setNotificationUri(getContext().getContentResolver(), uri);
-		return cursor;
+	public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		SQLiteDatabase db = openHelper.getReadableDatabase();
+		if (getContext() != null) {
+			Cursor cursor = getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection, selectionArgs, sortOrder);
+			cursor.setNotificationUri(getContext().getContentResolver(), uri);
+			return cursor;
+		} else {
+			return null;
+		}
 	}
 
+	@DebugLog
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
-		Timber.v("insert(uri=" + uri + ", values=" + values.toString() + ")");
-
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+	public Uri insert(@NonNull Uri uri, ContentValues values) {
+		SQLiteDatabase db = openHelper.getWritableDatabase();
 		Uri newUri = getProvider(uri).insert(getContext(), db, uri, values);
-		if (newUri != null) {
+		if (newUri != null & getContext() != null) {
 			getContext().getContentResolver().notifyChange(newUri, null);
 		}
 		return newUri;
 	}
 
+	@DebugLog
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		Timber.v("update(uri=" + uri + ", values=" + values.toString() + ")");
-		int rowCount = getProvider(uri).update(getContext(), mOpenHelper.getWritableDatabase(), uri, values, selection,
-			selectionArgs);
-		Timber.v("updated " + rowCount + " rows");
-		return rowCount;
+	public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+		return getProvider(uri).update(getContext(), openHelper.getWritableDatabase(), uri, values, selection, selectionArgs);
 	}
 
+	@DebugLog
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		Timber.v("delete(uri=" + uri + ")");
+	public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 		BaseProvider provider = getProvider(uri);
-		int rowCount = provider.delete(getContext(), mOpenHelper.getWritableDatabase(), uri, selection, selectionArgs);
-		Timber.v("deleted " + rowCount + " rows");
-		return rowCount;
+		return provider.delete(getContext(), openHelper.getWritableDatabase(), uri, selection, selectionArgs);
 	}
 
+	@DebugLog
 	@Override
-	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-		Timber.v("Open file: " + uri);
-
+	public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
 		BaseProvider provider = getProvider(uri);
 		return provider.openFile(getContext(), uri, mode);
 	}
 
+	@DebugLog
 	private BaseProvider getProvider(Uri uri) {
-		int match = sUriMatcher.match(uri);
-		if (providers.containsKey(match)) {
-			return providers.get(match);
+		int match = URI_MATCHER.match(uri);
+		if (PROVIDERS.containsKey(match)) {
+			return PROVIDERS.get(match);
 		}
 		throw new UnsupportedOperationException("Unknown uri: " + uri);
 	}

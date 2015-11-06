@@ -8,38 +8,44 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.util.SelectionBuilder;
 
+import hugo.weaving.DebugLog;
+
 public abstract class BasicProvider extends BaseProvider {
+	private long rowId;
 
-	private long mRowId;
-
+	@DebugLog
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		return new SelectionBuilder().table(getTable());
 	}
 
+	@DebugLog
 	protected String getInsertedIdColumn() {
 		return null;
 	}
 
 	protected abstract String getTable();
 
+	@DebugLog
 	@Override
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
-		mRowId = db.insert(getTable(), null, values);
-		if (mRowId != -1) {
+		rowId = db.insert(getTable(), null, values);
+		if (rowId != -1) {
 			return insertedUri(values);
 		}
 		return null;
 	}
 
+	@DebugLog
 	protected Uri insertedUri(ContentValues values) {
 		return BggContract.buildBasicUri(getPath(), getInsertedId(values));
 	}
 
+	@DebugLog
 	private Long getInsertedId(ContentValues values) {
 		if (!TextUtils.isEmpty(getInsertedIdColumn())) {
 			return values.getAsLong(getInsertedIdColumn());
 		}
-		return mRowId;
+		return rowId;
 	}
 }
