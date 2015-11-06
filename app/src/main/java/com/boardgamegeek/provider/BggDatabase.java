@@ -67,7 +67,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_BUDDY_SYNC_HASH_CODE = 23;
 	private static final int VER_PLAY_SYNC_HASH_CODE = 24;
 	private static final int VER_PLAYER_COLORS = 25;
-	private static final int DATABASE_VERSION = VER_PLAYER_COLORS;
+	private static final int VER_RATING_DIRTY_TIMESTAMP = 27;
+	private static final int DATABASE_VERSION = VER_RATING_DIRTY_TIMESTAMP;
 
 	private final Context context;
 
@@ -341,7 +342,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private TableBuilder buildCollectionTable() {
 		return new TableBuilder().setTable(Tables.COLLECTION).useDefaultPrimaryKey()
-			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER).addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER, true, false, Tables.GAMES, Games.GAME_ID, true)
 			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COLLECTION_NAME, COLUMN_TYPE.TEXT, true)
@@ -371,6 +373,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.RATING, COLUMN_TYPE.REAL)
 			.addColumn(Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -625,6 +628,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_PLAY_SYNC_HASH_CODE:
 				buildPlayerColorsTable().create(db);
 				version = VER_PLAYER_COLORS;
+			case VER_PLAYER_COLORS:
+				addColumn(db, Tables.COLLECTION, Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+				version = VER_RATING_DIRTY_TIMESTAMP;
 		}
 
 		if (version != DATABASE_VERSION) {
