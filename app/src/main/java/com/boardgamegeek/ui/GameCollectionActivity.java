@@ -11,20 +11,22 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class GameCollectionActivity extends SimpleSinglePaneActivity {
-	private int mGameId;
-	private String mGameName;
+	private int gameId;
+	private String gameName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mGameId = getIntent().getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = getIntent().getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 		String collectionName = getIntent().getStringExtra(ActivityUtils.KEY_COLLECTION_NAME);
 
 		if (!TextUtils.isEmpty(collectionName)) {
 			ActionBar bar = getSupportActionBar();
-			bar.setSubtitle(collectionName);
+			if (bar != null) {
+				bar.setSubtitle(collectionName);
+			}
 		}
 	}
 
@@ -37,10 +39,10 @@ public class GameCollectionActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				if (mGameId == BggContract.INVALID_ID) {
+				if (gameId == BggContract.INVALID_ID) {
 					onBackPressed();
 				} else {
-					ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+					ActivityUtils.navigateUpToGame(this, gameId, gameName);
 				}
 				finish();
 				return true;
