@@ -54,6 +54,7 @@
 		style="@style/RatingSmall"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/padding_half"
 		android:gravity="right"
 		android:visibility="visible"
 		tools:background="#0f0"

@@ -76,7 +76,8 @@
 					android:background="@color/info_background"
 					android:elevation="@dimen/material_elevation_subtle"
 					android:gravity="center"
-					android:orientation="vertical">
+					android:orientation="vertical"
+					android:layout_marginBottom="@dimen/padding_standard">
 
 					<TextView
 						android:id="@+id/status"
