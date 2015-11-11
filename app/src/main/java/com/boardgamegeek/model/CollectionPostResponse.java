@@ -35,8 +35,16 @@ public class CollectionPostResponse {
 
 	public String getErrorMessage() {
 		if (exception != null) {
-			return exception.getMessage();
+			return getExceptionMessage();
 		}
 		return error;
+	}
+
+	private String getExceptionMessage() {
+		String message = exception.getMessage();
+		if (!TextUtils.isEmpty(message)) {
+			return message;
+		}
+		return exception.toString();
 	}
 }
