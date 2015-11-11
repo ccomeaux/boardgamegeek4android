@@ -21,7 +21,7 @@ public class SyncGamesUnupdated extends SyncGames {
 
 	@Override
 	public int getSyncType() {
-		return SyncService.FLAG_SYNC_COLLECTION;
+		return SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD;
 	}
 
 	@NonNull

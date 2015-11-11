@@ -28,7 +28,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 	@Override
 	public int getSyncType() {
-		return SyncService.FLAG_SYNC_COLLECTION;
+		return SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD;
 	}
 
 	@Override
