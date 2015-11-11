@@ -31,6 +31,8 @@ import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.util.ActivityUtils;
@@ -38,12 +40,14 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -334,6 +338,24 @@ public class GameCollectionFragment extends Fragment implements
 			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 			startActivity(intent);
 		}
+	}
+
+	@DebugLog
+	@OnClick(R.id.rating)
+	public void onRatingClick(View v) {
+		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
+			getString(R.string.rating),
+			rating.getText().toString(),
+			null);
+		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
+			@Override
+			public void onDoneClick(String output) {
+				double rating = Double.parseDouble(output);
+				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, rating);
+				TaskUtils.executeAsyncTask(task);
+			}
+		});
+		DialogUtils.showFragment(getActivity(), fragment, "rating_dialog");
 	}
 
 	@DebugLog

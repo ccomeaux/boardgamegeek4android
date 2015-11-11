@@ -33,7 +33,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	private int maxLength = 10;
 
 	public interface OnClickListener {
-		void onDoneClick(String score);
+		void onDoneClick(String output);
 	}
 
 	public static NumberPadDialogFragment newInstance(String title, String output, String colorDescription) {

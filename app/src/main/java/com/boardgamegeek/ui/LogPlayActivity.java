@@ -1327,16 +1327,12 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.score, player.color);
 			fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 				@Override
-				public void onDoneClick(String score) {
-					player.score = score;
+				public void onDoneClick(String output) {
+					player.score = output;
 					double highScore = mPlay.getHighScore();
 					for (Player p : mPlay.getPlayers()) {
-						double s = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
-						if (s == highScore) {
-							p.Win(true);
-						} else {
-							p.Win(false);
-						}
+						double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
+						p.Win(score == highScore);
 					}
 					bindUiPlayers();
 				}
