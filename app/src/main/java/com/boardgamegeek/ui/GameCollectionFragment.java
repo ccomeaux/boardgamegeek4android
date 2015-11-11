@@ -379,7 +379,7 @@ public class GameCollectionFragment extends Fragment implements
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 
 		status.setText(item.getStatus());
-		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
+		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.INVISIBLE : View.VISIBLE);
 		comment.setText(item.comment);
 
 		// Private info
