@@ -18,6 +18,10 @@ public class PresentationUtils {
 	private PresentationUtils() {
 	}
 
+	public static CharSequence describePastTimeSpan(long time) {
+		return describePastTimeSpan(time, "");
+	}
+
 	public static CharSequence describePastTimeSpan(long time, String defaultValue) {
 		if (time == 0) {
 			return defaultValue;
