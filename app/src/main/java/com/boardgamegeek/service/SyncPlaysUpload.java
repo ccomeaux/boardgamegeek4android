@@ -80,7 +80,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@StringRes
 	@Override
 	protected int getUploadSummaryWithSize() {
-		return R.string.sync_notification_upload_summary;
+		return R.string.sync_notification_plays_upload_summary;
 	}
 
 	@Override
