@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
 
 import hugo.weaving.DebugLog;
@@ -33,12 +34,17 @@ public class UpdateCollectionItemRatingTask extends AsyncTask<Void, Void, Void> 
 		final ContentResolver resolver = context.getContentResolver();
 		long internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
 		if (internalId != BggContract.INVALID_ID) {
-			ContentValues values = new ContentValues(2);
-			values.put(Collection.RATING, rating);
-			values.put(Collection.RATING_DIRTY_TIMESTAMP, System.currentTimeMillis());
-			resolver.update(Collection.buildUri(internalId), values, null, null);
+			updateResolver(resolver, internalId);
+			SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 		}
 		return null;
+	}
+
+	private void updateResolver(ContentResolver resolver, long internalId) {
+		ContentValues values = new ContentValues(2);
+		values.put(Collection.RATING, rating);
+		values.put(Collection.RATING_DIRTY_TIMESTAMP, System.currentTimeMillis());
+		resolver.update(Collection.buildUri(internalId), values, null, null);
 	}
 
 	@DebugLog
