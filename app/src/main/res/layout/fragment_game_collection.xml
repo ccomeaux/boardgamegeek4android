@@ -130,6 +130,7 @@
 									style="@style/RatingLarge"
 									android:layout_width="wrap_content"
 									android:layout_height="wrap_content"
+									android:layout_gravity="right"
 									tools:background="#0f0"
 									tools:text="9.5"/>
 
@@ -138,6 +139,7 @@
 									style="@style/Text.Footnote2"
 									android:layout_width="wrap_content"
 									android:layout_height="wrap_content"
+									android:layout_gravity="right"
 									tools:text="Yesterday"/>
 							</LinearLayout>
 
