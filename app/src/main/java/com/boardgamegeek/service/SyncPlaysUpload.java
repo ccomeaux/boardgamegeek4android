@@ -9,8 +9,9 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
 
@@ -35,18 +36,17 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
 
-public class SyncPlaysUpload extends SyncTask {
-	private List<CharSequence> notificationMessages;
+public class SyncPlaysUpload extends SyncUploadTask {
 	private LocalBroadcastManager broadcastManager;
 	private BggService bggSaveService;
 	private BggService bggDeleteService;
 	private PlayPersister persister;
+	private Play currentPlayForMessage;
 
 	public SyncPlaysUpload(Context context, BggService service) {
 		super(context, service);
@@ -58,10 +58,35 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	@Override
+	protected int getNotificationTitleResId() {
+		return R.string.sync_notification_title_play_upload;
+	}
+
+	@Override
+	protected Class<?> getNotificationIntentClass() {
+		return PlaysActivity.class;
+	}
+
+	@Override
+	protected int getNotificationErrorId() {
+		return NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR;
+	}
+
+	@Override
+	protected int getNotificationMessageId() {
+		return NotificationUtils.ID_SYNC_PLAY_UPLOAD;
+	}
+
+	@StringRes
+	@Override
+	protected int getUploadSummaryWithSize() {
+		return R.string.sync_notification_upload_summary;
+	}
+
+	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
 		bggSaveService = Adapter.createForPost(context, new PlaySaveConverter());
 		bggDeleteService = Adapter.createForPost(context, new PlayDeleteConverter());
-		notificationMessages = new ArrayList<>();
 		broadcastManager = LocalBroadcastManager.getInstance(context);
 		persister = new PlayPersister(context);
 
@@ -98,7 +123,8 @@ public class SyncPlaysUpload extends SyncTask {
 					String message = play.hasBeenSynced() ?
 						context.getString(R.string.msg_play_updated) :
 						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
-					notifyUser(StringUtils.boldSecondString(message, play.gameName), play);
+					currentPlayForMessage = play;
+					notifyUser(StringUtils.boldSecondString(message, play.gameName));
 
 					// delete the old plays
 					int oldPlayId = play.playId;
@@ -115,15 +141,14 @@ public class SyncPlaysUpload extends SyncTask {
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id),
-						String.valueOf(play.playId)), null);
+					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id), String.valueOf(play.playId)));
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
 					break;
 				} else {
 					syncResult.stats.numIoExceptions++;
-					notifyError(response.getErrorMessage());
+					notifyUploadError(response.getErrorMessage());
 				}
 			}
 		} finally {
@@ -155,20 +180,20 @@ public class SyncPlaysUpload extends SyncTask {
 					if (!response.hasError()) {
 						deletePlay(play);
 						updateGamePlayCount(play);
-						notifyUserOfDelete(R.string.msg_play_deleted, play);
+						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
 					} else if (response.hasInvalidIdError()) {
 						deletePlay(play);
-						notifyUserOfDelete(R.string.msg_play_deleted, play);
+						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
 						Authenticator.clearPassword(context);
 					} else {
 						syncResult.stats.numIoExceptions++;
-						notifyError(response.getErrorMessage());
+						notifyUploadError(response.getErrorMessage());
 					}
 				} else {
 					deletePlay(play);
-					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
+					notifyUserOfDelete(R.string.msg_play_deleted_draft, play.gameName);
 				}
 			}
 		} finally {
@@ -280,47 +305,24 @@ public class SyncPlaysUpload extends SyncTask {
 		return countDescription;
 	}
 
-	private void notifyUserOfDelete(int messageId, @NonNull Play play) {
-		notifyUser(StringUtils.boldSecondString(context.getString(messageId), play.gameName), null);
+	private void notifyUserOfDelete(int messageId, String gameName) {
+		notifyUser(StringUtils.boldSecondString(context.getString(messageId), gameName));
 	}
 
-	private void notifyUser(CharSequence message, @Nullable Play play) {
-		notificationMessages.add(message);
-
-		NotificationCompat.Builder builder = createNotificationBuilder().setCategory(NotificationCompat.CATEGORY_SERVICE);
-
-		if (notificationMessages.size() == 1) {
-			builder.setContentText(message);
-			NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
-			detail.bigText(message);
-			if (play != null) {
-				Intent intent = ActivityUtils.createRematchIntent(context, play.playId, play.gameId, play.gameName, null, null);
-				PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-				NotificationCompat.Action.Builder b = new NotificationCompat.Action.Builder(R.drawable.ic_replay_black_24dp, context.getString(R.string.rematch), pi);
-				builder.addAction(b.build());
-			}
-		} else {
-			String summary = String.format(context.getString(R.string.sync_notification_upload_summary), notificationMessages.size());
-			builder.setContentText(summary);
-			NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
-			detail.setSummaryText(summary);
-			for (int i = notificationMessages.size() - 1; i >= 0; i--) {
-				detail.addLine(notificationMessages.get(i));
-			}
+	@Override
+	protected Action createMessageAction() {
+		if (currentPlayForMessage != null) {
+			Intent intent = ActivityUtils.createRematchIntent(context,
+				currentPlayForMessage.playId,
+				currentPlayForMessage.gameId,
+				currentPlayForMessage.gameName, null, null);
+			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			NotificationCompat.Action.Builder builder = new NotificationCompat.Action.Builder(
+				R.drawable.ic_replay_black_24dp,
+				context.getString(R.string.rematch),
+				pendingIntent);
+			return builder.build();
 		}
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_PLAY_UPLOAD, builder);
-	}
-
-	private void notifyError(String error) {
-		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(error).setCategory(
-			NotificationCompat.CATEGORY_ERROR);
-		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
-		detail.bigText(error);
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR, builder);
-	}
-
-	private NotificationCompat.Builder createNotificationBuilder() {
-		return NotificationUtils.createNotificationBuilder(context, R.string.sync_notification_title_play_upload,
-			PlaysActivity.class);
+		return null;
 	}
 }
