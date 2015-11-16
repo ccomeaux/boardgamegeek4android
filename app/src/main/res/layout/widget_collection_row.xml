@@ -55,7 +55,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="@dimen/padding_half"
-		android:gravity="right"
+		android:gravity="center"
+		android:minWidth="32dp"
 		android:visibility="visible"
 		tools:background="#0f0"
 		tools:text="9.5"/>

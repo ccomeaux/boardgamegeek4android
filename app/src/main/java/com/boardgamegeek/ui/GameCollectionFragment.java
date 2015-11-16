@@ -70,6 +70,7 @@ public class GameCollectionFragment extends Fragment implements
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
 	@SuppressWarnings("unused") @InjectView(R.id.progress) View progress;
 	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -346,7 +347,7 @@ public class GameCollectionFragment extends Fragment implements
 	public void onRatingClick(View v) {
 		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
 			getString(R.string.rating),
-			rating.getText().toString(),
+			RATING_EDIT_FORMAT.format((double) rating.getTag()),
 			null);
 		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 			@Override
@@ -377,6 +378,7 @@ public class GameCollectionFragment extends Fragment implements
 		year.setText(item.getYearDescription());
 		lastModified.setTag(item.lastModifiedDateTime);
 		rating.setText(item.getRatingDescription());
+		rating.setTag(item.rating);
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 		ratingTimestampView.setTag(item.ratingTimestamp);
 

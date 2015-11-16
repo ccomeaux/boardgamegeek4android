@@ -1133,7 +1133,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		public String getRatingDescription() {
-			return PresentationUtils.describeRating(getContext(), Rating);
+			return PresentationUtils.describeAverageRating(getContext(), Rating);
 		}
 
 		@DebugLog
