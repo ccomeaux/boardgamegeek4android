@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.support.annotation.LayoutRes;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -20,20 +21,21 @@ import com.boardgamegeek.util.ColorUtils;
 public class GameColorAdapter extends CursorAdapter {
 	public static final String[] PROJECTION = new String[] { BaseColumns._ID, GameColors.COLOR };
 	private static final String SELECTION = GameColors.COLOR + " LIKE ?";
-	private LayoutInflater mInflater;
-	private Uri mUri;
-	private int mLayoutId;
+	private final LayoutInflater inflater;
+	private final Uri gameColorsUri;
+	@LayoutRes
+	private final int layoutId;
 
-	public GameColorAdapter(Context context, int gameId, int layoutId) {
+	public GameColorAdapter(Context context, int gameId, @LayoutRes int layoutId) {
 		super(context, null, false);
-		mInflater = LayoutInflater.from(context);
-		mUri = createUri(gameId);
-		mLayoutId = layoutId;
+		inflater = LayoutInflater.from(context);
+		gameColorsUri = createUri(gameId);
+		this.layoutId = layoutId;
 	}
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		View row = mInflater.inflate(mLayoutId, parent, false);
+		View row = inflater.inflate(layoutId, parent, false);
 		ViewHolder holder = new ViewHolder(row);
 		row.setTag(holder);
 		return row;
@@ -42,10 +44,12 @@ public class GameColorAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		ViewHolder holder = (ViewHolder) view.getTag();
-
 		String colorName = getColorName(cursor);
-
 		holder.colorName.setText(colorName);
+		setColor(holder, colorName);
+	}
+
+	private void setColor(ViewHolder holder, String colorName) {
 		int color = ColorUtils.parseColor(colorName);
 		if (color != ColorUtils.TRANSPARENT) {
 			ColorUtils.setColorViewValue(holder.color, color);
@@ -55,8 +59,8 @@ public class GameColorAdapter extends CursorAdapter {
 	}
 
 	class ViewHolder {
-		TextView colorName;
-		ImageView color;
+		final TextView colorName;
+		final ImageView color;
 
 		public ViewHolder(View view) {
 			colorName = (TextView) view.findViewById(R.id.color_name);
@@ -77,7 +81,7 @@ public class GameColorAdapter extends CursorAdapter {
 			selection = SELECTION;
 			selectionArgs = new String[] { constraint + "%" };
 		}
-		return mContext.getContentResolver().query(mUri, PROJECTION, selection, selectionArgs, null);
+		return mContext.getContentResolver().query(gameColorsUri, PROJECTION, selection, selectionArgs, null);
 	}
 
 	public static Uri createUri(int gameId) {

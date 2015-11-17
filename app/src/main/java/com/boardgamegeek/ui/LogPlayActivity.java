@@ -54,7 +54,7 @@ import com.boardgamegeek.tasks.ColorAssignerTask;
 import com.boardgamegeek.ui.dialog.ScoreDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.AutoCompleteAdapter;
+import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
