@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
 public abstract class BggLoader<D> extends AsyncTaskLoader<D> {
-	private D mData;
+	private D data;
 
 	public BggLoader(Context context) {
 		super(context);
@@ -13,11 +13,11 @@ public abstract class BggLoader<D> extends AsyncTaskLoader<D> {
 	@Override
 	protected void onStartLoading() {
 		// deliver the data if we have it
-		if (mData != null) {
-			deliverResult(mData);
+		if (data != null) {
+			deliverResult(data);
 		}
 		// ask for data if it has changed or is missing
-		if (takeContentChanged() || mData == null) {
+		if (takeContentChanged() || data == null) {
 			forceLoad();
 		}
 	}
@@ -29,7 +29,7 @@ public abstract class BggLoader<D> extends AsyncTaskLoader<D> {
 			return;
 		}
 		// save the data to deliver later
-		mData = data;
+		this.data = data;
 		// loader is started, so the data should be delivered
 		if (isStarted()) {
 			super.deliverResult(data);
@@ -40,7 +40,7 @@ public abstract class BggLoader<D> extends AsyncTaskLoader<D> {
 	protected void onReset() {
 		super.onReset();
 		onStopLoading();
-		mData = null;
+		data = null;
 	}
 
 	@Override

@@ -4,53 +4,53 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
 public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T>> {
-	private PaginatedData<T> mData;
-	private boolean mIsLoading;
+	private PaginatedData<T> data;
+	private boolean isLoading;
 
 	public PaginatedLoader(Context context) {
 		super(context);
-		mIsLoading = true;
-		mData = null;
+		isLoading = true;
+		data = null;
 	}
 
 	@Override
 	protected void onStartLoading() {
-		if (mData != null) {
-			deliverResult(mData);
+		if (data != null) {
+			deliverResult(data);
 		}
-		if (takeContentChanged() || mData == null) {
+		if (takeContentChanged() || data == null) {
 			forceLoad();
 		}
 	}
 
 	@Override
 	public PaginatedData<T> loadInBackground() {
-		mIsLoading = true;
+		isLoading = true;
 		return null;
 	}
 
 	protected int getNextPage() {
-		return (mData == null ? 1 : mData.getNextPage());
+		return (data == null ? 1 : data.getNextPage());
 	}
 
 	@Override
 	public void deliverResult(PaginatedData<T> data) {
-		mIsLoading = false;
+		isLoading = false;
 		if (data != null) {
-			if (mData == null) {
-				mData = data;
-			} else if (data.getCurrentPage() == mData.getNextPage()) {
-				mData.addAll(data.getData());
+			if (this.data == null) {
+				this.data = data;
+			} else if (data.getCurrentPage() == this.data.getNextPage()) {
+				this.data.addAll(data.getData());
 			}
 		}
 		if (isStarted()) {
-			super.deliverResult(new PaginatedData<>(mData));
+			super.deliverResult(new PaginatedData<>(this.data));
 		}
 	}
 
 	@Override
 	protected void onStopLoading() {
-		mIsLoading = false;
+		isLoading = false;
 		cancelLoad();
 	}
 
@@ -58,14 +58,14 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 	protected void onReset() {
 		super.onReset();
 		onStopLoading();
-		mData = null;
+		data = null;
 	}
 
 	public boolean isLoading() {
-		return mIsLoading;
+		return isLoading;
 	}
 
 	public boolean hasMoreResults() {
-		return mData == null || mData.hasMoreResults();
+		return data == null || data.hasMoreResults();
 	}
 }

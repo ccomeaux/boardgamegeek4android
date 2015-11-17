@@ -8,25 +8,25 @@ import java.util.List;
 import retrofit.RetrofitError;
 
 public class PaginatedData<T> {
-	private List<T> mData;
-	private String mErrorMessage;
-	private int mTotalCount;
-	private int mCurrentPage;
-	private int mPageSize;
+	private List<T> data;
+	private String errorMessage;
+	private int totalCount;
+	private int currentPage;
+	private int pageSize;
 
 	public PaginatedData(List<T> data, int totalCount, int page, int pageSize) {
-		mData = data;
-		if (mData == null) {
-			mData = new ArrayList<>();
+		this.data = data;
+		if (this.data == null) {
+			this.data = new ArrayList<>();
 		}
-		mErrorMessage = "";
-		mTotalCount = totalCount;
-		mCurrentPage = page;
-		mPageSize = pageSize;
+		errorMessage = "";
+		this.totalCount = totalCount;
+		currentPage = page;
+		this.pageSize = pageSize;
 	}
 
 	public PaginatedData(String errorMessage) {
-		mData = new ArrayList<>();
+		data = new ArrayList<>();
 		updateErrorMessage(errorMessage);
 	}
 
@@ -41,57 +41,57 @@ public class PaginatedData<T> {
 	}
 
 	public PaginatedData(PaginatedData<T> data) {
-		if (data.mData == null) {
-			this.mData = new ArrayList<>();
+		if (data.data == null) {
+			this.data = new ArrayList<>();
 		} else {
-			this.mData = new ArrayList<>(data.mData);
+			this.data = new ArrayList<>(data.data);
 		}
-		this.mErrorMessage = data.mErrorMessage;
-		this.mTotalCount = data.mTotalCount;
-		this.mCurrentPage = data.mCurrentPage;
-		this.mPageSize = data.mPageSize;
+		this.errorMessage = data.errorMessage;
+		this.totalCount = data.totalCount;
+		this.currentPage = data.currentPage;
+		this.pageSize = data.pageSize;
 	}
 
 	protected void updateErrorMessage(String errorMessage) {
-		mErrorMessage = errorMessage;
-		mTotalCount = 0;
-		mCurrentPage = 0;
+		this.errorMessage = errorMessage;
+		totalCount = 0;
+		currentPage = 0;
 	}
 
 	public void addAll(List<T> threads) {
-		mData.addAll(threads);
-		mCurrentPage++;
+		data.addAll(threads);
+		currentPage++;
 	}
 
 	public List<T> getData() {
-		return mData;
+		return data;
 	}
 
 	public int getTotalCount() {
-		return mTotalCount;
+		return totalCount;
 	}
 
 	public int getCurrentPage() {
-		return mCurrentPage;
+		return currentPage;
 	}
 
 	public int getNextPage() {
-		return mCurrentPage + 1;
+		return currentPage + 1;
 	}
 
 	public int getPageSize() {
-		return mPageSize;
+		return pageSize;
 	}
 
 	public boolean hasMoreResults() {
-		return mCurrentPage * getPageSize() < mTotalCount;
+		return currentPage * getPageSize() < totalCount;
 	}
 
 	public boolean hasError() {
-		return !TextUtils.isEmpty(mErrorMessage);
+		return !TextUtils.isEmpty(errorMessage);
 	}
 
 	public String getErrorMessage() {
-		return mErrorMessage;
+		return errorMessage;
 	}
 }
