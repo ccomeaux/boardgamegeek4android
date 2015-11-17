@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -25,15 +26,22 @@ public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_TITLE = "TITLE";
 	private static final String KEY_OUTPUT = "OUTPUT";
 	private static final String KEY_COLOR = "COLOR";
+	private static final int MAX_LENGTH = 10;
 
 	@SuppressWarnings("unused") @InjectView(R.id.title) TextView titleView;
 	@SuppressWarnings("unused") @InjectView(R.id.output) TextView outputView;
 	@SuppressWarnings("unused") @InjectView(R.id.num_delete) View deleteView;
 	private OnClickListener clickListener;
-	private int maxLength = 10;
+	private double minValue = 0.0;
+	private double maxValue = Double.MAX_VALUE;
+	private int maxMantissa = MAX_LENGTH;
 
 	public interface OnClickListener {
 		void onDoneClick(String output);
+	}
+
+	public static NumberPadDialogFragment newInstance(String title, String output) {
+		return newInstance(title, output, null);
 	}
 
 	public static NumberPadDialogFragment newInstance(String title, String output, String colorDescription) {
@@ -53,6 +61,18 @@ public class NumberPadDialogFragment extends DialogFragment {
 
 	public void setOnDoneClickListener(OnClickListener listener) {
 		clickListener = listener;
+	}
+
+	public void setMinValue(double value) {
+		minValue = value;
+	}
+
+	public void setMaxValue(double value) {
+		maxValue = value;
+	}
+
+	public void setMaxMantisa(int value) {
+		maxMantissa = value;
 	}
 
 	@Override
@@ -117,10 +137,10 @@ public class NumberPadDialogFragment extends DialogFragment {
 		R.id.num_decimal
 	})
 	void onNumPadClick(View v) {
-		final CharSequence text = outputView.getText();
-		if (text.length() < maxLength) {
+		String output = outputView.getText().toString() + ((TextView) v).getText();
+		if (isWithinLength(output) && isWithinRange(output)) {
 			v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-			outputView.setText(text.toString() + ((TextView) v).getText());
+			outputView.setText(output);
 			enableDelete();
 		}
 	}
@@ -137,11 +157,14 @@ public class NumberPadDialogFragment extends DialogFragment {
 	@SuppressWarnings("unused")
 	@OnClick(R.id.num_delete)
 	void onDeleteClick(View v) {
-		v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-		CharSequence output = outputView.getText();
-		if (output.length() > 0) {
-			outputView.setText(output.subSequence(0, output.length() - 1));
-			enableDelete();
+		final CharSequence text = outputView.getText();
+		if (text.length() > 0) {
+			String output = text.subSequence(0, text.length() - 1).toString();
+			if (isWithinLength(output) && isWithinRange(output)) {
+				v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+				outputView.setText(output);
+				enableDelete();
+			}
 		}
 	}
 
@@ -151,6 +174,57 @@ public class NumberPadDialogFragment extends DialogFragment {
 		outputView.setText("");
 		enableDelete();
 		return true;
+	}
+
+	private boolean isWithinLength(String text) {
+		if (TextUtils.isEmpty(text)) {
+			return true;
+		}
+		if (text.length() > MAX_LENGTH) {
+			return false;
+		}
+		if (getMantissaLength(text) > maxMantissa) {
+			return false;
+		}
+		return true;
+	}
+
+	private int getMantissaLength(String text) {
+		if (!text.contains(".")) {
+			return 0;
+		}
+		String[] parts = text.split("\\.");
+		if (parts.length > 1) {
+			return parts[1].length();
+		}
+		return 0;
+	}
+
+	private boolean isWithinRange(String text) {
+		if (TextUtils.isEmpty(text) || ".".equals(text)) {
+			return true;
+		}
+		double value = parseDouble(text);
+		if (value < minValue) {
+			return false;
+		}
+		if (value > maxValue) {
+			return false;
+		}
+		return true;
+	}
+
+	private double parseDouble(String text) {
+		if (TextUtils.isEmpty(text) || ".".equals(text)) {
+			return 0.0;
+		}
+		if (text.endsWith(".")) {
+			return Double.parseDouble(text + "0");
+		}
+		if (text.startsWith(".")) {
+			return Double.parseDouble("0" + text);
+		}
+		return Double.parseDouble(text);
 	}
 
 	private void enableDelete() {

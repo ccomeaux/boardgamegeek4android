@@ -347,8 +347,10 @@ public class GameCollectionFragment extends Fragment implements
 	public void onRatingClick(View v) {
 		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
 			getString(R.string.rating),
-			RATING_EDIT_FORMAT.format((double) rating.getTag()),
-			null);
+			RATING_EDIT_FORMAT.format((double) rating.getTag()));
+		fragment.setMinValue(1.0);
+		fragment.setMaxValue(10.0);
+		fragment.setMaxMantisa(6);
 		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 			@Override
 			public void onDoneClick(String output) {
