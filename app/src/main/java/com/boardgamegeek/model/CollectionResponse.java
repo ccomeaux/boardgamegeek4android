@@ -1,12 +1,12 @@
 package com.boardgamegeek.model;
 
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
+import java.util.List;
+
 public class CollectionResponse {
-	@Attribute
+	@Attribute(required = false)
 	public int totalitems;
 
 	@Attribute(required = false)
