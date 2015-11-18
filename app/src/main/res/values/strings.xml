@@ -196,6 +196,7 @@
 	<string name="empty_locations">It appears as if you have played nowhere.</string>
 	<string name="empty_buddies_sync_off">If you want to see your GeekBuddies, go to Settings > Sync and check the box next to GeekBuddies.</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
+	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
 	<string name="empty_collection_filter_on">You have no games in your collection that match this filter.</string>
 	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
