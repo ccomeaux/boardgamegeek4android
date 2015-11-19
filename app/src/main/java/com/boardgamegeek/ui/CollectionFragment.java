@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
@@ -544,15 +545,27 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void setEmptyText() {
 		@StringRes int resId = R.string.empty_collection;
-		if (filters != null && filters.size() > 0) {
+		if (!hasEverSynced()) {
+			resId = R.string.empty_collection_sync_never;
+		} else if (hasFiltersApplied()) {
 			resId = R.string.empty_collection_filter_on;
-		} else {
-			String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
-			if (statuses == null || statuses.length == 0) {
-				resId = R.string.empty_collection_sync_off;
-			}
+		} else if (!hasSyncSettings()) {
+			resId = R.string.empty_collection_sync_off;
 		}
 		setEmptyText(getString(resId));
+	}
+
+	private boolean hasEverSynced() {
+		return Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_COMPLETE) != 0;
+	}
+
+	private boolean hasFiltersApplied() {
+		return filters != null && filters.size() > 0;
+	}
+
+	private boolean hasSyncSettings() {
+		String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
+		return statuses != null && statuses.length > 0;
 	}
 
 	@DebugLog

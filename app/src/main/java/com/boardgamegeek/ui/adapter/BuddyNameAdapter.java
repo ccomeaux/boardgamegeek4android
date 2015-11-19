@@ -1,10 +1,5 @@
 package com.boardgamegeek.ui.adapter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -23,44 +18,47 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import timber.log.Timber;
 
 public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> implements Filterable {
 	public static class Result {
-		private final String mUsername;
+		private final String username;
 
 		public Result(String username) {
-			this.mUsername = username;
+			this.username = username;
 		}
 
 		@Override
 		public String toString() {
-			return mUsername;
+			return username;
 		}
 	}
 
-	private static ArrayList<Result> EMPTY_LIST = new ArrayList<>();
-
-	private final ContentResolver mResolver;
-	private final LayoutInflater mInflater;
-	private final ArrayList<Result> mResultList = new ArrayList<>();
+	private static final ArrayList<Result> EMPTY_LIST = new ArrayList<>();
+	private final ContentResolver resolver;
+	private final LayoutInflater inflater;
+	private final ArrayList<Result> resultList = new ArrayList<>();
 
 	public BuddyNameAdapter(Context context) {
 		super(context, R.layout.autocomplete_item, EMPTY_LIST);
-
-		mResolver = context.getContentResolver();
-		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		resolver = context.getContentResolver();
+		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
 	public int getCount() {
-		return mResultList.size();
+		return resultList.size();
 	}
 
 	@Override
 	public Result getItem(int index) {
-		if (index < mResultList.size()) {
-			return mResultList.get(index);
+		if (index < resultList.size()) {
+			return resultList.get(index);
 		} else {
 			return null;
 		}
@@ -70,7 +68,7 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 	public View getView(final int position, final View convertView, final ViewGroup parent) {
 		View view = convertView;
 		if (view == null) {
-			view = mInflater.inflate(R.layout.autocomplete_item, parent, false);
+			view = inflater.inflate(R.layout.autocomplete_item, parent, false);
 		}
 		final Result result = getItem(position);
 		if (result == null) {
@@ -79,11 +77,11 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 
 		TextView titleView = (TextView) view.findViewById(R.id.autocomplete_item);
 		if (titleView != null) {
-			if (result.mUsername == null) {
+			if (result.username == null) {
 				titleView.setVisibility(View.GONE);
 			} else {
 				titleView.setVisibility(View.VISIBLE);
-				titleView.setText(result.mUsername);
+				titleView.setText(result.username);
 			}
 		}
 
@@ -107,12 +105,12 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 			AsyncTask<Void, Void, List<Result>> playerQueryTask = new AsyncTask<Void, Void, List<Result>>() {
 				@Override
 				protected List<Result> doInBackground(Void... params) {
-					return queryPlayerHistory(mResolver, filter);
+					return queryPlayerHistory(resolver, filter);
 				}
 			}.execute();
 
 			HashSet<String> buddyUsernames = new HashSet<>();
-			List<Result> buddies = queryBuddies(mResolver, filter, buddyUsernames);
+			List<Result> buddies = queryBuddies(resolver, filter, buddyUsernames);
 
 			ArrayList<Result> resultList = new ArrayList<>();
 			if (buddies != null) {
@@ -123,7 +121,7 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 				List<Result> players = playerQueryTask.get();
 
 				for (Result player : players) {
-					if (TextUtils.isEmpty(player.mUsername) || !buddyUsernames.contains(player.mUsername))
+					if (TextUtils.isEmpty(player.username) || !buddyUsernames.contains(player.username))
 						resultList.add(player);
 				}
 			} catch (ExecutionException | InterruptedException e) {
@@ -139,9 +137,9 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 		@SuppressWarnings("unchecked")
 		@Override
 		protected void publishResults(CharSequence constraint, FilterResults results) {
-			mResultList.clear();
+			resultList.clear();
 			if (results != null && results.count > 0) {
-				mResultList.addAll((ArrayList<Result>) results.values);
+				resultList.addAll((ArrayList<Result>) results.values);
 				notifyDataSetChanged();
 			} else {
 				notifyDataSetInvalidated();
@@ -163,21 +161,21 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 			whereArgs = new String[] { param };
 		}
 
-		Cursor c = resolver.query(Plays.buildPlayersByUniqueUserUri(), PLAYER_PROJECTION, where, whereArgs,
-			PlayPlayers.NAME);
+		Cursor cursor = resolver.query(Plays.buildPlayersByUniqueUserUri(), PLAYER_PROJECTION, where, whereArgs, PlayPlayers.NAME);
 		try {
 			List<Result> results = new ArrayList<>();
+			if (cursor != null) {
+				cursor.moveToPosition(-1);
+				while (cursor.moveToNext()) {
+					String username = cursor.getString(PLAYER_USERNAME);
 
-			c.moveToPosition(-1);
-			while (c.moveToNext()) {
-				String username = c.getString(PLAYER_USERNAME);
-
-				results.add(new Result(username));
+					results.add(new Result(username));
+				}
 			}
 			return results;
 		} finally {
-			if (c != null) {
-				c.close();
+			if (cursor != null) {
+				cursor.close();
 			}
 		}
 	}
@@ -195,21 +193,21 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 			String param = input + "%";
 			whereArgs = new String[] { param };
 		}
-		Cursor c = resolver.query(Buddies.CONTENT_URI, BUDDY_PROJECTION, where, whereArgs, Buddies.NAME_SORT);
+		Cursor cursor = resolver.query(Buddies.CONTENT_URI, BUDDY_PROJECTION, where, whereArgs, Buddies.NAME_SORT);
 		try {
 			List<Result> results = new ArrayList<>();
-
-			c.moveToPosition(-1);
-			while (c.moveToNext()) {
-				String userName = c.getString(BUDDY_NAME);
-
-				results.add(new Result(userName));
-				usernames.add(userName);
+			if (cursor != null) {
+				cursor.moveToPosition(-1);
+				while (cursor.moveToNext()) {
+					String userName = cursor.getString(BUDDY_NAME);
+					results.add(new Result(userName));
+					usernames.add(userName);
+				}
 			}
 			return results;
 		} finally {
-			if (c != null) {
-				c.close();
+			if (cursor != null) {
+				cursor.close();
 			}
 		}
 	}

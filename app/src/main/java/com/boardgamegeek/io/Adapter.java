@@ -7,6 +7,7 @@ import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.auth.Authenticator;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import retrofit.converter.Converter;
 import retrofit.converter.SimpleXMLConverter;
 
 public class Adapter {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = BuildConfig.DEBUG;
 	private static final int COLLECTION_REQUEST_PROCESSING = 202;
 	private static final int API_RATE_EXCEEDED = 503;
 

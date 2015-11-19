@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,24 +15,25 @@ import com.boardgamegeek.ui.loader.PaginatedData;
 public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	private static final int VIEW_TYPE_ITEM = 0;
 	private static final int VIEW_TYPE_LOADING = 1;
-	private int mResource;
-	private String mErrorMessage;
-	private int mTotalCount;
-	private int mCurrentPage;
-	private int mPageSize;
+	@LayoutRes
+	private final int layoutResourceId;
+	private final String errorMessage;
+	private final int totalCount;
+	private int currentPage;
+	private final int pageSize;
 
-	public PaginatedArrayAdapter(Context context, int resource, PaginatedData<T> data) {
-		super(context, resource, data.getData());
-		mResource = resource;
-		mErrorMessage = data.getErrorMessage();
-		mTotalCount = data.getTotalCount();
-		mCurrentPage = data.getCurrentPage();
-		mPageSize = data.getPageSize();
+	public PaginatedArrayAdapter(Context context, @LayoutRes int layoutResourceId, PaginatedData<T> data) {
+		super(context, layoutResourceId, data.getData());
+		this.layoutResourceId = layoutResourceId;
+		errorMessage = data.getErrorMessage();
+		totalCount = data.getTotalCount();
+		currentPage = data.getCurrentPage();
+		pageSize = data.getPageSize();
 	}
 
 	public void update(PaginatedData<T> data) {
 		clear();
-		mCurrentPage = data.getCurrentPage();
+		currentPage = data.getCurrentPage();
 		for (T datum : data.getData()) {
 			add(datum);
 		}
@@ -89,7 +91,7 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 
 			if (hasError()) {
 				convertView.findViewById(android.R.id.progress).setVisibility(View.GONE);
-				((TextView) convertView.findViewById(android.R.id.text1)).setText(mErrorMessage);
+				((TextView) convertView.findViewById(android.R.id.text1)).setText(errorMessage);
 			} else {
 				convertView.findViewById(android.R.id.progress).setVisibility(View.VISIBLE);
 				((TextView) convertView.findViewById(android.R.id.text1)).setText(R.string.loading);
@@ -100,7 +102,7 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 		} else {
 			T item = getItem(position);
 			if (convertView == null) {
-				convertView = LayoutInflater.from(getContext()).inflate(mResource, parent, false);
+				convertView = LayoutInflater.from(getContext()).inflate(layoutResourceId, parent, false);
 			}
 
 			bind(convertView, item);
@@ -111,14 +113,14 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	protected abstract void bind(View view, T item);
 
 	public void setCurrentPage(int page) {
-		mCurrentPage = page;
+		currentPage = page;
 	}
 
 	private boolean hasMoreResults() {
-		return mCurrentPage * mPageSize < mTotalCount;
+		return currentPage * pageSize < totalCount;
 	}
 
 	private boolean hasError() {
-		return !TextUtils.isEmpty(mErrorMessage);
+		return !TextUtils.isEmpty(errorMessage);
 	}
 }

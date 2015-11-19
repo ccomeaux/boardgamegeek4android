@@ -16,41 +16,46 @@ public abstract class RetryableRequest<T> {
 	}
 
 	public T execute() {
-		int retries = 0;
+		int numberOfRetries = 0;
 		do {
 			try {
 				return request();
 			} catch (Exception e) {
 				if (e.getCause() instanceof RetryableException) {
 					Timber.w(e, "Retryable exception");
-					retries++;
-					long waitTime = getWaitTime(retries);
-					Timber.i("...retry #" + retries + " in " + waitTime + "ms");
-					try {
-						Thread.sleep(waitTime);
-					} catch (InterruptedException e1) {
-						Timber.e(e1, "Interrupted while sleeping during retry.");
-					}
+					numberOfRetries++;
+					wait(numberOfRetries);
 				} else {
 					Timber.e(e, "Syncing plays");
 					throw e;
 				}
 			}
-		} while (retries < getMaxRetries());
-		Timber.w("Exceeded maximum retries");
-		throw new RuntimeException("Can't sync plays due to service error.");
+		} while (numberOfRetries < getMaxRetries());
+		String errorMessage = String.format("Exceeded maximum number of retries: [%s]", getMaxRetries());
+		Timber.w(errorMessage);
+		throw new RuntimeException(errorMessage);
 	}
 
 	protected abstract T request();
 
-	private long getWaitTime(int retryCount) {
+	private void wait(int numberOfRetries) {
+		long waitTime = calculateWaitTime(numberOfRetries);
+		Timber.i("...retry #" + numberOfRetries + " in " + waitTime + "ms");
+		try {
+			Thread.sleep(waitTime);
+		} catch (InterruptedException e) {
+			Timber.e(e, "Interrupted while sleeping during retry.");
+		}
+	}
+
+	private long calculateWaitTime(int numberOfRetries) {
 		long waitTime = getMinWaitTime();
 		switch (getBackOffType()) {
 			case BACKOFF_TYPE_EXPONENTIAL:
-				waitTime = ((long) Math.pow(2, retryCount - 1) * getMinWaitTime());
+				waitTime = ((long) Math.pow(2, numberOfRetries - 1) * getMinWaitTime());
 				break;
 			case BACKOFF_TYPE_GEOMETRIC:
-				waitTime = retryCount * retryCount * getMinWaitTime();
+				waitTime = numberOfRetries * numberOfRetries * getMinWaitTime();
 				break;
 		}
 		return Math.min(getMaxWaitTime(), waitTime);
