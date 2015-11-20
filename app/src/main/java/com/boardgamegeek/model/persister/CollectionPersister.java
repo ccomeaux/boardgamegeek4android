@@ -45,7 +45,7 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	public long getTimeStamp() {
+	public long getInitialTimestamp() {
 		return updateTime;
 	}
 
@@ -111,9 +111,9 @@ public class CollectionPersister {
 				if (isSetToSync(item)) {
 					saveGame(toGameValues(item), batch);
 					saveCollectionItem(toCollectionValues(item), batch);
-					Timber.i("Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+					Timber.d("Batched game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				} else {
-					Timber.i("Skipped invalid game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+					Timber.d("Skipped invalid game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				}
 			}
 			ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);

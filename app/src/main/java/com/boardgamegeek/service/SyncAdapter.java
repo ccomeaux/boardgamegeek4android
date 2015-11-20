@@ -201,7 +201,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		CharSequence text = context.getText(task.getNotification());
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_error).setContentText(text)
+			.createNotificationBuilder(context, R.string.sync_notification_title_error)
+			.setContentText(text)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		if (!TextUtils.isEmpty(message)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
@@ -214,9 +215,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return;
 		}
 
+		final CharSequence contextText = context.getText(messageId);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_cancel)
-			.setContentText(context.getText(messageId)).setCategory(NotificationCompat.CATEGORY_SERVICE);
+			.setContentText(contextText)
+			.setCategory(NotificationCompat.CATEGORY_SERVICE);
 		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 }
