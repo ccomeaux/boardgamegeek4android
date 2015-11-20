@@ -41,12 +41,13 @@ public class SyncCollectionComplete extends SyncTask {
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing full collection list...");
 		try {
-			CollectionPersister persister = new CollectionPersister(context);
+			CollectionPersister persister = new CollectionPersister(context).brief();
 
 			statuses = getSyncableStatuses();
 
 			for (int i = 0; i < statuses.size(); i++) {
 				if (isCancelled()) {
+					Timber.i("...cancelled");
 					return;
 				}
 
@@ -87,6 +88,7 @@ public class SyncCollectionComplete extends SyncTask {
 	@NonNull
 	private ArrayMap<String, String> createOptions(int i, String status) {
 		ArrayMap<String, String> options = new ArrayMap<>();
+		options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		options.put(status, "1");
 		for (int j = 0; j < i; j++) {
 			options.put(statuses.get(j), "0");
