@@ -1060,7 +1060,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		popup.show();
 	}
 
-	@DebugLog
 	private Callback popupMenuCallback() {
 		return new MenuBuilder.Callback() {
 			@Override
