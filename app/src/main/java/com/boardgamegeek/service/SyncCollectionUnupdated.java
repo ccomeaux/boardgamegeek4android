@@ -50,10 +50,12 @@ public class SyncCollectionUnupdated extends SyncTask {
 					break;
 				}
 				numberOfFetches++;
-				List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(), Collection.CONTENT_URI,
-					Collection.GAME_ID, "collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED
-						+ " IS NULL AND " + Collection.COLLECTION_ID + " IS NOT NULL", null, "collection."
-						+ Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
+				List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(),
+					Collection.CONTENT_URI,
+					Collection.GAME_ID,
+					"(collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED + " IS NULL) AND " + Collection.COLLECTION_ID + " IS NOT NULL",
+					null,
+					"collection." + Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
 					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
@@ -71,6 +73,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 					success |= requestAndPersist(account.name, persister, options, syncResult);
 
 					if (!success) {
+						Timber.i("...unsuccessful sync; breaking out of fetch loop");
 						break;
 					}
 				} else {
