@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.text.SpannableString;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -17,6 +18,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -158,10 +160,9 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			notifyUploadError(response.getErrorMessage());
 		} else {
 			syncResult.stats.numUpdates++;
-			final double rating = response.getRating();
-			String message = context.getString(R.string.sync_notification_collection_upload_detail, collectionName, rating);
-			Timber.i(message);
-			updateContent(internalId, rating);
+			SpannableString message = StringUtils.boldSecondString(context.getString(R.string.sync_notification_collection_upload_detail), collectionName);
+			Timber.i(message.toString());
+			updateContent(internalId, response.getRating());
 			notifyUser(message);
 		}
 	}

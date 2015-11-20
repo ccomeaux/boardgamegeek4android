@@ -19,7 +19,7 @@
 	<string name="sync_notification_plays_upload">Uploading plays</string>
 	<string name="sync_notification_plays_upload_summary">Uploaded %d plays</string>
 	<string name="sync_notification_collection_upload_summary">Uploaded %d collection items</string>
-	<string name="sync_notification_collection_upload_detail">Updated %1$s with rating of %2$s.</string>
+	<string name="sync_notification_collection_upload_detail">Updated your collection item of</string>
 	<string name="sync_notification_title_h_index">H-index</string>
 	<string name="sync_notification_h_index_increase">Congratulations! Your h-index is now</string>
 	<string name="sync_notification_h_index_decrease">Oh no! Your h-index has fallen to</string>
