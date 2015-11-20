@@ -118,11 +118,13 @@
 								android:layout_weight="1"
 								tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
 
-							<LinearLayout
+							<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+								android:id="@+id/rating_container"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
 								android:layout_gravity="top|right"
 								android:layout_marginLeft="@dimen/padding_standard"
+								android:foreground="?attr/selectableItemBackgroundBorderless"
 								android:orientation="vertical">
 
 								<TextView
@@ -141,7 +143,7 @@
 									android:layout_height="wrap_content"
 									android:layout_gravity="right"
 									tools:text="Yesterday"/>
-							</LinearLayout>
+							</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 
 						</LinearLayout>
 					</android.support.v7.widget.CardView>

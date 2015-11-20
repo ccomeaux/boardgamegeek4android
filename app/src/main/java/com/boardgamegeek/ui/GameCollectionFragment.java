@@ -343,7 +343,7 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	@DebugLog
-	@OnClick(R.id.rating)
+	@OnClick(R.id.rating_container)
 	public void onRatingClick(View v) {
 		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
 			getString(R.string.rating),
