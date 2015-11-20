@@ -20,8 +20,6 @@ import java.util.List;
 import timber.log.Timber;
 
 public class SyncGameCollection extends UpdateTask {
-	private static final String STATUS_PLAYED = "played";
-
 	private final int gameId;
 
 	public SyncGameCollection(int gameId) {
@@ -74,20 +72,20 @@ public class SyncGameCollection extends UpdateTask {
 			return items;
 		}
 
-		options.put(STATUS_PLAYED, "1");
+		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
 		items = requestItems(account, service, options);
 		if (items != null) {
 			return items;
 		}
 
-		options.remove(STATUS_PLAYED);
+		options.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED);
 		options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 		items = requestItems(account, service, options);
 		if (items != null) {
 			return items;
 		}
 
-		options.put(STATUS_PLAYED, "1");
+		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
 		items = requestItems(account, service, options);
 		if (items != null) {
 			return items;

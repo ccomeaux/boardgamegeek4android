@@ -24,7 +24,6 @@ import timber.log.Timber;
  */
 public class SyncGamesRemove extends SyncTask {
 	private static final int HOURS_OLD = 72;
-	private static final String STATUS_PLAYED = "played";
 
 	public SyncGamesRemove(Context context, BggService service) {
 		super(context, service);
@@ -47,7 +46,7 @@ public class SyncGamesRemove extends SyncTask {
 
 			ContentResolver resolver = context.getContentResolver();
 			String selection = "collection." + Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + "<?";
-			if (PreferencesUtils.isSyncStatus(context, STATUS_PLAYED)) {
+			if (PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
 				selection += " AND games." + Games.NUM_PLAYS + "=0";
 			}
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, selection,

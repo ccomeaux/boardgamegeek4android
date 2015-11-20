@@ -1,9 +1,5 @@
 package com.boardgamegeek.model.persister;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
 import android.content.ContentProviderResult;
@@ -21,6 +17,10 @@ import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -41,7 +41,7 @@ public class CollectionPersister {
 		mGameIds = new ArrayList<>();
 	}
 
-	public long getTimeStamp() {
+	public long getInitialTimestamp() {
 		return mUpdateTime;
 	}
 
@@ -101,9 +101,9 @@ public class CollectionPersister {
 				if (isValid(item)) {
 					insertOrUpdateGame(toGameValues(item), batch);
 					insertOrUpdateCollection(toCollectionValues(item), batch);
-					Timber.i("Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+					Timber.d("Batched game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				} else {
-					Timber.i("Skipped invalid game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+					Timber.d("Skipped invalid game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				}
 			}
 			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
