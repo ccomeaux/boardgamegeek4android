@@ -87,6 +87,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 	}
 
 	private boolean requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
+		Timber.i("..requesting collection items with options %s", options);
 		CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
