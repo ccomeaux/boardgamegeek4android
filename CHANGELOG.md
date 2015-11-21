@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
+ * Rate your games by clicking on the rating in the game's collection page
  * Pull to refresh pretty much everywhere there used to be a menu option
  * More (and better looking) play stats
  * 12% more Material
