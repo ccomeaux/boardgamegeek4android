@@ -401,6 +401,13 @@
 		<item name="android:paddingTop">@dimen/padding_half</item>
 	</style>
 
+	<style name="RatingSmall" parent="@style/Text">
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingLeft">@dimen/padding_half</item>
+		<item name="android:paddingRight">@dimen/padding_half</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+	</style>
+
 	<style name="FormContainer">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>

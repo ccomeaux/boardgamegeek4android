@@ -73,6 +73,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
+					android:layout_marginBottom="@dimen/padding_standard"
 					android:background="@color/info_background"
 					android:elevation="@dimen/material_elevation_subtle"
 					android:gravity="center"
@@ -98,24 +99,54 @@
 					android:layout_height="wrap_content"
 					android:orientation="vertical">
 
-					<TextView
-						android:id="@+id/rating"
-						style="@style/RatingLarge"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:layout_marginBottom="@dimen/padding_extra"
-						android:layout_marginTop="@dimen/padding_extra"
-						tools:background="#0f0"
-						tools:text="9.5"/>
-
-					<TextView
-						android:id="@+id/comment"
-						style="@style/GameDetailRow"
+					<android.support.v7.widget.CardView
+						android:id="@+id/rating_comment_container"
+						style="@style/Card"
 						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:gravity="center_vertical"
-						tools:text="This game is fun!"/>
+						android:layout_height="wrap_content">
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:layout_gravity="center_vertical"
+							android:orientation="horizontal">
+
+							<TextView
+								android:id="@+id/comment"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
+
+							<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+								android:id="@+id/rating_container"
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:layout_gravity="top|right"
+								android:layout_marginLeft="@dimen/padding_standard"
+								android:foreground="?attr/selectableItemBackgroundBorderless"
+								android:orientation="vertical">
+
+								<TextView
+									android:id="@+id/rating"
+									style="@style/RatingLarge"
+									android:layout_width="wrap_content"
+									android:layout_height="wrap_content"
+									android:layout_gravity="right"
+									tools:background="#0f0"
+									tools:text="9.5"/>
+
+								<TextView
+									android:id="@+id/rating_timestamp"
+									style="@style/Text.Footnote2"
+									android:layout_width="wrap_content"
+									android:layout_height="wrap_content"
+									android:layout_gravity="right"
+									tools:text="Yesterday"/>
+							</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+
+						</LinearLayout>
+					</android.support.v7.widget.CardView>
 
 					<android.support.v7.widget.CardView
 						android:id="@+id/private_info_container"

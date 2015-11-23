@@ -17,23 +17,25 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
+
+import hugo.weaving.DebugLog;
 
 public abstract class BaseProvider {
 
 	protected abstract String getPath();
 
+	@DebugLog
 	protected String addIdToPath(String path) {
 		return path + "/#";
 	}
 
+	@DebugLog
 	protected String addWildCardToPath(String path) {
 		return path + "/*";
 	}
 
-	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
-						   String[] selectionArgs, String sortOrder) {
+	@DebugLog
+	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		SelectionBuilder builder = buildExpandedSelection(uri).where(selection, selectionArgs);
 		String fragment = uri.getQueryParameter(BggContract.PARAM_LIMIT);
 		if (fragment != null) {
@@ -42,6 +44,7 @@ public abstract class BaseProvider {
 		return builder.query(db, projection, getSortOrder(sortOrder));
 	}
 
+	@DebugLog
 	protected String getSortOrder(String sortOrder) {
 		if (TextUtils.isEmpty(sortOrder)) {
 			return getDefaultSortOrder();
@@ -50,47 +53,56 @@ public abstract class BaseProvider {
 		}
 	}
 
+	@DebugLog
 	protected String getDefaultSortOrder() {
 		return null;
 	}
 
+	@DebugLog
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		return buildSimpleSelection(uri);
 	}
 
+	@DebugLog
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		throw new UnsupportedOperationException("Unknown uri: " + uri);
 	}
 
+	@DebugLog
 	protected String getType(Uri uri) {
 		throw new UnsupportedOperationException("Unknown uri getting type: " + uri);
 	}
 
+	@DebugLog
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
 	}
 
-	protected int update(Context context, SQLiteDatabase db, Uri uri, ContentValues values, String selection,
-						 String[] selectionArgs) {
+	@DebugLog
+	protected int update(Context context, SQLiteDatabase db, Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
 		notifyChange(context, uri);
 		return rowCount;
 	}
 
+	@DebugLog
 	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).delete(db);
 		notifyChange(context, uri);
 		return rowCount;
 	}
 
+	@DebugLog
 	protected void notifyChange(Context context, Uri uri) {
 		context.getContentResolver().notifyChange(uri, null);
 	}
 
+	@DebugLog
 	protected ParcelFileDescriptor openFile(Context context, Uri uri, String mode) throws FileNotFoundException {
 		throw new FileNotFoundException("Unknown uri opening file: " + uri);
 	}
 
+	@DebugLog
 	protected int queryInt(SQLiteDatabase db, SelectionBuilder builder, String columnName) {
 		int value = 0;
 		Cursor cursor = builder.query(db, new String[] { columnName }, null);
@@ -107,25 +119,14 @@ public abstract class BaseProvider {
 		return value;
 	}
 
-	protected List<String> getList(final SQLiteDatabase db, final SelectionBuilder builder, String columnName) {
-		List<String> list = new ArrayList<>();
-		Cursor cursor = builder.query(db, new String[] { columnName }, null);
-		try {
-			if (cursor.moveToNext()) {
-				list.add(cursor.getString(0));
-			}
-		} finally {
-			closeCursor(cursor);
-		}
-		return list;
-	}
-
+	@DebugLog
 	private static void closeCursor(Cursor cursor) {
 		if (cursor != null && !cursor.isClosed()) {
 			cursor.close();
 		}
 	}
 
+	@DebugLog
 	protected void notifyException(Context context, SQLException e) {
 		if (PreferencesUtils.getSyncShowNotifications(context)) {
 			NotificationCompat.Builder builder = NotificationUtils

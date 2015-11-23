@@ -5,6 +5,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -66,9 +67,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_BUDDY_SYNC_HASH_CODE = 23;
 	private static final int VER_PLAY_SYNC_HASH_CODE = 24;
 	private static final int VER_PLAYER_COLORS = 25;
-	private static final int DATABASE_VERSION = VER_PLAYER_COLORS;
+	private static final int VER_RATING_DIRTY_TIMESTAMP = 27;
+	private static final int DATABASE_VERSION = VER_RATING_DIRTY_TIMESTAMP;
 
-	private Context mContext;
+	private final Context context;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -155,29 +157,33 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ createJoinSuffix(Tables.GAME_POLL_RESULTS, Tables.GAME_POLLS, GamePollResults.POLL_ID, GamePolls._ID);
 	}
 
+	@NonNull
 	private static String createJoin(String table1, String table2, String column) {
 		return table1 + createJoinSuffix(table1, table2, column, column);
 	}
 
+	@NonNull
 	private static String createJoin(String table1, String table2, String column1, String column2) {
 		return table1 + createJoinSuffix(table1, table2, column1, column2);
 	}
 
+	@NonNull
 	private static String createJoinSuffix(String table1, String table2, String column) {
 		return createJoinSuffix(table1, table2, column, column);
 	}
 
+	@NonNull
 	private static String createJoinSuffix(String table1, String table2, String column1, String column2) {
 		return " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
 	}
 
 	public BggDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		mContext = context;
+		this.context = context;
 	}
 
 	@Override
-	public void onOpen(SQLiteDatabase db) {
+	public void onOpen(@NonNull SQLiteDatabase db) {
 		super.onOpen(db);
 		if (!db.isReadOnly()) {
 			db.execSQL("PRAGMA foreign_keys=ON;");
@@ -336,7 +342,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private TableBuilder buildCollectionTable() {
 		return new TableBuilder().setTable(Tables.COLLECTION).useDefaultPrimaryKey()
-			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER).addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER, true, false, Tables.GAMES, Games.GAME_ID, true)
 			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COLLECTION_NAME, COLUMN_TYPE.TEXT, true)
@@ -366,6 +373,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.RATING, COLUMN_TYPE.REAL)
 			.addColumn(Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -490,7 +498,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	@SuppressWarnings("UnusedAssignment")
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
 		Timber.d("Upgrading database from " + oldVersion + " to " + newVersion);
 
 		// NOTE: This switch statement is designed to handle cascading database
@@ -584,8 +592,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 				buildGamesTable().replace(db);
 				dropTable(db, Tables.COLLECTION);
 				buildCollectionTable().create(db);
-				SyncService.clearCollection(mContext);
-				SyncService.sync(mContext, SyncService.FLAG_SYNC_COLLECTION);
+				SyncService.clearCollection(context);
+				SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION);
 				version = VER_GAME_COLLECTION_CONFLICT;
 			case VER_GAME_COLLECTION_CONFLICT:
 				addColumn(db, Tables.PLAYS, Plays.START_TIME, COLUMN_TYPE.INTEGER);
@@ -620,6 +628,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_PLAY_SYNC_HASH_CODE:
 				buildPlayerColorsTable().create(db);
 				version = VER_PLAYER_COLORS;
+			case VER_PLAYER_COLORS:
+				addColumn(db, Tables.COLLECTION, Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+				version = VER_RATING_DIRTY_TIMESTAMP;
 		}
 
 		if (version != DATABASE_VERSION) {
@@ -655,11 +666,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 		}
 	}
 
-	private void dropTable(SQLiteDatabase db, String tableName) {
+	private void dropTable(@NonNull SQLiteDatabase db, String tableName) {
 		db.execSQL("DROP TABLE IF EXISTS " + tableName);
 	}
 
-	private void addColumn(SQLiteDatabase db, String table, String column, COLUMN_TYPE type) {
+	private void addColumn(@NonNull SQLiteDatabase db, String table, String column, COLUMN_TYPE type) {
 		try {
 			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
 		} catch (SQLException e) {

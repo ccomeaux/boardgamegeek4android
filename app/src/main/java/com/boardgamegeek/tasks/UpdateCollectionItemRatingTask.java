@@ -1,26 +1,26 @@
 package com.boardgamegeek.tasks;
 
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
-import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.CollectionConverter;
-import com.boardgamegeek.model.CollectionPostResponse;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.ResolverUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class UpdateCollectionItemRatingTask extends AsyncTask<Void, Void, CollectionPostResponse> {
+public class UpdateCollectionItemRatingTask extends AsyncTask<Void, Void, Void> {
 	private final Context context;
 	private final int gameId;
 	private final int collectionId;
 	private final double rating;
 
+	@DebugLog
 	public UpdateCollectionItemRatingTask(Context context, int gameId, int collectionId, double rating) {
 		this.context = context;
 		this.gameId = gameId;
@@ -28,38 +28,49 @@ public class UpdateCollectionItemRatingTask extends AsyncTask<Void, Void, Collec
 		this.rating = rating;
 	}
 
+	@DebugLog
 	@Override
-	protected CollectionPostResponse doInBackground(Void... params) {
-		BggService service = Adapter.createForPost(context, new CollectionConverter());
-
-		Map<String, String> form = new HashMap<>();
-		form.put("ajax", "1");
-		form.put("action", "savedata");
-		form.put("objecttype", "thing");
-		form.put("objectid", String.valueOf(gameId));
-		form.put("collid", String.valueOf(collectionId));
-		form.put("fieldname", "rating");
-		form.put("rating", String.valueOf(rating));
-
-		try {
-			return service.geekCollection(form);
-		} catch (Exception e) {
-			return new CollectionPostResponse(e);
+	protected Void doInBackground(Void... params) {
+		final ContentResolver resolver = context.getContentResolver();
+		long internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
+		if (internalId != BggContract.INVALID_ID) {
+			updateResolver(resolver, internalId);
+			SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 		}
+		return null;
 	}
 
+	private void updateResolver(ContentResolver resolver, long internalId) {
+		ContentValues values = new ContentValues(2);
+		values.put(Collection.RATING, rating);
+		values.put(Collection.RATING_DIRTY_TIMESTAMP, System.currentTimeMillis());
+		resolver.update(Collection.buildUri(internalId), values, null, null);
+	}
+
+	@DebugLog
 	@Override
-	protected void onPostExecute(CollectionPostResponse response) {
-		// TEMP
-		String message;
-		if (response.hasAuthError()) {
-			message = "Sign in again!";
-		} else if (response.hasError()) {
-			message = response.getErrorMessage();
+	protected void onPostExecute(Void result) {
+		Timber.i("Updated game ID %1$s, collection ID %2$s with rating %3$s", gameId, collectionId, rating);
+	}
+
+	@DebugLog
+	private long getCollectionItemInternalId(ContentResolver resolver, int collectionId, int gameId) {
+		long internalId;
+		if (collectionId == BggContract.INVALID_ID) {
+			internalId = ResolverUtils.queryLong(resolver,
+				Collection.CONTENT_URI,
+				Collection._ID,
+				BggContract.INVALID_ID,
+				"collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
+				new String[] { String.valueOf(gameId) });
 		} else {
-			message = "Rated " + String.valueOf(response.getRating());
+			internalId = ResolverUtils.queryLong(resolver,
+				Collection.CONTENT_URI,
+				Collection._ID,
+				BggContract.INVALID_ID,
+				Collection.COLLECTION_ID + "=?",
+				new String[] { String.valueOf(collectionId) });
 		}
-		Timber.i(message);
-		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+		return internalId;
 	}
 }

@@ -130,6 +130,7 @@ public class BggContract {
 		String PRIVATE_INFO_ACQUISITION_DATE = "acquisition_date";
 		String PRIVATE_INFO_ACQUIRED_FROM = "acquired_from";
 		String PRIVATE_INFO_COMMENT = "private_comment";
+		String RATING_DIRTY_TIMESTAMP = "rating_dirty_timestamp";
 	}
 
 	interface BuddiesColumns {

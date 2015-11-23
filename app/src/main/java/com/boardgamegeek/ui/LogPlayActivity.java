@@ -51,8 +51,8 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
-import com.boardgamegeek.ui.dialog.ScoreDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -1323,19 +1323,15 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		@Override
 		public void onClick(View v) {
 			final Player player = mPlay.getPlayers().get(mPosition);
-			final ScoreDialogFragment fragment = ScoreDialogFragment.newInstance(player.getDescription(), player.score, player.color);
-			fragment.setOnDoneClickListener(new ScoreDialogFragment.OnClickListener() {
+			final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.score, player.color);
+			fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 				@Override
-				public void onDoneClick(String score) {
-					player.score = score;
+				public void onDoneClick(String output) {
+					player.score = output;
 					double highScore = mPlay.getHighScore();
 					for (Player p : mPlay.getPlayers()) {
-						double s = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
-						if (s == highScore) {
-							p.Win(true);
-						} else {
-							p.Win(false);
-						}
+						double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
+						p.Win(score == highScore);
 					}
 					bindUiPlayers();
 				}

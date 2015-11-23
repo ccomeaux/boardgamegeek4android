@@ -1,50 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge
-	android:id="@+id/plays_root"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools">
+
 	<ImageView
 		android:id="@+id/thumbnail"
 		style="@style/ImageList"
 		android:layout_width="@dimen/thumbnail_list_size_small"
-		android:layout_height="@dimen/thumbnail_list_size_small"
+		android:layout_height="@dimen/thumbnail_list_size"
+		android:layout_marginRight="@dimen/thumbnail_list_size_small_margin"
 		android:contentDescription="@string/thumbnail"
-		android:src="@drawable/thumbnail_image_empty"
-		android:layout_marginRight="@dimen/thumbnail_list_size_small_margin"/>
+		android:src="@drawable/thumbnail_image_empty"/>
 
 	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:gravity="center_vertical"
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/name"
-			style="@style/Text"
+			android:id="@id/status"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			tools:text="Bluff"/>
+			android:textAppearance="@style/Text"
+			android:textStyle="bold"
+			tools:text="Owned and Want to Play"/>
 
 		<TextView
-			android:id="@+id/year"
-			style="@style/Text.Secondary"
+			android:id="@id/description"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:ellipsize="end"
 			android:maxLines="1"
-			android:visibility="gone"
-			tools:text="1999"
-			tools:visibility="visible"/>
+			android:textAppearance="@style/Text.Secondary"
+			android:textStyle="italic"
+			tools:text="Bluff (1987)"/>
 
 		<TextView
-			android:id="@+id/status"
-			style="@style/Text.Secondary"
+			android:id="@id/comment"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:maxLines="1"
+			android:ellipsize="end"
+			android:maxLines="2"
+			android:textAppearance="@style/Text"
 			android:visibility="gone"
-			tools:text="Owned and Want to Play"
+			tools:text="I like it a lot."
 			tools:visibility="visible"/>
 	</LinearLayout>
+
+	<TextView
+		android:id="@+id/rating"
+		style="@style/RatingSmall"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/padding_half"
+		android:gravity="center"
+		android:minWidth="32dp"
+		android:visibility="visible"
+		tools:background="#0f0"
+		tools:text="9.5"/>
 </merge>

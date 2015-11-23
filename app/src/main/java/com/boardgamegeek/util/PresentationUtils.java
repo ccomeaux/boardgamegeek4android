@@ -7,11 +7,20 @@ import android.text.format.DateUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
 
+import java.text.DecimalFormat;
+
 /**
  * Methods to aid in presenting information in a consistent manner.
  */
 public class PresentationUtils {
+	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.00");
+	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.#");
+
 	private PresentationUtils() {
+	}
+
+	public static CharSequence describePastTimeSpan(long time) {
+		return describePastTimeSpan(time, "");
 	}
 
 	public static CharSequence describePastTimeSpan(long time, String defaultValue) {
@@ -55,6 +64,22 @@ public class PresentationUtils {
 			return context.getString(R.string.wishlist);
 		}
 		return context.getResources().getStringArray(R.array.wishlist_priority)[priority];
+	}
+
+	public static String describeAverageRating(Context context, double rating) {
+		if (rating > 0.0) {
+			return AVERAGE_RATING_FORMAT.format(rating);
+		} else {
+			return context.getString(R.string.unrated);
+		}
+	}
+
+	public static String describeRating(Context context, double rating) {
+		if (rating > 0.0) {
+			return RATING_FORMAT.format(rating);
+		} else {
+			return context.getString(R.string.unrated);
+		}
 	}
 
 	/**

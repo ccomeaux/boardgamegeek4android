@@ -22,57 +22,66 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class CollectionPersister {
-	private Context mContext;
-	private ContentResolver mResolver;
-	private long mUpdateTime;
-	private boolean mBrief;
-	private boolean mIncludePrivateInfo;
-	private boolean mIncludeStats;
-	private List<Integer> mGameIds;
-	private List<String> mSyncStatuses;
+	private static final int NOT_DIRTY = 0;
+	private final Context context;
+	private final ContentResolver resolver;
+	private final long updateTime;
+	private boolean isBriefSync;
+	private boolean includePrivateInfo;
+	private boolean includeStats;
+	private final List<Integer> persistedGameIds;
+	private List<String> statusesToSync;
 
+	@DebugLog
 	public CollectionPersister(Context context) {
-		mContext = context;
-		mResolver = mContext.getContentResolver();
-		mUpdateTime = System.currentTimeMillis();
-		mGameIds = new ArrayList<>();
+		this.context = context;
+		resolver = this.context.getContentResolver();
+		updateTime = System.currentTimeMillis();
+		persistedGameIds = new ArrayList<>();
 	}
 
+	@DebugLog
 	public long getInitialTimestamp() {
-		return mUpdateTime;
+		return updateTime;
 	}
 
+	@DebugLog
 	public CollectionPersister brief() {
-		mBrief = true;
+		isBriefSync = true;
 		return this;
 	}
 
+	@DebugLog
 	public CollectionPersister includePrivateInfo() {
-		mIncludePrivateInfo = true;
+		includePrivateInfo = true;
 		return this;
 	}
 
+	@DebugLog
 	public CollectionPersister includeStats() {
-		mIncludeStats = true;
+		includeStats = true;
 		return this;
 	}
 
+	@DebugLog
 	public CollectionPersister validStatusesOnly() {
-		String[] syncStatuses = PreferencesUtils.getSyncStatuses(mContext);
-		mSyncStatuses = Arrays.asList(syncStatuses);
+		String[] syncStatuses = PreferencesUtils.getSyncStatuses(context);
+		statusesToSync = Arrays.asList(syncStatuses);
 		return this;
 	}
 
+	@DebugLog
 	public int delete(List<CollectionItem> items, int gameId) {
 		if (items == null || items.size() == 0) {
 			return 0;
 		}
 
 		// determine the collection IDs that are no longer in the collection
-		List<Integer> collectionIds = ResolverUtils.queryInts(mResolver, Collection.CONTENT_URI,
+		List<Integer> collectionIds = ResolverUtils.queryInts(resolver, Collection.CONTENT_URI,
 			Collection.COLLECTION_ID, "collection." + Collection.GAME_ID + "=?",
 			new String[] { String.valueOf(gameId) });
 		for (CollectionItem item : items) {
@@ -87,74 +96,77 @@ public class CollectionPersister {
 					.withSelection(Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collectionId) })
 					.build());
 			}
-			ResolverUtils.applyBatch(mContext, batch);
+			ResolverUtils.applyBatch(context, batch);
 		}
 
 		return collectionIds.size();
 	}
 
+	@DebugLog
 	public int save(List<CollectionItem> items) {
 		if (items != null && items.size() > 0) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-			mGameIds.clear();
+			persistedGameIds.clear();
 			for (CollectionItem item : items) {
-				if (isValid(item)) {
-					insertOrUpdateGame(toGameValues(item), batch);
-					insertOrUpdateCollection(toCollectionValues(item), batch);
+				if (isSetToSync(item)) {
+					saveGame(toGameValues(item), batch);
+					saveCollectionItem(toCollectionValues(item), batch);
 					Timber.d("Batched game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				} else {
 					Timber.d("Skipped invalid game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				}
 			}
-			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+			ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
 			Timber.i("Saved " + items.size() + " collection items");
 			return result.length;
 		}
 		return 0;
 	}
 
-	@SuppressWarnings("RedundantIfStatement")
-	private boolean isValid(CollectionItem item) {
-		if (mSyncStatuses == null) {
+	@DebugLog
+	private boolean isSetToSync(CollectionItem item) {
+		if (statusesToSync == null) {
 			return true;
 		}
-		if (item.own.equals("1") && mSyncStatuses.contains("own")) {
+		if (item.own.equals("1") && statusesToSync.contains("own")) {
 			return true;
 		}
-		if (item.prevowned.equals("1") && mSyncStatuses.contains("prevowned")) {
+		if (item.prevowned.equals("1") && statusesToSync.contains("prevowned")) {
 			return true;
 		}
-		if (item.fortrade.equals("1") && mSyncStatuses.contains("fortrade")) {
+		if (item.fortrade.equals("1") && statusesToSync.contains("fortrade")) {
 			return true;
 		}
-		if (item.want.equals("1") && mSyncStatuses.contains("want")) {
+		if (item.want.equals("1") && statusesToSync.contains("want")) {
 			return true;
 		}
-		if (item.wanttoplay.equals("1") && mSyncStatuses.contains("wanttoplay")) {
+		if (item.wanttoplay.equals("1") && statusesToSync.contains("wanttoplay")) {
 			return true;
 		}
-		if (item.wanttobuy.equals("1") && mSyncStatuses.contains("wanttobuy")) {
+		if (item.wanttobuy.equals("1") && statusesToSync.contains("wanttobuy")) {
 			return true;
 		}
-		if (item.wishlist.equals("1") && mSyncStatuses.contains("wishlist")) {
+		if (item.wishlist.equals("1") && statusesToSync.contains("wishlist")) {
 			return true;
 		}
-		if (item.preordered.equals("1") && mSyncStatuses.contains("preordered")) {
+		//noinspection RedundantIfStatement
+		if (item.preordered.equals("1") && statusesToSync.contains("preordered")) {
 			return true;
 		}
 		return false;
 	}
 
+	@DebugLog
 	private ContentValues toGameValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
-		values.put(Games.UPDATED_LIST, mUpdateTime);
+		values.put(Games.UPDATED_LIST, updateTime);
 		values.put(Games.GAME_ID, item.gameId);
 		values.put(Games.GAME_NAME, item.gameName());
 		values.put(Games.GAME_SORT_NAME, item.gameSortName());
-		if (!mBrief) {
+		if (!isBriefSync) {
 			values.put(Games.NUM_PLAYS, item.numplays);
 		}
-		if (mIncludeStats) {
+		if (includeStats) {
 			values.put(Games.MIN_PLAYERS, item.statistics.minplayers);
 			values.put(Games.MAX_PLAYERS, item.statistics.maxplayers);
 			values.put(Games.PLAYING_TIME, item.statistics.playingtime);
@@ -163,12 +175,13 @@ public class CollectionPersister {
 		return values;
 	}
 
+	@DebugLog
 	private ContentValues toCollectionValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
-		if (!mBrief && mIncludePrivateInfo && mIncludeStats) {
-			values.put(Collection.UPDATED, mUpdateTime);
+		if (!isBriefSync && includePrivateInfo && includeStats) {
+			values.put(Collection.UPDATED, updateTime);
 		}
-		values.put(Collection.UPDATED_LIST, mUpdateTime);
+		values.put(Collection.UPDATED_LIST, updateTime);
 		values.put(Collection.GAME_ID, item.gameId);
 		values.put(Collection.COLLECTION_ID, item.collectionId());
 		values.put(Collection.COLLECTION_NAME, item.collectionName());
@@ -183,7 +196,7 @@ public class CollectionPersister {
 		values.put(Collection.STATUS_WISHLIST_PRIORITY, item.wishlistpriority);
 		values.put(Collection.STATUS_PREORDERED, item.preordered);
 		values.put(Collection.LAST_MODIFIED, item.lastModifiedDate());
-		if (!mBrief) {
+		if (!isBriefSync) {
 			values.put(Collection.COLLECTION_YEAR_PUBLISHED, item.yearpublished);
 			values.put(Collection.COLLECTION_IMAGE_URL, item.image);
 			values.put(Collection.COLLECTION_THUMBNAIL_URL, item.thumbnail);
@@ -193,7 +206,7 @@ public class CollectionPersister {
 			values.put(Collection.HASPARTS_LIST, item.haspartslist);
 			values.put(Collection.WISHLIST_COMMENT, item.wishlistcomment);
 		}
-		if (mIncludePrivateInfo) {
+		if (includePrivateInfo) {
 			values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.pricePaidCurrency);
 			values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.pricePaid());
 			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.currentValueCurrency);
@@ -203,55 +216,82 @@ public class CollectionPersister {
 			values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom);
 			values.put(Collection.PRIVATE_INFO_COMMENT, item.privatecomment);
 		}
-		if (mIncludeStats) {
+		if (includeStats) {
 			values.put(Collection.RATING, item.statistics.getRating());
 		}
 		return values;
 	}
 
-	private void insertOrUpdateGame(ContentValues values, ArrayList<ContentProviderOperation> batch) {
+	@DebugLog
+	private void saveGame(ContentValues values, ArrayList<ContentProviderOperation> batch) {
 		int gameId = values.getAsInteger(Games.GAME_ID);
-		if (mGameIds.contains(gameId)) {
+		if (persistedGameIds.contains(gameId)) {
 			Timber.i("Already saved game [ID=" + gameId + "; NAME=" + values.getAsString(Games.GAME_NAME) + "]");
 		} else {
 			Builder cpo;
 			Uri uri = Games.buildGameUri(gameId);
-			if (ResolverUtils.rowExists(mResolver, uri)) {
+			if (ResolverUtils.rowExists(resolver, uri)) {
 				values.remove(Games.GAME_ID);
 				cpo = ContentProviderOperation.newUpdate(uri);
 			} else {
 				cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 			}
 			batch.add(cpo.withValues(values).build());
-			mGameIds.add(gameId);
+			persistedGameIds.add(gameId);
 		}
 	}
 
-	private void insertOrUpdateCollection(ContentValues values, ArrayList<ContentProviderOperation> batch) {
-		Builder cpo;
-		long existingId;
-		int collId = values.getAsInteger(Collection.COLLECTION_ID);
-		if (collId == BggContract.INVALID_ID) {
+	@DebugLog
+	private void saveCollectionItem(ContentValues values, ArrayList<ContentProviderOperation> batch) {
+		int collectionId = values.getAsInteger(Collection.COLLECTION_ID);
+		int gameId = values.getAsInteger(Collection.GAME_ID);
+
+		if (collectionId == BggContract.INVALID_ID) {
 			values.remove(Collection.COLLECTION_ID);
-			existingId = ResolverUtils.queryLong(mResolver, Collection.CONTENT_URI, Collection._ID,
-				BggContract.INVALID_ID, "collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID
-					+ " IS NULL", new String[] { values.getAsString(Collection.GAME_ID) });
-		} else {
-			existingId = ResolverUtils.queryLong(mResolver, Collection.CONTENT_URI, Collection._ID,
-				BggContract.INVALID_ID, Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collId) });
 		}
-		if (existingId != BggContract.INVALID_ID) {
-			Uri uri = Collection.buildUri(existingId);
-			cpo = ContentProviderOperation.newUpdate(uri);
+
+		long internalId = getCollectionItemInternalId(collectionId, gameId);
+
+		Builder operation;
+		if (internalId != BggContract.INVALID_ID) {
+			// update
+			if (getRatingDirtyTimestamp(internalId) != NOT_DIRTY) {
+				values.remove(Collection.RATING_DIRTY_TIMESTAMP);
+			}
+			Uri uri = Collection.buildUri(internalId);
+			operation = ContentProviderOperation.newUpdate(uri);
 			maybeDeleteThumbnail(values, uri, batch);
 		} else {
-			cpo = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
+			// insert
+			operation = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
 		}
-		batch.add(cpo.withValues(values).withYieldAllowed(true).build());
+		batch.add(operation.withValues(values).withYieldAllowed(true).build());
 	}
 
+	@DebugLog
+	private long getCollectionItemInternalId(int collectionId, int gameId) {
+		long internalId;
+		if (collectionId == BggContract.INVALID_ID) {
+			internalId = ResolverUtils.queryLong(resolver,
+				Collection.CONTENT_URI,
+				Collection._ID,
+				BggContract.INVALID_ID,
+				"collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
+				new String[] { String.valueOf(gameId) });
+		} else {
+			internalId = ResolverUtils.queryLong(resolver,
+				Collection.CONTENT_URI,
+				Collection._ID,
+				BggContract.INVALID_ID,
+				Collection.COLLECTION_ID + "=?",
+				new String[] { String.valueOf(collectionId) });
+		}
+		return internalId;
+	}
+
+	@DebugLog
 	private void maybeDeleteThumbnail(ContentValues values, Uri uri, ArrayList<ContentProviderOperation> batch) {
-		if (mBrief) {
+		if (isBriefSync) {
 			// thumbnail not returned in brief mode
 			return;
 		}
@@ -261,7 +301,7 @@ public class CollectionPersister {
 			newThumbnailUrl = "";
 		}
 
-		String oldThumbnailUrl = ResolverUtils.queryString(mResolver, uri, Collection.COLLECTION_THUMBNAIL_URL);
+		String oldThumbnailUrl = ResolverUtils.queryString(resolver, uri, Collection.COLLECTION_THUMBNAIL_URL);
 		if (newThumbnailUrl.equals(oldThumbnailUrl)) {
 			// nothing to do - thumbnail hasn't changed
 			return;
@@ -271,5 +311,13 @@ public class CollectionPersister {
 		if (!TextUtils.isEmpty(thumbnailFileName)) {
 			batch.add(ContentProviderOperation.newDelete(Thumbnails.buildUri(thumbnailFileName)).build());
 		}
+	}
+
+	@DebugLog
+	private int getRatingDirtyTimestamp(long id) {
+		if (id == BggContract.INVALID_ID) {
+			return NOT_DIRTY;
+		}
+		return ResolverUtils.queryInt(resolver, Collection.buildUri(id), Collection.RATING_DIRTY_TIMESTAMP, NOT_DIRTY);
 	}
 }

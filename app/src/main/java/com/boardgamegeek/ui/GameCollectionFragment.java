@@ -31,6 +31,8 @@ import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.util.ActivityUtils;
@@ -38,12 +40,14 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -66,12 +70,10 @@ public class GameCollectionFragment extends Fragment implements
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
-	private Handler mHandler = new Handler();
-	private Runnable mUpdaterRunnable = null;
-	private boolean mSyncing;
 	@SuppressWarnings("unused") @InjectView(R.id.progress) View progress;
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView image;
@@ -81,7 +83,9 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.status_container) View statusContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.status) TextView status;
 	@SuppressWarnings("unused") @InjectView(R.id.last_modified) TextView lastModified;
+	@SuppressWarnings("unused") @InjectView(R.id.rating_container) View ratingContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView rating;
+	@SuppressWarnings("unused") @InjectView(R.id.rating_timestamp) TextView ratingTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView comment;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info_container) View privateInfoContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info) TextView privateInfo;
@@ -99,22 +103,25 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.status,
 		R.id.last_modified
-	}) List<TextView> mColorizedTextViews;
+	}) List<TextView> colorizedTextViews;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
 		R.id.card_header_condition,
 		R.id.card_header_want_parts,
 		R.id.card_header_has_parts
-	}) List<TextView> mColorizedHeaders;
+	}) List<TextView> colorizedHeaders;
 
-	private int mGameId = BggContract.INVALID_ID;
-	private int mCollectionId = BggContract.INVALID_ID;
-	private String mImageUrl;
-	private boolean mMightNeedRefreshing;
-	private Palette mPalette;
+	private Handler timeHintUpdateHandler = new Handler();
+	private Runnable timeHintUpdateRunnable = null;
+	private boolean isSyncing;
+	private int gameId = BggContract.INVALID_ID;
+	private int collectionId = BggContract.INVALID_ID;
+	private String imageUrl;
+	private boolean mightNeedRefreshing;
+	private Palette palette;
 
-	private final ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
@@ -122,31 +129,33 @@ public class GameCollectionFragment extends Fragment implements
 		}
 	};
 
+	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mHandler = new Handler();
+		timeHintUpdateHandler = new Handler();
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mCollectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
+		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		collectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
+	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		ButterKnife.inject(this, rootView);
 
-		mSwipeRefreshLayout.setOnRefreshListener(this);
-		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 
-		colorize(mPalette);
+		colorize(palette);
 		scrollContainer.addCallbacks(this);
 		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
 		if (vto.isAlive()) {
-			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+			vto.addOnGlobalLayoutListener(globalLayoutListener);
 		}
 
-		mMightNeedRefreshing = true;
+		mightNeedRefreshing = true;
 		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
 
 		return rootView;
@@ -163,8 +172,8 @@ public class GameCollectionFragment extends Fragment implements
 	@DebugLog
 	public void onResume() {
 		super.onResume();
-		if (mUpdaterRunnable != null) {
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 		}
 	}
 
@@ -172,23 +181,26 @@ public class GameCollectionFragment extends Fragment implements
 	@DebugLog
 	public void onPause() {
 		super.onPause();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
 
+	@DebugLog
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		ButterKnife.reset(this);
 	}
 
+	@DebugLog
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void onDestroy() {
@@ -200,23 +212,38 @@ public class GameCollectionFragment extends Fragment implements
 		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
 		if (vto.isAlive()) {
 			if (VersionUtils.hasJellyBean()) {
-				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+				vto.removeOnGlobalLayoutListener(globalLayoutListener);
 			} else {
 				//noinspection deprecation
-				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+				vto.removeGlobalOnLayoutListener(globalLayoutListener);
 			}
 		}
 	}
 
+	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != CollectionItem._TOKEN || mCollectionId == BggContract.INVALID_ID) {
+		if (id != CollectionItem._TOKEN || collectionId == BggContract.INVALID_ID) {
 			return null;
 		}
-		return new CursorLoader(getActivity(), Collection.CONTENT_URI, new CollectionItem().PROJECTION,
-			Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(mCollectionId) }, null);
+		if (collectionId != 0) {
+			return new CursorLoader(getActivity(),
+				Collection.CONTENT_URI,
+				new CollectionItem().PROJECTION,
+				Collection.COLLECTION_ID + "=?",
+				new String[] { String.valueOf(collectionId) },
+				null);
+		} else {
+			return new CursorLoader(getActivity(),
+				Collection.CONTENT_URI,
+				new CollectionItem().PROJECTION,
+				"collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
+				new String[] { String.valueOf(gameId) },
+				null);
+		}
 	}
 
+	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
@@ -225,7 +252,7 @@ public class GameCollectionFragment extends Fragment implements
 
 		if (loader.getId() == CollectionItem._TOKEN) {
 			if (cursor == null || !cursor.moveToFirst()) {
-				if (mMightNeedRefreshing) {
+				if (mightNeedRefreshing) {
 					triggerRefresh();
 				}
 				return;
@@ -234,15 +261,15 @@ public class GameCollectionFragment extends Fragment implements
 			CollectionItem item = new CollectionItem(cursor);
 			updateUi(item);
 			AnimationUtils.fadeOut(getActivity(), progress, true);
-			AnimationUtils.fadeIn(getActivity(), mSwipeRefreshLayout, true);
+			AnimationUtils.fadeIn(getActivity(), swipeRefreshLayout, true);
 
-			if (mMightNeedRefreshing) {
+			if (mightNeedRefreshing) {
 				long u = cursor.getLong(new CollectionItem().UPDATED);
 				if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
 					triggerRefresh();
 				}
 			}
-			mMightNeedRefreshing = false;
+			mightNeedRefreshing = false;
 		} else {
 			Timber.d("Query complete, Not Actionable: " + loader.getId());
 			if (cursor != null) {
@@ -251,11 +278,13 @@ public class GameCollectionFragment extends Fragment implements
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@DebugLog
 	@Override
 	public void onScrollChanged(int deltaX, int deltaY) {
 		if (VersionUtils.hasHoneycomb()) {
@@ -266,80 +295,112 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public void onRefresh() {
 		triggerRefresh();
 	}
 
+	@SuppressWarnings("unused")
+	@DebugLog
 	public void onEventMainThread(UpdateEvent event) {
-		mSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION;
+		isSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION;
 		updateRefreshStatus();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(UpdateCompleteEvent event) {
-		mSyncing = false;
+	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
+		isSyncing = false;
 		updateRefreshStatus();
 	}
 
 	@DebugLog
 	private void updateRefreshStatus() {
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.post(new Runnable() {
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					mSwipeRefreshLayout.setRefreshing(mSyncing);
+					swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onPaletteGenerated(Palette palette) {
-		mPalette = palette;
+		this.palette = palette;
 		colorize(palette);
 	}
 
+	@DebugLog
 	private void colorize(Palette palette) {
 		if (palette == null || scrollContainer == null) {
 			return;
 		}
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
+		@SuppressWarnings("deprecation") Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
 		statusContainer.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
 	@SuppressWarnings("unused")
+	@DebugLog
 	@OnClick(R.id.image)
 	public void onThumbnailClick(View v) {
-		if (!TextUtils.isEmpty(mImageUrl)) {
+		if (!TextUtils.isEmpty(imageUrl)) {
 			final Intent intent = new Intent(getActivity(), ImageActivity.class);
-			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
+			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 			startActivity(intent);
 		}
 	}
 
+	@DebugLog
+	@OnClick(R.id.rating_container)
+	public void onRatingClick(View v) {
+		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
+			getString(R.string.rating),
+			RATING_EDIT_FORMAT.format((double) rating.getTag()));
+		fragment.setMinValue(1.0);
+		fragment.setMaxValue(10.0);
+		fragment.setMaxMantisa(6);
+		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
+			@Override
+			public void onDoneClick(String output) {
+				double rating = Double.parseDouble(output);
+				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, rating);
+				TaskUtils.executeAsyncTask(task);
+			}
+		});
+		DialogUtils.showFragment(getActivity(), fragment, "rating_dialog");
+	}
+
+	@DebugLog
 	private void triggerRefresh() {
-		mMightNeedRefreshing = false;
-		if (mGameId != BggContract.INVALID_ID) {
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, mGameId);
+		mightNeedRefreshing = false;
+		if (gameId != BggContract.INVALID_ID) {
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
 		}
 	}
 
+	@DebugLog
 	private void updateUi(CollectionItem item) {
 		ScrimUtils.applyDefaultScrim(headerContainer);
 
 		ImageUtils.safelyLoadImage(image, item.imageUrl, this);
-		mImageUrl = item.imageUrl;
+		imageUrl = item.imageUrl;
 		name.setText(item.name.trim());
 		year.setText(item.getYearDescription());
 		lastModified.setTag(item.lastModifiedDateTime);
+		ratingContainer.setClickable(collectionId != 0);
 		rating.setText(item.getRatingDescription());
+		rating.setTag(item.rating);
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
+		ratingTimestampView.setTag(item.ratingTimestamp);
 
 		status.setText(item.getStatus());
-		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
+		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.INVISIBLE : View.VISIBLE);
 		comment.setText(item.comment);
 
 		// Private info
@@ -366,19 +427,20 @@ public class GameCollectionFragment extends Fragment implements
 		image.setTag(R.id.name, item.name);
 
 		updateTimeBasedUi();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
-		mUpdaterRunnable = new Runnable() {
+		timeHintUpdateRunnable = new Runnable() {
 			@Override
 			public void run() {
 				updateTimeBasedUi();
-				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 			}
 		};
-		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 	}
 
+	@DebugLog
 	private void updateTimeBasedUi() {
 		if (!isAdded()) {
 			return;
@@ -410,8 +472,15 @@ public class GameCollectionFragment extends Fragment implements
 				getResources().getString(R.string.needs_updating),
 				getResources().getString(R.string.updated)));
 		}
+		if (ratingTimestampView != null) {
+			long timestamp = (long) ratingTimestampView.getTag();
+			final CharSequence text = PresentationUtils.describePastTimeSpan(timestamp);
+			ratingTimestampView.setText(text);
+			ratingTimestampView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		}
 	}
 
+	@DebugLog
 	private void showSection(String text, View container, TextView comment) {
 		container.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 		comment.setText(text);
@@ -420,7 +489,7 @@ public class GameCollectionFragment extends Fragment implements
 	private class CollectionItem {
 		static final int _TOKEN = 0x31;
 
-		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
+		final String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 			Collection.COLLECTION_SORT_NAME, Collection.COMMENT, Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
 			Collection.PRIVATE_INFO_PRICE_PAID, Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
 			Collection.PRIVATE_INFO_CURRENT_VALUE, Collection.PRIVATE_INFO_QUANTITY,
@@ -431,40 +500,41 @@ public class GameCollectionFragment extends Fragment implements
 			Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE,
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
 			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
-			Collection.NUM_PLAYS };
+			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP };
 
-		int COLLECTION_ID = 1;
-		int COLLECTION_NAME = 2;
+		final int COLLECTION_ID = 1;
+		final int COLLECTION_NAME = 2;
 		// int COLLECTION_SORT_NAME = 3;
-		int COMMENT = 4;
-		int PRIVATE_INFO_PRICE_PAID_CURRENCY = 5;
-		int PRIVATE_INFO_PRICE_PAID = 6;
-		int PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 7;
-		int PRIVATE_INFO_CURRENT_VALUE = 8;
-		int PRIVATE_INFO_QUANTITY = 9;
-		int PRIVATE_INFO_ACQUISITION_DATE = 10;
-		int PRIVATE_INFO_ACQUIRED_FROM = 11;
-		int PRIVATE_INFO_COMMENT = 12;
-		int LAST_MODIFIED = 13;
+		final int COMMENT = 4;
+		final int PRIVATE_INFO_PRICE_PAID_CURRENCY = 5;
+		final int PRIVATE_INFO_PRICE_PAID = 6;
+		final int PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 7;
+		final int PRIVATE_INFO_CURRENT_VALUE = 8;
+		final int PRIVATE_INFO_QUANTITY = 9;
+		final int PRIVATE_INFO_ACQUISITION_DATE = 10;
+		final int PRIVATE_INFO_ACQUIRED_FROM = 11;
+		final int PRIVATE_INFO_COMMENT = 12;
+		final int LAST_MODIFIED = 13;
 		// int COLLECTION_THUMBNAIL_URL = 14;
-		int COLLECTION_IMAGE_URL = 15;
-		int COLLECTION_YEAR_PUBLISHED = 16;
-		int CONDITION = 17;
-		int HAS_PARTS_LIST = 18;
-		int WANT_PARTS_LIST = 19;
-		int WISHLIST_COMMENT = 20;
-		int RATING = 21;
-		int UPDATED = 22;
-		int STATUS_OWN = 23;
+		final int COLLECTION_IMAGE_URL = 15;
+		final int COLLECTION_YEAR_PUBLISHED = 16;
+		final int CONDITION = 17;
+		final int HAS_PARTS_LIST = 18;
+		final int WANT_PARTS_LIST = 19;
+		final int WISHLIST_COMMENT = 20;
+		final int RATING = 21;
+		final int UPDATED = 22;
+		final int STATUS_OWN = 23;
 		// int STATUS_PREVIOUSLY_OWNED = 24;
 		// int STATUS_FOR_TRADE = 25;
 		// int STATUS_WANT = 26;
 		// int STATUS_WANT_TO_BUY = 27;
-		int STATUS_WISHLIST = 28;
+		final int STATUS_WISHLIST = 28;
 		// int STATUS_WANT_TO_PLAY = 29;
-		int STATUS_PREORDERED = 30;
-		int STATUS_WISHLIST_PRIORITY = 31;
-		int NUM_PLAYS = 32;
+		final int STATUS_PREORDERED = 30;
+		final int STATUS_WISHLIST_PRIORITY = 31;
+		final int NUM_PLAYS = 32;
+		final int RATING_DIRTY_TIMESTAMP = 33;
 
 		final DecimalFormat currencyFormat = new DecimalFormat("#0.00");
 
@@ -475,6 +545,7 @@ public class GameCollectionFragment extends Fragment implements
 		String comment;
 		private String lastModifiedDateTime;
 		private double rating;
+		private long ratingTimestamp;
 		private long updated;
 		private String priceCurrency;
 		private double price;
@@ -492,8 +563,7 @@ public class GameCollectionFragment extends Fragment implements
 		int wishlistPriority;
 		String wishlistComment;
 		int numPlays;
-
-		private ArrayList<String> mStatus;
+		private ArrayList<String> status;
 
 		public CollectionItem() {
 			// TODO: delete this, here just to get the projection; gotta be a better way
@@ -506,6 +576,7 @@ public class GameCollectionFragment extends Fragment implements
 			// sortName = cursor.getString(COLLECTION_SORT_NAME);
 			comment = cursor.getString(COMMENT);
 			rating = cursor.getDouble(RATING);
+			ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
 			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);
 			updated = cursor.getLong(UPDATED);
 			priceCurrency = cursor.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY);
@@ -525,20 +596,20 @@ public class GameCollectionFragment extends Fragment implements
 			hasParts = cursor.getString(HAS_PARTS_LIST);
 			numPlays = cursor.getInt(NUM_PLAYS);
 
-			mStatus = new ArrayList<>();
+			status = new ArrayList<>();
 			for (int i = STATUS_OWN; i <= STATUS_PREORDERED; i++) {
 				if (cursor.getInt(i) == 1) {
 					if (i == STATUS_WISHLIST) {
-						mStatus.add(getWishlistPriority());
+						status.add(getWishlistPriority());
 					} else {
-						mStatus.add(r.getStringArray(R.array.collection_status_filter_entries)[i - STATUS_OWN]);
+						status.add(r.getStringArray(R.array.collection_status_filter_entries)[i - STATUS_OWN]);
 					}
 				}
 			}
 		}
 
 		String getStatus() {
-			String status = StringUtils.formatList(mStatus);
+			String status = StringUtils.formatList(this.status);
 			if (TextUtils.isEmpty(status)) {
 				if (numPlays > 0) {
 					return r.getString(R.string.played);
@@ -549,11 +620,7 @@ public class GameCollectionFragment extends Fragment implements
 		}
 
 		String getRatingDescription() {
-			if (rating > 0.0) {
-				return new DecimalFormat("#0.00").format(rating);
-			} else {
-				return getString(R.string.unrated);
-			}
+			return PresentationUtils.describeRating(getActivity(), rating);
 		}
 
 		String getYearDescription() {
