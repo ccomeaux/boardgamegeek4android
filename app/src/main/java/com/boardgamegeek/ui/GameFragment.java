@@ -487,7 +487,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					swipeRefreshLayout.setRefreshing(isSyncing);
+					if (swipeRefreshLayout != null) {
+						swipeRefreshLayout.setRefreshing(isSyncing);
+					}
 				}
 			});
 		}
