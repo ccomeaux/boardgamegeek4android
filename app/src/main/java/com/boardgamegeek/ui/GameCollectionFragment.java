@@ -83,6 +83,7 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.status_container) View statusContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.status) TextView status;
 	@SuppressWarnings("unused") @InjectView(R.id.last_modified) TextView lastModified;
+	@SuppressWarnings("unused") @InjectView(R.id.rating_container) View ratingContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView rating;
 	@SuppressWarnings("unused") @InjectView(R.id.rating_timestamp) TextView ratingTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView comment;
@@ -225,8 +226,21 @@ public class GameCollectionFragment extends Fragment implements
 		if (id != CollectionItem._TOKEN || collectionId == BggContract.INVALID_ID) {
 			return null;
 		}
-		return new CursorLoader(getActivity(), Collection.CONTENT_URI, new CollectionItem().PROJECTION,
-			Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collectionId) }, null);
+		if (collectionId != 0) {
+			return new CursorLoader(getActivity(),
+				Collection.CONTENT_URI,
+				new CollectionItem().PROJECTION,
+				Collection.COLLECTION_ID + "=?",
+				new String[] { String.valueOf(collectionId) },
+				null);
+		} else {
+			return new CursorLoader(getActivity(),
+				Collection.CONTENT_URI,
+				new CollectionItem().PROJECTION,
+				"collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
+				new String[] { String.valueOf(gameId) },
+				null);
+		}
 	}
 
 	@DebugLog
@@ -379,6 +393,7 @@ public class GameCollectionFragment extends Fragment implements
 		name.setText(item.name.trim());
 		year.setText(item.getYearDescription());
 		lastModified.setTag(item.lastModifiedDateTime);
+		ratingContainer.setClickable(collectionId != 0);
 		rating.setText(item.getRatingDescription());
 		rating.setTag(item.rating);
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));

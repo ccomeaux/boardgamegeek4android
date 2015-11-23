@@ -342,40 +342,31 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				loader = new CursorLoader(getActivity(), gameUri, GameQuery.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId),
-					DesignerQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId), DesignerQuery.PROJECTION, null, null, null);
 				break;
 			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(gameId),
-					ArtistQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(gameId), ArtistQuery.PROJECTION, null, null, null);
 				break;
 			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(gameId),
-					PublisherQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(gameId), PublisherQuery.PROJECTION, null, null, null);
 				break;
 			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(gameId),
-					CategoryQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(gameId), CategoryQuery.PROJECTION, null, null, null);
 				break;
 			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(gameId),
-					MechanicQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(gameId), MechanicQuery.PROJECTION, null, null, null);
 				break;
 			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId),
-					ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
 				break;
 			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId),
-					BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 				break;
 			case RankQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildRanksUri(gameId),
-					RankQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildRanksUri(gameId), RankQuery.PROJECTION, null, null, null);
 				break;
 			case CollectionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION,
-					"collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case PlaysQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlaysQuery.PROJECTION,
