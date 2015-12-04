@@ -43,6 +43,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
+import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
@@ -356,19 +357,22 @@ public class GameCollectionFragment extends Fragment implements
 		}
 	}
 
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.rating_container)
 	public void onRatingClick(View v) {
-		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-			getString(R.string.rating),
-			RATING_EDIT_FORMAT.format((double) rating.getTag()));
+		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
+		if ("0".equals(output)) {
+			output = "";
+		}
+		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(getString(R.string.rating), output);
 		fragment.setMinValue(1.0);
 		fragment.setMaxValue(10.0);
 		fragment.setMaxMantisa(6);
 		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 			@Override
 			public void onDoneClick(String output) {
-				double rating = Double.parseDouble(output);
+				double rating = StringUtils.parseDouble(output);
 				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, rating);
 				TaskUtils.executeAsyncTask(task);
 			}
@@ -395,7 +399,7 @@ public class GameCollectionFragment extends Fragment implements
 		lastModified.setTag(item.lastModifiedDateTime);
 		ratingContainer.setClickable(collectionId != 0);
 		rating.setText(item.getRatingDescription());
-		rating.setTag(item.rating);
+		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 		ratingTimestampView.setTag(item.ratingTimestamp);
 

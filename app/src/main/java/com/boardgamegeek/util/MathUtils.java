@@ -11,4 +11,8 @@ public class MathUtils {
 	public static float constrain(float number, float min, float max) {
 		return Math.max(min, Math.min(max, number));
 	}
+
+	public static double constrain(double number, double min, double max) {
+		return Math.max(min, Math.min(max, number));
+	}
 }
