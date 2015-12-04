@@ -6,13 +6,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.text.SpannableString;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.CollectionConverter;
+import com.boardgamegeek.io.CollectionRatingConverter;
+import com.boardgamegeek.io.PostConverter;
 import com.boardgamegeek.model.CollectionPostResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -28,8 +30,8 @@ import timber.log.Timber;
 
 public class SyncCollectionUpload extends SyncUploadTask {
 	ContentResolver resolver;
-	BggService service;
 	SyncResult syncResult;
+	private ContentValues contentValues;
 
 	@DebugLog
 	public SyncCollectionUpload(Context context, BggService service) {
@@ -94,7 +96,6 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private void init(SyncResult syncResult) {
 		resolver = context.getContentResolver();
-		service = Adapter.createForPost(context, new CollectionConverter());
 		this.syncResult = syncResult;
 	}
 
@@ -117,32 +118,49 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		double rating = cursor.getDouble(Query.RATING);
 		long internalId = cursor.getLong(Query._ID);
 		String collectionName = cursor.getString(Query.COLLECTION_NAME);
-		long timestamp = cursor.getLong(Query.RATING_DIRTY_TIMESTAMP);
+		long ratingTimestamp = cursor.getLong(Query.RATING_DIRTY_TIMESTAMP);
 
 		if (collectionId != BggContract.INVALID_ID) {
-			Map<String, String> form = createForm(gameId, collectionId, rating);
-			CollectionPostResponse response = postForm(form);
-			processResponse(response, internalId, collectionName);
+			contentValues = new ContentValues();
+			if (ratingTimestamp > 0) {
+				Map<String, String> form = createRatingForm(gameId, collectionId, rating);
+				CollectionPostResponse response = postForm(form, new CollectionRatingConverter());
+				if (processResponseForError(response)) {
+					return;
+				}
+				contentValues = createRatingContentValues(response.getRating());
+			}
+			if (contentValues != null && contentValues.size() > 0) {
+				resolver.update(Collection.buildUri(internalId), contentValues, null, null);
+				notifySuccess(collectionName);
+			}
 		} else {
 			Timber.d("Invalid collection ID for internal ID %1$s; game ID %2$s", internalId, gameId);
 		}
 	}
 
-	private Map<String, String> createForm(int gameId, int collectionId, double rating) {
+	private Map<String, String> createRatingForm(int gameId, int collectionId, double rating) {
+		Map<String, String> form = createForm(gameId, collectionId);
+		form.put("fieldname", "rating");
+		form.put("rating", String.valueOf(rating));
+		return form;
+	}
+
+	@NonNull
+	private Map<String, String> createForm(int gameId, int collectionId) {
 		Map<String, String> form = new HashMap<>();
 		form.put("ajax", "1");
 		form.put("action", "savedata");
 		form.put("objecttype", "thing");
 		form.put("objectid", String.valueOf(gameId));
 		form.put("collid", String.valueOf(collectionId));
-		form.put("fieldname", "rating");
-		form.put("rating", String.valueOf(rating));
 		return form;
 	}
 
-	private CollectionPostResponse postForm(Map<String, String> form) {
+	private CollectionPostResponse postForm(Map<String, String> form, PostConverter converter) {
 		CollectionPostResponse response;
 		try {
+			BggService service = Adapter.createForPost(context, converter);
 			response = service.geekCollection(form);
 		} catch (Exception e) {
 			response = new CollectionPostResponse(e);
@@ -150,28 +168,33 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return response;
 	}
 
-	private void processResponse(CollectionPostResponse response, long internalId, String collectionName) {
+	private void notifySuccess(String collectionName) {
+		syncResult.stats.numUpdates++;
+		SpannableString message = StringUtils.boldSecondString(context.getString(R.string.sync_notification_collection_upload_detail), collectionName);
+		Timber.i(message.toString());
+		notifyUser(message);
+	}
+
+	private boolean processResponseForError(CollectionPostResponse response) {
 		if (response.hasAuthError()) {
 			Timber.w("Auth error; clearing password");
 			syncResult.stats.numAuthExceptions++;
 			Authenticator.clearPassword(context);
+			return true;
 		} else if (response.hasError()) {
 			syncResult.stats.numIoExceptions++;
 			notifyUploadError(response.getErrorMessage());
-		} else {
-			syncResult.stats.numUpdates++;
-			SpannableString message = StringUtils.boldSecondString(context.getString(R.string.sync_notification_collection_upload_detail), collectionName);
-			Timber.i(message.toString());
-			updateContent(internalId, response.getRating());
-			notifyUser(message);
+			return true;
 		}
+		return false;
 	}
 
-	private void updateContent(long internalId, double rating) {
+	@NonNull
+	private ContentValues createRatingContentValues(double rating) {
 		ContentValues values = new ContentValues(2);
 		values.put(Collection.RATING, rating);
 		values.put(Collection.RATING_DIRTY_TIMESTAMP, 0);
-		resolver.update(Collection.buildUri(internalId), values, null, null);
+		return values;
 	}
 
 	private interface Query {
