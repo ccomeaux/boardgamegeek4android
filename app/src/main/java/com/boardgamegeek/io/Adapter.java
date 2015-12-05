@@ -45,7 +45,7 @@ public class Adapter {
 	}
 
 	private static Builder createBuilder() {
-		return createBuilderWithoutConverter().setConverter(new SimpleXMLConverter(false));
+		return createBuilderWithoutConverter().setConverter(new BggXMLConverter());
 	}
 
 	private static Builder createBuilderWithoutConverter() {
