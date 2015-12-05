@@ -118,7 +118,7 @@ public class CollectionPersister {
 					Timber.d("Skipped invalid game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				}
 				// To prevent timing out during a sync, periodically save the batch
-				if (batch.size() > MAXIMUM_BATCH_SIZE) {
+				if (batch.size() >= MAXIMUM_BATCH_SIZE) {
 					recordCount += processBatch(batch, context);
 				}
 			}
