@@ -27,6 +27,7 @@ import timber.log.Timber;
 
 public class CollectionPersister {
 	private static final int NOT_DIRTY = 0;
+	private static final int MAXIMUM_BATCH_SIZE = 100;
 	private final Context context;
 	private final ContentResolver resolver;
 	private final long updateTime;
@@ -105,6 +106,7 @@ public class CollectionPersister {
 	@DebugLog
 	public int save(List<CollectionItem> items) {
 		if (items != null && items.size() > 0) {
+			int recordCount = 0;
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			persistedGameIds.clear();
 			for (CollectionItem item : items) {
@@ -115,10 +117,25 @@ public class CollectionPersister {
 				} else {
 					Timber.d("Skipped invalid game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
 				}
+				// To prevent timing out during a sync, periodically save the batch
+				if (batch.size() > MAXIMUM_BATCH_SIZE) {
+					recordCount += processBatch(batch, context);
+				}
 			}
-			ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
+			recordCount += processBatch(batch, context);
 			Timber.i("Saved " + items.size() + " collection items");
-			return result.length;
+			return recordCount;
+		}
+		return 0;
+	}
+
+	private int processBatch(ArrayList<ContentProviderOperation> batch, Context context) {
+		if (batch != null && batch.size() > 0) {
+			ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
+			Timber.i("Saved a batch of %d records", results.length);
+			batch.clear();
+			persistedGameIds.clear();
+			return results.length;
 		}
 		return 0;
 	}
