@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import butterknife.ButterKnife;
@@ -139,7 +140,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	void onNumPadClick(View v) {
 		String output = outputView.getText().toString() + ((TextView) v).getText();
 		if (isWithinLength(output) && isWithinRange(output)) {
-			v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+			maybeBuzz(v);
 			outputView.setText(output);
 			enableDelete();
 		}
@@ -161,10 +162,16 @@ public class NumberPadDialogFragment extends DialogFragment {
 		if (text.length() > 0) {
 			String output = text.subSequence(0, text.length() - 1).toString();
 			if (isWithinLength(output) && isWithinRange(output)) {
-				v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+				maybeBuzz(v);
 				outputView.setText(output);
 				enableDelete();
 			}
+		}
+	}
+
+	private void maybeBuzz(View v) {
+		if (PreferencesUtils.getHapticFeedback(getContext())) {
+			v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
 		}
 	}
 
