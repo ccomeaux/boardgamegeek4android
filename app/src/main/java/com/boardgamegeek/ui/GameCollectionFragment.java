@@ -88,6 +88,7 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView rating;
 	@SuppressWarnings("unused") @InjectView(R.id.rating_timestamp) TextView ratingTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView comment;
+	@SuppressWarnings("unused") @InjectView(R.id.comment_timestamp) TextView commentTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info_container) View privateInfoContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info) TextView privateInfo;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info_comments) TextView privateInfoComments;
@@ -406,6 +407,7 @@ public class GameCollectionFragment extends Fragment implements
 		status.setText(item.getStatus());
 		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.INVISIBLE : View.VISIBLE);
 		comment.setText(item.comment);
+		commentTimestampView.setTag(item.commentTimestamp);
 
 		// Private info
 		if (item.hasPrivateInfo() || item.hasPrivateComment()) {
@@ -476,11 +478,16 @@ public class GameCollectionFragment extends Fragment implements
 				getResources().getString(R.string.needs_updating),
 				getResources().getString(R.string.updated)));
 		}
-		if (ratingTimestampView != null) {
-			long timestamp = (long) ratingTimestampView.getTag();
+		displayTimestamp(ratingTimestampView);
+		displayTimestamp(commentTimestampView);
+	}
+
+	private void displayTimestamp(TextView timestampView) {
+		if (timestampView != null) {
+			long timestamp = (long) timestampView.getTag();
 			final CharSequence text = PresentationUtils.describePastTimeSpan(timestamp);
-			ratingTimestampView.setText(text);
-			ratingTimestampView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+			timestampView.setText(text);
+			timestampView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 		}
 	}
 
@@ -504,7 +511,7 @@ public class GameCollectionFragment extends Fragment implements
 			Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE,
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
 			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
-			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP };
+			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP };
 
 		final int COLLECTION_ID = 1;
 		final int COLLECTION_NAME = 2;
@@ -539,6 +546,7 @@ public class GameCollectionFragment extends Fragment implements
 		final int STATUS_WISHLIST_PRIORITY = 31;
 		final int NUM_PLAYS = 32;
 		final int RATING_DIRTY_TIMESTAMP = 33;
+		final int COMMENT_DIRTY_TIMESTAMP = 34;
 
 		final DecimalFormat currencyFormat = new DecimalFormat("#0.00");
 
@@ -546,7 +554,8 @@ public class GameCollectionFragment extends Fragment implements
 		int id;
 		String name;
 		// String sortName;
-		String comment;
+		private String comment;
+		private long commentTimestamp;
 		private String lastModifiedDateTime;
 		private double rating;
 		private long ratingTimestamp;
@@ -579,6 +588,7 @@ public class GameCollectionFragment extends Fragment implements
 			name = cursor.getString(COLLECTION_NAME);
 			// sortName = cursor.getString(COLLECTION_SORT_NAME);
 			comment = cursor.getString(COMMENT);
+			commentTimestamp = cursor.getLong(COMMENT_DIRTY_TIMESTAMP);
 			rating = cursor.getDouble(RATING);
 			ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
 			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);

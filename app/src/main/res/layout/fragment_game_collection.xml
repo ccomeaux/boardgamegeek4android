@@ -111,12 +111,27 @@
 							android:layout_gravity="center_vertical"
 							android:orientation="horizontal">
 
-							<TextView
-								android:id="@+id/comment"
+							<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+								android:id="@+id/comment_container"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
 								android:layout_weight="1"
-								tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
+								android:foreground="?attr/selectableItemBackgroundBorderless"
+								android:orientation="vertical">
+
+								<TextView
+									android:id="@+id/comment"
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
+
+								<TextView
+									android:id="@+id/comment_timestamp"
+									style="@style/Text.Footnote2"
+									android:layout_width="wrap_content"
+									android:layout_height="wrap_content"
+									tools:text="Yesterday"/>
+							</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 
 							<com.boardgamegeek.ui.widget.ForegroundLinearLayout
 								android:id="@+id/rating_container"

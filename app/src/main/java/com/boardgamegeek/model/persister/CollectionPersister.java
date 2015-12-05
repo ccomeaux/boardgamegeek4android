@@ -254,9 +254,11 @@ public class CollectionPersister {
 
 		Builder operation;
 		if (internalId != BggContract.INVALID_ID) {
-			// update
-			if (getRatingDirtyTimestamp(internalId) != NOT_DIRTY) {
+			if (getDirtyTimestamp(internalId, Collection.RATING_DIRTY_TIMESTAMP) != NOT_DIRTY) {
 				values.remove(Collection.RATING_DIRTY_TIMESTAMP);
+			}
+			if (getDirtyTimestamp(internalId, Collection.COMMENT_DIRTY_TIMESTAMP) != NOT_DIRTY) {
+				values.remove(Collection.COMMENT);
 			}
 			Uri uri = Collection.buildUri(internalId);
 			operation = ContentProviderOperation.newUpdate(uri);
@@ -314,10 +316,10 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private int getRatingDirtyTimestamp(long id) {
-		if (id == BggContract.INVALID_ID) {
+	private int getDirtyTimestamp(long internalId, String columnName) {
+		if (internalId == BggContract.INVALID_ID) {
 			return NOT_DIRTY;
 		}
-		return ResolverUtils.queryInt(resolver, Collection.buildUri(id), Collection.RATING_DIRTY_TIMESTAMP, NOT_DIRTY);
+		return ResolverUtils.queryInt(resolver, Collection.buildUri(internalId), columnName, NOT_DIRTY);
 	}
 }
