@@ -10,10 +10,10 @@ import java.lang.reflect.Type;
 import retrofit.converter.ConversionException;
 import retrofit.mime.TypedInput;
 
-public class CollectionConverter extends PostConverter {
+public class CollectionPostConverter extends PostConverter {
 	private static final String CLASS_NAME = "class com.boardgamegeek.model.CollectionPostResponse";
 
-	public CollectionConverter() {
+	public CollectionPostConverter() {
 	}
 
 	@Override
