@@ -90,7 +90,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		/**
 		 * Called when a specific color square has been selected.
 		 */
-		public void onColorSelected(String description, int color);
+		void onColorSelected(String description, int color);
 	}
 
 	public void setOnColorSelectedListener(OnColorSelectedListener listener) {

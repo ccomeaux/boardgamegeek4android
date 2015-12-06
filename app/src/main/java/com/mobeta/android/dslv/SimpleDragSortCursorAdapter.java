@@ -29,14 +29,14 @@ import android.widget.ImageView;
  * An easy adapter to map columns from a cursor to TextViews or ImageViews defined in an XML file. You can specify which
  * columns you want, which views you want to display the columns, and the XML file that defines the appearance of these
  * views.
- * 
+ *
  * Binding occurs in two phases. First, if a {@link android.widget.SimpleCursorAdapter.ViewBinder} is available,
  * {@link ViewBinder#setViewValue(android.view.View, android.database.Cursor, int)} is invoked. If the returned value is
  * true, binding has occurred. If the returned value is false and the view to bind is a TextView,
  * {@link #setViewText(TextView, String)} is invoked. If the returned value is false and the view to bind is an
  * ImageView, {@link #setViewImage(ImageView, String)} is invoked. If no appropriate binding can be found, an
  * {@link IllegalStateException} is thrown.
- * 
+ *
  * If this adapter is used with filtering, for instance in an {@link android.widget.AutoCompleteTextView}, you can use
  * the {@link android.widget.SimpleCursorAdapter.CursorToStringConverter} and the
  * {@link android.widget.FilterQueryProvider} interfaces to get control over the filtering process. You can refer to
@@ -63,7 +63,7 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Constructor the enables auto-requery.
-	 * 
+	 *
 	 * @deprecated This option is discouraged, as it results in Cursor queries being performed on the application's UI
 	 *             thread and thus can cause poor responsiveness or even Application Not Responding errors. As an
 	 *             alternative, use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}.
@@ -78,7 +78,7 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Standard constructor.
-	 * 
+	 *
 	 * @param context
 	 *            The context where the ListView associated with this SimpleListItemFactory is running
 	 * @param layout
@@ -107,17 +107,17 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	/**
 	 * Binds all of the field names passed into the "to" parameter of the constructor with their corresponding cursor
 	 * columns as specified in the "from" parameter.
-	 * 
+	 *
 	 * Binding occurs in two phases. First, if a {@link android.widget.SimpleCursorAdapter.ViewBinder} is available,
 	 * {@link ViewBinder#setViewValue(android.view.View, android.database.Cursor, int)} is invoked. If the returned
 	 * value is true, binding has occurred. If the returned value is false and the view to bind is a TextView,
 	 * {@link #setViewText(TextView, String)} is invoked. If the returned value is false and the view to bind is an
 	 * ImageView, {@link #setViewImage(ImageView, String)} is invoked. If no appropriate binding can be found, an
 	 * {@link IllegalStateException} is thrown.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if binding cannot occur
-	 * 
+	 *
 	 * @see android.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
 	 * @see #getViewBinder()
 	 * @see #setViewBinder(android.widget.SimpleCursorAdapter.ViewBinder)
@@ -160,9 +160,9 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Returns the {@link ViewBinder} used to bind data to views.
-	 * 
+	 *
 	 * @return a ViewBinder or null if the binder does not exist
-	 * 
+	 *
 	 * @see #bindView(android.view.View, android.content.Context, android.database.Cursor)
 	 * @see #setViewBinder(android.widget.SimpleCursorAdapter.ViewBinder)
 	 */
@@ -172,10 +172,10 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Sets the binder used to bind data to views.
-	 * 
+	 *
 	 * @param viewBinder
 	 *            the binder used to bind data to views, can be null to remove the existing binder
-	 * 
+	 *
 	 * @see #bindView(android.view.View, android.content.Context, android.database.Cursor)
 	 * @see #getViewBinder()
 	 */
@@ -186,12 +186,12 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	/**
 	 * Called by bindView() to set the image for an ImageView but only if there is no existing ViewBinder or if the
 	 * existing ViewBinder cannot handle binding to an ImageView.
-	 * 
+	 *
 	 * By default, the value will be treated as an image resource. If the value cannot be used as an image resource, the
 	 * value is used as an image Uri.
-	 * 
+	 *
 	 * Intended to be overridden by Adapters that need to filter strings retrieved from the database.
-	 * 
+	 *
 	 * @param v
 	 *            ImageView to receive an image
 	 * @param value
@@ -208,9 +208,9 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	/**
 	 * Called by bindView() to set the text for a TextView but only if there is no existing ViewBinder or if the
 	 * existing ViewBinder cannot handle binding to a TextView.
-	 * 
+	 *
 	 * Intended to be overridden by Adapters that need to filter strings retrieved from the database.
-	 * 
+	 *
 	 * @param v
 	 *            TextView to receive text
 	 * @param text
@@ -222,9 +222,9 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Return the index of the column used to get a String representation of the Cursor.
-	 * 
+	 *
 	 * @return a valid index in the current Cursor or -1
-	 * 
+	 *
 	 * @see android.widget.CursorAdapter#convertToString(android.database.Cursor)
 	 * @see #setStringConversionColumn(int)
 	 * @see #setCursorToStringConverter(android.widget.SimpleCursorAdapter.CursorToStringConverter)
@@ -237,10 +237,10 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	/**
 	 * Defines the index of the column in the Cursor used to get a String representation of that Cursor. The column is
 	 * used to convert the Cursor to a String only when the current CursorToStringConverter is null.
-	 * 
+	 *
 	 * @param stringConversionColumn
 	 *            a valid index in the current Cursor or -1 to use the default conversion mechanism
-	 * 
+	 *
 	 * @see android.widget.CursorAdapter#convertToString(android.database.Cursor)
 	 * @see #getStringConversionColumn()
 	 * @see #setCursorToStringConverter(android.widget.SimpleCursorAdapter.CursorToStringConverter)
@@ -252,10 +252,10 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Returns the converter used to convert the filtering Cursor into a String.
-	 * 
+	 *
 	 * @return null if the converter does not exist or an instance of
 	 *         {@link android.widget.SimpleCursorAdapter.CursorToStringConverter}
-	 * 
+	 *
 	 * @see #setCursorToStringConverter(android.widget.SimpleCursorAdapter.CursorToStringConverter)
 	 * @see #getStringConversionColumn()
 	 * @see #setStringConversionColumn(int)
@@ -267,10 +267,10 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Sets the converter used to convert the filtering Cursor into a String.
-	 * 
+	 *
 	 * @param cursorToStringConverter
 	 *            the Cursor to String converter, or null to remove the converter
-	 * 
+	 *
 	 * @see #setCursorToStringConverter(android.widget.SimpleCursorAdapter.CursorToStringConverter)
 	 * @see #getStringConversionColumn()
 	 * @see #setStringConversionColumn(int)
@@ -284,10 +284,10 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	 * Returns a CharSequence representation of the specified Cursor as defined by the current CursorToStringConverter.
 	 * If no CursorToStringConverter has been set, the String conversion column is used instead. If the conversion
 	 * column is -1, the returned String is empty if the cursor is null or Cursor.toString().
-	 * 
+	 *
 	 * @param cursor
 	 *            the Cursor to convert to a CharSequence
-	 * 
+	 *
 	 * @return a non-null CharSequence representing the cursor
 	 */
 	@Override
@@ -304,7 +304,7 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	/**
 	 * Create a map from an array of strings to an array of column-id integers in cursor c. If c is null, the array will
 	 * be discarded.
-	 * 
+	 *
 	 * @param c
 	 *            the cursor to find the columns from
 	 * @param from
@@ -336,7 +336,7 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * Change the cursor and change the column-to-view mappings at the same time.
-	 * 
+	 *
 	 * @param c
 	 *            The database cursor. Can be null if the cursor is not available yet.
 	 * @param from
@@ -359,28 +359,28 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 
 	/**
 	 * This class can be used by external clients of SimpleCursorAdapter to bind values fom the Cursor to views.
-	 * 
+	 *
 	 * You should use this class to bind values from the Cursor to views that are not directly supported by
 	 * SimpleCursorAdapter or to change the way binding occurs for views supported by SimpleCursorAdapter.
-	 * 
+	 *
 	 * @see SimpleCursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
 	 * @see SimpleCursorAdapter#setViewImage(ImageView, String)
 	 * @see SimpleCursorAdapter#setViewText(TextView, String)
 	 */
-	public static interface ViewBinder {
+	public interface ViewBinder {
 		/**
 		 * Binds the Cursor column defined by the specified index to the specified view.
-		 * 
+		 *
 		 * When binding is handled by this ViewBinder, this method must return true. If this method returns false,
 		 * SimpleCursorAdapter will attempts to handle the binding on its own.
-		 * 
+		 *
 		 * @param view
 		 *            the view to bind the data to
 		 * @param cursor
 		 *            the cursor to get the data from
 		 * @param columnIndex
 		 *            the column at which the data can be found in the cursor
-		 * 
+		 *
 		 * @return true if the data was bound to the view, false otherwise
 		 */
 		boolean setViewValue(View view, Cursor cursor, int columnIndex);
@@ -389,16 +389,16 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	/**
 	 * This class can be used by external clients of SimpleCursorAdapter to define how the Cursor should be converted to
 	 * a String.
-	 * 
+	 *
 	 * @see android.widget.CursorAdapter#convertToString(android.database.Cursor)
 	 */
-	public static interface CursorToStringConverter {
+	public interface CursorToStringConverter {
 		/**
 		 * Returns a CharSequence representing the specified Cursor.
-		 * 
+		 *
 		 * @param cursor
 		 *            the cursor for which a CharSequence representation is requested
-		 * 
+		 *
 		 * @return a non-null CharSequence representing the cursor
 		 */
 		CharSequence convertToString(Cursor cursor);
