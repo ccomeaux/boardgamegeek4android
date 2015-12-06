@@ -12,7 +12,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.CollectionConverter;
+import com.boardgamegeek.io.CollectionPostConverter;
 import com.boardgamegeek.model.CollectionPostResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -94,7 +94,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private void init(SyncResult syncResult) {
 		resolver = context.getContentResolver();
-		service = Adapter.createForPost(context, new CollectionConverter());
+		service = Adapter.createForPost(context, new CollectionPostConverter());
 		this.syncResult = syncResult;
 	}
 
