@@ -30,6 +30,7 @@ public class PreferencesUtils {
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
+	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
 
 	private PreferencesUtils() {
 	}
@@ -283,6 +284,10 @@ public class PreferencesUtils {
 
 	public static void sawNavDrawer(Context context) {
 		putBoolean(context, KEY_HAS_SEEN_NAV_DRAWER, true);
+	}
+
+	public static boolean getHapticFeedback(Context context) {
+		return getBoolean(context, KEY_HAPTIC_FEEDBACK, true);
 	}
 
 	private static boolean remove(Context context, String key) {

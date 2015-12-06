@@ -34,6 +34,7 @@ public class DialogUtils {
 		}
 		ft.addToBackStack(null);
 
+		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
 		dialog.setArguments(arguments);
 		dialog.show(ft, tag);
 	}

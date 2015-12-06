@@ -81,7 +81,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		List<SyncTask> tasks = createTasks(context, type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
-				Timber.i("Cancelling all syncs");
+				Timber.i("Cancelling all sync tasks");
 				if (currentTask != null) {
 					showCancel(currentTask.getNotification());
 				}

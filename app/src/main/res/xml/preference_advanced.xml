@@ -13,5 +13,10 @@
 		android:summaryOff="@string/pref_advanced_debug_inserts_off"
 		android:summaryOn="@string/pref_advanced_debug_inserts_on"
 		android:title="@string/pref_advanced_debug_inserts"/>
+	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="haptic_feedback"
+		android:title="@string/pref_advanced_haptic_feedback"
+		android:summary="@string/pref_advanced_haptic_feedback_summary"/>
 
 </PreferenceScreen>
