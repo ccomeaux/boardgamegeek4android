@@ -8,7 +8,6 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
 public class PlayersActivity extends TopLevelSinglePaneActivity implements PlayersFragment.Callbacks {

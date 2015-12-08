@@ -74,7 +74,7 @@ public class ColorUtils {
 				return TRANSPARENT;
 			}
 		} else {
-			Integer color = sColorNameMap.get(formatKey(colorString));
+			Integer color = colorNameMap.get(formatKey(colorString));
 			if (color != null) {
 				return color;
 			}
@@ -111,39 +111,39 @@ public class ColorUtils {
 	private static final int[] RATING_COLORS = { 0x00ffffff, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
 		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
 
-	private static final ArrayMap<String, Integer> sColorNameMap;
-	private static final ArrayList<Pair<String, Integer>> sColorNameList;
+	private static final ArrayMap<String, Integer> colorNameMap;
+	private static final ArrayList<Pair<String, Integer>> colorNameList;
 
 	static {
-		sColorNameList = new ArrayList<>();
-		sColorNameList.add(new Pair<>("Red", RED));
-		sColorNameList.add(new Pair<>("Yellow", YELLOW));
-		sColorNameList.add(new Pair<>("Blue", BLUE));
-		sColorNameList.add(new Pair<>("Green", GREEN));
-		sColorNameList.add(new Pair<>("Purple", PURPLE));
-		sColorNameList.add(new Pair<>("Orange", ORANGE));
-		sColorNameList.add(new Pair<>("White", WHITE));
-		sColorNameList.add(new Pair<>("Black", BLACK));
-		sColorNameList.add(new Pair<>("Natural", NATURAL));
-		sColorNameList.add(new Pair<>("Brown", BROWN));
-		sColorNameList.add(new Pair<>("Tan", TAN));
-		sColorNameList.add(new Pair<>("Gray", GRAY));
-		sColorNameList.add(new Pair<>("Gold", GOLD));
-		sColorNameList.add(new Pair<>("Silver", SILVER));
-		sColorNameList.add(new Pair<>("Bronze", BRONZE));
-		sColorNameList.add(new Pair<>("Ivory", IVORY));
-		sColorNameList.add(new Pair<>("Rose", ROSE));
-		sColorNameList.add(new Pair<>("Pink", PINK));
-		sColorNameList.add(new Pair<>("Teal", TEAL));
-		// sColorNameList.add(new Pair<String, Integer>("Aqua", AQUA));
-		// sColorNameList.add(new Pair<String, Integer>("Cyan", CYAN));
-		// sColorNameList.add(new Pair<String, Integer>("Magenta", MAGENTA));
-		// sColorNameList.add(new Pair<String, Integer>("Light Gray", LTGRAY));
-		// sColorNameList.add(new Pair<String, Integer>("Dark Gray", DKGRAY));
+		colorNameList = new ArrayList<>();
+		colorNameList.add(new Pair<>("Red", RED));
+		colorNameList.add(new Pair<>("Yellow", YELLOW));
+		colorNameList.add(new Pair<>("Blue", BLUE));
+		colorNameList.add(new Pair<>("Green", GREEN));
+		colorNameList.add(new Pair<>("Purple", PURPLE));
+		colorNameList.add(new Pair<>("Orange", ORANGE));
+		colorNameList.add(new Pair<>("White", WHITE));
+		colorNameList.add(new Pair<>("Black", BLACK));
+		colorNameList.add(new Pair<>("Natural", NATURAL));
+		colorNameList.add(new Pair<>("Brown", BROWN));
+		colorNameList.add(new Pair<>("Tan", TAN));
+		colorNameList.add(new Pair<>("Gray", GRAY));
+		colorNameList.add(new Pair<>("Gold", GOLD));
+		colorNameList.add(new Pair<>("Silver", SILVER));
+		colorNameList.add(new Pair<>("Bronze", BRONZE));
+		colorNameList.add(new Pair<>("Ivory", IVORY));
+		colorNameList.add(new Pair<>("Rose", ROSE));
+		colorNameList.add(new Pair<>("Pink", PINK));
+		colorNameList.add(new Pair<>("Teal", TEAL));
+		// colorNameList.add(new Pair<String, Integer>("Aqua", AQUA));
+		// colorNameList.add(new Pair<String, Integer>("Cyan", CYAN));
+		// colorNameList.add(new Pair<String, Integer>("Magenta", MAGENTA));
+		// colorNameList.add(new Pair<String, Integer>("Light Gray", LTGRAY));
+		// colorNameList.add(new Pair<String, Integer>("Dark Gray", DKGRAY));
 
-		sColorNameMap = new ArrayMap<>();
-		for (Pair<String, Integer> pair : sColorNameList) {
-			sColorNameMap.put(formatKey(pair.first), pair.second);
+		colorNameMap = new ArrayMap<>();
+		for (Pair<String, Integer> pair : colorNameList) {
+			colorNameMap.put(formatKey(pair.first), pair.second);
 		}
 	}
 
@@ -153,7 +153,7 @@ public class ColorUtils {
 
 	public static List<Pair<String, Integer>> getColorList() {
 		//noinspection unchecked
-		return (List<Pair<String, Integer>>) sColorNameList.clone();
+		return (List<Pair<String, Integer>>) colorNameList.clone();
 	}
 
 	@SuppressWarnings("deprecation")
