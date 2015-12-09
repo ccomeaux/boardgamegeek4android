@@ -16,6 +16,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRatingConverter;
 import com.boardgamegeek.io.PostConverter;
 import com.boardgamegeek.model.CollectionPostResponse;
+import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.ui.CollectionActivity;
@@ -124,7 +125,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			contentValues = new ContentValues();
 			if (ratingTimestamp > 0) {
 				Map<String, String> form = createRatingForm(gameId, collectionId, rating);
-				CollectionPostResponse response = postForm(form, new CollectionRatingConverter());
+				CollectionRatingPostResponse response = postForm(form, new CollectionRatingConverter());
 				if (processResponseForError(response)) {
 					return;
 				}
@@ -157,13 +158,13 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return form;
 	}
 
-	private CollectionPostResponse postForm(Map<String, String> form, PostConverter converter) {
-		CollectionPostResponse response;
+	private CollectionRatingPostResponse postForm(Map<String, String> form, PostConverter converter) {
+		CollectionRatingPostResponse response;
 		try {
 			BggService service = Adapter.createForPost(context, converter);
 			response = service.geekCollection(form);
 		} catch (Exception e) {
-			response = new CollectionPostResponse(e);
+			response = new CollectionRatingPostResponse(e);
 		}
 		return response;
 	}
