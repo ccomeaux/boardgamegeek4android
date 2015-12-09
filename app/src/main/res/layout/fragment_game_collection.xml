@@ -121,6 +121,7 @@
 
 								<TextView
 									android:id="@+id/comment"
+									style="@style/Text"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
 									tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>

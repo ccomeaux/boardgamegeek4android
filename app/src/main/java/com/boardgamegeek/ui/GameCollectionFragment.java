@@ -31,7 +31,10 @@ import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.UpdateCollectionItemCommentTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
@@ -87,6 +90,7 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.rating_container) View ratingContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView rating;
 	@SuppressWarnings("unused") @InjectView(R.id.rating_timestamp) TextView ratingTimestampView;
+	@SuppressWarnings("unused") @InjectView(R.id.comment_container) ViewGroup commentContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView comment;
 	@SuppressWarnings("unused") @InjectView(R.id.comment_timestamp) TextView commentTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info_container) View privateInfoContainer;
@@ -113,6 +117,7 @@ public class GameCollectionFragment extends Fragment implements
 		R.id.card_header_want_parts,
 		R.id.card_header_has_parts
 	}) List<TextView> colorizedHeaders;
+	private EditTextDialogFragment commentDialogFragment;
 
 	private Handler timeHintUpdateHandler = new Handler();
 	private Runnable timeHintUpdateRunnable = null;
@@ -360,6 +365,29 @@ public class GameCollectionFragment extends Fragment implements
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
+	@OnClick(R.id.comment_container)
+	public void onCommentClick(View v) {
+		ensureCommentDialogFragment();
+		commentDialogFragment.setText(comment.getText().toString());
+		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
+	}
+
+	private void ensureCommentDialogFragment() {
+		if (commentDialogFragment == null) {
+			commentDialogFragment = EditTextDialogFragment.newInstance(R.string.title_comments, new EditTextDialogListener() {
+				@Override
+				public void onFinishEditDialog(String inputText) {
+					UpdateCollectionItemCommentTask task =
+						new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, inputText);
+					TaskUtils.executeAsyncTask(task);
+
+				}
+			});
+		}
+	}
+
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@DebugLog
 	@OnClick(R.id.rating_container)
 	public void onRatingClick(View v) {
 		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
@@ -405,6 +433,7 @@ public class GameCollectionFragment extends Fragment implements
 		ratingTimestampView.setTag(item.ratingTimestamp);
 
 		status.setText(item.getStatus());
+		commentContainer.setClickable(collectionId != 0);
 		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.INVISIBLE : View.VISIBLE);
 		comment.setText(item.comment);
 		commentTimestampView.setTag(item.commentTimestamp);
