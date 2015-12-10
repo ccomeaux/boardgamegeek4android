@@ -93,6 +93,7 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView rating;
 	@SuppressWarnings("unused") @InjectView(R.id.rating_timestamp) TextView ratingTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.comment_container) ViewGroup commentContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.add_comment) View addCommentView;
 	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView comment;
 	@SuppressWarnings("unused") @InjectView(R.id.comment_timestamp) TextView commentTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info_container) View privateInfoContainer;
@@ -445,8 +446,8 @@ public class GameCollectionFragment extends Fragment implements
 
 		status.setText(item.getStatus());
 		commentContainer.setClickable(collectionId != 0);
-		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.INVISIBLE : View.VISIBLE);
-		comment.setText(item.comment);
+		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
+		PresentationUtils.setTextOrHide(comment, item.comment);
 		commentTimestampView.setTag(item.commentTimestamp);
 
 		// Private info

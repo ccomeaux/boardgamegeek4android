@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.view.View;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
@@ -94,6 +96,13 @@ public class PresentationUtils {
 			return firstName.trim();
 		} else {
 			return firstName.trim() + " " + lastName.trim();
+		}
+	}
+
+	public static void setTextOrHide(TextView textView, CharSequence text) {
+		if (textView != null) {
+			textView.setText(text);
+			textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 		}
 	}
 }
