@@ -77,7 +77,7 @@ public class EditTextDialogFragment extends DialogFragment {
 			});
 
 		final AlertDialog dialog = builder.create();
-		editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+		editText.setInputType(editText.getInputType() | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 		requestFocus(dialog);
 		return dialog;
 	}
