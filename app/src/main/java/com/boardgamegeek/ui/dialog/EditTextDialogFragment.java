@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -11,6 +12,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager.LayoutParams;
 import android.widget.EditText;
 
@@ -26,18 +28,21 @@ public class EditTextDialogFragment extends DialogFragment {
 
 	private static final String KEY_TITLE_ID = "title_id";
 	@StringRes private int titleResId;
-	@SuppressWarnings("unused") @InjectView(R.id.edit_text) EditText editText;
+	private ViewGroup root;
 	private EditTextDialogListener listener;
+	@SuppressWarnings("unused") @InjectView(R.id.edit_text) EditText editText;
 	private String existingText;
 
-	public static EditTextDialogFragment newInstance(@StringRes int titleResId, EditTextDialogListener listener) {
+	@NonNull
+	public static EditTextDialogFragment newInstance(@StringRes int titleResId, @Nullable ViewGroup root, EditTextDialogListener listener) {
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, listener);
+		fragment.initialize(titleResId, root, listener);
 		return fragment;
 	}
 
-	private void initialize(@StringRes int titleResId, EditTextDialogListener listener) {
+	private void initialize(@StringRes int titleResId, @Nullable ViewGroup root, EditTextDialogListener listener) {
 		this.titleResId = titleResId;
+		this.root = root;
 		this.listener = listener;
 		setArguments(this.titleResId);
 	}
@@ -52,7 +57,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	@NonNull
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-		View rootView = layoutInflater.inflate(R.layout.dialog_edit_text, null);
+		View rootView = layoutInflater.inflate(R.layout.dialog_edit_text, root, false);
 		ButterKnife.inject(this, rootView);
 
 		if (getArguments() != null) {
@@ -93,7 +98,7 @@ public class EditTextDialogFragment extends DialogFragment {
 		}
 	}
 
-	private void requestFocus(AlertDialog dialog) {
+	private void requestFocus(@NonNull AlertDialog dialog) {
 		editText.requestFocus();
 		dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
