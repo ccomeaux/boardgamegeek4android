@@ -26,10 +26,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.UpdateCollectionItemCommentTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
@@ -127,6 +129,7 @@ public class GameCollectionFragment extends Fragment implements
 	private String imageUrl;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
+	private boolean needsUploading;
 
 	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -196,6 +199,8 @@ public class GameCollectionFragment extends Fragment implements
 	@DebugLog
 	@Override
 	public void onStop() {
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+		needsUploading = false;
 		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
@@ -319,6 +324,12 @@ public class GameCollectionFragment extends Fragment implements
 	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
 		isSyncing = false;
 		updateRefreshStatus();
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEvent(@SuppressWarnings("UnusedParameters") CollectionItemUpdatedEvent event) {
+		needsUploading = true;
 	}
 
 	@DebugLog
