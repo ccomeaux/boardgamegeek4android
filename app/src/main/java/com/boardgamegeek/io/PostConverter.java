@@ -25,6 +25,18 @@ public abstract class PostConverter implements Converter {
 	}
 
 	@Override
+	public Object fromBody(TypedInput body, Type type) throws ConversionException {
+		markBody(body);
+		String content = getContent(body);
+		if (typeIsExpected(type)) {
+			return convertContent(content);
+		}
+		throw new ConversionException(content);
+	}
+
+	protected abstract Object convertContent(String content);
+
+	@Override
 	public TypedOutput toBody(Object object) {
 		throw new UnsupportedOperationException();
 	}
