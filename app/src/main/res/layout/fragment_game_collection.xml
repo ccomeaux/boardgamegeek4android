@@ -115,8 +115,11 @@
 								android:id="@+id/comment_container"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
+								android:layout_gravity="center_vertical"
 								android:layout_weight="1"
 								android:foreground="?attr/selectableItemBackgroundBorderless"
+								android:gravity="center_vertical"
+								android:minHeight="@dimen/edit_row_height"
 								android:orientation="vertical">
 
 								<TextView
@@ -141,6 +144,8 @@
 								android:layout_gravity="top|right"
 								android:layout_marginLeft="@dimen/padding_standard"
 								android:foreground="?attr/selectableItemBackgroundBorderless"
+								android:gravity="center_vertical"
+								android:minHeight="@dimen/edit_row_height"
 								android:orientation="vertical">
 
 								<TextView
