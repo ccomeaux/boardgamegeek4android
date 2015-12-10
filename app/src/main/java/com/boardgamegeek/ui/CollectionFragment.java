@@ -116,6 +116,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private android.view.MenuItem logPlayMenuItem;
 	private android.view.MenuItem logPlayQuickMenuItem;
 	private android.view.MenuItem bggLinkMenuItem;
+	private CollectionSorterFactory collectionSorterFactory;
 
 	@Override
 	@DebugLog
@@ -165,11 +166,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		sorter = CollectionSorterFactory.create(getActivity(), sortType);
+		sorter = getCollectionSorter(sortType);
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
 		}
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+	}
+
+	private CollectionSorter getCollectionSorter(int sortType) {
+		if (collectionSorterFactory == null){
+			collectionSorterFactory = new CollectionSorterFactory(getActivity());
+		}
+		return collectionSorterFactory.create(sortType);
 	}
 
 	@DebugLog
@@ -449,7 +457,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
 				viewName = cursor.getString(ViewQuery.NAME);
-				sorter = CollectionSorterFactory.create(getActivity(), cursor.getInt(ViewQuery.SORT_TYPE));
+				sorter = getCollectionSorter(cursor.getInt(ViewQuery.SORT_TYPE));
 				filters.clear();
 				do {
 					CollectionFilterer filter = CollectionFilterDataFactory.create(getActivity(),
@@ -573,7 +581,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
-		sorter = CollectionSorterFactory.create(getActivity(), sortType);
+		sorter = getCollectionSorter(sortType);
 		resetScrollState();
 		requery();
 	}
@@ -760,7 +768,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		viewName = "";
 		resetScrollState();
 		filters.clear();
-		sorter = CollectionSorterFactory.create(getActivity(), CollectionSorterFactory.TYPE_DEFAULT);
+		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
 		requery();
 	}
 

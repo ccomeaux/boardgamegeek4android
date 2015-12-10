@@ -3,6 +3,9 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CollectionSorterFactory {
 	public static final int TYPE_UNKNOWN = 0;
 	public static final int TYPE_COLLECTION_NAME = 1;
@@ -25,47 +28,38 @@ public class CollectionSorterFactory {
 	public static final int TYPE_ACQUISITION_DATE = 18;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
-	public static CollectionSorter create(@NonNull Context context, int type) {
-		switch (type) {
-			case TYPE_COLLECTION_NAME:
-				return new CollectionNameSorter(context);
-			case TYPE_GEEK_RATING:
-				return new GeekRatingSorter(context);
-			case TYPE_YEAR_PUBLISHED_ASC:
-				return new YearPublishedAscendingSorter(context);
-			case TYPE_YEAR_PUBLISHED_DESC:
-				return new YearPublishedDescendingSorter(context);
-			case TYPE_PLAY_TIME_ASC:
-				return new PlayTimeAscendingSorter(context);
-			case TYPE_PLAY_TIME_DESC:
-				return new PlayTimeDescendingSorter(context);
-			case TYPE_AGE_ASC:
-				return new SuggestedAgeAscendingSorter(context);
-			case TYPE_AGE_DESC:
-				return new SuggestedAgeDescendingSorter(context);
-			case TYPE_AVERAGE_WEIGHT_ASC:
-				return new AverageWeightAscendingSorter(context);
-			case TYPE_AVERAGE_WEIGHT_DESC:
-				return new AverageWeightDescendingSorter(context);
-			case TYPE_PLAY_COUNT_ASC:
-				return new PlayCountAscendingSorter(context);
-			case TYPE_PLAY_COUNT_DESC:
-				return new PlayCountDescendingSorter(context);
-			case TYPE_WISHLIST_PRIORITY:
-				return new WishlistPrioritySorter(context);
-			case TYPE_LAST_VIEWED:
-				return new LastViewedSorter(context);
-			case TYPE_MY_RATING:
-				return new MyRatingSorter(context);
-			case TYPE_RANK:
-				return new RankSorter(context);
-			case TYPE_AVERAGE_RATING:
-				return new AverageRatingSorter(context);
-			case TYPE_ACQUISITION_DATE:
-				return new AcquisitionDateSorter(context);
-			case TYPE_UNKNOWN:
-			default:
-				return null;
+	private final Context context;
+	private List<CollectionSorter> sorters;
+
+	public CollectionSorterFactory(@NonNull Context context) {
+		this.context = context;
+		sorters = new ArrayList<>();
+		sorters.add(new CollectionNameSorter(context));
+		sorters.add(new GeekRatingSorter(context));
+		sorters.add(new YearPublishedAscendingSorter(context));
+		sorters.add(new YearPublishedDescendingSorter(context));
+		sorters.add(new PlayTimeAscendingSorter(context));
+		sorters.add(new PlayTimeDescendingSorter(context));
+		sorters.add(new SuggestedAgeAscendingSorter(context));
+		sorters.add(new SuggestedAgeDescendingSorter(context));
+		sorters.add(new AverageWeightAscendingSorter(context));
+		sorters.add(new AverageWeightDescendingSorter(context));
+		sorters.add(new PlayCountAscendingSorter(context));
+		sorters.add(new PlayCountDescendingSorter(context));
+		sorters.add(new WishlistPrioritySorter(context));
+		sorters.add(new LastViewedSorter(context));
+		sorters.add(new MyRatingSorter(context));
+		sorters.add(new RankSorter(context));
+		sorters.add(new AverageRatingSorter(context));
+		sorters.add(new AcquisitionDateSorter(context));
+	}
+
+	public CollectionSorter create(int type) {
+		for (CollectionSorter sorter : sorters) {
+			if (sorter.getType() == type) {
+				return sorter;
+			}
 		}
+		return null;
 	}
 }
