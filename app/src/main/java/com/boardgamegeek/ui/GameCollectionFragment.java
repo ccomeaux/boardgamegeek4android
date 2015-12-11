@@ -386,14 +386,19 @@ public class GameCollectionFragment extends Fragment implements
 
 	private void ensureCommentDialogFragment() {
 		if (commentDialogFragment == null) {
-			commentDialogFragment = EditTextDialogFragment.newInstance(R.string.title_comments, commentContainer, new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					UpdateCollectionItemCommentTask task = new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, inputText);
-					TaskUtils.executeAsyncTask(task);
+			commentDialogFragment = EditTextDialogFragment.newInstance(
+				R.string.title_comments,
+				commentContainer,
+				new EditTextDialogListener() {
+					@Override
+					public void onFinishEditDialog(String inputText) {
+						UpdateCollectionItemCommentTask task = new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, inputText);
+						TaskUtils.executeAsyncTask(task);
 
-				}
-			});
+					}
+				},
+				true
+			);
 		}
 	}
 

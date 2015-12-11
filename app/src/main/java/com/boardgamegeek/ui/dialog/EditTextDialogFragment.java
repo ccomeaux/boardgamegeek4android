@@ -30,20 +30,42 @@ public class EditTextDialogFragment extends DialogFragment {
 	@StringRes private int titleResId;
 	private ViewGroup root;
 	private EditTextDialogListener listener;
+	private boolean isLongForm;
+
 	@SuppressWarnings("unused") @InjectView(R.id.edit_text) EditText editText;
 	private String existingText;
 
 	@NonNull
-	public static EditTextDialogFragment newInstance(@StringRes int titleResId, @Nullable ViewGroup root, EditTextDialogListener listener) {
+	public static EditTextDialogFragment newInstance(
+		@StringRes int titleResId,
+		@Nullable ViewGroup root,
+		EditTextDialogListener listener) {
+
+		return newInstance(titleResId, root, listener, false);
+	}
+
+	@NonNull
+	public static EditTextDialogFragment newInstance(
+		@StringRes int titleResId,
+		@Nullable ViewGroup root,
+		EditTextDialogListener listener,
+		boolean isLongForm) {
+
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener);
+		fragment.initialize(titleResId, root, listener, isLongForm);
 		return fragment;
 	}
 
-	private void initialize(@StringRes int titleResId, @Nullable ViewGroup root, EditTextDialogListener listener) {
+	private void initialize(
+		@StringRes int titleResId,
+		@Nullable ViewGroup root,
+		EditTextDialogListener listener,
+		boolean isLongForm) {
+
 		this.titleResId = titleResId;
 		this.root = root;
 		this.listener = listener;
+		this.isLongForm = isLongForm;
 		setArguments(this.titleResId);
 	}
 
@@ -82,7 +104,11 @@ public class EditTextDialogFragment extends DialogFragment {
 			});
 
 		final AlertDialog dialog = builder.create();
-		editText.setInputType(editText.getInputType() | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+		int inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+		if (isLongForm) {
+			inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+		}
+		editText.setInputType(editText.getInputType() | inputType);
 		requestFocus(dialog);
 		return dialog;
 	}
