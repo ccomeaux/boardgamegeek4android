@@ -450,12 +450,11 @@ public class GameCollectionFragment extends Fragment implements
 		commentTimestampView.setTag(item.commentTimestamp);
 
 		// Private info
-		if (item.hasPrivateInfo() || item.hasPrivateComment()) {
+		if (item.hasPrivateInfo() || TextUtils.isEmpty(item.privateComment)) {
 			privateInfoContainer.setVisibility(View.VISIBLE);
 			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 			privateInfo.setText(item.getPrivateInfo());
-			privateInfoComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
-			privateInfoComments.setText(item.privateComment);
+			PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
 		} else {
 			privateInfoContainer.setVisibility(View.GONE);
 		}
@@ -715,10 +714,6 @@ public class GameCollectionFragment extends Fragment implements
 
 		boolean hasValue() {
 			return currentValue > 0.0;
-		}
-
-		boolean hasPrivateComment() {
-			return !TextUtils.isEmpty(privateComment);
 		}
 
 		CharSequence getPrivateInfo() {
