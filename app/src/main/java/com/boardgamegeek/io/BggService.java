@@ -1,6 +1,7 @@
 package com.boardgamegeek.io;
 
-import com.boardgamegeek.model.CollectionPostResponse;
+import com.boardgamegeek.model.CollectionCommentPostResponse;
+import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
@@ -154,7 +155,11 @@ public interface BggService {
 
 	@FormUrlEncoded
 	@POST("/geekcollection.php")
-	CollectionPostResponse geekCollection(@FieldMap Map<String, String> form);
+	CollectionRatingPostResponse geekCollectionRating(@FieldMap Map<String, String> form);
+
+	@FormUrlEncoded
+	@POST("/geekcollection.php")
+	CollectionCommentPostResponse geekCollectionComment(@FieldMap Map<String, String> form);
 
 	@GET("/xmlapi2/thing")
 	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);

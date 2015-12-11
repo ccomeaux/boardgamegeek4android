@@ -6,8 +6,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -24,15 +22,15 @@ import hugo.weaving.DebugLog;
  * Renames a location in all plays, then triggers an update.
  */
 public class RenameLocationTask extends AsyncTask<String, Void, String> {
-	private final Context mContext;
-	private final String mOldLocation;
-	private final String mNewLocation;
+	private final Context context;
+	private final String oldLocationName;
+	private final String newLocationName;
 
 	@DebugLog
 	public RenameLocationTask(@NonNull Context context, String oldLocation, String newLocation) {
-		mContext = context.getApplicationContext();
-		mOldLocation = oldLocation;
-		mNewLocation = newLocation;
+		this.context = context.getApplicationContext();
+		oldLocationName = oldLocation;
+		newLocationName = newLocation;
 	}
 
 	@DebugLog
@@ -41,13 +39,13 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
 		ContentValues values = new ContentValues();
-		values.put(BggContract.Plays.LOCATION, mNewLocation);
+		values.put(BggContract.Plays.LOCATION, newLocationName);
 		ContentProviderOperation.Builder cpo = ContentProviderOperation
 			.newUpdate(BggContract.Plays.CONTENT_URI)
 			.withValues(values)
 			.withSelection(
 				BggContract.Plays.LOCATION + "=? AND (" + BggContract.Plays.SYNC_STATUS + "=? OR " + BggContract.Plays.SYNC_STATUS + "=?)",
-				new String[] { mOldLocation, String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
+				new String[] { oldLocationName, String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
 					String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) });
 		batch.add(cpo.build());
 
@@ -56,10 +54,10 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 			.newUpdate(BggContract.Plays.CONTENT_URI)
 			.withValues(values)
 			.withSelection(BggContract.Plays.LOCATION + "=? AND " + BggContract.Plays.SYNC_STATUS + "=?",
-				new String[] { mOldLocation, String.valueOf(Play.SYNC_STATUS_SYNCED) });
+				new String[] { oldLocationName, String.valueOf(Play.SYNC_STATUS_SYNCED) });
 		batch.add(cpo.build());
 
-		ContentProviderResult[] results = ResolverUtils.applyBatch(mContext, batch);
+		ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
 
 		String result;
 		if (results.length > 0) {
@@ -67,11 +65,11 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 			for (ContentProviderResult r : results) {
 				count += r.count;
 			}
-			result = mContext.getResources().getQuantityString(R.plurals.msg_play_location_change, count,
-				count, mOldLocation, mNewLocation);
-			SyncService.sync(mContext, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
+			result = context.getResources().getQuantityString(R.plurals.msg_play_location_change, count,
+				count, oldLocationName, newLocationName);
+			SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 		} else {
-			result = mContext.getString(R.string.msg_play_location_change, mOldLocation, mNewLocation);
+			result = context.getString(R.string.msg_play_location_change, oldLocationName, newLocationName);
 		}
 
 		return result;
@@ -80,17 +78,24 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 	@DebugLog
 	@Override
 	protected void onPostExecute(String result) {
-		if (!TextUtils.isEmpty(result)) {
-			Toast.makeText(mContext, result, Toast.LENGTH_LONG).show();
-		}
-		EventBus.getDefault().post(new Event(mNewLocation));
+		EventBus.getDefault().post(new Event(newLocationName, result));
 	}
 
 	public class Event {
-		public final String locationName;
+		private final String locationName;
+		private final String message;
 
-		public Event(String locationName) {
+		public Event(String locationName, String message) {
 			this.locationName = locationName;
+			this.message = message;
+		}
+
+		public String getLocationName() {
+			return locationName;
+		}
+
+		public String getMessage() {
+			return message;
 		}
 	}
 }

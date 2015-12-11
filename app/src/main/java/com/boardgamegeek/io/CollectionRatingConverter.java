@@ -1,33 +1,27 @@
 package com.boardgamegeek.io;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.boardgamegeek.model.CollectionPostResponse;
+import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.util.StringUtils;
 
 import java.lang.reflect.Type;
 
-import retrofit.converter.ConversionException;
-import retrofit.mime.TypedInput;
+public class CollectionRatingConverter extends PostConverter {
+	private static final String CLASS_NAME = "class com.boardgamegeek.model.CollectionRatingPostResponse";
 
-public class CollectionPostConverter extends PostConverter {
-	private static final String CLASS_NAME = "class com.boardgamegeek.model.CollectionPostResponse";
-
-	public CollectionPostConverter() {
+	public CollectionRatingConverter() {
 	}
 
+	@NonNull
 	@Override
-	public Object fromBody(TypedInput body, Type type) throws ConversionException {
-		markBody(body);
-		String content = getContent(body);
-		if (typeIsExpected(type)) {
-			String errorMessage = extractErrorMessage(content);
-			if (!TextUtils.isEmpty(errorMessage)) {
-				return new CollectionPostResponse(errorMessage);
-			}
-			return new CollectionPostResponse(extractRating(content));
+	protected Object convertContent(String content) {
+		String errorMessage = extractErrorMessage(content);
+		if (!TextUtils.isEmpty(errorMessage)) {
+			return new CollectionRatingPostResponse(errorMessage);
 		}
-		throw new ConversionException(content);
+		return new CollectionRatingPostResponse(extractRating(content));
 	}
 
 	@Override
@@ -40,7 +34,7 @@ public class CollectionPostConverter extends PostConverter {
 
 	private double extractRating(String content) {
 		if (content.contains(N_A_SPAN)) {
-			return CollectionPostResponse.INVALID_RATING;
+			return CollectionRatingPostResponse.INVALID_RATING;
 		}
 		if (content.contains(RATING_DIV)) {
 			int index = content.indexOf(RATING_DIV) + RATING_DIV.length();
@@ -49,9 +43,9 @@ public class CollectionPostConverter extends PostConverter {
 			if (index > 0) {
 				message = message.substring(0, index);
 			}
-			return StringUtils.parseDouble(message.trim(), CollectionPostResponse.INVALID_RATING);
+			return StringUtils.parseDouble(message.trim(), CollectionRatingPostResponse.INVALID_RATING);
 		}
-		return CollectionPostResponse.INVALID_RATING;
+		return CollectionRatingPostResponse.INVALID_RATING;
 	}
 }
 

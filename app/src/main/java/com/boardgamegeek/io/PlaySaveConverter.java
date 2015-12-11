@@ -35,4 +35,10 @@ public class PlaySaveConverter extends PostConverter {
 			throw new ConversionException(content, e);
 		}
 	}
+
+	@Override
+	protected Object convertContent(String content) {
+		// not called; fromBody overridden instead
+		return null;
+	}
 }

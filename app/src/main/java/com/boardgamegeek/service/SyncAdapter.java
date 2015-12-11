@@ -184,8 +184,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private void toggleReceiver(boolean enable) {
 		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
 		PackageManager pm = context.getPackageManager();
-		pm.setComponentEnabledSetting(receiver, enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-			: PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+		pm.setComponentEnabledSetting(receiver, enable ?
+			PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+			PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+			PackageManager.DONT_KILL_APP);
 	}
 
 	private void showError(@NonNull SyncTask task, @NonNull Throwable t) {
