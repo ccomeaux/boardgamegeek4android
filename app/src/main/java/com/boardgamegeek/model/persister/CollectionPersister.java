@@ -271,12 +271,8 @@ public class CollectionPersister {
 
 		Builder operation;
 		if (internalId != BggContract.INVALID_ID) {
-			if (getDirtyTimestamp(internalId, Collection.RATING_DIRTY_TIMESTAMP) != NOT_DIRTY) {
-				values.remove(Collection.RATING_DIRTY_TIMESTAMP);
-			}
-			if (getDirtyTimestamp(internalId, Collection.COMMENT_DIRTY_TIMESTAMP) != NOT_DIRTY) {
-				values.remove(Collection.COMMENT);
-			}
+			removeValueIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
+			removeValueIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
 			Uri uri = Collection.buildUri(internalId);
 			operation = ContentProviderOperation.newUpdate(uri);
 			maybeDeleteThumbnail(values, uri, batch);
@@ -329,6 +325,13 @@ public class CollectionPersister {
 		String thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl);
 		if (!TextUtils.isEmpty(thumbnailFileName)) {
 			batch.add(ContentProviderOperation.newDelete(Thumbnails.buildUri(thumbnailFileName)).build());
+		}
+	}
+
+	@DebugLog
+	private void removeValueIfDirty(ContentValues values, long internalId, String commentDirtyTimestamp, String comment) {
+		if (getDirtyTimestamp(internalId, commentDirtyTimestamp) != NOT_DIRTY) {
+			values.remove(comment);
 		}
 	}
 
