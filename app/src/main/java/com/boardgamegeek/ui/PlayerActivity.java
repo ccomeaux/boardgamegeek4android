@@ -2,6 +2,8 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -54,9 +56,10 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 		setSubtitle(title);
 	}
 
+	@NonNull
 	@DebugLog
 	@Override
-	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
+	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_PLAYER);
 		arguments.putString(PlaysFragment.KEY_PLAYER_NAME, intent.getStringExtra(KEY_PLAYER_NAME));
@@ -64,6 +67,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 		return arguments;
 	}
 
+	@NonNull
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
@@ -86,7 +90,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 
 	@DebugLog
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (item.getItemId() == R.id.menu_edit) {
 			showDialog(name);
 			return true;
@@ -94,25 +98,32 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEvent(PlaySelectedEvent event) {
+	public void onEvent(@NonNull PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEvent(PlaysCountChangedEvent event) {
+	public void onEvent(@NonNull PlaysCountChangedEvent event) {
 		playCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEvent(RenamePlayerTask.Event event) {
-		name = event.playerName;
+	public void onEvent(@NonNull RenamePlayerTask.Event event) {
+		name = event.getPlayerName();
 		getIntent().putExtra(KEY_PLAYER_NAME, name);
 		setSubtitle();
 		// recreate fragment to load the list with the new location
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
+
+		if (!TextUtils.isEmpty(event.getMessage())) {
+			Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
+		}
 	}
 
 	@DebugLog
