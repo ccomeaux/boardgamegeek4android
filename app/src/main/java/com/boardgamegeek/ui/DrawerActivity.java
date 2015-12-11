@@ -28,10 +28,11 @@ import butterknife.InjectView;
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGN_IN = 1;
 
-	@SuppressWarnings("unused") @InjectView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.drawer_container) View mDrawerListContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.left_drawer) LinearLayout mDrawerList;
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar) Toolbar mToolbar;
+	@SuppressWarnings("unused") @InjectView(R.id.drawer_layout) DrawerLayout drawerLayout;
+	@SuppressWarnings("unused") @InjectView(R.id.drawer_container) View drawerListContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.left_drawer) LinearLayout drawerList;
+	@SuppressWarnings("unused") @InjectView(R.id.toolbar) Toolbar toolbar;
+	@SuppressWarnings("unused") @InjectView(R.id.root_container) ViewGroup rootContainer;
 
 	protected int getDrawerResId() {
 		return 0;
@@ -42,12 +43,12 @@ public abstract class DrawerActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_singlepane_empty);
 		ButterKnife.inject(this);
-		if (mToolbar != null) {
-			setSupportActionBar(mToolbar);
+		if (toolbar != null) {
+			setSupportActionBar(toolbar);
 		}
-		if (mDrawerLayout != null) {
-			mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-			mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
+		if (drawerLayout != null) {
+			drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+			drawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
 		}
 	}
 
@@ -56,7 +57,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		super.onStart();
 
 		if (!PreferencesUtils.hasSeenNavDrawer(this)) {
-			mDrawerLayout.openDrawer(GravityCompat.START);
+			drawerLayout.openDrawer(GravityCompat.START);
 			PreferencesUtils.sawNavDrawer(this);
 		}
 	}
@@ -68,8 +69,8 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	public boolean isDrawerOpen() {
-		return mDrawerLayout != null && mDrawerListContainer != null
-			&& mDrawerLayout.isDrawerOpen(mDrawerListContainer);
+		return drawerLayout != null && drawerListContainer != null
+			&& drawerLayout.isDrawerOpen(drawerListContainer);
 	}
 
 	@Override
@@ -85,50 +86,50 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	private void refreshDrawer() {
-		if (mDrawerList == null) {
+		if (drawerList == null) {
 			return;
 		}
 
-		mDrawerList.removeAllViews();
-		mDrawerList.addView(makeNavDrawerBuffer(mDrawerList));
+		drawerList.removeAllViews();
+		drawerList.addView(makeNavDrawerBuffer(drawerList));
 		if (!Authenticator.isSignedIn(DrawerActivity.this)) {
-			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, mDrawerList));
+			drawerList.addView(makeNavDrawerSpacer(drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, drawerList));
 		} else {
-			View view = makeNavDrawerHeader(mDrawerList);
+			View view = makeNavDrawerHeader(drawerList);
 			if (view != null) {
-				mDrawerList.addView(view);
+				drawerList.addView(view);
 			}
-			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, mDrawerList));
-			mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
+			drawerList.addView(makeNavDrawerSpacer(drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, drawerList));
+			drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
-			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_players, R.drawable.ic_people_black_24dp, mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_locations, R.drawable.ic_place_black_24dp, mDrawerList));
+			drawerList.addView(makeNavDrawerSpacer(drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_players, R.drawable.ic_people_black_24dp, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_locations, R.drawable.ic_place_black_24dp, drawerList));
 			if (!TextUtils.isEmpty(AccountUtils.getUsername(this))) {
-				mDrawerList.addView(makeNavDrawerItem(R.string.title_colors, R.drawable.ic_action_colors_light, mDrawerList));
+				drawerList.addView(makeNavDrawerItem(R.string.title_colors, R.drawable.ic_action_colors_light, drawerList));
 			}
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_play_stats, R.drawable.ic_action_pie_chart, mDrawerList));
-			mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_play_stats, R.drawable.ic_action_pie_chart, drawerList));
+			drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
-			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, mDrawerList));
+			drawerList.addView(makeNavDrawerSpacer(drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, drawerList));
 		}
-		mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
+		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
-		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-		mDrawerList.addView(makeNavDrawerItem(R.string.title_search, R.drawable.ic_action_search, mDrawerList));
-		mDrawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_whatshot_black_24dp, mDrawerList));
-		mDrawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_list_black_24dp, mDrawerList));
-		mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_action_forum, mDrawerList));
-		mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
+		drawerList.addView(makeNavDrawerSpacer(drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_search, R.drawable.ic_action_search, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_whatshot_black_24dp, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_list_black_24dp, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_action_forum, drawerList));
+		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
-		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-		mDrawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_action_insert_drive_file, mDrawerList));
-		mDrawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings_black_24dp, mDrawerList));
-		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+		drawerList.addView(makeNavDrawerSpacer(drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_action_insert_drive_file, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings_black_24dp, drawerList));
+		drawerList.addView(makeNavDrawerSpacer(drawerList));
 	}
 
 	private void selectItem(int titleResId) {
@@ -189,7 +190,7 @@ public abstract class DrawerActivity extends BaseActivity {
 				}
 			}
 		}
-		mDrawerLayout.closeDrawer(mDrawerListContainer);
+		drawerLayout.closeDrawer(drawerListContainer);
 	}
 
 	private View makeNavDrawerHeader(ViewGroup container) {
