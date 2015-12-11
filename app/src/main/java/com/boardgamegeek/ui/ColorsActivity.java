@@ -2,7 +2,9 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
@@ -12,22 +14,26 @@ import com.boardgamegeek.util.ActivityUtils;
 import hugo.weaving.DebugLog;
 
 public class ColorsActivity extends SimpleSinglePaneActivity {
-	private int mGameId;
-	private String mGameName;
+	private int gameId;
+	private String gameName;
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mGameId = BggContract.Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = BggContract.Games.getGameId(getIntent().getData());
+		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
-		if (!TextUtils.isEmpty(mGameName)) {
-			getSupportActionBar().setSubtitle(mGameName);
+		if (!TextUtils.isEmpty(gameName)) {
+			ActionBar supportActionBar = getSupportActionBar();
+			if (supportActionBar != null) {
+				supportActionBar.setSubtitle(gameName);
+			}
 		}
 	}
 
+	@NonNull
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
@@ -36,10 +42,10 @@ public class ColorsActivity extends SimpleSinglePaneActivity {
 
 	@DebugLog
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+				ActivityUtils.navigateUpToGame(this, gameId, gameName);
 				finish();
 				return true;
 		}
