@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -106,12 +107,16 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(@NonNull RenameLocationTask.Event event) {
-		locationName = event.locationName;
+		locationName = event.getLocationName();
 		getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, locationName);
-		setTitle(locationName);
+		setSubtitle();
 		// recreate fragment to load the list with the new location
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
+
+		if (!TextUtils.isEmpty(event.getMessage())) {
+			Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
+		}
 	}
 
 	@DebugLog
