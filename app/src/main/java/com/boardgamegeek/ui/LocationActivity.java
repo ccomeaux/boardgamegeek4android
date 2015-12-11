@@ -122,7 +122,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	private void showDialog(final String oldLocation) {
 		if (editTextDialogFragment == null) {
-			editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_add_color, (ViewGroup) findViewById(R.id.root_container), new EditTextDialogListener() {
+			editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_location, (ViewGroup) findViewById(R.id.root_container), new EditTextDialogListener() {
 				@Override
 				public void onFinishEditDialog(String inputText) {
 					if (!TextUtils.isEmpty(inputText)) {
