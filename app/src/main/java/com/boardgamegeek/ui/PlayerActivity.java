@@ -120,6 +120,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 		// recreate fragment to load the list with the new location
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
+		editTextDialogFragment = null;
 
 		if (!TextUtils.isEmpty(event.getMessage())) {
 			Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
