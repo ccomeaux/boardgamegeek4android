@@ -23,16 +23,14 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:ellipsize="end"
-				tools:text="Horus Heresy"
 				android:singleLine="true"
-				android:textIsSelectable="false"/>
+				tools:text="Horus Heresy"/>
 
 			<TextView
 				android:id="@android:id/message"
 				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textIsSelectable="false"/>
+				android:layout_height="wrap_content"/>
 		</LinearLayout>
 
 		<TextView
@@ -42,9 +40,7 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="marquee"
 			android:singleLine="true"
-			tools:text="at Home for 3.5 hours"
-			android:textIsSelectable="false"/>
-
+			tools:text="at Home for 3.5 hours"/>
 
 		<TextView
 			android:id="@android:id/text2"
@@ -53,8 +49,7 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:text="That was a fun time. A REAL fun time."
-			android:textIsSelectable="false"/>
+			tools:text="That was a fun time. A REAL fun time."/>
 
 	</LinearLayout>
 
