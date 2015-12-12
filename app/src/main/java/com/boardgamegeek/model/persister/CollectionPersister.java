@@ -136,6 +136,8 @@ public class CollectionPersister {
 			batch.clear();
 			persistedGameIds.clear();
 			return results.length;
+		} else {
+			Timber.i("No batch to save");
 		}
 		return 0;
 	}
