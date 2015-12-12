@@ -200,8 +200,10 @@ public class GameCollectionFragment extends Fragment implements
 	@DebugLog
 	@Override
 	public void onStop() {
-		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
-		needsUploading = false;
+		if (needsUploading) {
+			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+			needsUploading = false;
+		}
 		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
