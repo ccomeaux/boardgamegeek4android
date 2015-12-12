@@ -127,7 +127,7 @@
 									style="@style/Text.Header.Card"
 									android:layout_width="wrap_content"
 									android:layout_height="wrap_content"
-									android:text="Add comment"/>
+									android:text="@string/add_comment"/>
 
 								<TextView
 									android:id="@+id/comment"

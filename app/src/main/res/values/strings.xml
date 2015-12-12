@@ -170,6 +170,7 @@
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
+	<string name="add_comment">Add comment</string>
 	<string name="description_backup">Export will save certain data in the app to the following file location. Import will restore data from these same files.</string>
 	<string name="msg_export_confirmation">Are you sure you want to (potentially) replace the export files?</string>
 	<string name="msg_import_confirmation">Are you sure you want to replace the data in app with data from the files?</string>
