@@ -1,13 +1,14 @@
 package com.boardgamegeek.sorter;
 
-import java.text.DecimalFormat;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
+
+import java.text.DecimalFormat;
 
 public class GeekRatingSorter extends CollectionSorter {
 	private static final String COLUMN = Collection.STATS_BAYES_AVERAGE;
@@ -20,9 +21,10 @@ public class GeekRatingSorter extends CollectionSorter {
 		descriptionId = R.string.menu_collection_sort_geek_rating;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_GEEK_RATING;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_geek_rating;
 	}
 
 	@Override

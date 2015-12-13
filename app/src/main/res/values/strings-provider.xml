@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Do not change these values - they are stored in the database -->
+	<string name="collection_sort_type_unknown">0</string>
+	<string name="collection_sort_type_default">1</string>
+	<string name="collection_sort_type_collection_name">1</string>
+	<string name="collection_sort_type_geek_rating">2</string>
+	<string name="collection_sort_type_play_count_asc">3</string>
+	<string name="collection_sort_type_play_count_desc">4</string>
+	<string name="collection_sort_type_year_published_asc">5</string>
+	<string name="collection_sort_type_year_published_desc">6</string>
+	<string name="collection_sort_type_play_time_asc">7</string>
+	<string name="collection_sort_type_play_time_desc">8</string>
+	<string name="collection_sort_type_suggested_age_asc">9</string>
+	<string name="collection_sort_type_suggested_age_desc">10</string>
+	<string name="collection_sort_type_average_weight_asc">11</string>
+	<string name="collection_sort_type_average_weight_desc">12</string>
+	<string name="collection_sort_type_wishlist_priority">13</string>
+	<string name="collection_sort_type_last_viewed">14</string>
+	<string name="collection_sort_type_my_rating">15</string>
+	<string name="collection_sort_type_rank">16</string>
+	<string name="collection_sort_type_average_rating">17</string>
+	<string name="collection_sort_type_acquisition_date">18</string>
+</resources>

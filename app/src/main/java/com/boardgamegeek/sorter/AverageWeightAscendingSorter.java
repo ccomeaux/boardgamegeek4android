@@ -2,6 +2,7 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -13,8 +14,9 @@ public class AverageWeightAscendingSorter extends AverageWeightSorter {
 		subDescriptionId = R.string.lightest;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_average_weight_asc;
 	}
 }

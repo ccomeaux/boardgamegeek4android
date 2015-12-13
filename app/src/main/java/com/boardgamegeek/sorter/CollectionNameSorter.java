@@ -1,13 +1,14 @@
 package com.boardgamegeek.sorter;
 
-import java.text.DecimalFormat;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
+
+import java.text.DecimalFormat;
 
 public class CollectionNameSorter extends CollectionSorter {
 	@NonNull private final DecimalFormat displayFormat = new DecimalFormat("0.00");
@@ -18,9 +19,10 @@ public class CollectionNameSorter extends CollectionSorter {
 		descriptionId = R.string.name;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_COLLECTION_NAME;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_collection_name;
 	}
 
 	@Override

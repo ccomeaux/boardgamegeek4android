@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
@@ -18,9 +19,10 @@ public class LastViewedSorter extends CollectionSorter {
 		never = context.getString(R.string.never);
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_LAST_VIEWED;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_last_viewed;
 	}
 
 	@Override

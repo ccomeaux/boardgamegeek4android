@@ -1,13 +1,14 @@
 package com.boardgamegeek.sorter;
 
-import java.text.DecimalFormat;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
+
+import java.text.DecimalFormat;
 
 public class MyRatingSorter extends CollectionSorter {
 	private static final String DEFAULT_VALUE = "?";
@@ -16,12 +17,13 @@ public class MyRatingSorter extends CollectionSorter {
 	public MyRatingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Collection.RATING, true);
-        descriptionId = R.string.menu_collection_sort_myrating;
+		descriptionId = R.string.menu_collection_sort_myrating;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_MY_RATING;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_my_rating;
 	}
 
 	@Override

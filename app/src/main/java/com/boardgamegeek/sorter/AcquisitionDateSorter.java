@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
@@ -25,9 +26,10 @@ public class AcquisitionDateSorter extends CollectionSorter {
 		defaultValue = context.getString(R.string.text_unknown);
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_ACQUISITION_DATE;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_acquisition_date;
 	}
 
 	@NonNull

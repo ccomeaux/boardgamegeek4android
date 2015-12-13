@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.util.SparseArray;
 
 import com.boardgamegeek.R;
@@ -35,9 +36,10 @@ public class RankSorter extends CollectionSorter {
 		return ranks;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_RANK;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_rank;
 	}
 
 	@Override

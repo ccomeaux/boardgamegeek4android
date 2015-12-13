@@ -174,7 +174,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private CollectionSorter getCollectionSorter(int sortType) {
-		if (collectionSorterFactory == null){
+		if (collectionSorterFactory == null) {
 			collectionSorterFactory = new CollectionSorterFactory(getActivity());
 		}
 		return collectionSorterFactory.create(sortType);
@@ -270,43 +270,43 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					DeleteView.createDialog(getActivity(), CollectionFragment.this);
 					return true;
 				case R.id.menu_collection_sort_name:
-					setSort(CollectionSorterFactory.TYPE_COLLECTION_NAME);
+					setSort(R.string.collection_sort_type_collection_name);
 					return true;
 				case R.id.menu_collection_sort_rank:
-					setSort(CollectionSorterFactory.TYPE_RANK);
+					setSort(R.string.collection_sort_type_rank);
 					return true;
 				case R.id.menu_collection_sort_geek_rating:
-					setSort(CollectionSorterFactory.TYPE_GEEK_RATING);
+					setSort(R.string.collection_sort_type_geek_rating);
 					return true;
 				case R.id.menu_collection_sort_rating:
-					setSort(CollectionSorterFactory.TYPE_AVERAGE_RATING);
+					setSort(R.string.collection_sort_type_average_rating);
 					return true;
 				case R.id.menu_collection_sort_myrating:
-					setSort(CollectionSorterFactory.TYPE_MY_RATING);
+					setSort(R.string.collection_sort_type_my_rating);
 					return true;
 				case R.id.menu_collection_sort_last_viewed:
-					setSort(CollectionSorterFactory.TYPE_LAST_VIEWED);
+					setSort(R.string.collection_sort_type_last_viewed);
 					return true;
 				case R.id.menu_collection_sort_wishlist_priority:
-					setSort(CollectionSorterFactory.TYPE_WISHLIST_PRIORITY);
+					setSort(R.string.collection_sort_type_wishlist_priority);
 					return true;
 				case R.id.menu_collection_sort_published:
-					setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
+					setSort(R.string.collection_sort_type_year_published_asc, R.string.collection_sort_type_year_published_desc);
 					return true;
 				case R.id.menu_collection_sort_playtime:
-					setSort(CollectionSorterFactory.TYPE_PLAY_TIME_ASC, CollectionSorterFactory.TYPE_PLAY_TIME_DESC);
+					setSort(R.string.collection_sort_type_play_time_asc, R.string.collection_sort_type_play_time_desc);
 					return true;
 				case R.id.menu_collection_sort_age:
-					setSort(CollectionSorterFactory.TYPE_AGE_ASC, CollectionSorterFactory.TYPE_AGE_DESC);
+					setSort(R.string.collection_sort_type_suggested_age_asc, R.string.collection_sort_type_suggested_age_desc);
 					return true;
 				case R.id.menu_collection_sort_weight:
-					setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
+					setSort(R.string.collection_sort_type_average_weight_asc, R.string.collection_sort_type_average_weight_desc);
 					return true;
 				case R.id.menu_collection_sort_plays:
-					setSort(CollectionSorterFactory.TYPE_PLAY_COUNT_DESC, CollectionSorterFactory.TYPE_PLAY_COUNT_ASC);
+					setSort(R.string.collection_sort_type_play_count_asc, R.string.collection_sort_type_play_count_desc);
 					return true;
 				case R.id.menu_collection_sort_acquisition_date:
-					setSort(CollectionSorterFactory.TYPE_ACQUISITION_DATE);
+					setSort(R.string.collection_sort_type_acquisition_date);
 					return true;
 			}
 
@@ -577,7 +577,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private void setSort(int sortType) {
+	private void setSort(@StringRes int sortTypeResId) {
+		int sortType = StringUtils.parseInt(getString(sortTypeResId), CollectionSorterFactory.TYPE_DEFAULT);
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
@@ -587,11 +588,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private void setSort(int sortType, int sortType2) {
+	private void setSort(@StringRes int sortTypeResId, @StringRes int sortTypeResId2) {
+		int sortType = StringUtils.parseInt(getString(sortTypeResId), CollectionSorterFactory.TYPE_DEFAULT);
 		if (sorter.getType() == sortType) {
-			setSort(sortType2);
+			setSort(sortTypeResId2);
 		} else {
-			setSort(sortType);
+			setSort(sortTypeResId);
 		}
 	}
 
