@@ -35,19 +35,19 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 	private int selectedType;
 	@SuppressWarnings("unused") @InjectView(R.id.radio_group) RadioGroup radioGroup;
 	@SuppressWarnings("unused") @InjectViews({
-		R.id.menu_collection_sort_name,
-		R.id.menu_collection_sort_rank,
-		R.id.menu_collection_sort_geek_rating,
-		R.id.menu_collection_sort_rating,
-		R.id.menu_collection_sort_myrating,
-		R.id.menu_collection_sort_last_viewed,
-		R.id.menu_collection_sort_wishlist_priority,
-		R.id.menu_collection_sort_plays,
-		R.id.menu_collection_sort_published,
-		R.id.menu_collection_sort_playtime,
-		R.id.menu_collection_sort_age,
-		R.id.menu_collection_sort_weight,
-		R.id.menu_collection_sort_acquisition_date,
+		R.id.name,
+		R.id.rank,
+		R.id.geek_rating,
+		R.id.average_rating,
+		R.id.my_rating,
+		R.id.last_viewed,
+		R.id.wishlist_priority,
+		R.id.play_count,
+		R.id.year_published,
+		R.id.play_time,
+		R.id.suggested_age,
+		R.id.average_weight,
+		R.id.acquisition_date,
 	}) List<RadioButton> radioButtons;
 
 	@DebugLog

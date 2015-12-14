@@ -14,7 +14,7 @@
 		android:layout_height="match_parent">
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_name"
+			android:id="@+id/name"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -22,7 +22,7 @@
 			android:text="@string/menu_collection_sort_name"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_rank"
+			android:id="@+id/rank"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -30,7 +30,7 @@
 			android:text="@string/menu_collection_sort_rank"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_geek_rating"
+			android:id="@+id/geek_rating"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -38,7 +38,7 @@
 			android:text="@string/menu_collection_sort_geek_rating"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_rating"
+			android:id="@+id/average_rating"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -46,7 +46,7 @@
 			android:text="@string/menu_collection_sort_rating"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_myrating"
+			android:id="@+id/my_rating"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -54,7 +54,7 @@
 			android:text="@string/menu_collection_sort_myrating"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_last_viewed"
+			android:id="@+id/last_viewed"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -62,7 +62,7 @@
 			android:text="@string/menu_collection_sort_last_viewed"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_wishlist_priority"
+			android:id="@+id/wishlist_priority"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -70,7 +70,7 @@
 			android:text="@string/menu_collection_sort_wishlist_priority"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_plays"
+			android:id="@+id/play_count"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -78,7 +78,7 @@
 			android:text="@string/menu_collection_sort_plays"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_published"
+			android:id="@+id/year_published"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -86,7 +86,7 @@
 			android:text="@string/menu_collection_sort_published"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_playtime"
+			android:id="@+id/play_time"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -94,7 +94,7 @@
 			android:text="@string/menu_collection_sort_playtime"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_age"
+			android:id="@+id/suggested_age"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -102,7 +102,7 @@
 			android:text="@string/menu_collection_sort_age"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_weight"
+			android:id="@+id/average_weight"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
@@ -110,7 +110,7 @@
 			android:text="@string/menu_collection_sort_weight"/>
 
 		<RadioButton
-			android:id="@+id/menu_collection_sort_acquisition_date"
+			android:id="@+id/acquisition_date"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
