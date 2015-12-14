@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical">
+
+	<RadioGroup
+		android:id="@+id/radio_group"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent">
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_name"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_collection_name"
+			android:text="@string/menu_collection_sort_name"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_rank"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_rank"
+			android:text="@string/menu_collection_sort_rank"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_geek_rating"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_geek_rating"
+			android:text="@string/menu_collection_sort_geek_rating"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_rating"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_average_rating"
+			android:text="@string/menu_collection_sort_rating"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_myrating"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_my_rating"
+			android:text="@string/menu_collection_sort_myrating"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_last_viewed"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_last_viewed"
+			android:text="@string/menu_collection_sort_last_viewed"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_wishlist_priority"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_wishlist_priority"
+			android:text="@string/menu_collection_sort_wishlist_priority"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_plays"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_play_count_asc"
+			android:text="@string/menu_collection_sort_plays"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_published"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_year_published_asc"
+			android:text="@string/menu_collection_sort_published"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_playtime"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_play_time_asc"
+			android:text="@string/menu_collection_sort_playtime"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_age"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_suggested_age_asc"
+			android:text="@string/menu_collection_sort_age"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_weight"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_average_weight_asc"
+			android:text="@string/menu_collection_sort_weight"/>
+
+		<RadioButton
+			android:id="@+id/menu_collection_sort_acquisition_date"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_acquisition_date"
+			android:text="@string/menu_collection_sort_acquisition_date"/>
+	</RadioGroup>
+</ScrollView>

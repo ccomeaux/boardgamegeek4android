@@ -53,6 +53,8 @@ import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
+import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment.Listener;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
@@ -269,47 +271,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_view_delete:
 					DeleteView.createDialog(getActivity(), CollectionFragment.this);
 					return true;
-				case R.id.menu_collection_sort_name:
-					setSort(R.string.collection_sort_type_collection_name);
-					return true;
-				case R.id.menu_collection_sort_rank:
-					setSort(R.string.collection_sort_type_rank);
-					return true;
-				case R.id.menu_collection_sort_geek_rating:
-					setSort(R.string.collection_sort_type_geek_rating);
-					return true;
-				case R.id.menu_collection_sort_rating:
-					setSort(R.string.collection_sort_type_average_rating);
-					return true;
-				case R.id.menu_collection_sort_myrating:
-					setSort(R.string.collection_sort_type_my_rating);
-					return true;
-				case R.id.menu_collection_sort_last_viewed:
-					setSort(R.string.collection_sort_type_last_viewed);
-					return true;
-				case R.id.menu_collection_sort_wishlist_priority:
-					setSort(R.string.collection_sort_type_wishlist_priority);
-					return true;
-				case R.id.menu_collection_sort_published:
-					setSort(R.string.collection_sort_type_year_published_asc, R.string.collection_sort_type_year_published_desc);
-					return true;
-				case R.id.menu_collection_sort_playtime:
-					setSort(R.string.collection_sort_type_play_time_asc, R.string.collection_sort_type_play_time_desc);
-					return true;
-				case R.id.menu_collection_sort_age:
-					setSort(R.string.collection_sort_type_suggested_age_asc, R.string.collection_sort_type_suggested_age_desc);
-					return true;
-				case R.id.menu_collection_sort_weight:
-					setSort(R.string.collection_sort_type_average_weight_asc, R.string.collection_sort_type_average_weight_desc);
-					return true;
-				case R.id.menu_collection_sort_plays:
-					setSort(R.string.collection_sort_type_play_count_asc, R.string.collection_sort_type_play_count_desc);
-					return true;
-				case R.id.menu_collection_sort_acquisition_date:
-					setSort(R.string.collection_sort_type_acquisition_date);
+				case R.id.menu_collection_sort:
+					final CollectionSortDialogFragment fragment =
+						CollectionSortDialogFragment.newInstance(swipeRefreshLayout, new Listener() {
+							@Override
+							public void onSortSelected(int sortType) {
+								setSort(sortType);
+							}
+						});
+					fragment.setSelection(sorter.getType());
+					fragment.show(getFragmentManager(), "sort");
 					return true;
 			}
-
 			return launchFilterDialog(item.getItemId());
 		}
 	};
@@ -577,24 +550,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private void setSort(@StringRes int sortTypeResId) {
-		int sortType = StringUtils.parseInt(getString(sortTypeResId), CollectionSorterFactory.TYPE_DEFAULT);
+	private void setSort(int sortType) {
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
 		sorter = getCollectionSorter(sortType);
 		resetScrollState();
 		requery();
-	}
-
-	@DebugLog
-	private void setSort(@StringRes int sortTypeResId, @StringRes int sortTypeResId2) {
-		int sortType = StringUtils.parseInt(getString(sortTypeResId), CollectionSorterFactory.TYPE_DEFAULT);
-		if (sorter.getType() == sortType) {
-			setSort(sortTypeResId2);
-		} else {
-			setSort(sortTypeResId);
-		}
 	}
 
 	@Override
