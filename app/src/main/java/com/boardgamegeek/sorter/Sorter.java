@@ -7,8 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.boardgamegeek.R;
-
 import java.text.DecimalFormat;
 import java.util.Locale;
 
@@ -27,7 +25,7 @@ public abstract class Sorter {
 	 * to control this value.
 	 */
 	public String getDescription() {
-		return String.format(context.getString(R.string.sort_description), context.getString(descriptionId));
+		return context.getString(descriptionId);
 	}
 
 	/**

@@ -14,6 +14,7 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
 import com.boardgamegeek.util.StringUtils;
 
@@ -77,10 +78,21 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		ButterKnife.inject(this, rootView);
 		setChecked();
 		radioGroup.setOnCheckedChangeListener(this);
+		createNames();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
 		builder.setTitle(R.string.title_sort);
 		return builder.create();
+	}
+
+	@DebugLog
+	private void createNames() {
+		CollectionSorterFactory factory = new CollectionSorterFactory(getActivity());
+		for (RadioButton radioButton : radioButtons) {
+			int sortType = getTypeFromView(radioButton);
+			CollectionSorter sorter = factory.create(sortType);
+			radioButton.setText(sorter.getDescription());
+		}
 	}
 
 	@DebugLog
