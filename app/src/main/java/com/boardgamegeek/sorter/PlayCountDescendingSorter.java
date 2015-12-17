@@ -11,7 +11,7 @@ public class PlayCountDescendingSorter extends PlayCountSorter {
 	public PlayCountDescendingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Collection.NUM_PLAYS, true);
-		descriptionId = R.string.menu_collection_sort_played_most;
+		descriptionId = R.string.collection_sort_play_count_desc;
 	}
 
 	@StringRes

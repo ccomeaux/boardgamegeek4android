@@ -15,7 +15,7 @@ public abstract class AverageWeightSorter extends CollectionSorter {
 
 	public AverageWeightSorter(@NonNull Context context) {
 		super(context);
-		descriptionId = R.string.menu_collection_sort_weight;
+		descriptionId = R.string.collection_sort_average_weight;
 	}
 
 	@Override

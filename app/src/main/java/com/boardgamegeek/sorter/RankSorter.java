@@ -17,7 +17,7 @@ public class RankSorter extends CollectionSorter {
 	public RankSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Games.GAME_RANK, false);
-		descriptionId = R.string.menu_collection_sort_rank;
+		descriptionId = R.string.collection_sort_rank;
 		defaultHeaderText = context.getResources().getString(R.string.unranked);
 		defaultText = context.getResources().getString(R.string.text_not_available);
 	}
