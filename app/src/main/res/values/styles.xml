@@ -18,28 +18,21 @@
 		<item name="android:textColor">#000</item>
 	</style>
 
-	<style name="Button.Info" parent="android:Widget.ImageButton">
-		<item name="android:adjustViewBounds">true</item>
-	</style>
-
-	<style name="Text.InfoButton">
-		<item name="android:layout_gravity">center_vertical</item>
-	</style>
-
-	<style name="Text.Info">
+	<style name="InfoBarItem" parent="@android:style/TextAppearance">
+		<item name="android:paddingBottom">@dimen/padding_half</item>
+		<item name="android:paddingLeft">@dimen/padding_half</item>
+		<item name="android:paddingRight">@dimen/padding_half</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
 		<item name="android:layout_gravity">center_vertical|left</item>
-		<item name="android:gravity">center_vertical</item>
+		<item name="android:gravity">center</item>
 		<item name="android:drawablePadding">@dimen/padding_half</item>
-		<item name="android:layout_height">@dimen/edit_row_height</item>
+		<item name="android:minHeight">@dimen/edit_row_height</item>
+		<item name="android:layout_height">wrap_content</item>
 	</style>
 
 	<style name="Text.Code" parent="@android:style/TextAppearance">
 		<item name="android:textSize">14sp</item>
 		<item name="android:typeface">monospace</item>
-	</style>
-
-	<style name="Text.Info.Table">
-		<item name="android:layout_weight">1</item>
 	</style>
 
 	<style name="Text" parent="@android:style/TextAppearance">

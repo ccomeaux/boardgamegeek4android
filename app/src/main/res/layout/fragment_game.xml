@@ -101,29 +101,29 @@
 
 					<TextView
 						android:id="@+id/number_of_players"
-						style="@style/Text.Info"
+						style="@style/InfoBarItem"
 						android:layout_width="0dp"
 						android:layout_weight="1"
 						android:background="?attr/selectableItemBackground"
-						android:drawableLeft="@drawable/ic_action_people"
+						android:drawableTop="@drawable/ic_action_people"
 						android:tag="suggested_numplayers"
 						tools:text="3 - 5"/>
 
 					<TextView
 						android:id="@+id/play_time"
-						style="@style/Text.Info"
+						style="@style/InfoBarItem"
 						android:layout_width="0dp"
 						android:layout_weight="1"
-						android:drawableLeft="@drawable/ic_action_access_time"
+						android:drawableTop="@drawable/ic_action_access_time"
 						tools:text="90 min"/>
 
 					<TextView
 						android:id="@+id/player_age"
-						style="@style/Text.Info"
+						style="@style/InfoBarItem"
 						android:layout_width="0dp"
 						android:layout_weight="1"
 						android:background="?attr/selectableItemBackground"
-						android:drawableLeft="@drawable/ic_action_person"
+						android:drawableTop="@drawable/ic_action_person"
 						android:tag="suggested_playerage"
 						tools:text="13+"/>
 				</LinearLayout>
