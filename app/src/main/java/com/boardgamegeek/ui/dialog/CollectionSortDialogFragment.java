@@ -44,10 +44,14 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.last_viewed,
 		R.id.wishlist_priority,
 		R.id.play_count,
-		R.id.year_published,
-		R.id.play_time,
-		R.id.suggested_age,
-		R.id.average_weight,
+		R.id.year_published_asc,
+		R.id.year_published_desc,
+		R.id.play_time_asc,
+		R.id.play_time_desc,
+		R.id.suggested_age_asc,
+		R.id.suggested_age_desc,
+		R.id.average_weight_asc,
+		R.id.average_weight_desc,
 		R.id.acquisition_date,
 	}) List<RadioButton> radioButtons;
 

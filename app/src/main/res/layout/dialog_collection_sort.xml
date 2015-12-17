@@ -27,25 +27,46 @@
 			android:tag="@string/collection_sort_type_collection_name"/>
 
 		<RadioButton
-			android:id="@+id/year_published"
+			android:id="@+id/year_published_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_year_published_asc"/>
 
 		<RadioButton
-			android:id="@+id/play_time"
+			android:id="@+id/year_published_desc"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_year_published_desc"/>
+
+		<RadioButton
+			android:id="@+id/play_time_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_time_asc"/>
 
 		<RadioButton
-			android:id="@+id/suggested_age"
+			android:id="@+id/play_time_desc"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_play_time_desc"/>
+
+		<RadioButton
+			android:id="@+id/suggested_age_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_suggested_age_asc"/>
+
+		<RadioButton
+			android:id="@+id/suggested_age_desc"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_suggested_age_desc"/>
 
 		<TextView
 			style="@style/Text.Header"
@@ -75,11 +96,18 @@
 			android:tag="@string/collection_sort_type_average_rating"/>
 
 		<RadioButton
-			android:id="@+id/average_weight"
+			android:id="@+id/average_weight_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_average_weight_asc"/>
+
+		<RadioButton
+			android:id="@+id/average_weight_desc"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_average_weight_desc"/>
 
 		<TextView
 			style="@style/Text.Header"
