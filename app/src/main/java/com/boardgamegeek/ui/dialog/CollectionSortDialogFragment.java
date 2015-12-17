@@ -1,7 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -12,11 +15,13 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.ScrollView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.VersionUtils;
 
 import java.util.List;
 
@@ -34,6 +39,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 	private ViewGroup root;
 	private Listener listener;
 	private int selectedType;
+	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ScrollView scrollContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.radio_group) RadioGroup radioGroup;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.name,
@@ -118,16 +124,43 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 
 	@DebugLog
 	private void setChecked() {
+		RadioButton radioButton = findSelectedRadioButton();
+		if (radioButton != null) {
+			checkRadioButton(radioButton);
+			focusRadioButton(radioButton);
+		}
+	}
+
+	@DebugLog
+	private RadioButton findSelectedRadioButton() {
 		if (radioButtons != null) {
 			for (RadioButton radioButton : radioButtons) {
 				int type = getTypeFromView(radioButton);
 				if (type == selectedType) {
-					radioGroup.setOnCheckedChangeListener(null);
-					radioButton.setChecked(true);
-					radioGroup.setOnCheckedChangeListener(this);
-					return;
+					return radioButton;
 				}
 			}
+		}
+		return null;
+	}
+
+	@DebugLog
+	private void checkRadioButton(RadioButton radioButton) {
+		radioGroup.setOnCheckedChangeListener(null);
+		radioButton.setChecked(true);
+		radioGroup.setOnCheckedChangeListener(this);
+	}
+
+	@DebugLog
+	@TargetApi(VERSION_CODES.HONEYCOMB)
+	private void focusRadioButton(final RadioButton radioButton) {
+		if (VersionUtils.hasHoneycomb()) {
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					scrollContainer.scrollTo(0, (int) radioButton.getY());
+				}
+			});
 		}
 	}
 
