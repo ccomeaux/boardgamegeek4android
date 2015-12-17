@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -124,7 +123,6 @@ public class GameActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	public void onEventMainThread(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
-		changeSubtype(event.getSubtype());
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
@@ -139,29 +137,6 @@ public class GameActivity extends SimpleSinglePaneActivity {
 			if (supportActionBar != null) {
 				supportActionBar.setTitle(gameName);
 			}
-		}
-	}
-
-	@DebugLog
-	private void changeSubtype(String subtype) {
-		if (subtype == null) {
-			return;
-		}
-		int resId = R.string.title_game;
-		switch (subtype) {
-			case BggService.THING_SUBTYPE_BOARDGAME:
-				resId = R.string.title_board_game;
-				break;
-			case BggService.THING_SUBTYPE_BOARDGAME_EXPANSION:
-				resId = R.string.title_board_game_expansion;
-				break;
-			case BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY:
-				resId = R.string.title_board_game_accessory;
-				break;
-		}
-		final ActionBar supportActionBar = getSupportActionBar();
-		if (supportActionBar != null) {
-			supportActionBar.setSubtitle(getString(resId));
 		}
 	}
 }
