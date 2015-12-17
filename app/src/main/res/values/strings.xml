@@ -274,6 +274,10 @@
 	<string name="collection_sort_suggested_age">Suggested Age</string>
 	<string name="collection_sort_wishlist_priority">Wishlist Priority</string>
 	<string name="collection_sort_year_published">Year Published</string>
+	<string name="collection_sort_stats">Stats</string>
+	<string name="collection_sort_community">Community</string>
+	<string name="collection_sort_personal">Personal</string>
+	<string name="collection_sort_local">Local</string>
 	<string name="menu_plays_sort_date">Date</string>
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
