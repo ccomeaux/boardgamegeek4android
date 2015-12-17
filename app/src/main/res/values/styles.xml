@@ -144,12 +144,10 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.DrawerItem" parent="Text.Big">
+	<style name="DrawerItem" parent="Text">
 		<item name="android:layout_gravity">left|center_vertical</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 		<item name="android:paddingRight">@dimen/padding_standard</item>
-		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">@color/primary_text_default_material_light</item>
 		<item name="android:gravity">left|center_vertical</item>
 	</style>
 
