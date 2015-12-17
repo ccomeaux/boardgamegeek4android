@@ -6,49 +6,7 @@
 		android:id="@+id/menu_collection_sort"
 		android:icon="@drawable/ic_action_sort_light"
 		android:title="@string/menu_sort"
-		app:showAsAction="always">
-		<menu>
-			<item
-				android:id="@+id/menu_collection_sort_name"
-				android:title="@string/menu_collection_sort_name"/>
-			<item
-				android:id="@+id/menu_collection_sort_rank"
-				android:title="@string/menu_collection_sort_rank"/>
-			<item
-				android:id="@+id/menu_collection_sort_geek_rating"
-				android:title="@string/menu_collection_sort_geek_rating"/>
-			<item
-				android:id="@+id/menu_collection_sort_rating"
-				android:title="@string/menu_collection_sort_rating"/>
-			<item
-				android:id="@+id/menu_collection_sort_myrating"
-				android:title="@string/menu_collection_sort_myrating"/>
-			<item
-				android:id="@+id/menu_collection_sort_last_viewed"
-				android:title="@string/menu_collection_sort_last_viewed"/>
-			<item
-				android:id="@+id/menu_collection_sort_wishlist_priority"
-				android:title="@string/menu_collection_sort_wishlist_priority"/>
-			<item
-				android:id="@+id/menu_collection_sort_plays"
-				android:title="@string/menu_collection_sort_plays"/>
-			<item
-				android:id="@+id/menu_collection_sort_published"
-				android:title="@string/menu_collection_sort_published"/>
-			<item
-				android:id="@+id/menu_collection_sort_playtime"
-				android:title="@string/menu_collection_sort_playtime"/>
-			<item
-				android:id="@+id/menu_collection_sort_age"
-				android:title="@string/menu_collection_sort_age"/>
-			<item
-				android:id="@+id/menu_collection_sort_weight"
-				android:title="@string/menu_collection_sort_weight"/>
-			<item
-				android:id="@+id/menu_collection_sort_acquisition_date"
-				android:title="@string/menu_collection_sort_acquisition_date"/>
-		</menu>
-	</item>
+		app:showAsAction="always"/>
 	<item
 		android:id="@+id/menu_collection_filter"
 		android:icon="@drawable/ic_action_filter_on_light"

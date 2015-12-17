@@ -53,6 +53,8 @@ import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
+import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment.Listener;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
@@ -116,6 +118,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private android.view.MenuItem logPlayMenuItem;
 	private android.view.MenuItem logPlayQuickMenuItem;
 	private android.view.MenuItem bggLinkMenuItem;
+	private CollectionSorterFactory collectionSorterFactory;
 
 	@Override
 	@DebugLog
@@ -165,11 +168,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		sorter = CollectionSorterFactory.create(getActivity(), sortType);
+		sorter = getCollectionSorter(sortType);
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
 		}
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+	}
+
+	private CollectionSorter getCollectionSorter(int sortType) {
+		if (collectionSorterFactory == null) {
+			collectionSorterFactory = new CollectionSorterFactory(getActivity());
+		}
+		return collectionSorterFactory.create(sortType);
 	}
 
 	@DebugLog
@@ -261,47 +271,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_view_delete:
 					DeleteView.createDialog(getActivity(), CollectionFragment.this);
 					return true;
-				case R.id.menu_collection_sort_name:
-					setSort(CollectionSorterFactory.TYPE_COLLECTION_NAME);
-					return true;
-				case R.id.menu_collection_sort_rank:
-					setSort(CollectionSorterFactory.TYPE_RANK);
-					return true;
-				case R.id.menu_collection_sort_geek_rating:
-					setSort(CollectionSorterFactory.TYPE_GEEK_RATING);
-					return true;
-				case R.id.menu_collection_sort_rating:
-					setSort(CollectionSorterFactory.TYPE_AVERAGE_RATING);
-					return true;
-				case R.id.menu_collection_sort_myrating:
-					setSort(CollectionSorterFactory.TYPE_MY_RATING);
-					return true;
-				case R.id.menu_collection_sort_last_viewed:
-					setSort(CollectionSorterFactory.TYPE_LAST_VIEWED);
-					return true;
-				case R.id.menu_collection_sort_wishlist_priority:
-					setSort(CollectionSorterFactory.TYPE_WISHLIST_PRIORITY);
-					return true;
-				case R.id.menu_collection_sort_published:
-					setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
-					return true;
-				case R.id.menu_collection_sort_playtime:
-					setSort(CollectionSorterFactory.TYPE_PLAY_TIME_ASC, CollectionSorterFactory.TYPE_PLAY_TIME_DESC);
-					return true;
-				case R.id.menu_collection_sort_age:
-					setSort(CollectionSorterFactory.TYPE_AGE_ASC, CollectionSorterFactory.TYPE_AGE_DESC);
-					return true;
-				case R.id.menu_collection_sort_weight:
-					setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
-					return true;
-				case R.id.menu_collection_sort_plays:
-					setSort(CollectionSorterFactory.TYPE_PLAY_COUNT_DESC, CollectionSorterFactory.TYPE_PLAY_COUNT_ASC);
-					return true;
-				case R.id.menu_collection_sort_acquisition_date:
-					setSort(CollectionSorterFactory.TYPE_ACQUISITION_DATE);
+				case R.id.menu_collection_sort:
+					final CollectionSortDialogFragment fragment =
+						CollectionSortDialogFragment.newInstance(swipeRefreshLayout, new Listener() {
+							@Override
+							public void onSortSelected(int sortType) {
+								setSort(sortType);
+							}
+						});
+					fragment.setSelection(sorter.getType());
+					fragment.show(getFragmentManager(), "sort");
 					return true;
 			}
-
 			return launchFilterDialog(item.getItemId());
 		}
 	};
@@ -438,7 +419,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			restoreScrollState();
 
 			final int rowCount = cursor.getCount();
-			final String sortDescription = sorter == null ? "" : sorter.getDescription();
+			final String sortDescription = sorter == null ? "" :
+				String.format(getActivity().getString(R.string.sort_description), sorter.getDescription());
 			rowCountView.setText(String.valueOf(rowCount));
 			sortDescriptionView.setText(sortDescription);
 			EventBus.getDefault().post(new CollectionCountChangedEvent(rowCount));
@@ -449,7 +431,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
 				viewName = cursor.getString(ViewQuery.NAME);
-				sorter = CollectionSorterFactory.create(getActivity(), cursor.getInt(ViewQuery.SORT_TYPE));
+				sorter = getCollectionSorter(cursor.getInt(ViewQuery.SORT_TYPE));
 				filters.clear();
 				do {
 					CollectionFilterer filter = CollectionFilterDataFactory.create(getActivity(),
@@ -573,18 +555,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
-		sorter = CollectionSorterFactory.create(getActivity(), sortType);
+		sorter = getCollectionSorter(sortType);
 		resetScrollState();
 		requery();
-	}
-
-	@DebugLog
-	private void setSort(int sortType, int sortType2) {
-		if (sorter.getType() == sortType) {
-			setSort(sortType2);
-		} else {
-			setSort(sortType);
-		}
 	}
 
 	@Override
@@ -760,7 +733,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		viewName = "";
 		resetScrollState();
 		filters.clear();
-		sorter = CollectionSorterFactory.create(getActivity(), CollectionSorterFactory.TYPE_DEFAULT);
+		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
 		requery();
 	}
 

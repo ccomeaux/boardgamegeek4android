@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.util.SparseArray;
 
 import com.boardgamegeek.R;
@@ -16,7 +17,7 @@ public class RankSorter extends CollectionSorter {
 	public RankSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Games.GAME_RANK, false);
-		descriptionId = R.string.menu_collection_sort_rank;
+		descriptionId = R.string.collection_sort_rank;
 		defaultHeaderText = context.getResources().getString(R.string.unranked);
 		defaultText = context.getResources().getString(R.string.text_not_available);
 	}
@@ -35,9 +36,10 @@ public class RankSorter extends CollectionSorter {
 		return ranks;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_RANK;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_rank;
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public abstract class PlayTimeSorter extends CollectionSorter {
 	public PlayTimeSorter(@NonNull Context context) {
 		super(context);
-		descriptionId = R.string.menu_collection_sort_playtime;
+		descriptionId = R.string.collection_sort_play_time;
 	}
 
 	@Override

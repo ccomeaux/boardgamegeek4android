@@ -12,7 +12,7 @@ public abstract class SuggestedAgeSorter extends CollectionSorter {
 
 	public SuggestedAgeSorter(@NonNull Context context) {
 		super(context);
-		descriptionId = R.string.menu_collection_sort_age;
+		descriptionId = R.string.collection_sort_suggested_age;
 	}
 
 	@Override

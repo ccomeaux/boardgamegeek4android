@@ -3,8 +3,10 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.util.StringUtils;
 
 public abstract class CollectionSorter extends Sorter {
 	protected int subDescriptionId;
@@ -24,6 +26,14 @@ public abstract class CollectionSorter extends Sorter {
 		}
 		return description;
 	}
+
+	@Override
+	public int getType() {
+		return StringUtils.parseInt(context.getString(getTypeResource()), CollectionSorterFactory.TYPE_DEFAULT);
+	}
+
+	@StringRes
+	protected abstract int getTypeResource();
 
 	@Override
 	protected String getDefaultSort() {
