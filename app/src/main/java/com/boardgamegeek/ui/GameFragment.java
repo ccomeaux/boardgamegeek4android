@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -33,6 +34,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -103,15 +105,17 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView imageView;
 	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_name) TextView nameView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_rating) TextView ratingView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_rating) TextView ratingView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_description) TextView descriptionView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_rank) TextView rankView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_year) TextView yearPublishedView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_rank) TextView rankView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_year_published) TextView yearPublishedView;
 
 	@SuppressWarnings("unused") @InjectView(R.id.primary_info_container) View primaryInfoContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.number_of_players) TextView numberOfPlayersView;
 	@SuppressWarnings("unused") @InjectView(R.id.play_time) TextView playTimeView;
 	@SuppressWarnings("unused") @InjectView(R.id.player_age) TextView playerAgeView;
+
+	@SuppressWarnings("unused") @InjectView(R.id.game_subtype) TextView subtypeView;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_designers) GameDetailRow designersView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_artists) GameDetailRow artistsView;
@@ -531,6 +535,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		nameView.setText(game.Name);
 		rankView.setText(game.getRankDescription());
 		yearPublishedView.setText(game.getYearPublished());
+		subtypeView.setText(game.getSubtype());
 		ratingView.setText(game.getRatingDescription());
 		ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
 		idView.setText(String.valueOf(game.Id));
@@ -1147,6 +1152,24 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				resId = R.string.weight_2_text;
 			}
 			return resId;
+		}
+
+		@DebugLog
+		public String getSubtype() {
+			// TODO: improve these strings
+			@StringRes int resId = R.string.title_game;
+			switch (Subtype) {
+				case BggService.THING_SUBTYPE_BOARDGAME:
+					resId = R.string.title_board_game;
+					break;
+				case BggService.THING_SUBTYPE_BOARDGAME_EXPANSION:
+					resId = R.string.title_board_game_expansion;
+					break;
+				case BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY:
+					resId = R.string.title_board_game_accessory;
+					break;
+			}
+			return getString(resId);
 		}
 	}
 

@@ -47,36 +47,20 @@
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:baselineAligned="false"
-						android:orientation="horizontal"
+						android:orientation="vertical"
 						android:paddingBottom="@dimen/material_margin_vertical"
 						android:paddingLeft="@dimen/material_margin_horizontal"
 						android:paddingRight="@dimen/material_margin_horizontal"
 						android:paddingTop="@dimen/material_margin_vertical">
 
-						<LinearLayout
-							android:layout_width="0dp"
-							android:layout_height="match_parent"
-							android:layout_weight="1"
-							android:orientation="vertical">
-
-							<TextView
-								android:id="@+id/game_info_name"
-								style="@style/Text.Headline.Overlay"
-								android:layout_width="wrap_content"
-								android:layout_height="wrap_content"
-								android:ellipsize="end"
-								android:maxLines="2"
-								tools:text="Terra Mystica"/>
-						</LinearLayout>
-
 						<TextView
-							android:id="@+id/game_info_rank"
+							android:id="@+id/game_info_name"
 							style="@style/Text.Headline.Overlay"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:paddingLeft="@dimen/padding_standard"
-							android:paddingRight="0dp"
-							tools:text="#42"/>
+							android:ellipsize="end"
+							android:maxLines="2"
+							tools:text="Terra Mystica"/>
 					</LinearLayout>
 				</FrameLayout>
 
@@ -93,7 +77,7 @@
 					android:weightSum="@integer/game_info_weight_sum">
 
 					<TextView
-						android:id="@+id/game_info_year"
+						android:id="@+id/game_year_published"
 						style="@style/InfoBarItem"
 						android:layout_width="0dp"
 						android:layout_weight="1"
@@ -129,25 +113,6 @@
 						tools:text="13+"/>
 				</LinearLayout>
 
-				<LinearLayout
-					style="@style/GameDetailRow"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal"
-					android:gravity="center"
-					android:orientation="horizontal"
-					android:paddingBottom="@dimen/material_margin_vertical"
-					android:paddingTop="@dimen/material_margin_vertical">
-
-					<TextView
-						android:id="@+id/game_info_rating"
-						style="@style/RatingLarge"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						tools:background="#088"
-						tools:text="7.43"/>
-				</LinearLayout>
-
 				<TextView
 					android:id="@+id/game_info_description"
 					style="@style/GameDetailRow"
@@ -158,8 +123,54 @@
 					android:drawableBottom="@drawable/expander_open"
 					android:ellipsize="end"
 					android:maxLines="3"
+					android:paddingTop="@dimen/padding_extra"
 					android:textAppearance="@style/Text.Body"
 					tools:text="This is the game's description. Sometimes it will tell you if the game is good. Sometimes it won't."/>
+
+				<android.support.v7.widget.CardView
+					style="@style/Card"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="vertical">
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:orientation="horizontal">
+
+							<TextView
+								android:id="@+id/game_subtype"
+								style="@style/Text.Title"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="2"
+								tools:text="Board Game"/>
+
+							<TextView
+								android:id="@+id/game_rank"
+								style="@style/Text.Title"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:gravity="center"
+								tools:text="#42"/>
+
+							<TextView
+								android:id="@+id/game_rating"
+								style="@style/RatingLarge"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:gravity="center"
+								tools:background="#088"
+								tools:text="7.43"/>
+						</LinearLayout>
+					</LinearLayout>
+				</android.support.v7.widget.CardView>
 
 				<android.support.v7.widget.CardView
 					style="@style/Card"
