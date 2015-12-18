@@ -5,18 +5,6 @@
 	android:orientation="vertical" >
 
 	<LinearLayout
-		android:id="@+id/game_stats_rank_root"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical" />
-
-	<View
-		android:id="@+id/game_stats_rank_rule"
-		style="@style/BodySeparator"
-		android:layout_width="match_parent"
-		android:layout_height="1dp" />
-
-	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"

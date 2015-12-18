@@ -115,6 +115,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.play_time) TextView playTimeView;
 	@SuppressWarnings("unused") @InjectView(R.id.player_age) TextView playerAgeView;
 
+	@SuppressWarnings("unused") @InjectView(R.id.game_subtype_container) ViewGroup subtypeContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.game_subtype) TextView subtypeView;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_designers) GameDetailRow designersView;
@@ -140,7 +141,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_label) TextView statsLabel;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_content) View statsContent;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rank_root) LinearLayout rankRoot;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_count) TextView ratingsCountView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_average_bar) StatBar averageStatBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_bayes_bar) StatBar bayesAverageBar;
@@ -632,39 +632,41 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@DebugLog
 	private void onRankQueryComplete(Cursor cursor) {
-		rankRoot.removeAllViews();
-		if (cursor == null || cursor.getCount() == 0) {
-			rankRoot.setVisibility(View.GONE);
-		} else {
-			rankRoot.setVisibility(View.VISIBLE);
-
-			while (cursor.moveToNext()) {
-				Rank rank = new Rank(cursor);
-				addRankRow(rank.Name, rank.Rank, "subtype".equals(rank.Type), rank.Rating);
+		if (subtypeContainer != null) {
+			subtypeContainer.removeAllViews();
+			if (cursor != null && cursor.getCount() > 0) {
+				while (cursor.moveToNext()) {
+					Rank rank = new Rank(cursor);
+					addRankRow(rank.Name, rank.Rank, "subtype".equals(rank.Type), rank.Rating);
+				}
 			}
 		}
 	}
 
 	@DebugLog
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
-		LinearLayout layout = (LinearLayout) getLayoutInflater(null)
-			.inflate(R.layout.widget_rank_row, rankRoot, false);
+		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, subtypeContainer, false);
 
+		if (label.endsWith(" Rank")) {
+			label = label.substring(0, label.length() - 5);
+		}
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
 		setText(tv, label, bold);
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
-		String rankText = (rank == 0 || rank == Integer.MAX_VALUE) ? getResources().getString(
-			R.string.text_not_available) : String.valueOf(rank);
+		String rankText = (rank == 0 || rank == Integer.MAX_VALUE) ? getResources().getString(R.string.text_not_available) : String.valueOf(rank);
 		setText(tv, rankText, bold);
 
+		tv = (TextView) layout.findViewById(R.id.rank_row_rating);
+		String ratingText = String.valueOf(rating);
+		setText(tv, ratingText, bold);
+
 		StatBar sb = new StatBar(getActivity());
-		sb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-			LinearLayout.LayoutParams.MATCH_PARENT));
+		sb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 		sb.setBar(R.string.average_meter_text, rating);
 
-		rankRoot.addView(layout);
-		rankRoot.addView(sb);
+		subtypeContainer.addView(layout);
+		subtypeContainer.addView(sb);
 	}
 
 	@DebugLog
