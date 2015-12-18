@@ -106,7 +106,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_name) TextView nameView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_rating) TextView ratingView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_description) TextView descriptionView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_description) TextView descriptionView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_rank) TextView rankView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_year_published) TextView yearPublishedView;
 
@@ -750,7 +750,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.game_info_description)
+	@OnClick(R.id.game_description)
 	@DebugLog
 	public void onDescriptionClick(View v) {
 		isDescriptionExpanded = !isDescriptionExpanded;
