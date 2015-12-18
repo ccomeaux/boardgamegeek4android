@@ -657,15 +657,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		setText(tv, PresentationUtils.describeRank(rank), bold);
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rating);
-		String ratingText = String.valueOf(rating);
-		setText(tv, ratingText, bold);
-
-		StatBar sb = new StatBar(getActivity());
-		sb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-		sb.setBar(R.string.average_meter_text, rating);
+		setText(tv, PresentationUtils.describeAverageRating(getActivity(), rating), bold);
 
 		subtypeContainer.addView(layout);
-		subtypeContainer.addView(sb);
 	}
 
 	@DebugLog

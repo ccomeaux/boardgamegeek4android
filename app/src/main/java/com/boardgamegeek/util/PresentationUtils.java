@@ -15,7 +15,7 @@ import java.text.DecimalFormat;
  * Methods to aid in presenting information in a consistent manner.
  */
 public class PresentationUtils {
-	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.00");
+	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.000");
 	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.#");
 
 	private PresentationUtils() {
