@@ -654,8 +654,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		setText(tv, label, bold);
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
-		String rankText = (rank == 0 || rank == Integer.MAX_VALUE) ? getResources().getString(R.string.text_not_available) : String.valueOf(rank);
-		setText(tv, rankText, bold);
+		setText(tv, PresentationUtils.describeRank(rank), bold);
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rating);
 		String ratingText = String.valueOf(rating);
@@ -1124,11 +1123,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		private String getRankDescription() {
-			if (Rank == 0 || Rank == Integer.MAX_VALUE) {
-				return "";
-			} else {
-				return "#" + Rank;
-			}
+			return PresentationUtils.describeRank(Rank);
 		}
 
 		@DebugLog

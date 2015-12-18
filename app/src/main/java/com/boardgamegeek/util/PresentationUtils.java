@@ -84,6 +84,14 @@ public class PresentationUtils {
 		}
 	}
 
+	public static String describeRank(int rank){
+		if (rank == 0 || rank == Integer.MAX_VALUE) {
+			return "";
+		} else {
+			return "#" + rank;
+		}
+	}
+
 	/**
 	 * Build a displayable full name from the first and last name.
 	 */
