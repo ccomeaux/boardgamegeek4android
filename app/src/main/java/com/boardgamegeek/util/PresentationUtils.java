@@ -11,6 +11,8 @@ import com.boardgamegeek.model.Constants;
 
 import java.text.DecimalFormat;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Methods to aid in presenting information in a consistent manner.
  */
@@ -21,10 +23,12 @@ public class PresentationUtils {
 	private PresentationUtils() {
 	}
 
+	@DebugLog
 	public static CharSequence describePastTimeSpan(long time) {
 		return describePastTimeSpan(time, "");
 	}
 
+	@DebugLog
 	public static CharSequence describePastTimeSpan(long time, String defaultValue) {
 		if (time == 0) {
 			return defaultValue;
@@ -32,6 +36,7 @@ public class PresentationUtils {
 		return DateUtils.getRelativeTimeSpanString(time);
 	}
 
+	@DebugLog
 	public static CharSequence describePastTimeSpan(long time, String defaultValue, String prefix) {
 		if (time == 0) {
 			return defaultValue;
@@ -39,9 +44,7 @@ public class PresentationUtils {
 		return prefix + " " + DateUtils.getRelativeTimeSpanString(time);
 	}
 
-	/**
-	 * Given the year, return a string interpretation.
-	 */
+	@DebugLog
 	public static String describeYear(Context context, int year) {
 		if (context == null) {
 			return "";
@@ -55,9 +58,7 @@ public class PresentationUtils {
 		}
 	}
 
-	/**
-	 * Describe the priority of the wishlist.
-	 */
+	@DebugLog
 	public static String describeWishlist(Context context, int priority) {
 		if (context == null) {
 			return "";
@@ -68,6 +69,7 @@ public class PresentationUtils {
 		return context.getResources().getStringArray(R.array.wishlist_priority)[priority];
 	}
 
+	@DebugLog
 	public static String describeAverageRating(Context context, double rating) {
 		if (rating > 0.0) {
 			return AVERAGE_RATING_FORMAT.format(rating);
@@ -76,6 +78,7 @@ public class PresentationUtils {
 		}
 	}
 
+	@DebugLog
 	public static String describeRating(Context context, double rating) {
 		if (rating > 0.0) {
 			return RATING_FORMAT.format(rating);
@@ -84,7 +87,8 @@ public class PresentationUtils {
 		}
 	}
 
-	public static String describeRank(int rank){
+	@DebugLog
+	public static String describeRank(int rank) {
 		if (rank == 0 || rank == Integer.MAX_VALUE) {
 			return "";
 		} else {
@@ -95,6 +99,7 @@ public class PresentationUtils {
 	/**
 	 * Build a displayable full name from the first and last name.
 	 */
+	@DebugLog
 	public static String buildFullName(String firstName, String lastName) {
 		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
 			return "";
@@ -107,6 +112,7 @@ public class PresentationUtils {
 		}
 	}
 
+	@DebugLog
 	public static void setTextOrHide(TextView textView, CharSequence text) {
 		if (textView != null) {
 			textView.setText(text);
