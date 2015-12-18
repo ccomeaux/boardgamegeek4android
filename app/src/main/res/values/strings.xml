@@ -129,6 +129,13 @@
 	<string name="title_board_game_accessory">Board Game Accessory</string>
 	<string name="title_board_game_publisher">Board Game Publisher</string>
 	<string name="title_board_game_designer">Board Game Designer</string>
+	<string name="title_abstract">Abstract</string>
+	<string name="title_childrens">Children\'s</string>
+	<string name="title_customizable">Customizable</string>
+	<string name="title_party">Party</string>
+	<string name="title_strategy">Strategy</string>
+	<string name="title_thematic">Thematic</string>
+	<string name="title_war">War</string>
 	<string name="title_thing">Thing</string>
 	<string name="title_company">Company</string>
 	<string name="title_person">Person</string>

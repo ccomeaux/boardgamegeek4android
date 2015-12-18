@@ -42,6 +42,17 @@ public interface BggService {
 	String THING_SUBTYPE_BOARDGAME_EXPANSION = "boardgameexpansion";
 	String THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory";
 
+	String RANK_TYPE_SUBTYPE = "subtype";
+	String RANK_TYPE_FAMILY = "family";
+	String RANK_FAMILY_NAME_ABSTRACT_GAMES = "abstracts";
+	String RANK_FAMILY_NAME_CUSTOMIZABLE_GAMES = "cgs";
+	String RANK_FAMILY_NAME_CHILDRENS_GAMES = "childrensgames";
+	String RANK_FAMILY_NAME_FAMILY_GAMES = "familygames";
+	String RANK_FAMILY_NAME_PARTY_GAMES = "partygames";
+	String RANK_FAMILY_NAME_STRATEGY_GAMES = "strategygames";
+	String RANK_FAMILY_NAME_THEMATIC_GAMES = "thematic";
+	String RANK_FAMILY_NAME_WAR_GAMES = "wargames";
+
 	String PERSON_TYPE_ARTIST = "boardgameartist";
 	String PERSON_TYPE_DESIGNER = "boardgamedesigner";
 	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";

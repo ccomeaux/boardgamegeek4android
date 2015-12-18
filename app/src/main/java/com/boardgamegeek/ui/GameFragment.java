@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -30,7 +29,6 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -645,11 +643,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private void addRankRow(String label, int rank, double rating) {
 		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, subtypeContainer, false);
 
-		if (label.endsWith(" Rank")) {
-			label = label.substring(0, label.length() - 5);
-		}
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
-		tv.setText(label);
+		tv.setText(PresentationUtils.describeRankName(getActivity(), "family", label));
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
 		tv.setText(PresentationUtils.describeRank(rank));
@@ -966,9 +961,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	private interface RankQuery {
 		int _TOKEN = 0x19;
-		String[] PROJECTION = { GameRanks.GAME_RANK_FRIENDLY_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
+		String[] PROJECTION = { GameRanks.GAME_RANK_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
 			GameRanks.GAME_RANK_BAYES_AVERAGE };
-		int GAME_RANK_FRIENDLY_NAME = 0;
+		int GAME_RANK_NAME = 0;
 		int GAME_RANK_VALUE = 1;
 		int GAME_RANK_TYPE = 2;
 		int GAME_RANK_BAYES_AVERAGE = 3;
@@ -1135,20 +1130,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		public String getSubtype() {
-			// TODO: improve these strings
-			@StringRes int resId = R.string.title_game;
-			switch (Subtype) {
-				case BggService.THING_SUBTYPE_BOARDGAME:
-					resId = R.string.title_board_game;
-					break;
-				case BggService.THING_SUBTYPE_BOARDGAME_EXPANSION:
-					resId = R.string.title_board_game_expansion;
-					break;
-				case BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY:
-					resId = R.string.title_board_game_accessory;
-					break;
-			}
-			return getString(resId);
+			return PresentationUtils.describeRankName(getActivity(), "subtype", Subtype);
 		}
 	}
 
@@ -1159,7 +1141,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		final String Type;
 
 		Rank(Cursor cursor) {
-			Name = cursor.getString(RankQuery.GAME_RANK_FRIENDLY_NAME);
+			Name = cursor.getString(RankQuery.GAME_RANK_NAME);
 			Rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
 			Rating = cursor.getDouble(RankQuery.GAME_RANK_BAYES_AVERAGE);
 			Type = cursor.getString(RankQuery.GAME_RANK_TYPE);
