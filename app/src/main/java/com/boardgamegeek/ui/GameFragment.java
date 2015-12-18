@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,10 +16,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.graphics.Palette;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -660,6 +656,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rating);
 		tv.setText(PresentationUtils.describeAverageRating(getActivity(), rating));
+		ColorUtils.setViewBackground(tv, ColorUtils.getRatingColor(rating));
 
 		subtypeContainer.addView(layout);
 	}
