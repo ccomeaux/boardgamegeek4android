@@ -637,27 +637,29 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			if (cursor != null && cursor.getCount() > 0) {
 				while (cursor.moveToNext()) {
 					Rank rank = new Rank(cursor);
-					addRankRow(rank.Name, rank.Rank, "subtype".equals(rank.Type), rank.Rating);
+					if (!"subtype".equals(rank.Type)) {
+						addRankRow(rank.Name, rank.Rank, rank.Rating);
+					}
 				}
 			}
 		}
 	}
 
 	@DebugLog
-	private void addRankRow(String label, int rank, boolean bold, double rating) {
+	private void addRankRow(String label, int rank, double rating) {
 		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, subtypeContainer, false);
 
 		if (label.endsWith(" Rank")) {
 			label = label.substring(0, label.length() - 5);
 		}
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
-		setText(tv, label, bold);
+		tv.setText(label);
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
-		setText(tv, PresentationUtils.describeRank(rank), bold);
+		tv.setText(PresentationUtils.describeRank(rank));
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rating);
-		setText(tv, PresentationUtils.describeAverageRating(getActivity(), rating), bold);
+		tv.setText(PresentationUtils.describeAverageRating(getActivity(), rating));
 
 		subtypeContainer.addView(layout);
 	}
@@ -717,17 +719,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			} else {
 				playsLabel.setText(getResources().getString(R.string.no_plays));
 			}
-		}
-	}
-
-	@DebugLog
-	private void setText(TextView tv, String text, boolean bold) {
-		if (bold) {
-			SpannableString ss = new SpannableString(text);
-			ss.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			tv.setText(ss);
-		} else {
-			tv.setText(text);
 		}
 	}
 
