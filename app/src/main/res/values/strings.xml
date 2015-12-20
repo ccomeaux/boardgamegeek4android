@@ -377,7 +377,9 @@
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="votes_suffix">"%s votes"</string>
+	<string name="average_rating">Average rating</string>
+	<string name="standard_deviation">Standard deviation</string>
+	<string name="votes_suffix">"%,d votes"</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>
 	<string name="by_prefix">by %s</string>

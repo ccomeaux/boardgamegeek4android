@@ -464,7 +464,8 @@
 							android:layout_height="wrap_content"
 							android:background="?attr/selectableItemBackground"
 							android:descendantFocusability="blocksDescendants"
-							android:gravity="center_vertical"
+							android:paddingBottom="@dimen/padding_small"
+							android:paddingTop="@dimen/padding_small"
 							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal">
 
@@ -473,15 +474,38 @@
 								style="@style/Icon"
 								android:src="@drawable/ic_action_stars"/>
 
-							<TextView
-								android:id="@+id/game_ratings_label"
-								style="@style/Text"
+							<LinearLayout
+								android:id="@+id/rating_container"
 								android:layout_width="0dp"
-								android:layout_height="match_parent"
+								android:layout_height="wrap_content"
 								android:layout_weight="1"
 								android:gravity="center_vertical"
-								android:maxLines="1"
-								android:text="@string/title_ratings"/>
+								android:orientation="vertical">
+
+								<TextView
+									android:id="@+id/game_ratings_label"
+									style="@style/Text"
+									android:layout_width="wrap_content"
+									android:layout_height="wrap_content"
+									android:maxLines="1"
+									tools:text="Overall rating: 8.123"/>
+
+								<TextView
+									android:id="@+id/game_ratings_votes"
+									style="@style/Text.Secondary"
+									android:layout_width="wrap_content"
+									android:layout_height="wrap_content"
+									android:maxLines="1"
+									tools:text="42,000 votes"/>
+
+								<TextView
+									android:id="@+id/game_ratings_standard_deviation"
+									style="@style/Text.Secondary"
+									android:layout_width="wrap_content"
+									android:layout_height="wrap_content"
+									android:maxLines="1"
+									tools:text="Standard Deviation: 1.50"/>
+							</LinearLayout>
 						</LinearLayout>
 
 						<LinearLayout

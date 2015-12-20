@@ -131,7 +131,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.game_colors_label) TextView colorsLabel;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_comments_label) TextView commentsLabel;
+
 	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_label) TextView ratingsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_votes) TextView ratingsVotes;
+	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_standard_deviation) TextView ratingsStandardDeviation;
+
 	@SuppressWarnings("unused") @InjectView(R.id.game_weight) TextView weightView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
 
@@ -540,7 +544,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		playTimeView.setText(game.getPlayingTimeDescription());
 		playerAgeView.setText(game.getAgeDescription());
 		commentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
-		ratingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
+
+		ratingsLabel.setText(getString(R.string.average_rating) + ": " + PresentationUtils.describeAverageRating(getActivity(), game.BayesAverage));
+		ratingsVotes.setText(getString(R.string.votes_suffix, game.UsersRated));
+		ratingsStandardDeviation.setText(getString(R.string.standard_deviation) + ": " + PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation));
+
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
 		weightVotes.setText(getString(R.string.votes_suffix, game.NumberWeights));
 
