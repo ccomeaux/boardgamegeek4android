@@ -16,9 +16,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -31,6 +29,7 @@ import com.boardgamegeek.util.VersionUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import timber.log.Timber;
 
@@ -80,18 +79,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 				return false;
 			}
 		});
-
-		((CheckBox) findViewById(R.id.show_password)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				int selectionStart = passwordView.getSelectionStart();
-				int selectionEnd = passwordView.getSelectionEnd();
-				passwordView
-					.setInputType(isChecked ? (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
-						: (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
-				passwordView.setSelection(selectionStart, selectionEnd);
-			}
-		});
 	}
 
 	@Override
@@ -100,6 +87,18 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			userLoginTask.cancel(true);
 		} else {
 			super.onBackPressed();
+		}
+	}
+
+	@OnCheckedChanged(R.id.show_password)
+	public void onShowPasswordCheckChanged(CompoundButton buttonView, boolean isChecked) {
+		int selectionStart = passwordView.getSelectionStart();
+		int selectionEnd = passwordView.getSelectionEnd();
+		passwordView.setInputType(isChecked ?
+			(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) :
+			(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+		if (selectionStart >= 0 && selectionEnd >= 0) {
+			passwordView.setSelection(selectionStart, selectionEnd);
 		}
 	}
 
