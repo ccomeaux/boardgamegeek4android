@@ -114,6 +114,7 @@ public class GameCollectionFragment extends Fragment implements
 		R.id.last_modified
 	}) List<TextView> colorizedTextViews;
 	@SuppressWarnings("unused") @InjectViews({
+		R.id.add_comment,
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
 		R.id.card_header_condition,

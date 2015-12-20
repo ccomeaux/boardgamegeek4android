@@ -77,10 +77,12 @@
 					android:background="@color/info_background"
 					android:elevation="@dimen/material_elevation_subtle"
 					android:gravity="center"
+					android:minHeight="48dp"
 					android:orientation="vertical">
 
 					<TextView
 						android:id="@+id/status"
+						style="@style/Text"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:textStyle="bold"
@@ -203,6 +205,7 @@
 
 								<TextView
 									android:id="@+id/private_info"
+									style="@style/Text"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
 									tools:text="Acquired on Jan 1, 1999"/>
