@@ -19,8 +19,9 @@ import hugo.weaving.DebugLog;
  * Methods to aid in presenting information in a consistent manner.
  */
 public class PresentationUtils {
+	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.0");
 	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.000");
-	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.#");
+	private static final DecimalFormat PERSONAL_RATING_FORMAT = new DecimalFormat("#0.#");
 
 	private PresentationUtils() {
 	}
@@ -72,18 +73,24 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static String describeAverageRating(Context context, double rating) {
-		if (rating > 0.0) {
-			return AVERAGE_RATING_FORMAT.format(rating);
-		} else {
-			return context.getString(R.string.unrated);
-		}
+	public static String describeRating(Context context, double rating) {
+		return describeRating(context, rating, RATING_FORMAT);
 	}
 
 	@DebugLog
-	public static String describeRating(Context context, double rating) {
+	public static String describeAverageRating(Context context, double rating) {
+		return describeRating(context, rating, AVERAGE_RATING_FORMAT);
+	}
+
+	@DebugLog
+	public static String describePersonalRating(Context context, double rating) {
+		return describeRating(context, rating, PERSONAL_RATING_FORMAT);
+	}
+
+	@DebugLog
+	private static String describeRating(Context context, double rating, DecimalFormat format) {
 		if (rating > 0.0) {
-			return RATING_FORMAT.format(rating);
+			return format.format(rating);
 		} else {
 			return context.getString(R.string.unrated);
 		}

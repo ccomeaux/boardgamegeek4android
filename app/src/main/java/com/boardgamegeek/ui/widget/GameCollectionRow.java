@@ -142,7 +142,7 @@ public class GameCollectionRow extends LinearLayout {
 		if (rating == 0.0) {
 			ratingView.setVisibility(View.GONE);
 		} else {
-			ratingView.setText(PresentationUtils.describeRating(getContext(), rating));
+			ratingView.setText(PresentationUtils.describePersonalRating(getContext(), rating));
 			ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(rating));
 			ratingView.setVisibility(View.VISIBLE);
 		}

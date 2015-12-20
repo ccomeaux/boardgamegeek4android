@@ -651,7 +651,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rating);
 		tv.setText(PresentationUtils.describeAverageRating(getActivity(), rating));
-		ColorUtils.setViewBackground(tv, ColorUtils.getRatingColor(rating));
 
 		subtypeContainer.addView(layout);
 	}
@@ -1105,7 +1104,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		public String getRatingDescription() {
-			return PresentationUtils.describeAverageRating(getContext(), Rating);
+			return PresentationUtils.describeRating(getContext(), Rating);
 		}
 
 		@DebugLog

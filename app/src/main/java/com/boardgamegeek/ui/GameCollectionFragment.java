@@ -681,7 +681,7 @@ public class GameCollectionFragment extends Fragment implements
 		}
 
 		String getRatingDescription() {
-			return PresentationUtils.describeRating(getActivity(), rating);
+			return PresentationUtils.describePersonalRating(getActivity(), rating);
 		}
 
 		String getYearDescription() {
