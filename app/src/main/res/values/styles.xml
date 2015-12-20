@@ -28,6 +28,7 @@
 		<item name="android:drawablePadding">@dimen/padding_half</item>
 		<item name="android:minHeight">@dimen/edit_row_height</item>
 		<item name="android:layout_height">wrap_content</item>
+		<item name="android:textSize">14sp</item>
 	</style>
 
 	<style name="Text.Code" parent="@android:style/TextAppearance">
