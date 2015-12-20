@@ -65,38 +65,6 @@
 			style="@style/Text.Header2"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/weight" />
-
-		<TextView
-			android:id="@+id/game_stats_weight_count"
-			style="@style/StatsCount"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1" />
-	</LinearLayout>
-
-	<com.boardgamegeek.ui.widget.StatBar
-		android:id="@+id/game_stats_weight_bar"
-		style="@style/StatRow"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent" />
-
-	<View
-		style="@style/BodySeparator"
-		android:layout_width="match_parent"
-		android:layout_height="1dp" />
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:paddingBottom="@dimen/padding_small"
-		android:paddingTop="@dimen/padding_small" >
-
-		<TextView
-			style="@style/Text.Header2"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
 			android:text="@string/users" />
 
 		<TextView

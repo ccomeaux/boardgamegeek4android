@@ -132,6 +132,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_comments_label) TextView commentsLabel;
 	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_label) TextView ratingsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.game_weight) TextView weightView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_label) TextView statsLabel;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_content) View statsContent;
@@ -140,8 +142,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_bayes_bar) StatBar bayesAverageBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_median_bar) StatBar medianBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_stddev_bar) StatBar standardDeviationBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weight_count) TextView weightCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weight_bar) StatBar weightBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_users_count) TextView userCountView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_owning_bar) StatBar numberOwningBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_bar) StatBar numberRatingBar;
@@ -183,6 +183,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_forums,
 		R.id.icon_comments,
 		R.id.icon_ratings,
+		R.id.icon_weight,
 		R.id.icon_stats,
 		R.id.icon_links
 	}) List<ImageView> colorizedIcons;
@@ -540,6 +541,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		playerAgeView.setText(game.getAgeDescription());
 		commentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 		ratingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
+		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
+		weightVotes.setText(getString(R.string.votes_suffix, game.NumberWeights));
 
 		ratingsCountView.setText(String.format(getResources().getString(R.string.rating_count), numberFormat.format(game.UsersRated)));
 		averageStatBar.setBar(R.string.average_meter_text, game.Rating);
@@ -551,9 +554,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			medianBar.setBar(R.string.median_meter_text, game.Median);
 		}
 		standardDeviationBar.setBar(R.string.stdDev_meter_text, game.StandardDeviation, 5.0);
-
-		weightCountView.setText(String.format(getResources().getString(R.string.weight_count), numberFormat.format(game.NumberWeights)));
-		weightBar.setBar(game.getWeightDescriptionResId(), game.AverageWeight, 5.0, 1.0);
 
 		userCountView.setText(String.format(getResources().getString(R.string.user_total), numberFormat.format(game.getMaxUsers())));
 		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
@@ -1110,21 +1110,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		@DebugLog
 		public String getYearPublished() {
 			return PresentationUtils.describeYear(getContext(), YearPublished);
-		}
-
-		@DebugLog
-		public int getWeightDescriptionResId() {
-			int resId = R.string.weight_1_text;
-			if (AverageWeight >= 4.2) {
-				resId = R.string.weight_5_text;
-			} else if (AverageWeight >= 3.4) {
-				resId = R.string.weight_4_text;
-			} else if (AverageWeight >= 2.6) {
-				resId = R.string.weight_3_text;
-			} else if (AverageWeight >= 1.8) {
-				resId = R.string.weight_2_text;
-			}
-			return resId;
 		}
 
 		@DebugLog

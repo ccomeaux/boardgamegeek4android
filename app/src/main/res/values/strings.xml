@@ -6,11 +6,11 @@
 	<string name="bayes_meter_text">Bayes Average = %s</string>
 	<string name="median_meter_text">Median = %s</string>
 	<string name="stdDev_meter_text">Standard Deviation = %s</string>
-	<string name="weight_1_text">%s - \"Light\"</string>
-	<string name="weight_2_text">%s - \"Medium Light\"</string>
-	<string name="weight_3_text">%s - \"Medium\"</string>
-	<string name="weight_4_text">%s - \"Medium Heavy\"</string>
-	<string name="weight_5_text">%s - \"Heavy\"</string>
+	<string name="weight_1_text">Light (%.2f / 5)</string>
+	<string name="weight_2_text">Medium Light (%.2f / 5)</string>
+	<string name="weight_3_text">Medium (%.2f / 5)</string>
+	<string name="weight_4_text">Medium Heavy (%.2f / 5)</string>
+	<string name="weight_5_text">Heavy (%.2f / 5)</string>
 	<string name="rating_count">%s ratings</string>
 	<string name="weight_count">%s weights</string>
 	<string name="user_total">%s users</string>

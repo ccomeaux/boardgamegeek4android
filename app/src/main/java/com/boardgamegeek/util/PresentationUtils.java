@@ -153,6 +153,21 @@ public class PresentationUtils {
 		return context.getString(resId);
 	}
 
+	@DebugLog
+	public static String describeWeight(Context context, double weight) {
+		@StringRes int resId = R.string.weight_1_text;
+		if (weight >= 4.2) {
+			resId = R.string.weight_5_text;
+		} else if (weight >= 3.4) {
+			resId = R.string.weight_4_text;
+		} else if (weight >= 2.6) {
+			resId = R.string.weight_3_text;
+		} else if (weight >= 1.8) {
+			resId = R.string.weight_2_text;
+		}
+		return context.getString(resId, weight);
+	}
+
 	/**
 	 * Build a displayable full name from the first and last name.
 	 */
