@@ -40,11 +40,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private String username;
 	private String password;
 
-	@InjectView(R.id.username) EditText usernameView;
-	@InjectView(R.id.password) EditText passwordView;
-	@InjectView(R.id.login_form) View loginFormView;
-	@InjectView(R.id.login_status) View loginStatusView;
-	@InjectView(R.id.login_status_message) TextView loginStatusMessageView;
+	@SuppressWarnings("unused") @InjectView(R.id.username) EditText usernameView;
+	@SuppressWarnings("unused") @InjectView(R.id.password) EditText passwordView;
+	@SuppressWarnings("unused") @InjectView(R.id.login_form) View loginFormView;
+	@SuppressWarnings("unused") @InjectView(R.id.login_status) View loginStatusView;
+	@SuppressWarnings("unused") @InjectView(R.id.login_status_message) TextView loginStatusMessageView;
 
 	private UserLoginTask userLoginTask = null;
 	private AccountManager accountManager;
@@ -90,6 +90,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
+	@SuppressWarnings({ "UnusedParameters", "unused" })
 	@OnCheckedChanged(R.id.show_password)
 	public void onShowPasswordCheckChanged(CompoundButton buttonView, boolean isChecked) {
 		int selectionStart = passwordView.getSelectionStart();
@@ -102,6 +103,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
+	@SuppressWarnings({ "UnusedParameters", "unused" })
 	@OnClick(R.id.sign_in_button)
 	public void onSignInClick(View view) {
 		attemptLogin();
