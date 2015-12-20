@@ -31,6 +31,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
@@ -50,6 +51,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private AccountManager accountManager;
 	private boolean isRequestingNewAccount;
 
+	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -81,6 +83,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		});
 	}
 
+	@DebugLog
 	@Override
 	public void onBackPressed() {
 		if (userLoginTask != null) {
@@ -90,6 +93,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
+	@DebugLog
 	@SuppressWarnings({ "UnusedParameters", "unused" })
 	@OnCheckedChanged(R.id.show_password)
 	public void onShowPasswordCheckChanged(CompoundButton buttonView, boolean isChecked) {
@@ -103,6 +107,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
+	@DebugLog
 	@SuppressWarnings({ "UnusedParameters", "unused" })
 	@OnClick(R.id.sign_in_button)
 	public void onSignInClick(View view) {
@@ -113,6 +118,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	 * Attempts to sign in or register the account specified by the login form. If there are form errors (invalid email,
 	 * missing fields, etc.), the errors are presented and no actual login attempt is made.
 	 */
+	@DebugLog
 	public void attemptLogin() {
 		if (userLoginTask != null) {
 			return;
@@ -155,6 +161,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
+	@DebugLog
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 	private void showProgress(final boolean show) {
 		// Fade in/out if possible
@@ -213,6 +220,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
+	@DebugLog
 	private void createAccount(AuthResponse authResponse) {
 		Timber.i("Creating account");
 		final Account account = new Account(username, Authenticator.ACCOUNT_TYPE);
@@ -247,6 +255,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		finish();
 	}
 
+	@DebugLog
 	private void showError(String message) {
 		Builder b = new Builder(this);
 		b.setTitle("Error").setMessage(message);
