@@ -141,18 +141,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_label) TextView statsLabel;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_content) View statsContent;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_count) TextView ratingsCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_average_bar) StatBar averageStatBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_bayes_bar) StatBar bayesAverageBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_median_bar) StatBar medianBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_stddev_bar) StatBar standardDeviationBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_users_count) TextView userCountView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_owning_bar) StatBar numberOwningBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_bar) StatBar numberRatingBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_trading_bar) StatBar numberTradingBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wanting_bar) StatBar numberWantingBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wishing_bar) StatBar numberWishingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weighting_bar) StatBar numberWeightingBar;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_links_label) TextView linksLabel;
 	@SuppressWarnings("unused") @InjectView(R.id.game_links_content) View linksContent;
@@ -552,24 +545,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
 		weightVotes.setText(getString(R.string.votes_suffix, game.NumberWeights));
 
-		ratingsCountView.setText(String.format(getResources().getString(R.string.rating_count), numberFormat.format(game.UsersRated)));
-		averageStatBar.setBar(R.string.average_meter_text, game.Rating);
-		bayesAverageBar.setBar(R.string.bayes_meter_text, game.BayesAverage);
-		if (game.Median <= 0) {
-			medianBar.setVisibility(View.GONE);
-		} else {
-			medianBar.setVisibility(View.VISIBLE);
-			medianBar.setBar(R.string.median_meter_text, game.Median);
-		}
-		standardDeviationBar.setBar(R.string.stdDev_meter_text, game.StandardDeviation, 5.0);
-
 		userCountView.setText(String.format(getResources().getString(R.string.user_total), numberFormat.format(game.getMaxUsers())));
 		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
-		numberRatingBar.setBar(R.string.rating_meter_text, game.UsersRated, game.getMaxUsers());
 		numberTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, game.getMaxUsers());
 		numberWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, game.getMaxUsers());
 		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
-		numberWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
 
 		if (shouldShowPlays()) {
 			playsCard.setVisibility(View.VISIBLE);
@@ -1078,10 +1058,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		public int getMaxUsers() {
-			int max = Math.max(UsersRated, NumberOwned);
-			max = Math.max(max, NumberTrading);
+			int max = Math.max(NumberTrading, NumberOwned);
 			max = Math.max(max, NumberWanting);
-			max = Math.max(max, NumberWeights);
 			max = Math.max(max, NumberWishing);
 			return max;
 		}
