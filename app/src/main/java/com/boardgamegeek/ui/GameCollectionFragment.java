@@ -458,7 +458,7 @@ public class GameCollectionFragment extends Fragment implements
 		commentTimestampView.setTag(item.commentTimestamp);
 
 		// Private info
-		if (item.hasPrivateInfo() || TextUtils.isEmpty(item.privateComment)) {
+		if (item.hasPrivateInfo() || !TextUtils.isEmpty(item.privateComment)) {
 			privateInfoContainer.setVisibility(View.VISIBLE);
 			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 			privateInfo.setText(item.getPrivateInfo());
