@@ -306,12 +306,9 @@
 
 						<LinearLayout
 							android:id="@+id/plays_root"
+							style="@style/CardRow.Clickable"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:background="?attr/selectableItemBackground"
-							android:descendantFocusability="blocksDescendants"
-							android:gravity="center_vertical"
-							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal"
 							android:visibility="gone"
 							tools:visibility="visible">
@@ -323,23 +320,20 @@
 
 							<TextView
 								android:id="@+id/plays_label"
-								style="@style/Text"
+								style="@style/CardRowContent"
 								android:layout_width="0dp"
 								android:layout_height="match_parent"
 								android:layout_weight="1"
-								android:gravity="center_vertical"
 								android:maxLines="2"
-								android:text="@string/title_plays"/>
+								android:text="@string/title_plays"
+								android:textAppearance="@style/Text"/>
 						</LinearLayout>
 
 						<LinearLayout
 							android:id="@+id/play_stats_root"
+							style="@style/CardRow.Clickable"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:background="?attr/selectableItemBackground"
-							android:descendantFocusability="blocksDescendants"
-							android:gravity="center_vertical"
-							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal"
 							android:visibility="gone"
 							tools:visibility="visible">
@@ -351,23 +345,20 @@
 
 							<TextView
 								android:id="@+id/play_stats_label"
-								style="@style/Text"
+								style="@style/CardRowContent"
 								android:layout_width="0dp"
 								android:layout_height="match_parent"
 								android:layout_weight="1"
-								android:gravity="center_vertical"
 								android:maxLines="1"
-								android:text="@string/title_play_stats"/>
+								android:text="@string/title_play_stats"
+								android:textAppearance="@style/Text"/>
 						</LinearLayout>
 
 						<LinearLayout
 							android:id="@+id/colors_root"
+							style="@style/CardRow.Clickable"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:background="?attr/selectableItemBackground"
-							android:descendantFocusability="blocksDescendants"
-							android:gravity="center_vertical"
-							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal"
 							android:visibility="gone"
 							tools:visibility="visible">
@@ -379,13 +370,13 @@
 
 							<TextView
 								android:id="@+id/game_colors_label"
-								style="@style/Text"
+								style="@style/CardRowContent"
 								android:layout_width="0dp"
 								android:layout_height="match_parent"
 								android:layout_weight="1"
-								android:gravity="center_vertical"
 								android:maxLines="1"
-								android:text="@string/title_colors"/>
+								android:text="@string/title_colors"
+								android:textAppearance="@style/Text"/>
 						</LinearLayout>
 					</LinearLayout>
 				</android.support.v7.widget.CardView>
@@ -408,12 +399,9 @@
 
 						<LinearLayout
 							android:id="@+id/forums_root"
+							style="@style/CardRow.Clickable"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:background="?attr/selectableItemBackground"
-							android:descendantFocusability="blocksDescendants"
-							android:gravity="center_vertical"
-							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal">
 
 							<ImageView
@@ -423,23 +411,20 @@
 
 							<TextView
 								android:id="@+id/game_forums_label"
-								style="@style/Text"
+								style="@style/CardRowContent"
 								android:layout_width="0dp"
 								android:layout_height="match_parent"
 								android:layout_weight="1"
-								android:gravity="center_vertical"
 								android:maxLines="1"
-								android:text="@string/title_forums"/>
+								android:text="@string/title_forums"
+								android:textAppearance="@style/Text"/>
 						</LinearLayout>
 
 						<LinearLayout
 							android:id="@+id/comments_root"
+							style="@style/CardRow.Clickable"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:background="?attr/selectableItemBackground"
-							android:descendantFocusability="blocksDescendants"
-							android:gravity="center_vertical"
-							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal">
 
 							<ImageView
@@ -449,24 +434,20 @@
 
 							<TextView
 								android:id="@+id/game_comments_label"
-								style="@style/Text"
+								style="@style/CardRowContent"
 								android:layout_width="0dp"
 								android:layout_height="match_parent"
 								android:layout_weight="1"
-								android:gravity="center_vertical"
 								android:maxLines="1"
-								android:text="@string/title_comments"/>
+								android:text="@string/title_comments"
+								android:textAppearance="@style/Text"/>
 						</LinearLayout>
 
 						<LinearLayout
 							android:id="@+id/ratings_root"
+							style="@style/CardRow.Clickable"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:background="?attr/selectableItemBackground"
-							android:descendantFocusability="blocksDescendants"
-							android:paddingBottom="@dimen/padding_small"
-							android:paddingTop="@dimen/padding_small"
-							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal">
 
 							<ImageView
@@ -476,10 +457,10 @@
 
 							<LinearLayout
 								android:id="@+id/rating_container"
+								style="@style/CardRowContent"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
 								android:layout_weight="1"
-								android:gravity="center_vertical"
 								android:orientation="vertical">
 
 								<TextView
@@ -510,12 +491,9 @@
 
 						<LinearLayout
 							android:id="@+id/weight_root"
+							style="@style/CardRow"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:background="?attr/selectableItemBackground"
-							android:descendantFocusability="blocksDescendants"
-							android:gravity="center_vertical"
-							android:minHeight="@dimen/edit_row_height"
 							android:orientation="horizontal">
 
 							<ImageView
@@ -524,10 +502,11 @@
 								android:src="@drawable/ic_action_anchor"/>
 
 							<LinearLayout
+								android:id="@+id/weight_container"
+								style="@style/CardRowContent"
 								android:layout_width="0dp"
 								android:layout_height="match_parent"
 								android:layout_weight="1"
-								android:gravity="center_vertical"
 								android:orientation="vertical">
 
 								<TextView
