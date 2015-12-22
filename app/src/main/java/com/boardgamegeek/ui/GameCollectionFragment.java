@@ -86,7 +86,7 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.name) TextView name;
 	@SuppressWarnings("unused") @InjectView(R.id.year) TextView year;
-	@SuppressWarnings("unused") @InjectView(R.id.status_container) View statusContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.infobar) View infoBar;
 	@SuppressWarnings("unused") @InjectView(R.id.status) TextView status;
 	@SuppressWarnings("unused") @InjectView(R.id.last_modified) TextView lastModified;
 	@SuppressWarnings("unused") @InjectView(R.id.rating_container) View ratingContainer;
@@ -111,7 +111,8 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updated;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.status,
-		R.id.last_modified
+		R.id.last_modified,
+		R.id.year
 	}) List<TextView> colorizedTextViews;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.add_comment,
@@ -361,7 +362,7 @@ public class GameCollectionFragment extends Fragment implements
 			return;
 		}
 		@SuppressWarnings("deprecation") Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
-		statusContainer.setBackgroundColor(swatch.getRgb());
+		infoBar.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);

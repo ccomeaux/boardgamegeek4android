@@ -65,14 +65,11 @@
 				</FrameLayout>
 
 				<LinearLayout
+					style="@style/InfoBar"
 					android:id="@+id/primary_info_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
-					android:layout_marginBottom="@dimen/padding_extra"
-					android:background="@color/info_background"
-					android:elevation="@dimen/material_elevation_subtle"
-					android:gravity="center"
 					android:orientation="horizontal"
 					android:weightSum="@integer/game_info_weight_sum">
 

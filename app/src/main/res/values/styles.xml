@@ -18,6 +18,15 @@
 		<item name="android:textColor">#000</item>
 	</style>
 
+	<style name="InfoBar">
+		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:background">@color/info_background</item>
+		<item name="android:minHeight">48dp</item>
+		<item name="android:gravity">center</item>
+	</style>
+
 	<style name="InfoBarItem" parent="@android:style/TextAppearance">
 		<item name="android:paddingBottom">@dimen/padding_half</item>
 		<item name="android:paddingLeft">@dimen/padding_half</item>
