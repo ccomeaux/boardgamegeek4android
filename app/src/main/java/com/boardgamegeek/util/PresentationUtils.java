@@ -114,10 +114,10 @@ public class PresentationUtils {
 					resId = R.string.title_board_game;
 					break;
 				case BggService.THING_SUBTYPE_BOARDGAME_EXPANSION:
-					resId = R.string.title_board_game_expansion;
+					resId = R.string.title_expansion;
 					break;
 				case BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY:
-					resId = R.string.title_board_game_accessory;
+					resId = R.string.title_accessory;
 					break;
 			}
 		} else if (BggService.RANK_TYPE_FAMILY.equals(type)) {

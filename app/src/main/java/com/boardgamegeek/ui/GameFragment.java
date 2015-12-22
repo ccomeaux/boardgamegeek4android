@@ -78,6 +78,7 @@ import timber.log.Timber;
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, Callback, Callbacks, OnRefreshListener {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final String KEY_RANKS_EXPANDED = "RANKS_EXPANDED";
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
 	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
@@ -109,8 +110,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.play_time) TextView playTimeView;
 	@SuppressWarnings("unused") @InjectView(R.id.player_age) TextView playerAgeView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_subtype_container) ViewGroup subtypeContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.game_subtype) TextView subtypeView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_subtype_container) ViewGroup subtypeContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.subtype_expander) ImageView subtypeExpander;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_designers) GameDetailRow designersView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_artists) GameDetailRow artistsView;
@@ -185,6 +187,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_links
 	}) List<ImageView> colorizedIcons;
 
+	private boolean isRanksExpanded;
 	private boolean isDescriptionExpanded;
 	private boolean isStatsExpanded;
 	private boolean isLinksExpanded;
@@ -215,6 +218,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		}
 
 		if (savedInstanceState != null) {
+			isRanksExpanded = savedInstanceState.getBoolean(KEY_RANKS_EXPANDED);
 			isDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
 			isStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
 			isLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
@@ -318,6 +322,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		outState.putBoolean(KEY_RANKS_EXPANDED, isRanksExpanded);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, isDescriptionExpanded);
 		outState.putBoolean(KEY_STATS_EXPANDED, isStatsExpanded);
 		outState.putBoolean(KEY_LINKS_EXPANDED, isLinksExpanded);
@@ -713,6 +718,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@SuppressWarnings("unused")
+	@OnClick(R.id.rank_root)
+	@DebugLog
+	public void onRankClick(View v) {
+		isRanksExpanded = !isRanksExpanded;
+		openOrCloseRanks();
+	}
+
+	@SuppressWarnings("unused")
 	@OnClick(R.id.game_description)
 	@DebugLog
 	public void onDescriptionClick(View v) {
@@ -797,6 +810,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	public void onLinksClick(@SuppressWarnings("UnusedParameters") View v) {
 		isLinksExpanded = !isLinksExpanded;
 		openOrCloseLinks();
+	}
+
+	@DebugLog
+	private void openOrCloseRanks() {
+		subtypeContainer.setVisibility(isRanksExpanded ? View.VISIBLE : View.GONE);
+		subtypeExpander.setImageResource(isRanksExpanded ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
 	@DebugLog

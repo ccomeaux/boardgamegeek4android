@@ -69,6 +69,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
+					android:layout_marginBottom="@dimen/padding_extra"
 					android:background="@color/info_background"
 					android:elevation="@dimen/material_elevation_subtle"
 					android:gravity="center"
@@ -115,33 +116,17 @@
 				<android.support.v7.widget.CardView
 					style="@style/Card"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="@dimen/padding_extra">
-
-					<TextView
-						android:id="@+id/game_description"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:autoLink="web"
-						android:background="?attr/selectableItemBackground"
-						android:drawableBottom="@drawable/expander_open"
-						android:ellipsize="end"
-						android:maxLines="3"
-						android:textAppearance="@style/Text.Body"
-						tools:text="This is the game's description. Sometimes it will tell you if the game is good. Sometimes it won't."/>
-				</android.support.v7.widget.CardView>
-
-				<android.support.v7.widget.CardView
-					style="@style/Card"
-					android:layout_width="match_parent"
 					android:layout_height="wrap_content">
 
 					<LinearLayout
+						android:id="@+id/rank_root"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackground"
 						android:orientation="vertical">
 
 						<LinearLayout
+							style="@style/CardRow"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:orientation="horizontal">
@@ -178,8 +163,34 @@
 							android:id="@+id/game_subtype_container"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:orientation="vertical"/>
+							android:orientation="vertical"
+							android:visibility="gone"/>
+
+						<ImageView
+							android:id="@+id/subtype_expander"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_gravity="center_horizontal"
+							android:src="@drawable/expander_open"/>
 					</LinearLayout>
+				</android.support.v7.widget.CardView>
+
+				<android.support.v7.widget.CardView
+					style="@style/Card"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<TextView
+						android:id="@+id/game_description"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:autoLink="web"
+						android:background="?attr/selectableItemBackground"
+						android:drawableBottom="@drawable/expander_open"
+						android:ellipsize="end"
+						android:maxLines="3"
+						android:textAppearance="@style/Text.Body"
+						tools:text="This is the game's description. Sometimes it will tell you if the game is good. Sometimes it won't."/>
 				</android.support.v7.widget.CardView>
 
 				<android.support.v7.widget.CardView
