@@ -534,7 +534,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		ratingsLabel.setText(PresentationUtils.getText(getActivity(),
 			R.string.average_rating_prefix, PresentationUtils.describeAverageRating(getActivity(), game.BayesAverage)));
 		ratingsVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.UsersRated));
-		ratingsStandardDeviation.setText(getString(R.string.standard_deviation, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
+		ratingsStandardDeviation.setText(getString(R.string.standard_deviation_prefix, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
 
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
 		weightVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.NumberWeights));

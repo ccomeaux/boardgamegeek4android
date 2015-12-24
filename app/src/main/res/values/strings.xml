@@ -76,7 +76,6 @@
 	<string name="average_win">Average win</string>
 	<string name="high">High</string>
 	<string name="low">Low</string>
-	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -107,7 +106,6 @@
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
-	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_data">Data</string>
@@ -116,7 +114,6 @@
 	<string name="title_geeklist">GeekList</string>
 	<string name="title_game">Game</string>
 	<string name="title_board_game">Board Game</string>
-	<string name="title_board_game_expansion">Board Game Expansion</string>
 	<string name="title_board_game_accessory">Board Game Accessory</string>
 	<string name="title_board_game_publisher">Board Game Publisher</string>
 	<string name="title_board_game_designer">Board Game Designer</string>
@@ -314,7 +311,6 @@
 	<string name="menu_sort_geeklists_hot">Hot</string>
 	<string name="menu_sort_geeklists_recent">Recent</string>
 	<string name="menu_sort_geeklists_active">Active</string>
-	<string name="menu_colors_add">Add color</string>
 	<string name="menu_colors_generate">Generate colors</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
@@ -353,7 +349,6 @@
 	<string name="players">players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
-	<string name="unknown">unknown</string>
 	<string name="minutes">minutes</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
@@ -370,10 +365,8 @@
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="average_rating">Average rating</string>
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
-	<string name="standard_deviation">Standard deviation</string>
-	<string name="standard_deviation_prefix">Standard deviation: %s</string>
+	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
 	<string name="votes_suffix"><b>%,d</b> votes</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>
@@ -388,7 +381,6 @@
 	<string name="menu_random_player_order">Random player order</string>
 	<string name="generic_player">Player #%d</string>
 	<string name="notification_start_player">%s starts!</string>
-	<string name="stats">Stats</string>
 	<string name="unrated">Unrated</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
