@@ -80,8 +80,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_RANKS_EXPANDED = "RANKS_EXPANDED";
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
-	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
-	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler timeHintUpdateHandler = new Handler();
@@ -143,15 +141,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_label) TextView statsLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_content) View statsContent;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_users_count) TextView userCountView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_owning_bar) StatBar numberOwningBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_trading_bar) StatBar numberTradingBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wanting_bar) StatBar numberWantingBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wishing_bar) StatBar numberWishingBar;
-
-	@SuppressWarnings("unused") @InjectView(R.id.game_links_label) TextView linksLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.game_links_content) View linksContent;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_id) TextView idView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_last_updated) TextView updatedView;
@@ -190,8 +184,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	private boolean isRanksExpanded;
 	private boolean isDescriptionExpanded;
-	private boolean isStatsExpanded;
-	private boolean isLinksExpanded;
 	private final NumberFormat numberFormat = NumberFormat.getInstance();
 	private boolean mightNeedRefreshing;
 	private Palette palette;
@@ -221,8 +213,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		if (savedInstanceState != null) {
 			isRanksExpanded = savedInstanceState.getBoolean(KEY_RANKS_EXPANDED);
 			isDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
-			isStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
-			isLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
 
 		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -239,8 +229,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		colorize();
 		openOrCloseDescription();
-		openOrCloseStats();
-		openOrCloseLinks();
 		ScrimUtils.applyDefaultScrim(headerContainer);
 		scrollRoot.addCallbacks(this);
 		ViewTreeObserver vto = scrollRoot.getViewTreeObserver();
@@ -325,8 +313,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_RANKS_EXPANDED, isRanksExpanded);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, isDescriptionExpanded);
-		outState.putBoolean(KEY_STATS_EXPANDED, isStatsExpanded);
-		outState.putBoolean(KEY_LINKS_EXPANDED, isLinksExpanded);
 	}
 
 	@Override
@@ -822,22 +808,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
-	@OnClick(R.id.game_info_stats_root)
-	@DebugLog
-	public void onStatsClick(@SuppressWarnings("UnusedParameters") View v) {
-		isStatsExpanded = !isStatsExpanded;
-		openOrCloseStats();
-	}
-
-	@SuppressWarnings("unused")
-	@OnClick(R.id.game_info_links_root)
-	@DebugLog
-	public void onLinksClick(@SuppressWarnings("UnusedParameters") View v) {
-		isLinksExpanded = !isLinksExpanded;
-		openOrCloseLinks();
-	}
-
 	@DebugLog
 	private void openOrCloseRanks() {
 		subtypeContainer.setVisibility(isRanksExpanded ? View.VISIBLE : View.GONE);
@@ -849,18 +819,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		descriptionView.setMaxLines(isDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		descriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
 			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
-	}
-
-	@DebugLog
-	private void openOrCloseStats() {
-		statsContent.setVisibility(isStatsExpanded ? View.VISIBLE : View.GONE);
-		statsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, isStatsExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
-	}
-
-	@DebugLog
-	private void openOrCloseLinks() {
-		linksContent.setVisibility(isLinksExpanded ? View.VISIBLE : View.GONE);
-		linksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, isLinksExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
 	}
 
 	@SuppressWarnings("unused")

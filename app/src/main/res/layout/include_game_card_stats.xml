@@ -42,7 +42,6 @@
 			android:id="@+id/game_stats_content"
 			layout="@layout/include_game_stats"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:visibility="gone"/>
+			android:layout_height="wrap_content"/>
 	</LinearLayout>
 </android.support.v7.widget.CardView>
