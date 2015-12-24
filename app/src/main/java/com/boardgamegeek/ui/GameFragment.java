@@ -63,7 +63,6 @@ import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,7 +139,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.game_weight) TextView weightView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_label) TextView statsLabel;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_users_count) TextView userCountView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_owning_bar) StatBar numberOwningBar;
 	@SuppressWarnings("unused") @InjectView(R.id.game_stats_trading_bar) StatBar numberTradingBar;
@@ -188,7 +186,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	private boolean isRanksExpanded;
 	private boolean isDescriptionExpanded;
-	private final NumberFormat numberFormat = NumberFormat.getInstance();
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 
@@ -542,11 +539,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
 		weightVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.NumberWeights));
 
-		userCountView.setText(String.format(getResources().getString(R.string.user_total), numberFormat.format(game.getMaxUsers())));
-		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
-		numberTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, game.getMaxUsers());
-		numberWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, game.getMaxUsers());
-		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
+		final int maxUsers = game.getMaxUsers();
+		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
+		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, maxUsers);
+		numberTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, maxUsers);
+		numberWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, maxUsers);
+		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, maxUsers);
 
 		if (shouldShowPlays()) {
 			playsCard.setVisibility(View.VISIBLE);

@@ -147,5 +147,58 @@
 					tools:text="42,000 votes"/>
 			</LinearLayout>
 		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/stats_root"
+			style="@style/CardRow"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageView
+				android:id="@+id/icon_stats"
+				style="@style/Icon"
+				android:src="@drawable/ic_stats"/>
+
+			<LinearLayout
+				style="@style/CardRowContent"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/game_stats_users_count"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					android:text="@string/users"/>
+
+				<com.boardgamegeek.ui.widget.StatBar
+					android:id="@+id/game_stats_owning_bar"
+					style="@style/StatRow"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"/>
+
+				<com.boardgamegeek.ui.widget.StatBar
+					android:id="@+id/game_stats_trading_bar"
+					style="@style/StatRow"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"/>
+
+				<com.boardgamegeek.ui.widget.StatBar
+					android:id="@+id/game_stats_wanting_bar"
+					style="@style/StatRow"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"/>
+
+				<com.boardgamegeek.ui.widget.StatBar
+					android:id="@+id/game_stats_wishing_bar"
+					style="@style/StatRow"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"/>
+			</LinearLayout>
+		</LinearLayout>
 	</LinearLayout>
 </android.support.v7.widget.CardView>

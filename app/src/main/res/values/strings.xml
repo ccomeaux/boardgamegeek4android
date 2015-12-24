@@ -7,7 +7,6 @@
 	<string name="weight_3_text">Medium (<b>%.2f</b>/5)</string>
 	<string name="weight_4_text">Medium Heavy (<b>%.2f</b>/5)</string>
 	<string name="weight_5_text">Heavy (<b>%.2f</b>/5)</string>
-	<string name="user_total">%s users</string>
 	<string name="owning_meter_text">%s Owning</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
@@ -543,6 +542,10 @@
 	<plurals name="search_results_exact">
 		<item quantity="one">%1$s exact match for \"%2$s\"</item>
 		<item quantity="other">%1$s exact matches for \"%2$s\"</item>
+	</plurals>
+	<plurals name="users_suffix">
+		<item quantity="one"><b>%,d</b> User</item>
+		<item quantity="other"><b>%,d</b> Users</item>
 	</plurals>
 
 </resources>

@@ -121,8 +121,6 @@
 
 				<include layout="@layout/include_game_card_user_feedback"/>
 
-				<include layout="@layout/include_game_card_stats"/>
-
 				<include layout="@layout/include_game_card_links"/>
 
 				<LinearLayout
