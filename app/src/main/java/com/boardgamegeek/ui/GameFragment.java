@@ -168,7 +168,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.card_header_details,
 		R.id.card_header_collection,
 		R.id.card_header_plays,
-		R.id.card_header_user_feedback
+		R.id.card_header_user_feedback,
+		R.id.card_header_links
 	}) List<TextView> colorizedHeaders;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.icon_plays,
@@ -179,7 +180,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_ratings,
 		R.id.icon_weight,
 		R.id.icon_stats,
-		R.id.icon_links
+		R.id.icon_link_bgg,
+		R.id.icon_link_bg_prices,
+		R.id.icon_link_amazon,
+		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
 
 	private boolean isRanksExpanded;
