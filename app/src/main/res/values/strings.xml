@@ -2,24 +2,16 @@
 <resources>
 
 	<string name="welcome_text">Welcome to the new BoardGameGeek for Android. Access the navigation menu by clicking on the icon in the top left or by dragging from the left edge of the screen.</string>
-	<string name="average_meter_text">Average = %s</string>
-	<string name="bayes_meter_text">Bayes Average = %s</string>
-	<string name="median_meter_text">Median = %s</string>
-	<string name="stdDev_meter_text">Standard Deviation = %s</string>
-	<string name="weight_1_text">Light (%.2f / 5)</string>
-	<string name="weight_2_text">Medium Light (%.2f / 5)</string>
-	<string name="weight_3_text">Medium (%.2f / 5)</string>
-	<string name="weight_4_text">Medium Heavy (%.2f / 5)</string>
-	<string name="weight_5_text">Heavy (%.2f / 5)</string>
-	<string name="rating_count">%s ratings</string>
-	<string name="weight_count">%s weights</string>
+	<string name="weight_1_text">Light (<b>%.2f</b>/5)</string>
+	<string name="weight_2_text">Medium Light (<b>%.2f</b>/5)</string>
+	<string name="weight_3_text">Medium (<b>%.2f</b>/5)</string>
+	<string name="weight_4_text">Medium Heavy (<b>%.2f</b>/5)</string>
+	<string name="weight_5_text">Heavy (<b>%.2f</b>/5)</string>
 	<string name="user_total">%s users</string>
 	<string name="owning_meter_text">%s Owning</string>
-	<string name="rating_meter_text">%s Rating</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
 	<string name="wishing_meter_text">%s Wishing</string>
-	<string name="weighting_meter_text">%s Weighting</string>
 	<string name="id_list_text">ID: %s</string>
 	<string name="designers">Designers</string>
 	<string name="artists">Artists</string>
@@ -380,10 +372,10 @@
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="average_rating">Average rating</string>
-	<string name="average_rating_prefix">Average rating: %s</string>
+	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation">Standard deviation</string>
 	<string name="standard_deviation_prefix">Standard deviation: %s</string>
-	<string name="votes_suffix">"%,d votes"</string>
+	<string name="votes_suffix"><b>%,d</b> votes</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>
 	<string name="by_prefix">by %s</string>
@@ -474,7 +466,7 @@
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
-	<string name="last_played_prefix">Last played %s</string>
+	<string name="last_played_prefix">Last played <b>%s</b></string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -513,8 +505,8 @@
 		<item quantity="other">%,d plays</item>
 	</plurals>
 	<plurals name="plays_prefix">
-		<item quantity="one">%1$,d plays%2$s</item>
-		<item quantity="other">%1$,d plays%2$s</item>
+		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
+		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
 	</plurals>
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
@@ -533,16 +525,12 @@
 		<item quantity="other">%s total edits</item>
 	</plurals>
 	<plurals name="colors_suffix">
-		<item quantity="one">%,d Color/Team</item>
-		<item quantity="other">%,d Colors/Teams</item>
+		<item quantity="one"><b>%,d</b> Color/Team</item>
+		<item quantity="other"><b>%,d</b> Colors/Teams</item>
 	</plurals>
 	<plurals name="comments_suffix">
-		<item quantity="one">%,d Comment</item>
-		<item quantity="other">%,d Comments</item>
-	</plurals>
-	<plurals name="ratings_suffix">
-		<item quantity="one">%,d Rating</item>
-		<item quantity="other">%,d Ratings</item>
+		<item quantity="one"><b>%,d</b> Comment</item>
+		<item quantity="other"><b>%,d</b> Comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
 		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>

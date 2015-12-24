@@ -2,6 +2,8 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.support.annotation.StringRes;
+import android.text.Html;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -162,7 +164,7 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static String describeWeight(Context context, double weight) {
+	public static CharSequence describeWeight(Context context, double weight) {
 		@StringRes int resId = R.string.weight_1_text;
 		if (weight >= 4.2) {
 			resId = R.string.weight_5_text;
@@ -173,7 +175,7 @@ public class PresentationUtils {
 		} else if (weight >= 1.8) {
 			resId = R.string.weight_2_text;
 		}
-		return context.getString(resId, weight);
+		return getText(context, resId, weight);
 	}
 
 	@DebugLog
@@ -219,5 +221,21 @@ public class PresentationUtils {
 			textView.setText(text);
 			textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 		}
+	}
+
+	@DebugLog
+	public static CharSequence getText(Context context, int id, Object... args) {
+		for (int i = 0; i < args.length; ++i) {
+			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
+		}
+		return Html.fromHtml(String.format(Html.toHtml(new SpannedString(context.getText(id))), args));
+	}
+
+	@DebugLog
+	public static CharSequence getQuantityText(Context context, int id, int quantity, Object... args) {
+		for (int i = 0; i < args.length; ++i) {
+			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
+		}
+		return Html.fromHtml(String.format(Html.toHtml(new SpannedString(context.getResources().getQuantityText(id, quantity))), args));
 	}
 }

@@ -438,7 +438,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				playsCard.setVisibility(View.VISIBLE);
 				colorsRoot.setVisibility(View.VISIBLE);
 				int count = cursor.getCount();
-				colorsLabel.setText(getResources().getQuantityString(R.plurals.colors_suffix, count, count));
+				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
 				break;
 			default:
 				cursor.close();
@@ -542,14 +542,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		numberOfPlayersView.setText(game.getPlayerRangeDescription());
 		playTimeView.setText(game.getPlayingTimeDescription());
 		playerAgeView.setText(game.getAgeDescription());
-		commentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
+		commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 
-		ratingsLabel.setText(getString(R.string.average_rating_prefix, PresentationUtils.describeAverageRating(getActivity(), game.BayesAverage)));
-		ratingsVotes.setText(getString(R.string.votes_suffix, game.UsersRated));
+		ratingsLabel.setText(PresentationUtils.getText(getActivity(),
+			R.string.average_rating_prefix, PresentationUtils.describeAverageRating(getActivity(), game.BayesAverage)));
+		ratingsVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.UsersRated));
 		ratingsStandardDeviation.setText(getString(R.string.standard_deviation, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
 
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
-		weightVotes.setText(getString(R.string.votes_suffix, game.NumberWeights));
+		weightVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.NumberWeights));
 
 		userCountView.setText(String.format(getResources().getString(R.string.user_total), numberFormat.format(game.getMaxUsers())));
 		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
@@ -601,7 +602,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			final Object tag = lastPlayView.getTag();
 			if (tag != null) {
 				long lastPlayedTime = (long) tag;
-				lastPlayView.setText(getString(R.string.last_played_prefix, PresentationUtils.describePastDaySpan(lastPlayedTime)));
+				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(lastPlayedTime)));
 			}
 		}
 	}
@@ -716,7 +717,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				if (!TextUtils.isEmpty(description)) {
 					description = " (" + description + ")";
 				}
-				playsLabel.setText(getResources().getQuantityString(R.plurals.plays_prefix, sum, sum, description));
+				playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, sum, sum, description));
 			} else {
 				playsLabel.setText(getResources().getString(R.string.no_plays));
 			}
