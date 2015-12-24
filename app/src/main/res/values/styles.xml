@@ -455,7 +455,6 @@
 
 	<style name="CardRow">
 		<item name="android:minHeight">40dp</item>
-		<item name="android:gravity">center_vertical</item>
 	</style>
 
 	<style name="CardRow.Clickable">
@@ -465,6 +464,7 @@
 
 	<style name="CardRowContent">
 		<item name="android:gravity">center_vertical</item>
+		<item name="android:minHeight">40dp</item>
 		<item name="android:paddingTop">2dp</item>
 		<item name="android:paddingBottom">2dp</item>
 	</style>

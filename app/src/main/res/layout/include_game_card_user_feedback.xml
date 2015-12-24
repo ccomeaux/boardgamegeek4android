@@ -80,7 +80,7 @@
 				android:id="@+id/game_comments_label"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
-				android:layout_height="match_parent"
+				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:maxLines="1"
 				android:text="@string/title_comments"
@@ -103,7 +103,7 @@
 				android:id="@+id/game_forums_label"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
-				android:layout_height="match_parent"
+				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:maxLines="1"
 				android:text="@string/title_forums"
@@ -126,7 +126,7 @@
 				android:id="@+id/weight_container"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
-				android:layout_height="match_parent"
+				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:orientation="vertical">
 
