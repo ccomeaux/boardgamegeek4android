@@ -380,7 +380,9 @@
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="average_rating">Average rating</string>
+	<string name="average_rating_prefix">Average rating: %s</string>
 	<string name="standard_deviation">Standard deviation</string>
+	<string name="standard_deviation_prefix">Standard deviation: %s</string>
 	<string name="votes_suffix">"%,d votes"</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>
@@ -509,6 +511,10 @@
 	<plurals name="plays">
 		<item quantity="one">%,d plays</item>
 		<item quantity="other">%,d plays</item>
+	</plurals>
+	<plurals name="plays_prefix">
+		<item quantity="one">%1$,d plays%2$s</item>
+		<item quantity="other">%1$,d plays%2$s</item>
 	</plurals>
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>

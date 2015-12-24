@@ -544,9 +544,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		playerAgeView.setText(game.getAgeDescription());
 		commentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 
-		ratingsLabel.setText(getString(R.string.average_rating) + ": " + PresentationUtils.describeAverageRating(getActivity(), game.BayesAverage));
+		ratingsLabel.setText(getString(R.string.average_rating_prefix, PresentationUtils.describeAverageRating(getActivity(), game.BayesAverage)));
 		ratingsVotes.setText(getString(R.string.votes_suffix, game.UsersRated));
-		ratingsStandardDeviation.setText(getString(R.string.standard_deviation) + ": " + PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation));
+		ratingsStandardDeviation.setText(getString(R.string.standard_deviation, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
 
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
 		weightVotes.setText(getString(R.string.votes_suffix, game.NumberWeights));
@@ -716,7 +716,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				if (!TextUtils.isEmpty(description)) {
 					description = " (" + description + ")";
 				}
-				playsLabel.setText(getResources().getQuantityString(R.plurals.plays, sum, sum) + description);
+				playsLabel.setText(getResources().getQuantityString(R.plurals.plays_prefix, sum, sum, description));
 			} else {
 				playsLabel.setText(getResources().getString(R.string.no_plays));
 			}
@@ -926,7 +926,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		int GAME_NAME = 11;
 		int THUMBNAIL_URL = 12;
 		int STATS_BAYES_AVERAGE = 13;
-		int STATS_MEDIAN = 14;
 		int STATS_STANDARD_DEVIATION = 15;
 		int STATS_NUMBER_WEIGHTS = 16;
 		int STATS_AVERAGE_WEIGHT = 17;
@@ -1050,7 +1049,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		final long Updated;
 		final int Rank;
 		final double BayesAverage;
-		final double Median;
 		final double StandardDeviation;
 		final double AverageWeight;
 		final int NumberWeights;
@@ -1079,7 +1077,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			Updated = cursor.getLong(GameQuery.UPDATED);
 			Rank = cursor.getInt(GameQuery.GAME_RANK);
 			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);
-			Median = cursor.getDouble(GameQuery.STATS_MEDIAN);
 			StandardDeviation = cursor.getDouble(GameQuery.STATS_STANDARD_DEVIATION);
 			AverageWeight = cursor.getDouble(GameQuery.STATS_AVERAGE_WEIGHT);
 			NumberWeights = cursor.getInt(GameQuery.STATS_NUMBER_WEIGHTS);
