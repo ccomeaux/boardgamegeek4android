@@ -472,6 +472,7 @@
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
+	<string name="last_played_prefix">Last played %s</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -506,8 +507,8 @@
 		<item quantity="other">%s replies</item>
 	</plurals>
 	<plurals name="plays">
-		<item quantity="one">%s plays</item>
-		<item quantity="other">%s plays</item>
+		<item quantity="one">%,d plays</item>
+		<item quantity="other">%,d plays</item>
 	</plurals>
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
@@ -524,10 +525,6 @@
 	<plurals name="edit_count">
 		<item quantity="one">%s total edit</item>
 		<item quantity="other">%s total edits</item>
-	</plurals>
-	<plurals name="plays_summary">
-		<item quantity="one">%1$,d Play; last play on %2$s</item>
-		<item quantity="other">%1$,d Plays; last play on %2$s</item>
 	</plurals>
 	<plurals name="colors_suffix">
 		<item quantity="one">%,d Color/Team</item>

@@ -32,6 +32,14 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
+	public static CharSequence describePastDaySpan(long time) {
+		if (time == 0) {
+			return "";
+		}
+		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS);
+	}
+
+	@DebugLog
 	public static CharSequence describePastTimeSpan(long time, String defaultValue) {
 		if (time == 0) {
 			return defaultValue;
@@ -166,6 +174,27 @@ public class PresentationUtils {
 			resId = R.string.weight_2_text;
 		}
 		return context.getString(resId, weight);
+	}
+
+	@DebugLog
+	public static String describePlayCount(Context context, int playCount) {
+		@StringRes int resId = 0;
+		if (playCount >= 100) {
+			resId = R.string.play_stat_dollar;
+		} else if (playCount >= 50) {
+			resId = R.string.play_stat_half_dollar;
+		} else if (playCount >= 25) {
+			resId = R.string.play_stat_quarter;
+		} else if (playCount >= 10) {
+			resId = R.string.play_stat_dime;
+		} else if (playCount >= 5) {
+			resId = R.string.play_stat_nickel;
+		}
+		if (resId != 0) {
+			return context.getString(resId);
+		} else {
+			return "";
+		}
 	}
 
 	/**

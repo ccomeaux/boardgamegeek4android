@@ -128,6 +128,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.plays_card) View playsCard;
 	@SuppressWarnings("unused") @InjectView(R.id.plays_root) View playsRoot;
 	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_last_play) TextView lastPlayView;
 	@SuppressWarnings("unused") @InjectView(R.id.play_stats_root) View playStatsRoot;
 	@SuppressWarnings("unused") @InjectView(R.id.colors_root) View colorsRoot;
 	@SuppressWarnings("unused") @InjectView(R.id.game_colors_label) TextView colorsLabel;
@@ -590,8 +591,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			return;
 		}
 		if (updatedView != null) {
-			long updatedTime = (long) updatedView.getTag();
-			updatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
+			final Object tag = updatedView.getTag();
+			if (tag != null) {
+				long updatedTime = (long) tag;
+				updatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
+			}
+		}
+		if (lastPlayView != null) {
+			final Object tag = lastPlayView.getTag();
+			if (tag != null) {
+				long lastPlayedTime = (long) tag;
+				lastPlayView.setText(getString(R.string.last_played_prefix, PresentationUtils.describePastDaySpan(lastPlayedTime)));
+			}
 		}
 	}
 
@@ -696,12 +707,26 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		if (cursor.moveToFirst()) {
 			playsCard.setVisibility(View.VISIBLE);
 			playsRoot.setVisibility(View.VISIBLE);
+
 			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
+			long date = CursorUtils.getDateInMillis(cursor, PlaysQuery.MAX_DATE);
+
 			if (sum > 0) {
-				String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.MAX_DATE);
-				playsLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
+				String description = PresentationUtils.describePlayCount(getActivity(), sum);
+				if (!TextUtils.isEmpty(description)) {
+					description = " (" + description + ")";
+				}
+				playsLabel.setText(getResources().getQuantityString(R.plurals.plays, sum, sum) + description);
 			} else {
 				playsLabel.setText(getResources().getString(R.string.no_plays));
+			}
+
+			if (date > 0) {
+				lastPlayView.setTag(date);
+				lastPlayView.setVisibility(View.VISIBLE);
+				updateTimeBasedUi();
+			} else {
+				lastPlayView.setVisibility(View.GONE);
 			}
 		}
 	}

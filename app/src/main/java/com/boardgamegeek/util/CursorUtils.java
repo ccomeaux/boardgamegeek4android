@@ -2,6 +2,7 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -155,6 +156,15 @@ public class CursorUtils {
 		return array;
 	}
 
+	public static long getDateInMillis(Cursor cursor, int columnIndex) {
+		String date = cursor.getString(columnIndex);
+		if (!TextUtils.isEmpty(date)) {
+			Calendar calendar = getCalendar(date);
+			return calendar.getTimeInMillis();
+		}
+		return 0;
+	}
+
 	/**
 	 * Gets a date from the specified column on the current row of the cursor. The date is formatted according to the
 	 * local conventions. Returns an empty string if the date could not be determined.
@@ -179,17 +189,23 @@ public class CursorUtils {
 		String date = cursor.getString(columnIndex);
 		if (!TextUtils.isEmpty(date)) {
 			try {
-				int year = Integer.parseInt(date.substring(0, 4));
-				int month = Integer.parseInt(date.substring(5, 7)) - 1;
-				int day = Integer.parseInt(date.substring(8, 10));
-				Calendar c = Calendar.getInstance();
-				c.set(year, month, day);
-				return DateUtils.formatDateTime(context, c.getTimeInMillis(), flags);
+				Calendar calendar = getCalendar(date);
+				return DateUtils.formatDateTime(context, calendar.getTimeInMillis(), flags);
 			} catch (Exception e) {
 				Timber.e(e, "Could find a date in here: " + date);
 			}
 		}
 		return "";
+	}
+
+	@NonNull
+	private static Calendar getCalendar(String date) {
+		int year = Integer.parseInt(date.substring(0, 4));
+		int month = Integer.parseInt(date.substring(5, 7)) - 1;
+		int day = Integer.parseInt(date.substring(8, 10));
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(year, month, day);
+		return calendar;
 	}
 
 	public static String getFirstCharacter(Cursor cursor, int position, String columnName, String defaultValue) {

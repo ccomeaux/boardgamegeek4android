@@ -35,15 +35,29 @@
 				style="@style/Icon"
 				android:src="@drawable/ic_action_calendar_light"/>
 
-			<TextView
-				android:id="@+id/plays_label"
-				style="@style/CardRowContent"
+			<LinearLayout
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
-				android:maxLines="2"
-				android:text="@string/title_plays"
-				android:textAppearance="@style/Text"/>
+				android:gravity="center_vertical"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/plays_label"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					android:text="@string/title_plays"
+					android:textAppearance="@style/Text"/>
+
+				<TextView
+					android:id="@+id/plays_last_play"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					android:textAppearance="@style/Text.Secondary"
+					tools:text="Last play was yesterday"/>
+			</LinearLayout>
 		</LinearLayout>
 
 		<LinearLayout
