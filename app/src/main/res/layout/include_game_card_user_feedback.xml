@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+	style="@style/Card"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:showIn="@layout/fragment_game">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/card_header_user_feedback"
+			style="@style/Text.Header.Card"
+			android:layout_width="wrap_content"
+			android:text="@string/title_user_feedback"/>
+
+		<LinearLayout
+			android:id="@+id/forums_root"
+			style="@style/CardRow.Clickable"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageView
+				android:id="@+id/icon_forums"
+				style="@style/Icon"
+				android:src="@drawable/ic_action_forum"/>
+
+			<TextView
+				android:id="@+id/game_forums_label"
+				style="@style/CardRowContent"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:maxLines="1"
+				android:text="@string/title_forums"
+				android:textAppearance="@style/Text"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/comments_root"
+			style="@style/CardRow.Clickable"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageView
+				android:id="@+id/icon_comments"
+				style="@style/Icon"
+				android:src="@drawable/ic_comment"/>
+
+			<TextView
+				android:id="@+id/game_comments_label"
+				style="@style/CardRowContent"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:maxLines="1"
+				android:text="@string/title_comments"
+				android:textAppearance="@style/Text"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/ratings_root"
+			style="@style/CardRow.Clickable"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageView
+				android:id="@+id/icon_ratings"
+				style="@style/Icon"
+				android:src="@drawable/ic_action_stars"/>
+
+			<LinearLayout
+				android:id="@+id/rating_container"
+				style="@style/CardRowContent"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/game_ratings_label"
+					style="@style/Text"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					tools:text="Overall rating: 8.123"/>
+
+				<TextView
+					android:id="@+id/game_ratings_votes"
+					style="@style/Text.Secondary"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					tools:text="42,000 votes"/>
+
+				<TextView
+					android:id="@+id/game_ratings_standard_deviation"
+					style="@style/Text.Secondary"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					tools:text="Standard Deviation: 1.50"/>
+			</LinearLayout>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/weight_root"
+			style="@style/CardRow"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageView
+				android:id="@+id/icon_weight"
+				style="@style/Icon"
+				android:src="@drawable/ic_action_anchor"/>
+
+			<LinearLayout
+				android:id="@+id/weight_container"
+				style="@style/CardRowContent"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/game_weight"
+					style="@style/Text"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					tools:text="Light (1.23 / 5)"/>
+
+				<TextView
+					android:id="@+id/game_weight_votes"
+					style="@style/Text.Secondary"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					tools:text="42,000 votes"/>
+			</LinearLayout>
+		</LinearLayout>
+	</LinearLayout>
+</android.support.v7.widget.CardView>
