@@ -17,6 +17,6 @@ public class PlayCountDescendingSorter extends PlayCountSorter {
 	@StringRes
 	@Override
 	public int getTypeResource() {
-		return R.string.collection_sort_type_average_weight_desc;
+		return R.string.collection_sort_type_play_count_desc;
 	}
 }
