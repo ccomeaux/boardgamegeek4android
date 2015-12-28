@@ -10,7 +10,7 @@ import com.boardgamegeek.util.UIUtils;
 
 public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
-	protected Fragment mFragment;
+	private Fragment fragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,19 +24,19 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		if (savedInstanceState == null) {
 			createFragment();
 		} else {
-			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
+			fragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
 	}
 
 	protected void createFragment() {
-		mFragment = onCreatePane(getIntent());
-		if (mFragment != null) {
+		fragment = onCreatePane(getIntent());
+		if (fragment != null) {
 			Bundle arguments = UIUtils.intentToFragmentArguments(getIntent());
 			arguments = onBeforeArgumentsSet(arguments);
-			mFragment.setArguments(arguments);
+			fragment.setArguments(arguments);
 			getSupportFragmentManager()
 				.beginTransaction()
-				.add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
+				.add(R.id.root_container, fragment, TAG_SINGLE_PANE)
 				.commit();
 		}
 	}
@@ -48,7 +48,7 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 	protected abstract Fragment onCreatePane(Intent intent);
 
 	public Fragment getFragment() {
-		return mFragment;
+		return fragment;
 	}
 
 	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
