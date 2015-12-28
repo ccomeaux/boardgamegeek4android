@@ -46,8 +46,6 @@ public abstract class TopLevelActivity extends DrawerActivity {
 		drawerLayout.setDrawerListener(drawerToggle);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setHomeButtonEnabled(true);
-
-		// TODO open the drawer upon launch until user opens it themselves
 	}
 
 	@Override

@@ -25,6 +25,9 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+/**
+ * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
+ */
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGN_IN = 1;
 
@@ -41,7 +44,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_singlepane_empty);
+		setContentView(R.layout.activity_drawer_base);
 		ButterKnife.inject(this);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
@@ -69,8 +72,9 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	public boolean isDrawerOpen() {
-		return drawerLayout != null && drawerListContainer != null
-			&& drawerLayout.isDrawerOpen(drawerListContainer);
+		return drawerLayout != null &&
+			drawerListContainer != null &&
+			drawerLayout.isDrawerOpen(drawerListContainer);
 	}
 
 	@Override
