@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.support.annotation.MenuRes;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,18 +18,14 @@ import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 /**
- * Provide common menu functions.
- * 1. Search
- * 2. Cancel sync
- * 3. Toggling navigation drawer
- * 4. Inflation helper.
- * Also provides a sign out method.
+ * Registers/unregisters a sticky event bus, with a default error handler (toast)
+ * Provides common menu functions:
+ * 1. Cancel sync
+ * 2. Toggling navigation drawer
+ * 3. Inflation helper.
+ * Subtitle setter
  */
 public abstract class BaseActivity extends AppCompatActivity {
-	protected int getOptionsMenuId() {
-		return 0;
-	}
-
 	@DebugLog
 	@Override
 	protected void onStart() {
@@ -43,9 +40,15 @@ public abstract class BaseActivity extends AppCompatActivity {
 		super.onStop();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEventMainThread(UpdateErrorEvent event) {
 		Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
+	}
+
+	@MenuRes
+	protected int getOptionsMenuId() {
+		return 0;
 	}
 
 	@DebugLog
@@ -94,10 +97,5 @@ public abstract class BaseActivity extends AppCompatActivity {
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@DebugLog
-	protected void signOut() {
-		Authenticator.signOut(this);
 	}
 }
