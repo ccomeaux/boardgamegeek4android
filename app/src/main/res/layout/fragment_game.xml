@@ -1,152 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-	android:id="@+id/game_info_frame_root"
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/swipe_refresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".ui.GameActivity">
 
-	<ProgressBar
-		android:id="@+id/progress"
-		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		tools:visibility="gone"/>
-
-	<android.support.v4.widget.SwipeRefreshLayout
-		android:id="@+id/swipe_refresh"
+	<com.boardgamegeek.ui.widget.ObservableScrollView
+		android:id="@+id/scroll_root"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:visibility="gone"
-		tools:visibility="visible">
+		android:layout_height="match_parent">
 
-		<com.boardgamegeek.ui.widget.ObservableScrollView
-			android:id="@+id/scroll_root"
+		<LinearLayout
+			android:id="@+id/game_info_root"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
 
-			<LinearLayout
-				android:id="@+id/game_info_root"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical">
+			<FrameLayout
+				android:id="@+id/hero_container"
+				style="@style/HeroContainer">
 
-				<FrameLayout
-					android:id="@+id/hero_container"
-					style="@style/HeroContainer">
-
-					<ImageView
-						android:id="@+id/image"
-						style="@style/HeroImage"/>
-
-					<LinearLayout
-						android:id="@+id/header_container"
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:baselineAligned="false"
-						android:orientation="vertical"
-						android:paddingBottom="@dimen/material_margin_vertical"
-						android:paddingLeft="@dimen/material_margin_horizontal"
-						android:paddingRight="@dimen/material_margin_horizontal"
-						android:paddingTop="@dimen/material_margin_vertical">
-
-						<TextView
-							android:id="@+id/game_info_name"
-							style="@style/Text.Headline.Overlay"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:ellipsize="end"
-							android:maxLines="2"
-							tools:text="Terra Mystica"/>
-					</LinearLayout>
-				</FrameLayout>
+				<ImageView
+					android:id="@+id/image"
+					style="@style/HeroImage"/>
 
 				<LinearLayout
-					android:id="@+id/primary_info_container"
-					style="@style/InfoBar"
+					android:id="@+id/header_container"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal"
-					android:orientation="horizontal"
-					android:weightSum="@integer/game_info_weight_sum">
-
-					<TextView
-						android:id="@+id/game_year_published"
-						style="@style/InfoBarItem"
-						android:layout_width="0dp"
-						android:layout_weight="1"
-						android:drawableTop="@drawable/ic_action_calendar_light"
-						tools:text="1996"/>
-
-					<TextView
-						android:id="@+id/number_of_players"
-						style="@style/InfoBarItem"
-						android:layout_width="0dp"
-						android:layout_weight="1"
-						android:background="?attr/selectableItemBackground"
-						android:drawableTop="@drawable/ic_action_people"
-						android:tag="suggested_numplayers"
-						tools:text="3 - 5"/>
-
-					<TextView
-						android:id="@+id/play_time"
-						style="@style/InfoBarItem"
-						android:layout_width="0dp"
-						android:layout_weight="1"
-						android:drawableTop="@drawable/ic_action_access_time"
-						tools:text="90 min"/>
-
-					<TextView
-						android:id="@+id/player_age"
-						style="@style/InfoBarItem"
-						android:layout_width="0dp"
-						android:layout_weight="1"
-						android:background="?attr/selectableItemBackground"
-						android:drawableTop="@drawable/ic_action_person"
-						android:tag="suggested_playerage"
-						tools:text="13+"/>
-				</LinearLayout>
-
-				<include layout="@layout/include_game_card_rank"/>
-
-				<include layout="@layout/include_game_card_description"/>
-
-				<include layout="@layout/include_game_card_details"/>
-
-				<include layout="@layout/include_game_card_collection"/>
-
-				<include layout="@layout/include_game_card_plays"/>
-
-				<include layout="@layout/include_game_card_user_feedback"/>
-
-				<include layout="@layout/include_game_card_links"/>
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/game_detail_row_height"
-					android:gravity="center"
-					android:orientation="horizontal"
+					android:layout_height="match_parent"
+					android:baselineAligned="false"
+					android:orientation="vertical"
+					android:paddingBottom="@dimen/material_margin_vertical"
 					android:paddingLeft="@dimen/material_margin_horizontal"
-					android:paddingRight="@dimen/material_margin_horizontal">
+					android:paddingRight="@dimen/material_margin_horizontal"
+					android:paddingTop="@dimen/material_margin_vertical">
 
 					<TextView
-						android:id="@+id/game_info_id"
-						style="@style/Text.Footnote2"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						tools:text="ID: 13"/>
-
-					<TextView
-						android:id="@+id/game_info_last_updated"
-						style="@style/Text.Footnote2"
+						android:id="@+id/game_info_name"
+						style="@style/Text.Headline.Overlay"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						tools:text="Yesterday"/>
+						android:ellipsize="end"
+						android:maxLines="2"
+						tools:text="Terra Mystica"/>
 				</LinearLayout>
+			</FrameLayout>
+
+			<LinearLayout
+				android:id="@+id/primary_info_container"
+				style="@style/InfoBar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:orientation="horizontal"
+				android:weightSum="@integer/game_info_weight_sum">
+
+				<TextView
+					android:id="@+id/game_year_published"
+					style="@style/InfoBarItem"
+					android:layout_width="0dp"
+					android:layout_weight="1"
+					android:drawableTop="@drawable/ic_action_calendar_light"
+					tools:text="1996"/>
+
+				<TextView
+					android:id="@+id/number_of_players"
+					style="@style/InfoBarItem"
+					android:layout_width="0dp"
+					android:layout_weight="1"
+					android:background="?attr/selectableItemBackground"
+					android:drawableTop="@drawable/ic_action_people"
+					android:tag="suggested_numplayers"
+					tools:text="3 - 5"/>
+
+				<TextView
+					android:id="@+id/play_time"
+					style="@style/InfoBarItem"
+					android:layout_width="0dp"
+					android:layout_weight="1"
+					android:drawableTop="@drawable/ic_action_access_time"
+					tools:text="90 min"/>
+
+				<TextView
+					android:id="@+id/player_age"
+					style="@style/InfoBarItem"
+					android:layout_width="0dp"
+					android:layout_weight="1"
+					android:background="?attr/selectableItemBackground"
+					android:drawableTop="@drawable/ic_action_person"
+					android:tag="suggested_playerage"
+					tools:text="13+"/>
 			</LinearLayout>
-		</com.boardgamegeek.ui.widget.ObservableScrollView>
-	</android.support.v4.widget.SwipeRefreshLayout>
-</FrameLayout>
+
+			<include layout="@layout/include_game_card_rank"/>
+
+			<include layout="@layout/include_game_card_description"/>
+
+			<include layout="@layout/include_game_card_details"/>
+
+			<include layout="@layout/include_game_card_collection"/>
+
+			<include layout="@layout/include_game_card_plays"/>
+
+			<include layout="@layout/include_game_card_user_feedback"/>
+
+			<include layout="@layout/include_game_card_links"/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/game_detail_row_height"
+				android:gravity="center"
+				android:orientation="horizontal"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal">
+
+				<TextView
+					android:id="@+id/game_info_id"
+					style="@style/Text.Footnote2"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					tools:text="ID: 13"/>
+
+				<TextView
+					android:id="@+id/game_info_last_updated"
+					style="@style/Text.Footnote2"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					tools:text="Yesterday"/>
+			</LinearLayout>
+		</LinearLayout>
+	</com.boardgamegeek.ui.widget.ObservableScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

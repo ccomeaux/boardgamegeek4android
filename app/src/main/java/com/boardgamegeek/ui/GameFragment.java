@@ -48,7 +48,6 @@ import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -92,7 +91,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@SuppressWarnings("unused") @InjectView(R.id.scroll_root) ObservableScrollView scrollRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
 	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView imageView;
 	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
@@ -563,9 +561,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			}
 		};
 		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-
-		AnimationUtils.fadeOut(getActivity(), progressView, true);
-		AnimationUtils.fadeIn(getActivity(), swipeRefreshLayout, true);
 
 		if (mightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {

@@ -41,7 +41,6 @@ import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -78,7 +77,6 @@ public class GameCollectionFragment extends Fragment implements
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
-	@SuppressWarnings("unused") @InjectView(R.id.progress) View progress;
 	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
@@ -277,8 +275,6 @@ public class GameCollectionFragment extends Fragment implements
 
 			CollectionItem item = new CollectionItem(cursor);
 			updateUi(item);
-			AnimationUtils.fadeOut(getActivity(), progress, true);
-			AnimationUtils.fadeIn(getActivity(), swipeRefreshLayout, true);
 
 			if (mightNeedRefreshing) {
 				long u = cursor.getLong(new CollectionItem().UPDATED);
