@@ -37,6 +37,7 @@ public class GameCollectionRow extends LinearLayout {
 
 	private int gameId;
 	private String gameName;
+	private String collectionName;
 	private int collectionId;
 	private int yearPublished;
 
@@ -62,7 +63,7 @@ public class GameCollectionRow extends LinearLayout {
 				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
 				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, collectionId);
-				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, descriptionView.getText());
+				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, collectionName);
 				getContext().startActivity(intent);
 			}
 		});
@@ -114,6 +115,7 @@ public class GameCollectionRow extends LinearLayout {
 	}
 
 	public void setDescription(String name, int yearPublished) {
+		collectionName = name;
 		if ((TextUtils.isEmpty(name) && !name.equals(gameName)) ||
 			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
 			String description;
