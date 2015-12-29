@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
@@ -44,7 +45,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_drawer_base);
+		setContentView(getLayoutResId());
 		ButterKnife.inject(this);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
@@ -53,6 +54,11 @@ public abstract class DrawerActivity extends BaseActivity {
 			drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			drawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
 		}
+	}
+
+	@LayoutRes
+	protected int getLayoutResId() {
+		return R.layout.activity_drawer_base;
 	}
 
 	@Override
