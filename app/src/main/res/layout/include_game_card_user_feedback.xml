@@ -158,7 +158,7 @@
 			<ImageView
 				android:id="@+id/icon_stats"
 				style="@style/Icon"
-				android:src="@drawable/ic_stats"/>
+				android:src="@drawable/ic_action_users"/>
 
 			<LinearLayout
 				style="@style/CardRowContent"
