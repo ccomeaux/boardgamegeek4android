@@ -120,6 +120,11 @@
 		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
 
+	<style name="Text.Footnote2.Hidden">
+		<item name="android:textColor">#fff</item>
+		<item name="android:textSize">10sp</item>
+	</style>
+
 	<style name="Text.Dialog">
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>

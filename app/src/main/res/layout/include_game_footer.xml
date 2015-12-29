@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/game_detail_row_height"
+	android:gravity="center"
+	android:orientation="horizontal"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	tools:showIn="@layout/fragment_game">
+
+	<TextView
+		android:id="@+id/game_info_id"
+		style="@style/Text.Footnote2.Hidden"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		tools:text="13"/>
+
+	<TextView
+		android:id="@+id/game_info_last_updated"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		tools:text="Yesterday"/>
+</LinearLayout>
