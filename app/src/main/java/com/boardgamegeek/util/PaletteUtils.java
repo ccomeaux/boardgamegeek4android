@@ -97,6 +97,23 @@ public class PaletteUtils {
 	}
 
 	/**
+	 * Gets a swatch from the palette suitable for light text.
+	 */
+	public static Palette.Swatch getDarkSwatch(Palette palette) {
+		Palette.Swatch swatch = palette.getDarkMutedSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		swatch = palette.getDarkVibrantSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		return palette.getSwatches().get(0);
+	}
+
+	/**
 	 * Gets a swatch from the palette best suited for header text.
 	 */
 	public static Palette.Swatch getHeaderSwatch(Palette palette) {

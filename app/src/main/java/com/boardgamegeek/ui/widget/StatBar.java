@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
+import android.support.v7.graphics.Palette;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +19,9 @@ import butterknife.InjectView;
 
 public class StatBar extends FrameLayout {
 	private static final NumberFormat FORMAT = NumberFormat.getInstance();
-	@InjectView(R.id.value) View mValueView;
-	@InjectView(R.id.no_value) View mNoValueView;
-	@InjectView(android.R.id.text1) TextView mTextView;
+	@SuppressWarnings("unused") @InjectView(R.id.value) View valueView;
+	@SuppressWarnings("unused") @InjectView(R.id.no_value) View noValueView;
+	@SuppressWarnings("unused") @InjectView(android.R.id.text1) TextView textView;
 
 	public StatBar(Context context) {
 		this(context, null);
@@ -47,19 +48,29 @@ public class StatBar extends FrameLayout {
 		ButterKnife.inject(this);
 	}
 
-	public void setBar(int id, double progress) {
-		setBar(id, progress, 10.0);
-	}
-
 	public void setBar(int id, double progress, double max) {
 		setBar(id, progress, max, 0.0);
 	}
 
 	public void setBar(int id, double progress, double max, double min) {
-		mTextView.setText(String.format(getContext().getResources().getString(id), FORMAT.format(progress)));
-		mValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
+		textView.setText(String.format(getContext().getResources().getString(id), FORMAT.format(progress)));
+		valueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
 			(int) ((progress - min) * 1000)));
-		mNoValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
+		noValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
 			(int) ((max - progress) * 1000)));
 	}
+
+	public void setColor(int color) {
+		valueView.setBackgroundColor(color);
+	}
+
+	public static final ButterKnife.Setter<StatBar, Palette.Swatch> colorSetter =
+		new ButterKnife.Setter<StatBar, Palette.Swatch>() {
+			@Override
+			public void set(StatBar view, Palette.Swatch value, int index) {
+				if (view != null && value != null) {
+					view.setColor(value.getRgb());
+				}
+			}
+		};
 }

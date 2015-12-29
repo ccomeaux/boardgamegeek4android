@@ -181,6 +181,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_link_amazon,
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
+	@SuppressWarnings("unused") @InjectViews({
+		R.id.game_stats_owning_bar,
+		R.id.game_stats_trading_bar,
+		R.id.game_stats_wanting_bar,
+		R.id.game_stats_wishing_bar,
+	}) List<StatBar> statBars;
 
 	private boolean isRanksExpanded;
 	private boolean isDescriptionExpanded;
@@ -490,11 +496,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
 		primaryInfoContainer.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+
 		swatch = PaletteUtils.getIconSwatch(palette);
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
-		swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
+
+		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, PaletteUtils.getHeaderSwatch(palette));
+		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));
 	}
 
 	@DebugLog
