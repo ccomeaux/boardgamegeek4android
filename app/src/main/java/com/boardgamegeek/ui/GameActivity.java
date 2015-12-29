@@ -18,7 +18,6 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
@@ -89,12 +88,6 @@ public class GameActivity extends SimpleSinglePaneActivity {
 				} else {
 					NavUtils.navigateUpTo(this, upIntent);
 				}
-				return true;
-			case R.id.menu_language_poll:
-				Bundle arguments = new Bundle(2);
-				arguments.putInt(ActivityUtils.KEY_GAME_ID, gameId);
-				arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
-				DialogUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, gameId, gameName);

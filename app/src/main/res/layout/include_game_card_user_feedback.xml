@@ -149,6 +149,28 @@
 		</LinearLayout>
 
 		<LinearLayout
+			android:id="@+id/language_dependence_root"
+			style="@style/CardRow.Clickable"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageView
+				android:id="@+id/icon_language_dependence"
+				style="@style/Icon"
+				android:src="@drawable/ic_language"/>
+
+			<TextView
+				style="@style/CardRowContent"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:maxLines="1"
+				android:text="@string/language_dependence"
+				android:textAppearance="@style/Text"/>
+		</LinearLayout>
+
+		<LinearLayout
 			android:id="@+id/stats_root"
 			style="@style/CardRow"
 			android:layout_width="match_parent"

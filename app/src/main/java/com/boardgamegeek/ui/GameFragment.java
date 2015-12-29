@@ -175,6 +175,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_comments,
 		R.id.icon_ratings,
 		R.id.icon_weight,
+		R.id.icon_language_dependence,
 		R.id.icon_stats,
 		R.id.icon_link_bgg,
 		R.id.icon_link_bg_prices,
@@ -791,6 +792,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
+	}
+
+	@SuppressWarnings("unused")
+	@OnClick(R.id.language_dependence_root)
+	@DebugLog
+	public void onLanguageDependenceClick(View v) {
+		Bundle arguments = new Bundle(2);
+		arguments.putInt(ActivityUtils.KEY_GAME_ID,  Games.getGameId(gameUri));
+		arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
+		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
 	@SuppressWarnings("unused")

@@ -13,10 +13,6 @@
 		android:title="@string/menu_log_play_quick"
 		app:showAsAction="ifRoom|withText"/>
 	<item
-		android:id="@+id/menu_language_poll"
-		android:title="@string/language_dependence"
-		app:showAsAction="never"/>
-	<item
 		android:id="@+id/menu_share"
 		android:icon="@drawable/ic_action_share_light"
 		android:title="@string/menu_share"
