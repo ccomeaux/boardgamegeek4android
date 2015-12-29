@@ -137,11 +137,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.game_weight) TextView weightView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_users_count) TextView userCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_owning_bar) StatBar numberOwningBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_trading_bar) StatBar numberTradingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wanting_bar) StatBar numberWantingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wishing_bar) StatBar numberWishingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.users_count) TextView userCountView;
+	@SuppressWarnings("unused") @InjectView(R.id.users_owning_bar) StatBar numberOwningBar;
+	@SuppressWarnings("unused") @InjectView(R.id.users_trading_bar) StatBar numberTradingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.users_wanting_bar) StatBar numberWantingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.users_wishing_bar) StatBar numberWishingBar;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_id) TextView idView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_last_updated) TextView updatedView;
@@ -176,17 +176,17 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_ratings,
 		R.id.icon_weight,
 		R.id.icon_language_dependence,
-		R.id.icon_stats,
+		R.id.icon_users,
 		R.id.icon_link_bgg,
 		R.id.icon_link_bg_prices,
 		R.id.icon_link_amazon,
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
 	@SuppressWarnings("unused") @InjectViews({
-		R.id.game_stats_owning_bar,
-		R.id.game_stats_trading_bar,
-		R.id.game_stats_wanting_bar,
-		R.id.game_stats_wishing_bar,
+		R.id.users_owning_bar,
+		R.id.users_trading_bar,
+		R.id.users_wanting_bar,
+		R.id.users_wishing_bar,
 	}) List<StatBar> statBars;
 
 	private boolean isRanksExpanded;
@@ -799,7 +799,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onLanguageDependenceClick(View v) {
 		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID,  Games.getGameId(gameUri));
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
 		arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
@@ -1074,8 +1074,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		public int getMaxUsers() {
-			int max = Math.max(NumberTrading, NumberOwned);
+			int max = Math.max(UsersRated, UsersCommented);
+			max = Math.max(max, NumberOwned);
+			max = Math.max(max, NumberTrading);
 			max = Math.max(max, NumberWanting);
+			max = Math.max(max, NumberWeights);
 			max = Math.max(max, NumberWishing);
 			return max;
 		}

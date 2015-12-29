@@ -100,7 +100,6 @@
 				android:src="@drawable/ic_action_forum"/>
 
 			<TextView
-				android:id="@+id/game_forums_label"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -171,14 +170,13 @@
 		</LinearLayout>
 
 		<LinearLayout
-			android:id="@+id/stats_root"
 			style="@style/CardRow"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal">
 
 			<ImageView
-				android:id="@+id/icon_stats"
+				android:id="@+id/icon_users"
 				style="@style/Icon"
 				android:src="@drawable/ic_action_users"/>
 
@@ -190,7 +188,7 @@
 				android:orientation="vertical">
 
 				<TextView
-					android:id="@+id/game_stats_users_count"
+					android:id="@+id/users_count"
 					style="@style/Text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -198,25 +196,25 @@
 					android:text="@string/users"/>
 
 				<com.boardgamegeek.ui.widget.StatBar
-					android:id="@+id/game_stats_owning_bar"
+					android:id="@+id/users_owning_bar"
 					style="@style/StatRow"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"/>
 
 				<com.boardgamegeek.ui.widget.StatBar
-					android:id="@+id/game_stats_trading_bar"
+					android:id="@+id/users_trading_bar"
 					style="@style/StatRow"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"/>
 
 				<com.boardgamegeek.ui.widget.StatBar
-					android:id="@+id/game_stats_wanting_bar"
+					android:id="@+id/users_wanting_bar"
 					style="@style/StatRow"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"/>
 
 				<com.boardgamegeek.ui.widget.StatBar
-					android:id="@+id/game_stats_wishing_bar"
+					android:id="@+id/users_wishing_bar"
 					style="@style/StatRow"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"/>
