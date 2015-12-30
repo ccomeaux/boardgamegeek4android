@@ -42,6 +42,7 @@
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
 	<string name="no_location">&lt;No location&gt;</string>
+	<string name="nowhere_in_angle_brackets">&lt;Nowhere&gt;</string>
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
@@ -278,6 +279,7 @@
 	<string name="collection_sort_community">Community</string>
 	<string name="collection_sort_personal">Personal</string>
 	<string name="collection_sort_local">Local</string>
+	<string name="collection_sort_acquired_from">Acquired From</string>
 	<string name="menu_plays_sort_date">Date</string>
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>

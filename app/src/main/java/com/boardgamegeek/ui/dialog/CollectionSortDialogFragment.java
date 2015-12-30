@@ -60,6 +60,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.average_weight_asc,
 		R.id.average_weight_desc,
 		R.id.acquisition_date,
+		R.id.acquired_from
 	}) List<RadioButton> radioButtons;
 
 	@DebugLog

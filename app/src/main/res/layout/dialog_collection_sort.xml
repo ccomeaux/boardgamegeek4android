@@ -151,6 +151,13 @@
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_acquisition_date"/>
 
+		<RadioButton
+			android:id="@+id/acquired_from"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_acquired_from"/>
+
 		<TextView
 			style="@style/Text.Header"
 			android:layout_width="wrap_content"
