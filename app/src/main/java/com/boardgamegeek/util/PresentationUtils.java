@@ -1,6 +1,8 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -24,6 +26,7 @@ public class PresentationUtils {
 	private PresentationUtils() {
 	}
 
+	@NonNull
 	private static DecimalFormat setUpMoneyFormatter() {
 		DecimalFormat format = (DecimalFormat) NumberFormat.getCurrencyInstance();
 		DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
@@ -53,7 +56,7 @@ public class PresentationUtils {
 	/**
 	 * Given the year, return a string interpretation.
 	 */
-	public static String describeYear(Context context, int year) {
+	public static String describeYear(@Nullable Context context, int year) {
 		if (context == null) {
 			return "";
 		}
@@ -69,7 +72,7 @@ public class PresentationUtils {
 	/**
 	 * Describe the priority of the wishlist.
 	 */
-	public static String describeWishlist(Context context, int priority) {
+	public static String describeWishlist(@Nullable Context context, int priority) {
 		if (context == null) {
 			return "";
 		}
@@ -79,7 +82,7 @@ public class PresentationUtils {
 		return context.getResources().getStringArray(R.array.wishlist_priority)[priority];
 	}
 
-	public static String describeAverageRating(Context context, double rating) {
+	public static String describeAverageRating(@NonNull Context context, double rating) {
 		if (rating > 0.0) {
 			return AVERAGE_RATING_FORMAT.format(rating);
 		} else {
@@ -87,7 +90,7 @@ public class PresentationUtils {
 		}
 	}
 
-	public static String describeRating(Context context, double rating) {
+	public static String describeRating(@NonNull Context context, double rating) {
 		if (rating > 0.0) {
 			return RATING_FORMAT.format(rating);
 		} else {
@@ -95,11 +98,15 @@ public class PresentationUtils {
 		}
 	}
 
+	@NonNull
 	public static String describeMoney(String currency, double amount) {
+		if (TextUtils.isEmpty(currency) && amount == 0.0) {
+			return "";
+		}
 		return describeCurrency(currency) + MONEY_FORMAT.format(amount);
 	}
 
-	private static String describeCurrency(String currency) {
+	private static String describeCurrency(@Nullable String currency) {
 		if (currency == null) {
 			return "$";
 		}
@@ -121,7 +128,8 @@ public class PresentationUtils {
 	/**
 	 * Build a displayable full name from the first and last name.
 	 */
-	public static String buildFullName(String firstName, String lastName) {
+	@NonNull
+	public static String buildFullName(@NonNull String firstName, @NonNull String lastName) {
 		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
 			return "";
 		} else if (TextUtils.isEmpty(firstName)) {
@@ -133,7 +141,7 @@ public class PresentationUtils {
 		}
 	}
 
-	public static void setTextOrHide(TextView textView, CharSequence text) {
+	public static void setTextOrHide(@Nullable TextView textView, CharSequence text) {
 		if (textView != null) {
 			textView.setText(text);
 			textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
