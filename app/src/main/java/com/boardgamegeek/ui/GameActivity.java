@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
+import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,14 +17,20 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
 import hugo.weaving.DebugLog;
 
-public class GameActivity extends SimpleSinglePaneActivity {
+public class GameActivity extends HeroActivity implements Callback {
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private int gameId;
 	private String gameName;
@@ -119,6 +126,8 @@ public class GameActivity extends SimpleSinglePaneActivity {
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
+		ScrimUtils.applyInvertedScrim(scrimView);
+		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
 
 	@DebugLog
@@ -126,10 +135,31 @@ public class GameActivity extends SimpleSinglePaneActivity {
 		this.gameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-			final ActionBar supportActionBar = getSupportActionBar();
-			if (supportActionBar != null) {
-				supportActionBar.setTitle(gameName);
-			}
+			safelySetTitle(gameName);
 		}
+	}
+
+	@DebugLog
+	@Override
+	public void onPaletteGenerated(Palette palette) {
+		((GameFragment) getFragment()).onPaletteGenerated(palette);
+	}
+
+	@DebugLog
+	@Override
+	public void onRefresh() {
+		((GameFragment) getFragment()).triggerRefresh();
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEventMainThread(UpdateEvent event) {
+		updateRefreshStatus(event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION);
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
+		updateRefreshStatus(false);
 	}
 }

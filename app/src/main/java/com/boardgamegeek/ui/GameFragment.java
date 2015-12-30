@@ -1,10 +1,8 @@
 package com.boardgamegeek.ui;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -12,14 +10,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,8 +22,6 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -44,8 +37,6 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
-import com.boardgamegeek.ui.widget.ObservableScrollView;
-import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -53,14 +44,10 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
-import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +60,7 @@ import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, Callback, Callbacks, OnRefreshListener {
+public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_RANKS_EXPANDED = "RANKS_EXPANDED";
@@ -87,14 +74,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
-	private boolean isSyncing;
 
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.scroll_root) ObservableScrollView scrollRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView imageView;
-	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_name) TextView nameView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_rating) TextView ratingView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_description) TextView descriptionView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_rank) TextView rankView;
@@ -194,14 +174,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 
-	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
-		= new ViewTreeObserver.OnGlobalLayoutListener() {
-		@Override
-		public void onGlobalLayout() {
-			ImageUtils.resizeImagePerAspectRatio(imageView, scrollRoot.getHeight() / 2, heroContainer);
-		}
-	};
-
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
@@ -230,17 +202,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
 
-		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
-
 		colorize();
 		openOrCloseDescription();
-		ScrimUtils.applyDefaultScrim(headerContainer);
-		scrollRoot.addCallbacks(this);
-		ViewTreeObserver vto = scrollRoot.getViewTreeObserver();
-		if (vto.isAlive()) {
-			vto.addOnGlobalLayoutListener(globalLayoutListener);
-		}
 
 		mightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -254,13 +217,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
 		return rootView;
-	}
-
-	@DebugLog
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override
@@ -282,12 +238,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@Override
-	public void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
-
-	@Override
 	@DebugLog
 	public void onDestroyView() {
 		super.onDestroyView();
@@ -296,34 +246,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@Override
 	@DebugLog
-	public void onDestroy() {
-		super.onDestroy();
-		if (scrollRoot == null) {
-			return;
-		}
-
-		ViewTreeObserver vto = scrollRoot.getViewTreeObserver();
-		if (vto.isAlive()) {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-				//noinspection deprecation
-				vto.removeGlobalOnLayoutListener(globalLayoutListener);
-			} else {
-				vto.removeOnGlobalLayoutListener(globalLayoutListener);
-			}
-		}
-	}
-
-	@Override
-	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_RANKS_EXPANDED, isRanksExpanded);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, isDescriptionExpanded);
-	}
-
-	@Override
-	public void onRefresh() {
-		triggerRefresh();
 	}
 
 	@Override
@@ -443,50 +369,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	@Override
-	@DebugLog
-	public void onScrollChanged(int deltaX, int deltaY) {
-		if (VersionUtils.hasHoneycomb()) {
-			int scrollY = scrollRoot.getScrollY();
-			imageView.setTranslationY(scrollY * 0.5f);
-			headerContainer.setTranslationY(scrollY * 0.5f);
-		}
-	}
-
-	@Override
 	@DebugLog
 	public void onPaletteGenerated(Palette palette) {
 		this.palette = palette;
 		colorize();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
-		isSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME;
-		updateRefreshStatus();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEventMainThread(UpdateCompleteEvent event) {
-		isSyncing = false;
-		updateRefreshStatus();
-	}
-
-	@DebugLog
-	private void updateRefreshStatus() {
-		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					if (swipeRefreshLayout != null) {
-						swipeRefreshLayout.setRefreshing(isSyncing);
-					}
-				}
-			});
-		}
 	}
 
 	@DebugLog
@@ -523,8 +409,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		thumbnailUrl = game.ThumbnailUrl;
 		arePlayersCustomSorted = game.CustomPlayerSort;
 
-		ImageUtils.safelyLoadImage(imageView, game.ImageUrl, this);
-		nameView.setText(game.Name);
 		rankView.setText(game.getRankDescription());
 		yearPublishedView.setText(game.getYearPublished());
 		subtypeView.setText(game.getSubtype());
@@ -725,17 +609,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.image)
-	@DebugLog
-	public void onThumbnailClick(View v) {
-		if (!TextUtils.isEmpty(imageUrl)) {
-			final Intent intent = new Intent(getActivity(), ImageActivity.class);
-			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
-			startActivity(intent);
-		}
-	}
-
-	@SuppressWarnings("unused")
 	@OnClick(R.id.rank_root)
 	@DebugLog
 	public void onRankClick(View v) {
@@ -868,7 +741,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@DebugLog
-	private void triggerRefresh() {
+	public void triggerRefresh() {
 		mightNeedRefreshing = false;
 		int gameId = Games.getGameId(gameUri);
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, gameId);
