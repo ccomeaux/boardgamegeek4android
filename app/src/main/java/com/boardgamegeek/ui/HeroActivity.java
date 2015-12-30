@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.widget.ImageView;
@@ -16,10 +18,12 @@ import butterknife.InjectView;
 /**
  * A navigation drawer activity that displays a hero image.
  */
-public abstract class HeroActivity extends DrawerActivity {
+public abstract class HeroActivity extends DrawerActivity implements OnRefreshListener {
 	private static final String TAG_SINGLE_PANE = "single_pane";
 	private Fragment fragment;
+	private boolean isRefreshing;
 
+	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@SuppressWarnings("unused") @InjectView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
 	@SuppressWarnings("unused") @InjectView(R.id.toolbar_image) ImageView toolbarImage;
 
@@ -37,6 +41,12 @@ public abstract class HeroActivity extends DrawerActivity {
 		} else {
 			fragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
+	}
+
+	@Override
+	protected void onPostInject() {
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 	}
 
 	protected void createFragment() {
@@ -68,6 +78,23 @@ public abstract class HeroActivity extends DrawerActivity {
 	protected void safelySetTitle(String title) {
 		if (!TextUtils.isEmpty(title)) {
 			collapsingToolbar.setTitle(title);
+		}
+	}
+
+	@Override
+	public void onRefresh() {
+		//No-op; just here for the children
+	}
+
+	protected void updateRefreshStatus(boolean refreshing) {
+		this.isRefreshing = refreshing;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					swipeRefreshLayout.setRefreshing(isRefreshing);
+				}
+			});
 		}
 	}
 }
