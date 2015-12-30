@@ -133,13 +133,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	@DebugLog
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@Override
-	@DebugLog
 	public void onResume() {
 		super.onResume();
 		if (timeHintUpdateRunnable != null) {
@@ -163,7 +156,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
 		}
-		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
 

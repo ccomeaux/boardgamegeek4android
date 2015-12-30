@@ -76,7 +76,6 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		((GameCollectionFragment) getFragment()).triggerRefresh();
 	}
 
-
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEventMainThread(UpdateEvent event) {

@@ -38,7 +38,7 @@
 					android:contentDescription="@null"
 					android:fitsSystemWindows="true"
 					android:scaleType="centerCrop"
-					android:src="@drawable/title_logo"
+					android:src="@color/primary"
 					app:layout_collapseMode="parallax"/>
 
 				<View
