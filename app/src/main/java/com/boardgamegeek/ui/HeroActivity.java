@@ -8,6 +8,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.boardgamegeek.R;
@@ -26,6 +27,7 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@SuppressWarnings("unused") @InjectView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
 	@SuppressWarnings("unused") @InjectView(R.id.toolbar_image) ImageView toolbarImage;
+	@SuppressWarnings("unused") @InjectView(R.id.scrim) View scrimView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

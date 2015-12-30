@@ -41,6 +41,12 @@
 					android:src="@drawable/title_logo"
 					app:layout_collapseMode="parallax"/>
 
+				<View
+					android:id="@+id/scrim"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_gravity="bottom"/>
+
 				<android.support.v7.widget.Toolbar
 					android:id="@+id/toolbar"
 					android:layout_width="match_parent"
