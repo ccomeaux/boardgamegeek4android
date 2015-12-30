@@ -10,6 +10,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 
 /**
  * Methods to aid in presenting information in a consistent manner.
@@ -17,8 +19,17 @@ import java.text.DecimalFormat;
 public class PresentationUtils {
 	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.00");
 	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.#");
+	private static final DecimalFormat MONEY_FORMAT = setUpMoneyFormatter();
 
 	private PresentationUtils() {
+	}
+
+	private static DecimalFormat setUpMoneyFormatter() {
+		DecimalFormat format = (DecimalFormat) NumberFormat.getCurrencyInstance();
+		DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+		symbols.setCurrencySymbol("");
+		format.setDecimalFormatSymbols(symbols);
+		return format;
 	}
 
 	public static CharSequence describePastTimeSpan(long time) {
@@ -82,6 +93,29 @@ public class PresentationUtils {
 		} else {
 			return context.getString(R.string.unrated);
 		}
+	}
+
+	public static String describeMoney(String currency, double amount) {
+		return describeCurrency(currency) + MONEY_FORMAT.format(amount);
+	}
+
+	private static String describeCurrency(String currency) {
+		if (currency == null) {
+			return "$";
+		}
+		switch (currency) {
+			case "USD":
+			case "CAD":
+			case "AUD":
+				return "$";
+			case "EUR":
+				return "\u20AC";
+			case "GBP":
+				return "\u00A3";
+			case "YEN":
+				return "\u00A5";
+		}
+		return "";
 	}
 
 	/**
