@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -38,6 +39,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private SyncTask currentTask;
 	private boolean isCancelled;
 
+	@DebugLog
 	public SyncAdapter(Context context) {
 		super(context, false);
 		this.context = context;
@@ -54,6 +56,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onPerformSync(@NonNull Account account, @NonNull Bundle extras, String authority, ContentProviderClient provider, @NonNull SyncResult syncResult) {
 		isCancelled = false;
@@ -104,6 +107,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		NotificationUtils.cancel(context, NotificationUtils.ID_SYNC);
 	}
 
+	@DebugLog
 	@Override
 	public void onSyncCanceled() {
 		super.onSyncCanceled();
@@ -114,6 +118,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 	}
 
+	@DebugLog
 	private boolean shouldContinueSync(boolean uploadOnly) {
 		if (uploadOnly) {
 			Timber.w("Upload only, returning.");
@@ -143,6 +148,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		return true;
 	}
 
+	@DebugLog
 	@NonNull
 	private List<SyncTask> createTasks(Context context, final int type) {
 		BggService service = Adapter.createWithAuth(context);
@@ -181,6 +187,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		return tasks;
 	}
 
+	@DebugLog
 	private void toggleReceiver(boolean enable) {
 		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
 		PackageManager pm = context.getPackageManager();
@@ -190,6 +197,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			PackageManager.DONT_KILL_APP);
 	}
 
+	@DebugLog
 	private void showError(@NonNull SyncTask task, @NonNull Throwable t) {
 		if (!shouldShowNotifications) {
 			return;
@@ -214,6 +222,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 
+	@DebugLog
 	private void showCancel(int messageId) {
 		if (!shouldShowNotifications) {
 			return;
