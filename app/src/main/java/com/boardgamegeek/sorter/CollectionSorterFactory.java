@@ -34,6 +34,7 @@ public class CollectionSorterFactory {
 		sorters.add(new AverageRatingSorter(context));
 		sorters.add(new AcquisitionDateSorter(context));
 		sorters.add(new AcquiredFromSorter(context));
+		sorters.add(new PricePaidSorter(context));
 	}
 
 	public CollectionSorter create(int type) {

@@ -280,6 +280,7 @@
 	<string name="collection_sort_personal">Personal</string>
 	<string name="collection_sort_local">Local</string>
 	<string name="collection_sort_acquired_from">Acquired From</string>
+	<string name="collection_sort_price_paid">Price Paid</string>
 	<string name="menu_plays_sort_date">Date</string>
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
