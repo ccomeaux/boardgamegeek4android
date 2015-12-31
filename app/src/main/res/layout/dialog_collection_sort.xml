@@ -165,6 +165,13 @@
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_price_paid"/>
 
+		<RadioButton
+			android:id="@+id/current_value"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:minHeight="@dimen/edit_row_height"
+			android:tag="@string/collection_sort_type_current_value"/>
+
 		<TextView
 			style="@style/Text.Header"
 			android:layout_width="wrap_content"

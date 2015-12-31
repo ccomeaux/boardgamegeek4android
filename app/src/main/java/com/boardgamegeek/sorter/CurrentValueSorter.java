@@ -6,26 +6,26 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class PricePaidSorter extends MoneySorter {
-	public PricePaidSorter(@NonNull Context context) {
+public class CurrentValueSorter extends MoneySorter {
+	public CurrentValueSorter(Context context) {
 		super(context);
-		descriptionId = R.string.collection_sort_price_paid;
+		descriptionId = R.string.collection_sort_current_value;
 	}
 
 	@Override
 	protected int getTypeResource() {
-		return R.string.collection_sort_type_price_paid;
+		return R.string.collection_sort_type_current_value;
 	}
 
-	@Override
 	@NonNull
+	@Override
 	protected String getAmountColumnName() {
-		return Collection.PRIVATE_INFO_PRICE_PAID;
+		return Collection.PRIVATE_INFO_CURRENT_VALUE;
 	}
 
-	@Override
 	@NonNull
+	@Override
 	protected String getCurrencyColumnName() {
-		return Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY;
+		return Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY;
 	}
 }
