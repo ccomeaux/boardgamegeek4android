@@ -106,6 +106,14 @@ public class PresentationUtils {
 		return describeCurrency(currency) + MONEY_FORMAT.format(amount);
 	}
 
+	@NonNull
+	public static String describeMoneyWithoutDecimals(String currency, double amount) {
+		if (TextUtils.isEmpty(currency) && amount == 0.0) {
+			return "";
+		}
+		return describeCurrency(currency) + (int) amount;
+	}
+
 	private static String describeCurrency(@Nullable String currency) {
 		if (currency == null) {
 			return "$";

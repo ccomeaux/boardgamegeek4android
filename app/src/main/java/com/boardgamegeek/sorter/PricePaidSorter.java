@@ -11,6 +11,8 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
 public class PricePaidSorter extends CollectionSorter {
+	public static final String MISSING_DATA = "-";
+
 	public PricePaidSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY + " DESC, " + Collection.PRIVATE_INFO_PRICE_PAID + " DESC";
@@ -31,22 +33,28 @@ public class PricePaidSorter extends CollectionSorter {
 	@Override
 	public String getDisplayInfo(@NonNull Cursor cursor) {
 		double amount = CursorUtils.getDouble(cursor, Collection.PRIVATE_INFO_PRICE_PAID);
-		return getInfo(cursor, amount);
+		String currency = getString(cursor, Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY);
+		String info = PresentationUtils.describeMoney(currency, amount);
+		return getInfoOrMissingInfo(info);
 	}
 
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
-		double amount = CursorUtils.getDouble(cursor, Collection.PRIVATE_INFO_PRICE_PAID);
-		return getInfo(cursor, amount);
+		double amount = round(CursorUtils.getDouble(cursor, Collection.PRIVATE_INFO_PRICE_PAID));
+		String currency = getString(cursor, Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY);
+		String info = PresentationUtils.describeMoneyWithoutDecimals(currency, amount);
+		return getInfoOrMissingInfo(info);
 	}
 
-	private String getInfo(@NonNull Cursor cursor, double amount) {
-		String info = PresentationUtils.describeMoney(
-			getString(cursor, Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY),
-			amount);
+	@NonNull
+	private String getInfoOrMissingInfo(String info) {
 		if (TextUtils.isEmpty(info)) {
-			return "-";
+			return MISSING_DATA;
 		}
 		return info;
+	}
+
+	private double round(double value) {
+		return ((int) (Math.ceil(value + 9) / 10)) * 10;
 	}
 }
