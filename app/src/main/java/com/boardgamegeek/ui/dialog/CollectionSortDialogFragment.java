@@ -49,7 +49,8 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.my_rating,
 		R.id.last_viewed,
 		R.id.wishlist_priority,
-		R.id.play_count,
+		R.id.play_count_asc,
+		R.id.play_count_desc,
 		R.id.year_published_asc,
 		R.id.year_published_desc,
 		R.id.play_time_asc,
@@ -59,6 +60,9 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.average_weight_asc,
 		R.id.average_weight_desc,
 		R.id.acquisition_date,
+		R.id.acquired_from,
+		R.id.price_paid,
+		R.id.current_value
 	}) List<RadioButton> radioButtons;
 
 	@DebugLog

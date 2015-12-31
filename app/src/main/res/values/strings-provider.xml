@@ -21,4 +21,7 @@
 	<string name="collection_sort_type_rank">16</string>
 	<string name="collection_sort_type_average_rating">17</string>
 	<string name="collection_sort_type_acquisition_date">18</string>
+	<string name="collection_sort_type_acquired_from">19</string>
+	<string name="collection_sort_type_price_paid">20</string>
+	<string name="collection_sort_type_current_value">21</string>
 </resources>
