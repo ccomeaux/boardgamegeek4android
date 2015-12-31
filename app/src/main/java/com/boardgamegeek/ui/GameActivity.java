@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -28,6 +29,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
+import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 
 public class GameActivity extends HeroActivity implements Callback {
@@ -64,6 +66,13 @@ public class GameActivity extends HeroActivity implements Callback {
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return new GameFragment();
+	}
+
+	@Override
+	protected void onPostInject() {
+		super.onPostInject();
+		fab.setImageResource(R.drawable.ic_action_edit_white);
+		fab.setVisibility(View.VISIBLE);
 	}
 
 	@DebugLog
@@ -161,5 +170,14 @@ public class GameActivity extends HeroActivity implements Callback {
 	@DebugLog
 	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
 		updateRefreshStatus(false);
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@OnClick(R.id.fab)
+	public void onFabClicked(View v) {
+		Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
+		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		startActivityForResult(intent, REQUEST_EDIT_PLAY);
 	}
 }

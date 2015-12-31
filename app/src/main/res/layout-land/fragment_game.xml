@@ -89,4 +89,9 @@
 	</LinearLayout>
 
 	<include layout="@layout/include_game_footer"/>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/fab_buffer"
+		android:minHeight="@dimen/fab_buffer"/>
 </LinearLayout>
