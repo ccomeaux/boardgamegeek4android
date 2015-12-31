@@ -468,8 +468,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final int RATING_DIRTY_TIMESTAMP = 33;
 		final int COMMENT_DIRTY_TIMESTAMP = 34;
 
-		final DecimalFormat currencyFormat = new DecimalFormat("#0.00");
-
 		Resources r;
 		int id;
 		String name;
@@ -566,11 +564,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		}
 
 		String getPrice() {
-			return formatCurrency(priceCurrency) + currencyFormat.format(price);
+			return PresentationUtils.describeMoney(priceCurrency, price);
 		}
 
 		String getValue() {
-			return formatCurrency(currentValueCurrency) + currencyFormat.format(currentValue);
+			return PresentationUtils.describeMoney(currentValueCurrency, currentValue);
 		}
 
 		boolean hasPrivateInfo() {
@@ -629,25 +627,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			}
 			return sb;
 
-		}
-
-		private String formatCurrency(String currency) {
-			if (currency == null) {
-				return "$";
-			}
-			switch (currency) {
-				case "USD":
-				case "CAD":
-				case "AUD":
-					return "$";
-				case "EUR":
-					return "\u20AC";
-				case "GBP":
-					return "\u00A3";
-				case "YEN":
-					return "\u00A5";
-			}
-			return "";
 		}
 	}
 }
