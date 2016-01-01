@@ -71,8 +71,10 @@ public class GameActivity extends HeroActivity implements Callback {
 	@Override
 	protected void onPostInject() {
 		super.onPostInject();
-		fab.setImageResource(R.drawable.ic_action_edit_white);
-		fab.setVisibility(View.VISIBLE);
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.setImageResource(R.drawable.ic_action_edit_white);
+			fab.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@DebugLog
@@ -85,7 +87,6 @@ public class GameActivity extends HeroActivity implements Callback {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.findItem(R.id.menu_log_play).setVisible(PreferencesUtils.showLogPlay(this));
 		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
 		return true;
 	}
@@ -110,11 +111,6 @@ public class GameActivity extends HeroActivity implements Callback {
 				return true;
 			case R.id.menu_shortcut:
 				ShortcutUtils.createShortcut(this, gameId, gameName, thumbnailUrl);
-				return true;
-			case R.id.menu_log_play:
-				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
-				intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-				startActivityForResult(intent, REQUEST_EDIT_PLAY);
 				return true;
 			case R.id.menu_log_play_quick:
 				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
