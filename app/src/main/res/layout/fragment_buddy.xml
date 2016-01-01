@@ -141,7 +141,7 @@
 					<ImageView
 						android:id="@+id/icon_plays"
 						style="@style/Icon"
-						android:src="@drawable/ic_action_calendar_light"/>
+						android:src="@drawable/ic_action_today_light"/>
 
 					<TextView
 						android:id="@+id/plays_label"

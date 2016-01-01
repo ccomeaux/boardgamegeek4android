@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
@@ -12,7 +13,6 @@ import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 import android.view.View;
 
 import com.boardgamegeek.R;
@@ -113,7 +113,7 @@ public class GameActivity extends HeroActivity implements Callback {
 				ShortcutUtils.createShortcut(this, gameId, gameName, thumbnailUrl);
 				return true;
 			case R.id.menu_log_play_quick:
-				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+				Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, gameId, gameName);
 				return true;
 		}
