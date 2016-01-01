@@ -113,7 +113,6 @@ public abstract class DrawerActivity extends BaseActivity {
 			if (!TextUtils.isEmpty(AccountUtils.getUsername(this))) {
 				drawerList.addView(makeNavDrawerItem(R.string.title_colors, R.drawable.ic_action_colors_light, drawerList));
 			}
-			drawerList.addView(makeNavDrawerItem(R.string.title_play_stats, R.drawable.ic_action_pie_chart, drawerList));
 			drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
@@ -159,9 +158,6 @@ public abstract class DrawerActivity extends BaseActivity {
 					intent = new Intent(this, BuddyColorsActivity.class);
 					intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(this));
 					shouldFinish = false;
-					break;
-				case R.string.title_play_stats:
-					intent = new Intent(this, PlayStatsActivity.class);
 					break;
 				case R.string.title_buddies:
 					intent = new Intent(this, BuddiesActivity.class);

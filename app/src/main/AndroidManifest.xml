@@ -152,7 +152,7 @@
 			android:label="@string/title_players">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.PlaysSummaryActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.LocationsActivity"
@@ -160,7 +160,7 @@
 			android:label="@string/title_locations">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.PlaysSummaryActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.PlayStatsActivity"
@@ -168,7 +168,7 @@
 			android:label="@string/title_play_stats">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.PlaysSummaryActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.PlayActivity"

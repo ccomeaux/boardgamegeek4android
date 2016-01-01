@@ -36,4 +36,9 @@ public class PlaysSummaryFragment extends Fragment {
 	public void onLocationsClick(View v) {
 		startActivity(new Intent(getActivity(), LocationsActivity.class));
 	}
+
+	@OnClick(R.id.container_stats)
+	public void onStatsClick(View v) {
+		startActivity(new Intent(getActivity(), PlayStatsActivity.class));
+	}
 }

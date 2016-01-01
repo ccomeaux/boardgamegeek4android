@@ -1,18 +1,12 @@
 package com.boardgamegeek.ui;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 
-import com.boardgamegeek.R;
-
-public class PlayStatsActivity extends TopLevelSinglePaneActivity {
+public class PlayStatsActivity extends SimpleSinglePaneActivity {
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new PlayStatsFragment();
-	}
-
-	@Override
-	protected int getDrawerResId() {
-		return R.string.title_play_stats;
 	}
 }
