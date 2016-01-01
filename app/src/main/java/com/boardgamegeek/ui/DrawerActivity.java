@@ -155,7 +155,7 @@ public abstract class DrawerActivity extends BaseActivity {
 					intent = new Intent(this, GeekListsActivity.class);
 					break;
 				case R.string.title_plays:
-					intent = new Intent(this, PlaysActivity.class);
+					intent = new Intent(this, PlaysSummaryActivity.class);
 					break;
 				case R.string.title_players:
 					intent = new Intent(this, PlayersActivity.class);

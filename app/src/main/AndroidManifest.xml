@@ -131,7 +131,7 @@
             android:label="@string/title_favorite_colors"
             android:theme="@style/Theme.bgglight.NoActionBar"/>
         <activity
-            android:name=".ui.PlaysActivity"
+			android:name=".ui.PlaysSummaryActivity"
             android:exported="false"
             android:label="@string/title_plays">
             <meta-data
@@ -139,6 +139,14 @@
                 android:value=".ui.HomeActivity"/>
         </activity>
         <activity
+			android:name=".ui.PlaysActivity"
+			android:exported="false"
+			android:label="@string/title_plays">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.PlaysSummaryActivity"/>
+		</activity>
+		<activity
             android:name=".ui.PlayersActivity"
             android:exported="false"
             android:label="@string/title_players">

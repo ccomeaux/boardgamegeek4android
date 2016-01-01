@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 
@@ -14,12 +15,12 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlaysActivity extends TopLevelSinglePaneActivity {
+public class PlaysActivity extends SimpleSinglePaneActivity {
 	private int mCount;
 	private String mSortName;
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new PlaysFragment();
 	}
 
@@ -35,11 +36,6 @@ public class PlaysActivity extends TopLevelSinglePaneActivity {
 			hide ? "" : String.valueOf(mCount),
 			hide ? "" : mSortName);
 		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	protected int getDrawerResId() {
-		return R.string.title_plays;
 	}
 
 	@DebugLog
