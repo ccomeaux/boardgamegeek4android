@@ -10,7 +10,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.util.ToolbarUtils;
 
-public class PlayersActivity extends TopLevelSinglePaneActivity implements PlayersFragment.Callbacks {
+public class PlayersActivity extends SimpleSinglePaneActivity implements PlayersFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
 	private int mCount = -1;
 
@@ -29,7 +29,7 @@ public class PlayersActivity extends TopLevelSinglePaneActivity implements Playe
 	}
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new PlayersFragment();
 	}
 

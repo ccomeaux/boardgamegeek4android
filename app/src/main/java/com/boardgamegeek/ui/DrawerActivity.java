@@ -110,7 +110,6 @@ public abstract class DrawerActivity extends BaseActivity {
 
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_players, R.drawable.ic_people_black_24dp, drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_locations, R.drawable.ic_place_black_24dp, drawerList));
 			if (!TextUtils.isEmpty(AccountUtils.getUsername(this))) {
 				drawerList.addView(makeNavDrawerItem(R.string.title_colors, R.drawable.ic_action_colors_light, drawerList));
@@ -156,9 +155,6 @@ public abstract class DrawerActivity extends BaseActivity {
 					break;
 				case R.string.title_plays:
 					intent = new Intent(this, PlaysSummaryActivity.class);
-					break;
-				case R.string.title_players:
-					intent = new Intent(this, PlayersActivity.class);
 					break;
 				case R.string.title_locations:
 					intent = new Intent(this, LocationsActivity.class);
