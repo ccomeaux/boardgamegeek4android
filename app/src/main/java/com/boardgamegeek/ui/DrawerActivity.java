@@ -17,7 +17,6 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.squareup.picasso.Picasso;
@@ -106,16 +105,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			}
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, drawerList));
-			drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
-
-			drawerList.addView(makeNavDrawerSpacer(drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, drawerList));
-			if (!TextUtils.isEmpty(AccountUtils.getUsername(this))) {
-				drawerList.addView(makeNavDrawerItem(R.string.title_colors, R.drawable.ic_action_colors_light, drawerList));
-			}
-			drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
-
-			drawerList.addView(makeNavDrawerSpacer(drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, drawerList));
 		}
 		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
@@ -153,11 +143,6 @@ public abstract class DrawerActivity extends BaseActivity {
 					break;
 				case R.string.title_plays:
 					intent = new Intent(this, PlaysSummaryActivity.class);
-					break;
-				case R.string.title_colors:
-					intent = new Intent(this, BuddyColorsActivity.class);
-					intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(this));
-					shouldFinish = false;
 					break;
 				case R.string.title_buddies:
 					intent = new Intent(this, BuddiesActivity.class);
