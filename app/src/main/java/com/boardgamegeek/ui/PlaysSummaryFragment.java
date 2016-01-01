@@ -31,4 +31,9 @@ public class PlaysSummaryFragment extends Fragment {
 	public void onPlayersClick(View v) {
 		startActivity(new Intent(getActivity(), PlayersActivity.class));
 	}
+
+	@OnClick(R.id.container_locations)
+	public void onLocationsClick(View v) {
+		startActivity(new Intent(getActivity(), LocationsActivity.class));
+	}
 }
