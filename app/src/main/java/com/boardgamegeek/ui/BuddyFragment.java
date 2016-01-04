@@ -21,6 +21,8 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -71,10 +73,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView mAvatar;
 	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView mNickname;
 	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView mPlays;
-	@SuppressWarnings("unused") @InjectView(R.id.color_container) View mColorContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.color_1) ImageView mColor1;
-	@SuppressWarnings("unused") @InjectView(R.id.color_2) ImageView mColor2;
-	@SuppressWarnings("unused") @InjectView(R.id.color_3) ImageView mColor3;
+	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout mColorContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView mUpdated;
 	private int mDefaultTextColor;
 	private int mLightTextColor;
@@ -321,19 +320,30 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			return;
 		}
 
-		populateColor(cursor, mColor1);
-		populateColor(cursor, mColor2);
-		populateColor(cursor, mColor3);
+		mColorContainer.removeAllViews();
+
+		for (int i = 0; i < 3; i++) {
+			if (cursor.moveToNext()) {
+				mColorContainer.setVisibility(View.VISIBLE);
+				ImageView view = createViewToBeColored();
+				BuddyColor color = BuddyColor.fromCursor(cursor);
+				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
+				mColorContainer.addView(view);
+			} else {
+				mColorContainer.setVisibility(View.GONE);
+				return;
+			}
+		}
 	}
 
-	private void populateColor(Cursor cursor, ImageView view) {
-		if (cursor.moveToNext()) {
-			mColorContainer.setVisibility(View.VISIBLE);
-			BuddyColor color = BuddyColor.fromCursor(cursor);
-			ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
-		} else {
-			mColorContainer.setVisibility(View.GONE);
-		}
+	private ImageView createViewToBeColored() {
+		ImageView view = new ImageView(getActivity());
+		int size = getResources().getDimensionPixelSize(R.dimen.color_circle_diameter_small);
+		int margin = getResources().getDimensionPixelSize(R.dimen.color_circle_diameter_small_margin);
+		LayoutParams lp = new LayoutParams(size, size);
+		lp.setMargins(margin, margin, margin, margin);
+		view.setLayoutParams(lp);
+		return view;
 	}
 
 	@DebugLog
