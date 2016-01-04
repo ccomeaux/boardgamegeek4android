@@ -95,7 +95,19 @@
 						android:id="@+id/card_header_colors"
 						style="@style/Text.Header.Card"
 						android:layout_width="wrap_content"
-						android:text="@string/title_colors"/>
+						android:text="@string/title_favorite_colors"/>
+
+					<LinearLayout
+						android:id="@+id/color_container"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:orientation="horizontal">
+
+						<TextView
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:text="@string/favorite_colors_hint"/>
+					</LinearLayout>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 

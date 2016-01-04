@@ -183,6 +183,7 @@
 	<string name="msg_import_failed">Import failed.</string>
 	<string name="msg_import_failed_nofile">Import file doesn\'t exist or can\'t be read.</string>
 	<string name="msg_import_failed_nosd">Import folder is not available.</string>
+	<string name="favorite_colors_hint">Click to set your favorite colors when logging plays.</string>
 	<string name="backup_type_collection_view">Collection view</string>
 	<string name="backup_type_game">Game color</string>
 	<string name="backup_type_user">Player color</string>

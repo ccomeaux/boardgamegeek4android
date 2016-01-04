@@ -1,23 +1,36 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.provider.BggContract.PlayerColors;
+import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ColorUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class PlaysSummaryFragment extends Fragment {
+public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
+	private static final int COLORS_TOKEN = 1;
+
 	@SuppressWarnings("unused") @InjectView(R.id.card_colors) View colorsCard;
+	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -29,21 +42,96 @@ public class PlaysSummaryFragment extends Fragment {
 		return rootView;
 	}
 
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		CursorLoader loader = null;
+		switch (id) {
+			case COLORS_TOKEN:
+				loader = new CursorLoader(getActivity(),
+					PlayerColors.buildUserUri(AccountUtils.getUsername(getActivity())),
+					BuddyColor.PROJECTION,
+					null, null, null);
+				break;
+		}
+		return loader;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		if (getActivity() == null) {
+			return;
+		}
+
+		switch (loader.getId()) {
+			case COLORS_TOKEN:
+				onColorsQueryComplete(cursor);
+				break;
+			default:
+				cursor.close();
+				break;
+		}
+	}
+
+	private void onColorsQueryComplete(Cursor cursor) {
+		if (cursor == null) {
+			return;
+		}
+
+		if (cursor.getCount() > 0) {
+			colorContainer.removeAllViews();
+			for (int i = 0; i < 5; i++) {
+				if (cursor.moveToNext()) {
+					ImageView view = createViewToBeColored();
+					BuddyColor color = BuddyColor.fromCursor(cursor);
+					ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
+					colorContainer.addView(view);
+				} else {
+					return;
+				}
+			}
+		}
+	}
+
+	private ImageView createViewToBeColored() {
+		ImageView view = new ImageView(getActivity());
+		int size = getResources().getDimensionPixelSize(R.dimen.color_circle_diameter_small);
+		int margin = getResources().getDimensionPixelSize(R.dimen.color_circle_diameter_small_margin);
+		LayoutParams lp = new LayoutParams(size, size);
+		lp.setMargins(margin, margin, margin, margin);
+		view.setLayoutParams(lp);
+		return view;
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@SuppressWarnings("unused")
 	@OnClick(R.id.container_plays)
 	public void onPlaysClick(View v) {
 		startActivity(new Intent(getActivity(), PlaysActivity.class));
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.container_players)
 	public void onPlayersClick(View v) {
 		startActivity(new Intent(getActivity(), PlayersActivity.class));
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.container_locations)
 	public void onLocationsClick(View v) {
 		startActivity(new Intent(getActivity(), LocationsActivity.class));
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.container_colors)
 	public void onColorsClick(View v) {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
@@ -51,6 +139,7 @@ public class PlaysSummaryFragment extends Fragment {
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.container_stats)
 	public void onStatsClick(View v) {
 		startActivity(new Intent(getActivity(), PlayStatsActivity.class));
