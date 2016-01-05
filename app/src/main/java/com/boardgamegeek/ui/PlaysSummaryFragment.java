@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
@@ -21,6 +22,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -31,6 +33,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	@SuppressWarnings("unused") @InjectView(R.id.card_colors) View colorsCard;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.h_index) TextView hIndexView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,6 +41,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		ButterKnife.inject(this, rootView);
 		colorsCard.setVisibility(TextUtils.isEmpty(AccountUtils.getUsername(getActivity())) ? View.GONE : View.VISIBLE);
+		//TODO ensure this is bold
+		hIndexView.setText(getString(R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
 
 		return rootView;
 	}

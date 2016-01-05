@@ -243,6 +243,14 @@
 		<item name="android:gravity">center_vertical</item>
 	</style>
 
+	<style name="Text.Footer">
+		<item name="android:textColor">@color/light_text</item>
+	</style>
+
+	<style name="Text.Footer.Card">
+		<item name="android:gravity">center_vertical|right</item>
+	</style>
+
 	<style name="Text.Header.Underline">
 		<item name="android:background">@drawable/underline</item>
 	</style>

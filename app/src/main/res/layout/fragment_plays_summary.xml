@@ -128,6 +128,19 @@
 						style="@style/Text.Header.Card"
 						android:layout_width="wrap_content"
 						android:text="@string/title_play_stats"/>
+
+					<TextView
+						android:id="@+id/h_index"
+						style="@style/Text"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						tools:text="H-Index 17"/>
+
+					<TextView
+						style="@style/Text.Footer.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/card_stats_footer"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 		</LinearLayout>
