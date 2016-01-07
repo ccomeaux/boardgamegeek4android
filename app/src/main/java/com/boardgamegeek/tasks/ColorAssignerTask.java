@@ -169,20 +169,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	 */
 	private boolean assignTopChoice() {
 		for (String colorToAssign : colorsAvailable) {
-			PlayerColorChoices playerWhoWantThisColor = null;
-			for (PlayerColorChoices player : playersNeedingColor) {
-				ColorChoice currentPlayersTopChoice = player.getTopChoice();
-				if (currentPlayersTopChoice != null) {
-					if (colorToAssign.equals(currentPlayersTopChoice.color)) {
-						if (playerWhoWantThisColor == null) {
-							playerWhoWantThisColor = player;
-						} else {
-							playerWhoWantThisColor = null;
-							break;
-						}
-					}
-				}
-			}
+			PlayerColorChoices playerWhoWantThisColor = getLongPlayerWithTopChoice(colorToAssign);
 			if (playerWhoWantThisColor != null) {
 				assignColorToPlayer(colorToAssign, playerWhoWantThisColor, "top choice");
 				return true;
@@ -190,6 +177,21 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		}
 		Timber.i("No player has a unique top choice in round " + round);
 		return false;
+	}
+
+	@Nullable
+	private PlayerColorChoices getLongPlayerWithTopChoice(String colorToAssign) {
+		PlayerColorChoices playerWhoWantThisColor = null;
+		for (PlayerColorChoices player : playersNeedingColor) {
+			if (player.isTopChoice(colorToAssign)) {
+				if (playerWhoWantThisColor == null) {
+					playerWhoWantThisColor = player;
+				} else {
+					return null;
+				}
+			}
+		}
+		return playerWhoWantThisColor;
 	}
 
 	/**
@@ -342,10 +344,10 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	}
 
 	public class PlayerResult {
-		String name;
-		int type;
-		String color;
-		String reason;
+		final String name;
+		final int type;
+		final String color;
+		final String reason;
 
 		public PlayerResult(String name, int type, String color, String reason) {
 			this.name = name;
@@ -370,6 +372,10 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			this.name = name;
 			this.type = type;
 			this.colors = new ArrayList<>();
+		}
+
+		public boolean isTopChoice(String color) {
+			return colors.size() > 0 && colors.get(0).color.equals(color);
 		}
 
 		/**
