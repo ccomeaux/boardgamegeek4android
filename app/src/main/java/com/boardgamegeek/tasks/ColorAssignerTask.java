@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
@@ -37,8 +36,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 
 	private static final int TYPE_PLAYER_USER = 1;
 	private static final int TYPE_PLAYER_NON_USER = 2;
-
-	private static final int NO_MESSAGE = 0;
 
 	@NonNull private final Random random;
 	private final Context context;
@@ -130,7 +127,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	}
 
 	private int getMessageIdFromResults(@NonNull Results results) {
-		@StringRes int messageId = NO_MESSAGE;
+		@StringRes int messageId = 0;
 		if (results.hasError()) {
 			messageId = R.string.title_error;
 			switch (results.resultCode) {
@@ -155,11 +152,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	}
 
 	private void notifyCompletion(@NonNull Results results, @StringRes int messageId) {
-		if (messageId != NO_MESSAGE) {
-			// TODO - make this a snackbar
-			Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
-		}
-		EventBus.getDefault().postSticky(new ColorAssignmentCompleteEvent(results.resultCode == SUCCESS));
+		EventBus.getDefault().postSticky(new ColorAssignmentCompleteEvent(results.resultCode == SUCCESS, messageId));
 	}
 
 	/**

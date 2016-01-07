@@ -14,6 +14,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
@@ -51,8 +52,8 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
-import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -431,10 +432,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	public void onEventMainThread(ColorAssignmentCompleteEvent event) {
+		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
 			bindUiPlayers();
 		}
-		EventBus.getDefault().removeStickyEvent(event);
+		if (event.getMessageId() != 0) {
+			Snackbar.make(mPlayerList, event.getMessageId(), Snackbar.LENGTH_LONG).show();
+		}
 	}
 
 	@DebugLog
