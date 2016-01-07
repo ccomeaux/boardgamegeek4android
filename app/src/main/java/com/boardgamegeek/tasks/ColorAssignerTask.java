@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.tasks.ColorAssignerTask.Results;
 import com.boardgamegeek.util.ResolverUtils;
 
@@ -36,89 +38,98 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private static final int TYPE_PLAYER_USER = 1;
 	private static final int TYPE_PLAYER_NON_USER = 2;
 
-	@NonNull private final Random mRandom;
-	private final Context mContext;
-	private final Play mPlay;
-	private List<String> mRemainingColors;
-	private List<PlayerColors> mRemainingPlayers;
-	@NonNull private final Results mResults;
+	private static final int NO_MESSAGE = 0;
+
+	@NonNull private final Random random;
+	private final Context context;
+	private final Play play;
+	private List<String> colorsAvailable;
+	private List<PlayerColorChoices> playersNeedingColor;
+	@NonNull private final Results results;
 
 	public ColorAssignerTask(Context context, Play play) {
-		mContext = context;
-		mPlay = play;
-		mResults = new Results();
-		mRandom = new Random();
+		this.context = context;
+		this.play = play;
+		results = new Results();
+		random = new Random();
 	}
 
 	@NonNull
 	@Override
 	protected Results doInBackground(Void... params) {
-		// extract list of players
-		int result = extractPlayers();
+		int result = populatePlayersNeedingColor();
 		if (result != SUCCESS) {
-			mResults.resultCode = result;
-			return mResults;
+			results.resultCode = result;
+			return results;
 		}
 
-		if (mRemainingPlayers.size() == 0) {
-			mResults.resultCode = ERROR_NO_PLAYERS;
-			return mResults;
+		if (playersNeedingColor.size() == 0) {
+			results.resultCode = ERROR_NO_PLAYERS;
+			return results;
 		}
 
-		mRemainingColors = ResolverUtils.queryStrings(mContext.getContentResolver(), Games.buildColorsUri(mPlay.gameId), GameColors.COLOR);
-		for (Player player : mPlay.getPlayers()) {
-			if (!TextUtils.isEmpty(player.color)) {
-				mRemainingColors.remove(player.color);
-			}
-		}
+		populateColorsAvailable();
 
-		if (mRemainingColors.size() < mRemainingPlayers.size()) {
-			mResults.resultCode = ERROR_TOO_FEW_COLORS;
-			return mResults;
+		if (colorsAvailable.size() < playersNeedingColor.size()) {
+			results.resultCode = ERROR_TOO_FEW_COLORS;
+			return results;
 		}
 
 		populatePlayerColorChoices();
 
 		boolean shouldContinue = true;
-		while (shouldContinue && mRemainingPlayers.size() > 0) {
-			while (shouldContinue && mRemainingPlayers.size() > 0) {
+		while (shouldContinue && playersNeedingColor.size() > 0) {
+			while (shouldContinue && playersNeedingColor.size() > 0) {
 				shouldContinue = assignTopChoice();
 			}
 			shouldContinue = assignHighestChoice();
 		}
 
 		// assign a random player a random color
-		while (mRemainingPlayers.size() > 0) {
-			String color = mRemainingColors.get(mRandom.nextInt(mRemainingColors.size()));
-			PlayerColors username = mRemainingPlayers.get(mRandom.nextInt(mRemainingPlayers.size()));
+		while (playersNeedingColor.size() > 0) {
+			String color = colorsAvailable.get(random.nextInt(colorsAvailable.size()));
+			PlayerColorChoices username = playersNeedingColor.get(random.nextInt(playersNeedingColor.size()));
 			assignColorToPlayer(color, username, "random");
 		}
 
-		mResults.resultCode = SUCCESS;
-		return mResults;
+		results.resultCode = SUCCESS;
+		return results;
 	}
 
 	@Override
 	protected void onPostExecute(@Nullable Results results) {
+		results = ensureResultsAreNotNull(results);
+		if (results.resultCode == SUCCESS) {
+			setPlayerColorsFromResults(results);
+		}
+		notifyCompletion(results, getMessageIdFromResults(results));
+	}
+
+	@NonNull
+	private Results ensureResultsAreNotNull(@Nullable Results results) {
 		if (results == null) {
 			results = new Results();
 			results.resultCode = ERROR;
 		}
+		return results;
+	}
 
-		if (results.resultCode == SUCCESS) {
-			for (PlayerResult pr : mResults.results) {
-				Player player = getPlayerFromResult(pr);
-				if (player == null) {
-					results.resultCode = ERROR_SOMETHING_CHANGED;
-					break;
-				} else {
-					player.color = pr.color;
-				}
+	private void setPlayerColorsFromResults(@NonNull Results results) {
+		for (PlayerResult pr : this.results.results) {
+			Player player = getPlayerFromResult(pr);
+			if (player == null) {
+				results.resultCode = ERROR_SOMETHING_CHANGED;
+				break;
+			} else {
+				player.color = pr.color;
 			}
 		}
+	}
 
-		if (results.resultCode < 0) {
-			int messageId = R.string.title_error;
+	private int getMessageIdFromResults(@NonNull Results results) {
+		@StringRes int messageId = NO_MESSAGE;
+		if (results.hasError()) {
+			messageId = R.string.title_error;
 			switch (results.resultCode) {
 				case ERROR_NO_PLAYERS:
 					messageId = R.string.msg_color_error_no_players;
@@ -136,27 +147,137 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 					messageId = R.string.msg_color_error_too_few_colors;
 					break;
 			}
-			Toast.makeText(mContext, messageId, Toast.LENGTH_LONG).show();
 		}
+		return messageId;
+	}
 
+	private void notifyCompletion(@NonNull Results results, @StringRes int messageId) {
+		if (messageId != NO_MESSAGE) {
+			// TODO - make this a snackbar
+			Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
+		}
 		EventBus.getDefault().postSticky(new ColorAssignmentCompleteEvent(results.resultCode == SUCCESS));
+	}
+
+	/**
+	 * Assigns a player their top color choice if no one else has that top choice as well.
+	 *
+	 * @return <code>true</code> if a color was assigned, <code>false</code> if not.
+	 */
+	private boolean assignTopChoice() {
+		for (String colorToAssign : colorsAvailable) {
+			PlayerColorChoices playerWhoWantThisColor = null;
+			for (PlayerColorChoices player : playersNeedingColor) {
+				ColorChoice currentPlayersTopChoice = player.getTopChoice();
+				if (currentPlayersTopChoice != null) {
+					if (colorToAssign.equals(currentPlayersTopChoice.color)) {
+						if (playerWhoWantThisColor == null) {
+							playerWhoWantThisColor = player;
+						} else {
+							playerWhoWantThisColor = null;
+							break;
+						}
+					}
+				}
+			}
+			if (playerWhoWantThisColor != null) {
+				assignColorToPlayer(colorToAssign, playerWhoWantThisColor, "top choice");
+				return true;
+			}
+		}
+		Timber.i("No player has a unique top choice");
+		return false;
+	}
+
+	/**
+	 * Assigns a color to a player who has the highest choice choice remaining.
+	 */
+	private boolean assignHighestChoice() {
+		PlayerColorChoices currentPlayerWithHighestChoice = null;
+		for (PlayerColorChoices player : playersNeedingColor) {
+			ColorChoice newPlayersTopChoice = player.getTopChoice();
+			if (newPlayersTopChoice != null) {
+				if (currentPlayerWithHighestChoice == null ||
+					(currentPlayerWithHighestChoice.getTopChoice().sortOrder > newPlayersTopChoice.sortOrder) ||
+					((currentPlayerWithHighestChoice.getTopChoice().sortOrder > newPlayersTopChoice.sortOrder) && !currentPlayerWithHighestChoice.getTopChoice().color.equals(newPlayersTopChoice.color))) {
+					currentPlayerWithHighestChoice = player;
+				} else if ((currentPlayerWithHighestChoice.getTopChoice().sortOrder == newPlayersTopChoice.sortOrder) &&
+					currentPlayerWithHighestChoice.getTopChoice().color.equals(newPlayersTopChoice.color)) {
+					ColorChoice currentSecondChoice = player.getSecondChoice();
+					ColorChoice savedSecondChoice = currentPlayerWithHighestChoice.getSecondChoice();
+					//noinspection StatementWithEmptyBody
+					if (currentSecondChoice == null && savedSecondChoice == null) {
+						// TODO: random
+					} else if (currentSecondChoice == null) {
+						currentPlayerWithHighestChoice = player;
+					} else //noinspection StatementWithEmptyBody
+						if (savedSecondChoice == null) {
+							// keep saved player
+						} else if (currentSecondChoice.sortOrder > savedSecondChoice.sortOrder) {
+							currentPlayerWithHighestChoice = player;
+						}
+				}
+			}
+		}
+		if (currentPlayerWithHighestChoice != null) {
+			assignColorToPlayer(currentPlayerWithHighestChoice.getTopChoice().color, currentPlayerWithHighestChoice, "highest choice");
+			return true;
+		}
+		return false;
+	}
+
+	private int populatePlayersNeedingColor() {
+		playersNeedingColor = new ArrayList<>();
+		List<String> users = new ArrayList<>();
+		List<String> nonusers = new ArrayList<>();
+		for (Player player : play.getPlayers()) {
+			if (TextUtils.isEmpty(player.color)) {
+				if (TextUtils.isEmpty(player.username)) {
+					if (TextUtils.isEmpty(player.name)) {
+						return ERROR_MISSING_PLAYER_NAME;
+					}
+					if (nonusers.contains(player.name)) {
+						return ERROR_DUPLICATE_PLAYER;
+					}
+					nonusers.add(player.name);
+					playersNeedingColor.add(new PlayerColorChoices(player.name, TYPE_PLAYER_NON_USER));
+				} else {
+					if (users.contains(player.username)) {
+						return ERROR_DUPLICATE_PLAYER;
+					}
+					users.add(player.username);
+					playersNeedingColor.add(new PlayerColorChoices(player.username, TYPE_PLAYER_USER));
+				}
+			}
+		}
+		return SUCCESS;
+	}
+
+	private void populateColorsAvailable() {
+		colorsAvailable = ResolverUtils.queryStrings(context.getContentResolver(), Games.buildColorsUri(play.gameId), GameColors.COLOR);
+		for (Player player : play.getPlayers()) {
+			if (!TextUtils.isEmpty(player.color)) {
+				colorsAvailable.remove(player.color);
+			}
+		}
 	}
 
 	/**
 	 * Populates the remaining players list with their color choices, limited to the colors remaining in the game.
 	 */
 	private void populatePlayerColorChoices() {
-		for (PlayerColors player : mRemainingPlayers) {
+		for (PlayerColorChoices player : playersNeedingColor) {
+			// TODO - support the other player type
 			if (player.type == TYPE_PLAYER_USER) {
 				Cursor cursor = null;
 				try {
-					cursor = mContext.getContentResolver().query(
-						com.boardgamegeek.provider.BggContract.PlayerColors.buildUserUri(player.name),
-						new String[] { com.boardgamegeek.provider.BggContract.PlayerColors.PLAYER_COLOR, com.boardgamegeek.provider.BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER },
+					cursor = context.getContentResolver().query(
+						PlayerColors.buildUserUri(player.name),
+						new String[] { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER },
 						null, null, null);
-					while (cursor != null ? cursor.moveToNext() : false) {
+					while (cursor != null && cursor.moveToNext()) {
 						String color = cursor.getString(0);
-						if (mRemainingColors.contains(color)) {
+						if (colorsAvailable.contains(color)) {
 							player.colors.add(new ColorChoice(color, cursor.getInt(1)));
 						}
 					}
@@ -172,109 +293,10 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	}
 
 	/**
-	 * Assigns a player their top color choice if no one else has that top choice as well.
-	 *
-	 * @return <code>true</code> if a color was assigned, <code>false</code> if not.
-	 */
-	private boolean assignTopChoice() {
-		for (String color : mRemainingColors) {
-			PlayerColors savedPlayer = null;
-			for (PlayerColors player : mRemainingPlayers) {
-				ColorChoice topChoice = player.getTopChoice();
-				if (topChoice != null) {
-					if (color.equals(topChoice.color)) {
-						if (savedPlayer == null) {
-							savedPlayer = player;
-						} else {
-							savedPlayer = null;
-							break;
-						}
-					}
-				}
-			}
-			if (savedPlayer != null) {
-				assignColorToPlayer(color, savedPlayer, "top choice");
-				return true;
-			}
-		}
-		Timber.i("No player has a unique top choice");
-		return false;
-	}
-
-	/**
-	 * Assigns a color to a player who has the highest choice choice remaining.
-	 */
-	private boolean assignHighestChoice() {
-		PlayerColors savedPlayer = null;
-		for (PlayerColors player : mRemainingPlayers) {
-			ColorChoice currentTopChoice = player.getTopChoice();
-			if (currentTopChoice != null) {
-				if (savedPlayer == null ||
-					(savedPlayer.getTopChoice().sortOrder > currentTopChoice.sortOrder) ||
-					((savedPlayer.getTopChoice().sortOrder > currentTopChoice.sortOrder) && !savedPlayer.getTopChoice().color.equals(currentTopChoice.color))) {
-					savedPlayer = player;
-				} else if ((savedPlayer.getTopChoice().sortOrder == currentTopChoice.sortOrder) &&
-					savedPlayer.getTopChoice().color.equals(currentTopChoice.color)) {
-					ColorChoice currentSecondChoice = player.getSecondChoice();
-					ColorChoice savedSecondChoice = savedPlayer.getSecondChoice();
-					//noinspection StatementWithEmptyBody
-					if (currentSecondChoice == null && savedSecondChoice == null) {
-						// TODO: random
-					} else if (currentSecondChoice == null) {
-						savedPlayer = player;
-					} else //noinspection StatementWithEmptyBody
-						if (savedSecondChoice == null) {
-						// else keep saved player
-					} else if (currentSecondChoice.sortOrder > savedSecondChoice.sortOrder) {
-						savedPlayer = player;
-					}
-				}
-			}
-		}
-		if (savedPlayer != null) {
-			assignColorToPlayer(savedPlayer.getTopChoice().color, savedPlayer, "highest choice");
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Extract players from the play into the local list of remaining players.
-	 *
-	 * @return status code
-	 */
-	private int extractPlayers() {
-		mRemainingPlayers = new ArrayList<>();
-		List<String> users = new ArrayList<>();
-		List<String> nonusers = new ArrayList<>();
-		for (Player player : mPlay.getPlayers()) {
-			if (TextUtils.isEmpty(player.color)) {
-				if (TextUtils.isEmpty(player.username)) {
-					if (TextUtils.isEmpty(player.name)) {
-						return ERROR_MISSING_PLAYER_NAME;
-					}
-					if (nonusers.contains(player.name)) {
-						return ERROR_DUPLICATE_PLAYER;
-					}
-					nonusers.add(player.name);
-					mRemainingPlayers.add(new PlayerColors(player.name, TYPE_PLAYER_NON_USER));
-				} else {
-					if (users.contains(player.username)) {
-						return ERROR_DUPLICATE_PLAYER;
-					}
-					users.add(player.username);
-					mRemainingPlayers.add(new PlayerColors(player.username, TYPE_PLAYER_USER));
-				}
-			}
-		}
-		return SUCCESS;
-	}
-
-	/**
 	 * Gets the player from the play based on the player result. Returns null if the player couldn't be found or their color is already set.
 	 */
 	private Player getPlayerFromResult(@NonNull PlayerResult pr) {
-		for (Player player : mPlay.getPlayers()) {
+		for (Player player : play.getPlayers()) {
 			if ((pr.type == TYPE_PLAYER_USER && pr.name.equals(player.username)) ||
 				pr.type == TYPE_PLAYER_NON_USER && pr.name.equals(player.name) && TextUtils.isEmpty(player.username)) {
 				if (TextUtils.isEmpty(player.color)) {
@@ -287,28 +309,32 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 
 	/**
 	 * Assign a color to a player, and remove both from the list of remaining colors and players. This can't be called
-	 * from a for each loop without ending the ending the iteration.
+	 * from a for each loop without ending the iteration.
 	 */
-	private void assignColorToPlayer(@NonNull String color, @NonNull PlayerColors player, String reason) {
-		PlayerResult pr = new PlayerResult();
-		pr.color = color;
-		pr.name = player.name;
-		pr.type = player.type;
+	private void assignColorToPlayer(@NonNull String color, @NonNull PlayerColorChoices player, String reason) {
+		PlayerResult playerResult = new PlayerResult();
+		playerResult.color = color;
+		playerResult.name = player.name;
+		playerResult.type = player.type;
 
-		mResults.results.add(pr);
-		mRemainingColors.remove(color);
-		mRemainingPlayers.remove(player);
+		results.results.add(playerResult);
+		colorsAvailable.remove(color);
+		playersNeedingColor.remove(player);
 
-		for (PlayerColors pc : mRemainingPlayers) {
+		for (PlayerColorChoices pc : playersNeedingColor) {
 			pc.removeChoice(color);
 		}
 
-		Timber.i("Assigned " + pr + ": " + reason);
+		Timber.i("Assigned " + playerResult + ": " + reason);
 	}
 
 	public class Results {
 		int resultCode;
 		final List<PlayerResult> results = new ArrayList<>();
+
+		public boolean hasError() {
+			return resultCode < 0;
+		}
 	}
 
 	public class PlayerResult {
@@ -323,12 +349,12 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		}
 	}
 
-	private class PlayerColors {
+	private class PlayerColorChoices {
 		final String name;
 		final int type;
 		@NonNull final List<ColorChoice> colors;
 
-		public PlayerColors(String name, int type) {
+		public PlayerColorChoices(String name, int type) {
 			this.name = name;
 			this.type = type;
 			this.colors = new ArrayList<>();
