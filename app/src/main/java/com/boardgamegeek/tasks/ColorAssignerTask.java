@@ -46,6 +46,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private List<String> colorsAvailable;
 	private List<PlayerColorChoices> playersNeedingColor;
 	@NonNull private final Results results;
+	private int round;
 
 	public ColorAssignerTask(Context context, Play play) {
 		this.context = context;
@@ -77,12 +78,14 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 
 		populatePlayerColorChoices();
 
+		round = 1;
 		boolean shouldContinue = true;
 		while (shouldContinue && playersNeedingColor.size() > 0) {
 			while (shouldContinue && playersNeedingColor.size() > 0) {
 				shouldContinue = assignTopChoice();
 			}
 			shouldContinue = assignHighestChoice();
+			round++;
 		}
 
 		// assign a random player a random color
@@ -185,7 +188,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 				return true;
 			}
 		}
-		Timber.i("No player has a unique top choice");
+		Timber.i("No player has a unique top choice in round " + round);
 		return false;
 	}
 
@@ -312,20 +315,16 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	 * from a for each loop without ending the iteration.
 	 */
 	private void assignColorToPlayer(@NonNull String color, @NonNull PlayerColorChoices player, String reason) {
-		PlayerResult playerResult = new PlayerResult();
-		playerResult.color = color;
-		playerResult.name = player.name;
-		playerResult.type = player.type;
-
+		PlayerResult playerResult = new PlayerResult(player.name, player.type, color, reason);
 		results.results.add(playerResult);
+		Timber.i("Assigned " + playerResult);
+
 		colorsAvailable.remove(color);
 		playersNeedingColor.remove(player);
 
-		for (PlayerColorChoices pc : playersNeedingColor) {
-			pc.removeChoice(color);
+		for (PlayerColorChoices playerColorChoices : playersNeedingColor) {
+			playerColorChoices.removeChoice(color);
 		}
-
-		Timber.i("Assigned " + playerResult + ": " + reason);
 	}
 
 	public class Results {
@@ -335,17 +334,30 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		public boolean hasError() {
 			return resultCode < 0;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("%1$s - %2$s", resultCode, results.size());
+		}
 	}
 
 	public class PlayerResult {
 		String name;
 		int type;
 		String color;
+		String reason;
+
+		public PlayerResult(String name, int type, String color, String reason) {
+			this.name = name;
+			this.type = type;
+			this.color = color;
+			this.reason = reason;
+		}
 
 		@NonNull
 		@Override
 		public String toString() {
-			return name + " (" + type + ") - " + color;
+			return String.format("%1$s (%2$s) - %3$s (%4$s in round %5$d)", name, type, color, reason, round);
 		}
 	}
 
