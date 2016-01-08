@@ -75,6 +75,18 @@
 						style="@style/Text.Header.Card"
 						android:layout_width="wrap_content"
 						android:text="@string/title_locations"/>
+
+					<LinearLayout
+						android:id="@+id/locations_container"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:orientation="vertical"/>
+
+					<TextView
+						style="@style/Text.Footer.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/card_footer_locations"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
@@ -108,6 +120,12 @@
 							android:layout_height="wrap_content"
 							android:text="@string/favorite_colors_hint"/>
 					</LinearLayout>
+
+					<TextView
+						style="@style/Text.Footer.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/card_footer_colors"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
@@ -140,7 +158,7 @@
 						style="@style/Text.Footer.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/card_stats_footer"/>
+						android:text="@string/card_footer_stats"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 		</LinearLayout>
