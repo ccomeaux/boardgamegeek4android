@@ -149,6 +149,13 @@ public class PresentationUtils {
 		}
 	}
 
+	public static String describePlayer(String name, String username) {
+		if (TextUtils.isEmpty(username)) {
+			return name;
+		}
+		return name + " (" + username + ")";
+	}
+
 	public static void setTextOrHide(@Nullable TextView textView, CharSequence text) {
 		if (textView != null) {
 			textView.setText(text);

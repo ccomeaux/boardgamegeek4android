@@ -22,20 +22,26 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.LocationsSorter;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
+import com.boardgamegeek.sorter.PlayersSorter;
+import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.ui.model.Location;
+import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
+	private static final int PLAYERS_TOKEN = 2;
 	private static final int LOCATIONS_TOKEN = 3;
 	private static final int COLORS_TOKEN = 4;
 
+	@SuppressWarnings("unused") @InjectView(R.id.players_container) LinearLayout playersContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.locations_container) LinearLayout locationsContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.card_colors) View colorsCard;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
@@ -57,6 +63,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
 		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 	}
@@ -65,13 +72,21 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		CursorLoader loader = null;
 		switch (id) {
+			case PLAYERS_TOKEN:
+				// TODO limit to 4 players
+				PlayersSorter playersSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_QUANTITY);
+				loader = new CursorLoader(getActivity(),
+					Plays.buildPlayersByUniquePlayerUri(),
+					Player.PROJECTION,
+					null, null, playersSorter.getOrderByClause());
+				break;
 			case LOCATIONS_TOKEN:
 				// TODO limit to 4 locations
-				LocationsSorter sorter = LocationsSorterFactory.create(getActivity(), LocationsSorterFactory.TYPE_QUANTITY);
+				LocationsSorter locationsSorter = LocationsSorterFactory.create(getActivity(), LocationsSorterFactory.TYPE_QUANTITY);
 				loader = new CursorLoader(getActivity(),
 					Plays.buildLocationsUri(),
 					Location.PROJECTION,
-					null, null, sorter.getOrderByClause());
+					null, null, locationsSorter.getOrderByClause());
 				break;
 			case COLORS_TOKEN:
 				loader = new CursorLoader(getActivity(),
@@ -90,6 +105,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 
 		switch (loader.getId()) {
+			case PLAYERS_TOKEN:
+				onPlayersQueryComplete(cursor);
+				break;
 			case LOCATIONS_TOKEN:
 				onLocationsQueryComplete(cursor);
 				break;
@@ -99,6 +117,28 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			default:
 				cursor.close();
 				break;
+		}
+	}
+
+	private void onPlayersQueryComplete(Cursor cursor) {
+		if (cursor == null) {
+			return;
+		}
+
+		String username = AccountUtils.getUsername(getActivity());
+		int count = 0;
+		while (cursor.moveToNext()) {
+			Player player = Player.fromCursor(cursor);
+
+			if (username.equals(player.getUsername())) {
+				continue;
+			}
+
+			createRow(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
+			count++;
+			if (count >= 3) {
+				break;
+			}
 		}
 	}
 
@@ -115,15 +155,19 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				continue;
 			}
 
-			View view = getLayoutInflater(null).inflate(R.layout.row_text_2_short, locationsContainer, false);
-			locationsContainer.addView(view);
-			((TextView) view.findViewById(android.R.id.title)).setText(location.getName());
-			((TextView) view.findViewById(android.R.id.text1)).setText(getResources().getQuantityString(R.plurals.plays, location.getPlayCount(), location.getPlayCount()));
+			createRow(locationsContainer, location.getName(), location.getPlayCount());
 			count++;
 			if (count >= 3) {
 				break;
 			}
 		}
+	}
+
+	private void createRow(LinearLayout container, String title, int playCount) {
+		View view = getLayoutInflater(null).inflate(R.layout.row_text_2_short, container, false);
+		container.addView(view);
+		((TextView) view.findViewById(android.R.id.title)).setText(title);
+		((TextView) view.findViewById(android.R.id.text1)).setText(getResources().getQuantityString(R.plurals.plays, playCount, playCount));
 	}
 
 	private void onColorsQueryComplete(Cursor cursor) {

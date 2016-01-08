@@ -452,6 +452,7 @@
 	<string name="play_stat_h_index_offset_in">This game contributes to your H-index.</string>
 	<string name="play_stat_h_index_offset_out">plays outside of your H-index.</string>
 	<string name="h_index_prefix">H-Index <b>%d</b></string>
+	<string name="card_footer_players">See all players</string>
 	<string name="card_footer_locations">See all locations</string>
 	<string name="card_footer_colors">Edit colors</string>
 	<string name="card_footer_stats">See more stats</string>
