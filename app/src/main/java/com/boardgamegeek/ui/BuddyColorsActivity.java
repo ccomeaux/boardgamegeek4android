@@ -42,15 +42,15 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class BuddyColorsActivity extends BaseActivity {
-	private QueryHandler mHandler;
-	private String mBuddyName;
-	private List<BuddyColor> mColors;
-	private Adapter mAdapter;
+	private QueryHandler queryHandler;
+	private String buddyName;
+	private List<BuddyColor> colors;
+	private Adapter adapter;
 
-	@InjectView(R.id.toolbar) Toolbar mToolbar;
-	@InjectView(android.R.id.progress) View mProgress;
-	@InjectView(android.R.id.empty) View mEmpty;
-	@InjectView(android.R.id.list) DragSortListView mList;
+	@SuppressWarnings("unused") @InjectView(R.id.toolbar) Toolbar toolbar;
+	@SuppressWarnings("unused") @InjectView(android.R.id.progress) View progressView;
+	@SuppressWarnings("unused") @InjectView(android.R.id.empty) View emptyView;
+	@SuppressWarnings("unused") @InjectView(android.R.id.list) DragSortListView list;
 
 	@SuppressLint("HandlerLeak")
 	private class QueryHandler extends AsyncQueryHandler {
@@ -72,13 +72,13 @@ public class BuddyColorsActivity extends BaseActivity {
 				return;
 			}
 
-			mColors = new ArrayList<>(cursor.getCount());
+			colors = new ArrayList<>(cursor.getCount());
 			try {
 				while (cursor.moveToNext()) {
-					mColors.add(BuddyColor.fromCursor(cursor));
+					colors.add(BuddyColor.fromCursor(cursor));
 				}
-				mAdapter = new Adapter();
-				mList.setAdapter(mAdapter);
+				adapter = new Adapter();
+				list.setAdapter(adapter);
 			} finally {
 				cursor.close();
 			}
@@ -95,24 +95,24 @@ public class BuddyColorsActivity extends BaseActivity {
 		setContentView(R.layout.activity_buddy_colors);
 		ButterKnife.inject(this);
 
-		mBuddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		if (TextUtils.isEmpty(mBuddyName)) {
+		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		if (TextUtils.isEmpty(buddyName)) {
 			Timber.w("Can't launch - missing buddy name.");
 			finish();
 		}
-		setSubtitle(mBuddyName);
+		setSubtitle(buddyName);
 
-		mList.setSelector(android.R.color.transparent);
+		list.setSelector(android.R.color.transparent);
 
-		if (mToolbar != null) {
-			setSupportActionBar(mToolbar);
+		if (toolbar != null) {
+			setSupportActionBar(toolbar);
 		}
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
-		mHandler = new QueryHandler(getContentResolver());
+		queryHandler = new QueryHandler(getContentResolver());
 		startQuery();
 	}
 
@@ -120,28 +120,28 @@ public class BuddyColorsActivity extends BaseActivity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (mColors != null) {
+		if (colors != null) {
 			final ContentResolver resolver = getContentResolver();
-			if (mColors.size() == 0) {
-				resolver.delete(PlayerColors.buildUserUri(mBuddyName), null, null);
+			if (colors.size() == 0) {
+				resolver.delete(PlayerColors.buildUserUri(buddyName), null, null);
 			} else {
 				ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-				for (int i = 0; i < mColors.size(); i++) {
-					final String color = mColors.get(i).getColor();
-					final int sortOrder = mColors.get(i).getSortOrder();
+				for (int i = 0; i < colors.size(); i++) {
+					final String color = colors.get(i).getColor();
+					final int sortOrder = colors.get(i).getSortOrder();
 
 					Builder builder;
-					if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(mBuddyName, sortOrder))) {
-						builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(mBuddyName, sortOrder));
+					if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(buddyName, sortOrder))) {
+						builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(buddyName, sortOrder));
 					} else {
-						builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(mBuddyName))
+						builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(buddyName))
 							.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
 					}
 					batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
 				}
 				ResolverUtils.applyBatch(this, batch);
 			}
-			mColors = null; // to force a load from cursor
+			colors = null; // to force a load from cursor
 		}
 	}
 
@@ -159,18 +159,18 @@ public class BuddyColorsActivity extends BaseActivity {
 				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_clear_colors, new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						if (mColors != null) {
-							mColors.clear();
+						if (colors != null) {
+							colors.clear();
 						}
-						if (mAdapter != null) {
-							mAdapter.notifyDataSetChanged();
+						if (adapter != null) {
+							adapter.notifyDataSetChanged();
 						}
 						bindUi();
 					}
 				}).show();
 				break;
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, mBuddyName);
+				ActivityUtils.navigateUpToBuddy(this, buddyName);
 				finish();
 				return true;
 		}
@@ -179,14 +179,15 @@ public class BuddyColorsActivity extends BaseActivity {
 
 	@DebugLog
 	private void startQuery() {
-		if (mColors != null) {
+		if (colors != null) {
 			// we already have the play from the saved instance
 			bindUi();
 		} else {
-			mHandler.startQuery(0, null, PlayerColors.buildUserUri(mBuddyName), BuddyColor.PROJECTION, null, null, null);
+			queryHandler.startQuery(0, null, PlayerColors.buildUserUri(buddyName), BuddyColor.PROJECTION, null, null, null);
 		}
 	}
 
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.empty_button)
 	void onEmptyClick(View view) {
@@ -196,26 +197,26 @@ public class BuddyColorsActivity extends BaseActivity {
 		while (colors.size() > 0) {
 			int i = r.nextInt(colors.size());
 			BuddyColor color = new BuddyColor(colors.remove(i).first, order++);
-			mColors.add(color);
+			this.colors.add(color);
 		}
 		bindUi();
 	}
 
 	@DebugLog
 	private void bindUi() {
-		if (mColors == null) {
-			mProgress.setVisibility(View.VISIBLE);
-			mEmpty.setVisibility(View.GONE);
-			mList.setVisibility(View.GONE);
-		} else if (mColors.size() == 0) {
-			mProgress.setVisibility(View.GONE);
-			mEmpty.setVisibility(View.VISIBLE);
-			mList.setVisibility(View.GONE);
+		if (colors == null) {
+			progressView.setVisibility(View.VISIBLE);
+			emptyView.setVisibility(View.GONE);
+			list.setVisibility(View.GONE);
+		} else if (colors.size() == 0) {
+			progressView.setVisibility(View.GONE);
+			emptyView.setVisibility(View.VISIBLE);
+			list.setVisibility(View.GONE);
 		} else {
-			mProgress.setVisibility(View.GONE);
-			mEmpty.setVisibility(View.GONE);
-			mList.setVisibility(View.VISIBLE);
-			mAdapter.notifyDataSetChanged();
+			progressView.setVisibility(View.GONE);
+			emptyView.setVisibility(View.GONE);
+			list.setVisibility(View.VISIBLE);
+			adapter.notifyDataSetChanged();
 		}
 	}
 
@@ -223,16 +224,16 @@ public class BuddyColorsActivity extends BaseActivity {
 		@DebugLog
 		@Override
 		public int getCount() {
-			return mColors == null ? 0 : mColors.size();
+			return colors == null ? 0 : colors.size();
 		}
 
 		@DebugLog
 		@Override
 		public Object getItem(int position) {
-			if (mColors == null) {
+			if (colors == null) {
 				return null;
 			}
-			for (BuddyColor color : mColors) {
+			for (BuddyColor color : colors) {
 				if (color.getSortOrder() == (position + 1)) {
 					return color;
 				}
@@ -263,13 +264,13 @@ public class BuddyColorsActivity extends BaseActivity {
 		@DebugLog
 		@Override
 		public void drop(int from, int to) {
-			if (mColors == null) {
+			if (colors == null) {
 				return;
 			}
-			final BuddyColor remove = mColors.remove(from);
-			mColors.add(to, remove);
-			for (int i = 0; i < mColors.size(); i++) {
-				final BuddyColor color = mColors.get(i);
+			final BuddyColor remove = colors.remove(from);
+			colors.add(to, remove);
+			for (int i = 0; i < colors.size(); i++) {
+				final BuddyColor color = colors.get(i);
 				color.setSortOrder(i + 1);
 			}
 
