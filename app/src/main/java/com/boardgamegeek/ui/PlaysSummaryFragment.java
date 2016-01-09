@@ -42,7 +42,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int COLORS_TOKEN = 4;
 
 	@SuppressWarnings("unused") @InjectView(R.id.players_container) LinearLayout playersContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.card_footer_players) TextView playersFooter;
 	@SuppressWarnings("unused") @InjectView(R.id.locations_container) LinearLayout locationsContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.card_footer_locations) TextView locationsFooter;
 	@SuppressWarnings("unused") @InjectView(R.id.card_colors) View colorsCard;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.h_index) TextView hIndexView;
@@ -125,6 +127,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
+		setQuantityTextView(playersFooter, R.plurals.players_suffix, cursor.getCount());
 		String username = AccountUtils.getUsername(getActivity());
 		int count = 0;
 		while (cursor.moveToNext()) {
@@ -147,6 +150,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
+		setQuantityTextView(locationsFooter, R.plurals.locations_suffix, cursor.getCount());
 		int count = 0;
 		while (cursor.moveToNext()) {
 			Location location = Location.fromCursor(cursor);
@@ -167,7 +171,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		View view = getLayoutInflater(null).inflate(R.layout.row_text_2_short, container, false);
 		container.addView(view);
 		((TextView) view.findViewById(android.R.id.title)).setText(title);
-		((TextView) view.findViewById(android.R.id.text1)).setText(getResources().getQuantityString(R.plurals.plays, playCount, playCount));
+		setQuantityTextView(((TextView) view.findViewById(android.R.id.text1)), R.plurals.plays, playCount);
+	}
+
+	private void setQuantityTextView(TextView textView, int resId, int count) {
+		textView.setText(getResources().getQuantityString(resId, count, count));
 	}
 
 	private void onColorsQueryComplete(Cursor cursor) {

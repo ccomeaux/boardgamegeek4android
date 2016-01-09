@@ -63,6 +63,7 @@
 						android:orientation="vertical"/>
 
 					<TextView
+						android:id="@+id/card_footer_players"
 						style="@style/Text.Footer.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -95,6 +96,7 @@
 						android:orientation="vertical"/>
 
 					<TextView
+						android:id="@+id/card_footer_locations"
 						style="@style/Text.Footer.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
