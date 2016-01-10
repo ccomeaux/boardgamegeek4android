@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -158,7 +159,25 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		while (cursor.moveToNext()) {
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			createRow(playsContainer, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
+			View view = createRow(playsContainer, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
+
+			view.setTag(R.id.play_id, play.getPlayId());
+			view.setTag(R.id.game_info_id, play.getGameId());
+			view.setTag(R.id.game_name, play.getName());
+			view.setTag(R.id.thumbnail, play.getThumbnailUrl());
+			view.setTag(R.id.account_image, play.getImageUrl());
+
+			view.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					ActivityUtils.startPlayActivity(getActivity(),
+						(int) v.getTag(R.id.play_id),
+						(int) v.getTag(R.id.game_info_id),
+						(String) v.getTag(R.id.game_name),
+						(String) v.getTag(R.id.thumbnail),
+						(String) v.getTag(R.id.account_image));
+				}
+			});
 		}
 	}
 
@@ -178,16 +197,31 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 
 		setQuantityTextView(playersFooter, R.plurals.players_suffix, cursor.getCount());
-		String username = AccountUtils.getUsername(getActivity());
+		String accountUsername = AccountUtils.getUsername(getActivity());
 		int count = 0;
 		while (cursor.moveToNext()) {
 			Player player = Player.fromCursor(cursor);
 
-			if (username.equals(player.getUsername())) {
+			if (accountUsername.equals(player.getUsername())) {
 				continue;
 			}
 
-			createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
+			View view = createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
+
+			view.setTag(R.id.name, player.getName());
+			view.setTag(R.id.username, player.getUsername());
+
+			view.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = ActivityUtils.createPlayerIntent(
+						getActivity(),
+						(String) v.getTag(R.id.name),
+						(String) v.getTag(R.id.username));
+					startActivity(intent);
+				}
+			});
+
 			count++;
 			if (count >= 3) {
 				break;
@@ -209,7 +243,20 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				continue;
 			}
 
-			createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
+			View view = createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
+
+			view.setTag(R.id.name, location.getName());
+
+			view.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = ActivityUtils.createLocationIntent(
+						getActivity(),
+						(String) v.getTag(R.id.name));
+					startActivity(intent);
+				}
+			});
+
 			count++;
 			if (count >= 3) {
 				break;
@@ -217,15 +264,16 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 	}
 
-	private void createRow(LinearLayout container, String title, String text) {
+	private View createRow(LinearLayout container, String title, String text) {
 		View view = getLayoutInflater(null).inflate(R.layout.row_player_summary, container, false);
 		container.addView(view);
 		((TextView) view.findViewById(android.R.id.title)).setText(title);
 		((TextView) view.findViewById(android.R.id.text1)).setText(text);
+		return view;
 	}
 
-	private void createRowWithPlayCount(LinearLayout container, String title, int playCount) {
-		createRow(container, title, getResources().getQuantityString(R.plurals.plays, playCount, playCount));
+	private View createRowWithPlayCount(LinearLayout container, String title, int playCount) {
+		return createRow(container, title, getResources().getQuantityString(R.plurals.plays, playCount, playCount));
 	}
 
 	private void setQuantityTextView(TextView textView, int resId, int count) {

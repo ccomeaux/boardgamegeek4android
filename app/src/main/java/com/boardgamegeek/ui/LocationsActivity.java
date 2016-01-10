@@ -76,8 +76,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(LocationSelectedEvent event) {
-		Intent intent = new Intent(this, LocationActivity.class);
-		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, event.getLocationName());
+		Intent intent = ActivityUtils.createLocationIntent(this, event.getLocationName());
 		startActivity(intent);
 	}
 

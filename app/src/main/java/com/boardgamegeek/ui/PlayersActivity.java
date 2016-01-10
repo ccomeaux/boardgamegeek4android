@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
 public class PlayersActivity extends SimpleSinglePaneActivity implements PlayersFragment.Callbacks {
@@ -79,9 +80,7 @@ public class PlayersActivity extends SimpleSinglePaneActivity implements Players
 
 	@Override
 	public boolean onPlayerSelected(String name, String username) {
-		Intent intent = new Intent(this, PlayerActivity.class);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_NAME, name);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_USERNAME, username);
+		Intent intent = ActivityUtils.createPlayerIntent(this, name, username);
 		startActivity(intent);
 		return true;
 	}

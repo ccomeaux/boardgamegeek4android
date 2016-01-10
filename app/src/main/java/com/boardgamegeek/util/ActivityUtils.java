@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -13,8 +14,10 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
+import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
+import com.boardgamegeek.ui.PlayerActivity;
 
 import java.util.List;
 
@@ -91,6 +94,21 @@ public class ActivityUtils {
 	private static Intent createBuddyIntent(Context context, String buddyName) {
 		Intent intent = new Intent(context, BuddyActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
+		return intent;
+	}
+
+	@NonNull
+	public static Intent createPlayerIntent(Context context, String name, String username) {
+		Intent intent = new Intent(context, PlayerActivity.class);
+		intent.putExtra(PlayerActivity.KEY_PLAYER_NAME, name);
+		intent.putExtra(PlayerActivity.KEY_PLAYER_USERNAME, username);
+		return intent;
+	}
+
+	@NonNull
+	public static Intent createLocationIntent(Context context, String locationName) {
+		Intent intent = new Intent(context, LocationActivity.class);
+		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, locationName);
 		return intent;
 	}
 

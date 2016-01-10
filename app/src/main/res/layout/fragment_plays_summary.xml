@@ -37,7 +37,7 @@
 
 					<LinearLayout
 						android:id="@+id/plays_container"
-						android:layout_width="wrap_content"
+						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:orientation="vertical"/>
 
@@ -68,7 +68,7 @@
 
 					<LinearLayout
 						android:id="@+id/players_container"
-						android:layout_width="wrap_content"
+						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:orientation="vertical"/>
 
@@ -99,7 +99,7 @@
 
 					<LinearLayout
 						android:id="@+id/locations_container"
-						android:layout_width="wrap_content"
+						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:orientation="vertical"/>
 
@@ -131,7 +131,7 @@
 
 					<LinearLayout
 						android:id="@+id/color_container"
-						android:layout_width="wrap_content"
+						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:orientation="horizontal">
 
