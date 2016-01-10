@@ -157,6 +157,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
+		playsContainer.removeAllViews();
 		while (cursor.moveToNext()) {
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 			View view = createRow(playsContainer, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
@@ -199,6 +200,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		setQuantityTextView(playersFooter, R.plurals.players_suffix, cursor.getCount());
 		String accountUsername = AccountUtils.getUsername(getActivity());
 		int count = 0;
+		playersContainer.removeAllViews();
 		while (cursor.moveToNext()) {
 			Player player = Player.fromCursor(cursor);
 
@@ -236,6 +238,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		setQuantityTextView(locationsFooter, R.plurals.locations_suffix, cursor.getCount());
 		int count = 0;
+		locationsContainer.removeAllViews();
 		while (cursor.moveToNext()) {
 			Location location = Location.fromCursor(cursor);
 
