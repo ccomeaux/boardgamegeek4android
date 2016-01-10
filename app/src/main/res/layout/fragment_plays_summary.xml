@@ -66,8 +66,7 @@
 						android:id="@+id/card_footer_players"
 						style="@style/Text.Footer.Card"
 						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/card_footer_players"/>
+						android:layout_height="wrap_content"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
@@ -99,8 +98,7 @@
 						android:id="@+id/card_footer_locations"
 						style="@style/Text.Footer.Card"
 						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/card_footer_locations"/>
+						android:layout_height="wrap_content"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
