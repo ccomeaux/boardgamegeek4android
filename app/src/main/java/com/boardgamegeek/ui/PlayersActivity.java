@@ -8,28 +8,29 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-public class PlayersActivity extends TopLevelSinglePaneActivity implements PlayersFragment.Callbacks {
+public class PlayersActivity extends SimpleSinglePaneActivity implements PlayersFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
-	private int mCount = -1;
+	private int playerCount = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState != null) {
-			mCount = savedInstanceState.getInt(KEY_COUNT);
+			playerCount = savedInstanceState.getInt(KEY_COUNT);
 		}
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_COUNT, mCount);
+		outState.putInt(KEY_COUNT, playerCount);
 	}
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new PlayersFragment();
 	}
 
@@ -53,7 +54,7 @@ public class PlayersActivity extends TopLevelSinglePaneActivity implements Playe
 					menu.findItem(R.id.menu_sort_name).setChecked(true);
 				}
 			}
-			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, mCount <= 0 ? "" : String.valueOf(mCount));
+			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playerCount <= 0 ? "" : String.valueOf(playerCount));
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -79,16 +80,14 @@ public class PlayersActivity extends TopLevelSinglePaneActivity implements Playe
 
 	@Override
 	public boolean onPlayerSelected(String name, String username) {
-		Intent intent = new Intent(this, PlayerActivity.class);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_NAME, name);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_USERNAME, username);
+		Intent intent = ActivityUtils.createPlayerIntent(this, name, username);
 		startActivity(intent);
 		return true;
 	}
 
 	@Override
 	public void onPlayerCountChanged(int count) {
-		mCount = count;
+		playerCount = count;
 		supportInvalidateOptionsMenu();
 	}
 }

@@ -191,30 +191,7 @@
 						android:layout_height="wrap_content"
 						android:orientation="horizontal"
 						android:visibility="gone"
-						tools:visibility="visible">
-
-						<ImageView
-							android:id="@+id/color_1"
-							android:layout_width="@dimen/color_circle_diameter_small"
-							android:layout_height="@dimen/color_circle_diameter_small"
-							android:layout_margin="@dimen/color_circle_diameter_small_margin"
-							tools:background="#f00"/>
-
-						<ImageView
-							android:id="@+id/color_2"
-							android:layout_width="@dimen/color_circle_diameter_small"
-							android:layout_height="@dimen/color_circle_diameter_small"
-							android:layout_margin="@dimen/color_circle_diameter_small_margin"
-							tools:background="#0f0"/>
-
-						<ImageView
-							android:id="@+id/color_3"
-							android:layout_width="@dimen/color_circle_diameter_small"
-							android:layout_height="@dimen/color_circle_diameter_small"
-							android:layout_margin="@dimen/color_circle_diameter_small_margin"
-							tools:background="#00f"/>
-
-					</LinearLayout>
+						tools:visibility="visible"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
