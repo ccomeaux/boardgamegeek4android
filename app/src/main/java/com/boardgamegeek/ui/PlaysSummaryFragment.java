@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.LocationsSorter;
@@ -84,10 +85,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		CursorLoader loader = null;
 		switch (id) {
 			case PLAYS_TOKEN:
-				// TODO limit to 3 plays
 				PlaysSorter playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getActivity(),
-					Plays.CONTENT_URI,
+					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.PARAM_LIMIT, "3").build(),
 					PlayModel.PROJECTION,
 					null, null, playsSorter.getOrderByClause());
 				break;
@@ -156,16 +156,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
-		int count = 0;
 		while (cursor.moveToNext()) {
-
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 			createRow(playsContainer, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
-
-			count++;
-			if (count >= 3) {
-				break;
-			}
 		}
 	}
 
