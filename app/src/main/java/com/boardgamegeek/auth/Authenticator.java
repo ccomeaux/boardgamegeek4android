@@ -161,6 +161,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static String getUserId(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
+		if (account == null) {
+			return INVALID_USER_ID;
+		}
 		String userId = accountManager.getUserData(account, KEY_USER_ID);
 		if (userId == null) {
 			return INVALID_USER_ID;
