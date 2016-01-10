@@ -27,7 +27,6 @@
 					android:id="@+id/container_plays"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
 					android:orientation="vertical">
 
 					<TextView
@@ -45,7 +44,7 @@
 					<TextView
 						android:id="@+id/card_footer_plays"
 						style="@style/Text.Footer.Card"
-						android:layout_width="match_parent"
+						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
@@ -59,7 +58,6 @@
 					android:id="@+id/container_players"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
 					android:orientation="vertical">
 
 					<TextView
@@ -77,7 +75,7 @@
 					<TextView
 						android:id="@+id/card_footer_players"
 						style="@style/Text.Footer.Card"
-						android:layout_width="match_parent"
+						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
@@ -91,7 +89,6 @@
 					android:id="@+id/container_locations"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
 					android:orientation="vertical">
 
 					<TextView
@@ -109,7 +106,7 @@
 					<TextView
 						android:id="@+id/card_footer_locations"
 						style="@style/Text.Footer.Card"
-						android:layout_width="match_parent"
+						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
@@ -124,7 +121,6 @@
 					android:id="@+id/container_colors"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
 					android:orientation="vertical">
 
 					<TextView
@@ -146,8 +142,9 @@
 					</LinearLayout>
 
 					<TextView
+						android:id="@+id/card_footer_colors"
 						style="@style/Text.Footer.Card"
-						android:layout_width="match_parent"
+						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="@string/card_footer_colors"/>
 				</LinearLayout>
@@ -162,7 +159,6 @@
 					android:id="@+id/container_stats"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
 					android:orientation="vertical">
 
 					<TextView
@@ -179,8 +175,9 @@
 						tools:text="H-Index 17"/>
 
 					<TextView
+						android:id="@+id/card_footer_stats"
 						style="@style/Text.Footer.Card"
-						android:layout_width="match_parent"
+						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="@string/card_footer_stats"/>
 				</LinearLayout>

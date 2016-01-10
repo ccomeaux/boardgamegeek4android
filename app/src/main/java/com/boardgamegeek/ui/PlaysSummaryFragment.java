@@ -267,25 +267,25 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.container_plays)
+	@OnClick(R.id.card_footer_plays)
 	public void onPlaysClick(View v) {
 		startActivity(new Intent(getActivity(), PlaysActivity.class));
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.container_players)
+	@OnClick(R.id.card_footer_players)
 	public void onPlayersClick(View v) {
 		startActivity(new Intent(getActivity(), PlayersActivity.class));
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.container_locations)
+	@OnClick(R.id.card_footer_locations)
 	public void onLocationsClick(View v) {
 		startActivity(new Intent(getActivity(), LocationsActivity.class));
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.container_colors)
+	@OnClick(R.id.card_footer_colors)
 	public void onColorsClick(View v) {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(getActivity()));
@@ -293,7 +293,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.container_stats)
+	@OnClick(R.id.card_footer_stats)
 	public void onStatsClick(View v) {
 		startActivity(new Intent(getActivity(), PlayStatsActivity.class));
 	}
