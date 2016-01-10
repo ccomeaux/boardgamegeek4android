@@ -550,6 +550,10 @@
 		<item quantity="one">%1$s exact match for \"%2$s\"</item>
 		<item quantity="other">%1$s exact matches for \"%2$s\"</item>
 	</plurals>
+	<plurals name="plays_suffix">
+		<item quantity="one">%1$s play</item>
+		<item quantity="other">%1$s plays</item>
+	</plurals>
 	<plurals name="players_suffix">
 		<item quantity="one">%1$s player</item>
 		<item quantity="other">%1$s players</item>

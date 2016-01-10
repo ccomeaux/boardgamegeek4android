@@ -24,8 +24,11 @@ import com.boardgamegeek.sorter.LocationsSorter;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
+import com.boardgamegeek.sorter.PlaysSorter;
+import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.ui.model.Location;
+import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -37,10 +40,13 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
+	private static final int PLAYS_TOKEN = 1;
 	private static final int PLAYERS_TOKEN = 2;
 	private static final int LOCATIONS_TOKEN = 3;
 	private static final int COLORS_TOKEN = 4;
 
+	@SuppressWarnings("unused") @InjectView(R.id.plays_container) LinearLayout playsContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.card_footer_plays) TextView playsFooter;
 	@SuppressWarnings("unused") @InjectView(R.id.players_container) LinearLayout playersContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.card_footer_players) TextView playersFooter;
 	@SuppressWarnings("unused") @InjectView(R.id.locations_container) LinearLayout locationsContainer;
@@ -65,6 +71,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
 		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
@@ -74,6 +81,14 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		CursorLoader loader = null;
 		switch (id) {
+			case PLAYS_TOKEN:
+				// TODO limit to 3 plays
+				PlaysSorter playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
+				loader = new CursorLoader(getActivity(),
+					Plays.CONTENT_URI,
+					PlayModel.PROJECTION,
+					null, null, playsSorter.getOrderByClause());
+				break;
 			case PLAYERS_TOKEN:
 				// TODO limit to 4 players
 				PlayersSorter playersSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_QUANTITY);
@@ -107,6 +122,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 
 		switch (loader.getId()) {
+			case PLAYS_TOKEN:
+				onPlaysQueryComplete(cursor);
+				break;
 			case PLAYERS_TOKEN:
 				onPlayersQueryComplete(cursor);
 				break;
@@ -119,6 +137,25 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			default:
 				cursor.close();
 				break;
+		}
+	}
+
+	private void onPlaysQueryComplete(Cursor cursor) {
+		if (cursor == null) {
+			return;
+		}
+
+		setQuantityTextView(playsFooter, R.plurals.plays_suffix, cursor.getCount());
+		int count = 0;
+		while (cursor.moveToNext()) {
+
+			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			createRow(playsContainer, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
+
+			count++;
+			if (count >= 3) {
+				break;
+			}
 		}
 	}
 
@@ -137,7 +174,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				continue;
 			}
 
-			createRow(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
+			createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
 			count++;
 			if (count >= 3) {
 				break;
@@ -159,7 +196,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				continue;
 			}
 
-			createRow(locationsContainer, location.getName(), location.getPlayCount());
+			createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
 			count++;
 			if (count >= 3) {
 				break;
@@ -167,11 +204,15 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 	}
 
-	private void createRow(LinearLayout container, String title, int playCount) {
+	private void createRow(LinearLayout container, String title, String text) {
 		View view = getLayoutInflater(null).inflate(R.layout.row_text_2_short, container, false);
 		container.addView(view);
 		((TextView) view.findViewById(android.R.id.title)).setText(title);
-		setQuantityTextView(((TextView) view.findViewById(android.R.id.text1)), R.plurals.plays, playCount);
+		((TextView) view.findViewById(android.R.id.text1)).setText(text);
+	}
+
+	private void createRowWithPlayCount(LinearLayout container, String title, int playCount) {
+		createRow(container, title, getResources().getQuantityString(R.plurals.plays, playCount, playCount));
 	}
 
 	private void setQuantityTextView(TextView textView, int resId, int count) {

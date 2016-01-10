@@ -35,6 +35,18 @@
 						style="@style/Text.Header.Card"
 						android:layout_width="wrap_content"
 						android:text="@string/title_plays"/>
+
+					<LinearLayout
+						android:id="@+id/plays_container"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:orientation="vertical"/>
+
+					<TextView
+						android:id="@+id/card_footer_plays"
+						style="@style/Text.Footer.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
