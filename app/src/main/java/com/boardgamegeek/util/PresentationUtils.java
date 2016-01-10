@@ -156,6 +156,27 @@ public class PresentationUtils {
 		return name + " (" + username + ")";
 	}
 
+	@NonNull
+	public static String describePlayDetails(Context context, String date, String location, int quantity, int length, int playerCount) {
+		String info = "";
+		if (!TextUtils.isEmpty(date)) {
+			info += context.getString(R.string.on) + " " + date + " ";
+		}
+		if (quantity > 1) {
+			info += quantity + " " + context.getString(R.string.times) + " ";
+		}
+		if (!TextUtils.isEmpty(location)) {
+			info +=  context.getString(R.string.at) + " " + location + " ";
+		}
+		if (length > 0) {
+			info += context.getString(R.string.for_) + " " + DateTimeUtils.formatMinutes(length) + " ";
+		}
+		if (playerCount > 0) {
+			info += context.getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
+		}
+		return info.trim();
+	}
+
 	public static void setTextOrHide(@Nullable TextView textView, CharSequence text) {
 		if (textView != null) {
 			textView.setText(text);

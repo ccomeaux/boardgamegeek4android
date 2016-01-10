@@ -49,6 +49,7 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -532,25 +533,16 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	class PlayAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		private LayoutInflater mInflater;
-		private String mOn;
-		private String mTimes;
-		private String mAt;
-		private String mFor;
+		private final LayoutInflater inflater;
 
 		public PlayAdapter(Context context) {
 			super(context, null, false);
-			mInflater = getActivity().getLayoutInflater();
-
-			mOn = context.getString(R.string.on);
-			mTimes = context.getString(R.string.times);
-			mAt = context.getString(R.string.at);
-			mFor = context.getString(R.string.for_);
+			inflater = getActivity().getLayoutInflater();
 		}
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_play, parent, false);
+			View row = inflater.inflate(R.layout.row_play, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -572,23 +564,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			String comments = CursorUtils.getString(cursor, PlaysQuery.COMMENTS).trim();
 			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
 
-			String info = "";
-			if (mMode != MODE_GAME) {
-				info += mOn + " " + date + " ";
-			}
-			if (quantity > 1) {
-				info += quantity + " " + mTimes + " ";
-			}
-			if (!TextUtils.isEmpty(location)) {
-				info += mAt + " " + location + " ";
-			}
-			if (length > 0) {
-				info += mFor + " " + DateTimeUtils.formatMinutes(length) + " ";
-			}
-			if (playerCount > 0) {
-				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
-			}
-			info = info.trim();
+			String info = PresentationUtils.describePlayDetails(getActivity(),
+				mMode != MODE_GAME ? date : null,
+				location, quantity, length, playerCount);
 
 			int messageId = 0;
 			if (status != Play.SYNC_STATUS_SYNCED) {
@@ -643,7 +621,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
-				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				convertView = inflater.inflate(R.layout.row_header, parent, false);
 				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
