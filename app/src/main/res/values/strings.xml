@@ -180,6 +180,7 @@
 	<string name="msg_import_failed">Import failed.</string>
 	<string name="msg_import_failed_nofile">Import file doesn\'t exist or can\'t be read.</string>
 	<string name="msg_import_failed_nosd">Import folder is not available.</string>
+	<string name="favorite_colors_hint">Click to set your favorite colors when logging plays.</string>
 	<string name="backup_type_collection_view">Collection view</string>
 	<string name="backup_type_game">Game color</string>
 	<string name="backup_type_user">Player color</string>
@@ -446,6 +447,9 @@
 	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
 	<string name="play_stat_h_index_offset_in">This game contributes to your H-index.</string>
 	<string name="play_stat_h_index_offset_out">plays outside of your H-index.</string>
+	<string name="h_index_prefix">H-Index <b>%d</b></string>
+	<string name="card_footer_colors">Edit colors</string>
+	<string name="card_footer_stats">See more stats</string>
 	<string name="play_stat_fhm">FHM</string>
 	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
 	<string name="play_stat_hhm">HHM</string>
@@ -543,5 +547,16 @@
 		<item quantity="one"><b>%,d</b> User</item>
 		<item quantity="other"><b>%,d</b> Users</item>
 	</plurals>
-
+	<plurals name="plays_suffix">
+		<item quantity="one">%1$s play</item>
+		<item quantity="other">%1$s plays</item>
+	</plurals>
+	<plurals name="players_suffix">
+		<item quantity="one">%1$s player</item>
+		<item quantity="other">%1$s players</item>
+	</plurals>
+	<plurals name="locations_suffix">
+		<item quantity="one">%1$s location</item>
+		<item quantity="other">%1$s locations</item>
+	</plurals>
 </resources>

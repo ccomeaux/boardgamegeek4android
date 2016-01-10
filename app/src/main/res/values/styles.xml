@@ -254,6 +254,19 @@
 		<item name="android:gravity">center_vertical</item>
 	</style>
 
+	<style name="Text.Footer">
+		<item name="android:textColor">@color/light_text</item>
+	</style>
+
+	<style name="Text.Footer.Card">
+		<item name="android:minHeight">40dp</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:layout_gravity">right</item>
+		<item name="android:paddingLeft">@dimen/padding_half</item>
+		<item name="android:paddingRight">@dimen/padding_half</item>
+		<item name="android:background">?attr/selectableItemBackground</item>
+	</style>
+
 	<style name="Text.Header.Underline">
 		<item name="android:background">@drawable/underline</item>
 	</style>

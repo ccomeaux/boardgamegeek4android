@@ -39,6 +39,7 @@ import com.boardgamegeek.util.StringUtils;
 import java.util.List;
 import java.util.Map;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SyncPlaysUpload extends SyncUploadTask {
@@ -48,41 +49,49 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private PlayPersister persister;
 	private Play currentPlayForMessage;
 
+	@DebugLog
 	public SyncPlaysUpload(Context context, BggService service) {
 		super(context, service);
 	}
 
+	@DebugLog
 	@Override
 	public int getSyncType() {
 		return SyncService.FLAG_SYNC_PLAYS_UPLOAD;
 	}
 
+	@DebugLog
 	@Override
 	protected int getNotificationTitleResId() {
 		return R.string.sync_notification_title_play_upload;
 	}
 
+	@DebugLog
 	@Override
 	protected Class<?> getNotificationIntentClass() {
 		return PlaysActivity.class;
 	}
 
+	@DebugLog
 	@Override
 	protected int getNotificationErrorId() {
 		return NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR;
 	}
 
+	@DebugLog
 	@Override
 	protected int getNotificationMessageId() {
 		return NotificationUtils.ID_SYNC_PLAY_UPLOAD;
 	}
 
+	@DebugLog
 	@StringRes
 	@Override
 	protected int getUploadSummaryWithSize() {
 		return R.string.sync_notification_plays_upload_summary;
 	}
 
+	@DebugLog
 	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
 		bggSaveService = Adapter.createForPost(context, new PlaySaveConverter());
@@ -95,11 +104,13 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		SyncService.hIndex(context);
 	}
 
+	@DebugLog
 	@Override
 	public int getNotification() {
 		return R.string.sync_notification_plays_upload;
 	}
 
+	@DebugLog
 	private void updatePendingPlays(@NonNull SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
@@ -158,6 +169,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		}
 	}
 
+	@DebugLog
 	private void deletePendingPlays(@NonNull SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
@@ -203,6 +215,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		}
 	}
 
+	@DebugLog
 	private void updateGamePlayCount(@NonNull Play play) {
 		ContentResolver resolver = context.getContentResolver();
 		Cursor cursor = null;
@@ -225,6 +238,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		}
 	}
 
+	@DebugLog
 	private PlayPostResponse postPlayUpdate(@NonNull Play play) {
 		Map<String, String> form = new ArrayMap<>();
 		form.put("ajax", "1");
@@ -264,16 +278,19 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		}
 	}
 
+	@DebugLog
 	@NonNull
 	private static String getMapKey(int index, String key) {
 		return "players[" + index + "][" + key + "]";
 	}
 
+	@DebugLog
 	private PlayPostResponse postPlayDelete(int playId) {
 		Map<String, String> form = new ArrayMap<>();
 		form.put("ajax", "1");
 		form.put("action", "delete");
 		form.put("playid", String.valueOf(playId));
+		form.put("finalize", "1");
 
 		try {
 			return bggDeleteService.geekPlay(form);
@@ -285,10 +302,12 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	/**
 	 * Deletes the specified play from the content provider
 	 */
+	@DebugLog
 	private void deletePlay(Play play) {
 		persister.delete(play);
 	}
 
+	@DebugLog
 	private String getPlayCountDescription(int count, int quantity) {
 		String countDescription;
 		switch (quantity) {
@@ -305,10 +324,12 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		return countDescription;
 	}
 
+	@DebugLog
 	private void notifyUserOfDelete(int messageId, String gameName) {
 		notifyUser(StringUtils.boldSecondString(context.getString(messageId), gameName));
 	}
 
+	@DebugLog
 	@Override
 	protected Action createMessageAction() {
 		if (currentPlayForMessage != null) {

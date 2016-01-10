@@ -263,6 +263,9 @@ public class BuddyColorsActivity extends BaseActivity {
 		@DebugLog
 		@Override
 		public void drop(int from, int to) {
+			if (mColors == null) {
+				return;
+			}
 			final BuddyColor remove = mColors.remove(from);
 			mColors.add(to, remove);
 			for (int i = 0; i < mColors.size(); i++) {
