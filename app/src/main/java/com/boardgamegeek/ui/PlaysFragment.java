@@ -44,8 +44,8 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
+import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -76,6 +76,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public static final int MODE_BUDDY = 2;
 	public static final int MODE_PLAYER = 3;
 	public static final int MODE_LOCATION = 4;
+	private static final int PLAY_QUERY_TOKEN = 0x21;
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
@@ -157,12 +158,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public void onListItemClick(View view, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
 		if (cursor != null) {
-			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
-			int gameId = cursor.getInt(PlaysQuery.GAME_ID);
-			String gameName = cursor.getString(PlaysQuery.GAME_NAME);
-			String thumbnailUrl = cursor.getString(PlaysQuery.THUMBNAIL_URL);
-			String imageUrl = cursor.getString(PlaysQuery.IMAGE_URL);
-			EventBus.getDefault().postSticky(new PlaySelectedEvent(playId, gameId, gameName, thumbnailUrl, imageUrl));
+			PlayModel play = com.boardgamegeek.ui.model.PlayModel.fromCursor(cursor, getActivity());
+			EventBus.getDefault().postSticky(new PlaySelectedEvent(play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
 		}
 	}
 
@@ -290,7 +287,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		} else if (mMode == MODE_PLAYER || mMode == MODE_BUDDY) {
 			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
 		}
-		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, getArguments(), this);
 	}
 
 	public void onEvent(PlaysSortChangedEvent event) {
@@ -371,9 +368,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == PlaysQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mUri, mSorter == null ? PlaysQuery.PROJECTION
-				: StringUtils.unionArrays(PlaysQuery.PROJECTION, mSorter.getColumns()), selection(), selectionArgs(),
+		if (id == PLAY_QUERY_TOKEN) {
+			loader = new CursorLoader(getActivity(),
+				mUri,
+				mSorter == null ? PlayModel.PROJECTION : StringUtils.unionArrays(PlayModel.PROJECTION, mSorter.getColumns()),
+				selection(),
+				selectionArgs(),
 				mSorter == null ? null : mSorter.getOrderByClause());
 			loader.setUpdateThrottle(2000);
 		} else if (id == GameQuery._TOKEN) {
@@ -447,7 +447,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 
 		int token = loader.getId();
-		if (token == PlaysQuery._TOKEN) {
+		if (token == PLAY_QUERY_TOKEN) {
 			if (mAdapter == null) {
 				mAdapter = new PlayAdapter(getActivity());
 				setListAdapter(mAdapter);
@@ -489,7 +489,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (loader.getId() == PlaysQuery._TOKEN) {
+		if (loader.getId() == PLAY_QUERY_TOKEN) {
 			mAdapter.changeCursor(null);
 		}
 	}
@@ -552,26 +552,19 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
-			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
-			UIUtils.setActivatedCompat(view, playId == mSelectedPlayId);
+			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 
-			String name = cursor.getString(PlaysQuery.GAME_NAME);
-			String date = CursorUtils.getFormattedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE);
-			String location = cursor.getString(PlaysQuery.LOCATION);
-			int quantity = cursor.getInt(PlaysQuery.QUANTITY);
-			int length = cursor.getInt(PlaysQuery.LENGTH);
-			int playerCount = cursor.getInt(PlaysQuery.PLAYER_COUNT);
-			String comments = CursorUtils.getString(cursor, PlaysQuery.COMMENTS).trim();
-			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
+			UIUtils.setActivatedCompat(view, play.getPlayId() == mSelectedPlayId);
 
 			String info = PresentationUtils.describePlayDetails(getActivity(),
-				mMode != MODE_GAME ? date : null,
-				location, quantity, length, playerCount);
+				mMode != MODE_GAME ? play.getDate() : null,
+				play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount());
 
 			int messageId = 0;
+			int status = play.getStatus();
 			if (status != Play.SYNC_STATUS_SYNCED) {
 				if (status == Play.SYNC_STATUS_IN_PROGRESS) {
-					if (Play.hasBeenSynced(playId)) {
+					if (Play.hasBeenSynced(play.getPlayId())) {
 						messageId = R.string.sync_editing;
 					} else {
 						messageId = R.string.sync_draft;
@@ -584,9 +577,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			}
 
 			if (mMode != MODE_GAME) {
-				holder.title.setText(name);
+				holder.title.setText(play.getName());
 			} else {
-				holder.title.setText(date);
+				holder.title.setText(play.getDate());
 			}
 			if (TextUtils.isEmpty(info)) {
 				holder.text1.setVisibility(View.GONE);
@@ -594,11 +587,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				holder.text1.setVisibility(View.VISIBLE);
 				holder.text1.setText(info);
 			}
-			if (TextUtils.isEmpty(comments.trim())) {
+			if (TextUtils.isEmpty(play.getComments())) {
 				holder.text2.setVisibility(View.GONE);
 			} else {
 				holder.text2.setVisibility(View.VISIBLE);
-				holder.text2.setText(comments.trim());
+				holder.text2.setText(play.getComments());
 			}
 			if (messageId == 0) {
 				holder.status.setVisibility(View.GONE);
@@ -645,25 +638,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		class HeaderViewHolder {
 			TextView text;
 		}
-	}
-
-	private interface PlaysQuery {
-		int _TOKEN = 0x21;
-		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
-			Games.IMAGE_URL, Plays.COMMENTS };
-		int PLAY_ID = 1;
-		int DATE = 2;
-		int GAME_NAME = 3;
-		int GAME_ID = 4;
-		int LOCATION = 5;
-		int QUANTITY = 6;
-		int LENGTH = 7;
-		int SYNC_STATUS = 8;
-		int PLAYER_COUNT = 9;
-		int THUMBNAIL_URL = 10;
-		int IMAGE_URL = 11;
-		int COMMENTS = 12;
 	}
 
 	private interface GameQuery {
@@ -720,7 +694,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		boolean allPending = true;
 		for (int pos : mSelectedPlaysPositions) {
 			Cursor cursor = (Cursor) mAdapter.getItem(pos);
-			boolean pending = cursor.getInt(PlaysQuery.SYNC_STATUS) == Play.SYNC_STATUS_IN_PROGRESS;
+			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			boolean pending = play.getStatus() == Play.SYNC_STATUS_IN_PROGRESS;
 			allPending = allPending && pending;
 		}
 
@@ -747,9 +722,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case R.id.menu_edit:
 				mode.finish();
 				Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPlaysPositions.iterator().next());
-				ActivityUtils.editPlay(getActivity(), cursor.getInt(PlaysQuery.PLAY_ID),
-					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME),
-					cursor.getString(PlaysQuery.THUMBNAIL_URL), cursor.getString(PlaysQuery.IMAGE_URL));
+				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+				ActivityUtils.editPlay(getActivity(), play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
 				return true;
 			case R.id.menu_delete:
 				mode.finish();
@@ -773,7 +747,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		values.put(Plays.SYNC_STATUS, status);
 		for (int position : mSelectedPlaysPositions) {
 			Cursor cursor = (Cursor) mAdapter.getItem(position);
-			resolver.update(Plays.buildPlayUri(cursor.getInt(PlaysQuery.PLAY_ID)), values, null, null);
+			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			resolver.update(Plays.buildPlayUri(play.getPlayId()), values, null, null);
 		}
 		mSelectedPlaysPositions.clear();
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
