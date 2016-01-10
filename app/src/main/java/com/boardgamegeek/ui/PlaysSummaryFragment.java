@@ -41,9 +41,10 @@ import butterknife.OnClick;
 
 public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int PLAYS_TOKEN = 1;
-	private static final int PLAYERS_TOKEN = 2;
-	private static final int LOCATIONS_TOKEN = 3;
-	private static final int COLORS_TOKEN = 4;
+	private static final int PLAY_COUNT_TOKEN = 2;
+	private static final int PLAYERS_TOKEN = 3;
+	private static final int LOCATIONS_TOKEN = 4;
+	private static final int COLORS_TOKEN = 5;
 
 	@SuppressWarnings("unused") @InjectView(R.id.plays_container) LinearLayout playsContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.card_footer_plays) TextView playsFooter;
@@ -72,6 +73,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		super.onActivityCreated(savedInstanceState);
 
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
+		getLoaderManager().restartLoader(PLAY_COUNT_TOKEN, null, this);
 		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
 		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
@@ -88,6 +90,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					Plays.CONTENT_URI,
 					PlayModel.PROJECTION,
 					null, null, playsSorter.getOrderByClause());
+				break;
+			case PLAY_COUNT_TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Plays.CONTENT_SIMPLE_URI,
+					new String[] { "SUM(" + Plays.QUANTITY + ")" },
+					null, null, null);
 				break;
 			case PLAYERS_TOKEN:
 				// TODO limit to 4 players
@@ -125,6 +133,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case PLAYS_TOKEN:
 				onPlaysQueryComplete(cursor);
 				break;
+			case PLAY_COUNT_TOKEN:
+				onPlayCountQueryComplete(cursor);
+				break;
 			case PLAYERS_TOKEN:
 				onPlayersQueryComplete(cursor);
 				break;
@@ -145,7 +156,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
-		setQuantityTextView(playsFooter, R.plurals.plays_suffix, cursor.getCount());
 		int count = 0;
 		while (cursor.moveToNext()) {
 
@@ -156,6 +166,16 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			if (count >= 3) {
 				break;
 			}
+		}
+	}
+
+	private void onPlayCountQueryComplete(Cursor cursor) {
+		if (cursor == null) {
+			return;
+		}
+
+		if (cursor.moveToFirst()) {
+			setQuantityTextView(playsFooter, R.plurals.plays_suffix, cursor.getInt(0));
 		}
 	}
 
