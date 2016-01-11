@@ -4,28 +4,35 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
+import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
+import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 
-public class GameActivity extends SimpleSinglePaneActivity {
+public class GameActivity extends HeroActivity implements Callback {
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private int gameId;
 	private String gameName;
@@ -61,6 +68,15 @@ public class GameActivity extends SimpleSinglePaneActivity {
 		return new GameFragment();
 	}
 
+	@Override
+	protected void onPostInject() {
+		super.onPostInject();
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.setImageResource(R.drawable.ic_action_edit_white);
+			fab.setVisibility(View.VISIBLE);
+		}
+	}
+
 	@DebugLog
 	@Override
 	protected int getOptionsMenuId() {
@@ -71,7 +87,6 @@ public class GameActivity extends SimpleSinglePaneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.findItem(R.id.menu_log_play).setVisible(PreferencesUtils.showLogPlay(this));
 		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
 		return true;
 	}
@@ -91,25 +106,14 @@ public class GameActivity extends SimpleSinglePaneActivity {
 					NavUtils.navigateUpTo(this, upIntent);
 				}
 				return true;
-			case R.id.menu_language_poll:
-				Bundle arguments = new Bundle(2);
-				arguments.putInt(ActivityUtils.KEY_GAME_ID, gameId);
-				arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
-				DialogUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
-				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, gameId, gameName);
 				return true;
 			case R.id.menu_shortcut:
 				ShortcutUtils.createShortcut(this, gameId, gameName, thumbnailUrl);
 				return true;
-			case R.id.menu_log_play:
-				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
-				intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-				startActivityForResult(intent, REQUEST_EDIT_PLAY);
-				return true;
 			case R.id.menu_log_play_quick:
-				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+				Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, gameId, gameName);
 				return true;
 		}
@@ -124,10 +128,11 @@ public class GameActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	public void onEventMainThread(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
-		changeSubtype(event.getSubtype());
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
+		ScrimUtils.applyInvertedScrim(scrimView);
+		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
 
 	@DebugLog
@@ -135,33 +140,40 @@ public class GameActivity extends SimpleSinglePaneActivity {
 		this.gameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-			final ActionBar supportActionBar = getSupportActionBar();
-			if (supportActionBar != null) {
-				supportActionBar.setTitle(gameName);
-			}
+			safelySetTitle(gameName);
 		}
 	}
 
 	@DebugLog
-	private void changeSubtype(String subtype) {
-		if (subtype == null) {
-			return;
-		}
-		int resId = R.string.title_game;
-		switch (subtype) {
-			case BggService.THING_SUBTYPE_BOARDGAME:
-				resId = R.string.title_board_game;
-				break;
-			case BggService.THING_SUBTYPE_BOARDGAME_EXPANSION:
-				resId = R.string.title_board_game_expansion;
-				break;
-			case BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY:
-				resId = R.string.title_board_game_accessory;
-				break;
-		}
-		final ActionBar supportActionBar = getSupportActionBar();
-		if (supportActionBar != null) {
-			supportActionBar.setSubtitle(getString(resId));
-		}
+	@Override
+	public void onPaletteGenerated(Palette palette) {
+		((GameFragment) getFragment()).onPaletteGenerated(palette);
+	}
+
+	@DebugLog
+	@Override
+	public void onRefresh() {
+		((GameFragment) getFragment()).triggerRefresh();
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEventMainThread(UpdateEvent event) {
+		updateRefreshStatus(event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION);
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
+		updateRefreshStatus(false);
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@OnClick(R.id.fab)
+	public void onFabClicked(View v) {
+		Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
+		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		startActivityForResult(intent, REQUEST_EDIT_PLAY);
 	}
 }

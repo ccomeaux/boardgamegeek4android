@@ -1,10 +1,8 @@
 package com.boardgamegeek.ui;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -12,8 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.graphics.Palette;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -21,14 +17,11 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
@@ -38,24 +31,17 @@ import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
-import com.boardgamegeek.ui.widget.ObservableScrollView;
-import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -69,24 +55,13 @@ import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameCollectionFragment extends Fragment implements
-	LoaderCallbacks<Cursor>,
-	Callback,
-	Callbacks, OnRefreshListener {
-
+public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
-	@SuppressWarnings("unused") @InjectView(R.id.progress) View progress;
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView image;
-	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.name) TextView name;
 	@SuppressWarnings("unused") @InjectView(R.id.year) TextView year;
-	@SuppressWarnings("unused") @InjectView(R.id.status_container) View statusContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.info_bar) View infoBar;
 	@SuppressWarnings("unused") @InjectView(R.id.status) TextView status;
 	@SuppressWarnings("unused") @InjectView(R.id.last_modified) TextView lastModified;
 	@SuppressWarnings("unused") @InjectView(R.id.rating_container) View ratingContainer;
@@ -111,9 +86,11 @@ public class GameCollectionFragment extends Fragment implements
 	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updated;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.status,
-		R.id.last_modified
+		R.id.last_modified,
+		R.id.year
 	}) List<TextView> colorizedTextViews;
 	@SuppressWarnings("unused") @InjectViews({
+		R.id.add_comment,
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
 		R.id.card_header_condition,
@@ -124,21 +101,11 @@ public class GameCollectionFragment extends Fragment implements
 
 	private Handler timeHintUpdateHandler = new Handler();
 	private Runnable timeHintUpdateRunnable = null;
-	private boolean isSyncing;
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
-	private String imageUrl;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 	private boolean needsUploading;
-
-	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
-		= new ViewTreeObserver.OnGlobalLayoutListener() {
-		@Override
-		public void onGlobalLayout() {
-			ImageUtils.resizeImagePerAspectRatio(image, scrollContainer.getHeight() / 2, heroContainer);
-		}
-	};
 
 	@DebugLog
 	@Override
@@ -156,27 +123,12 @@ public class GameCollectionFragment extends Fragment implements
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		ButterKnife.inject(this, rootView);
 
-		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
-
 		colorize(palette);
-		scrollContainer.addCallbacks(this);
-		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
-		if (vto.isAlive()) {
-			vto.addOnGlobalLayoutListener(globalLayoutListener);
-		}
 
 		mightNeedRefreshing = true;
 		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
 
 		return rootView;
-	}
-
-	@Override
-	@DebugLog
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override
@@ -204,7 +156,6 @@ public class GameCollectionFragment extends Fragment implements
 			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
 		}
-		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
 
@@ -213,26 +164,6 @@ public class GameCollectionFragment extends Fragment implements
 	public void onDestroyView() {
 		super.onDestroyView();
 		ButterKnife.reset(this);
-	}
-
-	@DebugLog
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (scrollContainer == null) {
-			return;
-		}
-
-		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
-		if (vto.isAlive()) {
-			if (VersionUtils.hasJellyBean()) {
-				vto.removeOnGlobalLayoutListener(globalLayoutListener);
-			} else {
-				//noinspection deprecation
-				vto.removeGlobalOnLayoutListener(globalLayoutListener);
-			}
-		}
 	}
 
 	@DebugLog
@@ -275,8 +206,6 @@ public class GameCollectionFragment extends Fragment implements
 
 			CollectionItem item = new CollectionItem(cursor);
 			updateUi(item);
-			AnimationUtils.fadeOut(getActivity(), progress, true);
-			AnimationUtils.fadeIn(getActivity(), swipeRefreshLayout, true);
 
 			if (mightNeedRefreshing) {
 				long u = cursor.getLong(new CollectionItem().UPDATED);
@@ -298,37 +227,6 @@ public class GameCollectionFragment extends Fragment implements
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	@DebugLog
-	@Override
-	public void onScrollChanged(int deltaX, int deltaY) {
-		if (VersionUtils.hasHoneycomb()) {
-			int scrollY = scrollContainer.getScrollY();
-			image.setTranslationY(scrollY * 0.5f);
-			headerContainer.setTranslationY(scrollY * 0.5f);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onRefresh() {
-		triggerRefresh();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
-		isSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION;
-		updateRefreshStatus();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
-		isSyncing = false;
-		updateRefreshStatus();
-	}
-
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(@SuppressWarnings("UnusedParameters") CollectionItemUpdatedEvent event) {
@@ -336,19 +234,6 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	@DebugLog
-	private void updateRefreshStatus() {
-		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					swipeRefreshLayout.setRefreshing(isSyncing);
-				}
-			});
-		}
-	}
-
-	@DebugLog
-	@Override
 	public void onPaletteGenerated(Palette palette) {
 		this.palette = palette;
 		colorize(palette);
@@ -356,25 +241,14 @@ public class GameCollectionFragment extends Fragment implements
 
 	@DebugLog
 	private void colorize(Palette palette) {
-		if (palette == null || scrollContainer == null) {
+		if (palette == null) {
 			return;
 		}
 		@SuppressWarnings("deprecation") Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
-		statusContainer.setBackgroundColor(swatch.getRgb());
+		infoBar.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@OnClick(R.id.image)
-	public void onThumbnailClick(View v) {
-		if (!TextUtils.isEmpty(imageUrl)) {
-			final Intent intent = new Intent(getActivity(), ImageActivity.class);
-			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
-			startActivity(intent);
-		}
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
@@ -428,7 +302,7 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	@DebugLog
-	private void triggerRefresh() {
+	public void triggerRefresh() {
 		mightNeedRefreshing = false;
 		if (gameId != BggContract.INVALID_ID) {
 			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
@@ -436,12 +310,15 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	@DebugLog
-	private void updateUi(CollectionItem item) {
-		ScrimUtils.applyDefaultScrim(headerContainer);
+	private void notifyChange(CollectionItem item) {
+		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.name, item.imageUrl, item.imageUrl);
+		EventBus.getDefault().post(event);
+	}
 
-		ImageUtils.safelyLoadImage(image, item.imageUrl, this);
-		imageUrl = item.imageUrl;
-		name.setText(item.name.trim());
+	@DebugLog
+	private void updateUi(CollectionItem item) {
+		notifyChange(item);
+
 		year.setText(item.getYearDescription());
 		lastModified.setTag(item.lastModifiedDateTime);
 		ratingContainer.setClickable(collectionId != 0);
@@ -457,7 +334,7 @@ public class GameCollectionFragment extends Fragment implements
 		commentTimestampView.setTag(item.commentTimestamp);
 
 		// Private info
-		if (item.hasPrivateInfo() || TextUtils.isEmpty(item.privateComment)) {
+		if (item.hasPrivateInfo() || !TextUtils.isEmpty(item.privateComment)) {
 			privateInfoContainer.setVisibility(View.VISIBLE);
 			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 			privateInfo.setText(item.getPrivateInfo());
@@ -474,9 +351,6 @@ public class GameCollectionFragment extends Fragment implements
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
 		updated.setTag(item.updated);
-
-		image.setTag(R.id.image, item.imageUrl);
-		image.setTag(R.id.name, item.name);
 
 		updateTimeBasedUi();
 		if (timeHintUpdateRunnable != null) {
@@ -678,7 +552,7 @@ public class GameCollectionFragment extends Fragment implements
 		}
 
 		String getRatingDescription() {
-			return PresentationUtils.describeRating(getActivity(), rating);
+			return PresentationUtils.describePersonalRating(getActivity(), rating);
 		}
 
 		String getYearDescription() {

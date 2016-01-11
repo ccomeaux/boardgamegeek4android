@@ -1,11 +1,8 @@
 package com.boardgamegeek.ui;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -13,17 +10,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.graphics.Palette;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,8 +22,6 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -48,26 +37,18 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
-import com.boardgamegeek.ui.widget.ObservableScrollView;
-import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
-import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,12 +60,11 @@ import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, Callback, Callbacks, OnRefreshListener {
+public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final String KEY_RANKS_EXPANDED = "RANKS_EXPANDED";
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
-	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
-	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler timeHintUpdateHandler = new Handler();
@@ -94,24 +74,20 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
-	private boolean isSyncing;
 
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.scroll_root) ObservableScrollView scrollRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
-	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView imageView;
-	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_name) TextView nameView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_rating) TextView ratingView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_description) TextView descriptionView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_rank) TextView rankView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_year) TextView yearPublishedView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_rating) TextView ratingView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_description) TextView descriptionView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_rank) TextView rankView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_year_published) TextView yearPublishedView;
 
 	@SuppressWarnings("unused") @InjectView(R.id.primary_info_container) View primaryInfoContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.number_of_players) TextView numberOfPlayersView;
 	@SuppressWarnings("unused") @InjectView(R.id.play_time) TextView playTimeView;
 	@SuppressWarnings("unused") @InjectView(R.id.player_age) TextView playerAgeView;
+
+	@SuppressWarnings("unused") @InjectView(R.id.game_subtype) TextView subtypeView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_subtype_container) ViewGroup subtypeContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.subtype_expander) ImageView subtypeExpander;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_designers) GameDetailRow designersView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_artists) GameDetailRow artistsView;
@@ -127,33 +103,25 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@SuppressWarnings("unused") @InjectView(R.id.plays_card) View playsCard;
 	@SuppressWarnings("unused") @InjectView(R.id.plays_root) View playsRoot;
 	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_last_play) TextView lastPlayView;
 	@SuppressWarnings("unused") @InjectView(R.id.play_stats_root) View playStatsRoot;
 	@SuppressWarnings("unused") @InjectView(R.id.colors_root) View colorsRoot;
 	@SuppressWarnings("unused") @InjectView(R.id.game_colors_label) TextView colorsLabel;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_comments_label) TextView commentsLabel;
+
 	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_label) TextView ratingsLabel;
+	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_votes) TextView ratingsVotes;
+	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_standard_deviation) TextView ratingsStandardDeviation;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_label) TextView statsLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_content) View statsContent;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rank_root) LinearLayout rankRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_count) TextView ratingsCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_average_bar) StatBar averageStatBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_bayes_bar) StatBar bayesAverageBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_median_bar) StatBar medianBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_stddev_bar) StatBar standardDeviationBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weight_count) TextView weightCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weight_bar) StatBar weightBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_users_count) TextView userCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_owning_bar) StatBar numberOwningBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_rating_bar) StatBar numberRatingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_trading_bar) StatBar numberTradingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wanting_bar) StatBar numberWantingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_wishing_bar) StatBar numberWishingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.game_stats_weighting_bar) StatBar numberWeightingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.game_weight) TextView weightView;
+	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_links_label) TextView linksLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.game_links_content) View linksContent;
+	@SuppressWarnings("unused") @InjectView(R.id.users_count) TextView userCountView;
+	@SuppressWarnings("unused") @InjectView(R.id.users_owning_bar) StatBar numberOwningBar;
+	@SuppressWarnings("unused") @InjectView(R.id.users_trading_bar) StatBar numberTradingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.users_wanting_bar) StatBar numberWantingBar;
+	@SuppressWarnings("unused") @InjectView(R.id.users_wishing_bar) StatBar numberWishingBar;
 
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_id) TextView idView;
 	@SuppressWarnings("unused") @InjectView(R.id.game_info_last_updated) TextView updatedView;
@@ -176,7 +144,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.card_header_details,
 		R.id.card_header_collection,
 		R.id.card_header_plays,
-		R.id.card_header_user_feedback
+		R.id.card_header_user_feedback,
+		R.id.card_header_links
 	}) List<TextView> colorizedHeaders;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.icon_plays,
@@ -185,24 +154,25 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		R.id.icon_forums,
 		R.id.icon_comments,
 		R.id.icon_ratings,
-		R.id.icon_stats,
-		R.id.icon_links
+		R.id.icon_weight,
+		R.id.icon_language_dependence,
+		R.id.icon_users,
+		R.id.icon_link_bgg,
+		R.id.icon_link_bg_prices,
+		R.id.icon_link_amazon,
+		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
+	@SuppressWarnings("unused") @InjectViews({
+		R.id.users_owning_bar,
+		R.id.users_trading_bar,
+		R.id.users_wanting_bar,
+		R.id.users_wishing_bar,
+	}) List<StatBar> statBars;
 
+	private boolean isRanksExpanded;
 	private boolean isDescriptionExpanded;
-	private boolean isStatsExpanded;
-	private boolean isLinksExpanded;
-	private final NumberFormat numberFormat = NumberFormat.getInstance();
 	private boolean mightNeedRefreshing;
 	private Palette palette;
-
-	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
-		= new ViewTreeObserver.OnGlobalLayoutListener() {
-		@Override
-		public void onGlobalLayout() {
-			ImageUtils.resizeImagePerAspectRatio(imageView, scrollRoot.getHeight() / 2, heroContainer);
-		}
-	};
 
 	@Override
 	@DebugLog
@@ -219,9 +189,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		}
 
 		if (savedInstanceState != null) {
+			isRanksExpanded = savedInstanceState.getBoolean(KEY_RANKS_EXPANDED);
 			isDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
-			isStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
-			isLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
 
 		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -233,19 +202,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
 
-		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
-
 		colorize();
 		openOrCloseDescription();
-		openOrCloseStats();
-		openOrCloseLinks();
-		ScrimUtils.applyDefaultScrim(headerContainer);
-		scrollRoot.addCallbacks(this);
-		ViewTreeObserver vto = scrollRoot.getViewTreeObserver();
-		if (vto.isAlive()) {
-			vto.addOnGlobalLayoutListener(globalLayoutListener);
-		}
 
 		mightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -259,13 +217,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
 		return rootView;
-	}
-
-	@DebugLog
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override
@@ -287,12 +238,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@Override
-	public void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
-
-	@Override
 	@DebugLog
 	public void onDestroyView() {
 		super.onDestroyView();
@@ -301,35 +246,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@Override
 	@DebugLog
-	public void onDestroy() {
-		super.onDestroy();
-		if (scrollRoot == null) {
-			return;
-		}
-
-		ViewTreeObserver vto = scrollRoot.getViewTreeObserver();
-		if (vto.isAlive()) {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-				//noinspection deprecation
-				vto.removeGlobalOnLayoutListener(globalLayoutListener);
-			} else {
-				vto.removeOnGlobalLayoutListener(globalLayoutListener);
-			}
-		}
-	}
-
-	@Override
-	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		outState.putBoolean(KEY_RANKS_EXPANDED, isRanksExpanded);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, isDescriptionExpanded);
-		outState.putBoolean(KEY_STATS_EXPANDED, isStatsExpanded);
-		outState.putBoolean(KEY_LINKS_EXPANDED, isLinksExpanded);
-	}
-
-	@Override
-	public void onRefresh() {
-		triggerRefresh();
 	}
 
 	@Override
@@ -436,7 +356,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 				playsCard.setVisibility(View.VISIBLE);
 				colorsRoot.setVisibility(View.VISIBLE);
 				int count = cursor.getCount();
-				colorsLabel.setText(getResources().getQuantityString(R.plurals.colors_suffix, count, count));
+				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
 				break;
 			default:
 				cursor.close();
@@ -449,50 +369,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	@Override
-	@DebugLog
-	public void onScrollChanged(int deltaX, int deltaY) {
-		if (VersionUtils.hasHoneycomb()) {
-			int scrollY = scrollRoot.getScrollY();
-			imageView.setTranslationY(scrollY * 0.5f);
-			headerContainer.setTranslationY(scrollY * 0.5f);
-		}
-	}
-
-	@Override
 	@DebugLog
 	public void onPaletteGenerated(Palette palette) {
 		this.palette = palette;
 		colorize();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
-		isSyncing = event.getType() == UpdateService.SYNC_TYPE_GAME;
-		updateRefreshStatus();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEventMainThread(UpdateCompleteEvent event) {
-		isSyncing = false;
-		updateRefreshStatus();
-	}
-
-	@DebugLog
-	private void updateRefreshStatus() {
-		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					if (swipeRefreshLayout != null) {
-						swipeRefreshLayout.setRefreshing(isSyncing);
-					}
-				}
-			});
-		}
 	}
 
 	@DebugLog
@@ -503,11 +383,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
 		primaryInfoContainer.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+
 		swatch = PaletteUtils.getIconSwatch(palette);
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
-		swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
+
+		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, PaletteUtils.getHeaderSwatch(palette));
+		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));
 	}
 
 	@DebugLog
@@ -527,10 +409,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		thumbnailUrl = game.ThumbnailUrl;
 		arePlayersCustomSorted = game.CustomPlayerSort;
 
-		ImageUtils.safelyLoadImage(imageView, game.ImageUrl, this);
-		nameView.setText(game.Name);
 		rankView.setText(game.getRankDescription());
 		yearPublishedView.setText(game.getYearPublished());
+		subtypeView.setText(game.getSubtype());
 		ratingView.setText(game.getRatingDescription());
 		ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
 		idView.setText(String.valueOf(game.Id));
@@ -539,30 +420,22 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		numberOfPlayersView.setText(game.getPlayerRangeDescription());
 		playTimeView.setText(game.getPlayingTimeDescription());
 		playerAgeView.setText(game.getAgeDescription());
-		commentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
-		ratingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
+		commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 
-		ratingsCountView.setText(String.format(getResources().getString(R.string.rating_count), numberFormat.format(game.UsersRated)));
-		averageStatBar.setBar(R.string.average_meter_text, game.Rating);
-		bayesAverageBar.setBar(R.string.bayes_meter_text, game.BayesAverage);
-		if (game.Median <= 0) {
-			medianBar.setVisibility(View.GONE);
-		} else {
-			medianBar.setVisibility(View.VISIBLE);
-			medianBar.setBar(R.string.median_meter_text, game.Median);
-		}
-		standardDeviationBar.setBar(R.string.stdDev_meter_text, game.StandardDeviation, 5.0);
+		ratingsLabel.setText(PresentationUtils.getText(getActivity(),
+			R.string.average_rating_prefix, PresentationUtils.describeAverageRating(getActivity(), game.BayesAverage)));
+		ratingsVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.UsersRated));
+		ratingsStandardDeviation.setText(getString(R.string.standard_deviation_prefix, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
 
-		weightCountView.setText(String.format(getResources().getString(R.string.weight_count), numberFormat.format(game.NumberWeights)));
-		weightBar.setBar(game.getWeightDescriptionResId(), game.AverageWeight, 5.0, 1.0);
+		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
+		weightVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.NumberWeights));
 
-		userCountView.setText(String.format(getResources().getString(R.string.user_total), numberFormat.format(game.getMaxUsers())));
-		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
-		numberRatingBar.setBar(R.string.rating_meter_text, game.UsersRated, game.getMaxUsers());
-		numberTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, game.getMaxUsers());
-		numberWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, game.getMaxUsers());
-		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
-		numberWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
+		final int maxUsers = game.getMaxUsers();
+		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
+		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, maxUsers);
+		numberTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, maxUsers);
+		numberWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, maxUsers);
+		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, maxUsers);
 
 		if (shouldShowPlays()) {
 			playsCard.setVisibility(View.VISIBLE);
@@ -582,9 +455,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		};
 		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 
-		AnimationUtils.fadeOut(getActivity(), progressView, true);
-		AnimationUtils.fadeIn(getActivity(), swipeRefreshLayout, true);
-
 		if (mightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
@@ -598,8 +468,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			return;
 		}
 		if (updatedView != null) {
-			long updatedTime = (long) updatedView.getTag();
-			updatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
+			final Object tag = updatedView.getTag();
+			if (tag != null) {
+				long updatedTime = (long) tag;
+				updatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
+			}
+		}
+		if (lastPlayView != null) {
+			final Object tag = lastPlayView.getTag();
+			if (tag != null) {
+				long lastPlayedTime = (long) tag;
+				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(lastPlayedTime)));
+			}
 		}
 	}
 
@@ -627,39 +507,33 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@DebugLog
 	private void onRankQueryComplete(Cursor cursor) {
-		rankRoot.removeAllViews();
-		if (cursor == null || cursor.getCount() == 0) {
-			rankRoot.setVisibility(View.GONE);
-		} else {
-			rankRoot.setVisibility(View.VISIBLE);
-
-			while (cursor.moveToNext()) {
-				Rank rank = new Rank(cursor);
-				addRankRow(rank.Name, rank.Rank, "subtype".equals(rank.Type), rank.Rating);
+		if (subtypeContainer != null) {
+			subtypeContainer.removeAllViews();
+			if (cursor != null && cursor.getCount() > 0) {
+				while (cursor.moveToNext()) {
+					Rank rank = new Rank(cursor);
+					if (!"subtype".equals(rank.Type)) {
+						addRankRow(rank.Name, rank.Rank, rank.Rating);
+					}
+				}
 			}
 		}
 	}
 
 	@DebugLog
-	private void addRankRow(String label, int rank, boolean bold, double rating) {
-		LinearLayout layout = (LinearLayout) getLayoutInflater(null)
-			.inflate(R.layout.widget_rank_row, rankRoot, false);
+	private void addRankRow(String label, int rank, double rating) {
+		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, subtypeContainer, false);
 
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
-		setText(tv, label, bold);
+		tv.setText(PresentationUtils.describeRankName(getActivity(), "family", label));
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
-		String rankText = (rank == 0 || rank == Integer.MAX_VALUE) ? getResources().getString(
-			R.string.text_not_available) : String.valueOf(rank);
-		setText(tv, rankText, bold);
+		tv.setText(PresentationUtils.describeRank(rank));
 
-		StatBar sb = new StatBar(getActivity());
-		sb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-			LinearLayout.LayoutParams.MATCH_PARENT));
-		sb.setBar(R.string.average_meter_text, rating);
+		tv = (TextView) layout.findViewById(R.id.rank_row_rating);
+		tv.setText(PresentationUtils.describeAverageRating(getActivity(), rating));
 
-		rankRoot.addView(layout);
-		rankRoot.addView(sb);
+		subtypeContainer.addView(layout);
 	}
 
 	@DebugLog
@@ -710,40 +584,40 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		if (cursor.moveToFirst()) {
 			playsCard.setVisibility(View.VISIBLE);
 			playsRoot.setVisibility(View.VISIBLE);
+
 			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
+			long date = CursorUtils.getDateInMillis(cursor, PlaysQuery.MAX_DATE);
+
 			if (sum > 0) {
-				String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.MAX_DATE);
-				playsLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
+				String description = PresentationUtils.describePlayCount(getActivity(), sum);
+				if (!TextUtils.isEmpty(description)) {
+					description = " (" + description + ")";
+				}
+				playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, sum, sum, description));
 			} else {
 				playsLabel.setText(getResources().getString(R.string.no_plays));
+			}
+
+			if (date > 0) {
+				lastPlayView.setTag(date);
+				lastPlayView.setVisibility(View.VISIBLE);
+				updateTimeBasedUi();
+			} else {
+				lastPlayView.setVisibility(View.GONE);
 			}
 		}
 	}
 
+	@SuppressWarnings("unused")
+	@OnClick(R.id.rank_root)
 	@DebugLog
-	private void setText(TextView tv, String text, boolean bold) {
-		if (bold) {
-			SpannableString ss = new SpannableString(text);
-			ss.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			tv.setText(ss);
-		} else {
-			tv.setText(text);
-		}
+	public void onRankClick(View v) {
+		isRanksExpanded = !isRanksExpanded;
+		openOrCloseRanks();
 	}
 
 	@SuppressWarnings("unused")
-	@OnClick(R.id.image)
-	@DebugLog
-	public void onThumbnailClick(View v) {
-		if (!TextUtils.isEmpty(imageUrl)) {
-			final Intent intent = new Intent(getActivity(), ImageActivity.class);
-			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
-			startActivity(intent);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@OnClick(R.id.game_info_description)
+	@OnClick(R.id.game_description)
 	@DebugLog
 	public void onDescriptionClick(View v) {
 		isDescriptionExpanded = !isDescriptionExpanded;
@@ -794,6 +668,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@SuppressWarnings("unused")
+	@OnClick(R.id.language_dependence_root)
+	@DebugLog
+	public void onLanguageDependenceClick(View v) {
+		Bundle arguments = new Bundle(2);
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
+		arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
+		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
+	}
+
+	@SuppressWarnings("unused")
 	@OnClick(R.id.comments_root)
 	@DebugLog
 	public void onCommentsClick(@SuppressWarnings("UnusedParameters") View v) {
@@ -813,20 +697,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
-	@OnClick(R.id.game_info_stats_root)
 	@DebugLog
-	public void onStatsClick(@SuppressWarnings("UnusedParameters") View v) {
-		isStatsExpanded = !isStatsExpanded;
-		openOrCloseStats();
-	}
-
-	@SuppressWarnings("unused")
-	@OnClick(R.id.game_info_links_root)
-	@DebugLog
-	public void onLinksClick(@SuppressWarnings("UnusedParameters") View v) {
-		isLinksExpanded = !isLinksExpanded;
-		openOrCloseLinks();
+	private void openOrCloseRanks() {
+		subtypeContainer.setVisibility(isRanksExpanded ? View.VISIBLE : View.GONE);
+		subtypeExpander.setImageResource(isRanksExpanded ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
 	@DebugLog
@@ -834,18 +708,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		descriptionView.setMaxLines(isDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		descriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
 			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
-	}
-
-	@DebugLog
-	private void openOrCloseStats() {
-		statsContent.setVisibility(isStatsExpanded ? View.VISIBLE : View.GONE);
-		statsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, isStatsExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
-	}
-
-	@DebugLog
-	private void openOrCloseLinks() {
-		linksContent.setVisibility(isLinksExpanded ? View.VISIBLE : View.GONE);
-		linksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, isLinksExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
 	}
 
 	@SuppressWarnings("unused")
@@ -879,7 +741,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	}
 
 	@DebugLog
-	private void triggerRefresh() {
+	public void triggerRefresh() {
 		mightNeedRefreshing = false;
 		int gameId = Games.getGameId(gameUri);
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, gameId);
@@ -912,7 +774,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		int GAME_NAME = 11;
 		int THUMBNAIL_URL = 12;
 		int STATS_BAYES_AVERAGE = 13;
-		int STATS_MEDIAN = 14;
 		int STATS_STANDARD_DEVIATION = 15;
 		int STATS_NUMBER_WEIGHTS = 16;
 		int STATS_AVERAGE_WEIGHT = 17;
@@ -978,9 +839,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	private interface RankQuery {
 		int _TOKEN = 0x19;
-		String[] PROJECTION = { GameRanks.GAME_RANK_FRIENDLY_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
+		String[] PROJECTION = { GameRanks.GAME_RANK_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
 			GameRanks.GAME_RANK_BAYES_AVERAGE };
-		int GAME_RANK_FRIENDLY_NAME = 0;
+		int GAME_RANK_NAME = 0;
 		int GAME_RANK_VALUE = 1;
 		int GAME_RANK_TYPE = 2;
 		int GAME_RANK_BAYES_AVERAGE = 3;
@@ -1036,7 +897,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		final long Updated;
 		final int Rank;
 		final double BayesAverage;
-		final double Median;
 		final double StandardDeviation;
 		final double AverageWeight;
 		final int NumberWeights;
@@ -1065,7 +925,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 			Updated = cursor.getLong(GameQuery.UPDATED);
 			Rank = cursor.getInt(GameQuery.GAME_RANK);
 			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);
-			Median = cursor.getDouble(GameQuery.STATS_MEDIAN);
 			StandardDeviation = cursor.getDouble(GameQuery.STATS_STANDARD_DEVIATION);
 			AverageWeight = cursor.getDouble(GameQuery.STATS_AVERAGE_WEIGHT);
 			NumberWeights = cursor.getInt(GameQuery.STATS_NUMBER_WEIGHTS);
@@ -1088,7 +947,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		public int getMaxUsers() {
-			int max = Math.max(UsersRated, NumberOwned);
+			int max = Math.max(UsersRated, UsersCommented);
+			max = Math.max(max, NumberOwned);
 			max = Math.max(max, NumberTrading);
 			max = Math.max(max, NumberWanting);
 			max = Math.max(max, NumberWeights);
@@ -1117,16 +977,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 		@DebugLog
 		private String getRankDescription() {
-			if (Rank == 0 || Rank == Integer.MAX_VALUE) {
-				return "";
-			} else {
-				return "#" + Rank;
-			}
+			return PresentationUtils.describeRank(Rank);
 		}
 
 		@DebugLog
 		public String getRatingDescription() {
-			return PresentationUtils.describeAverageRating(getContext(), Rating);
+			return PresentationUtils.describeRating(getContext(), Rating);
 		}
 
 		@DebugLog
@@ -1135,18 +991,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		}
 
 		@DebugLog
-		public int getWeightDescriptionResId() {
-			int resId = R.string.weight_1_text;
-			if (AverageWeight >= 4.2) {
-				resId = R.string.weight_5_text;
-			} else if (AverageWeight >= 3.4) {
-				resId = R.string.weight_4_text;
-			} else if (AverageWeight >= 2.6) {
-				resId = R.string.weight_3_text;
-			} else if (AverageWeight >= 1.8) {
-				resId = R.string.weight_2_text;
-			}
-			return resId;
+		public String getSubtype() {
+			return PresentationUtils.describeRankName(getActivity(), "subtype", Subtype);
 		}
 	}
 
@@ -1157,7 +1003,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		final String Type;
 
 		Rank(Cursor cursor) {
-			Name = cursor.getString(RankQuery.GAME_RANK_FRIENDLY_NAME);
+			Name = cursor.getString(RankQuery.GAME_RANK_NAME);
 			Rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
 			Rating = cursor.getDouble(RankQuery.GAME_RANK_BAYES_AVERAGE);
 			Type = cursor.getString(RankQuery.GAME_RANK_TYPE);

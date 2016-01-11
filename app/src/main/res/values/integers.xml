@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<integer name="game_info_weight_sum">3</integer>
+	<integer name="game_info_weight_sum">4</integer>
 	<integer name="query_token_designers">1</integer>
 	<integer name="query_token_artists">2</integer>
 	<integer name="query_token_publishers">3</integer>

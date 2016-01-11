@@ -2,24 +2,15 @@
 <resources>
 
 	<string name="welcome_text">Welcome to the new BoardGameGeek for Android. Access the navigation menu by clicking on the icon in the top left or by dragging from the left edge of the screen.</string>
-	<string name="average_meter_text">Average = %s</string>
-	<string name="bayes_meter_text">Bayes Average = %s</string>
-	<string name="median_meter_text">Median = %s</string>
-	<string name="stdDev_meter_text">Standard Deviation = %s</string>
-	<string name="weight_1_text">%s - \"Light\"</string>
-	<string name="weight_2_text">%s - \"Medium Light\"</string>
-	<string name="weight_3_text">%s - \"Medium\"</string>
-	<string name="weight_4_text">%s - \"Medium Heavy\"</string>
-	<string name="weight_5_text">%s - \"Heavy\"</string>
-	<string name="rating_count">%s ratings</string>
-	<string name="weight_count">%s weights</string>
-	<string name="user_total">%s users</string>
+	<string name="weight_1_text">Light (<b>%.2f</b>/5)</string>
+	<string name="weight_2_text">Medium Light (<b>%.2f</b>/5)</string>
+	<string name="weight_3_text">Medium (<b>%.2f</b>/5)</string>
+	<string name="weight_4_text">Medium Heavy (<b>%.2f</b>/5)</string>
+	<string name="weight_5_text">Heavy (<b>%.2f</b>/5)</string>
 	<string name="owning_meter_text">%s Owning</string>
-	<string name="rating_meter_text">%s Rating</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
 	<string name="wishing_meter_text">%s Wishing</string>
-	<string name="weighting_meter_text">%s Weighting</string>
 	<string name="id_list_text">ID: %s</string>
 	<string name="designers">Designers</string>
 	<string name="artists">Artists</string>
@@ -86,7 +77,6 @@
 	<string name="average_win">Average win</string>
 	<string name="high">High</string>
 	<string name="low">Low</string>
-	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -117,7 +107,6 @@
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
-	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_data">Data</string>
@@ -126,10 +115,18 @@
 	<string name="title_geeklist">GeekList</string>
 	<string name="title_game">Game</string>
 	<string name="title_board_game">Board Game</string>
-	<string name="title_board_game_expansion">Board Game Expansion</string>
 	<string name="title_board_game_accessory">Board Game Accessory</string>
 	<string name="title_board_game_publisher">Board Game Publisher</string>
 	<string name="title_board_game_designer">Board Game Designer</string>
+	<string name="title_expansion">Expansion</string>
+	<string name="title_accessory">Accessory</string>
+	<string name="title_abstract">Abstract</string>
+	<string name="title_childrens">Children\'s</string>
+	<string name="title_customizable">Customizable</string>
+	<string name="title_party">Party</string>
+	<string name="title_strategy">Strategy</string>
+	<string name="title_thematic">Thematic</string>
+	<string name="title_war">War</string>
 	<string name="title_thing">Thing</string>
 	<string name="title_company">Company</string>
 	<string name="title_person">Person</string>
@@ -319,7 +316,6 @@
 	<string name="menu_sort_geeklists_hot">Hot</string>
 	<string name="menu_sort_geeklists_recent">Recent</string>
 	<string name="menu_sort_geeklists_active">Active</string>
-	<string name="menu_colors_add">Add color</string>
 	<string name="menu_colors_generate">Generate colors</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
@@ -358,7 +354,6 @@
 	<string name="players">players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
-	<string name="unknown">unknown</string>
 	<string name="minutes">minutes</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
@@ -375,7 +370,9 @@
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="votes_suffix">"%s votes"</string>
+	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
+	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
+	<string name="votes_suffix"><b>%,d</b> votes</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>
 	<string name="by_prefix">by %s</string>
@@ -389,7 +386,6 @@
 	<string name="menu_random_player_order">Random player order</string>
 	<string name="generic_player">Player #%d</string>
 	<string name="notification_start_player">%s starts!</string>
-	<string name="stats">Stats</string>
 	<string name="unrated">Unrated</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
@@ -469,6 +465,7 @@
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
+	<string name="last_played_prefix">Last played <b>%s</b></string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -503,8 +500,12 @@
 		<item quantity="other">%s replies</item>
 	</plurals>
 	<plurals name="plays">
-		<item quantity="one">%s plays</item>
-		<item quantity="other">%s plays</item>
+		<item quantity="one">%,d plays</item>
+		<item quantity="other">%,d plays</item>
+	</plurals>
+	<plurals name="plays_prefix">
+		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
+		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
 	</plurals>
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
@@ -522,21 +523,13 @@
 		<item quantity="one">%s total edit</item>
 		<item quantity="other">%s total edits</item>
 	</plurals>
-	<plurals name="plays_summary">
-		<item quantity="one">%1$,d Play; last play on %2$s</item>
-		<item quantity="other">%1$,d Plays; last play on %2$s</item>
-	</plurals>
 	<plurals name="colors_suffix">
-		<item quantity="one">%,d Color/Team</item>
-		<item quantity="other">%,d Colors/Teams</item>
+		<item quantity="one"><b>%,d</b> Color/Team</item>
+		<item quantity="other"><b>%,d</b> Colors/Teams</item>
 	</plurals>
 	<plurals name="comments_suffix">
-		<item quantity="one">%,d Comment</item>
-		<item quantity="other">%,d Comments</item>
-	</plurals>
-	<plurals name="ratings_suffix">
-		<item quantity="one">%,d Rating</item>
-		<item quantity="other">%,d Ratings</item>
+		<item quantity="one"><b>%,d</b> Comment</item>
+		<item quantity="other"><b>%,d</b> Comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
 		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
@@ -549,6 +542,10 @@
 	<plurals name="search_results_exact">
 		<item quantity="one">%1$s exact match for \"%2$s\"</item>
 		<item quantity="other">%1$s exact matches for \"%2$s\"</item>
+	</plurals>
+	<plurals name="users_suffix">
+		<item quantity="one"><b>%,d</b> User</item>
+		<item quantity="other"><b>%,d</b> Users</item>
 	</plurals>
 	<plurals name="plays_suffix">
 		<item quantity="one">%1$s play</item>
