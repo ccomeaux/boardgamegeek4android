@@ -81,7 +81,7 @@ public class ScrimUtils {
 	public static Drawable makeInvertedScrimDrawable(Context context) {
 		//noinspection deprecation
 		return ScrimUtils.makeCubicGradientScrimDrawable(
-			context.getResources().getColor(R.color.white_overlay), 2, Gravity.BOTTOM);
+			context.getResources().getColor(R.color.white_overlay), 3, Gravity.BOTTOM);
 	}
 
 	/**
