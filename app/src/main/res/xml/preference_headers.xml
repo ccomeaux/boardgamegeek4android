@@ -11,7 +11,7 @@
 	</header>
 	<header
 		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
-		android:icon="@drawable/ic_action_calendar_light"
+		android:icon="@drawable/ic_action_today_light"
 		android:title="@string/pref_log" >
 		<extra
 			android:name="fragment"

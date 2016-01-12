@@ -24,12 +24,12 @@
 
 	<TextView
 		android:id="@+id/backup_location"
-		style="@style/Text.Info"
+		style="@style/Text.Code"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/padding_standard"
 		android:paddingTop="@dimen/padding_standard"
-		tools:text="/download/export.json"/>
+		tools:text="/download/bgg4android/data/export.json"/>
 
 	<LinearLayout
 		android:id="@+id/backup_types"
@@ -83,7 +83,7 @@
 
 		<TextView
 			android:id="@+id/progress_detail"
-			style="@style/Text.Info"
+			style="@style/Text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"

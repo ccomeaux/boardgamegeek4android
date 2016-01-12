@@ -15,7 +15,7 @@
 
 	<TextView
 		android:id="@android:id/title"
-		style="@style/Text.DrawerItem"
+		style="@style/DrawerItem"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		tools:text="@string/action_sign_in"/>

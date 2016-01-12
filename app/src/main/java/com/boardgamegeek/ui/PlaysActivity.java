@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import com.boardgamegeek.R;
@@ -14,12 +16,12 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlaysActivity extends TopLevelSinglePaneActivity {
-	private int mCount;
-	private String mSortName;
+public class PlaysActivity extends SimpleSinglePaneActivity {
+	private int playCount;
+	private String sortName;
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new PlaysFragment();
 	}
 
@@ -30,41 +32,43 @@ public class PlaysActivity extends TopLevelSinglePaneActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean hide = (isDrawerOpen() || mCount <= 0);
+		boolean hide = (isDrawerOpen() || playCount <= 0);
 		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
-			hide ? "" : String.valueOf(mCount),
-			hide ? "" : mSortName);
+			hide ? "" : String.valueOf(playCount),
+			hide ? "" : sortName);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
-	@Override
-	protected int getDrawerResId() {
-		return R.string.title_plays;
-	}
-
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(PlaysCountChangedEvent event) {
-		mCount = event.getCount();
+		playCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(PlaysFilterChangedEvent event) {
-		if (event.getType() == Play.SYNC_STATUS_ALL) {
-			getSupportActionBar().setSubtitle("");
-		} else {
-			getSupportActionBar().setSubtitle(event.getDescription());
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			if (event.getType() == Play.SYNC_STATUS_ALL) {
+				actionBar.setSubtitle("");
+			} else {
+				actionBar.setSubtitle(event.getDescription());
+			}
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(PlaysSortChangedEvent event) {
-		mSortName = event.getDescription();
+		sortName = event.getDescription();
 		supportInvalidateOptionsMenu();
 	}
 }
