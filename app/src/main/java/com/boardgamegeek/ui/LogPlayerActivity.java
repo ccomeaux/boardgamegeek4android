@@ -263,7 +263,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@OnClick(R.id.color_view)
 	public void onColorClick(View v) {
 		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, 4);
+			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, null, 4);
 
 		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override

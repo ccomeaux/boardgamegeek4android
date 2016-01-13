@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
+import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -106,6 +107,7 @@ public class BuddyColorsActivity extends BaseActivity {
 		setSubtitle(buddyName);
 
 		list.setSelector(android.R.color.transparent);
+		list.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
 
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
@@ -204,6 +206,27 @@ public class BuddyColorsActivity extends BaseActivity {
 			this.colors.add(color);
 		}
 		bindUi();
+	}
+
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@OnClick(R.id.fab)
+	void onFabClick(View view) {
+		ArrayList<String> usedColors = new ArrayList<>(colors.size());
+		for (BuddyColor color : colors) {
+			usedColors.add(color.getColor());
+		}
+
+		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(R.string.title_add_color,
+			ColorUtils.getColorList(), null, null, null, usedColors, 4);
+		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
+			@Override
+			public void onColorSelected(String description, int color) {
+				colors.add(new BuddyColor(description, colors.size() + 1));
+				adapter.notifyDataSetChanged();
+			}
+		});
+
+		fragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
 	@DebugLog

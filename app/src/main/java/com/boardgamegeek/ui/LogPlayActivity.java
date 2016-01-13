@@ -445,7 +445,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
-		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_logplay, null), null, false);
+		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
 
 		ButterKnife.inject(this);
 
