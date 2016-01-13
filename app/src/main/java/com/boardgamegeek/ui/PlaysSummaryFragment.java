@@ -55,6 +55,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@SuppressWarnings("unused") @InjectView(R.id.locations_container) LinearLayout locationsContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.card_footer_locations) TextView locationsFooter;
 	@SuppressWarnings("unused") @InjectView(R.id.card_colors) View colorsCard;
+	@SuppressWarnings("unused") @InjectView(R.id.colors_hint) View colorsHint;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.h_index) TextView hIndexView;
 
@@ -288,8 +289,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
+		colorContainer.removeAllViews();
 		if (cursor.getCount() > 0) {
-			colorContainer.removeAllViews();
 			for (int i = 0; i < 5; i++) {
 				if (cursor.moveToNext()) {
 					ImageView view = createViewToBeColored();
@@ -301,6 +302,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				}
 			}
 		}
+		colorsHint.setVisibility(cursor.getCount() == 0 ? View.VISIBLE : View.GONE);
 	}
 
 	private ImageView createViewToBeColored() {
