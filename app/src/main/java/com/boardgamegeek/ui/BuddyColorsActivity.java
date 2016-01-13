@@ -139,6 +139,9 @@ public class BuddyColorsActivity extends BaseActivity {
 					}
 					batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
 				}
+				batch.add(ContentProviderOperation.newDelete(PlayerColors.buildUserUri(buddyName))
+					.withSelection(PlayerColors.PLAYER_COLOR_SORT_ORDER + " > ?", new String[] { String.valueOf(colors.size()) })
+					.build());
 				ResolverUtils.applyBatch(this, batch);
 			}
 			colors = null; // to force a load from cursor
