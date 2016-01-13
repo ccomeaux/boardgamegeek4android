@@ -122,26 +122,24 @@ public class BuddyColorsActivity extends BaseActivity {
 		super.onStop();
 		if (colors != null) {
 			final ContentResolver resolver = getContentResolver();
-			if (colors.size() == 0) {
-				resolver.delete(PlayerColors.buildUserUri(buddyName), null, null);
-			} else {
+			resolver.delete(PlayerColors.buildUserUri(buddyName), null, null);
+			if (colors.size() > 0) {
 				ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 				for (int i = 0; i < colors.size(); i++) {
 					final String color = colors.get(i).getColor();
 					final int sortOrder = colors.get(i).getSortOrder();
 
-					Builder builder;
-					if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(buddyName, sortOrder))) {
-						builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(buddyName, sortOrder));
-					} else {
-						builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(buddyName))
-							.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
+					if (!TextUtils.isEmpty(color)) {
+						Builder builder;
+						if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(buddyName, sortOrder))) {
+							builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(buddyName, sortOrder));
+						} else {
+							builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(buddyName))
+								.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
+						}
+						batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
 					}
-					batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
 				}
-				batch.add(ContentProviderOperation.newDelete(PlayerColors.buildUserUri(buddyName))
-					.withSelection(PlayerColors.PLAYER_COLOR_SORT_ORDER + " > ?", new String[] { String.valueOf(colors.size()) })
-					.build());
 				ResolverUtils.applyBatch(this, batch);
 			}
 			colors = null; // to force a load from cursor
@@ -256,10 +254,26 @@ public class BuddyColorsActivity extends BaseActivity {
 			if (convertView == null) {
 				convertView = LayoutInflater.from(BuddyColorsActivity.this).inflate(R.layout.row_player_color, parent, false);
 			}
-			BuddyColor color = (BuddyColor) getItem(position);
+			final BuddyColor color = (BuddyColor) getItem(position);
 			if (color != null) {
-				((TextView) convertView.findViewById(android.R.id.title)).setText(color.getColor());
-				ColorUtils.setColorViewValue(convertView.findViewById(R.id.color_view), ColorUtils.parseColor(color.getColor()));
+				final TextView titleView = (TextView) convertView.findViewById(android.R.id.title);
+				final View colorView = convertView.findViewById(R.id.color_view);
+				final View deleteView = convertView.findViewById(R.id.delete);
+
+				titleView.setText(color.getColor());
+				ColorUtils.setColorViewValue(colorView, ColorUtils.parseColor(color.getColor()));
+				deleteView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						colors.remove(color);
+						for (BuddyColor c : colors) {
+							if (c.getSortOrder() >= color.getSortOrder()) {
+								c.setSortOrder(c.getSortOrder() - 1);
+							}
+						}
+						notifyDataSetChanged();
+					}
+				});
 			}
 			return convertView;
 		}
