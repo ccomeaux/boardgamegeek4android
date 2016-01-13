@@ -10,7 +10,8 @@
         android:id="@+id/toolbar"
         style="@style/ActionBar"/>
 
-    <FrameLayout
+    <android.support.design.widget.CoordinatorLayout
+		android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -79,5 +80,5 @@
                 android:text="@string/empty_player_colors_button"
                 android:textAppearance="@style/Text.Header"/>
         </LinearLayout>
-    </FrameLayout>
+    </android.support.design.widget.CoordinatorLayout>
 </LinearLayout>

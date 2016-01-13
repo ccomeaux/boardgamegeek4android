@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -51,6 +53,7 @@ public class BuddyColorsActivity extends BaseActivity {
 	@SuppressWarnings("unused") @InjectView(android.R.id.progress) View progressView;
 	@SuppressWarnings("unused") @InjectView(android.R.id.empty) View emptyView;
 	@SuppressWarnings("unused") @InjectView(android.R.id.list) DragSortListView list;
+	@SuppressWarnings("unused") @InjectView(R.id.coordinator) CoordinatorLayout coordinator;
 
 	@SuppressLint("HandlerLeak")
 	private class QueryHandler extends AsyncQueryHandler {
@@ -265,6 +268,17 @@ public class BuddyColorsActivity extends BaseActivity {
 				deleteView.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
+						Snackbar.make(coordinator, getString(R.string.removed_suffix, color.getColor()), Snackbar.LENGTH_LONG)
+							.setAction(R.string.undo, new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									final BuddyColor newColor = new BuddyColor(color.getColor(), colors.size() + 1);
+									colors.add(newColor);
+									notifyDataSetChanged();
+								}
+							})
+							.setActionTextColor(getResources().getColor(R.color.primary))
+							.show();
 						colors.remove(color);
 						for (BuddyColor c : colors) {
 							if (c.getSortOrder() >= color.getSortOrder()) {

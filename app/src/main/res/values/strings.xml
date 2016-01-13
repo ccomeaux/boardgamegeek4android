@@ -290,6 +290,7 @@
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
 	<string name="menu_sort_quantity">Play count</string>
+	<string name="undo">Undo</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
 	<string name="shortest">Shortest</string>
@@ -466,6 +467,7 @@
 	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
+	<string name="removed_suffix">%s removed.</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
