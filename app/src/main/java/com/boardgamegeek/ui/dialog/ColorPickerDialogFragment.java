@@ -190,10 +190,12 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	private void tryBindLists() {
 		if (isAdded() && colorGridAdapter == null) {
 			ArrayList<Pair<String, Integer>> choices = new ArrayList<>(colorChoices);
-			for (int i = colorChoices.size() - 1; i >= 0; i--) {
-				Pair<String, Integer> pair = choices.get(i);
-				if (hiddenColors.contains(pair.first)) {
-					choices.remove(i);
+			if (hiddenColors != null) {
+				for (int i = colorChoices.size() - 1; i >= 0; i--) {
+					Pair<String, Integer> pair = choices.get(i);
+					if (hiddenColors.contains(pair.first)) {
+						choices.remove(i);
+					}
 				}
 			}
 			if (featuredColors == null) {
