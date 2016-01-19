@@ -176,25 +176,34 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 				return true;
 			}
 		}
-		Timber.i("No player has a unique top choice in round " + round);
+		Timber.i("No more players have a unique top choice in round %d", round);
 		return false;
 	}
 
 	@DebugLog
-	@Nullable
+	@NonNull
 	private PlayerColorChoices getLonePlayerWithTopChoice(String colorToAssign) {
-		PlayerColorChoices playerWhoWantsThisColor = null;
-		for (PlayerColorChoices player : playersNeedingColor) {
-			if (player.isTopChoice(colorToAssign)) {
-				if (playerWhoWantsThisColor == null) {
-					playerWhoWantsThisColor = player;
-				} else {
-					Timber.d("More than one player wants " + colorToAssign);
+		List<PlayerColorChoices> players = getPlayersWithTopChoice(colorToAssign);
+		if (players.size() == 0) {
+			Timber.i("No players want %s as their top choice", colorToAssign);
+			return null;
+		} else if (players.size() > 1) {
+			Timber.i("Multiple players want %s as their top choice", colorToAssign);
 					return null;
 				}
+		return players.get(0);
+	}
+
+	@DebugLog
+	@NonNull
+	private List<PlayerColorChoices> getPlayersWithTopChoice(String colorToAssign) {
+		List<PlayerColorChoices> players = new ArrayList<>();
+		for (PlayerColorChoices player : playersNeedingColor) {
+			if (player.isTopChoice(colorToAssign)) {
+				players.add(player);
 			}
 		}
-		return playerWhoWantsThisColor;
+		return players;
 	}
 
 	/**
@@ -368,7 +377,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		@NonNull
 		@Override
 		public String toString() {
-			return String.format("%1$s (%2$s) - %3$s (%4$s in round %5$d)", name, type, color, reason, round);
+			return String.format("%1$s - %3$s (%4$s in round %5$d)", name, type, color, reason, round);
 		}
 	}
 
