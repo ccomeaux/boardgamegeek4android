@@ -83,7 +83,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			while (shouldContinue && playersNeedingColor.size() > 0) {
 				shouldContinue = assignTopChoice();
 			}
-			shouldContinue = assignHighestChoice();
+			shouldContinue = assignMostPreferredChoice();
 			round++;
 		}
 
@@ -181,7 +181,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	}
 
 	@DebugLog
-	@NonNull
+	@Nullable
 	private PlayerColorChoices getLonePlayerWithTopChoice(String colorToAssign) {
 		List<PlayerColorChoices> players = getPlayersWithTopChoice(colorToAssign);
 		if (players.size() == 0) {
@@ -189,8 +189,8 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			return null;
 		} else if (players.size() > 1) {
 			Timber.i("Multiple players want %s as their top choice", colorToAssign);
-					return null;
-				}
+			return null;
+		}
 		return players.get(0);
 	}
 
@@ -206,41 +206,50 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return players;
 	}
 
-	/**
-	 * Assigns a color to a player who has the highest choice choice remaining.
-	 */
 	@DebugLog
-	private boolean assignHighestChoice() {
-		PlayerColorChoices currentPlayerWithHighestChoice = null;
-		for (PlayerColorChoices player : playersNeedingColor) {
-			ColorChoice newPlayersTopChoice = player.getTopChoice();
-			if (newPlayersTopChoice != null) {
-				if (currentPlayerWithHighestChoice == null ||
-					(currentPlayerWithHighestChoice.getTopChoice().sortOrder > newPlayersTopChoice.sortOrder) ||
-					((currentPlayerWithHighestChoice.getTopChoice().sortOrder > newPlayersTopChoice.sortOrder) && !currentPlayerWithHighestChoice.getTopChoice().color.equals(newPlayersTopChoice.color))) {
-					currentPlayerWithHighestChoice = player;
-				} else if ((currentPlayerWithHighestChoice.getTopChoice().sortOrder == newPlayersTopChoice.sortOrder) &&
-					currentPlayerWithHighestChoice.getTopChoice().color.equals(newPlayersTopChoice.color)) {
-					ColorChoice currentSecondChoice = player.getSecondChoice();
-					ColorChoice savedSecondChoice = currentPlayerWithHighestChoice.getSecondChoice();
-					//noinspection StatementWithEmptyBody
-					if (currentSecondChoice == null && savedSecondChoice == null) {
-						// TODO: random
-					} else if (currentSecondChoice == null) {
-						currentPlayerWithHighestChoice = player;
-					} else //noinspection StatementWithEmptyBody
-						if (savedSecondChoice == null) {
-							// keep saved player
-						} else if (currentSecondChoice.sortOrder > savedSecondChoice.sortOrder) {
-							currentPlayerWithHighestChoice = player;
-						}
+	private boolean assignMostPreferredChoice() {
+		List<PlayerColorChoices> players = new ArrayList<>();
+		double maxPreference = 0.0;
+		for (String color : colorsAvailable) {
+			List<PlayerColorChoices> playersWithTopChoice = getPlayersWithTopChoice(color);
+			if (playersWithTopChoice.size() > 1) {
+				for (PlayerColorChoices player : playersWithTopChoice) {
+					double preference = player.calculateCurrentPreferenceFor(color);
+					Timber.i("%s wants %s: %,.2f", player.name, color, preference);
+					if (preference > maxPreference) {
+						maxPreference = preference;
+						players.clear();
+						players.add(player);
+					} else if (preference == maxPreference) {
+						players.add(player);
+					}
 				}
+			} else {
+				Timber.i("Not enough players want %s", color);
 			}
 		}
-		if (currentPlayerWithHighestChoice != null) {
-			assignColorToPlayer(currentPlayerWithHighestChoice.getTopChoice().color, currentPlayerWithHighestChoice, "highest choice");
-			return true;
+
+		if (players.size() == 0) {
+			Timber.i("Nobody wants any color");
+			return false;
 		}
+		if (players.size() == 1) {
+			PlayerColorChoices player = players.get(0);
+			final ColorChoice topChoice = player.getTopChoice();
+			if (topChoice != null) {
+				assignColorToPlayer(topChoice.color, player, String.format("most preferred (%,.2f)", maxPreference));
+				return true;
+			}
+		} else {
+			int i = random.nextInt(players.size());
+			PlayerColorChoices player = players.get(i);
+			final ColorChoice topChoice = player.getTopChoice();
+			if (topChoice != null) {
+				assignColorToPlayer(player.getTopChoice().color, player, String.format("most preferred, but randomly chosen in a tie breaker (%,.2f)", maxPreference));
+				return true;
+			}
+		}
+		Timber.i("Something went horribly wrong");
 		return false;
 	}
 
@@ -410,18 +419,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			return null;
 		}
 
-		/**
-		 * Gets the player's second remaining color choice, or <code>null</code> if they have fewer than 2 choices left.
-		 */
-		@DebugLog
-		@Nullable
-		public ColorChoice getSecondChoice() {
-			if (colors.size() > 1) {
-				return colors.get(1);
-			}
-			return null;
-		}
-
 		@DebugLog
 		public boolean removeChoice(@NonNull String color) {
 			if (TextUtils.isEmpty(color)) {
@@ -434,6 +431,28 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 				}
 			}
 			return false;
+		}
+
+		@DebugLog
+		public double calculateCurrentPreferenceFor(@NonNull String color) {
+			int MAX_PREFERENCE = 100;
+			if (colors.size() == 0) {
+				return 0;
+			} else if (colors.size() == 1) {
+				return MAX_PREFERENCE - colors.get(0).sortOrder;
+			}
+
+			int total = 0;
+			int current = 0;
+			for (ColorChoice colorChoice : colors) {
+				total += colorChoice.sortOrder;
+				if (color.equals(colorChoice.color)) {
+					current = colorChoice.sortOrder;
+				}
+			}
+			double expectedValue = ((double) total) / colors.size();
+			double expectedValueWithoutColor = ((double) (total - current)) / (colors.size() - 1);
+			return expectedValueWithoutColor - expectedValue;
 		}
 
 		@Override
