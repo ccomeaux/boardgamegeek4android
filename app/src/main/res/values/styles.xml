@@ -86,7 +86,7 @@
 
 	<style name="Text.Primary.DrawerHeader">
 		<item name="android:textColor">@color/light_text</item>
-		<item name="android:textStyle"></item>
+		<item name="android:textStyle"/>
 		<item name="android:textSize">14sp</item>
 	</style>
 
