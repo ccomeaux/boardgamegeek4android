@@ -37,6 +37,7 @@ import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -240,7 +241,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			winValues.add(new BarEntry(stats.getWins(i), index));
 			index++;
 		}
-		ArrayList<BarDataSet> dataSets = new ArrayList<>();
+		ArrayList<IBarDataSet> dataSets = new ArrayList<>();
 
 		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
 		playCountDataSet.setDrawValues(false);
