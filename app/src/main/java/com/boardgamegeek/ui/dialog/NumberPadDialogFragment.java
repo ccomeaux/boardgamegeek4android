@@ -72,7 +72,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 		maxValue = value;
 	}
 
-	public void setMaxMantisa(int value) {
+	public void setMaxMantissa(int value) {
 		maxMantissa = value;
 	}
 
@@ -184,16 +184,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	}
 
 	private boolean isWithinLength(String text) {
-		if (TextUtils.isEmpty(text)) {
-			return true;
-		}
-		if (text.length() > MAX_LENGTH) {
-			return false;
-		}
-		if (getMantissaLength(text) > maxMantissa) {
-			return false;
-		}
-		return true;
+		return TextUtils.isEmpty(text) || text.length() <= MAX_LENGTH && getMantissaLength(text) <= maxMantissa;
 	}
 
 	private int getMantissaLength(String text) {
@@ -212,13 +203,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 			return true;
 		}
 		double value = parseDouble(text);
-		if (value < minValue) {
-			return false;
-		}
-		if (value > maxValue) {
-			return false;
-		}
-		return true;
+		return value >= minValue && value <= maxValue;
 	}
 
 	private double parseDouble(String text) {

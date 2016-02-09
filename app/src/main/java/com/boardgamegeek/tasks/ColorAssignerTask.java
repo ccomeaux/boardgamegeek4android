@@ -154,7 +154,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 						com.boardgamegeek.provider.BggContract.PlayerColors.buildUserUri(player.name),
 						new String[] { com.boardgamegeek.provider.BggContract.PlayerColors.PLAYER_COLOR, com.boardgamegeek.provider.BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER },
 						null, null, null);
-					while (cursor != null ? cursor.moveToNext() : false) {
+					while (cursor != null && cursor.moveToNext()) {
 						String color = cursor.getString(0);
 						if (mRemainingColors.contains(color)) {
 							player.colors.add(new ColorChoice(color, cursor.getInt(1)));

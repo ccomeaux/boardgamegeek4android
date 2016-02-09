@@ -614,7 +614,6 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 			throw new IllegalArgumentException("Number class '" + value.getClass().getName() + "' is not supported");
 		}
 
-		@SuppressLint("UseValueOf")
 		public Number toNumber(double value) {
 			switch (this) {
 				case LONG:
@@ -624,7 +623,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 				case INTEGER:
 					return (int) value;
 				case FLOAT:
-					return new Float(value);
+					return (float) value;
 				case SHORT:
 					return (short) value;
 				case BYTE:

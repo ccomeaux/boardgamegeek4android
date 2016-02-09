@@ -289,7 +289,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(getString(R.string.rating), output);
 		fragment.setMinValue(1.0);
 		fragment.setMaxValue(10.0);
-		fragment.setMaxMantisa(6);
+		fragment.setMaxMantissa(6);
 		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 			@Override
 			public void onDoneClick(String output) {

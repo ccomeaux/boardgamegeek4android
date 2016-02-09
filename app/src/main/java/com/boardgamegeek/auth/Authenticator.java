@@ -322,11 +322,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		if (account == null) {
 			return "";
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append("ACCOUNT").append("\n");
-		sb.append("Name:       ").append(account.name).append("\n");
-		sb.append("Type:       ").append(account.type).append("\n");
-		sb.append("Password:   ").append(accountManager.getPassword(account)).append("\n");
-		return sb.toString();
+		String debugString = "ACCOUNT" + "\n" +
+			"Name:       " + account.name + "\n" +
+			"Type:       " + account.type + "\n" +
+			"Password:   " + accountManager.getPassword(account) + "\n";
+		return debugString;
 	}
 }

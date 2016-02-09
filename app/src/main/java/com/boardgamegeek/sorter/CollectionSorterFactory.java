@@ -9,11 +9,9 @@ import java.util.List;
 public class CollectionSorterFactory {
 	public static final int TYPE_UNKNOWN = 0;
 	public static final int TYPE_DEFAULT = 1; // name
-	private final Context context;
 	private final List<CollectionSorter> sorters;
 
 	public CollectionSorterFactory(@NonNull Context context) {
-		this.context = context;
 		sorters = new ArrayList<>();
 		sorters.add(new CollectionNameSorter(context));
 		sorters.add(new GeekRatingSorter(context));
