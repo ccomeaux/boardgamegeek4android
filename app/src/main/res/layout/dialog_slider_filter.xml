@@ -19,10 +19,57 @@
 		android:gravity="center"
 		tools:text="1 - 10"/>
 
-	<FrameLayout
-		android:id="@+id/range_seek_bar_container"
+	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"/>
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:orientation="horizontal">
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<ImageView
+				android:id="@+id/min_up"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_place_black_24dp"/>
+
+			<ImageView
+				android:id="@+id/min_down"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_place_black_24dp"/>
+		</LinearLayout>
+
+		<FrameLayout
+			android:id="@+id/range_seek_bar_container"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:minHeight="16dp"
+			tools:background="#0f0"/>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<ImageView
+				android:id="@+id/max_up"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_place_black_24dp"/>
+
+			<ImageView
+				android:id="@+id/max_down"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_place_black_24dp"/>
+		</LinearLayout>
+
+	</LinearLayout>
 
 	<CheckBox
 		android:id="@+id/checkbox"

@@ -16,6 +16,9 @@ import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.ui.widget.RangeSeekBar;
 import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public abstract class SliderFilterDialog {
 	private Integer low;
 	private Integer high;
@@ -34,6 +37,7 @@ public abstract class SliderFilterDialog {
 		FrameLayout container = (FrameLayout) layout.findViewById(R.id.range_seek_bar_container);
 		rangeSeekBar = new RangeSeekBar<>(getAbsoluteMin(), getAbsoluteMax(), context);
 		container.addView(rangeSeekBar);
+		ButterKnife.inject(this, layout);
 
 		InitialValues initialValues = initValues(filter);
 		low = initialValues.min;
@@ -72,17 +76,45 @@ public abstract class SliderFilterDialog {
 		rangeSeekBar.setOnRangeSeekBarChangeListener(new OnRangeSeekBarChangeListener<Integer>() {
 			@Override
 			public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
-				low = minValue;
-				high = maxValue;
-				CharSequence text;
-				if (minValue.equals(maxValue)) {
-					text = intervalText(minValue);
-				} else {
-					text = intervalText(minValue, maxValue);
-				}
-				rangeDescriptionView.setText(text);
+				adjustSeekBar(minValue, maxValue);
 			}
 		});
+	}
+
+	@OnClick(R.id.min_up)
+	public void onMinUpClick(View v) {
+		rangeSeekBar.setSelectedMinValue(rangeSeekBar.getSelectedMinValue() + 1);
+		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+	}
+
+	@OnClick(R.id.min_down)
+	public void onMinDownClick(View v) {
+		rangeSeekBar.setSelectedMinValue(rangeSeekBar.getSelectedMinValue() - 1);
+		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+	}
+
+	@OnClick(R.id.max_up)
+	public void onMaxUpClick(View v) {
+		rangeSeekBar.setSelectedMaxValue(rangeSeekBar.getSelectedMaxValue() + 1);
+		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+	}
+
+	@OnClick(R.id.max_down)
+	public void onMaxDownClick(View v) {
+		rangeSeekBar.setSelectedMaxValue(rangeSeekBar.getSelectedMaxValue() - 1);
+		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+	}
+
+	private void adjustSeekBar(Integer minValue, Integer maxValue) {
+		low = minValue;
+		high = maxValue;
+		CharSequence text;
+		if (minValue.equals(maxValue)) {
+			text = intervalText(minValue);
+		} else {
+			text = intervalText(minValue, maxValue);
+		}
+		rangeDescriptionView.setText(text);
 	}
 
 	private void initExplanation() {
