@@ -9,7 +9,7 @@
 			  android:paddingLeft="@dimen/material_margin_horizontal"
 			  android:paddingRight="@dimen/material_margin_horizontal"
 			  android:paddingTop="@dimen/material_margin_vertical"
-			  tools:context=".ui.dialog.SliderFilter">
+			  tools:context=".ui.dialog.SliderFilterDialog">
 
 	<TextView
 		android:id="@+id/range_description"

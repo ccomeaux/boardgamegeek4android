@@ -7,7 +7,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.YearPublishedFilterer;
 
-public class YearPublishedFilter extends SliderFilter {
+public class YearPublishedFilterDialog extends SliderFilterDialog {
 	private int mMinYear;
 	private int mMaxYear;
 

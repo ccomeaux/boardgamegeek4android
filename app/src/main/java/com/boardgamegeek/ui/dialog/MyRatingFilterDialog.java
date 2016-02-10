@@ -7,7 +7,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.MyRatingFilterer;
 
-public class MyRatingFilter extends SliderFilter {
+public class MyRatingFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
 	private double minRating;
 	private double maxRating;

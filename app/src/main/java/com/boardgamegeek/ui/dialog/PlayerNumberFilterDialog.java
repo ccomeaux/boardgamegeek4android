@@ -6,7 +6,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.PlayerNumberFilterer;
 
-public class PlayerNumberFilter extends SliderFilter {
+public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	private int mMinPlayers;
 	private int mMaxPlayers;
 	private boolean mExact;

@@ -6,7 +6,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.AverageWeightFilterer;
 import com.boardgamegeek.filterer.CollectionFilterer;
 
-public class AverageWeightFilter extends SliderFilter {
+public class AverageWeightFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
 	private double mMinWeight;
 	private double mMaxWeight;

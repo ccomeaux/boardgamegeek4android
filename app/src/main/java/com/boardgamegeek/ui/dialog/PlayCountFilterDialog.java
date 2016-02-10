@@ -7,7 +7,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.PlayCountFilterer;
 
-public class PlayCountFilter extends SliderFilter {
+public class PlayCountFilterDialog extends SliderFilterDialog {
 	private int mMinTime;
 	private int mMaxTime;
 

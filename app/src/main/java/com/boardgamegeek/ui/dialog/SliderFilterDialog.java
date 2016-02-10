@@ -16,7 +16,7 @@ import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.ui.widget.RangeSeekBar;
 import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
 
-public abstract class SliderFilter {
+public abstract class SliderFilterDialog {
 	private Integer low;
 	private Integer high;
 	private TextView explanationView;

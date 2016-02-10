@@ -6,7 +6,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.GeekRankingFilterer;
 
-public class GeekRankingFilter extends SliderFilter {
+public class GeekRankingFilterDialog extends SliderFilterDialog {
 	private int mMinRanking;
 	private int mMaxRanking;
 	private boolean mUnranked;

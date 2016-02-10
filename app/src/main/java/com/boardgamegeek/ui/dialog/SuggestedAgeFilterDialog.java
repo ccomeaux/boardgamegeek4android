@@ -6,7 +6,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.SuggestedAgeFilterer;
 
-public class SuggestedAgeFilter extends SliderFilter {
+public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	private int mMinAge;
 	private int mMaxAge;
 	private boolean mUndefined;
