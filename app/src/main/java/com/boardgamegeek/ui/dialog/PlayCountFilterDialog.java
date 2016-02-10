@@ -8,33 +8,9 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.PlayCountFilterer;
 
 public class PlayCountFilterDialog extends SliderFilterDialog {
-	private int mMinTime;
-	private int mMaxTime;
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinTime = min;
-		mMaxTime = max;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return false;
-	}
-
 	@Override
 	protected int getCheckboxVisibility() {
 		return View.GONE;
-	}
-
-	@Override
-	protected int getMin() {
-		return mMinTime;
-	}
-
-	@Override
-	protected int getMax() {
-		return mMaxTime;
 	}
 
 	@Override
@@ -53,8 +29,8 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new PlayCountFilterer(context, mMinTime, mMaxTime);
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new PlayCountFilterer(context, min, max);
 	}
 
 	@Override
@@ -63,15 +39,15 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinTime = PlayCountFilterer.MIN_RANGE;
-			mMaxTime = PlayCountFilterer.MAX_RANGE;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		int min = PlayCountFilterer.MIN_RANGE;
+		int max = PlayCountFilterer.MAX_RANGE;
+		if (filter != null) {
 			PlayCountFilterer data = (PlayCountFilterer) filter;
-			mMinTime = data.getMin();
-			mMaxTime = data.getMax();
+			min = data.getMin();
+			max = data.getMax();
 		}
+		return new InitialValues(min, max);
 	}
 
 	@Override

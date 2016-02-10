@@ -7,27 +7,6 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.PlayTimeFilterer;
 
 public class PlayTimeFilterDialog extends SliderFilterDialog {
-	private int mMinTime;
-	private int mMaxTime;
-	private boolean mUndefined;
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinTime = min;
-		mMaxTime = max;
-		mUndefined = checkbox;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return mUndefined;
-	}
-
-	@Override
-	protected int getMax() {
-		return mMaxTime;
-	}
-
 	@Override
 	protected int getAbsoluteMax() {
 		return PlayTimeFilterer.MAX_RANGE;
@@ -44,8 +23,8 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new PlayTimeFilterer(context, mMinTime, mMaxTime, mUndefined);
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new PlayTimeFilterer(context, min, max, checkbox);
 	}
 
 	@Override
@@ -54,27 +33,22 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getMin() {
-		return mMinTime;
-	}
-
-	@Override
 	protected int getTitleId() {
 		return R.string.menu_play_time;
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinTime = PlayTimeFilterer.MIN_RANGE;
-			mMaxTime = PlayTimeFilterer.MAX_RANGE;
-			mUndefined = false;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		int min = PlayTimeFilterer.MIN_RANGE;
+		int max = PlayTimeFilterer.MAX_RANGE;
+		boolean includeUndefined = false;
+		if (filter != null) {
 			PlayTimeFilterer data = (PlayTimeFilterer) filter;
-			mMinTime = data.getMin();
-			mMaxTime = data.getMax();
-			mUndefined = data.includeUndefined();
+			min = data.getMin();
+			max = data.getMax();
+			includeUndefined = data.includeUndefined();
 		}
+		return new InitialValues(min, max, includeUndefined);
 	}
 
 	@Override

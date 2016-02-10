@@ -8,26 +8,6 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 
 public class AverageWeightFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
-	private double mMinWeight;
-	private double mMaxWeight;
-	private boolean mUndefined;
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinWeight = (double) (min) / FACTOR;
-		mMaxWeight = (double) (max) / FACTOR;
-		mUndefined = checkbox;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return mUndefined;
-	}
-
-	@Override
-	protected int getMax() {
-		return (int) (mMaxWeight * FACTOR);
-	}
 
 	@Override
 	protected int getAbsoluteMax() {
@@ -45,13 +25,8 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new AverageWeightFilterer(context, mMinWeight, mMaxWeight, mUndefined);
-	}
-
-	@Override
-	protected int getMin() {
-		return (int) (mMinWeight * FACTOR);
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new AverageWeightFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
 	}
 
 	@Override
@@ -65,17 +40,17 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinWeight = AverageWeightFilterer.MIN_RANGE;
-			mMaxWeight = AverageWeightFilterer.MAX_RANGE;
-			mUndefined = false;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		double min = AverageWeightFilterer.MIN_RANGE;
+		double max = AverageWeightFilterer.MAX_RANGE;
+		boolean includeUndefined = false;
+		if (filter != null) {
 			AverageWeightFilterer data = (AverageWeightFilterer) filter;
-			mMinWeight = data.getMin();
-			mMaxWeight = data.getMax();
-			mUndefined = data.includeUndefined();
+			min = data.getMin();
+			max = data.getMax();
+			includeUndefined = data.includeUndefined();
 		}
+		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), includeUndefined);
 	}
 
 	@Override

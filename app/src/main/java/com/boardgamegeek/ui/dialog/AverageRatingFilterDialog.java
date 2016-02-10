@@ -9,28 +9,10 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 
 public class AverageRatingFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
-	private double mMinRating;
-	private double mMaxRating;
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinRating = (double) (min) / FACTOR;
-		mMaxRating = (double) (max) / FACTOR;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return false;
-	}
 
 	@Override
 	protected int getCheckboxVisibility() {
 		return View.GONE;
-	}
-
-	@Override
-	protected int getMax() {
-		return (int) (mMaxRating * FACTOR);
 	}
 
 	@Override
@@ -49,13 +31,8 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new AverageRatingFilterer(context, mMinRating, mMaxRating);
-	}
-
-	@Override
-	protected int getMin() {
-		return (int) (mMinRating * FACTOR);
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new AverageRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR);
 	}
 
 	@Override
@@ -64,15 +41,15 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinRating = AverageRatingFilterer.MIN_RANGE;
-			mMaxRating = AverageRatingFilterer.MAX_RANGE;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		double min = AverageRatingFilterer.MIN_RANGE;
+		double max = AverageRatingFilterer.MAX_RANGE;
+		if (filter != null) {
 			AverageRatingFilterer data = (AverageRatingFilterer) filter;
-			mMinRating = data.getMin();
-			mMaxRating = data.getMax();
+			min = data.getMin();
+			max = data.getMax();
 		}
+		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR));
 	}
 
 	@Override

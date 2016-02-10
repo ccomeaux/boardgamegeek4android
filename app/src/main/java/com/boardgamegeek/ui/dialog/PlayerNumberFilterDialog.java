@@ -7,22 +7,6 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.PlayerNumberFilterer;
 
 public class PlayerNumberFilterDialog extends SliderFilterDialog {
-	private int mMinPlayers;
-	private int mMaxPlayers;
-	private boolean mExact;
-
-	@Override
-	protected void captureForm(int min, int max, boolean isChecked) {
-		mMinPlayers = min;
-		mMaxPlayers = max;
-		mExact = isChecked;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return mExact;
-	}
-
 	@Override
 	protected int getCheckboxTextId() {
 		return R.string.exact;
@@ -31,11 +15,6 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	@Override
 	protected int getDescriptionId() {
 		return R.string.filter_description_player_number;
-	}
-
-	@Override
-	protected int getMax() {
-		return mMaxPlayers;
 	}
 
 	@Override
@@ -54,13 +33,8 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new PlayerNumberFilterer(context, mMinPlayers, mMaxPlayers, mExact);
-	}
-
-	@Override
-	protected int getMin() {
-		return mMinPlayers;
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new PlayerNumberFilterer(context, min, max, checkbox);
 	}
 
 	@Override
@@ -69,17 +43,17 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinPlayers = PlayerNumberFilterer.MIN_RANGE;
-			mMaxPlayers = PlayerNumberFilterer.MAX_RANGE;
-			mExact = false;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		int min = PlayerNumberFilterer.MIN_RANGE;
+		int max = PlayerNumberFilterer.MAX_RANGE;
+		boolean isExact = false;
+		if (filter != null) {
 			PlayerNumberFilterer data = (PlayerNumberFilterer) filter;
-			mMinPlayers = data.getMin();
-			mMaxPlayers = data.getMax();
-			mExact = data.isExact();
+			min = data.getMin();
+			max = data.getMax();
+			isExact = data.isExact();
 		}
+		return new InitialValues(min, max, isExact);
 	}
 
 	@Override

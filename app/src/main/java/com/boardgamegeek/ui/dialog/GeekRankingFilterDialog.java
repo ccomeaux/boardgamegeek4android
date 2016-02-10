@@ -7,27 +7,6 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.GeekRankingFilterer;
 
 public class GeekRankingFilterDialog extends SliderFilterDialog {
-	private int mMinRanking;
-	private int mMaxRanking;
-	private boolean mUnranked;
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinRanking = min;
-		mMaxRanking = max;
-		mUnranked = checkbox;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return mUnranked;
-	}
-
-	@Override
-	protected int getMax() {
-		return mMaxRanking;
-	}
-
 	@Override
 	protected int getAbsoluteMax() {
 		return GeekRankingFilterer.MAX_RANGE;
@@ -44,13 +23,8 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new GeekRankingFilterer(mMinRanking, mMaxRanking, mUnranked);
-	}
-
-	@Override
-	protected int getMin() {
-		return mMinRanking;
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new GeekRankingFilterer(min, max, checkbox);
 	}
 
 	@Override
@@ -59,17 +33,17 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinRanking = GeekRankingFilterer.MIN_RANGE;
-			mMaxRanking = GeekRankingFilterer.MAX_RANGE;
-			mUnranked = false;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		int min = GeekRankingFilterer.MIN_RANGE;
+		int max = GeekRankingFilterer.MAX_RANGE;
+		boolean includeUnranked = false;
+		if (filter != null) {
 			GeekRankingFilterer data = (GeekRankingFilterer) filter;
-			mMinRanking = data.getMin();
-			mMaxRanking = data.getMax();
-			mUnranked = data.includeUnranked();
+			min = data.getMin();
+			max = data.getMax();
+			includeUnranked = data.includeUnranked();
 		}
+		return new InitialValues(min, max, includeUnranked);
 	}
 
 	@Override

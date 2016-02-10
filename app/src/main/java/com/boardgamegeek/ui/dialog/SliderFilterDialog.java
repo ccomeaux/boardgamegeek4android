@@ -25,8 +25,6 @@ public abstract class SliderFilterDialog {
 	private CheckBox checkBox;
 
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
-		initValues(filter);
-
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
 
@@ -37,11 +35,16 @@ public abstract class SliderFilterDialog {
 		rangeSeekBar = new RangeSeekBar<>(getAbsoluteMin(), getAbsoluteMax(), context);
 		container.addView(rangeSeekBar);
 
-		low = getMin();
-		high = getMax();
+		InitialValues initialValues = initValues(filter);
+		low = initialValues.min;
+		high = initialValues.max;
 
 		initSlider();
-		initCheckbox();
+
+		checkBox.setVisibility(getCheckboxVisibility());
+		checkBox.setText(getCheckboxTextId());
+		checkBox.setChecked(initialValues.isChecked);
+
 		initExplanation();
 		rangeDescriptionView.setText(intervalText(low, high));
 
@@ -54,8 +57,7 @@ public abstract class SliderFilterDialog {
 			}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int id) {
-					captureForm(low, high, checkBox.isChecked());
-					view.addFilter(getPositiveData(context));
+					view.addFilter(getPositiveData(context, low, high, checkBox.isChecked()));
 				}
 			}).setView(layout);
 
@@ -83,13 +85,6 @@ public abstract class SliderFilterDialog {
 		});
 	}
 
-	private void initCheckbox() {
-		//noinspection ResourceType
-		checkBox.setVisibility(getCheckboxVisibility());
-		checkBox.setText(getCheckboxTextId());
-		checkBox.setChecked(isChecked());
-	}
-
 	private void initExplanation() {
 		if (getDescriptionId() == -1) {
 			explanationView.setVisibility(View.GONE);
@@ -99,20 +94,14 @@ public abstract class SliderFilterDialog {
 		}
 	}
 
-	protected abstract void initValues(CollectionFilterer filter);
+	protected abstract InitialValues initValues(CollectionFilterer filter);
 
 	@StringRes
 	protected abstract int getTitleId();
 
 	protected abstract CollectionFilterer getNegativeData();
 
-	protected abstract CollectionFilterer getPositiveData(final Context context);
-
-	protected abstract int getMin();
-
-	protected abstract int getMax();
-
-	protected abstract boolean isChecked();
+	protected abstract CollectionFilterer getPositiveData(final Context context, int min, int max, boolean checkbox);
 
 	protected int getCheckboxVisibility() {
 		return View.VISIBLE;
@@ -132,9 +121,25 @@ public abstract class SliderFilterDialog {
 
 	protected abstract int getAbsoluteMax();
 
-	protected abstract void captureForm(int min, int max, boolean checkbox);
-
 	protected abstract String intervalText(int number);
 
 	protected abstract String intervalText(int min, int max);
+
+	class InitialValues {
+		int min;
+		int max;
+		boolean isChecked;
+
+		InitialValues(int min, int max) {
+			this.min = min;
+			this.max = max;
+			this.isChecked = false;
+		}
+
+		InitialValues(int min, int max, boolean isChecked) {
+			this.min = min;
+			this.max = max;
+			this.isChecked = isChecked;
+		}
+	}
 }

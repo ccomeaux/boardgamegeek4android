@@ -9,30 +9,10 @@ import com.boardgamegeek.filterer.MyRatingFilterer;
 
 public class MyRatingFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
-	private double minRating;
-	private double maxRating;
-	private boolean includeUnrated;
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		minRating = (double) (min) / FACTOR;
-		maxRating = (double) (max) / FACTOR;
-		includeUnrated = checkbox;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return includeUnrated;
-	}
 
 	@Override
 	protected int getCheckboxVisibility() {
 		return View.VISIBLE;
-	}
-
-	@Override
-	protected int getMax() {
-		return (int) (maxRating * FACTOR);
 	}
 
 	@Override
@@ -51,13 +31,8 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new MyRatingFilterer(context, minRating, maxRating, includeUnrated);
-	}
-
-	@Override
-	protected int getMin() {
-		return (int) (minRating * FACTOR);
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new MyRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
 	}
 
 	@Override
@@ -66,17 +41,17 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			minRating = MyRatingFilterer.MIN_RANGE;
-			maxRating = MyRatingFilterer.MAX_RANGE;
-			includeUnrated = true;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		double min = MyRatingFilterer.MIN_RANGE;
+		double max = MyRatingFilterer.MAX_RANGE;
+		boolean includeUnrated = true;
+		if (filter != null) {
 			MyRatingFilterer data = (MyRatingFilterer) filter;
-			minRating = data.getMin();
-			maxRating = data.getMax();
+			min = data.getMin();
+			max = data.getMax();
 			includeUnrated = data.includeUnrated();
 		}
+		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), includeUnrated);
 	}
 
 	@Override
