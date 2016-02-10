@@ -9,28 +9,30 @@ import com.boardgamegeek.filterer.MyRatingFilterer;
 
 public class MyRatingFilter extends SliderFilter {
 	private static final int FACTOR = 10;
-	private double mMinRating;
-	private double mMaxRating;
+	private double minRating;
+	private double maxRating;
+	private boolean includeUnrated;
 
 	@Override
 	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinRating = (double) (min) / FACTOR;
-		mMaxRating = (double) (max) / FACTOR;
+		minRating = (double) (min) / FACTOR;
+		maxRating = (double) (max) / FACTOR;
+		includeUnrated = checkbox;
 	}
 
 	@Override
 	protected boolean isChecked() {
-		return false;
+		return includeUnrated;
 	}
 
 	@Override
 	protected int getCheckboxVisibility() {
-		return View.GONE;
+		return View.VISIBLE;
 	}
 
 	@Override
 	protected int getMax() {
-		return (int) (mMaxRating * FACTOR);
+		return (int) (maxRating * FACTOR);
 	}
 
 	@Override
@@ -50,12 +52,12 @@ public class MyRatingFilter extends SliderFilter {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context) {
-		return new MyRatingFilterer(context, mMinRating, mMaxRating);
+		return new MyRatingFilterer(context, minRating, maxRating, includeUnrated);
 	}
 
 	@Override
 	protected int getMin() {
-		return (int) (mMinRating * FACTOR);
+		return (int) (minRating * FACTOR);
 	}
 
 	@Override
@@ -66,12 +68,14 @@ public class MyRatingFilter extends SliderFilter {
 	@Override
 	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinRating = MyRatingFilterer.MIN_RANGE;
-			mMaxRating = MyRatingFilterer.MAX_RANGE;
+			minRating = MyRatingFilterer.MIN_RANGE;
+			maxRating = MyRatingFilterer.MAX_RANGE;
+			includeUnrated = true;
 		} else {
 			MyRatingFilterer data = (MyRatingFilterer) filter;
-			mMinRating = data.getMin();
-			mMaxRating = data.getMax();
+			minRating = data.getMin();
+			maxRating = data.getMax();
+			includeUnrated = data.includeUnrated();
 		}
 	}
 
