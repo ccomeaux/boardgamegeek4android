@@ -38,7 +38,7 @@ public class MyRatingFilterer extends CollectionFilterer {
 	@NonNull
 	@Override
 	public String flatten() {
-		return String.valueOf(min) + DELIMITER + String.valueOf(max);
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUnrated ? "1" : "0");
 	}
 
 	public double getMax() {
