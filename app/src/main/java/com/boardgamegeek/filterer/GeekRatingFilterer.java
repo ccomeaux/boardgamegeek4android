@@ -6,35 +6,40 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
 
 public class GeekRatingFilterer extends CollectionFilterer {
-	public static final double MIN_RANGE = 0.0;
+	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 10.0;
 
+	private Context context;
 	private double min;
 	private double max;
+	private boolean includeUnrated;
 
 	public GeekRatingFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
 	}
 
-	public GeekRatingFilterer(@NonNull Context context, double min, double max) {
+	public GeekRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
 		this.min = min;
 		this.max = max;
+		this.includeUnrated = includeUnrated;
 		init(context);
 	}
 
 	public GeekRatingFilterer(@NonNull Context context, @NonNull String data) {
 		String[] d = data.split(DELIMITER);
-		min = Double.valueOf(d[0]);
-		max = Double.valueOf(d[1]);
+		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
+		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
+		includeUnrated = d.length <= 2 || (d[2].equals("1"));
 		init(context);
 	}
 
 	@NonNull
 	@Override
 	public String flatten() {
-		return String.valueOf(min) + DELIMITER + String.valueOf(max);
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUnrated ? "1" : "0");
 	}
 
 	public double getMax() {
@@ -45,7 +50,12 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		return min;
 	}
 
+	public boolean includeUnrated() {
+		return includeUnrated;
+	}
+
 	private void init(@NonNull Context context) {
+		this.context = context;
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
@@ -61,6 +71,10 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		} else {
 			text = minText + "-" + maxText;
 		}
+		if (includeUnrated) {
+			text += " (+" + context.getString(R.string.unrated) + ")";
+		}
+
 		displayText(r.getString(R.string.rating) + " " + text);
 	}
 
@@ -75,6 +89,9 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		} else {
 			selection = "(" + Games.STATS_BAYES_AVERAGE + ">=? AND " + Games.STATS_BAYES_AVERAGE + "<=?)";
 			selectionArgs(minValue, maxValue);
+		}
+		if (includeUnrated) {
+			selection += " OR " + Games.STATS_BAYES_AVERAGE + "=0 OR " + Games.STATS_BAYES_AVERAGE + " IS NULL";
 		}
 		selection(selection);
 	}

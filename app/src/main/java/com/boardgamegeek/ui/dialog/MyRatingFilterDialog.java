@@ -16,6 +16,11 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
+	protected int getCheckboxTextId() {
+		return R.string.unrated;
+	}
+
+	@Override
 	protected int getAbsoluteMax() {
 		return (int) (MyRatingFilterer.MAX_RANGE * FACTOR);
 	}

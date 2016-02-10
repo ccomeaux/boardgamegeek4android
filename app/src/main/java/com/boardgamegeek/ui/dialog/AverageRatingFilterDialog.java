@@ -12,7 +12,12 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getCheckboxVisibility() {
-		return View.GONE;
+		return View.VISIBLE;
+	}
+
+	@Override
+	protected int getCheckboxTextId() {
+		return R.string.unrated;
 	}
 
 	@Override
@@ -32,7 +37,7 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new AverageRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR);
+		return new AverageRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
 	}
 
 	@Override
@@ -44,12 +49,14 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	protected InitialValues initValues(CollectionFilterer filter) {
 		double min = AverageRatingFilterer.MIN_RANGE;
 		double max = AverageRatingFilterer.MAX_RANGE;
+		boolean unrated = true;
 		if (filter != null) {
 			AverageRatingFilterer data = (AverageRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
+			unrated = data.includeUnrated();
 		}
-		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR));
+		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
 	}
 
 	@Override

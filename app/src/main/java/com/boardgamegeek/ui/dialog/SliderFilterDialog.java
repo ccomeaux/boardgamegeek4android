@@ -126,9 +126,9 @@ public abstract class SliderFilterDialog {
 	protected abstract String intervalText(int min, int max);
 
 	class InitialValues {
-		int min;
-		int max;
-		boolean isChecked;
+		final int min;
+		final int max;
+		final boolean isChecked;
 
 		InitialValues(int min, int max) {
 			this.min = min;

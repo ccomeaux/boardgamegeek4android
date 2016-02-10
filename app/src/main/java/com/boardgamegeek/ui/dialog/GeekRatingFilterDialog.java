@@ -12,7 +12,12 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getCheckboxVisibility() {
-		return View.GONE;
+		return View.VISIBLE;
+	}
+
+	@Override
+	protected int getCheckboxTextId() {
+		return R.string.unrated;
 	}
 
 	@Override
@@ -32,7 +37,7 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new GeekRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR);
+		return new GeekRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
 	}
 
 	@Override
@@ -44,12 +49,14 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 	protected InitialValues initValues(CollectionFilterer filter) {
 		double min = GeekRatingFilterer.MIN_RANGE;
 		double max = GeekRatingFilterer.MAX_RANGE;
+		boolean unrated = true;
 		if (filter != null) {
 			GeekRatingFilterer data = (GeekRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
+			unrated = data.includeUnrated();
 		}
-		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), false);
+		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
 	}
 
 	@Override
