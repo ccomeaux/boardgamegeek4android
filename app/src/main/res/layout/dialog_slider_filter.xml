@@ -22,6 +22,7 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:baselineAligned="false"
 		android:gravity="center_vertical"
 		android:orientation="horizontal">
 
@@ -32,15 +33,17 @@
 
 			<ImageView
 				android:id="@+id/min_up"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:src="@drawable/ic_place_black_24dp"/>
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:src="@drawable/ic_add"/>
 
 			<ImageView
 				android:id="@+id/min_down"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:src="@drawable/ic_place_black_24dp"/>
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:src="@drawable/ic_remove"/>
 		</LinearLayout>
 
 		<FrameLayout
@@ -58,15 +61,17 @@
 
 			<ImageView
 				android:id="@+id/max_up"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:src="@drawable/ic_place_black_24dp"/>
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:src="@drawable/ic_add"/>
 
 			<ImageView
 				android:id="@+id/max_down"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:src="@drawable/ic_place_black_24dp"/>
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:src="@drawable/ic_remove"/>
 		</LinearLayout>
 
 	</LinearLayout>
@@ -76,6 +81,7 @@
 		style="@style/Text.Dialog"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/padding_extra"
 		android:text="@string/include_missing_values"/>
 
 	<TextView
