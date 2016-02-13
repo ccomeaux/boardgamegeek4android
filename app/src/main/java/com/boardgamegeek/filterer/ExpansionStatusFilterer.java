@@ -11,14 +11,9 @@ import com.boardgamegeek.provider.BggContract.Games;
 public class ExpansionStatusFilterer extends CollectionFilterer {
 	private int selectedSubtype;
 
-	public ExpansionStatusFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
-	}
-
-	public ExpansionStatusFilterer(@NonNull Context context, String data) {
+	public ExpansionStatusFilterer(Context context) {
 		super(context);
-		setData(data);
-		init(context);
+		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
 	}
 
 	public ExpansionStatusFilterer(@NonNull Context context, int selectedSubtype) {
@@ -30,6 +25,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 	@Override
 	public void setData(@NonNull String data) {
 		selectedSubtype = Integer.valueOf(data);
+		init(context);
 	}
 
 	private void init(@NonNull Context context) {

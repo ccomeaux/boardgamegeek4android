@@ -26,18 +26,13 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		init();
 	}
 
-	public GeekRankingFilterer(Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init();
-	}
-
 	@Override
 	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		includeUnranked = Boolean.valueOf(d[2]);
+		init();
 	}
 
 	@NonNull

@@ -19,12 +19,6 @@ public class YearPublishedFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
 	}
 
-	public YearPublishedFilterer(Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init();
-	}
-
 	public YearPublishedFilterer(Context context, int min, int max) {
 		super(context);
 		this.min = min;
@@ -37,6 +31,7 @@ public class YearPublishedFilterer extends CollectionFilterer {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
+		init();
 	}
 
 	private void init() {

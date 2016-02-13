@@ -29,18 +29,13 @@ public class MyRatingFilterer extends CollectionFilterer {
 		init(context);
 	}
 
-	public MyRatingFilterer(@NonNull Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init(context);
-	}
-
 	@Override
 	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
 		includeUnrated = (d[2].equals("1"));
+		init(context);
 	}
 
 	@NonNull

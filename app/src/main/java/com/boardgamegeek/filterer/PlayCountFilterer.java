@@ -26,17 +26,12 @@ public class PlayCountFilterer extends CollectionFilterer {
 		init(context);
 	}
 
-	public PlayCountFilterer(@NonNull Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init(context);
-	}
-
 	@Override
 	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
+		init(context);
 	}
 
 	@NonNull

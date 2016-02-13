@@ -20,12 +20,6 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
 	}
 
-	public SuggestedAgeFilterer(@NonNull Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init(context);
-	}
-
 	public SuggestedAgeFilterer(@NonNull Context context, int min, int max, boolean includeUndefined) {
 		super(context);
 		this.min = min;
@@ -40,6 +34,7 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		includeUndefined = (d[2].equals("1"));
+		init(context);
 	}
 
 	private void init(@NonNull Context context) {

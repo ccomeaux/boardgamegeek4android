@@ -13,14 +13,9 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	private boolean[] selectedStatuses;
 	private boolean shouldJoinWithOr;
 
-	public CollectionStatusFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
-	}
-
-	public CollectionStatusFilterer(@NonNull Context context, @NonNull String data) {
+	public CollectionStatusFilterer(Context context) {
 		super(context);
-		setData(data);
-		init(context);
+		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 	}
 
 	public CollectionStatusFilterer(@NonNull Context context, boolean[] selectedStatuses, boolean shouldJoinWithOr) {
@@ -38,6 +33,7 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		for (int i = 0; i < d.length - 1; i++) {
 			selectedStatuses[i] = (d[i + 1].equals("1"));
 		}
+		init(context);
 	}
 
 	private void init(@NonNull Context context) {

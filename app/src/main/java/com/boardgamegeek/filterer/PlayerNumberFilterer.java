@@ -20,12 +20,6 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 	}
 
-	public PlayerNumberFilterer(@NonNull Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init(context);
-	}
-
 	public PlayerNumberFilterer(@NonNull Context context, int min, int max, boolean isExact) {
 		super(context);
 		this.min = min;
@@ -40,6 +34,7 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		isExact = (d[2].equals("1"));
+		init(context);
 	}
 
 	private void init(@NonNull Context context) {

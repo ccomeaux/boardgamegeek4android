@@ -20,12 +20,6 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
 	}
 
-	public AverageWeightFilterer(@NonNull Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init(context);
-	}
-
 	public AverageWeightFilterer(@NonNull Context context, double min, double max, boolean includeUndefined) {
 		super(context);
 		this.min = min;
@@ -40,6 +34,7 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
 		includeUndefined = (d[2].equals("1"));
+		init(context);
 	}
 
 	private void init(@NonNull Context context) {

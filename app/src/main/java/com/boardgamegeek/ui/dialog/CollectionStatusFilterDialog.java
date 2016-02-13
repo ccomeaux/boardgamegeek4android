@@ -37,7 +37,7 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 		}).setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				view.removeFilter(new CollectionStatusFilterer());
+				view.removeFilter(new CollectionStatusFilterer(context));
 			}
 		}).create().show();
 	}

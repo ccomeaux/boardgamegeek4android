@@ -22,33 +22,50 @@ public class CollectionFilterDataFactory {
 		if (TextUtils.isEmpty(data)) {
 			return null;
 		}
+		CollectionFilterer filterer;
 		switch (type) {
 			case TYPE_COLLECTION_STATUS:
-				return new CollectionStatusFilterer(context, data);
+				filterer = new CollectionStatusFilterer(context);
+				break;
 			case TYPE_PLAYER_NUMBER:
-				return new PlayerNumberFilterer(context, data);
+				filterer = new PlayerNumberFilterer(context);
+				break;
 			case TYPE_PLAY_TIME:
-				return new PlayTimeFilterer(context, data);
+				filterer = new PlayTimeFilterer(context);
+				break;
 			case TYPE_SUGGESTED_AGE:
-				return new SuggestedAgeFilterer(context, data);
+				filterer = new SuggestedAgeFilterer(context);
+				break;
 			case TYPE_AVERAGE_WEIGHT:
-				return new AverageWeightFilterer(context, data);
+				filterer = new AverageWeightFilterer(context);
+				break;
 			case TYPE_YEAR_PUBLISHED:
-				return new YearPublishedFilterer(context, data);
+				filterer = new YearPublishedFilterer(context);
+				break;
 			case TYPE_AVERAGE_RATING:
-				return new AverageRatingFilterer(context, data);
+				filterer = new AverageRatingFilterer(context);
+				break;
 			case TYPE_GEEK_RATING:
-				return new GeekRatingFilterer(context, data);
+				filterer = new GeekRatingFilterer(context);
+				break;
 			case TYPE_GEEK_RANKING:
-				return new GeekRankingFilterer(context, data);
+				filterer = new GeekRankingFilterer(context);
+				break;
 			case TYPE_EXPANSION_STATUS:
-				return new ExpansionStatusFilterer(context, data);
+				filterer = new ExpansionStatusFilterer(context);
+				break;
 			case TYPE_PLAY_COUNT:
-				return new PlayCountFilterer(context, data);
+				filterer = new PlayCountFilterer(context);
+				break;
 			case TYPE_MY_RATING:
-				return new MyRatingFilterer(context, data);
+				filterer = new MyRatingFilterer(context);
+				break;
 			default:
 				return null;
 		}
+		if (filterer != null) {
+			filterer.setData(data);
+		}
+		return filterer;
 	}
 }

@@ -30,18 +30,13 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		init(context);
 	}
 
-	public GeekRatingFilterer(@NonNull Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init(context);
-	}
-
 	@Override
 	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
 		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
 		includeUnrated = d.length <= 2 || (d[2].equals("1"));
+		init(context);
 	}
 
 	@NonNull

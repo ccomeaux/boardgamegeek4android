@@ -21,12 +21,6 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
 	}
 
-	public AverageRatingFilterer(@NonNull Context context, @NonNull String data) {
-		super(context);
-		setData(data);
-		init(context);
-	}
-
 	public AverageRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
 		super(context);
 		this.min = min;
@@ -41,6 +35,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
 		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
 		includeUnrated = d.length <= 2 || (d[2].equals("1"));
+		init(context);
 	}
 
 	private void init(@NonNull Context context) {

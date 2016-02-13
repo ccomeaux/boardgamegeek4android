@@ -24,7 +24,7 @@ public class ExpansionStatusFilterDialog implements CollectionFilterDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (selectedSubtype == 0) {
-					view.removeFilter(new ExpansionStatusFilterer());
+					view.removeFilter(new ExpansionStatusFilterer(context));
 				} else {
 					view.addFilter(new ExpansionStatusFilterer(context, selectedSubtype));
 				}
