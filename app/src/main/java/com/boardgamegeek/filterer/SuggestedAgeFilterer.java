@@ -1,7 +1,6 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -42,11 +41,11 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public String getDisplayText() {
 		String text;
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
@@ -61,7 +60,7 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		if (includeUndefined) {
 			text += " (+?)";
 		}
-		displayText(r.getString(R.string.ages) + " " + text);
+		return context.getString(R.string.ages) + " " + text;
 	}
 
 	private void setSelection() {

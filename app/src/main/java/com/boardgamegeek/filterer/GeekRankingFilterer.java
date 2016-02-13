@@ -58,11 +58,11 @@ public class GeekRankingFilterer extends CollectionFilterer {
 	}
 
 	private void init() {
-		setDisplayText();
 		setSelection();
 	}
 
-	private void setDisplayText() {
+	@Override
+	public String getDisplayText() {
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
@@ -77,7 +77,7 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		if (includeUnranked) {
 			text += " (+?)";
 		}
-		displayText("#" + text);
+		return "#" + text;
 	}
 
 	private void setSelection() {

@@ -39,11 +39,11 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	}
 
 	private void init() {
-		setDisplayText();
 		setSelection();
 	}
 
-	private void setDisplayText() {
+	@Override
+	public String getDisplayText() {
 		String text;
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
@@ -60,7 +60,7 @@ public class YearPublishedFilterer extends CollectionFilterer {
 			text = minText + "-" + maxText;
 		}
 
-		displayText(text);
+		return text;
 	}
 
 	private void setSelection() {

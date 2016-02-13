@@ -34,7 +34,7 @@ public class CollectionFilterer implements Parcelable {
 	}
 
 	public String getDisplayText() {
-		return displayText;
+		return "";
 	}
 
 	public String getSelection() {
@@ -43,10 +43,6 @@ public class CollectionFilterer implements Parcelable {
 
 	public String[] getSelectionArgs() {
 		return selectionArgs;
-	}
-
-	public void displayText(String displayText) {
-		this.displayText = displayText;
 	}
 
 	public void selection(String selection) {

@@ -1,7 +1,6 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -53,11 +52,11 @@ public class PlayCountFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public String getDisplayText() {
 		String text;
 		if (max >= MAX_RANGE) {
 			text = min + "+";
@@ -66,7 +65,7 @@ public class PlayCountFilterer extends CollectionFilterer {
 		} else {
 			text = min + "-" + max;
 		}
-		displayText(text + " " + r.getString(R.string.plays));
+		return text + " " + context.getString(R.string.plays);
 	}
 
 	private void setSelection() {

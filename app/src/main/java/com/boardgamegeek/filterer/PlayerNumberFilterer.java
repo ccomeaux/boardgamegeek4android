@@ -1,7 +1,6 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -42,21 +41,21 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public String getDisplayText() {
 		String range = "";
 		if (isExact) {
-			range = r.getString(R.string.exactly) + " ";
+			range = context.getString(R.string.exactly) + " ";
 		}
 		if (min == max) {
 			range += String.valueOf(max);
 		} else {
 			range += String.valueOf(min) + "-" + String.valueOf(max);
 		}
-		displayText(range + " " + r.getString(R.string.players));
+		return range + " " + context.getString(R.string.players);
 	}
 
 	private void setSelection() {

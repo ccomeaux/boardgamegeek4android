@@ -1,7 +1,6 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -42,25 +41,26 @@ public class PlayTimeFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public String getDisplayText() {
+		String text;
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
 		if (max == MAX_RANGE) {
-			displayText(minText + "+");
+			text = minText + "+";
 		} else if (min == max) {
-			displayText(maxText);
+			text = maxText;
 		} else {
-			displayText(minText + "-" + maxText);
+			text = minText + "-" + maxText;
 		}
 		if (includeUndefined) {
-			displayText(getDisplayText() + " (+?)");
+			text += " (+?)";
 		}
-		displayText(getDisplayText() + " " + r.getString(R.string.minutes_abbr));
+		return text + " " + context.getResources().getString(R.string.minutes_abbr);
 	}
 
 	private void setSelection() {

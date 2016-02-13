@@ -43,11 +43,12 @@ public class AverageRatingFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setDisplayText(context.getResources());
 		setSelection();
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public String getDisplayText() {
+		Resources r = context.getResources();
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
@@ -60,7 +61,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		if (includeUnrated) {
 			text += " (+" + context.getString(R.string.unrated) + ")";
 		}
-		displayText(r.getString(R.string.average) + " " + text);
+		return r.getString(R.string.average) + " " + text;
 	}
 
 	private void setSelection() {

@@ -41,12 +41,12 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		createDisplayText(context.getResources());
 		createSelection(context.getResources());
 	}
 
-	private void createDisplayText(@NonNull Resources r) {
-		String[] entries = r.getStringArray(R.array.collection_status_filter_entries);
+	@Override
+	public String getDisplayText() {
+		String[] entries = context.getResources().getStringArray(R.array.collection_status_filter_entries);
 		String displayText = "";
 
 		for (int i = 0; i < selectedStatuses.length; i++) {
@@ -58,7 +58,7 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 			}
 		}
 
-		displayText(displayText);
+		return displayText;
 	}
 
 	private void createSelection(@NonNull Resources r) {

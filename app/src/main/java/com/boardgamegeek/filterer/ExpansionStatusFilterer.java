@@ -33,17 +33,17 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		createDisplayText(context.getResources());
 		setSelection(context.getResources());
 	}
 
-	private void createDisplayText(@NonNull Resources resources) {
+	@Override
+	public String getDisplayText() {
 		String text = "";
-		String[] subtypes = resources.getStringArray(R.array.expansion_status_filter);
+		String[] subtypes = context.getResources().getStringArray(R.array.expansion_status_filter);
 		if (subtypes != null && selectedSubtype != 0 && selectedSubtype < subtypes.length) {
 			text = subtypes[selectedSubtype];
 		}
-		displayText(text);
+		return text;
 	}
 
 	public int getSelectedSubtype() {
