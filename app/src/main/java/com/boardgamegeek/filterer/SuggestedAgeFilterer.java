@@ -23,7 +23,6 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
-		init(context);
 	}
 
 	@Override
@@ -32,16 +31,11 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		includeUndefined = (d[2].equals("1"));
-		init(context);
 	}
 
 	@Override
 	public int getType() {
 		return CollectionFiltererFactory.TYPE_SUGGESTED_AGE;
-	}
-
-	private void init(@NonNull Context context) {
-		setSelection();
 	}
 
 	@Override
@@ -63,7 +57,8 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		return context.getString(R.string.ages) + " " + text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (max == MAX_RANGE) {
 			selection = "(" + Games.MINIMUM_AGE + ">=?)";
@@ -73,7 +68,7 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		if (includeUndefined) {
 			selection += " OR " + Games.MINIMUM_AGE + "=0 OR " + Games.MINIMUM_AGE + " IS NULL";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override

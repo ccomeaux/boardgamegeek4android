@@ -23,7 +23,6 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
-		init(context);
 	}
 
 	@Override
@@ -32,16 +31,11 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
 		includeUndefined = (d[2].equals("1"));
-		init(context);
 	}
 
 	@Override
 	public int getType() {
 		return CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT;
-	}
-
-	private void init(@NonNull Context context) {
-		setSelection();
 	}
 
 	@Override
@@ -62,13 +56,14 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		return context.getString(R.string.weight) + " " + text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		selection = "(" + Games.STATS_AVERAGE_WEIGHT + ">=? AND " + Games.STATS_AVERAGE_WEIGHT + "<=?)";
 		if (includeUndefined) {
 			selection += " OR " + Games.STATS_AVERAGE_WEIGHT + "=0 OR " + Games.STATS_AVERAGE_WEIGHT + " IS NULL";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override

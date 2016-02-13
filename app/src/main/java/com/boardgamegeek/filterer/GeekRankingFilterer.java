@@ -22,7 +22,6 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.includeUnranked = includeUnranked;
-		init();
 	}
 
 	@Override
@@ -31,7 +30,6 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		includeUnranked = Boolean.valueOf(d[2]);
-		init();
 	}
 
 	@Override
@@ -57,10 +55,6 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		return includeUnranked;
 	}
 
-	private void init() {
-		setSelection();
-	}
-
 	@Override
 	public String getDisplayText() {
 		String minText = String.valueOf(min);
@@ -80,7 +74,8 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		return "#" + text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min >= MAX_RANGE) {
 			selection = Games.GAME_RANK + ">=?";
@@ -90,7 +85,7 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		if (includeUnranked) {
 			selection += " OR " + Games.GAME_RANK + "=0 OR " + Games.GAME_RANK + " IS NULL";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override

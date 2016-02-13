@@ -11,7 +11,6 @@ public class GeekRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 10.0;
 
-	private Context context;
 	private double min;
 	private double max;
 	private boolean includeUnrated;
@@ -25,7 +24,6 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.includeUnrated = includeUnrated;
-		init(context);
 	}
 
 	@Override
@@ -34,7 +32,6 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
 		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
 		includeUnrated = d.length <= 2 || (d[2].equals("1"));
-		init(context);
 	}
 
 	@Override
@@ -60,10 +57,6 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		return includeUnrated;
 	}
 
-	private void init(@NonNull Context context) {
-		setSelection();
-	}
-
 	@Override
 	public String getDisplayText() {
 		String minText = String.valueOf(min);
@@ -82,7 +75,8 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		return context.getString(R.string.rating) + " " + text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min == max) {
 			selection = Games.STATS_BAYES_AVERAGE + "=?";
@@ -92,7 +86,7 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		if (includeUnrated) {
 			selection += " OR " + Games.STATS_BAYES_AVERAGE + "=0 OR " + Games.STATS_BAYES_AVERAGE + " IS NULL";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override

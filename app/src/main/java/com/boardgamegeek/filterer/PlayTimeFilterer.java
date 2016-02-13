@@ -23,7 +23,6 @@ public class PlayTimeFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
-		init(context);
 	}
 
 	@Override
@@ -32,16 +31,11 @@ public class PlayTimeFilterer extends CollectionFilterer {
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		includeUndefined = (d[2].equals("1"));
-		init(context);
 	}
 
 	@Override
 	public int getType() {
 		return CollectionFiltererFactory.TYPE_PLAY_TIME;
-	}
-
-	private void init(@NonNull Context context) {
-		setSelection();
 	}
 
 	@Override
@@ -63,15 +57,18 @@ public class PlayTimeFilterer extends CollectionFilterer {
 		return text + " " + context.getResources().getString(R.string.minutes_abbr);
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
+		String selection;
 		if (max == MAX_RANGE) {
-			selection("(" + Games.PLAYING_TIME + ">=?)");
+			selection = "(" + Games.PLAYING_TIME + ">=?)";
 		} else {
-			selection("(" + Games.PLAYING_TIME + ">=? AND " + Games.PLAYING_TIME + "<=?)");
+			selection = "(" + Games.PLAYING_TIME + ">=? AND " + Games.PLAYING_TIME + "<=?)";
 		}
 		if (includeUndefined) {
-			selection(getSelection() + " OR " + Games.PLAYING_TIME + " IS NULL");
+			selection += " OR " + Games.PLAYING_TIME + " IS NULL";
 		}
+		return selection;
 	}
 
 	@Override

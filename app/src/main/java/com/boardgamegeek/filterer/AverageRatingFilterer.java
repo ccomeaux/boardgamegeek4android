@@ -25,7 +25,6 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.includeUnrated = includeUnrated;
-		init(context);
 	}
 
 	@Override
@@ -34,16 +33,11 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
 		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
 		includeUnrated = d.length <= 2 || (d[2].equals("1"));
-		init(context);
 	}
 
 	@Override
 	public int getType() {
 		return CollectionFiltererFactory.TYPE_AVERAGE_RATING;
-	}
-
-	private void init(@NonNull Context context) {
-		setSelection();
 	}
 
 	@Override
@@ -64,7 +58,8 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		return r.getString(R.string.average) + " " + text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min == max) {
 			selection = Games.STATS_AVERAGE + "=?";
@@ -74,7 +69,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		if (includeUnrated) {
 			selection += " OR " + Games.STATS_AVERAGE + "=0 OR " + Games.STATS_AVERAGE + " IS NULL";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override

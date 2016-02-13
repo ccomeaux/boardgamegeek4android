@@ -23,7 +23,6 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.isExact = isExact;
-		init(context);
 	}
 
 	@Override
@@ -32,16 +31,11 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		isExact = (d[2].equals("1"));
-		init(context);
 	}
 
 	@Override
 	public int getType() {
 		return CollectionFiltererFactory.TYPE_PLAYER_NUMBER;
-	}
-
-	private void init(@NonNull Context context) {
-		setSelection();
 	}
 
 	@Override
@@ -58,11 +52,12 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		return range + " " + context.getString(R.string.players);
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		if (isExact) {
-			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
+			return Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?";
 		} else {
-			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS + " IS NULL)");
+			return Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS + " IS NULL)";
 		}
 	}
 

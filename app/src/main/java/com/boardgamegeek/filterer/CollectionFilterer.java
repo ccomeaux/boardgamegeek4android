@@ -38,15 +38,11 @@ public class CollectionFilterer implements Parcelable {
 	}
 
 	public String getSelection() {
-		return selection;
+		return "";
 	}
 
 	public String[] getSelectionArgs() {
 		return null;
-	}
-
-	public void selection(String selection) {
-		this.selection = selection;
 	}
 
 	public boolean isValid() {

@@ -21,7 +21,6 @@ public class PlayCountFilterer extends CollectionFilterer {
 		super(context);
 		this.min = min;
 		this.max = max;
-		init(context);
 	}
 
 	@Override
@@ -29,7 +28,6 @@ public class PlayCountFilterer extends CollectionFilterer {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
-		init(context);
 	}
 
 	@Override
@@ -51,10 +49,6 @@ public class PlayCountFilterer extends CollectionFilterer {
 		return min;
 	}
 
-	private void init(@NonNull Context context) {
-		setSelection();
-	}
-
 	@Override
 	public String getDisplayText() {
 		String text;
@@ -68,14 +62,15 @@ public class PlayCountFilterer extends CollectionFilterer {
 		return text + " " + context.getString(R.string.plays);
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (max >= MAX_RANGE) {
 			selection = Collection.NUM_PLAYS + ">=?";
 		} else {
 			selection = "(" + Collection.NUM_PLAYS + ">=? AND " + Collection.NUM_PLAYS + "<=?)";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override

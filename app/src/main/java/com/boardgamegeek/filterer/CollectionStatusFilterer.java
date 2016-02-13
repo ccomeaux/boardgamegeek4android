@@ -1,7 +1,6 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -21,7 +20,6 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		super(context);
 		this.selectedStatuses = selectedStatuses;
 		this.shouldJoinWithOr = shouldJoinWithOr;
-		init(context);
 	}
 
 	@Override
@@ -32,16 +30,11 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		for (int i = 0; i < d.length - 1; i++) {
 			selectedStatuses[i] = (d[i + 1].equals("1"));
 		}
-		init(context);
 	}
 
 	@Override
 	public int getType() {
 		return CollectionFiltererFactory.TYPE_COLLECTION_STATUS;
-	}
-
-	private void init(@NonNull Context context) {
-		createSelection(context.getResources());
 	}
 
 	@Override
@@ -61,8 +54,9 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		return displayText;
 	}
 
-	private void createSelection(@NonNull Resources r) {
-		String[] values = r.getStringArray(R.array.collection_status_filter_values);
+	@Override
+	public String getSelection() {
+		String[] values = context.getResources().getStringArray(R.array.collection_status_filter_values);
 		String selection = "";
 
 		for (int i = 0; i < selectedStatuses.length; i++) {
@@ -73,7 +67,7 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 				selection += values[i] + "=?";
 			}
 		}
-		selection(selection);
+		return selection;
 	}
 
 	public boolean[] getSelectedStatuses() {

@@ -24,7 +24,6 @@ public class MyRatingFilterer extends CollectionFilterer {
 		this.min = min;
 		this.max = max;
 		this.includeUnrated = includeUnrated;
-		init(context);
 	}
 
 	@Override
@@ -33,7 +32,6 @@ public class MyRatingFilterer extends CollectionFilterer {
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
 		includeUnrated = (d[2].equals("1"));
-		init(context);
 	}
 
 	@Override
@@ -59,10 +57,6 @@ public class MyRatingFilterer extends CollectionFilterer {
 		return includeUnrated;
 	}
 
-	private void init(@NonNull Context context) {
-		setSelection();
-	}
-
 	@Override
 	public String getDisplayText() {
 		String minText = String.valueOf(min);
@@ -81,7 +75,8 @@ public class MyRatingFilterer extends CollectionFilterer {
 		return context.getString(R.string.my_rating) + " " + text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min == max) {
 			selection = Collection.RATING + "=?";
@@ -91,7 +86,7 @@ public class MyRatingFilterer extends CollectionFilterer {
 		if (includeUnrated) {
 			selection += " OR " + Collection.RATING + "=0 OR " + Collection.RATING + " IS NULL";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override

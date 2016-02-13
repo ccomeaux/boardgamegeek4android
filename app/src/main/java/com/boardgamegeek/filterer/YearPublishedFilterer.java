@@ -22,7 +22,6 @@ public class YearPublishedFilterer extends CollectionFilterer {
 		super(context);
 		this.min = min;
 		this.max = max;
-		init();
 	}
 
 	@Override
@@ -30,16 +29,11 @@ public class YearPublishedFilterer extends CollectionFilterer {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
-		init();
 	}
 
 	@Override
 	public int getType() {
 		return CollectionFiltererFactory.TYPE_YEAR_PUBLISHED;
-	}
-
-	private void init() {
-		setSelection();
 	}
 
 	@Override
@@ -63,7 +57,8 @@ public class YearPublishedFilterer extends CollectionFilterer {
 		return text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min == MIN_RANGE && max == MAX_RANGE) {
 			selection = "";
@@ -76,7 +71,7 @@ public class YearPublishedFilterer extends CollectionFilterer {
 		} else {
 			selection = "(" + Games.YEAR_PUBLISHED + ">=? AND " + Games.YEAR_PUBLISHED + "<=?)";
 		}
-		selection(selection);
+		return selection;
 	}
 
 	@Override
