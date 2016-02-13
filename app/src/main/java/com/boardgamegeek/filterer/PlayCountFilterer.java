@@ -14,7 +14,8 @@ public class PlayCountFilterer extends CollectionFilterer {
 	private int min;
 	private int max;
 
-	public PlayCountFilterer() {
+	public PlayCountFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_PLAY_COUNT);
 	}
 

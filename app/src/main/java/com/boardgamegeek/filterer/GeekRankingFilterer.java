@@ -1,5 +1,6 @@
 package com.boardgamegeek.filterer;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Games;
@@ -12,7 +13,8 @@ public class GeekRankingFilterer extends CollectionFilterer {
 	private int max;
 	private boolean includeUnranked;
 
-	public GeekRankingFilterer() {
+	public GeekRankingFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
 	}
 

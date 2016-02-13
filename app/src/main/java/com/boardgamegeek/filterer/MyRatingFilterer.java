@@ -16,7 +16,8 @@ public class MyRatingFilterer extends CollectionFilterer {
 	private double max;
 	private boolean includeUnrated;
 
-	public MyRatingFilterer() {
+	public MyRatingFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_MY_RATING);
 	}
 

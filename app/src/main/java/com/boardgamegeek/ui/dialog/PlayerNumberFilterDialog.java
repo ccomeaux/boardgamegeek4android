@@ -28,8 +28,8 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new PlayerNumberFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new PlayerNumberFilterer(context);
 	}
 
 	@Override

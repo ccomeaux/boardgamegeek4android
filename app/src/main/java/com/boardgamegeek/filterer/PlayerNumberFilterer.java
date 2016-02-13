@@ -15,7 +15,7 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 	private int max;
 	private boolean isExact;
 
-	public PlayerNumberFilterer() {
+	public PlayerNumberFilterer(Context context) {
 		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 	}
 

@@ -1,5 +1,6 @@
 package com.boardgamegeek.filterer;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -8,12 +9,17 @@ import android.text.TextUtils;
 
 public class CollectionFilterer implements Parcelable {
 	protected static final String DELIMITER = ":";
+	protected Context context;
 	private int type;
 	private String displayText;
 	private String selection;
 	private String[] selectionArgs = {};
 
 	public CollectionFilterer() {
+	}
+
+	public CollectionFilterer(@NonNull Context context) {
+		this.context = context;
 	}
 
 	public CollectionFilterer(int type) {

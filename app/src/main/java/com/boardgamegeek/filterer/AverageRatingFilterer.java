@@ -12,12 +12,12 @@ public class AverageRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 10.0;
 
-	private Context context;
 	private double min;
 	private double max;
 	private boolean includeUnrated;
 
-	public AverageRatingFilterer() {
+	public AverageRatingFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
 	}
 

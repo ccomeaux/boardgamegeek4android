@@ -32,8 +32,8 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new SuggestedAgeFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new SuggestedAgeFilterer(context);
 	}
 
 	@Override

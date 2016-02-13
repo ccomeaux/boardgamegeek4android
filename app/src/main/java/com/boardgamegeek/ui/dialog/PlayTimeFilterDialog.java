@@ -18,8 +18,8 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new PlayTimeFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new PlayTimeFilterer(context);
 	}
 
 	@Override

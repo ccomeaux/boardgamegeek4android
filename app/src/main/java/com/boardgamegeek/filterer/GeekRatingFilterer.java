@@ -17,7 +17,8 @@ public class GeekRatingFilterer extends CollectionFilterer {
 	private double max;
 	private boolean includeUnrated;
 
-	public GeekRatingFilterer() {
+	public GeekRatingFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
 	}
 

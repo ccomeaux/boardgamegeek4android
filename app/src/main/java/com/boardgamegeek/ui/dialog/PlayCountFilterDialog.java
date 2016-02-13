@@ -24,8 +24,8 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new PlayCountFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new PlayCountFilterer(context);
 	}
 
 	@Override

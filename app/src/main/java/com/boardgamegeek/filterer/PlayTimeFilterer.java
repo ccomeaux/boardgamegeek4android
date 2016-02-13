@@ -15,7 +15,8 @@ public class PlayTimeFilterer extends CollectionFilterer {
 	private int max;
 	private boolean includeUndefined;
 
-	public PlayTimeFilterer() {
+	public PlayTimeFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
 	}
 

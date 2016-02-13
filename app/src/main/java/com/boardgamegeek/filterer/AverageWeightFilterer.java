@@ -15,7 +15,8 @@ public class AverageWeightFilterer extends CollectionFilterer {
 	private double max;
 	private boolean includeUndefined;
 
-	public AverageWeightFilterer() {
+	public AverageWeightFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
 	}
 

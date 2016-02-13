@@ -20,8 +20,8 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new AverageWeightFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new AverageWeightFilterer(context);
 	}
 
 	@Override

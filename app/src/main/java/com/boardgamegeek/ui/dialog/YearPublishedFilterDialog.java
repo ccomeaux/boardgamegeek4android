@@ -26,8 +26,8 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new YearPublishedFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new YearPublishedFilterer(context);
 	}
 
 	@Override

@@ -31,8 +31,8 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new MyRatingFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new MyRatingFilterer(context);
 	}
 
 	@Override

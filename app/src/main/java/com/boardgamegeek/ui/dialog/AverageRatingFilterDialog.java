@@ -31,8 +31,8 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new AverageRatingFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new AverageRatingFilterer(context);
 	}
 
 	@Override

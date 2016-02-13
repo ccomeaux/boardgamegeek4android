@@ -1,5 +1,6 @@
 package com.boardgamegeek.filterer;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Games;
@@ -13,7 +14,8 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	private int min;
 	private int max;
 
-	public YearPublishedFilterer() {
+	public YearPublishedFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
 	}
 

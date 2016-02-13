@@ -18,8 +18,8 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new GeekRankingFilterer();
+	protected CollectionFilterer getNegativeData(Context context) {
+		return new GeekRankingFilterer(context);
 	}
 
 	@Override

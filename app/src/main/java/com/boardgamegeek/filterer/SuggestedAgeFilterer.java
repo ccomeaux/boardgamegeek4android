@@ -15,7 +15,8 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 	private int max;
 	private boolean includeUndefined;
 
-	public SuggestedAgeFilterer() {
+	public SuggestedAgeFilterer(Context context) {
+		super(context);
 		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
 	}
 
