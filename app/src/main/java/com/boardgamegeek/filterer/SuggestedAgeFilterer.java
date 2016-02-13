@@ -17,7 +17,6 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 
 	public SuggestedAgeFilterer(Context context) {
 		super(context);
-		setType(CollectionFiltererFactory.TYPE_SUGGESTED_AGE);
 	}
 
 	public SuggestedAgeFilterer(@NonNull Context context, int min, int max, boolean includeUndefined) {
@@ -37,8 +36,12 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		init(context);
 	}
 
+	@Override
+	public int getType() {
+		return CollectionFiltererFactory.TYPE_SUGGESTED_AGE;
+	}
+
 	private void init(@NonNull Context context) {
-		setType(CollectionFiltererFactory.TYPE_SUGGESTED_AGE);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

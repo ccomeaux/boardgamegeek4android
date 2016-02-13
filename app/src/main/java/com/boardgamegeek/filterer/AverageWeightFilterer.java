@@ -17,7 +17,6 @@ public class AverageWeightFilterer extends CollectionFilterer {
 
 	public AverageWeightFilterer(Context context) {
 		super(context);
-		setType(CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT);
 	}
 
 	public AverageWeightFilterer(@NonNull Context context, double min, double max, boolean includeUndefined) {
@@ -37,8 +36,12 @@ public class AverageWeightFilterer extends CollectionFilterer {
 		init(context);
 	}
 
+	@Override
+	public int getType() {
+		return CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT;
+	}
+
 	private void init(@NonNull Context context) {
-		setType(CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

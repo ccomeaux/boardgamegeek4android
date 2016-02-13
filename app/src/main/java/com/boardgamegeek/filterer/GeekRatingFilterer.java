@@ -19,7 +19,6 @@ public class GeekRatingFilterer extends CollectionFilterer {
 
 	public GeekRatingFilterer(Context context) {
 		super(context);
-		setType(CollectionFiltererFactory.TYPE_GEEK_RATING);
 	}
 
 	public GeekRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
@@ -37,6 +36,11 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
 		includeUnrated = d.length <= 2 || (d[2].equals("1"));
 		init(context);
+	}
+
+	@Override
+	public int getType() {
+		return CollectionFiltererFactory.TYPE_GEEK_RATING;
 	}
 
 	@NonNull
@@ -58,8 +62,6 @@ public class GeekRatingFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		this.context = context;
-		setType(CollectionFiltererFactory.TYPE_GEEK_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

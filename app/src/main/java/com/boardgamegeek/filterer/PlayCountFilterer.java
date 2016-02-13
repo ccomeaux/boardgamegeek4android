@@ -16,7 +16,6 @@ public class PlayCountFilterer extends CollectionFilterer {
 
 	public PlayCountFilterer(Context context) {
 		super(context);
-		setType(CollectionFiltererFactory.TYPE_PLAY_COUNT);
 	}
 
 	public PlayCountFilterer(@NonNull Context context, int min, int max) {
@@ -34,6 +33,11 @@ public class PlayCountFilterer extends CollectionFilterer {
 		init(context);
 	}
 
+	@Override
+	public int getType() {
+		return CollectionFiltererFactory.TYPE_PLAY_COUNT;
+	}
+
 	@NonNull
 	@Override
 	public String flatten() {
@@ -49,7 +53,6 @@ public class PlayCountFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setType(CollectionFiltererFactory.TYPE_PLAY_COUNT);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

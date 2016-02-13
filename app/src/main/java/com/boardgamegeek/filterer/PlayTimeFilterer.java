@@ -17,7 +17,6 @@ public class PlayTimeFilterer extends CollectionFilterer {
 
 	public PlayTimeFilterer(Context context) {
 		super(context);
-		setType(CollectionFiltererFactory.TYPE_PLAY_TIME);
 	}
 
 	public PlayTimeFilterer(@NonNull Context context, int min, int max, boolean includeUndefined) {
@@ -37,8 +36,12 @@ public class PlayTimeFilterer extends CollectionFilterer {
 		init(context);
 	}
 
+	@Override
+	public int getType() {
+		return CollectionFiltererFactory.TYPE_PLAY_TIME;
+	}
+
 	private void init(@NonNull Context context) {
-		setType(CollectionFiltererFactory.TYPE_PLAY_TIME);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

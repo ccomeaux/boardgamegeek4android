@@ -15,7 +15,6 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 
 	public CollectionStatusFilterer(Context context) {
 		super(context);
-		setType(CollectionFiltererFactory.TYPE_COLLECTION_STATUS);
 	}
 
 	public CollectionStatusFilterer(@NonNull Context context, boolean[] selectedStatuses, boolean shouldJoinWithOr) {
@@ -36,8 +35,12 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		init(context);
 	}
 
+	@Override
+	public int getType() {
+		return CollectionFiltererFactory.TYPE_COLLECTION_STATUS;
+	}
+
 	private void init(@NonNull Context context) {
-		setType(CollectionFiltererFactory.TYPE_COLLECTION_STATUS);
 		createDisplayText(context.getResources());
 		createSelection(context.getResources());
 	}

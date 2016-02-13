@@ -17,7 +17,6 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 
 	public PlayerNumberFilterer(Context context) {
 		super(context);
-		setType(CollectionFiltererFactory.TYPE_PLAYER_NUMBER);
 	}
 
 	public PlayerNumberFilterer(@NonNull Context context, int min, int max, boolean isExact) {
@@ -37,8 +36,12 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		init(context);
 	}
 
+	@Override
+	public int getType() {
+		return CollectionFiltererFactory.TYPE_PLAYER_NUMBER;
+	}
+
 	private void init(@NonNull Context context) {
-		setType(CollectionFiltererFactory.TYPE_PLAYER_NUMBER);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
