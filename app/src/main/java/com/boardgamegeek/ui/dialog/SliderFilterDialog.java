@@ -19,7 +19,7 @@ import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public abstract class SliderFilterDialog {
+public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	private Integer low;
 	private Integer high;
 	private TextView explanationView;

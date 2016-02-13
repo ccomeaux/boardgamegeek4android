@@ -41,8 +41,6 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.filterer.CollectionFilterDataFactory;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionStatusFilterer;
-import com.boardgamegeek.filterer.ExpansionStatusFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -643,18 +641,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (id) {
 			case R.id.menu_collection_status:
 			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				CollectionStatusFilterer filter = null;
-				try {
-					filter = (CollectionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
-				} catch (ClassCastException e) {
-					// Getting reports of this, but don't know why
-					Timber.i("ClassCastException when attempting to display the CollectionStatusFilterDialog dialog.");
-				}
-				new CollectionStatusFilterDialog().createDialog(getActivity(), this, filter);
+				new CollectionStatusFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
 				return true;
 			case R.id.menu_expansion_status:
 			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
-				new ExpansionStatusFilterDialog().createDialog(getActivity(), this, (ExpansionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
+				new ExpansionStatusFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
 				return true;
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
