@@ -432,8 +432,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				sorter = getCollectionSorter(cursor.getInt(ViewQuery.SORT_TYPE));
 				filters.clear();
 				do {
-					CollectionFilterer filter = CollectionFilterDataFactory.create(getActivity(),
-						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
+					CollectionFilterer filter = new CollectionFilterDataFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
+					filter.setData(cursor.getString(ViewQuery.DATA));
 					filters.add(filter);
 				} while (cursor.moveToNext());
 				setEmptyText();
