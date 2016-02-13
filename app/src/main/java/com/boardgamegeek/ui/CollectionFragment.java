@@ -55,9 +55,9 @@ import com.boardgamegeek.ui.dialog.AverageRatingFilterDialog;
 import com.boardgamegeek.ui.dialog.AverageWeightFilterDialog;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment.Listener;
-import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
+import com.boardgamegeek.ui.dialog.CollectionStatusFilterDialog;
 import com.boardgamegeek.ui.dialog.DeleteView;
-import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
+import com.boardgamegeek.ui.dialog.ExpansionStatusFilterDialog;
 import com.boardgamegeek.ui.dialog.GeekRankingFilterDialog;
 import com.boardgamegeek.ui.dialog.GeekRatingFilterDialog;
 import com.boardgamegeek.ui.dialog.MyRatingFilterDialog;
@@ -648,13 +648,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					filter = (CollectionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 				} catch (ClassCastException e) {
 					// Getting reports of this, but don't know why
-					Timber.i("ClassCastException when attempting to display the CollectionStatusFilter dialog.");
+					Timber.i("ClassCastException when attempting to display the CollectionStatusFilterDialog dialog.");
 				}
-				new CollectionStatusFilter().createDialog(getActivity(), this, filter);
+				new CollectionStatusFilterDialog().createDialog(getActivity(), this, filter);
 				return true;
 			case R.id.menu_expansion_status:
 			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
-				new ExpansionStatusFilter().createDialog(getActivity(), this, (ExpansionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
+				new ExpansionStatusFilterDialog().createDialog(getActivity(), this, (ExpansionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
 				return true;
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
