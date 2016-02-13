@@ -18,7 +18,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 
 	public AverageRatingFilterer(Context context) {
 		super(context);
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
+		setType(CollectionFiltererFactory.TYPE_AVERAGE_RATING);
 	}
 
 	public AverageRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
@@ -39,7 +39,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
+		setType(CollectionFiltererFactory.TYPE_AVERAGE_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

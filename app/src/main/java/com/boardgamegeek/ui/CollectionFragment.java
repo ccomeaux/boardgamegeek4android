@@ -39,7 +39,7 @@ import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
-import com.boardgamegeek.filterer.CollectionFilterDataFactory;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -432,7 +432,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				sorter = getCollectionSorter(cursor.getInt(ViewQuery.SORT_TYPE));
 				filters.clear();
 				do {
-					CollectionFilterer filter = new CollectionFilterDataFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
+					CollectionFilterer filter = new CollectionFiltererFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
 					filter.setData(cursor.getString(ViewQuery.DATA));
 					filters.add(filter);
 				} while (cursor.moveToNext());
@@ -640,52 +640,52 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private boolean launchFilterDialog(int id) {
 		switch (id) {
 			case R.id.menu_collection_status:
-			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				new CollectionStatusFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
+			case CollectionFiltererFactory.TYPE_COLLECTION_STATUS:
+				new CollectionStatusFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_COLLECTION_STATUS));
 				return true;
 			case R.id.menu_expansion_status:
-			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
-				new ExpansionStatusFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
+			case CollectionFiltererFactory.TYPE_EXPANSION_STATUS:
+				new ExpansionStatusFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_EXPANSION_STATUS));
 				return true;
 			case R.id.menu_number_of_players:
-			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
-				new PlayerNumberFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
+			case CollectionFiltererFactory.TYPE_PLAYER_NUMBER:
+				new PlayerNumberFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_PLAYER_NUMBER));
 				return true;
 			case R.id.menu_play_time:
-			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
-				new PlayTimeFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
+			case CollectionFiltererFactory.TYPE_PLAY_TIME:
+				new PlayTimeFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_PLAY_TIME));
 				return true;
 			case R.id.menu_suggested_age:
-			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
-				new SuggestedAgeFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
+			case CollectionFiltererFactory.TYPE_SUGGESTED_AGE:
+				new SuggestedAgeFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_SUGGESTED_AGE));
 				return true;
 			case R.id.menu_average_weight:
-			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
-				new AverageWeightFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
+			case CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT:
+				new AverageWeightFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT));
 				return true;
 			case R.id.menu_year_published:
-			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
-				new YearPublishedFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
+			case CollectionFiltererFactory.TYPE_YEAR_PUBLISHED:
+				new YearPublishedFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_YEAR_PUBLISHED));
 				return true;
 			case R.id.menu_average_rating:
-			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
-				new AverageRatingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
+			case CollectionFiltererFactory.TYPE_AVERAGE_RATING:
+				new AverageRatingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_AVERAGE_RATING));
 				return true;
 			case R.id.menu_geek_rating:
-			case CollectionFilterDataFactory.TYPE_GEEK_RATING:
-				new GeekRatingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
+			case CollectionFiltererFactory.TYPE_GEEK_RATING:
+				new GeekRatingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_GEEK_RATING));
 				return true;
 			case R.id.menu_geek_ranking:
-			case CollectionFilterDataFactory.TYPE_GEEK_RANKING:
-				new GeekRankingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
+			case CollectionFiltererFactory.TYPE_GEEK_RANKING:
+				new GeekRankingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_GEEK_RANKING));
 				return true;
 			case R.id.menu_play_count:
-			case CollectionFilterDataFactory.TYPE_PLAY_COUNT:
-				new PlayCountFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
+			case CollectionFiltererFactory.TYPE_PLAY_COUNT:
+				new PlayCountFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_PLAY_COUNT));
 				return true;
 			case R.id.menu_my_rating:
-			case CollectionFilterDataFactory.TYPE_MY_RATING:
-				new MyRatingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFilterDataFactory.TYPE_MY_RATING));
+			case CollectionFiltererFactory.TYPE_MY_RATING:
+				new MyRatingFilterDialog().createDialog(getActivity(), this, findFilter(CollectionFiltererFactory.TYPE_MY_RATING));
 				return true;
 		}
 		return false;

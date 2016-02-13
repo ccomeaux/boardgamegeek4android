@@ -13,7 +13,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 
 	public ExpansionStatusFilterer(Context context) {
 		super(context);
-		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
+		setType(CollectionFiltererFactory.TYPE_EXPANSION_STATUS);
 	}
 
 	public ExpansionStatusFilterer(@NonNull Context context, int selectedSubtype) {
@@ -29,7 +29,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
+		setType(CollectionFiltererFactory.TYPE_EXPANSION_STATUS);
 		createDisplayText(context.getResources());
 		setSelection(context.getResources());
 	}

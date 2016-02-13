@@ -18,7 +18,7 @@ public class MyRatingFilterer extends CollectionFilterer {
 
 	public MyRatingFilterer(Context context) {
 		super(context);
-		setType(CollectionFilterDataFactory.TYPE_MY_RATING);
+		setType(CollectionFiltererFactory.TYPE_MY_RATING);
 	}
 
 	public MyRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
@@ -58,7 +58,7 @@ public class MyRatingFilterer extends CollectionFilterer {
 
 	private void init(@NonNull Context context) {
 		this.context = context;
-		setType(CollectionFilterDataFactory.TYPE_MY_RATING);
+		setType(CollectionFiltererFactory.TYPE_MY_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

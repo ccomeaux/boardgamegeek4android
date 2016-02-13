@@ -19,7 +19,7 @@ public class GeekRatingFilterer extends CollectionFilterer {
 
 	public GeekRatingFilterer(Context context) {
 		super(context);
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
+		setType(CollectionFiltererFactory.TYPE_GEEK_RATING);
 	}
 
 	public GeekRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
@@ -59,7 +59,7 @@ public class GeekRatingFilterer extends CollectionFilterer {
 
 	private void init(@NonNull Context context) {
 		this.context = context;
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
+		setType(CollectionFiltererFactory.TYPE_GEEK_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

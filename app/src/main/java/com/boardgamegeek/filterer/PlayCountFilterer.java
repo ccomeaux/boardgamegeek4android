@@ -16,7 +16,7 @@ public class PlayCountFilterer extends CollectionFilterer {
 
 	public PlayCountFilterer(Context context) {
 		super(context);
-		setType(CollectionFilterDataFactory.TYPE_PLAY_COUNT);
+		setType(CollectionFiltererFactory.TYPE_PLAY_COUNT);
 	}
 
 	public PlayCountFilterer(@NonNull Context context, int min, int max) {
@@ -49,7 +49,7 @@ public class PlayCountFilterer extends CollectionFilterer {
 	}
 
 	private void init(@NonNull Context context) {
-		setType(CollectionFilterDataFactory.TYPE_PLAY_COUNT);
+		setType(CollectionFiltererFactory.TYPE_PLAY_COUNT);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

@@ -6,10 +6,10 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionFilterDataFactory {
+public class CollectionFiltererFactory {
 	private final List<CollectionFilterer> filterers;
 
-	public CollectionFilterDataFactory(@NonNull Context context) {
+	public CollectionFiltererFactory(@NonNull Context context) {
 		filterers = new ArrayList<>();
 		filterers.add(new CollectionStatusFilterer(context));
 		filterers.add(new PlayerNumberFilterer(context));

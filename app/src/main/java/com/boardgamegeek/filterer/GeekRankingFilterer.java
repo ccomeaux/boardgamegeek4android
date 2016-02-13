@@ -15,7 +15,7 @@ public class GeekRankingFilterer extends CollectionFilterer {
 
 	public GeekRankingFilterer(Context context) {
 		super(context);
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
+		setType(CollectionFiltererFactory.TYPE_GEEK_RANKING);
 	}
 
 	public GeekRankingFilterer(Context context, int min, int max, boolean includeUnranked) {
@@ -54,7 +54,7 @@ public class GeekRankingFilterer extends CollectionFilterer {
 	}
 
 	private void init() {
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
+		setType(CollectionFiltererFactory.TYPE_GEEK_RANKING);
 		setDisplayText();
 		setSelection();
 	}

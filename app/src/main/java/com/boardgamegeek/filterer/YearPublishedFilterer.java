@@ -16,7 +16,7 @@ public class YearPublishedFilterer extends CollectionFilterer {
 
 	public YearPublishedFilterer(Context context) {
 		super(context);
-		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
+		setType(CollectionFiltererFactory.TYPE_YEAR_PUBLISHED);
 	}
 
 	public YearPublishedFilterer(Context context, int min, int max) {
@@ -35,7 +35,7 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	}
 
 	private void init() {
-		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
+		setType(CollectionFiltererFactory.TYPE_YEAR_PUBLISHED);
 		setDisplayText();
 		setSelection();
 	}
