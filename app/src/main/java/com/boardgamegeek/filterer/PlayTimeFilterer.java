@@ -21,18 +21,25 @@ public class PlayTimeFilterer extends CollectionFilterer {
 	}
 
 	public PlayTimeFilterer(@NonNull Context context, @NonNull String data) {
-		String[] d = data.split(DELIMITER);
-		min = Integer.valueOf(d[0]);
-		max = Integer.valueOf(d[1]);
-		includeUndefined = (d[2].equals("1"));
+		super(context);
+		setData(data);
 		init(context);
 	}
 
 	public PlayTimeFilterer(@NonNull Context context, int min, int max, boolean includeUndefined) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
 		init(context);
+	}
+
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = Integer.valueOf(d[0]);
+		max = Integer.valueOf(d[1]);
+		includeUndefined = (d[2].equals("1"));
 	}
 
 	private void init(@NonNull Context context) {

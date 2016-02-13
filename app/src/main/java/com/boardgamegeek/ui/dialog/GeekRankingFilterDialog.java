@@ -24,7 +24,7 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new GeekRankingFilterer(min, max, checkbox);
+		return new GeekRankingFilterer(context, min, max, checkbox);
 	}
 
 	@Override

@@ -18,19 +18,26 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
 	}
 
-	public GeekRankingFilterer(int min, int max, boolean includeUnranked) {
+	public GeekRankingFilterer(Context context, int min, int max, boolean includeUnranked) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUnranked = includeUnranked;
 		init();
 	}
 
-	public GeekRankingFilterer(@NonNull String data) {
+	public GeekRankingFilterer(Context context, @NonNull String data) {
+		super(context);
+		setData(data);
+		init();
+	}
+
+	@Override
+	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Integer.valueOf(d[0]);
 		max = Integer.valueOf(d[1]);
 		includeUnranked = Boolean.valueOf(d[2]);
-		init();
 	}
 
 	@NonNull

@@ -18,19 +18,26 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	}
 
 	public CollectionStatusFilterer(@NonNull Context context, @NonNull String data) {
+		super(context);
+		setData(data);
+		init(context);
+	}
+
+	public CollectionStatusFilterer(@NonNull Context context, boolean[] selectedStatuses, boolean shouldJoinWithOr) {
+		super(context);
+		this.selectedStatuses = selectedStatuses;
+		this.shouldJoinWithOr = shouldJoinWithOr;
+		init(context);
+	}
+
+	@Override
+	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		shouldJoinWithOr = (d[0].equals("1"));
 		selectedStatuses = new boolean[d.length - 1];
 		for (int i = 0; i < d.length - 1; i++) {
 			selectedStatuses[i] = (d[i + 1].equals("1"));
 		}
-		init(context);
-	}
-
-	public CollectionStatusFilterer(@NonNull Context context, boolean[] selectedStatuses, boolean shouldJoinWithOr) {
-		this.selectedStatuses = selectedStatuses;
-		this.shouldJoinWithOr = shouldJoinWithOr;
-		init(context);
 	}
 
 	private void init(@NonNull Context context) {

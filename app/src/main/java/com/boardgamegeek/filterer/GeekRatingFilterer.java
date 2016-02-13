@@ -23,6 +23,7 @@ public class GeekRatingFilterer extends CollectionFilterer {
 	}
 
 	public GeekRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUnrated = includeUnrated;
@@ -30,11 +31,17 @@ public class GeekRatingFilterer extends CollectionFilterer {
 	}
 
 	public GeekRatingFilterer(@NonNull Context context, @NonNull String data) {
+		super(context);
+		setData(data);
+		init(context);
+	}
+
+	@Override
+	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
 		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
 		includeUnrated = d.length <= 2 || (d[2].equals("1"));
-		init(context);
 	}
 
 	@NonNull

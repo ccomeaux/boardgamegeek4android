@@ -16,13 +16,20 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 	}
 
 	public ExpansionStatusFilterer(@NonNull Context context, String data) {
-		selectedSubtype = Integer.valueOf(data);
+		super(context);
+		setData(data);
 		init(context);
 	}
 
 	public ExpansionStatusFilterer(@NonNull Context context, int selectedSubtype) {
+		super(context);
 		this.selectedSubtype = selectedSubtype;
 		init(context);
+	}
+
+	@Override
+	public void setData(@NonNull String data) {
+		selectedSubtype = Integer.valueOf(data);
 	}
 
 	private void init(@NonNull Context context) {

@@ -22,6 +22,7 @@ public class MyRatingFilterer extends CollectionFilterer {
 	}
 
 	public MyRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUnrated = includeUnrated;
@@ -29,11 +30,17 @@ public class MyRatingFilterer extends CollectionFilterer {
 	}
 
 	public MyRatingFilterer(@NonNull Context context, @NonNull String data) {
+		super(context);
+		setData(data);
+		init(context);
+	}
+
+	@Override
+	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
 		min = Double.valueOf(d[0]);
 		max = Double.valueOf(d[1]);
 		includeUnrated = (d[2].equals("1"));
-		init(context);
 	}
 
 	@NonNull

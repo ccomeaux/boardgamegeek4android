@@ -21,18 +21,25 @@ public class AverageWeightFilterer extends CollectionFilterer {
 	}
 
 	public AverageWeightFilterer(@NonNull Context context, @NonNull String data) {
-		String[] d = data.split(DELIMITER);
-		min = Double.valueOf(d[0]);
-		max = Double.valueOf(d[1]);
-		includeUndefined = (d[2].equals("1"));
+		super(context);
+		setData(data);
 		init(context);
 	}
 
 	public AverageWeightFilterer(@NonNull Context context, double min, double max, boolean includeUndefined) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
 		init(context);
+	}
+
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = Double.valueOf(d[0]);
+		max = Double.valueOf(d[1]);
+		includeUndefined = (d[2].equals("1"));
 	}
 
 	private void init(@NonNull Context context) {

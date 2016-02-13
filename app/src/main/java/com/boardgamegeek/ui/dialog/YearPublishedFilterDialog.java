@@ -32,7 +32,7 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new YearPublishedFilterer(min, max);
+		return new YearPublishedFilterer(context, min, max);
 	}
 
 	@Override

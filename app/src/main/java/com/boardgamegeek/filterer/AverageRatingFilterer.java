@@ -22,22 +22,28 @@ public class AverageRatingFilterer extends CollectionFilterer {
 	}
 
 	public AverageRatingFilterer(@NonNull Context context, @NonNull String data) {
-		String[] d = data.split(DELIMITER);
-		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
-		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
-		includeUnrated = d.length <= 2 || (d[2].equals("1"));
+		super(context);
+		setData(data);
 		init(context);
 	}
 
 	public AverageRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUnrated = includeUnrated;
 		init(context);
 	}
 
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
+		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
+		includeUnrated = d.length <= 2 || (d[2].equals("1"));
+	}
+
 	private void init(@NonNull Context context) {
-		this.context = context;
 		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
 		setDisplayText(context.getResources());
 		setSelection();

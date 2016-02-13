@@ -26,6 +26,10 @@ public class CollectionFilterer implements Parcelable {
 		this.type = type;
 	}
 
+	public void setData(@NonNull String data) {
+
+	}
+
 	public void setType(int type) {
 		this.type = type;
 	}
