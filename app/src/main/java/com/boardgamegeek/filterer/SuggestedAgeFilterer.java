@@ -64,21 +64,25 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
 		String selection;
 		if (max == MAX_RANGE) {
 			selection = "(" + Games.MINIMUM_AGE + ">=?)";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.MINIMUM_AGE + ">=? AND " + Games.MINIMUM_AGE + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
 		if (includeUndefined) {
 			selection += " OR " + Games.MINIMUM_AGE + "=0 OR " + Games.MINIMUM_AGE + " IS NULL";
 		}
 		selection(selection);
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (max == MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 
 	public int getMin() {

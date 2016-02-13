@@ -84,14 +84,21 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		String selection;
 		if (min >= MAX_RANGE) {
 			selection = Games.GAME_RANK + ">=?";
-			selectionArgs(String.valueOf(MAX_RANGE));
 		} else {
 			selection = "(" + Games.GAME_RANK + ">=? AND " + Games.GAME_RANK + "<=?)";
-			selectionArgs(String.valueOf(min), String.valueOf(max));
 		}
 		if (includeUnranked) {
 			selection += " OR " + Games.GAME_RANK + "=0 OR " + Games.GAME_RANK + " IS NULL";
 		}
 		selection(selection);
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min >= MAX_RANGE) {
+			return new String[] { String.valueOf(MAX_RANGE) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 }

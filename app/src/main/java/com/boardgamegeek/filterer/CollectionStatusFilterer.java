@@ -64,7 +64,6 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	private void createSelection(@NonNull Resources r) {
 		String[] values = r.getStringArray(R.array.collection_status_filter_values);
 		String selection = "";
-		List<String> selectionArgs = new ArrayList<>(selectedStatuses.length);
 
 		for (int i = 0; i < selectedStatuses.length; i++) {
 			if (selectedStatuses[i]) {
@@ -72,11 +71,9 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 					selection += " " + (shouldJoinWithOr ? "OR" : "AND") + " ";
 				}
 				selection += values[i] + "=?";
-				selectionArgs.add("1");
 			}
 		}
 		selection(selection);
-		selectionArgs(selectionArgs.toArray(new String[selectionArgs.size()]));
 	}
 
 	public boolean[] getSelectedStatuses() {
@@ -94,5 +91,17 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 			s += (selected ? "1" : "0");
 		}
 		return s;
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		List<String> selectionArgs = new ArrayList<>(selectedStatuses.length);
+
+		for (int i = 0; i < selectedStatuses.length; i++) {
+			if (selectedStatuses[i]) {
+				selectionArgs.add("1");
+			}
+		}
+		return selectionArgs.toArray(new String[selectionArgs.size()]);
 	}
 }

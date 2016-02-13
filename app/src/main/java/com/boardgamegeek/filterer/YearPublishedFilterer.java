@@ -64,26 +64,34 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
 		String selection;
 		if (min == MIN_RANGE && max == MAX_RANGE) {
 			selection = "";
 		} else if (min == MIN_RANGE) {
 			selection = Games.YEAR_PUBLISHED + "<=?";
-			selectionArgs(maxValue);
 		} else if (max == MAX_RANGE) {
 			selection = Games.YEAR_PUBLISHED + ">=?";
-			selectionArgs(minValue);
 		} else if (min == max) {
 			selection = Games.YEAR_PUBLISHED + "=?";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.YEAR_PUBLISHED + ">=? AND " + Games.YEAR_PUBLISHED + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
 		selection(selection);
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min == MIN_RANGE && max == MAX_RANGE) {
+			return null;
+		} else if (min == MIN_RANGE) {
+			return new String[] { String.valueOf(max) };
+		} else if (max == MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else if (min == max) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 
 	public int getMin() {

@@ -82,20 +82,24 @@ public class MyRatingFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
 		String selection;
 		if (min == max) {
 			selection = Collection.RATING + "=?";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Collection.RATING + ">=? AND " + Collection.RATING + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
 		if (includeUnrated) {
 			selection += " OR " + Collection.RATING + "=0 OR " + Collection.RATING + " IS NULL";
 		}
 		selection(selection);
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min == max) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 }

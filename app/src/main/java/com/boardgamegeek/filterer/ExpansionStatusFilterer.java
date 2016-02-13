@@ -57,18 +57,24 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection(@NonNull Resources resources) {
-		String value = "";
-		String[] values = resources.getStringArray(R.array.expansion_status_filter_values);
-		if (values != null && selectedSubtype != 0 && selectedSubtype < values.length) {
-			value = values[selectedSubtype];
-		}
-
+		String value = getSubType(resources, R.array.expansion_status_filter_values);
 		if (!TextUtils.isEmpty(value)) {
 			selection(Games.SUBTYPE + "=?");
-			selectionArgs(value);
 		} else {
 			selection("");
-			selectionArgs("");
 		}
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		return new String[] { getSubType(context.getResources(), R.array.expansion_status_filter_values) };
+	}
+
+	private String getSubType(@NonNull Resources resources, int expansion_status_filter_values) {
+		String[] values = resources.getStringArray(expansion_status_filter_values);
+		if (values != null && selectedSubtype != 0 && selectedSubtype < values.length) {
+			return values[selectedSubtype];
+		}
+		return "";
 	}
 }

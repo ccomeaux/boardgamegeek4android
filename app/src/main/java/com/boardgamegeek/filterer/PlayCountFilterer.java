@@ -72,11 +72,18 @@ public class PlayCountFilterer extends CollectionFilterer {
 		String selection;
 		if (max >= MAX_RANGE) {
 			selection = Collection.NUM_PLAYS + ">=?";
-			selectionArgs(String.valueOf(min));
 		} else {
 			selection = "(" + Collection.NUM_PLAYS + ">=? AND " + Collection.NUM_PLAYS + "<=?)";
-			selectionArgs(String.valueOf(min), String.valueOf(max));
 		}
 		selection(selection);
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (max >= MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 }

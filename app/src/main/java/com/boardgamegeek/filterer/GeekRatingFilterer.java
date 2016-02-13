@@ -83,20 +83,24 @@ public class GeekRatingFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
 		String selection;
 		if (min == max) {
 			selection = Games.STATS_BAYES_AVERAGE + "=?";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.STATS_BAYES_AVERAGE + ">=? AND " + Games.STATS_BAYES_AVERAGE + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
 		if (includeUnrated) {
 			selection += " OR " + Games.STATS_BAYES_AVERAGE + "=0 OR " + Games.STATS_BAYES_AVERAGE + " IS NULL";
 		}
 		selection(selection);
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min == max) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 }

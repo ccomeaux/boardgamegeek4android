@@ -63,16 +63,17 @@ public class AverageWeightFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
 		String selection;
 		selection = "(" + Games.STATS_AVERAGE_WEIGHT + ">=? AND " + Games.STATS_AVERAGE_WEIGHT + "<=?)";
-		selectionArgs(minValue, maxValue);
 		if (includeUndefined) {
 			selection += " OR " + Games.STATS_AVERAGE_WEIGHT + "=0 OR " + Games.STATS_AVERAGE_WEIGHT + " IS NULL";
 		}
 		selection(selection);
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		return new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 
 	public double getMin() {

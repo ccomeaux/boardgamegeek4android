@@ -64,19 +64,22 @@ public class PlayTimeFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
 		if (max == MAX_RANGE) {
 			selection("(" + Games.PLAYING_TIME + ">=?)");
-			selectionArgs(minValue);
 		} else {
 			selection("(" + Games.PLAYING_TIME + ">=? AND " + Games.PLAYING_TIME + "<=?)");
-			selectionArgs(minValue, maxValue);
 		}
-
 		if (includeUndefined) {
 			selection(getSelection() + " OR " + Games.PLAYING_TIME + " IS NULL");
+		}
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (max == MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
 		}
 	}
 

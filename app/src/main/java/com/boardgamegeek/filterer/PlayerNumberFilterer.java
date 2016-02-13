@@ -59,17 +59,16 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 	}
 
 	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
 		if (isExact) {
 			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
-			selectionArgs(minValue, maxValue);
 		} else {
-			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS
-				+ " IS NULL)");
-			selectionArgs(minValue, maxValue);
+			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS + " IS NULL)");
 		}
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		return new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 
 	public int getMin() {
