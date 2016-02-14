@@ -11,7 +11,6 @@ public class MyRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 10.0;
 
-	protected Context context;
 	private double min;
 	private double max;
 	private boolean includeUnrated;
