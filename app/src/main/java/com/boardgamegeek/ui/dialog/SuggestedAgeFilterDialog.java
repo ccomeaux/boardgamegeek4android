@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.SuggestedAgeFilterer;
 
 public class SuggestedAgeFilterDialog extends SliderFilterDialog {
@@ -32,8 +33,8 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData(Context context) {
-		return new SuggestedAgeFilterer(context);
+	protected int getType() {
+		return CollectionFiltererFactory.TYPE_SUGGESTED_AGE;
 	}
 
 	@Override

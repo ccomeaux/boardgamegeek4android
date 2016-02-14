@@ -5,6 +5,7 @@ import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.MyRatingFilterer;
 
 public class MyRatingFilterDialog extends SliderFilterDialog {
@@ -31,8 +32,8 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData(Context context) {
-		return new MyRatingFilterer(context);
+	protected int getType() {
+		return CollectionFiltererFactory.TYPE_MY_RATING;
 	}
 
 	@Override

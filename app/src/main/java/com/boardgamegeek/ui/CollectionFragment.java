@@ -503,8 +503,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void removeFilter(CollectionFilterer filter) {
-		filters.remove(filter);
+	public void removeFilter(int type) {
+		for (CollectionFilterer filter : filters) {
+			if (filter.getType() == type) {
+				filters.remove(filter);
+				break;
+			}
+		}
 		setEmptyText();
 		resetScrollState();
 		requery();
@@ -617,7 +622,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		button.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				removeFilter(new CollectionFilterer(type));
+				removeFilter(type);
 				return true;
 			}
 		});

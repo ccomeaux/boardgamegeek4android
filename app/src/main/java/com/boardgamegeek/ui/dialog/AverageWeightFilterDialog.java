@@ -5,6 +5,7 @@ import android.content.Context;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.AverageWeightFilterer;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 
 public class AverageWeightFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
@@ -20,8 +21,8 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData(Context context) {
-		return new AverageWeightFilterer(context);
+	protected int getType() {
+		return CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT;
 	}
 
 	@Override

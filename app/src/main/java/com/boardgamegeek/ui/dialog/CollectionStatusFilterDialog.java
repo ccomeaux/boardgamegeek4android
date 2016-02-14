@@ -6,6 +6,7 @@ import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 
@@ -37,7 +38,7 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 		}).setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				view.removeFilter(new CollectionStatusFilterer(context));
+				view.removeFilter(CollectionFiltererFactory.TYPE_COLLECTION_STATUS);
 			}
 		}).create().show();
 	}

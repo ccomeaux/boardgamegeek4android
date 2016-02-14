@@ -6,6 +6,7 @@ import android.view.View;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.AverageRatingFilterer;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 
 public class AverageRatingFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
@@ -31,8 +32,8 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData(Context context) {
-		return new AverageRatingFilterer(context);
+	protected int getType() {
+		return CollectionFiltererFactory.TYPE_AVERAGE_RATING;
 	}
 
 	@Override
