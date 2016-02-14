@@ -31,7 +31,7 @@ public class GeekRatingFilterer extends CollectionFilterer {
 		String[] d = data.split(DELIMITER);
 		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
 		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
-		includeUnrated = d.length > 2 ? (d[2].equals("1")) : (min < 1.0);
+		includeUnrated = d.length > 2 ? (d[2].equals("1")) : (Double.valueOf(d[0]) < 1.0);
 	}
 
 	@Override
