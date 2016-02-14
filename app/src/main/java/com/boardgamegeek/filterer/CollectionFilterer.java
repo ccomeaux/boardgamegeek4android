@@ -11,9 +11,6 @@ public class CollectionFilterer implements Parcelable {
 	protected static final String DELIMITER = ":";
 	protected Context context;
 	private int type;
-	private String displayText;
-	private String selection;
-	private String[] selectionArgs = {};
 
 	public CollectionFilterer() {
 	}
@@ -45,8 +42,12 @@ public class CollectionFilterer implements Parcelable {
 		return null;
 	}
 
+	public String flatten() {
+		return "";
+	}
+
 	public boolean isValid() {
-		return !TextUtils.isEmpty(displayText) && !TextUtils.isEmpty(selection);
+		return !TextUtils.isEmpty(getDisplayText()) && !TextUtils.isEmpty(getSelection());
 	}
 
 	@Override
@@ -71,9 +72,7 @@ public class CollectionFilterer implements Parcelable {
 	@Override
 	public void writeToParcel(@NonNull Parcel out, int flags) {
 		out.writeInt(type);
-		out.writeString(displayText);
-		out.writeString(selection);
-		out.writeStringArray(selectionArgs);
+		out.writeString(flatten());
 	}
 
 	public static final Parcelable.Creator<CollectionFilterer> CREATOR = new Parcelable.Creator<CollectionFilterer>() {
@@ -90,12 +89,6 @@ public class CollectionFilterer implements Parcelable {
 
 	private CollectionFilterer(@NonNull Parcel in) {
 		type = in.readInt();
-		displayText = in.readString();
-		selection = in.readString();
-		selectionArgs = in.createStringArray();
-	}
-
-	public String flatten() {
-		return "";
+		setData(in.readString());
 	}
 }
