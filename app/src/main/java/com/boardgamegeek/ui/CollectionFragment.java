@@ -39,8 +39,8 @@ import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -586,24 +586,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	private void bindFilterButtons() {
+		filterButtonContainer.removeAllViews();
+
 		final LayoutInflater layoutInflater = getLayoutInflater(null);
 		for (CollectionFilterer filter : filters) {
-			if (filter != null) {
-				Button button = (Button) filterButtonContainer.findViewWithTag(filter.getType());
-				if (button == null) {
-					filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
-				} else {
-					button.setText(filter.getDisplayText());
-				}
-			}
-		}
-
-		// Could be when button is clicked, but this keeps filters synced with collection
-		for (int i = 0; i < filterButtonContainer.getChildCount(); i++) {
-			Button button = (Button) filterButtonContainer.getChildAt(i);
-			if (!filters.contains(new CollectionFilterer((Integer) button.getTag()))) {
-				filterButtonContainer.removeView(button);
-				i--;
+			if (filter != null && !TextUtils.isEmpty(filter.getDisplayText())) {
+				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
 			}
 		}
 
