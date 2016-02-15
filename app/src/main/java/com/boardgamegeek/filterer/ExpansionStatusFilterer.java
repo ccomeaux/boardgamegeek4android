@@ -31,12 +31,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		String text = "";
-		String[] subtypes = context.getResources().getStringArray(R.array.expansion_status_filter);
-		if (subtypes != null && selectedSubtype != 0 && selectedSubtype < subtypes.length) {
-			text = subtypes[selectedSubtype];
-		}
-		return text;
+		return getSelectedFromStringArray(R.array.expansion_status_filter);
 	}
 
 	public int getSelectedSubtype() {
@@ -51,7 +46,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 
 	@Override
 	public String getSelection() {
-		String value = getSubType(R.array.expansion_status_filter_values);
+		String value = getSelectedFromStringArray(R.array.expansion_status_filter_values);
 		if (!TextUtils.isEmpty(value)) {
 			return Games.SUBTYPE + "=?";
 		} else {
@@ -61,11 +56,11 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 
 	@Override
 	public String[] getSelectionArgs() {
-		return new String[] { getSubType(R.array.expansion_status_filter_values) };
+		return new String[] { getSelectedFromStringArray(R.array.expansion_status_filter_values) };
 	}
 
-	private String getSubType(int expansion_status_filter_values) {
-		String[] values = context.getResources().getStringArray(expansion_status_filter_values);
+	private String getSelectedFromStringArray(int resId) {
+		String[] values = context.getResources().getStringArray(resId);
 		if (values != null && selectedSubtype != 0 && selectedSubtype < values.length) {
 			return values[selectedSubtype];
 		}

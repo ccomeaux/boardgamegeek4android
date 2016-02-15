@@ -91,8 +91,8 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	public String[] getSelectionArgs() {
 		List<String> selectionArgs = new ArrayList<>(selectedStatuses.length);
 
-		for (int i = 0; i < selectedStatuses.length; i++) {
-			if (selectedStatuses[i]) {
+		for (boolean selectedStatus : selectedStatuses) {
+			if (selectedStatus) {
 				selectionArgs.add("1");
 			}
 		}

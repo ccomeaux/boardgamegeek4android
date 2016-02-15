@@ -8,7 +8,6 @@ import android.text.TextUtils;
 public class CollectionFilterer {
 	protected static final String DELIMITER = ":";
 	protected Context context;
-	private int type;
 
 	public CollectionFilterer() {
 	}
