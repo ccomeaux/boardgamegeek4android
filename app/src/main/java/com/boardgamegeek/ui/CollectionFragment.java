@@ -94,13 +94,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_FILTER_DATA = "STATE_FILTER_DATA";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	@InjectView(R.id.frame_container) ViewGroup frameContainer;
-	@InjectView(R.id.footer_container) ViewGroup footerContainer;
-	@InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
-	@InjectView(R.id.filter_scroll_view) View filterButtonScroll;
-	@InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
-	@InjectView(R.id.row_count) TextView rowCountView;
-	@InjectView(R.id.sort_description) TextView sortDescriptionView;
+	@SuppressWarnings("unused") @InjectView(R.id.frame_container) ViewGroup frameContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.footer_container) ViewGroup footerContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.filter_scroll_view) View filterButtonScroll;
+	@SuppressWarnings("unused") @InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
+	@SuppressWarnings("unused") @InjectView(R.id.row_count) TextView rowCountView;
+	@SuppressWarnings("unused") @InjectView(R.id.sort_description) TextView sortDescriptionView;
 
 	@NonNull private Handler timeUpdateHandler = new Handler();
 	@Nullable private Runnable timeUpdateRunnable = null;
@@ -108,8 +108,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionAdapter adapter;
 	private long viewId;
 	@Nullable private String viewName = "";
-	@Nullable private CollectionSorter sorter;
-	@Nullable private List<CollectionFilterer> filters = new ArrayList<>();
+	private CollectionSorter sorter;
+	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
 	private boolean isCreatingShortcut;
 	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
@@ -131,15 +131,17 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			filters.clear();
 			ArrayList<Integer> types = savedInstanceState.getIntegerArrayList(STATE_FILTER_TYPES);
 			ArrayList<String> data = savedInstanceState.getStringArrayList(STATE_FILTER_DATA);
-			if (types.size() != data.size()) {
-				Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2@s", types.size(), data.size());
-			} else {
-				CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
-				for (int i = 0; i < types.size(); i++) {
-					CollectionFilterer filterer = factory.create(types.get(i));
-					filterer.setData(data.get(i));
-					filters.add(filterer);
+			if (types != null && data != null) {
+				if (types.size() != data.size()) {
+					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2@s", types.size(), data.size());
+				} else {
+					CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
+					for (int i = 0; i < types.size(); i++) {
+						CollectionFilterer filterer = factory.create(types.get(i));
+						filterer.setData(data.get(i));
+						filters.add(filterer);
 
+					}
 				}
 			}
 		}
@@ -184,7 +186,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
 		}
-		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+		if (getListView() != null) {
+			ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+		}
 	}
 
 	private CollectionSorter getCollectionSorter(int sortType) {
@@ -266,7 +270,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			menu.findItem(R.id.menu_collection_view_save).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
-			final boolean hasFiltersApplied = (filters != null && filters.size() > 0);
+			final boolean hasFiltersApplied = (filters.size() > 0);
 			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
 			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
 			final boolean hasItems = adapter != null && adapter.getCount() > 0;
@@ -329,7 +333,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			StringBuilder where = new StringBuilder();
 			String[] args = {};
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
-			if (viewId == 0 && filters == null || filters.size() == 0) {
+			if (viewId == 0 && filters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
 				for (CollectionFilterer filter : filters) {
@@ -568,7 +572,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private boolean hasFiltersApplied() {
-		return filters != null && filters.size() > 0;
+		return filters.size() > 0;
 	}
 
 	private boolean hasSyncSettings() {
@@ -891,7 +895,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public boolean onActionItemClicked(@NonNull ActionMode mode, @NonNull android.view.MenuItem item) {
-		if (selectedPositions == null || !selectedPositions.iterator().hasNext()) {
+		if (!selectedPositions.iterator().hasNext()) {
 			return false;
 		}
 		Cursor cursor = (Cursor) adapter.getItem(selectedPositions.iterator().next());
