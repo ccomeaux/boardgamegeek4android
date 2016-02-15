@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -91,7 +90,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
 	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
-	private static final String STATE_FILTERS = "STATE_FILTERS";
+	private static final String STATE_FILTER_TYPES = "STATE_FILTER_TYPES";
+	private static final String STATE_FILTER_DATA = "STATE_FILTER_DATA";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	@InjectView(R.id.frame_container) ViewGroup frameContainer;
@@ -127,7 +127,21 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			selectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
 			viewId = savedInstanceState.getLong(STATE_VIEW_ID);
 			viewName = savedInstanceState.getString(STATE_VIEW_NAME);
-			filters = savedInstanceState.getParcelableArrayList(STATE_FILTERS);
+
+			filters.clear();
+			ArrayList<Integer> types = savedInstanceState.getIntegerArrayList(STATE_FILTER_TYPES);
+			ArrayList<String> data = savedInstanceState.getStringArrayList(STATE_FILTER_DATA);
+			if (types.size() != data.size()) {
+				Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2@s", types.size(), data.size());
+			} else {
+				CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
+				for (int i = 0; i < types.size(); i++) {
+					CollectionFilterer filterer = factory.create(types.get(i));
+					filterer.setData(data.get(i));
+					filters.add(filterer);
+
+				}
+			}
 		}
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
@@ -210,7 +224,16 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		outState.putLong(STATE_VIEW_ID, viewId);
 		outState.putString(STATE_VIEW_NAME, viewName);
 		outState.putInt(STATE_SORT_TYPE, sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType());
-		outState.putParcelableArrayList(STATE_FILTERS, (ArrayList<? extends Parcelable>) filters);
+
+		ArrayList<Integer> types = new ArrayList<>();
+		ArrayList<String> data = new ArrayList<>();
+		for (CollectionFilterer filterer : filters) {
+			types.add(filterer.getType());
+			data.add(filterer.flatten());
+		}
+		outState.putIntegerArrayList(STATE_FILTER_TYPES, types);
+		outState.putStringArrayList(STATE_FILTER_DATA, data);
+
 		if (selectedCollectionId > 0) {
 			outState.putInt(STATE_SELECTED_ID, selectedCollectionId);
 		}
