@@ -24,6 +24,7 @@
 			android:id="@+id/name"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_collection_name"/>
 
@@ -31,6 +32,7 @@
 			android:id="@+id/year_published_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_year_published_asc"/>
 
@@ -38,6 +40,7 @@
 			android:id="@+id/year_published_desc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_year_published_desc"/>
 
@@ -45,6 +48,7 @@
 			android:id="@+id/play_time_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_time_asc"/>
 
@@ -52,6 +56,7 @@
 			android:id="@+id/play_time_desc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_time_desc"/>
 
@@ -59,6 +64,7 @@
 			android:id="@+id/suggested_age_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_suggested_age_asc"/>
 
@@ -66,6 +72,7 @@
 			android:id="@+id/suggested_age_desc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_suggested_age_desc"/>
 
@@ -79,6 +86,7 @@
 			android:id="@+id/rank"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_rank"/>
 
@@ -86,6 +94,7 @@
 			android:id="@+id/geek_rating"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_geek_rating"/>
 
@@ -93,6 +102,7 @@
 			android:id="@+id/average_rating"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_average_rating"/>
 
@@ -100,6 +110,7 @@
 			android:id="@+id/average_weight_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_average_weight_asc"/>
 
@@ -107,6 +118,7 @@
 			android:id="@+id/average_weight_desc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_average_weight_desc"/>
 
@@ -120,6 +132,7 @@
 			android:id="@+id/my_rating"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_my_rating"/>
 
@@ -127,6 +140,7 @@
 			android:id="@+id/wishlist_priority"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_wishlist_priority"/>
 
@@ -134,6 +148,7 @@
 			android:id="@+id/play_count_desc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_count_desc"/>
 
@@ -141,6 +156,7 @@
 			android:id="@+id/play_count_asc"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_count_asc"/>
 
@@ -148,6 +164,7 @@
 			android:id="@+id/acquisition_date"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_acquisition_date"/>
 
@@ -155,6 +172,7 @@
 			android:id="@+id/acquired_from"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_acquired_from"/>
 
@@ -162,6 +180,7 @@
 			android:id="@+id/price_paid"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_price_paid"/>
 
@@ -169,6 +188,7 @@
 			android:id="@+id/current_value"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_current_value"/>
 
@@ -182,6 +202,7 @@
 			android:id="@+id/last_viewed"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
+			android:gravity="center_vertical"
 			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_last_viewed"/>
 	</RadioGroup>
