@@ -36,14 +36,18 @@
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:src="@drawable/ic_add"/>
+				android:scaleType="center"
+				android:src="@drawable/ic_add_circle_outline"
+				android:tint="@color/primary_dark"/>
 
 			<ImageView
 				android:id="@+id/min_down"
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:src="@drawable/ic_remove"/>
+				android:scaleType="center"
+				android:src="@drawable/ic_remove_circle_outline"
+				android:tint="@color/primary_dark"/>
 		</LinearLayout>
 
 		<FrameLayout
@@ -64,16 +68,19 @@
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:src="@drawable/ic_add"/>
+				android:scaleType="center"
+				android:src="@drawable/ic_add_circle_outline"
+				android:tint="@color/primary_dark"/>
 
 			<ImageView
 				android:id="@+id/max_down"
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:src="@drawable/ic_remove"/>
+				android:scaleType="center"
+				android:src="@drawable/ic_remove_circle_outline"
+				android:tint="@color/primary_dark"/>
 		</LinearLayout>
-
 	</LinearLayout>
 
 	<CheckBox
@@ -94,5 +101,4 @@
 		android:text="@string/filter_description_player_number"
 		android:visibility="gone"
 		tools:visibility="visible"/>
-
 </LinearLayout>
