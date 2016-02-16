@@ -21,7 +21,6 @@ import retrofit.RetrofitError;
 import retrofit.android.AndroidLog;
 import retrofit.client.Response;
 import retrofit.converter.Converter;
-import retrofit.converter.SimpleXMLConverter;
 
 public class Adapter {
 	private static final boolean DEBUG = BuildConfig.DEBUG;

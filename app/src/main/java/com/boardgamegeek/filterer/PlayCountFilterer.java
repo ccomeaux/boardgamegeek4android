@@ -1,11 +1,12 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class PlayCountFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
@@ -14,21 +15,26 @@ public class PlayCountFilterer extends CollectionFilterer {
 	private int min;
 	private int max;
 
-	public PlayCountFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_PLAY_COUNT);
+	public PlayCountFilterer(Context context) {
+		super(context);
 	}
 
 	public PlayCountFilterer(@NonNull Context context, int min, int max) {
+		super(context);
 		this.min = min;
 		this.max = max;
-		init(context);
 	}
 
-	public PlayCountFilterer(@NonNull Context context, @NonNull String data) {
+	@Override
+	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
-		min = Integer.valueOf(d[0]);
-		max = Integer.valueOf(d[1]);
-		init(context);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+	}
+
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_play_count;
 	}
 
 	@NonNull
@@ -45,13 +51,8 @@ public class PlayCountFilterer extends CollectionFilterer {
 		return min;
 	}
 
-	private void init(@NonNull Context context) {
-		setType(CollectionFilterDataFactory.TYPE_PLAY_COUNT);
-		setDisplayText(context.getResources());
-		setSelection();
-	}
-
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public String getDisplayText() {
 		String text;
 		if (max >= MAX_RANGE) {
 			text = min + "+";
@@ -60,18 +61,26 @@ public class PlayCountFilterer extends CollectionFilterer {
 		} else {
 			text = min + "-" + max;
 		}
-		displayText(text + " " + r.getString(R.string.plays));
+		return text + " " + context.getString(R.string.plays);
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (max >= MAX_RANGE) {
 			selection = Collection.NUM_PLAYS + ">=?";
-			selectionArgs(String.valueOf(min));
 		} else {
 			selection = "(" + Collection.NUM_PLAYS + ">=? AND " + Collection.NUM_PLAYS + "<=?)";
-			selectionArgs(String.valueOf(min), String.valueOf(max));
 		}
-		selection(selection);
+		return selection;
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (max >= MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 }

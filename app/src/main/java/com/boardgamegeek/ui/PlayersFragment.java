@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -91,7 +92,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (!TextUtils.isEmpty(mSelectedName) || !TextUtils.isEmpty(mSelectedUsername)) {
 			outState.putString(STATE_SELECTED_NAME, mSelectedName);
@@ -129,9 +130,6 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	public void setSort(int sort) {
 		if (mSorter.getType() != sort) {
 			mSorter = PlayersSorterFactory.create(getActivity(), sort);
-			if (mSorter == null) {
-				mSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
-			}
 			requery();
 		}
 	}

@@ -156,9 +156,8 @@ public class PlayStatView extends TableRow {
 			if (!TextUtils.isEmpty(date)) {
 				try {
 					long l = FORMAT.parse(date).getTime();
-					String d = DateUtils.formatDateTime(context, l,
+					this.value = DateUtils.formatDateTime(context, l,
 						DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
-					this.value = d;
 				} catch (ParseException e) {
 					this.value = date;
 				}

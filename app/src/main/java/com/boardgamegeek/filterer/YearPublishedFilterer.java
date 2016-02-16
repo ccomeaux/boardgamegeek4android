@@ -1,8 +1,12 @@
 package com.boardgamegeek.filterer;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.util.Calendar;
 
@@ -13,30 +17,30 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	private int min;
 	private int max;
 
-	public YearPublishedFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
+	public YearPublishedFilterer(Context context) {
+		super(context);
 	}
 
-	public YearPublishedFilterer(@NonNull String data) {
-		String[] d = data.split(DELIMITER);
-		min = Integer.valueOf(d[0]);
-		max = Integer.valueOf(d[1]);
-		init();
-	}
-
-	public YearPublishedFilterer(int min, int max) {
+	public YearPublishedFilterer(Context context, int min, int max) {
+		super(context);
 		this.min = min;
 		this.max = max;
-		init();
 	}
 
-	private void init() {
-		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
-		setDisplayText();
-		setSelection();
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
 	}
 
-	private void setDisplayText() {
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_year_published;
+	}
+
+	@Override
+	public String getDisplayText() {
 		String text;
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
@@ -53,30 +57,39 @@ public class YearPublishedFilterer extends CollectionFilterer {
 			text = minText + "-" + maxText;
 		}
 
-		displayText(text);
+		return text;
 	}
 
-	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min == MIN_RANGE && max == MAX_RANGE) {
 			selection = "";
 		} else if (min == MIN_RANGE) {
 			selection = Games.YEAR_PUBLISHED + "<=?";
-			selectionArgs(maxValue);
 		} else if (max == MAX_RANGE) {
 			selection = Games.YEAR_PUBLISHED + ">=?";
-			selectionArgs(minValue);
 		} else if (min == max) {
 			selection = Games.YEAR_PUBLISHED + "=?";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.YEAR_PUBLISHED + ">=? AND " + Games.YEAR_PUBLISHED + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
-		selection(selection);
+		return selection;
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min == MIN_RANGE && max == MAX_RANGE) {
+			return null;
+		} else if (min == MIN_RANGE) {
+			return new String[] { String.valueOf(max) };
+		} else if (max == MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else if (min == max) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 
 	public int getMin() {

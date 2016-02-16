@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
-import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 

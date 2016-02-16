@@ -86,7 +86,7 @@
 
 	<style name="Text.Primary.DrawerHeader">
 		<item name="android:textColor">@color/light_text</item>
-		<item name="android:textStyle"></item>
+		<item name="android:textStyle"/>
 		<item name="android:textSize">14sp</item>
 	</style>
 
@@ -237,6 +237,13 @@
 	</style>
 
 	<style name="Text.Body">
+	</style>
+
+	<style name="Text.Clickable">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:minHeight">@dimen/edit_row_height</item>
+
 	</style>
 
 	<style name="Text.Header">

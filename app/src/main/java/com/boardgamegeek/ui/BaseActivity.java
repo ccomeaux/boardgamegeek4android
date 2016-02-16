@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.UpdateErrorEvent;
 import com.boardgamegeek.service.SyncService;
 

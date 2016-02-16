@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.util.ArrayMap;
@@ -93,7 +94,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		outState.putString(STATE_STATUS_VALUE, mStatusValue);
 		outState.putString(STATE_STATUS_LABEL, mStatusLabel);
 		super.onSaveInstanceState(outState);

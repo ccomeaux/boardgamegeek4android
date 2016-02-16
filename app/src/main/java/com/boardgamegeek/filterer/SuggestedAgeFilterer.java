@@ -1,11 +1,12 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class SuggestedAgeFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
@@ -15,32 +16,32 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 	private int max;
 	private boolean includeUndefined;
 
-	public SuggestedAgeFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
-	}
-
-	public SuggestedAgeFilterer(@NonNull Context context, @NonNull String data) {
-		String[] d = data.split(DELIMITER);
-		min = Integer.valueOf(d[0]);
-		max = Integer.valueOf(d[1]);
-		includeUndefined = (d[2].equals("1"));
-		init(context);
+	public SuggestedAgeFilterer(Context context) {
+		super(context);
 	}
 
 	public SuggestedAgeFilterer(@NonNull Context context, int min, int max, boolean includeUndefined) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUndefined = includeUndefined;
-		init(context);
 	}
 
-	private void init(@NonNull Context context) {
-		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
-		setDisplayText(context.getResources());
-		setSelection();
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		includeUndefined = d.length > 2 && (d[2].equals("1"));
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_suggested_age;
+	}
+
+	@Override
+	public String getDisplayText() {
 		String text;
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
@@ -55,25 +56,30 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 		if (includeUndefined) {
 			text += " (+?)";
 		}
-		displayText(r.getString(R.string.ages) + " " + text);
+		return context.getString(R.string.ages) + " " + text;
 	}
 
-	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
+	@Override
+	public String getSelection() {
 		String selection;
 		if (max == MAX_RANGE) {
 			selection = "(" + Games.MINIMUM_AGE + ">=?)";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.MINIMUM_AGE + ">=? AND " + Games.MINIMUM_AGE + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
 		if (includeUndefined) {
 			selection += " OR " + Games.MINIMUM_AGE + "=0 OR " + Games.MINIMUM_AGE + " IS NULL";
 		}
-		selection(selection);
+		return selection;
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (max == MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 
 	public int getMin() {

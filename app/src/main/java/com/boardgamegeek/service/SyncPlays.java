@@ -19,8 +19,8 @@ import com.boardgamegeek.util.PreferencesUtils;
 import timber.log.Timber;
 
 public class SyncPlays extends SyncTask {
-	private PlayPersister mPersister;
-	private long mStartTime;
+	private PlayPersister persister;
+	private long startTime;
 
 	public SyncPlays(Context context, BggService service) {
 		super(context, service);
@@ -40,8 +40,8 @@ public class SyncPlays extends SyncTask {
 				return;
 			}
 
-			mStartTime = System.currentTimeMillis();
-			mPersister = new PlayPersister(context);
+			startTime = System.currentTimeMillis();
+			persister = new PlayPersister(context);
 			PlaysResponse response;
 			long newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate > 0) {
@@ -116,10 +116,10 @@ public class SyncPlays extends SyncTask {
 
 	private void persist(@NonNull PlaysResponse response, @NonNull SyncResult syncResult) {
 		if (response.plays != null && response.plays.size() > 0) {
-			if (mPersister == null) {
-				mPersister = new PlayPersister(context);
+			if (persister == null) {
+				persister = new PlayPersister(context);
 			}
-			mPersister.save(response.plays, mStartTime);
+			persister.save(response.plays, startTime);
 			syncResult.stats.numEntries += response.plays.size();
 			Timber.i("...saved " + response.plays.size() + " plays");
 		} else {
@@ -130,13 +130,13 @@ public class SyncPlays extends SyncTask {
 	private void deleteUnupdatedPlaysSince(long time, @NonNull SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "="
 				+ Play.SYNC_STATUS_SYNCED,
-			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
+			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 
 	private void deleteUnupdatedPlaysBefore(long time, @NonNull SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "="
 				+ Play.SYNC_STATUS_SYNCED,
-			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
+			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 
 	private void deletePlays(String selection, String[] selectionArgs, @NonNull SyncResult syncResult) {

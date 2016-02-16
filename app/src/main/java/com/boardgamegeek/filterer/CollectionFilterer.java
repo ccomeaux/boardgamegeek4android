@@ -1,59 +1,40 @@
 package com.boardgamegeek.filterer;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
-public class CollectionFilterer implements Parcelable {
+import com.boardgamegeek.util.StringUtils;
+
+public abstract class CollectionFilterer {
 	protected static final String DELIMITER = ":";
-	private int type;
-	private String displayText;
-	private String selection;
-	private String[] selectionArgs = {};
+	protected Context context;
 
-	public CollectionFilterer() {
+	public CollectionFilterer(@NonNull Context context) {
+		this.context = context;
 	}
 
-	public CollectionFilterer(int type) {
-		this.type = type;
-	}
+	public abstract void setData(@NonNull String data);
 
-	public void setType(int type) {
-		this.type = type;
-	}
+	@StringRes
+	public abstract int getTypeResourceId();
 
 	public int getType() {
-		return type;
+		return StringUtils.parseInt(context.getString(getTypeResourceId(), CollectionFiltererFactory.TYPE_UNKNOWN));
 	}
 
-	public String getDisplayText() {
-		return displayText;
-	}
+	public abstract String getDisplayText();
 
-	public String getSelection() {
-		return selection;
-	}
+	public abstract String getSelection();
 
-	public String[] getSelectionArgs() {
-		return selectionArgs;
-	}
+	public abstract String[] getSelectionArgs();
 
-	public void displayText(String displayText) {
-		this.displayText = displayText;
-	}
-
-	public void selection(String selection) {
-		this.selection = selection;
-	}
-
-	public void selectionArgs(String... selectionArgs) {
-		this.selectionArgs = selectionArgs;
-	}
+	public abstract String flatten();
 
 	public boolean isValid() {
-		return !TextUtils.isEmpty(displayText) && !TextUtils.isEmpty(selection);
+		return !TextUtils.isEmpty(getDisplayText()) && !TextUtils.isEmpty(getSelection());
 	}
 
 	@Override
@@ -68,41 +49,5 @@ public class CollectionFilterer implements Parcelable {
 	@Override
 	public int hashCode() {
 		return this.getType();
-	}
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(@NonNull Parcel out, int flags) {
-		out.writeInt(type);
-		out.writeString(displayText);
-		out.writeString(selection);
-		out.writeStringArray(selectionArgs);
-	}
-
-	public static final Parcelable.Creator<CollectionFilterer> CREATOR = new Parcelable.Creator<CollectionFilterer>() {
-		@NonNull
-		public CollectionFilterer createFromParcel(@NonNull Parcel in) {
-			return new CollectionFilterer(in);
-		}
-
-		@NonNull
-		public CollectionFilterer[] newArray(int size) {
-			return new CollectionFilterer[size];
-		}
-	};
-
-	private CollectionFilterer(@NonNull Parcel in) {
-		type = in.readInt();
-		displayText = in.readString();
-		selection = in.readString();
-		selectionArgs = in.createStringArray();
-	}
-
-	public String flatten() {
-		return "";
 	}
 }
