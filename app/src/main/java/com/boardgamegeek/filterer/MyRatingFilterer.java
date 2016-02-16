@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class MyRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
@@ -29,8 +30,8 @@ public class MyRatingFilterer extends CollectionFilterer {
 	@Override
 	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
-		min = MathUtils.constrain(Double.valueOf(d[0]), MIN_RANGE, MAX_RANGE);
-		max = MathUtils.constrain(Double.valueOf(d[1]), MIN_RANGE, MAX_RANGE);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseDouble(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseDouble(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
 		includeUnrated = d.length > 2 ? (d[2].equals("1")) : (Double.valueOf(d[0]) < 1.0);
 	}
 

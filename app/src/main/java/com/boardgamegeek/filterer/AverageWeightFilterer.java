@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class AverageWeightFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
@@ -28,9 +30,9 @@ public class AverageWeightFilterer extends CollectionFilterer {
 	@Override
 	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
-		min = Double.valueOf(d[0]);
-		max = Double.valueOf(d[1]);
-		includeUndefined = (d[2].equals("1"));
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseDouble(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseDouble(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		includeUndefined = d.length > 2 && (d[2].equals("1"));
 	}
 
 	@Override

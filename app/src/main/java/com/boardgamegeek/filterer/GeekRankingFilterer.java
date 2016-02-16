@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class GeekRankingFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
@@ -28,9 +30,9 @@ public class GeekRankingFilterer extends CollectionFilterer {
 	@Override
 	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
-		min = Integer.valueOf(d[0]);
-		max = Integer.valueOf(d[1]);
-		includeUnranked = Boolean.valueOf(d[2]);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		includeUnranked = d.length > 2 && (d[2].equals("1"));
 	}
 
 	@Override
