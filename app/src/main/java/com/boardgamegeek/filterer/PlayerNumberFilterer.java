@@ -34,8 +34,8 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_PLAYER_NUMBER;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_number_of_players;
 	}
 
 	@Override

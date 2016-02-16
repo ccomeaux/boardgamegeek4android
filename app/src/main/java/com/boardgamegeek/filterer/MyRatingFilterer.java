@@ -35,8 +35,8 @@ public class MyRatingFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_MY_RATING;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_my_rating;
 	}
 
 	@NonNull

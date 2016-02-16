@@ -34,8 +34,8 @@ public class AverageWeightFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_average_weight;
 	}
 
 	@Override

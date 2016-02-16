@@ -5,7 +5,6 @@ import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.YearPublishedFilterer;
 
 public class YearPublishedFilterDialog extends SliderFilterDialog {
@@ -27,8 +26,8 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getType() {
-		return CollectionFiltererFactory.TYPE_YEAR_PUBLISHED;
+	public int getType(Context context) {
+		return new YearPublishedFilterer(context).getType();
 	}
 
 	@Override

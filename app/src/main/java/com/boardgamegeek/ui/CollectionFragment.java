@@ -48,23 +48,12 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
-import com.boardgamegeek.ui.dialog.AverageRatingFilterDialog;
-import com.boardgamegeek.ui.dialog.AverageWeightFilterDialog;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialog;
+import com.boardgamegeek.ui.dialog.CollectionFilterDialogFactory;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionStatusFilterDialog;
 import com.boardgamegeek.ui.dialog.DeleteView;
-import com.boardgamegeek.ui.dialog.ExpansionStatusFilterDialog;
-import com.boardgamegeek.ui.dialog.GeekRankingFilterDialog;
-import com.boardgamegeek.ui.dialog.GeekRatingFilterDialog;
-import com.boardgamegeek.ui.dialog.MyRatingFilterDialog;
-import com.boardgamegeek.ui.dialog.PlayCountFilterDialog;
-import com.boardgamegeek.ui.dialog.PlayTimeFilterDialog;
-import com.boardgamegeek.ui.dialog.PlayerNumberFilterDialog;
 import com.boardgamegeek.ui.dialog.SaveView;
-import com.boardgamegeek.ui.dialog.SuggestedAgeFilterDialog;
-import com.boardgamegeek.ui.dialog.YearPublishedFilterDialog;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -667,41 +656,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return button;
 	}
 
-	@Nullable
-	@DebugLog
-	private CollectionFilterDialog createFilterDialog(int filterType) {
-		switch (filterType) {
-			case CollectionFiltererFactory.TYPE_COLLECTION_STATUS:
-				return new CollectionStatusFilterDialog();
-			case CollectionFiltererFactory.TYPE_EXPANSION_STATUS:
-				return new ExpansionStatusFilterDialog();
-			case CollectionFiltererFactory.TYPE_PLAYER_NUMBER:
-				return new PlayerNumberFilterDialog();
-			case CollectionFiltererFactory.TYPE_PLAY_TIME:
-				return new PlayTimeFilterDialog();
-			case CollectionFiltererFactory.TYPE_SUGGESTED_AGE:
-				return new SuggestedAgeFilterDialog();
-			case CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT:
-				return new AverageWeightFilterDialog();
-			case CollectionFiltererFactory.TYPE_YEAR_PUBLISHED:
-				return new YearPublishedFilterDialog();
-			case CollectionFiltererFactory.TYPE_AVERAGE_RATING:
-				return new AverageRatingFilterDialog();
-			case CollectionFiltererFactory.TYPE_GEEK_RATING:
-				return new GeekRatingFilterDialog();
-			case CollectionFiltererFactory.TYPE_GEEK_RANKING:
-				return new GeekRankingFilterDialog();
-			case CollectionFiltererFactory.TYPE_PLAY_COUNT:
-				return new PlayCountFilterDialog();
-			case CollectionFiltererFactory.TYPE_MY_RATING:
-				return new MyRatingFilterDialog();
-		}
-		return null;
-	}
-
 	@DebugLog
 	private boolean launchFilterDialog(int filterType) {
-		CollectionFilterDialog dialog = createFilterDialog(filterType);
+		CollectionFilterDialogFactory factory = new CollectionFilterDialogFactory();
+		CollectionFilterDialog dialog = factory.create(getActivity(), filterType);
 		if (dialog != null) {
 			dialog.createDialog(getActivity(), this, findFilter(filterType));
 			return true;

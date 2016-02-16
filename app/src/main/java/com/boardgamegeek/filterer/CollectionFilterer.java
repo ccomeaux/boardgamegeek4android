@@ -3,41 +3,35 @@ package com.boardgamegeek.filterer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
-public class CollectionFilterer {
+import com.boardgamegeek.util.StringUtils;
+
+public abstract class CollectionFilterer {
 	protected static final String DELIMITER = ":";
 	protected Context context;
-
-	public CollectionFilterer() {
-	}
 
 	public CollectionFilterer(@NonNull Context context) {
 		this.context = context;
 	}
 
-	public void setData(@NonNull String data) {
-	}
+	public abstract void setData(@NonNull String data);
+
+	@StringRes
+	public abstract int getTypeResourceId();
 
 	public int getType() {
-		return -1;
+		return StringUtils.parseInt(context.getString(getTypeResourceId(), CollectionFiltererFactory.TYPE_UNKNOWN));
 	}
 
-	public String getDisplayText() {
-		return "";
-	}
+	public abstract String getDisplayText();
 
-	public String getSelection() {
-		return "";
-	}
+	public abstract String getSelection();
 
-	public String[] getSelectionArgs() {
-		return null;
-	}
+	public abstract String[] getSelectionArgs();
 
-	public String flatten() {
-		return "";
-	}
+	public abstract String flatten();
 
 	public boolean isValid() {
 		return !TextUtils.isEmpty(getDisplayText()) && !TextUtils.isEmpty(getSelection());

@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.PlayerNumberFilterer;
 
 public class PlayerNumberFilterDialog extends SliderFilterDialog {
@@ -29,8 +28,8 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getType() {
-		return CollectionFiltererFactory.TYPE_PLAYER_NUMBER;
+	public int getType(Context context) {
+		return new PlayerNumberFilterer(context).getType();
 	}
 
 	@Override

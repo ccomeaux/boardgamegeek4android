@@ -36,8 +36,8 @@ public class AverageRatingFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_AVERAGE_RATING;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_average_rating;
 	}
 
 	@Override

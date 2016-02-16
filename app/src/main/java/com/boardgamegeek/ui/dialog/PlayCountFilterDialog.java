@@ -5,7 +5,6 @@ import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.PlayCountFilterer;
 
 public class PlayCountFilterDialog extends SliderFilterDialog {
@@ -25,8 +24,8 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getType() {
-		return CollectionFiltererFactory.TYPE_PLAY_COUNT;
+	public int getType(Context context) {
+		return new PlayCountFilterer(context).getType();
 	}
 
 	@Override

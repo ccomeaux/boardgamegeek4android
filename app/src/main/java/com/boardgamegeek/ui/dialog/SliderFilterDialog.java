@@ -56,7 +56,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 			.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.removeFilter(getType());
+					view.removeFilter(getType(context));
 				}
 			}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 				@Override
@@ -130,8 +130,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 	@StringRes
 	protected abstract int getTitleId();
-
-	protected abstract int getType();
 
 	protected abstract CollectionFilterer getPositiveData(final Context context, int min, int max, boolean checkbox);
 

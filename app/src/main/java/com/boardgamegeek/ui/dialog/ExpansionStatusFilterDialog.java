@@ -6,7 +6,6 @@ import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.ExpansionStatusFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 
@@ -25,12 +24,17 @@ public class ExpansionStatusFilterDialog implements CollectionFilterDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (selectedSubtype == 0) {
-					view.removeFilter(CollectionFiltererFactory.TYPE_EXPANSION_STATUS);
+					view.removeFilter(getType(context));
 				} else {
 					view.addFilter(new ExpansionStatusFilterer(context, selectedSubtype));
 				}
 			}
 		}).setNegativeButton(R.string.cancel, null).create().show();
+	}
+
+	@Override
+	public int getType(Context context) {
+		return new ExpansionStatusFilterer(context).getType();
 	}
 
 	private void init(ExpansionStatusFilterer filter) {

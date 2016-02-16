@@ -25,8 +25,8 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_EXPANSION_STATUS;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_subtype;
 	}
 
 	@Override

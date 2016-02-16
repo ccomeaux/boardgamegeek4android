@@ -3,6 +3,7 @@ package com.boardgamegeek.filterer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 import java.util.Calendar;
@@ -32,8 +33,8 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_YEAR_PUBLISHED;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_year_published;
 	}
 
 	@Override

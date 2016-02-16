@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.PlayTimeFilterer;
 
 public class PlayTimeFilterDialog extends SliderFilterDialog {
@@ -19,8 +18,8 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getType() {
-		return CollectionFiltererFactory.TYPE_PLAY_TIME;
+	public int getType(Context context) {
+		return new PlayTimeFilterer(context).getType();
 	}
 
 	@Override

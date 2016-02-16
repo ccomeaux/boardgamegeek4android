@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.GeekRankingFilterer;
 
 public class GeekRankingFilterDialog extends SliderFilterDialog {
@@ -19,8 +18,8 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getType() {
-		return CollectionFiltererFactory.TYPE_GEEK_RANKING;
+	public int getType(Context context) {
+		return new GeekRankingFilterer(context).getType();
 	}
 
 	@Override

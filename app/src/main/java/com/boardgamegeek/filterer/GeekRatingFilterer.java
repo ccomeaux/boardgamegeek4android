@@ -35,8 +35,8 @@ public class GeekRatingFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_GEEK_RATING;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_geek_rating;
 	}
 
 	@NonNull

@@ -32,8 +32,8 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getType() {
-		return CollectionFiltererFactory.TYPE_AVERAGE_RATING;
+	public int getType(Context context) {
+		return new AverageRatingFilterer(context).getType();
 	}
 
 	@Override

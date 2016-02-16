@@ -3,6 +3,7 @@ package com.boardgamegeek.filterer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class GeekRankingFilterer extends CollectionFilterer {
@@ -33,8 +34,8 @@ public class GeekRankingFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_GEEK_RANKING;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_geek_ranking;
 	}
 
 	@NonNull

@@ -34,8 +34,8 @@ public class SuggestedAgeFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_SUGGESTED_AGE;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_suggested_age;
 	}
 
 	@Override

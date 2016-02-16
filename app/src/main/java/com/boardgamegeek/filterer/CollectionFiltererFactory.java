@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollectionFiltererFactory {
+	public static final int TYPE_UNKNOWN = -1;
+
 	private final List<CollectionFilterer> filterers;
 
 	public CollectionFiltererFactory(@NonNull Context context) {
@@ -33,17 +35,4 @@ public class CollectionFiltererFactory {
 		}
 		return null;
 	}
-
-	public static final int TYPE_COLLECTION_STATUS = 1;
-	public static final int TYPE_PLAYER_NUMBER = 2;
-	public static final int TYPE_PLAY_TIME = 3;
-	public static final int TYPE_SUGGESTED_AGE = 4;
-	public static final int TYPE_AVERAGE_WEIGHT = 5;
-	public static final int TYPE_YEAR_PUBLISHED = 6;
-	public static final int TYPE_AVERAGE_RATING = 7;
-	public static final int TYPE_GEEK_RATING = 8;
-	public static final int TYPE_GEEK_RANKING = 9;
-	public static final int TYPE_EXPANSION_STATUS = 10;
-	public static final int TYPE_PLAY_COUNT = 11;
-	public static final int TYPE_MY_RATING = 12;
 }

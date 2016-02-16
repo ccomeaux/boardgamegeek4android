@@ -33,8 +33,8 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_COLLECTION_STATUS;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_collection_status;
 	}
 
 	@Override

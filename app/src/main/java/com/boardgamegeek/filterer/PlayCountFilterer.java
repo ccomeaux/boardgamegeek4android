@@ -31,8 +31,8 @@ public class PlayCountFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionFiltererFactory.TYPE_PLAY_COUNT;
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_play_count;
 	}
 
 	@NonNull

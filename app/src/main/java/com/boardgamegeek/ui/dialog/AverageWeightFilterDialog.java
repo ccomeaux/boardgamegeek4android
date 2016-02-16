@@ -21,8 +21,8 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getType() {
-		return CollectionFiltererFactory.TYPE_AVERAGE_WEIGHT;
+	public int getType(Context context) {
+		return new AverageWeightFilterer(context).getType();
 	}
 
 	@Override
