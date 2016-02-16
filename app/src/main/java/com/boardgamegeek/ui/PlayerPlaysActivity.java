@@ -23,7 +23,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlayerActivity extends SimpleSinglePaneActivity {
+public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_PLAYER_USERNAME = "PLAYER_USERNAME";
 	private int playCount;
@@ -134,7 +134,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 				@Override
 				public void onFinishEditDialog(String inputText) {
 					if (!TextUtils.isEmpty(inputText)) {
-						RenamePlayerTask task = new RenamePlayerTask(PlayerActivity.this, username, oldName, inputText);
+						RenamePlayerTask task = new RenamePlayerTask(PlayerPlaysActivity.this, username, oldName, inputText);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}

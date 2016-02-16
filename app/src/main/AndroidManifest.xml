@@ -179,7 +179,7 @@
 				android:value=".ui.PlaysActivity"/>
 		</activity>
 		<activity
-			android:name=".ui.PlayerActivity"
+			android:name=".ui.PlayerPlaysActivity"
 			android:exported="false"
 			android:label="@string/title_player">
 			<meta-data

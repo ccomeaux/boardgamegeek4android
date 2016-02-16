@@ -17,7 +17,7 @@ import com.boardgamegeek.ui.BuddyActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
-import com.boardgamegeek.ui.PlayerActivity;
+import com.boardgamegeek.ui.PlayerPlaysActivity;
 
 import java.util.List;
 
@@ -98,10 +98,10 @@ public class ActivityUtils {
 	}
 
 	@NonNull
-	public static Intent createPlayerIntent(Context context, String name, String username) {
-		Intent intent = new Intent(context, PlayerActivity.class);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_NAME, name);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_USERNAME, username);
+	public static Intent createPlayerPlaysIntent(Context context, String name, String username) {
+		Intent intent = new Intent(context, PlayerPlaysActivity.class);
+		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_NAME, name);
+		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_USERNAME, username);
 		return intent;
 	}
 
@@ -141,14 +141,12 @@ public class ActivityUtils {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
-	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-										 String imageUrl) {
+	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName,
-										  String thumbnailUrl, String imageUrl) {
+	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName,										  String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
 		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
@@ -158,21 +156,18 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-								String imageUrl) {
+	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,								String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-							   String imageUrl) {
+	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,							   String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-							   String imageUrl) {
+	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl,							   String imageUrl) {
 		Intent intent = createRematchIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
@@ -183,15 +178,13 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl,
-							   boolean customPlayerSort) {
+	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl,							   boolean customPlayerSort) {
 		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
-	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
-											  String thumbnailUrl, String imageUrl) {
+	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,											  String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
