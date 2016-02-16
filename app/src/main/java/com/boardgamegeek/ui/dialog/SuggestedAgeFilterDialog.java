@@ -6,58 +6,39 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.SuggestedAgeFilterer;
 
-public class SuggestedAgeFilter extends SliderFilter {
-	private int mMinAge;
-	private int mMaxAge;
-	private boolean mUndefined;
-	
+public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinAge = SuggestedAgeFilterer.MIN_RANGE;
-			mMaxAge = SuggestedAgeFilterer.MAX_RANGE;
-			mUndefined = false;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		int min = SuggestedAgeFilterer.MIN_RANGE;
+		int max = SuggestedAgeFilterer.MAX_RANGE;
+		boolean includeUndefined = false;
+		if (filter != null) {
 			SuggestedAgeFilterer data = (SuggestedAgeFilterer) filter;
-			mMinAge = data.getMin();
-			mMaxAge = data.getMax();
-			mUndefined = data.includeUndefined();
+			min = data.getMin();
+			max = data.getMax();
+			includeUndefined = data.includeUndefined();
 		}
+		return new InitialValues(min, max, includeUndefined);
 	}
 
 	@Override
 	protected int getTitleId() {
 		return R.string.menu_suggested_age;
 	}
-	
+
 	@Override
 	protected int getDescriptionId() {
 		return R.string.filter_description_include_missing_suggested_age;
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new SuggestedAgeFilterer();
+	public int getType(Context context) {
+		return new SuggestedAgeFilterer(context).getType();
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new SuggestedAgeFilterer(context, mMinAge, mMaxAge, mUndefined);
-	}
-
-	@Override
-	protected int getMin() {
-		return mMinAge;
-	}
-
-	@Override
-	protected int getMax() {
-		return mMaxAge;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return mUndefined;
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new SuggestedAgeFilterer(context, min, max, checkbox);
 	}
 
 	@Override
@@ -68,13 +49,6 @@ public class SuggestedAgeFilter extends SliderFilter {
 	@Override
 	protected int getAbsoluteMax() {
 		return SuggestedAgeFilterer.MAX_RANGE;
-	}
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinAge = min;
-		mMaxAge = max;
-		mUndefined = checkbox;
 	}
 
 	@Override

@@ -1,11 +1,12 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class PlayerNumberFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
@@ -15,56 +16,56 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 	private int max;
 	private boolean isExact;
 
-	public PlayerNumberFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
-	}
-
-	public PlayerNumberFilterer(@NonNull Context context, @NonNull String data) {
-		String[] d = data.split(DELIMITER);
-		min = Integer.valueOf(d[0]);
-		max = Integer.valueOf(d[1]);
-		isExact = (d[2].equals("1"));
-		init(context);
+	public PlayerNumberFilterer(Context context) {
+		super(context);
 	}
 
 	public PlayerNumberFilterer(@NonNull Context context, int min, int max, boolean isExact) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.isExact = isExact;
-		init(context);
 	}
 
-	private void init(@NonNull Context context) {
-		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
-		setDisplayText(context.getResources());
-		setSelection();
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		isExact = d.length > 2 && (d[2].equals("1"));
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_number_of_players;
+	}
+
+	@Override
+	public String getDisplayText() {
 		String range = "";
 		if (isExact) {
-			range = r.getString(R.string.exactly) + " ";
+			range = context.getString(R.string.exactly) + " ";
 		}
 		if (min == max) {
 			range += String.valueOf(max);
 		} else {
 			range += String.valueOf(min) + "-" + String.valueOf(max);
 		}
-		displayText(range + " " + r.getString(R.string.players));
+		return range + " " + context.getString(R.string.players);
 	}
 
-	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
+	@Override
+	public String getSelection() {
 		if (isExact) {
-			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
-			selectionArgs(minValue, maxValue);
+			return Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?";
 		} else {
-			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS
-				+ " IS NULL)");
-			selectionArgs(minValue, maxValue);
+			return Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS + " IS NULL)";
 		}
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		return new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 
 	public int getMin() {

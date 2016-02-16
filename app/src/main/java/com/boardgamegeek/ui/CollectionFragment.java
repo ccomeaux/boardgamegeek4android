@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -39,10 +38,8 @@ import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
-import com.boardgamegeek.filterer.CollectionFilterDataFactory;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionStatusFilterer;
-import com.boardgamegeek.filterer.ExpansionStatusFilterer;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -51,22 +48,12 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
-import com.boardgamegeek.ui.dialog.AverageRatingFilter;
-import com.boardgamegeek.ui.dialog.AverageWeightFilter;
+import com.boardgamegeek.ui.dialog.CollectionFilterDialog;
+import com.boardgamegeek.ui.dialog.CollectionFilterDialogFactory;
+import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment.Listener;
-import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.DeleteView;
-import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
-import com.boardgamegeek.ui.dialog.GeekRankingFilter;
-import com.boardgamegeek.ui.dialog.GeekRatingFilter;
-import com.boardgamegeek.ui.dialog.MyRatingFilter;
-import com.boardgamegeek.ui.dialog.PlayCountFilter;
-import com.boardgamegeek.ui.dialog.PlayTimeFilter;
-import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.dialog.SaveView;
-import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
-import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -93,16 +80,17 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
 	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
-	private static final String STATE_FILTERS = "STATE_FILTERS";
+	private static final String STATE_FILTER_TYPES = "STATE_FILTER_TYPES";
+	private static final String STATE_FILTER_DATA = "STATE_FILTER_DATA";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	@InjectView(R.id.frame_container) ViewGroup frameContainer;
-	@InjectView(R.id.footer_container) ViewGroup footerContainer;
-	@InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
-	@InjectView(R.id.filter_scroll_view) View filterButtonScroll;
-	@InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
-	@InjectView(R.id.row_count) TextView rowCountView;
-	@InjectView(R.id.sort_description) TextView sortDescriptionView;
+	@SuppressWarnings("unused") @InjectView(R.id.frame_container) ViewGroup frameContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.footer_container) ViewGroup footerContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.filter_scroll_view) View filterButtonScroll;
+	@SuppressWarnings("unused") @InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
+	@SuppressWarnings("unused") @InjectView(R.id.row_count) TextView rowCountView;
+	@SuppressWarnings("unused") @InjectView(R.id.sort_description) TextView sortDescriptionView;
 
 	@NonNull private Handler timeUpdateHandler = new Handler();
 	@Nullable private Runnable timeUpdateRunnable = null;
@@ -110,8 +98,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionAdapter adapter;
 	private long viewId;
 	@Nullable private String viewName = "";
-	@Nullable private CollectionSorter sorter;
-	@Nullable private List<CollectionFilterer> filters = new ArrayList<>();
+	private CollectionSorter sorter;
+	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
 	private boolean isCreatingShortcut;
 	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
@@ -129,7 +117,23 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			selectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
 			viewId = savedInstanceState.getLong(STATE_VIEW_ID);
 			viewName = savedInstanceState.getString(STATE_VIEW_NAME);
-			filters = savedInstanceState.getParcelableArrayList(STATE_FILTERS);
+
+			filters.clear();
+			ArrayList<Integer> types = savedInstanceState.getIntegerArrayList(STATE_FILTER_TYPES);
+			ArrayList<String> data = savedInstanceState.getStringArrayList(STATE_FILTER_DATA);
+			if (types != null && data != null) {
+				if (types.size() != data.size()) {
+					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2@s", types.size(), data.size());
+				} else {
+					CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
+					for (int i = 0; i < types.size(); i++) {
+						CollectionFilterer filterer = factory.create(types.get(i));
+						filterer.setData(data.get(i));
+						filters.add(filterer);
+
+					}
+				}
+			}
 		}
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
@@ -172,7 +176,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
 		}
-		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+		if (getListView() != null) {
+			ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+		}
 	}
 
 	private CollectionSorter getCollectionSorter(int sortType) {
@@ -212,7 +218,16 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		outState.putLong(STATE_VIEW_ID, viewId);
 		outState.putString(STATE_VIEW_NAME, viewName);
 		outState.putInt(STATE_SORT_TYPE, sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType());
-		outState.putParcelableArrayList(STATE_FILTERS, (ArrayList<? extends Parcelable>) filters);
+
+		ArrayList<Integer> types = new ArrayList<>();
+		ArrayList<String> data = new ArrayList<>();
+		for (CollectionFilterer filterer : filters) {
+			types.add(filterer.getType());
+			data.add(filterer.flatten());
+		}
+		outState.putIntegerArrayList(STATE_FILTER_TYPES, types);
+		outState.putStringArrayList(STATE_FILTER_DATA, data);
+
 		if (selectedCollectionId > 0) {
 			outState.putInt(STATE_SELECTED_ID, selectedCollectionId);
 		}
@@ -245,7 +260,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			menu.findItem(R.id.menu_collection_view_save).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
-			final boolean hasFiltersApplied = (filters != null && filters.size() > 0);
+			final boolean hasFiltersApplied = (filters.size() > 0);
 			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
 			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
 			final boolean hasItems = adapter != null && adapter.getCount() > 0;
@@ -272,15 +287,25 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					DeleteView.createDialog(getActivity(), CollectionFragment.this);
 					return true;
 				case R.id.menu_collection_sort:
-					final CollectionSortDialogFragment fragment =
-						CollectionSortDialogFragment.newInstance(swipeRefreshLayout, new Listener() {
+					final CollectionSortDialogFragment sortFragment =
+						CollectionSortDialogFragment.newInstance(swipeRefreshLayout, new CollectionSortDialogFragment.Listener() {
 							@Override
 							public void onSortSelected(int sortType) {
 								setSort(sortType);
 							}
 						});
-					fragment.setSelection(sorter.getType());
-					fragment.show(getFragmentManager(), "sort");
+					sortFragment.setSelection(sorter.getType());
+					sortFragment.show(getFragmentManager(), "sort");
+					return true;
+				case R.id.menu_collection_filter:
+					final CollectionFilterDialogFragment filterFragment =
+						CollectionFilterDialogFragment.newInstance(swipeRefreshLayout, new CollectionFilterDialogFragment.Listener() {
+							@Override
+							public void onFilterSelected(int filterType) {
+								launchFilterDialog(filterType);
+							}
+						});
+					filterFragment.show(getFragmentManager(), "filter");
 					return true;
 			}
 			return launchFilterDialog(item.getItemId());
@@ -308,7 +333,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			StringBuilder where = new StringBuilder();
 			String[] args = {};
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
-			if (viewId == 0 && filters == null || filters.size() == 0) {
+			if (viewId == 0 && filters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
 				for (CollectionFilterer filter : filters) {
@@ -434,8 +459,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				sorter = getCollectionSorter(cursor.getInt(ViewQuery.SORT_TYPE));
 				filters.clear();
 				do {
-					CollectionFilterer filter = CollectionFilterDataFactory.create(getActivity(),
-						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
+					CollectionFilterer filter = new CollectionFiltererFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
+					filter.setData(cursor.getString(ViewQuery.DATA));
 					filters.add(filter);
 				} while (cursor.moveToNext());
 				setEmptyText();
@@ -505,8 +530,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void removeFilter(CollectionFilterer filter) {
-		filters.remove(filter);
+	public void removeFilter(int type) {
+		for (CollectionFilterer filter : filters) {
+			if (filter.getType() == type) {
+				filters.remove(filter);
+				break;
+			}
+		}
 		setEmptyText();
 		resetScrollState();
 		requery();
@@ -542,7 +572,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private boolean hasFiltersApplied() {
-		return filters != null && filters.size() > 0;
+		return filters.size() > 0;
 	}
 
 	private boolean hasSyncSettings() {
@@ -588,24 +618,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	private void bindFilterButtons() {
+		filterButtonContainer.removeAllViews();
+
 		final LayoutInflater layoutInflater = getLayoutInflater(null);
 		for (CollectionFilterer filter : filters) {
-			if (filter != null) {
-				Button button = (Button) filterButtonContainer.findViewWithTag(filter.getType());
-				if (button == null) {
-					filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
-				} else {
-					button.setText(filter.getDisplayText());
-				}
-			}
-		}
-
-		// Could be when button is clicked, but this keeps filters synced with collection
-		for (int i = 0; i < filterButtonContainer.getChildCount(); i++) {
-			Button button = (Button) filterButtonContainer.getChildAt(i);
-			if (!filters.contains(new CollectionFilterer((Integer) button.getTag()))) {
-				filterButtonContainer.removeView(button);
-				i--;
+			if (filter != null && !TextUtils.isEmpty(filter.getDisplayText())) {
+				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
 			}
 		}
 
@@ -631,7 +649,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		button.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				removeFilter(new CollectionFilterer(type));
+				removeFilter(type);
 				return true;
 			}
 		});
@@ -639,76 +657,16 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private boolean launchFilterDialog(int id) {
-		switch (id) {
-			case R.id.menu_collection_status:
-			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				CollectionStatusFilterer filter = null;
-				try {
-					filter = (CollectionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
-				} catch (ClassCastException e) {
-					// Getting reports of this, but don't know why
-					Timber.i("ClassCastException when attempting to display the CollectionStatusFilter dialog.");
-				}
-				new CollectionStatusFilter().createDialog(getActivity(), this, filter);
-				return true;
-			case R.id.menu_expansion_status:
-			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
-				new ExpansionStatusFilter().createDialog(getActivity(), this,
-					(ExpansionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
-				return true;
-			case R.id.menu_number_of_players:
-			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
-				new PlayerNumberFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
-				return true;
-			case R.id.menu_play_time:
-			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
-				new PlayTimeFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
-				return true;
-			case R.id.menu_suggested_age:
-			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
-				new SuggestedAgeFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
-				return true;
-			case R.id.menu_average_weight:
-			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
-				new AverageWeightFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
-				return true;
-			case R.id.menu_year_published:
-			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
-				new YearPublishedFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
-				return true;
-			case R.id.menu_average_rating:
-			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
-				new AverageRatingFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
-				return true;
-			case R.id.menu_geek_rating:
-			case CollectionFilterDataFactory.TYPE_GEEK_RATING:
-				new GeekRatingFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
-				return true;
-			case R.id.menu_geek_ranking:
-			case CollectionFilterDataFactory.TYPE_GEEK_RANKING:
-				new GeekRankingFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
-				return true;
-			case R.id.menu_play_count:
-			case CollectionFilterDataFactory.TYPE_PLAY_COUNT:
-				new PlayCountFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
-				return true;
-			case R.id.menu_my_rating:
-			case CollectionFilterDataFactory.TYPE_MY_RATING:
-				new MyRatingFilter().createDialog(getActivity(), this,
-					findFilter(CollectionFilterDataFactory.TYPE_MY_RATING));
-				return true;
+	private boolean launchFilterDialog(int filterType) {
+		CollectionFilterDialogFactory factory = new CollectionFilterDialogFactory();
+		CollectionFilterDialog dialog = factory.create(getActivity(), filterType);
+		if (dialog != null) {
+			dialog.createDialog(getActivity(), this, findFilter(filterType));
+			return true;
+		} else {
+			Timber.w("Couldn't find a filter dialog of type " + filterType);
+			return false;
 		}
-		return false;
 	}
 
 	@DebugLog
@@ -895,7 +853,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public boolean onActionItemClicked(@NonNull ActionMode mode, @NonNull android.view.MenuItem item) {
-		if (selectedPositions == null || !selectedPositions.iterator().hasNext()) {
+		if (!selectedPositions.iterator().hasNext()) {
 			return false;
 		}
 		Cursor cursor = (Cursor) adapter.getItem(selectedPositions.iterator().next());

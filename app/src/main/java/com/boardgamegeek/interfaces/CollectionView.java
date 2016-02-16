@@ -4,7 +4,7 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 
 public interface CollectionView {
 
-	void removeFilter(CollectionFilterer filter);
+	void removeFilter(int type);
 
 	void addFilter(CollectionFilterer filter);
 

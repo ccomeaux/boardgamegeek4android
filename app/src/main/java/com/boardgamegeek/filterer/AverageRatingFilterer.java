@@ -6,38 +6,44 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class AverageRatingFilterer extends CollectionFilterer {
-	public static final double MIN_RANGE = 0.0;
+	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 10.0;
 
 	private double min;
 	private double max;
+	private boolean includeUnrated;
 
-	public AverageRatingFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
+	public AverageRatingFilterer(Context context) {
+		super(context);
 	}
 
-	public AverageRatingFilterer(@NonNull Context context, @NonNull String data) {
-		String[] d = data.split(DELIMITER);
-		min = Double.valueOf(d[0]);
-		max = Double.valueOf(d[1]);
-		init(context);
-	}
-
-	public AverageRatingFilterer(@NonNull Context context, double min, double max) {
+	public AverageRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
+		super(context);
 		this.min = min;
 		this.max = max;
-		init(context);
+		this.includeUnrated = includeUnrated;
 	}
 
-	private void init(@NonNull Context context) {
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
-		setDisplayText(context.getResources());
-		setSelection();
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseDouble(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseDouble(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		includeUnrated = d.length > 2 ? (d[2].equals("1")) : (Double.valueOf(d[0]) < 1.0);
 	}
 
-	private void setDisplayText(@NonNull Resources r) {
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_average_rating;
+	}
+
+	@Override
+	public String getDisplayText() {
+		Resources r = context.getResources();
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
@@ -47,22 +53,33 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		} else {
 			text = minText + "-" + maxText;
 		}
-		displayText(r.getString(R.string.average) + " " + text);
+		if (includeUnrated) {
+			text += " (+" + context.getString(R.string.unrated) + ")";
+		}
+		return r.getString(R.string.average) + " " + text;
 	}
 
-	private void setSelection() {
-		String minValue = String.valueOf(min);
-		String maxValue = String.valueOf(max);
-
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min == max) {
 			selection = Games.STATS_AVERAGE + "=?";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.STATS_AVERAGE + ">=? AND " + Games.STATS_AVERAGE + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
-		selection(selection);
+		if (includeUnrated) {
+			selection += " OR " + Games.STATS_AVERAGE + "=0 OR " + Games.STATS_AVERAGE + " IS NULL";
+		}
+		return selection;
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min == max) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 
 	public double getMin() {
@@ -73,9 +90,13 @@ public class AverageRatingFilterer extends CollectionFilterer {
 		return max;
 	}
 
+	public boolean includeUnrated() {
+		return includeUnrated;
+	}
+
 	@NonNull
 	@Override
 	public String flatten() {
-		return String.valueOf(min) + DELIMITER + String.valueOf(max);
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUnrated ? "1" : "0");
 	}
 }

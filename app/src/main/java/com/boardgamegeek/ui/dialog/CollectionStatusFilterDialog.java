@@ -5,47 +5,54 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 
-public class CollectionStatusFilter {
+public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 
-	private String[] mStatusEntries;
-	private boolean[] mSelected;
+	private String[] statusEntries;
+	private boolean[] selectedStatuses;
 
-	public void createDialog(final Context context, final CollectionView view, CollectionStatusFilterer filter) {
-		init(context, filter);
+	@Override
+	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
+		init(context, (CollectionStatusFilterer) filter);
 
 		new AlertDialog.Builder(context).setTitle(R.string.menu_collection_status)
-			.setMultiChoiceItems(mStatusEntries, mSelected, new DialogInterface.OnMultiChoiceClickListener() {
+			.setMultiChoiceItems(statusEntries, selectedStatuses, new DialogInterface.OnMultiChoiceClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-					mSelected[which] = isChecked;
+					selectedStatuses[which] = isChecked;
 				}
 			}).setNegativeButton(R.string.or, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				view.addFilter(new CollectionStatusFilterer(context, mSelected, true));
+				view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, true));
 			}
 		}).setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				view.addFilter(new CollectionStatusFilterer(context, mSelected, false));
+				view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, false));
 			}
 		}).setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				view.removeFilter(new CollectionStatusFilterer());
+				view.removeFilter(getType(context));
 			}
 		}).create().show();
 	}
 
+	@Override
+	public int getType(Context context) {
+		return new CollectionStatusFilterer(context).getType();
+	}
+
 	private void init(final Context context, CollectionStatusFilterer filter) {
-		mStatusEntries = context.getResources().getStringArray(R.array.collection_status_filter_entries);
+		statusEntries = context.getResources().getStringArray(R.array.collection_status_filter_entries);
 		if (filter == null) {
-			mSelected = new boolean[mStatusEntries.length];
+			selectedStatuses = new boolean[statusEntries.length];
 		} else {
-			mSelected = filter.getSelectedStatuses();
+			selectedStatuses = filter.getSelectedStatuses();
 		}
 	}
 }

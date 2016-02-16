@@ -1,8 +1,12 @@
 package com.boardgamegeek.filterer;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class GeekRankingFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
@@ -12,23 +16,28 @@ public class GeekRankingFilterer extends CollectionFilterer {
 	private int max;
 	private boolean includeUnranked;
 
-	public GeekRankingFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
+	public GeekRankingFilterer(Context context) {
+		super(context);
 	}
 
-	public GeekRankingFilterer(int min, int max, boolean includeUnranked) {
+	public GeekRankingFilterer(Context context, int min, int max, boolean includeUnranked) {
+		super(context);
 		this.min = min;
 		this.max = max;
 		this.includeUnranked = includeUnranked;
-		init();
 	}
 
-	public GeekRankingFilterer(@NonNull String data) {
+	@Override
+	public void setData(@NonNull String data) {
 		String[] d = data.split(DELIMITER);
-		min = Integer.valueOf(d[0]);
-		max = Integer.valueOf(d[1]);
-		includeUnranked = Boolean.valueOf(d[2]);
-		init();
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		includeUnranked = d.length > 2 && (d[2].equals("1"));
+	}
+
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_geek_ranking;
 	}
 
 	@NonNull
@@ -49,13 +58,8 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		return includeUnranked;
 	}
 
-	private void init() {
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
-		setDisplayText();
-		setSelection();
-	}
-
-	private void setDisplayText() {
+	@Override
+	public String getDisplayText() {
 		String minText = String.valueOf(min);
 		String maxText = String.valueOf(max);
 
@@ -70,21 +74,29 @@ public class GeekRankingFilterer extends CollectionFilterer {
 		if (includeUnranked) {
 			text += " (+?)";
 		}
-		displayText("#" + text);
+		return "#" + text;
 	}
 
-	private void setSelection() {
+	@Override
+	public String getSelection() {
 		String selection;
 		if (min >= MAX_RANGE) {
 			selection = Games.GAME_RANK + ">=?";
-			selectionArgs(String.valueOf(MAX_RANGE));
 		} else {
 			selection = "(" + Games.GAME_RANK + ">=? AND " + Games.GAME_RANK + "<=?)";
-			selectionArgs(String.valueOf(min), String.valueOf(max));
 		}
 		if (includeUnranked) {
 			selection += " OR " + Games.GAME_RANK + "=0 OR " + Games.GAME_RANK + " IS NULL";
 		}
-		selection(selection);
+		return selection;
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min >= MAX_RANGE) {
+			return new String[] { String.valueOf(MAX_RANGE) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 }

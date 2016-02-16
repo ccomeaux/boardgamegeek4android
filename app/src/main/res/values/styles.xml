@@ -239,6 +239,13 @@
 	<style name="Text.Body">
 	</style>
 
+	<style name="Text.Clickable">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:minHeight">@dimen/edit_row_height</item>
+
+	</style>
+
 	<style name="Text.Header">
 		<item name="android:textColor">@color/accent</item>
 	</style>

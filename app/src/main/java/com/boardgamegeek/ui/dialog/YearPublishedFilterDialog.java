@@ -7,20 +7,17 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.YearPublishedFilterer;
 
-public class YearPublishedFilter extends SliderFilter {
-	private int mMinYear;
-	private int mMaxYear;
-
+public class YearPublishedFilterDialog extends SliderFilterDialog {
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinYear = YearPublishedFilterer.MIN_RANGE;
-			mMaxYear = YearPublishedFilterer.MAX_RANGE;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		int min = YearPublishedFilterer.MIN_RANGE;
+		int max = YearPublishedFilterer.MAX_RANGE;
+		if (filter != null) {
 			YearPublishedFilterer data = (YearPublishedFilterer) filter;
-			mMinYear = data.getMin();
-			mMaxYear = data.getMax();
+			min = data.getMin();
+			max = data.getMax();
 		}
+		return new InitialValues(min, max);
 	}
 
 	@Override
@@ -29,28 +26,13 @@ public class YearPublishedFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new YearPublishedFilterer();
+	public int getType(Context context) {
+		return new YearPublishedFilterer(context).getType();
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new YearPublishedFilterer(mMinYear, mMaxYear);
-	}
-
-	@Override
-	protected int getMin() {
-		return mMinYear;
-	}
-
-	@Override
-	protected int getMax() {
-		return mMaxYear;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return false;
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new YearPublishedFilterer(context, min, max);
 	}
 
 	@Override
@@ -66,12 +48,6 @@ public class YearPublishedFilter extends SliderFilter {
 	@Override
 	protected int getAbsoluteMax() {
 		return YearPublishedFilterer.MAX_RANGE;
-	}
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinYear = min;
-		mMaxYear = max;
 	}
 
 	@Override

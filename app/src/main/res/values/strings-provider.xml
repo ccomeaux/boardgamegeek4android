@@ -24,4 +24,17 @@
 	<string name="collection_sort_type_acquired_from">19</string>
 	<string name="collection_sort_type_price_paid">20</string>
 	<string name="collection_sort_type_current_value">21</string>
+
+	<string name="collection_filter_type_collection_status">1</string>
+	<string name="collection_filter_type_subtype">10</string>
+	<string name="collection_filter_type_geek_ranking">9</string>
+	<string name="collection_filter_type_geek_rating">8</string>
+	<string name="collection_filter_type_average_rating">7</string>
+	<string name="collection_filter_type_my_rating">12</string>
+	<string name="collection_filter_type_number_of_players">2</string>
+	<string name="collection_filter_type_play_count">11</string>
+	<string name="collection_filter_type_year_published">6</string>
+	<string name="collection_filter_type_play_time">3</string>
+	<string name="collection_filter_type_suggested_age">4</string>
+	<string name="collection_filter_type_average_weight">5</string>
 </resources>

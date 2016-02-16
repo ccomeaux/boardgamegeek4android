@@ -7,30 +7,17 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.MyRatingFilterer;
 
-public class MyRatingFilter extends SliderFilter {
+public class MyRatingFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
-	private double mMinRating;
-	private double mMaxRating;
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinRating = (double) (min) / FACTOR;
-		mMaxRating = (double) (max) / FACTOR;
-	}
-
-	@Override
-	protected boolean isChecked() {
-		return false;
-	}
 
 	@Override
 	protected int getCheckboxVisibility() {
-		return View.GONE;
+		return View.VISIBLE;
 	}
 
 	@Override
-	protected int getMax() {
-		return (int) (mMaxRating * FACTOR);
+	protected int getCheckboxTextId() {
+		return R.string.unrated;
 	}
 
 	@Override
@@ -44,18 +31,13 @@ public class MyRatingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterer getNegativeData() {
-		return new MyRatingFilterer();
+	public int getType(Context context) {
+		return new MyRatingFilterer(context).getType();
 	}
 
 	@Override
-	protected CollectionFilterer getPositiveData(Context context) {
-		return new MyRatingFilterer(context, mMinRating, mMaxRating);
-	}
-
-	@Override
-	protected int getMin() {
-		return (int) (mMinRating * FACTOR);
+	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
+		return new MyRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
 	}
 
 	@Override
@@ -64,15 +46,17 @@ public class MyRatingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterer filter) {
-		if (filter == null) {
-			mMinRating = MyRatingFilterer.MIN_RANGE;
-			mMaxRating = MyRatingFilterer.MAX_RANGE;
-		} else {
+	protected InitialValues initValues(CollectionFilterer filter) {
+		double min = MyRatingFilterer.MIN_RANGE;
+		double max = MyRatingFilterer.MAX_RANGE;
+		boolean includeUnrated = true;
+		if (filter != null) {
 			MyRatingFilterer data = (MyRatingFilterer) filter;
-			mMinRating = data.getMin();
-			mMaxRating = data.getMax();
+			min = data.getMin();
+			max = data.getMax();
+			includeUnrated = data.includeUnrated();
 		}
+		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), includeUnrated);
 	}
 
 	@Override
