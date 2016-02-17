@@ -2,9 +2,12 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 public class CollectionFiltererFactory {
 	public static final int TYPE_UNKNOWN = -1;
@@ -27,12 +30,15 @@ public class CollectionFiltererFactory {
 		filterers.add(new MyRatingFilterer(context));
 	}
 
+	@Nullable
 	public CollectionFilterer create(int type) {
+		Timber.d("Finding filter " + type);
 		for (CollectionFilterer filterer : filterers) {
 			if (filterer.getType() == type) {
 				return filterer;
 			}
 		}
+		Timber.w("Found no filter!");
 		return null;
 	}
 }

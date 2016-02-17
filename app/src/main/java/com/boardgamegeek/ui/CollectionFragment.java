@@ -460,8 +460,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				filters.clear();
 				do {
 					CollectionFilterer filter = new CollectionFiltererFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
-					filter.setData(cursor.getString(ViewQuery.DATA));
-					filters.add(filter);
+					if (filter != null) {
+						filter.setData(cursor.getString(ViewQuery.DATA));
+						filters.add(filter);
+					}
 				} while (cursor.moveToNext());
 				setEmptyText();
 				requery();
