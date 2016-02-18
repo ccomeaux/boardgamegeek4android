@@ -107,7 +107,6 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	@NonNull
 	public static void startPlayerIntent(Context context, String name, String username) {
 		if (TextUtils.isEmpty(username)) {
 			Intent intent = new Intent(context, PlayerPlaysActivity.class);
@@ -117,6 +116,13 @@ public class ActivityUtils {
 		} else {
 			startBuddyActivity(context, username);
 		}
+	}
+
+	public static void startPlayerPlaysActivity(Context context, String name, String username) {
+		Intent intent = new Intent(context, PlayerPlaysActivity.class);
+		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_NAME, name);
+		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_USERNAME, username);
+		context.startActivity(intent);
 	}
 
 	@NonNull

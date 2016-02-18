@@ -51,6 +51,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_REFRESHED = "REFRESHED";
@@ -63,15 +64,18 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private Runnable timeHintUpdateRunnable = null;
 
 	private String buddyName;
+	private String playerName;
 	private boolean isRefreshing;
 	private boolean hasBeenRefreshed;
 
 	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
+	@SuppressWarnings("unused") @InjectView(R.id.buddy_info) View buddyInfoView;
 	@SuppressWarnings("unused") @InjectView(R.id.full_name) TextView fullNameView;
 	@SuppressWarnings("unused") @InjectView(R.id.username) TextView usernameView;
 	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView avatarView;
 	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView nicknameView;
+	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
 	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsView;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updatedView;
@@ -88,6 +92,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 	}
 
 	@Override
@@ -102,18 +107,36 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		ButterKnife.inject(this, rootView);
 
+		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
+		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);
+		updatedView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
+
 		swipeRefreshLayout = (SwipeRefreshLayout) rootView;
-		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		if (isUser()) {
+			swipeRefreshLayout.setOnRefreshListener(this);
+			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+			swipeRefreshLayout.setEnabled(true);
+		} else {
+			swipeRefreshLayout.setEnabled(false);
+		}
 
 		defaultTextColor = nicknameView.getTextColors().getDefaultColor();
 		lightTextColor = getResources().getColor(R.color.light_text);
 
-		getLoaderManager().restartLoader(TOKEN, null, this);
+		if (isUser()) {
+			getLoaderManager().restartLoader(TOKEN, null, this);
+		} else {
+			nicknameView.setTextColor(defaultTextColor);
+			nicknameView.setText(playerName);
+		}
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 
 		return rootView;
+	}
+
+	private boolean isUser() {
+		return !TextUtils.isEmpty(buddyName);
 	}
 
 	@DebugLog
@@ -180,12 +203,22 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(buddyName), Buddy.PROJECTION, null, null, null);
 				break;
 			case PLAYS_TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Plays.buildPlayersByUniqueUserUri(),
-					Player.PROJECTION,
-					PlayPlayers.USER_NAME + "=?",
-					new String[] { String.valueOf(buddyName) },
-					null);
+				if (isUser()) {
+					loader = new CursorLoader(getActivity(),
+						Plays.buildPlayersByUniqueUserUri(),
+						Player.PROJECTION,
+						PlayPlayers.USER_NAME + "=?",
+						new String[] { buddyName },
+						null);
+
+				} else {
+					loader = new CursorLoader(getActivity(),
+						Plays.buildPlayersByUniquePlayerUri(),
+						Player.PROJECTION,
+						PlayPlayers.NAME + "=?",
+						new String[] { playerName },
+						null);
+				}
 				break;
 			case COLORS_TOKEN:
 				loader = new CursorLoader(getActivity(),
@@ -245,9 +278,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick(View v) {
-		Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		startActivity(intent);
+		if (isUser()) {
+			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
+			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
+			startActivity(intent);
+		} else {
+			ActivityUtils.startPlayerPlaysActivity(getActivity(), playerName, buddyName);
+		}
 	}
 
 	@DebugLog
@@ -362,7 +399,11 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	public void forceRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, buddyName);
+		if (isUser()) {
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, buddyName);
+		} else {
+			Timber.w("Something tried to refresh a player that wasn't a user!");
+		}
 	}
 
 	private void showDialog(final String nickname, final String username) {

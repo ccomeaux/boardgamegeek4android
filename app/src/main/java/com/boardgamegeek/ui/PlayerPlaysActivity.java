@@ -117,7 +117,7 @@ public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 		name = event.getPlayerName();
 		getIntent().putExtra(KEY_PLAYER_NAME, name);
 		setSubtitle();
-		// recreate fragment to load the list with the new location
+		// recreate fragment to load the list with the new player
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
 		editTextDialogFragment = null;
