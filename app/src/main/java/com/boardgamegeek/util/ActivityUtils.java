@@ -22,18 +22,19 @@ import com.boardgamegeek.ui.PlayerPlaysActivity;
 import java.util.List;
 
 public class ActivityUtils {
-	public final static String KEY_TITLE = "TITLE";
-	public final static String KEY_GAME_ID = "GAME_ID";
-	public final static String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_TITLE = "TITLE";
+	public static final String KEY_GAME_ID = "GAME_ID";
+	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_COLLECTION_ID = "COLLECTION_ID";
 	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
-	public final static String KEY_IMAGE_URL = "IMAGE_URL";
-	public final static String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	public final static String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
+	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
-	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
-	public final static String KEY_SORT = "SORT";
+	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
+	public static final String KEY_SORT = "SORT";
 	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_USER = "USER";
 	public static final String KEY_USERNAME = "USERNAME";
 	public static final String KEY_FORUM_ID = "FORUM_ID";
@@ -85,15 +86,24 @@ public class ActivityUtils {
 		context.startActivity(createBuddyIntent(context, buddyName));
 	}
 
+	public static void startBuddyActivity(Context context, String buddyName, String playerName) {
+		context.startActivity(createBuddyIntent(context, buddyName, playerName));
+	}
+
 	public static void navigateUpToBuddy(Context context, String buddyName) {
 		Intent intent = createBuddyIntent(context, buddyName);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
 	}
 
-	private static Intent createBuddyIntent(Context context, String buddyName) {
+	private static Intent createBuddyIntent(Context context, String username) {
+		return createBuddyIntent(context, username, null);
+	}
+
+	private static Intent createBuddyIntent(Context context, String username, String playerName) {
 		Intent intent = new Intent(context, BuddyActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
+		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		return intent;
 	}
 
