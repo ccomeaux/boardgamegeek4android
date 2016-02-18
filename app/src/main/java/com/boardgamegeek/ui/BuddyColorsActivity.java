@@ -47,6 +47,7 @@ import timber.log.Timber;
 public class BuddyColorsActivity extends BaseActivity {
 	private QueryHandler queryHandler;
 	private String buddyName;
+	private String playerName;
 	private List<BuddyColor> colors;
 	private Adapter adapter;
 
@@ -100,11 +101,12 @@ public class BuddyColorsActivity extends BaseActivity {
 		ButterKnife.inject(this);
 
 		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		if (TextUtils.isEmpty(buddyName)) {
-			Timber.w("Can't launch - missing buddy name.");
+		playerName = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
+		if (TextUtils.isEmpty(buddyName) && TextUtils.isEmpty(playerName)) {
+			Timber.w("Can't launch - missing both buddy name and username.");
 			finish();
 		}
-		setSubtitle(buddyName);
+		setSubtitle(TextUtils.isEmpty(buddyName) ? playerName : buddyName);
 
 		list.setSelector(android.R.color.transparent);
 		list.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
@@ -127,7 +129,7 @@ public class BuddyColorsActivity extends BaseActivity {
 		super.onStop();
 		if (colors != null) {
 			final ContentResolver resolver = getContentResolver();
-			resolver.delete(PlayerColors.buildUserUri(buddyName), null, null);
+			deleteColors(resolver);
 			if (colors.size() > 0) {
 				ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 				for (int i = 0; i < colors.size(); i++) {
@@ -135,13 +137,7 @@ public class BuddyColorsActivity extends BaseActivity {
 					final int sortOrder = colors.get(i).getSortOrder();
 
 					if (!TextUtils.isEmpty(color)) {
-						Builder builder;
-						if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(buddyName, sortOrder))) {
-							builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(buddyName, sortOrder));
-						} else {
-							builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(buddyName))
-								.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
-						}
+						Builder builder = createCpoBuilder(resolver, sortOrder);
 						batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
 					}
 				}
@@ -149,6 +145,36 @@ public class BuddyColorsActivity extends BaseActivity {
 			}
 			colors = null; // to force a load from cursor
 		}
+	}
+
+	@DebugLog
+	private void deleteColors(ContentResolver resolver) {
+		if (TextUtils.isEmpty(buddyName)) {
+			resolver.delete(PlayerColors.buildPlayerUri(playerName), null, null);
+		} else {
+			resolver.delete(PlayerColors.buildUserUri(buddyName), null, null);
+		}
+	}
+
+	@DebugLog
+	private Builder createCpoBuilder(ContentResolver resolver, int sortOrder) {
+		Builder builder;
+		if (TextUtils.isEmpty(buddyName)) {
+			if (ResolverUtils.rowExists(resolver, PlayerColors.buildPlayerUri(playerName, sortOrder))) {
+				builder = ContentProviderOperation.newUpdate(PlayerColors.buildPlayerUri(playerName, sortOrder));
+			} else {
+				builder = ContentProviderOperation.newInsert(PlayerColors.buildPlayerUri(playerName))
+					.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
+			}
+		} else {
+			if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(buddyName, sortOrder))) {
+				builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(buddyName, sortOrder));
+			} else {
+				builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(buddyName))
+					.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
+			}
+		}
+		return builder;
 	}
 
 	@DebugLog
@@ -176,7 +202,7 @@ public class BuddyColorsActivity extends BaseActivity {
 				}).show();
 				break;
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, buddyName);
+				ActivityUtils.navigateUpToBuddy(this, buddyName, playerName);
 				finish();
 				return true;
 		}
@@ -189,7 +215,9 @@ public class BuddyColorsActivity extends BaseActivity {
 			// we already have the play from the saved instance
 			bindUi();
 		} else {
-			queryHandler.startQuery(0, null, PlayerColors.buildUserUri(buddyName), BuddyColor.PROJECTION, null, null, null);
+			queryHandler.startQuery(0, null,
+				TextUtils.isEmpty(buddyName) ? PlayerColors.buildPlayerUri(playerName) : PlayerColors.buildUserUri(buddyName),
+				BuddyColor.PROJECTION, null, null, null);
 		}
 	}
 

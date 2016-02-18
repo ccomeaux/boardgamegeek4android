@@ -222,7 +222,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				break;
 			case COLORS_TOKEN:
 				loader = new CursorLoader(getActivity(),
-					PlayerColors.buildUserUri(buddyName),
+					isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName),
 					BuddyColor.PROJECTION,
 					null, null, null);
 				break;
@@ -293,6 +293,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	public void onColorsClick(View v) {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
+		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		startActivity(intent);
 	}
 

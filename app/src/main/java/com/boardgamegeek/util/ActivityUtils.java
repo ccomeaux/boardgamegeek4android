@@ -91,7 +91,11 @@ public class ActivityUtils {
 	}
 
 	public static void navigateUpToBuddy(Context context, String buddyName) {
-		Intent intent = createBuddyIntent(context, buddyName);
+		navigateUpToBuddy(context, buddyName, null);
+	}
+
+	public static void navigateUpToBuddy(Context context, String buddyName, String playerName) {
+		Intent intent = createBuddyIntent(context, buddyName, playerName);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
 	}
