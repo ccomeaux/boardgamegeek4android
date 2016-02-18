@@ -72,7 +72,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@SuppressWarnings("unused") @InjectView(R.id.username) TextView usernameView;
 	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView avatarView;
 	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView nicknameView;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView mPlays;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsView;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updatedView;
 	private int defaultTextColor;
@@ -314,7 +314,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 
 		Player player = Player.fromCursor(cursor);
-		mPlays.setText(StringUtils.boldSecondString("", String.valueOf(player.getPlayCount()), getString(R.string.title_plays)));
+		playsView.setText(StringUtils.boldSecondString("", String.valueOf(player.getPlayCount()), getString(R.string.title_plays)));
 	}
 
 	private void onColorsQueryComplete(Cursor cursor) {
@@ -366,8 +366,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	private void showDialog(final String nickname, final String username) {
-		final LayoutInflater inflater = (LayoutInflater) getActivity()
-			.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.dialog_edit_nickname, rootView, false);
 
 		final EditText editText = (EditText) view.findViewById(R.id.edit_nickname);
@@ -383,8 +382,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String newNickname = editText.getText().toString();
-					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(),
-						username, newNickname, checkBox.isChecked());
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, checkBox.isChecked());
 					TaskUtils.executeAsyncTask(task);
 				}
 			}).create();
