@@ -36,8 +36,8 @@ import timber.log.Timber;
 public class BuddiesFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int TOKEN = 0;
 	private static final String SORT_COLUMN = Buddies.BUDDY_LASTNAME;
-	private BuddiesAdapter mAdapter;
-	private int mSelectedBuddyId;
+	private BuddiesAdapter adapter;
+	private int selectedBuddyId;
 
 	@DebugLog
 	@Override
@@ -60,11 +60,12 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		EventBus.getDefault().postSticky(new BuddySelectedEvent(buddyId, name, fullName));
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(BuddySelectedEvent event) {
-		mSelectedBuddyId = event.getBuddyId();
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
+		selectedBuddyId = event.getBuddyId();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
@@ -106,11 +107,11 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 		int token = loader.getId();
 		if (token == TOKEN) {
-			if (mAdapter == null) {
-				mAdapter = new BuddiesAdapter(getActivity());
-				setListAdapter(mAdapter);
+			if (adapter == null) {
+				adapter = new BuddiesAdapter(getActivity());
+				setListAdapter(adapter);
 			}
-			mAdapter.changeCursor(cursor);
+			adapter.changeCursor(cursor);
 			EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
@@ -122,20 +123,20 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		adapter.changeCursor(null);
 	}
 
 	public class BuddiesAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		private LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		public BuddiesAdapter(Context context) {
 			super(context, null, false);
-			mInflater = LayoutInflater.from(context);
+			inflater = LayoutInflater.from(context);
 		}
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_buddy, parent, false);
+			View row = inflater.inflate(R.layout.row_buddy, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -147,7 +148,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 			Buddy buddy = Buddy.fromCursor(cursor);
 
-			UIUtils.setActivatedCompat(view, buddy.getId() == mSelectedBuddyId);
+			UIUtils.setActivatedCompat(view, buddy.getId() == selectedBuddyId);
 
 			loadThumbnail(buddy.getAvatarUrl(), holder.avatar, R.drawable.person_image_empty);
 
@@ -178,7 +179,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
-				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				convertView = inflater.inflate(R.layout.row_header, parent, false);
 				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
@@ -189,9 +190,9 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			@InjectView(R.id.list_fullname) TextView fullName;
-			@InjectView(R.id.list_name) TextView name;
-			@InjectView(R.id.list_avatar) ImageView avatar;
+			@SuppressWarnings("unused") @InjectView(R.id.list_fullname) TextView fullName;
+			@SuppressWarnings("unused") @InjectView(R.id.list_name) TextView name;
+			@SuppressWarnings("unused") @InjectView(R.id.list_avatar) ImageView avatar;
 
 			public ViewHolder(View view) {
 				ButterKnife.inject(this, view);

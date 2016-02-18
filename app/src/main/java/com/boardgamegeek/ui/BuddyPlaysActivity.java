@@ -17,19 +17,21 @@ import com.boardgamegeek.util.ToolbarUtils;
 import hugo.weaving.DebugLog;
 
 public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
-	private String mBuddyName;
-	private int mCount = -1;
+	private String buddyName;
+	private int numberOfPlays = -1;
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mBuddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 
-		if (!TextUtils.isEmpty(mBuddyName)) {
+		if (!TextUtils.isEmpty(buddyName)) {
 			ActionBar bar = getSupportActionBar();
-			bar.setSubtitle(mBuddyName);
+			if (bar != null) {
+				bar.setSubtitle(buddyName);
+			}
 		}
 	}
 
@@ -52,7 +54,7 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		String countDescription = mCount <= 0 ? "" : String.valueOf(mCount);
+		String countDescription = numberOfPlays <= 0 ? "" : String.valueOf(numberOfPlays);
 		ToolbarUtils.setActionBarText(menu, R.id.menu_text, countDescription);
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -62,21 +64,23 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, mBuddyName);
+				ActivityUtils.navigateUpToBuddy(this, buddyName);
 				finish();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(PlaysCountChangedEvent event) {
-		mCount = event.getCount();
+		numberOfPlays = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 }

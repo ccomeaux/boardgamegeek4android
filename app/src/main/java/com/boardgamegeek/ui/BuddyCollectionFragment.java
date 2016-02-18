@@ -45,36 +45,36 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
 	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
 
-	private BuddyCollectionAdapter mAdapter;
-	private SubMenu mSubMenu;
-	private String mName;
-	private String mStatusValue;
-	private String mStatusLabel;
-	private String[] mStatusValues;
-	private String[] mStatusEntries;
+	private BuddyCollectionAdapter adapter;
+	private SubMenu subMenu;
+	private String buddyName;
+	private String statusValue;
+	private String statusLabel;
+	private String[] statusValues;
+	private String[] statusEntries;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 
-		if (TextUtils.isEmpty(mName)) {
+		if (TextUtils.isEmpty(buddyName)) {
 			Timber.w("Missing buddy name.");
 			return;
 		}
 
-		mStatusEntries = getResources().getStringArray(R.array.pref_sync_status_entries);
-		mStatusValues = getResources().getStringArray(R.array.pref_sync_status_values);
+		statusEntries = getResources().getStringArray(R.array.pref_sync_status_entries);
+		statusValues = getResources().getStringArray(R.array.pref_sync_status_values);
 
 		setHasOptionsMenu(true);
 		if (savedInstanceState == null) {
-			mStatusValue = mStatusValues[0];
-			mStatusLabel = mStatusEntries[0];
+			statusValue = statusValues[0];
+			statusLabel = statusEntries[0];
 		} else {
-			mStatusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
-			mStatusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
+			statusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
+			statusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
 		}
 	}
 
@@ -95,8 +95,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		outState.putString(STATE_STATUS_VALUE, mStatusValue);
-		outState.putString(STATE_STATUS_LABEL, mStatusLabel);
+		outState.putString(STATE_STATUS_VALUE, statusValue);
+		outState.putString(STATE_STATUS_LABEL, statusLabel);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -105,12 +105,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		inflater.inflate(R.menu.buddy_collection, menu);
 		MenuItem mi = menu.findItem(R.id.menu_collection_status);
 		if (mi != null) {
-			mSubMenu = mi.getSubMenu();
-			if (mSubMenu != null) {
-				for (int i = 0; i < mStatusEntries.length; i++) {
-					mSubMenu.add(1, Menu.FIRST + i, i, mStatusEntries[i]);
+			subMenu = mi.getSubMenu();
+			if (subMenu != null) {
+				for (int i = 0; i < statusEntries.length; i++) {
+					subMenu.add(1, Menu.FIRST + i, i, statusEntries[i]);
 				}
-				mSubMenu.setGroupCheckable(1, true, true);
+				subMenu.setGroupCheckable(1, true, true);
 			}
 		}
 		super.onCreateOptionsMenu(menu, inflater);
@@ -120,17 +120,17 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	public void onPrepareOptionsMenu(Menu menu) {
 		MenuItem mi = menu.findItem(R.id.menu_collection_random_game);
 		if (mi != null) {
-			if (mAdapter != null && mAdapter.getCount() > 0) {
+			if (adapter != null && adapter.getCount() > 0) {
 				mi.setVisible(true);
 			} else {
 				mi.setVisible(false);
 			}
 		}
 		// check the proper submenu item
-		if (mSubMenu != null) {
-			for (int i = 0; i < mSubMenu.size(); i++) {
-				MenuItem smi = mSubMenu.getItem(i);
-				if (smi.getTitle().equals(mStatusLabel)) {
+		if (subMenu != null) {
+			for (int i = 0; i < subMenu.size(); i++) {
+				MenuItem smi = subMenu.getItem(i);
+				if (smi.getTitle().equals(statusLabel)) {
 					smi.setChecked(true);
 					break;
 				}
@@ -144,20 +144,20 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		int id = item.getItemId();
 		String status = "";
 		int i = id - Menu.FIRST;
-		if (i >= 0 && i < mStatusValues.length) {
-			status = mStatusValues[i];
+		if (i >= 0 && i < statusValues.length) {
+			status = statusValues[i];
 		} else if (id == R.id.menu_collection_random_game) {
-			final int index = RandomUtils.getRandom().nextInt(mAdapter.getCount());
-			if (index < mAdapter.getCount()) {
-				CollectionItem ci = mAdapter.getItem(index);
+			final int index = RandomUtils.getRandom().nextInt(adapter.getCount());
+			if (index < adapter.getCount()) {
+				CollectionItem ci = adapter.getItem(index);
 				ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
 				return true;
 			}
 		}
 
-		if (!TextUtils.isEmpty(status) && !status.equals(mStatusValue)) {
-			mStatusValue = status;
-			mStatusLabel = mStatusEntries[i];
+		if (!TextUtils.isEmpty(status) && !status.equals(statusValue)) {
+			statusValue = status;
+			statusLabel = statusEntries[i];
 
 			reload();
 			return true;
@@ -166,9 +166,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private void reload() {
-		EventBus.getDefault().postSticky(new CollectionStatusChangedEvent(mStatusLabel));
-		if (mAdapter != null) {
-			mAdapter.clear();
+		EventBus.getDefault().postSticky(new CollectionStatusChangedEvent(statusLabel));
+		if (adapter != null) {
+			adapter.clear();
 		}
 		getActivity().supportInvalidateOptionsMenu();
 		setListShown(false);
@@ -177,7 +177,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public Loader<BuddyCollectionData> onCreateLoader(int id, Bundle data) {
-		return new BuddyGamesLoader(getActivity(), mName, mStatusValue);
+		return new BuddyGamesLoader(getActivity(), buddyName, statusValue);
 	}
 
 	@Override
@@ -191,13 +191,13 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			list = data.list();
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new BuddyCollectionAdapter(getActivity(), list);
-			setListAdapter(mAdapter);
+		if (adapter == null) {
+			adapter = new BuddyCollectionAdapter(getActivity(), list);
+			setListAdapter(adapter);
 		} else {
-			mAdapter.setCollection(list);
+			adapter.setCollection(list);
 		}
-		mAdapter.notifyDataSetChanged();
+		adapter.notifyDataSetChanged();
 		getActivity().supportInvalidateOptionsMenu();
 
 		if (data == null) {
@@ -219,24 +219,24 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
-		private final BggService mService;
-		private final String mUsername;
-		private final ArrayMap<String, String> mOptions;
+		private final BggService bggService;
+		private final String username;
+		private final ArrayMap<String, String> options;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
-			mService = Adapter.create();
-			mUsername = username;
-			mOptions = new ArrayMap<>();
-			mOptions.put(status, "1");
-			mOptions.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+			bggService = Adapter.create();
+			this.username = username;
+			options = new ArrayMap<>();
+			options.put(status, "1");
+			options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		}
 
 		@Override
 		public BuddyCollectionData loadInBackground() {
 			BuddyCollectionData collection;
 			try {
-				CollectionResponse response = new BuddyCollectionRequest(mService, mUsername, mOptions).execute();
+				CollectionResponse response = new BuddyCollectionRequest(bggService, username, options).execute();
 				collection = new BuddyCollectionData(response);
 			} catch (Exception e) {
 				collection = new BuddyCollectionData(e);
