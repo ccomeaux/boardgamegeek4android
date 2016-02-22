@@ -24,35 +24,35 @@ import java.util.List;
  */
 public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME + "!=?";
-	private final Context mContext;
-	private final String mUsername;
-	private final String mNickName;
-	private final boolean mUpdatePlays;
+	private final Context context;
+	private final String username;
+	private final String nickName;
+	private final boolean shouldUpdatePlays;
 
-	public BuddyNicknameUpdateTask(@NonNull Context context, String username, String nickName, boolean updatePlays) {
-		mContext = context.getApplicationContext();
-		mUsername = username;
-		mNickName = nickName;
-		mUpdatePlays = updatePlays;
+	public BuddyNicknameUpdateTask(@NonNull Context context, String username, String nickName, boolean shouldUpdatePlays) {
+		this.context = context.getApplicationContext();
+		this.username = username;
+		this.nickName = nickName;
+		this.shouldUpdatePlays = shouldUpdatePlays;
 	}
 
 	@Override
 	protected String doInBackground(Void... params) {
 		String result;
-		updateNickname(Buddies.buildBuddyUri(mUsername));
-		if (mUpdatePlays) {
-			if (TextUtils.isEmpty(mNickName)) {
-				result = mContext.getString(R.string.msg_missing_nickname);
+		updateNickname(Buddies.buildBuddyUri(username));
+		if (shouldUpdatePlays) {
+			if (TextUtils.isEmpty(nickName)) {
+				result = context.getString(R.string.msg_missing_nickname);
 			} else {
 				int count = updatePlays();
 				if (count > 0) {
 					updatePlayers();
-					SyncService.sync(mContext, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
+					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 				}
-				result = mContext.getResources().getQuantityString(R.plurals.msg_updated_plays, count, count);
+				result = context.getResources().getQuantityString(R.plurals.msg_updated_plays, count, count);
 			}
 		} else {
-			result = mContext.getResources().getString(R.string.msg_updated_nickname);
+			result = context.getResources().getString(R.string.msg_updated_nickname);
 		}
 		return result;
 	}
@@ -60,23 +60,23 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	@Override
 	protected void onPostExecute(String result) {
 		if (!TextUtils.isEmpty(result)) {
-			Toast.makeText(mContext, result, Toast.LENGTH_LONG).show();
+			Toast.makeText(context, result, Toast.LENGTH_LONG).show();
 		}
 	}
 
 	private void updateNickname(@NonNull final Uri uri) {
 		ContentValues values = new ContentValues(1);
-		values.put(Buddies.PLAY_NICKNAME, mNickName);
-		mContext.getContentResolver().update(uri, values, null, null);
+		values.put(Buddies.PLAY_NICKNAME, nickName);
+		context.getContentResolver().update(uri, values, null, null);
 	}
 
 	private int updatePlays() {
 		ContentValues values = new ContentValues(1);
 		values.put(BggContract.Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-		List<Integer> playIds = ResolverUtils.queryInts(mContext.getContentResolver(), Plays.buildPlayersByPlayUri(), Plays.PLAY_ID, SELECTION, new String[] { mUsername, mNickName });
+		List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(), Plays.buildPlayersByPlayUri(), Plays.PLAY_ID, SELECTION, new String[] { username, nickName });
 		for (Integer playId : playIds) {
 			if (playId != BggContract.INVALID_ID) {
-				mContext.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
+				context.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
 			}
 		}
 		return playIds.size();
@@ -84,8 +84,8 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 
 	private void updatePlayers() {
 		ContentValues values = new ContentValues(1);
-		values.put(BggContract.PlayPlayers.NAME, mNickName);
-		mContext.getContentResolver().update(BggContract.Plays.buildPlayersByPlayUri(), values, SELECTION, new String[] { mUsername, mNickName });
+		values.put(BggContract.PlayPlayers.NAME, nickName);
+		context.getContentResolver().update(BggContract.Plays.buildPlayersByPlayUri(), values, SELECTION, new String[] { username, nickName });
 	}
 }
 
