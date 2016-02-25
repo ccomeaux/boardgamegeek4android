@@ -19,6 +19,7 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -30,21 +31,23 @@ import timber.log.Timber;
 
 public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> implements Filterable {
 	public static class Result {
-		private final String name;
+		private final String title;
 		private final String subtitle;
+		private final String nickName;
 		private final String username;
 		private final String avatarUrl;
 
-		public Result(String displayName, String subtitle, String username, String avatarUrl) {
-			this.name = displayName;
+		public Result(String title, String subtitle, String nickName, String username, String avatarUrl) {
+			this.title = title;
 			this.subtitle = subtitle;
+			this.nickName = nickName;
 			this.username = username;
 			this.avatarUrl = avatarUrl;
 		}
 
 		@Override
 		public String toString() {
-			return name;
+			return nickName;
 		}
 	}
 
@@ -86,11 +89,11 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		TextView titleView = (TextView) view.findViewById(R.id.player_title);
 		if (titleView != null) {
-			if (TextUtils.isEmpty(result.name)) {
+			if (TextUtils.isEmpty(result.title)) {
 				titleView.setVisibility(View.GONE);
 			} else {
 				titleView.setVisibility(View.VISIBLE);
-				titleView.setText(result.name);
+				titleView.setText(result.title);
 			}
 		}
 
@@ -203,7 +206,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 					String name = cursor.getString(PLAYER_NAME);
 					String username = cursor.getString(PLAYER_USERNAME);
 
-					results.add(new Result(name, username, username, null));
+					results.add(new Result(name, username, name, username, null));
 				}
 			}
 			return results;
@@ -243,11 +246,14 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 					String lastName = cursor.getString(BUDDY_LAST_NAME);
 					String nickname = cursor.getString(BUDDY_PLAY_NICKNAME);
 					String avatarUrl = cursor.getString(BUDDY_AVATAR_URL);
-					String fullName = (firstName + " " + lastName).trim();
+					String fullName = PresentationUtils.buildFullName(firstName, lastName);
 
 					results.add(new Result(
 						TextUtils.isEmpty(nickname) ? fullName : nickname,
-						TextUtils.isEmpty(nickname) ? userName : fullName + " (" + userName + ")", userName, avatarUrl));
+						TextUtils.isEmpty(nickname) ? userName : fullName + " (" + userName + ")",
+						TextUtils.isEmpty(nickname) ? firstName : nickname,
+						userName,
+						avatarUrl));
 					usernames.add(userName);
 				}
 			}
