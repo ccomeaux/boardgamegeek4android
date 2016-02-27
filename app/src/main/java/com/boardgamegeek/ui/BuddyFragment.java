@@ -345,6 +345,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
+	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			return;
@@ -355,6 +356,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
 	}
 
+	@DebugLog
 	private void onColorsQueryComplete(Cursor cursor) {
 		if (cursor == null) {
 			return;
@@ -376,6 +378,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
+	@DebugLog
 	private ImageView createViewToBeColored() {
 		ImageView view = new ImageView(getActivity());
 		int size = getResources().getDimensionPixelSize(R.dimen.color_circle_diameter_small);
@@ -392,6 +395,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		forceRefresh();
 	}
 
+	@DebugLog
 	private void requestRefresh() {
 		if (!hasBeenRefreshed) {
 			forceRefresh();
@@ -399,6 +403,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
+	@DebugLog
 	public void forceRefresh() {
 		if (isUser()) {
 			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, buddyName);
