@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -12,14 +10,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -34,11 +28,14 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
+import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
+import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -261,7 +258,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.nickname)
 	public void onEditNicknameClick(View v) {
-		showDialog(nicknameView.getText().toString(), buddyName);
+		showNicknameDialog(nicknameView.getText().toString(), buddyName);
 	}
 
 	@DebugLog
@@ -412,28 +409,18 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
-	private void showDialog(final String nickname, final String username) {
-		final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.dialog_edit_nickname, rootView, false);
-
-		final EditText editText = (EditText) view.findViewById(R.id.edit_nickname);
-		final CheckBox checkBox = (CheckBox) view.findViewById(R.id.change_plays);
-		if (!TextUtils.isEmpty(nickname)) {
-			editText.setText(nickname);
-			editText.setSelection(0, nickname.length());
-		}
-
-		AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view)
-			.setTitle(R.string.title_edit_nickname).setNegativeButton(R.string.cancel, null)
-			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					String newNickname = editText.getText().toString();
-					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, checkBox.isChecked());
+	@DebugLog
+	private void showNicknameDialog(final String nickname, final String username) {
+		UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(R.string.title_edit_nickname, null, new UpdateBuddyNicknameDialogListener() {
+			@Override
+			public void onFinishEditDialog(String newNickname, boolean updatePlays) {
+				if (!TextUtils.isEmpty(newNickname)) {
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
 				}
-			}).create();
-		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-		dialog.show();
+			}
+		});
+		dialogFragment.setNickname(nickname);
+		DialogUtils.showFragment(getActivity(), dialogFragment, "edit_nickname");
 	}
 }
