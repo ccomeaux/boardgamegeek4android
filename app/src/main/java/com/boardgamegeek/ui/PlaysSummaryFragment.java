@@ -276,7 +276,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private View createRowWithPlayCount(LinearLayout container, String title, int playCount) {
-		return createRow(container, title, getResources().getQuantityString(R.plurals.plays, playCount, playCount));
+		return createRow(container, title, getResources().getQuantityString(R.plurals.plays_suffix, playCount, playCount));
 	}
 
 	private void setQuantityTextView(TextView textView, int resId, int count) {

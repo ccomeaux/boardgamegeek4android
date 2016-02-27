@@ -505,10 +505,6 @@
 		<item quantity="one">%s reply</item>
 		<item quantity="other">%s replies</item>
 	</plurals>
-	<plurals name="plays">
-		<item quantity="one">%,d plays</item>
-		<item quantity="other">%,d plays</item>
-	</plurals>
 	<plurals name="plays_prefix">
 		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
 		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
@@ -558,8 +554,8 @@
 		<item quantity="other"><b>%,d</b> Users</item>
 	</plurals>
 	<plurals name="plays_suffix">
-		<item quantity="one">%1$s play</item>
-		<item quantity="other">%1$s plays</item>
+		<item quantity="one"><b>%,d</b> play</item>
+		<item quantity="other"><b>%,d</b> plays</item>
 	</plurals>
 	<plurals name="players_suffix">
 		<item quantity="one">%1$s player</item>

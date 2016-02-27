@@ -144,7 +144,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 				holder.name.setText(location.getName());
 			}
 			holder.quantity.setText(getResources()
-				.getQuantityString(R.plurals.plays, location.getPlayCount(), location.getPlayCount()));
+				.getQuantityString(R.plurals.plays_suffix, location.getPlayCount(), location.getPlayCount()));
 
 			view.setTag(R.id.name, location.getName());
 			UIUtils.setActivatedCompat(view, location.getName().equals(mSelectedName));

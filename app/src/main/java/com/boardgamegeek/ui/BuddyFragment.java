@@ -41,7 +41,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
@@ -215,8 +214,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 					loader = new CursorLoader(getActivity(),
 						Plays.buildPlayersByUniquePlayerUri(),
 						Player.PROJECTION,
-						PlayPlayers.NAME + "=?",
-						new String[] { playerName },
+						"(" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL) AND play_players." + PlayPlayers.NAME + "=?",
+						new String[] { "", playerName },
 						null);
 				}
 				break;
@@ -352,7 +351,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 
 		Player player = Player.fromCursor(cursor);
-		playsView.setText(StringUtils.boldSecondString("", String.valueOf(player.getPlayCount()), getString(R.string.title_plays)));
+		final int playCount = player.getPlayCount();
+		playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
 	}
 
 	private void onColorsQueryComplete(Cursor cursor) {
