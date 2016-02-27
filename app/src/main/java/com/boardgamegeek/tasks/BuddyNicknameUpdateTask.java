@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -19,20 +18,22 @@ import com.boardgamegeek.util.ResolverUtils;
 
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 /**
- * Updates a buddy wih a new nick name, and optionally updates all plays with this new nick name.
+ * Updates a buddy wih a new nickname, and optionally updates all plays with this new nick ame.
  */
 public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME + "!=?";
 	private final Context context;
 	private final String username;
-	private final String nickName;
+	private final String nickname;
 	private final boolean shouldUpdatePlays;
 
-	public BuddyNicknameUpdateTask(@NonNull Context context, String username, String nickName, boolean shouldUpdatePlays) {
+	public BuddyNicknameUpdateTask(@NonNull Context context, String username, String nickname, boolean shouldUpdatePlays) {
 		this.context = context.getApplicationContext();
 		this.username = username;
-		this.nickName = nickName;
+		this.nickname = nickname;
 		this.shouldUpdatePlays = shouldUpdatePlays;
 	}
 
@@ -41,7 +42,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 		String result;
 		updateNickname(Buddies.buildBuddyUri(username));
 		if (shouldUpdatePlays) {
-			if (TextUtils.isEmpty(nickName)) {
+			if (TextUtils.isEmpty(nickname)) {
 				result = context.getString(R.string.msg_missing_nickname);
 			} else {
 				int count = updatePlays();
@@ -49,31 +50,30 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 					updatePlayers();
 					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 				}
-				result = context.getResources().getQuantityString(R.plurals.msg_updated_plays, count, count);
+				result = context.getResources().getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, count,
+					count, username, nickname);
 			}
 		} else {
-			result = context.getResources().getString(R.string.msg_updated_nickname);
+			result = context.getString(R.string.msg_updated_nickname, nickname);
 		}
 		return result;
 	}
 
 	@Override
 	protected void onPostExecute(String result) {
-		if (!TextUtils.isEmpty(result)) {
-			Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-		}
+		EventBus.getDefault().post(new Event(result));
 	}
 
 	private void updateNickname(@NonNull final Uri uri) {
 		ContentValues values = new ContentValues(1);
-		values.put(Buddies.PLAY_NICKNAME, nickName);
+		values.put(Buddies.PLAY_NICKNAME, nickname);
 		context.getContentResolver().update(uri, values, null, null);
 	}
 
 	private int updatePlays() {
 		ContentValues values = new ContentValues(1);
 		values.put(BggContract.Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-		List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(), Plays.buildPlayersByPlayUri(), Plays.PLAY_ID, SELECTION, new String[] { username, nickName });
+		List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(), Plays.buildPlayersByPlayUri(), Plays.PLAY_ID, SELECTION, new String[] { username, nickname });
 		for (Integer playId : playIds) {
 			if (playId != BggContract.INVALID_ID) {
 				context.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
@@ -84,8 +84,20 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 
 	private void updatePlayers() {
 		ContentValues values = new ContentValues(1);
-		values.put(BggContract.PlayPlayers.NAME, nickName);
-		context.getContentResolver().update(BggContract.Plays.buildPlayersByPlayUri(), values, SELECTION, new String[] { username, nickName });
+		values.put(BggContract.PlayPlayers.NAME, nickname);
+		context.getContentResolver().update(BggContract.Plays.buildPlayersByPlayUri(), values, SELECTION, new String[] { username, nickname });
+	}
+
+	public class Event {
+		private final String message;
+
+		public Event(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
 	}
 }
 
