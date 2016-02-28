@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -9,12 +10,15 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
+import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.util.ActivityUtils;
 
 import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 
 public class BuddyActivity extends SimpleSinglePaneActivity {
 	@Override
+	@DebugLog
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final ActionBar actionBar = getSupportActionBar();
@@ -29,15 +33,31 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
+	@DebugLog
 	protected Fragment onCreatePane(Intent intent) {
 		return new BuddyFragment();
 	}
 
 	@SuppressWarnings("unused")
+	@DebugLog
 	public void onEvent(BuddyNicknameUpdateTask.Event event) {
-		Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
+		showSnackbar(event.getMessage());
 	}
 
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEvent(@NonNull RenamePlayerTask.Event event) {
+		final String username = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		String name = event.getPlayerName();
+		getIntent().putExtra(ActivityUtils.KEY_PLAYER_NAME, name);
+		setSubtitle(username, name);
+
+		recreateFragment();
+
+		showSnackbar(event.getMessage());
+	}
+
+	@DebugLog
 	private void setSubtitle(String username, String name) {
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -50,4 +70,11 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 			actionBar.setSubtitle(subtitle);
 		}
 	}
+
+	private void showSnackbar(String message) {
+		if (!TextUtils.isEmpty(message)) {
+			Snackbar.make(rootContainer, message, Snackbar.LENGTH_LONG).show();
+		}
+	}
+
 }

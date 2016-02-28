@@ -28,6 +28,9 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
+import com.boardgamegeek.tasks.RenamePlayerTask;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.ui.model.Buddy;
@@ -258,7 +261,11 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.nickname)
 	public void onEditNicknameClick(View v) {
-		showNicknameDialog(nicknameView.getText().toString(), buddyName);
+		if (isUser()) {
+			showNicknameDialog(nicknameView.getText().toString(), buddyName);
+		} else {
+			showPlayerNameDialog(nicknameView.getText().toString());
+		}
 	}
 
 	@DebugLog
@@ -422,5 +429,20 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		});
 		dialogFragment.setNickname(nickname);
 		DialogUtils.showFragment(getActivity(), dialogFragment, "edit_nickname");
+	}
+
+	@DebugLog
+	private void showPlayerNameDialog(final String oldName) {
+		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, null, new EditTextDialogListener() {
+			@Override
+			public void onFinishEditDialog(String inputText) {
+				if (!TextUtils.isEmpty(inputText)) {
+					RenamePlayerTask task = new RenamePlayerTask(getContext(), "", oldName, inputText);
+					TaskUtils.executeAsyncTask(task);
+				}
+			}
+		});
+		editTextDialogFragment.setText(oldName);
+		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_player");
 	}
 }
