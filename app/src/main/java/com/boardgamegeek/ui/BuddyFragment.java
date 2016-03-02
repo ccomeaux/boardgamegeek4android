@@ -437,7 +437,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			@Override
 			public void onFinishEditDialog(String inputText) {
 				if (!TextUtils.isEmpty(inputText)) {
-					RenamePlayerTask task = new RenamePlayerTask(getContext(), "", oldName, inputText);
+					RenamePlayerTask task = new RenamePlayerTask(getContext(), oldName, inputText);
 					TaskUtils.executeAsyncTask(task);
 				}
 			}

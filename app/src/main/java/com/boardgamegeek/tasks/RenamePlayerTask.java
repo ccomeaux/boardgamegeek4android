@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -28,19 +27,14 @@ import timber.log.Timber;
  * Change a player name (either a GeekBuddy or named player), updating and syncing all plays.
  */
 public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
-	private static final String SELECTION_WITHOUT_USERNAME =
-		"play_players." + PlayPlayers.NAME + "=? AND (" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL)";
-	private static final String SELECTION_WITH_USERNAME =
-		"play_players." + PlayPlayers.NAME + "=? AND " + PlayPlayers.USER_NAME + "=?";
+	private static final String SELECTION = "play_players." + PlayPlayers.NAME + "=? AND (" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL)";
 
 	private final Context context;
-	private final String username;
 	private final String oldName;
 	private final String newName;
 
-	public RenamePlayerTask(@NonNull Context context, String username, String oldName, String newName) {
+	public RenamePlayerTask(@NonNull Context context, String oldName, String newName) {
 		this.context = context.getApplicationContext();
-		this.username = username;
 		this.oldName = oldName;
 		this.newName = newName;
 	}
@@ -49,10 +43,8 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	@Override
 	protected String doInBackground(Void... params) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		String selection = TextUtils.isEmpty(username) ? SELECTION_WITHOUT_USERNAME : SELECTION_WITH_USERNAME;
-
-		updatePlays(batch, selection);
-		updatePlayers(batch, selection);
+		updatePlays(batch);
+		updatePlayers(batch);
 		updateColors(batch);
 		ResolverUtils.applyBatch(context, batch);
 
@@ -61,13 +53,11 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 		return context.getString(R.string.msg_play_player_change, oldName, newName);
 	}
 
-	private void updatePlays(ArrayList<ContentProviderOperation> batch, String selection) {
+	private void updatePlays(ArrayList<ContentProviderOperation> batch) {
 		List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(),
 			Plays.buildPlayersByPlayUri(),
-			Plays.PLAY_ID, Plays.SYNC_STATUS + "=? AND (" + selection + ")",
-			TextUtils.isEmpty(username) ?
-				new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), oldName, "" } :
-				new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), oldName, username });
+			Plays.PLAY_ID, Plays.SYNC_STATUS + "=? AND (" + SELECTION + ")",
+			new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), oldName, "" });
 		if (playIds.size() > 0) {
 			ContentValues values = new ContentValues();
 			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
@@ -80,12 +70,11 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 		}
 	}
 
-	private void updatePlayers(ArrayList<ContentProviderOperation> batch, String selection) {
+	private void updatePlayers(ArrayList<ContentProviderOperation> batch) {
 		batch.add(ContentProviderOperation
 			.newUpdate(Plays.buildPlayersByPlayUri())
 			.withValue(PlayPlayers.NAME, newName)
-			.withSelection(selection,
-				TextUtils.isEmpty(username) ? new String[] { oldName, "" } : new String[] { oldName, username })
+			.withSelection(SELECTION, new String[] { oldName, "" })
 			.build());
 	}
 
