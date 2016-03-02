@@ -80,7 +80,7 @@ public class PlayersActivity extends SimpleSinglePaneActivity implements Players
 
 	@Override
 	public boolean onPlayerSelected(String name, String username) {
-		ActivityUtils.startPlayerIntent(this, name, username);
+		ActivityUtils.startBuddyActivity(this, username, name);
 		return true;
 	}
 

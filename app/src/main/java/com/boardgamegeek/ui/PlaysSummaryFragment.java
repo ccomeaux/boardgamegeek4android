@@ -217,10 +217,10 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.startPlayerIntent(
+					ActivityUtils.startBuddyActivity(
 						getActivity(),
-						(String) v.getTag(R.id.name),
-						(String) v.getTag(R.id.username));
+						(String) v.getTag(R.id.username),
+						(String) v.getTag(R.id.name));
 				}
 			});
 

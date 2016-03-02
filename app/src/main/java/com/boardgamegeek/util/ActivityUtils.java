@@ -82,12 +82,8 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void startBuddyActivity(Context context, String buddyName) {
-		context.startActivity(createBuddyIntent(context, buddyName));
-	}
-
-	public static void startBuddyActivity(Context context, String buddyName, String playerName) {
-		context.startActivity(createBuddyIntent(context, buddyName, playerName));
+	public static void startBuddyActivity(Context context, String username, String playerName) {
+		context.startActivity(createBuddyIntent(context, username, playerName));
 	}
 
 	public static void navigateUpToBuddy(Context context, String buddyName) {
@@ -109,17 +105,6 @@ public class ActivityUtils {
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		return intent;
-	}
-
-	public static void startPlayerIntent(Context context, String name, String username) {
-		if (TextUtils.isEmpty(username)) {
-			Intent intent = new Intent(context, PlayerPlaysActivity.class);
-			intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_NAME, name);
-			intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_USERNAME, username);
-			context.startActivity(intent);
-		} else {
-			startBuddyActivity(context, username);
-		}
 	}
 
 	public static void startPlayerPlaysActivity(Context context, String name, String username) {

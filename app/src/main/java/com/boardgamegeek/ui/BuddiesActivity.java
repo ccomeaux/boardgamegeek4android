@@ -49,6 +49,6 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(BuddySelectedEvent event) {
-		ActivityUtils.startBuddyActivity(this, event.getBuddyName());
+		ActivityUtils.startBuddyActivity(this, event.getBuddyName(), null);
 	}
 }
