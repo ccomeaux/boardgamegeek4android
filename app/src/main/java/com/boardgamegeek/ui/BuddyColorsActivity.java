@@ -250,7 +250,7 @@ public class BuddyColorsActivity extends BaseActivity {
 			@Override
 			public void onColorSelected(String description, int color) {
 				colors.add(new BuddyColor(description, colors.size() + 1));
-				adapter.notifyDataSetChanged();
+				bindUi();
 			}
 		});
 
