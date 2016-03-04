@@ -514,7 +514,7 @@
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
 	<plurals name="msg_updated_plays_buddy_nickname">
-		<item quantity="one">Updated %1$,d play for %2$s with nickname "\%3$s\".</item>
+		<item quantity="one">Updated %1$,d play for %2$s with nickname \"%3$s\".</item>
 		<item quantity="other">Updated %1$,d plays for %2$s with nickname \"%3$s\".</item>
 	</plurals>
 	<plurals name="player_description">
