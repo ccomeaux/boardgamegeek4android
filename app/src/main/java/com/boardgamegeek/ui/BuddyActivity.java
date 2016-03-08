@@ -38,7 +38,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 		}
 		name = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 		username = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		setSubtitle(username, name);
+		setSubtitle();
 
 		EventBus.getDefault().removeStickyEvent(BuddySelectedEvent.class);
 	}
@@ -90,16 +90,21 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(AddUsernameToPlayerTask.Event event) {
+		username = event.getUsername();
+		getIntent().putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
+		setSubtitle();
+
+		recreateFragment();
+
 		showSnackbar(event.getMessage());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(@NonNull RenamePlayerTask.Event event) {
-		final String username = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		String name = event.getPlayerName();
+		name = event.getPlayerName();
 		getIntent().putExtra(ActivityUtils.KEY_PLAYER_NAME, name);
-		setSubtitle(username, name);
+		setSubtitle();
 
 		recreateFragment();
 
@@ -107,7 +112,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	}
 
 	@DebugLog
-	private void setSubtitle(String username, String name) {
+	private void setSubtitle() {
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			String subtitle;

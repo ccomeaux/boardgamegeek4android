@@ -102,18 +102,24 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 
 	@Override
 	protected void onPostExecute(String result) {
-		EventBus.getDefault().post(new Event(result));
+		EventBus.getDefault().post(new Event(result, username));
 	}
 
 	public class Event {
 		private final String message;
+		private final String username;
 
-		public Event(String message) {
+		public Event(String message, String username) {
 			this.message = message;
+			this.username = username;
 		}
 
 		public String getMessage() {
 			return message;
+		}
+
+		public String getUsername() {
+			return username;
 		}
 	}
 }
