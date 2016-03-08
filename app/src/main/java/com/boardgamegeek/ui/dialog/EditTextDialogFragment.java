@@ -30,6 +30,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	@StringRes private int titleResId;
 	private ViewGroup root;
 	private EditTextDialogListener listener;
+	private boolean isUsername;
 	private boolean isLongForm;
 
 	@SuppressWarnings("unused") @InjectView(R.id.edit_text) EditText editText;
@@ -41,18 +42,30 @@ public class EditTextDialogFragment extends DialogFragment {
 		@Nullable ViewGroup root,
 		EditTextDialogListener listener) {
 
-		return newInstance(titleResId, root, listener, false);
+		EditTextDialogFragment fragment = new EditTextDialogFragment();
+		fragment.initialize(titleResId, root, listener, false, false);
+		return fragment;
 	}
 
 	@NonNull
-	public static EditTextDialogFragment newInstance(
+	public static EditTextDialogFragment newLongFormInstance(
 		@StringRes int titleResId,
 		@Nullable ViewGroup root,
-		EditTextDialogListener listener,
-		boolean isLongForm) {
+		EditTextDialogListener listener) {
 
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, isLongForm);
+		fragment.initialize(titleResId, root, listener, false, true);
+		return fragment;
+	}
+
+	@NonNull
+	public static EditTextDialogFragment newUsernameInstance(
+		@StringRes int titleResId,
+		@Nullable ViewGroup root,
+		EditTextDialogListener listener) {
+
+		EditTextDialogFragment fragment = new EditTextDialogFragment();
+		fragment.initialize(titleResId, root, listener, true, false);
 		return fragment;
 	}
 
@@ -60,11 +73,13 @@ public class EditTextDialogFragment extends DialogFragment {
 		@StringRes int titleResId,
 		@Nullable ViewGroup root,
 		EditTextDialogListener listener,
+		boolean isUsername,
 		boolean isLongForm) {
 
 		this.titleResId = titleResId;
 		this.root = root;
 		this.listener = listener;
+		this.isUsername = isUsername;
 		this.isLongForm = isLongForm;
 		setArguments(this.titleResId);
 	}
@@ -105,6 +120,9 @@ public class EditTextDialogFragment extends DialogFragment {
 
 		final AlertDialog dialog = builder.create();
 		int inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+		if (isUsername) {
+			inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+		}
 		if (isLongForm) {
 			inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 		}
