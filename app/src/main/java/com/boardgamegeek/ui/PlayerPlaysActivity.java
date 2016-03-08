@@ -3,33 +3,24 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
-import com.boardgamegeek.tasks.RenamePlayerTask;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlayerActivity extends SimpleSinglePaneActivity {
+public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_PLAYER_USERNAME = "PLAYER_USERNAME";
 	private int playCount;
 	private String name;
 	private String username;
-	private EditTextDialogFragment editTextDialogFragment;
 
 	@DebugLog
 	@Override
@@ -88,16 +79,6 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 		return super.onPrepareOptionsMenu(menu);
 	}
 
-	@DebugLog
-	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if (item.getItemId() == R.id.menu_edit) {
-			showDialog(name);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(@NonNull PlaySelectedEvent event) {
@@ -109,38 +90,5 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 	public void onEvent(@NonNull PlaysCountChangedEvent event) {
 		playCount = event.getCount();
 		supportInvalidateOptionsMenu();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	public void onEvent(@NonNull RenamePlayerTask.Event event) {
-		name = event.getPlayerName();
-		getIntent().putExtra(KEY_PLAYER_NAME, name);
-		setSubtitle();
-		// recreate fragment to load the list with the new location
-		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
-		createFragment();
-		editTextDialogFragment = null;
-
-		if (!TextUtils.isEmpty(event.getMessage())) {
-			Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
-		}
-	}
-
-	@DebugLog
-	private void showDialog(final String oldName) {
-		if (editTextDialogFragment == null) {
-			editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, (ViewGroup) findViewById(R.id.root_container), new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					if (!TextUtils.isEmpty(inputText)) {
-						RenamePlayerTask task = new RenamePlayerTask(PlayerActivity.this, username, oldName, inputText);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			});
-		}
-		editTextDialogFragment.setText(oldName);
-		DialogUtils.showFragment(this, editTextDialogFragment, "edit_player");
 	}
 }

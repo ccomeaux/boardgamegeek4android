@@ -3,11 +3,6 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto" >
 
 	<item
-		android:id="@+id/menu_edit"
-		android:icon="@drawable/ic_action_edit_light"
-		android:title="@string/menu_edit"
-		app:showAsAction="ifRoom"/>
-	<item
 		android:id="@+id/menu_list_count"
 		android:title=""
 		app:actionLayout="@layout/actionbar_text"

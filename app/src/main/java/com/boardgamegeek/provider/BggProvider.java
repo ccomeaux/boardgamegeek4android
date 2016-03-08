@@ -109,6 +109,8 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new PlayerColorsProvider());
 		addProvider(map, new UsersNameColorsProvider());
 		addProvider(map, new UsersNameColorsOrderProvider());
+		addProvider(map, new PlayersNameColorsProvider());
+		addProvider(map, new PlayersNameColorsOrderProvider());
 
 		return map;
 	}

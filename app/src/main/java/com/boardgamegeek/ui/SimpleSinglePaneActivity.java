@@ -44,6 +44,11 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		}
 	}
 
+	protected  void recreateFragment() {
+		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
+		createFragment();
+	}
+
 	/**
 	 * Called in <code>onCreate</code> when the fragment constituting this activity is needed. The returned fragment's
 	 * arguments will be set to the intent used to invoke this activity.

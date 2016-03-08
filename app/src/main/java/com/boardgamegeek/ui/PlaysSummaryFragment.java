@@ -55,6 +55,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@SuppressWarnings("unused") @InjectView(R.id.locations_container) LinearLayout locationsContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.card_footer_locations) TextView locationsFooter;
 	@SuppressWarnings("unused") @InjectView(R.id.card_colors) View colorsCard;
+	@SuppressWarnings("unused") @InjectView(R.id.colors_hint) View colorsHint;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.h_index) TextView hIndexView;
 
@@ -216,11 +217,10 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intent = ActivityUtils.createPlayerIntent(
+					ActivityUtils.startBuddyActivity(
 						getActivity(),
-						(String) v.getTag(R.id.name),
-						(String) v.getTag(R.id.username));
-					startActivity(intent);
+						(String) v.getTag(R.id.username),
+						(String) v.getTag(R.id.name));
 				}
 			});
 
@@ -276,7 +276,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private View createRowWithPlayCount(LinearLayout container, String title, int playCount) {
-		return createRow(container, title, getResources().getQuantityString(R.plurals.plays, playCount, playCount));
+		return createRow(container, title, getResources().getQuantityString(R.plurals.plays_suffix, playCount, playCount));
 	}
 
 	private void setQuantityTextView(TextView textView, int resId, int count) {
@@ -288,8 +288,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
+		colorContainer.removeAllViews();
 		if (cursor.getCount() > 0) {
-			colorContainer.removeAllViews();
 			for (int i = 0; i < 5; i++) {
 				if (cursor.moveToNext()) {
 					ImageView view = createViewToBeColored();
@@ -301,6 +301,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				}
 			}
 		}
+		colorsHint.setVisibility(cursor.getCount() == 0 ? View.VISIBLE : View.GONE);
 	}
 
 	private ImageView createViewToBeColored() {

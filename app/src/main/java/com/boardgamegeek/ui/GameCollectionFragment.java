@@ -262,7 +262,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	private void ensureCommentDialogFragment() {
 		if (commentDialogFragment == null) {
-			commentDialogFragment = EditTextDialogFragment.newInstance(
+			commentDialogFragment = EditTextDialogFragment.newLongFormInstance(
 				R.string.title_comments,
 				commentContainer,
 				new EditTextDialogListener() {
@@ -272,8 +272,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 						TaskUtils.executeAsyncTask(task);
 
 					}
-				},
-				true
+				}
 			);
 		}
 	}

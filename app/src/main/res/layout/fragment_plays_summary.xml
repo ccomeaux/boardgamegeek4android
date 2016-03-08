@@ -129,17 +129,17 @@
 						android:layout_width="wrap_content"
 						android:text="@string/title_favorite_colors"/>
 
+					<TextView
+						android:id="@+id/colors_hint"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/favorite_colors_hint"/>
+
 					<LinearLayout
 						android:id="@+id/color_container"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:orientation="horizontal">
-
-						<TextView
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:text="@string/favorite_colors_hint"/>
-					</LinearLayout>
+						android:orientation="horizontal"/>
 
 					<TextView
 						android:id="@+id/card_footer_colors"

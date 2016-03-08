@@ -112,20 +112,24 @@ public class ColorUtils {
 		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
 
 	private static final ArrayMap<String, Integer> colorNameMap;
+	private static final ArrayList<Pair<String, Integer>> limitedColorNameList;
 	private static final ArrayList<Pair<String, Integer>> colorNameList;
 
 	static {
+		limitedColorNameList = new ArrayList<>();
+		limitedColorNameList.add(new Pair<>("Red", RED));
+		limitedColorNameList.add(new Pair<>("Yellow", YELLOW));
+		limitedColorNameList.add(new Pair<>("Blue", BLUE));
+		limitedColorNameList.add(new Pair<>("Green", GREEN));
+		limitedColorNameList.add(new Pair<>("Purple", PURPLE));
+		limitedColorNameList.add(new Pair<>("Orange", ORANGE));
+		limitedColorNameList.add(new Pair<>("White", WHITE));
+		limitedColorNameList.add(new Pair<>("Black", BLACK));
+		limitedColorNameList.add(new Pair<>("Natural", NATURAL));
+		limitedColorNameList.add(new Pair<>("Brown", BROWN));
+
 		colorNameList = new ArrayList<>();
-		colorNameList.add(new Pair<>("Red", RED));
-		colorNameList.add(new Pair<>("Yellow", YELLOW));
-		colorNameList.add(new Pair<>("Blue", BLUE));
-		colorNameList.add(new Pair<>("Green", GREEN));
-		colorNameList.add(new Pair<>("Purple", PURPLE));
-		colorNameList.add(new Pair<>("Orange", ORANGE));
-		colorNameList.add(new Pair<>("White", WHITE));
-		colorNameList.add(new Pair<>("Black", BLACK));
-		colorNameList.add(new Pair<>("Natural", NATURAL));
-		colorNameList.add(new Pair<>("Brown", BROWN));
+		colorNameList.addAll(limitedColorNameList);
 		colorNameList.add(new Pair<>("Tan", TAN));
 		colorNameList.add(new Pair<>("Gray", GRAY));
 		colorNameList.add(new Pair<>("Gold", GOLD));
@@ -156,9 +160,13 @@ public class ColorUtils {
 		return (List<Pair<String, Integer>>) colorNameList.clone();
 	}
 
-	@SuppressWarnings("deprecation")
+	public static List<Pair<String, Integer>> getLimitedColorList() {
+		//noinspection unchecked
+		return (List<Pair<String, Integer>>) limitedColorNameList.clone();
+	}
+
 	/**
-	 * Set the background of a {@link android.widget.View} to the specified color, with a darker version of the
+	 * Set the background of a {@link android.view.View} to the specified color, with a darker version of the
 	 * color as a border.
 	 */
 	public static void setViewBackground(View view, int color) {

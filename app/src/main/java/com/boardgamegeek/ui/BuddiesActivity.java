@@ -12,7 +12,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 import hugo.weaving.DebugLog;
 
 public class BuddiesActivity extends TopLevelSinglePaneActivity {
-	private int mCount = -1;
+	private int numberOfBuddies = -1;
 
 	@DebugLog
 	@Override
@@ -23,7 +23,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, (isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount));
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, (isDrawerOpen() || numberOfBuddies <= 0) ? "" : String.valueOf(numberOfBuddies));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -39,14 +39,16 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 		return R.string.title_buddies;
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(BuddiesCountChangedEvent event) {
-		mCount = event.getCount();
+		numberOfBuddies = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(BuddySelectedEvent event) {
-		ActivityUtils.startBuddyActivity(this, event.getBuddyName());
+		ActivityUtils.startBuddyActivity(this, event.getBuddyName(), null);
 	}
 }

@@ -158,6 +158,7 @@
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_edit_location">Edit Location</string>
 	<string name="title_edit_player">Edit Player</string>
+	<string name="title_add_username">Add Username</string>
 	<string name="title_error">Error!</string>
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
@@ -191,7 +192,7 @@
 	<string name="msg_shortcut_create">Select a game  to place it on the home screen.</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
-	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
+	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="title_signin">Sign In</string>
 	<string name="loading">Loading…</string>
@@ -294,6 +295,7 @@
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
 	<string name="menu_sort_quantity">Play count</string>
+	<string name="undo">Undo</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
 	<string name="shortest">Shortest</string>
@@ -323,6 +325,7 @@
 	<string name="menu_colors_generate">Generate colors</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
+	<string name="menu_add_username">Add username</string>
 	<string name="sort_description">by %s</string>
 	<string name="msg_player_deleted">Player deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
@@ -333,6 +336,7 @@
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
+	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
 	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
@@ -470,6 +474,8 @@
 	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
+	<string name="removed_suffix">%s removed.</string>
+	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -503,10 +509,6 @@
 		<item quantity="one">%s reply</item>
 		<item quantity="other">%s replies</item>
 	</plurals>
-	<plurals name="plays">
-		<item quantity="one">%,d plays</item>
-		<item quantity="other">%,d plays</item>
-	</plurals>
 	<plurals name="plays_prefix">
 		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
 		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
@@ -514,6 +516,10 @@
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
+	</plurals>
+	<plurals name="msg_updated_plays_buddy_nickname">
+		<item quantity="one">Updated %1$,d play for %2$s with nickname \"%3$s\".</item>
+		<item quantity="other">Updated %1$,d plays for %2$s with nickname \"%3$s\".</item>
 	</plurals>
 	<plurals name="player_description">
 		<item quantity="one">with %s player</item>
@@ -552,8 +558,8 @@
 		<item quantity="other"><b>%,d</b> Users</item>
 	</plurals>
 	<plurals name="plays_suffix">
-		<item quantity="one">%1$s play</item>
-		<item quantity="other">%1$s plays</item>
+		<item quantity="one"><b>%,d</b> play</item>
+		<item quantity="other"><b>%,d</b> plays</item>
 	</plurals>
 	<plurals name="players_suffix">
 		<item quantity="one">%1$s player</item>

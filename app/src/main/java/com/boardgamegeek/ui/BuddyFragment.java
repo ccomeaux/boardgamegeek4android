@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -12,14 +10,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -34,14 +28,19 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
+import com.boardgamegeek.tasks.RenamePlayerTask;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
+import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
@@ -51,6 +50,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_REFRESHED = "REFRESHED";
@@ -63,16 +63,19 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private Runnable timeHintUpdateRunnable = null;
 
 	private String buddyName;
+	private String playerName;
 	private boolean isRefreshing;
 	private boolean hasBeenRefreshed;
 
 	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
+	@SuppressWarnings("unused") @InjectView(R.id.buddy_info) View buddyInfoView;
 	@SuppressWarnings("unused") @InjectView(R.id.full_name) TextView fullNameView;
 	@SuppressWarnings("unused") @InjectView(R.id.username) TextView usernameView;
 	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView avatarView;
 	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView nicknameView;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView mPlays;
+	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsView;
 	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updatedView;
 	private int defaultTextColor;
@@ -88,6 +91,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 	}
 
 	@Override
@@ -102,18 +106,36 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		ButterKnife.inject(this, rootView);
 
+		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
+		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);
+		updatedView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
+
 		swipeRefreshLayout = (SwipeRefreshLayout) rootView;
-		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		if (isUser()) {
+			swipeRefreshLayout.setOnRefreshListener(this);
+			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+			swipeRefreshLayout.setEnabled(true);
+		} else {
+			swipeRefreshLayout.setEnabled(false);
+		}
 
 		defaultTextColor = nicknameView.getTextColors().getDefaultColor();
 		lightTextColor = getResources().getColor(R.color.light_text);
 
-		getLoaderManager().restartLoader(TOKEN, null, this);
+		if (isUser()) {
+			getLoaderManager().restartLoader(TOKEN, null, this);
+		} else {
+			nicknameView.setTextColor(defaultTextColor);
+			nicknameView.setText(playerName);
+		}
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 
 		return rootView;
+	}
+
+	private boolean isUser() {
+		return !TextUtils.isEmpty(buddyName);
 	}
 
 	@DebugLog
@@ -180,16 +202,26 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(buddyName), Buddy.PROJECTION, null, null, null);
 				break;
 			case PLAYS_TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Plays.buildPlayersByUniqueUserUri(),
-					Player.PROJECTION,
-					PlayPlayers.USER_NAME + "=?",
-					new String[] { String.valueOf(buddyName) },
-					null);
+				if (isUser()) {
+					loader = new CursorLoader(getActivity(),
+						Plays.buildPlayersByUniqueUserUri(),
+						Player.PROJECTION,
+						PlayPlayers.USER_NAME + "=?",
+						new String[] { buddyName },
+						null);
+
+				} else {
+					loader = new CursorLoader(getActivity(),
+						Plays.buildPlayersByUniquePlayerUri(),
+						Player.PROJECTION,
+						"(" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL) AND play_players." + PlayPlayers.NAME + "=?",
+						new String[] { "", playerName },
+						null);
+				}
 				break;
 			case COLORS_TOKEN:
 				loader = new CursorLoader(getActivity(),
-					PlayerColors.buildUserUri(buddyName),
+					isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName),
 					BuddyColor.PROJECTION,
 					null, null, null);
 				break;
@@ -229,7 +261,11 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.nickname)
 	public void onEditNicknameClick(View v) {
-		showDialog(nicknameView.getText().toString(), buddyName);
+		if (isUser()) {
+			showNicknameDialog(nicknameView.getText().toString(), buddyName);
+		} else {
+			showPlayerNameDialog(nicknameView.getText().toString());
+		}
 	}
 
 	@DebugLog
@@ -245,9 +281,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick(View v) {
-		Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		startActivity(intent);
+		if (isUser()) {
+			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
+			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
+			startActivity(intent);
+		} else {
+			ActivityUtils.startPlayerPlaysActivity(getActivity(), playerName, buddyName);
+		}
 	}
 
 	@DebugLog
@@ -256,6 +296,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	public void onColorsClick(View v) {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
+		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		startActivity(intent);
 	}
 
@@ -308,15 +349,18 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
+	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			return;
 		}
 
 		Player player = Player.fromCursor(cursor);
-		mPlays.setText(StringUtils.boldSecondString("", String.valueOf(player.getPlayCount()), getString(R.string.title_plays)));
+		final int playCount = player.getPlayCount();
+		playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
 	}
 
+	@DebugLog
 	private void onColorsQueryComplete(Cursor cursor) {
 		if (cursor == null) {
 			return;
@@ -338,6 +382,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
+	@DebugLog
 	private ImageView createViewToBeColored() {
 		ImageView view = new ImageView(getActivity());
 		int size = getResources().getDimensionPixelSize(R.dimen.color_circle_diameter_small);
@@ -354,6 +399,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		forceRefresh();
 	}
 
+	@DebugLog
 	private void requestRefresh() {
 		if (!hasBeenRefreshed) {
 			forceRefresh();
@@ -361,34 +407,42 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
+	@DebugLog
 	public void forceRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, buddyName);
+		if (isUser()) {
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, buddyName);
+		} else {
+			Timber.w("Something tried to refresh a player that wasn't a user!");
+		}
 	}
 
-	private void showDialog(final String nickname, final String username) {
-		final LayoutInflater inflater = (LayoutInflater) getActivity()
-			.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.dialog_edit_nickname, rootView, false);
-
-		final EditText editText = (EditText) view.findViewById(R.id.edit_nickname);
-		final CheckBox checkBox = (CheckBox) view.findViewById(R.id.change_plays);
-		if (!TextUtils.isEmpty(nickname)) {
-			editText.setText(nickname);
-			editText.setSelection(0, nickname.length());
-		}
-
-		AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view)
-			.setTitle(R.string.title_edit_nickname).setNegativeButton(R.string.cancel, null)
-			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					String newNickname = editText.getText().toString();
-					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(),
-						username, newNickname, checkBox.isChecked());
+	@DebugLog
+	private void showNicknameDialog(final String nickname, final String username) {
+		UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(R.string.title_edit_nickname, null, new UpdateBuddyNicknameDialogListener() {
+			@Override
+			public void onFinishEditDialog(String newNickname, boolean updatePlays) {
+				if (!TextUtils.isEmpty(newNickname)) {
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
 				}
-			}).create();
-		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-		dialog.show();
+			}
+		});
+		dialogFragment.setNickname(nickname);
+		DialogUtils.showFragment(getActivity(), dialogFragment, "edit_nickname");
+	}
+
+	@DebugLog
+	private void showPlayerNameDialog(final String oldName) {
+		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, null, new EditTextDialogListener() {
+			@Override
+			public void onFinishEditDialog(String inputText) {
+				if (!TextUtils.isEmpty(inputText)) {
+					RenamePlayerTask task = new RenamePlayerTask(getContext(), oldName, inputText);
+					TaskUtils.executeAsyncTask(task);
+				}
+			}
+		});
+		editTextDialogFragment.setText(oldName);
+		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_player");
 	}
 }

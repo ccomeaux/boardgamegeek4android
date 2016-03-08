@@ -205,7 +205,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			holder.name.setText(player.getName());
 			holder.username.setText(player.getUsername());
 			holder.username.setVisibility(TextUtils.isEmpty(player.getUsername()) ? View.GONE : View.VISIBLE);
-			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, player.getPlayCount(), player.getPlayCount()));
+			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays_suffix, player.getPlayCount(), player.getPlayCount()));
 
 			view.setTag(R.id.name, player.getName());
 			view.setTag(R.id.username, player.getUsername());

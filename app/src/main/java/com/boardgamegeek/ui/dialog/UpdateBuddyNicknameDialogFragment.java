@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager.LayoutParams;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
@@ -21,66 +22,39 @@ import com.boardgamegeek.R;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class EditTextDialogFragment extends DialogFragment {
-	public interface EditTextDialogListener {
-		void onFinishEditDialog(String inputText);
+public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
+	public interface UpdateBuddyNicknameDialogListener {
+		void onFinishEditDialog(String newNickname, boolean shouldUpdatePlays);
 	}
 
 	private static final String KEY_TITLE_ID = "title_id";
 	@StringRes private int titleResId;
 	private ViewGroup root;
-	private EditTextDialogListener listener;
-	private boolean isUsername;
-	private boolean isLongForm;
+	private UpdateBuddyNicknameDialogListener listener;
 
-	@SuppressWarnings("unused") @InjectView(R.id.edit_text) EditText editText;
-	private String existingText;
-
-	@NonNull
-	public static EditTextDialogFragment newInstance(
-		@StringRes int titleResId,
-		@Nullable ViewGroup root,
-		EditTextDialogListener listener) {
-
-		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, false, false);
-		return fragment;
-	}
+	@SuppressWarnings("unused") @InjectView(R.id.edit_nickname) EditText editText;
+	@SuppressWarnings("unused") @InjectView(R.id.change_plays) CheckBox changePlays;
+	private String nickname;
 
 	@NonNull
-	public static EditTextDialogFragment newLongFormInstance(
+	public static UpdateBuddyNicknameDialogFragment newInstance(
 		@StringRes int titleResId,
 		@Nullable ViewGroup root,
-		EditTextDialogListener listener) {
+		UpdateBuddyNicknameDialogListener listener) {
 
-		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, false, true);
-		return fragment;
-	}
-
-	@NonNull
-	public static EditTextDialogFragment newUsernameInstance(
-		@StringRes int titleResId,
-		@Nullable ViewGroup root,
-		EditTextDialogListener listener) {
-
-		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, true, false);
+		UpdateBuddyNicknameDialogFragment fragment = new UpdateBuddyNicknameDialogFragment();
+		fragment.initialize(titleResId, root, listener);
 		return fragment;
 	}
 
 	private void initialize(
 		@StringRes int titleResId,
 		@Nullable ViewGroup root,
-		EditTextDialogListener listener,
-		boolean isUsername,
-		boolean isLongForm) {
+		UpdateBuddyNicknameDialogListener listener) {
 
 		this.titleResId = titleResId;
 		this.root = root;
 		this.listener = listener;
-		this.isUsername = isUsername;
-		this.isLongForm = isLongForm;
 		setArguments(this.titleResId);
 	}
 
@@ -94,7 +68,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	@NonNull
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-		View rootView = layoutInflater.inflate(R.layout.dialog_edit_text, root, false);
+		View rootView = layoutInflater.inflate(R.layout.dialog_edit_nickname, root, false);
 		ButterKnife.inject(this, rootView);
 
 		if (getArguments() != null) {
@@ -113,32 +87,26 @@ public class EditTextDialogFragment extends DialogFragment {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (listener != null) {
-						listener.onFinishEditDialog(editText.getText().toString().trim());
+						listener.onFinishEditDialog(editText.getText().toString().trim(), changePlays.isChecked());
 					}
 				}
 			});
 
 		final AlertDialog dialog = builder.create();
 		int inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
-		if (isUsername) {
-			inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-		}
-		if (isLongForm) {
-			inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-		}
 		editText.setInputType(editText.getInputType() | inputType);
 		requestFocus(dialog);
 		return dialog;
 	}
 
-	public void setText(String text) {
-		this.existingText = text;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	private void setAndSelectExistingText() {
-		if (editText != null && !TextUtils.isEmpty(existingText)) {
-			editText.setText(existingText);
-			editText.setSelection(0, existingText.length());
+		if (editText != null && !TextUtils.isEmpty(nickname)) {
+			editText.setText(nickname);
+			editText.setSelection(0, nickname.length());
 		}
 	}
 
