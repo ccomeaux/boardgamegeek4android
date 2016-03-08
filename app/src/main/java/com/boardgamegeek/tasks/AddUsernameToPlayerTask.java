@@ -9,7 +9,11 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.User;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
@@ -29,6 +33,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	private final Context context;
 	private final String playerName;
 	private final String username;
+	private boolean wasSuccessful;
 
 	public AddUsernameToPlayerTask(@NonNull Context context, String playerName, String username) {
 		this.context = context.getApplicationContext();
@@ -39,6 +44,12 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	@NonNull
 	@Override
 	protected String doInBackground(Void... params) {
+		BggService service = Adapter.create();
+		User user = new UserRequest(service, username).execute();
+		if (user == null || user.getId() == BggContract.INVALID_ID) {
+			return context.getString(R.string.msg_invalid_username, username);
+		}
+
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		updatePlays(batch);
 		updatePlayers(batch);
@@ -46,7 +57,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 		ResolverUtils.applyBatch(context, batch);
 
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-
+		wasSuccessful = true;
 		return context.getString(R.string.msg_player_add_username, username, playerName);
 	}
 
@@ -102,16 +113,18 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 
 	@Override
 	protected void onPostExecute(String result) {
-		EventBus.getDefault().post(new Event(result, username));
+		EventBus.getDefault().post(new Event(result, username, wasSuccessful));
 	}
 
 	public class Event {
 		private final String message;
 		private final String username;
+		private final boolean isSuccessful;
 
-		public Event(String message, String username) {
+		public Event(String message, String username, boolean isSuccessful) {
 			this.message = message;
 			this.username = username;
+			this.isSuccessful = isSuccessful;
 		}
 
 		public String getMessage() {
@@ -120,6 +133,10 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 
 		public String getUsername() {
 			return username;
+		}
+
+		public boolean isSuccessful() {
+			return isSuccessful;
 		}
 	}
 }

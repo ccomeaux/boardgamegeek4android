@@ -90,12 +90,13 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(AddUsernameToPlayerTask.Event event) {
-		username = event.getUsername();
-		getIntent().putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
-		setSubtitle();
+		if (event.isSuccessful()) {
+			username = event.getUsername();
+			getIntent().putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
+			setSubtitle();
 
-		recreateFragment();
-
+			recreateFragment();
+		}
 		showSnackbar(event.getMessage());
 	}
 

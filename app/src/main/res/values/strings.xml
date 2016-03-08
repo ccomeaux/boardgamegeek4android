@@ -475,6 +475,7 @@
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
+	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
