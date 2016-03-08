@@ -1,10 +1,13 @@
 package com.boardgamegeek.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
+import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -96,10 +99,6 @@ public class ActivityUtils {
 		context.startActivity(intent);
 	}
 
-	private static Intent createBuddyIntent(Context context, String username) {
-		return createBuddyIntent(context, username, null);
-	}
-
 	private static Intent createBuddyIntent(Context context, String username, String playerName) {
 		Intent intent = new Intent(context, BuddyActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
@@ -121,29 +120,31 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void share(Context context, String subject, String text, int titleResId) {
-		Intent intent = new Intent(Intent.ACTION_SEND);
-		intent.setType("text/plain");
-		intent.putExtra(Intent.EXTRA_SUBJECT, subject.trim());
-		intent.putExtra(Intent.EXTRA_TEXT, text.trim());
-		context.startActivity(Intent.createChooser(intent, context.getResources().getString(titleResId)));
+	public static void share(Activity activity, String subject, String text, @StringRes int titleResId) {
+		Intent intent = ShareCompat.IntentBuilder.from(activity)
+			.setType("text/plain")
+			.setSubject(subject.trim())
+			.setText(text.trim())
+			.setChooserTitle(titleResId)
+			.createChooserIntent();
+		activity.startActivity(intent);
 	}
 
-	public static void shareGame(Context context, int gameId, String gameName) {
-		Resources r = context.getResources();
+	public static void shareGame(Activity activity, int gameId, String gameName) {
+		Resources r = activity.getResources();
 		String subject = String.format(r.getString(R.string.share_game_subject), gameName);
 		String text = r.getString(R.string.share_game_text) + "\n\n" + formatGameLink(gameId, gameName);
-		share(context, subject, text, R.string.title_share_game);
+		share(activity, subject, text, R.string.title_share_game);
 	}
 
-	public static void shareGames(Context context, List<Pair<Integer, String>> games) {
-		Resources r = context.getResources();
+	public static void shareGames(Activity activity, List<Pair<Integer, String>> games) {
+		Resources r = activity.getResources();
 		StringBuilder text = new StringBuilder(r.getString(R.string.share_games_text));
 		text.append("\n").append("\n");
 		for (Pair<Integer, String> game : games) {
 			text.append(formatGameLink(game.first, game.second));
 		}
-		share(context, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
+		share(activity, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
 	}
 
 	private static String formatGameLink(int id, String name) {
