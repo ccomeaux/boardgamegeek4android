@@ -12,14 +12,20 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.BuddySelectedEvent;
+import com.boardgamegeek.tasks.AddUsernameToPlayerTask;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
+import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.TaskUtils;
 
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 public class BuddyActivity extends SimpleSinglePaneActivity {
+	private String name;
 	private String username;
 
 	@Override
@@ -30,7 +36,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
-		final String name = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
+		name = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 		username = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 		setSubtitle(username, name);
 
@@ -60,7 +66,16 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.add_username) {
-			showSnackbar("Adding username...");
+			EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, null, new EditTextDialogListener() {
+				@Override
+				public void onFinishEditDialog(String inputText) {
+					if (!TextUtils.isEmpty(inputText)) {
+						AddUsernameToPlayerTask task = new AddUsernameToPlayerTask(BuddyActivity.this, name, inputText);
+						TaskUtils.executeAsyncTask(task);
+					}
+				}
+			});
+			DialogUtils.showFragment(this, editTextDialogFragment, "add_username");
 			return true;
 		}
 		return false;
@@ -69,6 +84,12 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(BuddyNicknameUpdateTask.Event event) {
+		showSnackbar(event.getMessage());
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	public void onEvent(AddUsernameToPlayerTask.Event event) {
 		showSnackbar(event.getMessage());
 	}
 

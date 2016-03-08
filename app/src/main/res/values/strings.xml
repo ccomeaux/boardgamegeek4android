@@ -158,6 +158,7 @@
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_edit_location">Edit Location</string>
 	<string name="title_edit_player">Edit Player</string>
+	<string name="title_add_username">Add Username</string>
 	<string name="title_error">Error!</string>
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
@@ -335,6 +336,7 @@
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
+	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
 	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
