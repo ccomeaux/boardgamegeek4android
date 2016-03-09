@@ -7,6 +7,7 @@ import android.os.StrictMode.ThreadPolicy.Builder;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.VersionUtils;
 import com.crashlytics.android.Crashlytics;
+import com.squareup.leakcanary.LeakCanary;
 
 import hugo.weaving.DebugLog;
 import io.fabric.sdk.android.Fabric;
@@ -26,6 +27,7 @@ public class BggApplication extends Application {
 			Fabric.with(this, new Crashlytics());
 			Timber.plant(new CrashReportingTree());
 		}
+		LeakCanary.install(this);
 	}
 
 	private void enableStrictMode() {
