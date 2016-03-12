@@ -6,16 +6,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -32,8 +33,8 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 
 	private ViewGroup root;
 	private Listener listener;
+	private final List<Integer> enabledFilterTypes = new ArrayList<>();
 	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ScrollView scrollContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.container) LinearLayout radioGroup;
 	@SuppressWarnings("unused") @InjectViews({
 		R.id.collection_status,
 		R.id.subtype,
@@ -47,7 +48,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		R.id.play_time,
 		R.id.suggested_age,
 		R.id.average_weight
-	}) List<TextView> textViews;
+	}) List<AppCompatCheckBox> checkBoxes;
 
 	@DebugLog
 	public CollectionFilterDialogFragment() {
@@ -74,12 +75,42 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		View rootView = layoutInflater.inflate(R.layout.dialog_collection_filter, root, false);
 
 		ButterKnife.inject(this, rootView);
+		setEnabledFilterTypes();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
 		builder.setTitle(R.string.title_filter);
 		return builder.create();
 	}
 
+	@DebugLog
+	public void addEnabledFilter(int type) {
+		enabledFilterTypes.add(type);
+		setEnabledFilterTypes();
+	}
+
+	@DebugLog
+	private void setEnabledFilterTypes() {
+		if (checkBoxes == null) {
+			Timber.d("Text views not initialized");
+			return;
+		}
+		for (Integer filterType : enabledFilterTypes) {
+			for (AppCompatCheckBox textView : checkBoxes) {
+				int type = getTypeFromView(textView);
+				if (filterType == type) {
+					textView.setChecked(true);
+					break;
+				}
+			}
+		}
+	}
+
+	@DebugLog
+	private int getTypeFromView(View view) {
+		return StringUtils.parseInt(view.getTag().toString(), CollectionFiltererFactory.TYPE_UNKNOWN);
+	}
+
+	@DebugLog
 	@SuppressWarnings("unused")
 	@OnClick({
 		R.id.collection_status,

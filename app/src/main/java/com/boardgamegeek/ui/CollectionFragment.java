@@ -305,6 +305,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 								launchFilterDialog(filterType);
 							}
 						});
+					for (CollectionFilterer filter : filters) {
+						filterFragment.addEnabledFilter(filter.getType());
+					}
 					filterFragment.show(getFragmentManager(), "filter");
 					return true;
 			}
