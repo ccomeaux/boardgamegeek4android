@@ -129,7 +129,7 @@ public class SelectionBuilder {
 	}
 
 	private void assertHaving() {
-		if (!TextUtils.isEmpty(mHaving) && (mGroupBy == null || mGroupBy.size() == 0)) {
+		if (!TextUtils.isEmpty(mHaving) && (mGroupBy.size() == 0)) {
 			throw new IllegalStateException("Group by must be specified for Having clause");
 		}
 	}
@@ -190,7 +190,7 @@ public class SelectionBuilder {
 	}
 
 	public String getGroupByClause() {
-		if (mGroupBy == null || mGroupBy.size() == 0) {
+		if (mGroupBy.size() == 0) {
 			return "";
 		}
 		StringBuilder clause = new StringBuilder();

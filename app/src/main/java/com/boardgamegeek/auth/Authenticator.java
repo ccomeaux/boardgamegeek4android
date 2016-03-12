@@ -145,7 +145,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	@Nullable
 	public static Account getAccount(@NonNull AccountManager accountManager) {
 		Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
-		if (accounts == null || accounts.length == 0) {
+		if (accounts.length == 0) {
 			Timber.w("no account!");
 			return null;
 		} else if (accounts.length != 1) {

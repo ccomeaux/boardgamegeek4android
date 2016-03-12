@@ -398,7 +398,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (selectedPositions == null || !selectedPositions.iterator().hasNext()) {
+		if (!selectedPositions.iterator().hasNext()) {
 			return false;
 		}
 		SearchResult game = searchResultsAdapter.getItem(selectedPositions.iterator().next());
