@@ -257,12 +257,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_send).setVisible(mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		MenuItem menuItem = menu.findItem(R.id.menu_discard);
-		if (menuItem != null &&
-			mPlay.hasBeenSynced() &&
-			mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-			menuItem.setVisible(true);
-		} else {
-			menuItem.setVisible(false);
+		if (menuItem != null) {
+			menuItem.setVisible(mPlay.hasBeenSynced() && mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		}
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.syncStatus == Play.SYNC_STATUS_SYNCED);
 

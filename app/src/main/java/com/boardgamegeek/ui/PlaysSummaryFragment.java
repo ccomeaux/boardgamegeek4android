@@ -205,7 +205,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		while (cursor.moveToNext()) {
 			Player player = Player.fromCursor(cursor);
 
-			if (accountUsername.equals(player.getUsername())) {
+			if (accountUsername != null && accountUsername.equals(player.getUsername())) {
 				continue;
 			}
 

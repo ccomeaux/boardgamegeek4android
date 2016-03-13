@@ -63,6 +63,7 @@ import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import timber.log.Timber;
 
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -151,7 +152,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		setEmptyText(getString(getEmptyStringResource()));
 		requery();
 
-		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+		final StickyListHeadersListView listView = getListView();
+		if (listView != null) {
+			ActionMode.setMultiChoiceMode(listView.getWrappedList(), getActivity(), this);
+		}
 	}
 
 	@Override

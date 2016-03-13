@@ -910,7 +910,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			cursor = getContentResolver().query(Plays.buildPlayersByUniqueNameUri(),
 				new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
 					PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				String username = cursor.getString(1);
 				String name = cursor.getString(2);
 				if (!containsPlayer(username, name)) {
