@@ -407,8 +407,9 @@
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>
 	<string name="help_title">Help</string>
-	<string name="help_home">If plays aren\'t uploading, please try signing out and back in.\n\nInstalling this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
-	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
+	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
+	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
+	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Share\n - Create a shortcut on the home screen\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
 	<string name="help_collection">Got lots of games? You can filter and sort your collection, save it as a view, and even choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>

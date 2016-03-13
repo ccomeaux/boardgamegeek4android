@@ -18,10 +18,11 @@ public class HelpUtils {
 	public static final String HELP_HOME_KEY = "help.home";
 	public static final String HELP_GAME_KEY = "help.game";
 	public static final String HELP_COLLECTION_KEY = "help.collection";
+	public static final String HELP_PLAYS_KEY = "help.plays";
 	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
 	public static final String HELP_LOGPLAY_KEY = "help.logplay";
 	public static final String HELP_LOGPLAYER_KEY = "help.logplayer";
-	public static final String HELP_COLORS_KEY = "help.colors";
+	//public static final String HELP_COLORS_KEY = "help.colors";
 	public static final String HELP_THREAD_KEY = "help.thread";
 
 	private HelpUtils() {
@@ -31,10 +32,13 @@ public class HelpUtils {
 	 * Display this key's help text in a dialog.
 	 */
 	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {
-		if (HelpUtils.showHelp(context, key, version)) {
+		if (HelpUtils.shouldShowHelp(context, key, version)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setTitle(R.string.help_title).setCancelable(false)
-				.setMessage(messageId).setPositiveButton(R.string.help_button_close, null)
+			builder
+				.setTitle(R.string.help_title)
+				.setCancelable(false)
+				.setMessage(messageId)
+				.setPositiveButton(R.string.help_button_close, null)
 				.setNegativeButton(R.string.help_button_hide, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -49,15 +53,15 @@ public class HelpUtils {
 	/**
 	 * Determines if this version of the help key should be shown.
 	 */
-	private static boolean showHelp(Context context, String key, int version) {
+	private static boolean shouldShowHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		final int shownVersion = preferences.getInt(key, 0);
 		return version > shownVersion;
 	}
 
-	private static boolean updateHelp(Context context, String key, int version) {
+	private static void updateHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return preferences.edit().putInt(key, version).commit();
+		preferences.edit().putInt(key, version).apply();
 	}
 
 	/**
