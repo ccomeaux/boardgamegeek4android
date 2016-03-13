@@ -23,8 +23,10 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setTitle(title);
-		actionBar.setSubtitle(mGameName);
+		if (actionBar != null) {
+			actionBar.setTitle(title);
+			actionBar.setSubtitle(mGameName);
+		}
 	}
 
 	@Override

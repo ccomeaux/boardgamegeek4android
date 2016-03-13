@@ -17,7 +17,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class GamePlaysActivity extends SimpleSinglePaneActivity  {
+public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_COUNT = "COUNT";
 	private int mGameId;
 	private String mGameName;
@@ -36,8 +36,10 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity  {
 		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		if (!TextUtils.isEmpty(mGameName)) {
-			ActionBar bar = getSupportActionBar();
-			bar.setSubtitle(mGameName);
+			ActionBar actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 	}
 

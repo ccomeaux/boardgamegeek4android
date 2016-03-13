@@ -34,12 +34,14 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		mLink = intent.getStringExtra(ActivityUtils.KEY_LINK);
 
 		final ActionBar actionBar = getSupportActionBar();
-		if (TextUtils.isEmpty(mGameName)) {
-			actionBar.setTitle(mForumTitle);
-			actionBar.setSubtitle(mThreadSubject);
-		} else {
-			actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
-			actionBar.setSubtitle(mGameName);
+		if (actionBar != null) {
+			if (TextUtils.isEmpty(mGameName)) {
+				actionBar.setTitle(mForumTitle);
+				actionBar.setSubtitle(mThreadSubject);
+			} else {
+				actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 	}
 

@@ -26,12 +26,14 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 		int sort = getIntent().getIntExtra(ActivityUtils.KEY_SORT, SORT_USER);
 
-		ActionBar bar = getSupportActionBar();
-		if (sort == SORT_RATING) {
-			bar.setTitle(R.string.title_ratings);
-		}
-		if (!TextUtils.isEmpty(mGameName)) {
-			bar.setSubtitle(mGameName);
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			if (sort == SORT_RATING) {
+				actionBar.setTitle(R.string.title_ratings);
+			}
+			if (!TextUtils.isEmpty(mGameName)) {
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 	}
 
