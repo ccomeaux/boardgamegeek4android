@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Coming Soon
+Version 5.2
 -----------
  * Rate your games by clicking on the rating in the game's collection page
  * Pull to refresh pretty much everywhere there used to be a menu option
