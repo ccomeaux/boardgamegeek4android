@@ -135,6 +135,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						context.getString(R.string.msg_play_updated) :
 						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 					currentPlayForMessage = play;
+					currentPlayForMessage.playId = response.getPlayId();
 					notifyUser(StringUtils.boldSecondString(message, play.gameName));
 
 					// delete the old plays
