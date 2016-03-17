@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
@@ -130,7 +131,10 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				Play play = PlayBuilder.fromCursor(cursor, context, true);
 
 				PlayPostResponse response = postPlayUpdate(play);
-				if (!response.hasError()) {
+				if (response == null) {
+					syncResult.stats.numIoExceptions++;
+					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
+				} else if (!response.hasError()) {
 					String message = play.hasBeenSynced() ?
 						context.getString(R.string.msg_play_updated) :
 						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
@@ -190,7 +194,10 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.hasBeenSynced()) {
 					PlayPostResponse response = postPlayDelete(play.playId);
-					if (!response.hasError()) {
+					if (response == null) {
+						syncResult.stats.numIoExceptions++;
+						notifyUploadError(context.getString(R.string.msg_play_update_null_response));
+					} else if (!response.hasError()) {
 						deletePlay(play);
 						updateGamePlayCount(play);
 						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
@@ -240,6 +247,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
+	@Nullable
 	private PlayPostResponse postPlayUpdate(@NonNull Play play) {
 		Map<String, String> form = new ArrayMap<>();
 		form.put("ajax", "1");
@@ -286,6 +294,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
+	@Nullable
 	private PlayPostResponse postPlayDelete(int playId) {
 		Map<String, String> form = new ArrayMap<>();
 		form.put("ajax", "1");
