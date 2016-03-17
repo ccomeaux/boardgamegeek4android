@@ -175,6 +175,10 @@ public class Player implements Parcelable {
 		return String.format("%1$s (%2$s) - %3$s", name, username, color);
 	}
 
+	public String toLongDescription() {
+		return String.format("%1$s (%2$s) - %3$s - %4$s", name, username, color, score);
+	}
+
 	@Override
 	public int describeContents() {
 		return 0;

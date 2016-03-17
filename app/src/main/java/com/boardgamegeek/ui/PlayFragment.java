@@ -304,7 +304,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
-					mPlay.toLongDescription(getActivity()), R.string.share_play_title);
+					mPlay.toLongDescriptionWithPlayers(getActivity()), R.string.share_play_title);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

@@ -453,24 +453,24 @@ public class Play {
 
 	// MISC
 
-    /**
-     * Determine if any player has a team/color.
-     */
-    public boolean hasColors() {
-        if (getPlayerCount() == 0) {
-            return false;
-        }
+	/**
+	 * Determine if any player has a team/color.
+	 */
+	public boolean hasColors() {
+		if (getPlayerCount() == 0) {
+			return false;
+		}
 
-        for (Player player : players) {
-            if (!TextUtils.isEmpty(player.color)) {
-                return true;
-            }
-        }
+		for (Player player : players) {
+			if (!TextUtils.isEmpty(player.color)) {
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-	public double getHighScore(){
+	public double getHighScore() {
 		if (getPlayerCount() == 0) {
 			return 0.0;
 		}
@@ -478,7 +478,7 @@ public class Play {
 		double highScore = Double.MIN_VALUE;
 		for (Player player : players) {
 			double score = StringUtils.parseDouble(player.score, Double.MIN_VALUE);
-			if (score > highScore){
+			if (score > highScore) {
 				highScore = score;
 			}
 		}
@@ -486,7 +486,7 @@ public class Play {
 		return highScore;
 	}
 
-    /**
+	/**
 	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
 	 */
 	public boolean hasBeenSynced() {
@@ -595,25 +595,42 @@ public class Play {
 
 	public String toShortDescription(Context context) {
 		Resources r = context.getResources();
-		return r.getString(R.string.share_play_played) + " " + gameName + " " + r.getString(R.string.on) + " " + getDate();
+		return r.getString(R.string.play_description_game_segment, gameName) +
+			r.getString(R.string.play_description_date_segment, getDate());
 	}
 
 	public String toLongDescription(Context context) {
-		Resources r = context.getResources();
+		Resources resources = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
-		if (quantity > 1) {
-			sb.append(" ").append(quantity).append(" ").append(r.getString(R.string.times));
-		}
-		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
-		if (!TextUtils.isEmpty(location)) {
-			sb.append(" ").append(r.getString(R.string.at)).append(" ").append(location);
-		}
+		toLongDescriptionPrefix(resources, sb);
 		if (players.size() > 0) {
-			sb.append(" ").append(r.getString(R.string.with)).append(" ").append(players.size()).append(" ")
-				.append(r.getString(R.string.players));
+			sb.append(resources.getString(R.string.play_description_players_segment, players.size()));
 		}
-		sb.append(" (www.boardgamegeek.com/boardgame/").append(gameId).append(")");
+		sb.append(resources.getString(R.string.play_description_url_segment, gameId));
 		return sb.toString();
+	}
+
+	public String toLongDescriptionWithPlayers(Context context) {
+		Resources resources = context.getResources();
+		StringBuilder sb = new StringBuilder();
+		toLongDescriptionPrefix(resources, sb);
+		if (players.size() > 0) {
+			for (Player player : players) {
+				sb.append("\n").append(player.toLongDescription());
+			}
+		}
+		sb.append("\n").append(resources.getString(R.string.play_description_url_segment, gameId).trim());
+		return sb.toString();
+	}
+
+	private void toLongDescriptionPrefix(Resources resources, StringBuilder sb) {
+		sb.append(resources.getString(R.string.play_description_game_segment, gameName));
+		if (quantity > 1) {
+			sb.append(resources.getString(R.string.play_description_quantity_segment, quantity));
+		}
+		sb.append(resources.getString(R.string.play_description_date_segment, getDate()));
+		if (!TextUtils.isEmpty(location)) {
+			sb.append(resources.getString(R.string.play_description_location_segment, location));
+		}
 	}
 }
