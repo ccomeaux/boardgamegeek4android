@@ -35,7 +35,8 @@ public class ImageActivity extends AppCompatActivity {
 		Picasso.with(this)
 			.load(HttpUtils.ensureScheme(imageUrl))
 			.error(R.drawable.thumbnail_image_empty)
-			.fit().centerInside()
+			.fit()
+			.centerInside()
 			.transform(PaletteTransformation.instance())
 			.into(imageView, new Callback.EmptyCallback() {
 				@Override

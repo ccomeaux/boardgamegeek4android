@@ -17,12 +17,15 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
+import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.ui.PlayerPlaysActivity;
 
 import java.util.List;
+
+import timber.log.Timber;
 
 public class ActivityUtils {
 	public static final String KEY_TITLE = "TITLE";
@@ -202,6 +205,16 @@ public class ActivityUtils {
 		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(LogPlayActivity.KEY_IMAGE_URL, imageUrl);
 		return intent;
+	}
+
+	public static void startImageActivity(Context context, String imageUrl) {
+		if (TextUtils.isEmpty(imageUrl)) {
+			Timber.w("Missing the required image URL.");
+			return;
+		}
+		Intent intent = new Intent(context, ImageActivity.class);
+		intent.putExtra(KEY_IMAGE_URL, imageUrl);
+		context.startActivity(intent);
 	}
 
 	public static void logQuickPlay(Context context, int gameId, String gameName) {

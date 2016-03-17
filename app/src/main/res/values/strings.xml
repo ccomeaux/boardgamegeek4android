@@ -247,6 +247,7 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
+	<string name="menu_view_image">View image</string>
 	<string name="links">Links</string>
 	<string name="link_bgg">BoardGameGeek</string>
 	<string name="link_bg_prices">Board Game Prices</string>
