@@ -8,6 +8,10 @@
 		android:title="@string/menu_log_play_quick"
 		app:showAsAction="never"/>
 	<item
+		android:id="@+id/menu_view_image"
+		android:title="@string/menu_view_image"
+		app:showAsAction="never"/>
+	<item
 		android:id="@+id/menu_share"
 		android:icon="@drawable/ic_action_share_light"
 		android:title="@string/menu_share"

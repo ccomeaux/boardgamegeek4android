@@ -116,6 +116,9 @@ public class GameActivity extends HeroActivity implements Callback {
 				Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, gameId, gameName);
 				return true;
+			case R.id.menu_view_image:
+				ActivityUtils.startImageActivity(this, imageUrl);
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
