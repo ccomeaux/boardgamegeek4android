@@ -275,6 +275,16 @@ public class CollectionPersister {
 		if (internalId != BggContract.INVALID_ID) {
 			removeValuesIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
 			removeValuesIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
+			removeValuesIfDirty(values, internalId, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+				Collection.PRIVATE_INFO_ACQUIRED_FROM,
+				Collection.PRIVATE_INFO_ACQUISITION_DATE,
+				Collection.PRIVATE_INFO_COMMENT,
+				Collection.PRIVATE_INFO_CURRENT_VALUE,
+				Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+				Collection.PRIVATE_INFO_PRICE_PAID,
+				Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+				Collection.PRIVATE_INFO_QUANTITY);
+
 			Uri uri = Collection.buildUri(internalId);
 			operation = ContentProviderOperation.newUpdate(uri);
 			maybeDeleteThumbnail(values, uri, batch);
