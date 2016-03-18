@@ -8,6 +8,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.text.SpannableString;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -25,20 +26,25 @@ import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SyncCollectionUpload extends SyncUploadTask {
-	ContentResolver resolver;
-	SyncResult syncResult;
+	private ContentResolver resolver;
+	private SyncResult syncResult;
 	private ContentValues contentValues;
+	private final List<String> timestampColumns = new ArrayList<>();
 
 	@DebugLog
 	public SyncCollectionUpload(Context context, BggService service) {
 		super(context, service);
+		timestampColumns.add(Collection.RATING_DIRTY_TIMESTAMP);
+		timestampColumns.add(Collection.COMMENT_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
@@ -103,9 +109,16 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	}
 
 	private Cursor fetchDirtyCollectionItems() {
+		String selection = "";
+		for (String timestamp : timestampColumns) {
+			if (!TextUtils.isEmpty(selection)) {
+				selection += " OR ";
+			}
+			selection += timestamp + ">0";
+		}
 		Cursor cursor = context.getContentResolver().query(Collection.CONTENT_URI,
 			Query.PROJECTION,
-			Collection.RATING_DIRTY_TIMESTAMP + ">0 OR " + Collection.COMMENT_DIRTY_TIMESTAMP + ">0",
+			selection,
 			null,
 			null);
 		final int count = cursor != null ? cursor.getCount() : 0;
