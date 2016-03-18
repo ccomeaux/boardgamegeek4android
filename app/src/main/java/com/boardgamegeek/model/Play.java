@@ -606,7 +606,7 @@ public class Play {
 		if (players.size() > 0) {
 			sb.append(resources.getString(R.string.play_description_players_segment, players.size()));
 		}
-		sb.append(resources.getString(R.string.play_description_url_segment, gameId));
+		sb.append("(").append(resources.getString(R.string.play_description_game_url_segment, gameId)).append(")");
 		return sb.toString();
 	}
 
@@ -615,11 +615,31 @@ public class Play {
 		StringBuilder sb = new StringBuilder();
 		toLongDescriptionPrefix(resources, sb);
 		if (players.size() > 0) {
-			for (Player player : players) {
-				sb.append("\n").append(player.toLongDescription());
+			sb.append(" ").append(resources.getString(R.string.with));
+			if (arePlayersCustomSorted()) {
+				for (Player player : players) {
+					if (player != null) {
+						sb.append("\n").append(player.toLongDescription(context));
+					}
+				}
+			} else {
+				for (int i = 0; i < players.size(); i++) {
+					Player player = getPlayerAtSeat(i + 1);
+					if (player != null) {
+						sb.append("\n").append(player.toLongDescription(context));
+					}
+				}
 			}
 		}
-		sb.append("\n").append(resources.getString(R.string.play_description_url_segment, gameId).trim());
+		if (!TextUtils.isEmpty(comments)) {
+			sb.append("\n").append(comments);
+		}
+		if (hasBeenSynced()) {
+			sb.append("\n").append(resources.getString(R.string.play_description_play_url_segment, playId).trim());
+		} else {
+			sb.append("\n").append(resources.getString(R.string.play_description_game_url_segment, gameId).trim());
+		}
+
 		return sb.toString();
 	}
 

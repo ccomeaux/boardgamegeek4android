@@ -1,10 +1,12 @@
 package com.boardgamegeek.model;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -175,8 +177,28 @@ public class Player implements Parcelable {
 		return String.format("%1$s (%2$s) - %3$s", name, username, color);
 	}
 
-	public String toLongDescription() {
-		return String.format("%1$s (%2$s) - %3$s - %4$s", name, username, color, score);
+	public String toLongDescription(Context context) {
+		StringBuilder sb = new StringBuilder();
+		if (getSeat() != SEAT_UNKNOWN) {
+			sb.append(context.getString(R.string.player_description_starting_position_segment, getSeat()));
+		}
+		sb.append(name);
+		if (!TextUtils.isEmpty(username)) {
+			sb.append(context.getString(R.string.player_description_username_segment, username));
+		}
+		if (New()) {
+			sb.append(context.getString(R.string.player_description_new_segment));
+		}
+		if (!TextUtils.isEmpty(color)) {
+			sb.append(context.getString(R.string.player_description_color_segment, color));
+		}
+		if (!TextUtils.isEmpty(score)) {
+			sb.append(context.getString(R.string.player_description_score_segment, score));
+		}
+		if (Win()) {
+			sb.append(context.getString(R.string.player_description_win_segment));
+		}
+		return sb.toString();
 	}
 
 	@Override
