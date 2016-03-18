@@ -74,6 +74,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@SuppressWarnings("unused") @InjectView(R.id.private_info_container) View privateInfoContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info) TextView privateInfo;
 	@SuppressWarnings("unused") @InjectView(R.id.private_info_comments) TextView privateInfoComments;
+	@SuppressWarnings("unused") @InjectView(R.id.private_info_timestamp) TextView privateInfoTimestampView;
 	@SuppressWarnings("unused") @InjectView(R.id.wishlist_container) View wishlistContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.wishlist_comment) TextView wishlistComment;
 	@SuppressWarnings("unused") @InjectView(R.id.condition_container) View conditionContainer;
@@ -338,6 +339,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 			privateInfo.setText(item.getPrivateInfo());
 			PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
+			privateInfoTimestampView.setTag(item.privateInfoTimestamp);
 		} else {
 			privateInfoContainer.setVisibility(View.GONE);
 		}
@@ -399,6 +401,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		}
 		displayTimestamp(ratingTimestampView);
 		displayTimestamp(commentTimestampView);
+		displayTimestamp(privateInfoTimestampView);
 	}
 
 	private void displayTimestamp(TextView timestampView) {
@@ -430,7 +433,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE,
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
 			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
-			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP };
+			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP,
+			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP };
 
 		final int COLLECTION_ID = 1;
 		final int COLLECTION_NAME = 2;
@@ -466,6 +470,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final int NUM_PLAYS = 32;
 		final int RATING_DIRTY_TIMESTAMP = 33;
 		final int COMMENT_DIRTY_TIMESTAMP = 34;
+		final int PRIVATE_INFO_DIRTY_TIMESTAMP = 35;
 
 		Resources r;
 		int id;
@@ -485,6 +490,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		private String acquiredFrom;
 		private String acquisitionDate;
 		String privateComment;
+		private long privateInfoTimestamp;
 		String imageUrl;
 		private int year;
 		String condition;
@@ -518,6 +524,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
 			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
+			privateInfoTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
 			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
