@@ -131,7 +131,10 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static String describeRankName(Context context, String type, String name) {
-		if (name == null || type == null) {
+		if (name == null) {
+			return "";
+		}
+		if (type == null) {
 			return name;
 		}
 		@StringRes int resId = R.string.title_game;
