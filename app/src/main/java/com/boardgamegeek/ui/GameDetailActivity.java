@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
-import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
@@ -24,18 +23,15 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setTitle(title);
-		actionBar.setSubtitle(mGameName);
+		if (actionBar != null) {
+			actionBar.setTitle(title);
+			actionBar.setSubtitle(mGameName);
+		}
 	}
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return new GameDetailFragment();
-	}
-
-	@Override
-	protected int getOptionsMenuId() {
-		return R.menu.search_only;
 	}
 
 	@Override

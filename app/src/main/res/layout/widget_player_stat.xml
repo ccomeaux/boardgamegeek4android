@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<TextView
+		android:id="@+id/name"
+		style="@style/Text"
+		android:gravity="center_vertical"
+		android:minHeight="@dimen/card_row_height"/>
+
+	<TextView
+		android:id="@+id/play_count"
+		style="@style/Text"
+		android:layout_gravity="center"/>
+
+	<TextView
+		android:id="@+id/wins"
+		style="@style/Text"
+		android:layout_gravity="center"/>
+
+	<TextView
+		android:id="@+id/score"
+		style="@style/Text"
+		android:layout_gravity="center"/>
+</merge>

@@ -130,6 +130,8 @@ public class BggContract {
 		String PRIVATE_INFO_ACQUISITION_DATE = "acquisition_date";
 		String PRIVATE_INFO_ACQUIRED_FROM = "acquired_from";
 		String PRIVATE_INFO_COMMENT = "private_comment";
+		String RATING_DIRTY_TIMESTAMP = "rating_dirty_timestamp";
+		String COMMENT_DIRTY_TIMESTAMP = "comment_dirty_timestamp";
 	}
 
 	interface BuddiesColumns {
@@ -250,7 +252,7 @@ public class BggContract {
 	public static final String PATH_PLAYER_COLORS = "playercolors";
 	public static final String PATH_PLAYS = "plays";
 	private static final String PATH_ITEMS = "items";
-	private static final String PATH_PLAYERS = "players";
+	public static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
@@ -260,6 +262,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
 	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String QUERY_VALUE_COLOR = "color";
+	public static final String QUERY_VALUE_PLAY = "play";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String PARAM_LIMIT = "limit";
 
@@ -726,6 +729,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playercolor";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playercolor";
 		public static final int TYPE_USER = 1;
+		public static final int TYPE_PLAYER = 2;
 
 		public static final String DEFAULT_SORT = PlayerColors.PLAYER_TYPE + " ASC, " +
 			PlayerColors.PLAYER_NAME + " ASC, " +
@@ -735,8 +739,16 @@ public class BggContract {
 			return BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).appendPath(username).appendPath(PATH_COLORS).build();
 		}
 
+		public static Uri buildPlayerUri(String playerName) {
+			return BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).appendPath(playerName).appendPath(PATH_COLORS).build();
+		}
+
 		public static Uri buildUserUri(String username, int sortOrder) {
 			return buildUserUri(username).buildUpon().appendPath(String.valueOf(sortOrder)).build();
+		}
+
+		public static Uri buildPlayerUri(String playerName, int sortOrder) {
+			return buildPlayerUri(playerName).buildUpon().appendPath(String.valueOf(sortOrder)).build();
 		}
 
 		@Nullable
@@ -744,6 +756,17 @@ public class BggContract {
 			if (uri != null) {
 				List<String> segments = uri.getPathSegments();
 				if (segments != null && segments.size() > 1 && PATH_USERS.equals(segments.get(0))) {
+					return segments.get(1);
+				}
+			}
+			return null;
+		}
+
+		@Nullable
+		public static String getPlayerName(Uri uri) {
+			if (uri != null) {
+				List<String> segments = uri.getPathSegments();
+				if (segments != null && segments.size() > 1 && PATH_PLAYERS.equals(segments.get(0))) {
 					return segments.get(1);
 				}
 			}
@@ -838,6 +861,10 @@ public class BggContract {
 
 		public static Uri buildPlayersUri() {
 			return CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).build();
+		}
+
+		public static Uri buildPlayersByPlayUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_PLAY).build();
 		}
 
 		public static Uri buildPlayersByNameWithoutUsernameUri() {

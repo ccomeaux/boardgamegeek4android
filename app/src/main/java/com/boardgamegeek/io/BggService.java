@@ -1,17 +1,7 @@
 package com.boardgamegeek.io;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-import java.util.Map;
-
-import retrofit.http.FieldMap;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.Path;
-import retrofit.http.Query;
-import retrofit.http.QueryMap;
-
+import com.boardgamegeek.model.CollectionCommentPostResponse;
+import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
@@ -27,8 +17,20 @@ import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.model.User;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Map;
+
+import retrofit.http.FieldMap;
+import retrofit.http.FormUrlEncoded;
+import retrofit.http.GET;
+import retrofit.http.POST;
+import retrofit.http.Path;
+import retrofit.http.Query;
+import retrofit.http.QueryMap;
+
 public interface BggService {
-	public static final String HOTNESS_TYPE_BOARDGAME = "boardgame";
+	String HOTNESS_TYPE_BOARDGAME = "boardgame";
 	// rpg
 	// videogame
 	// boardgameperson
@@ -36,39 +38,51 @@ public interface BggService {
 	// boardgamecompany
 	// rpgcompany
 	// videogamecompany
-	public static final String THING_SUBTYPE_BOARDGAME = "boardgame";
-	public static final String THING_SUBTYPE_BOARDGAME_EXPANSION = "boardgameexpansion";
-	public static final String THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory";
+	String THING_SUBTYPE_BOARDGAME = "boardgame";
+	String THING_SUBTYPE_BOARDGAME_EXPANSION = "boardgameexpansion";
+	String THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory";
 
-	public static final String PERSON_TYPE_ARTIST = "boardgameartist";
-	public static final String PERSON_TYPE_DESIGNER = "boardgamedesigner";
-	public static final String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
-	public static final String SEARCH_TYPE_BOARD_GAME = "boardgame";
-	public static final String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";
-	public static final String SEARCH_TYPE_RPG = "rpg";
-	public static final String SEARCH_TYPE_RPG_ITEM = "rpgitem";
-	public static final String SEARCH_TYPE_VIDEO_GAME = "videogame";
+	String RANK_TYPE_SUBTYPE = "subtype";
+	String RANK_TYPE_FAMILY = "family";
+	String RANK_FAMILY_NAME_ABSTRACT_GAMES = "abstracts";
+	String RANK_FAMILY_NAME_CUSTOMIZABLE_GAMES = "cgs";
+	String RANK_FAMILY_NAME_CHILDRENS_GAMES = "childrensgames";
+	String RANK_FAMILY_NAME_FAMILY_GAMES = "familygames";
+	String RANK_FAMILY_NAME_PARTY_GAMES = "partygames";
+	String RANK_FAMILY_NAME_STRATEGY_GAMES = "strategygames";
+	String RANK_FAMILY_NAME_THEMATIC_GAMES = "thematic";
+	String RANK_FAMILY_NAME_WAR_GAMES = "wargames";
+
+	String PERSON_TYPE_ARTIST = "boardgameartist";
+	String PERSON_TYPE_DESIGNER = "boardgamedesigner";
+	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
+	String SEARCH_TYPE_BOARD_GAME = "boardgame";
+	String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";
+	String SEARCH_TYPE_RPG = "rpg";
+	String SEARCH_TYPE_RPG_ITEM = "rpgitem";
+	String SEARCH_TYPE_VIDEO_GAME = "videogame";
 	// other search types: boardgameartist, boardgamedesigner, boardgamepublisher
-	
-	public static String GEEKLIST_SORT_HOT = "hot";
-	public static String GEEKLIST_SORT_RECENT = "recent";
-	public static String GEEKLIST_SORT_ACTIVE = "active";
 
-	public static String FORUM_TYPE_REGION = "region";
-	public static String FORUM_TYPE_THING = "thing";
+	String GEEKLIST_SORT_HOT = "hot";
+	String GEEKLIST_SORT_RECENT = "recent";
+	String GEEKLIST_SORT_ACTIVE = "active";
 
-	public static final int FORUM_REGION_BOARDGAME = 1;
-	public static final int FORUM_REGION_RPG = 2;
-	public static final int FORUM_REGION_VIDEOGAME = 3;
+	String FORUM_TYPE_REGION = "region";
+	String FORUM_TYPE_THING = "thing";
 
-	public static final String COLLECTION_QUERY_KEY_ID = "id";
-	public static final String COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate";
-	public static final String COLLECTION_QUERY_KEY_STATS = "stats";
-	public static final String COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince";
-	public static final String COLLECTION_QUERY_KEY_BRIEF = "brief";
-	public static final String COLLECTION_QUERY_KEY_SUBTYPE = "subtype";
-	public static final SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-	public static final SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+	int FORUM_REGION_BOARDGAME = 1;
+	int FORUM_REGION_RPG = 2;
+	int FORUM_REGION_VIDEOGAME = 3;
+
+	String COLLECTION_QUERY_KEY_ID = "id";
+	String COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate";
+	String COLLECTION_QUERY_KEY_STATS = "stats";
+	String COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince";
+	String COLLECTION_QUERY_KEY_BRIEF = "brief";
+	String COLLECTION_QUERY_KEY_SUBTYPE = "subtype";
+	String COLLECTION_QUERY_STATUS_PLAYED = "played";
+	SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 	@GET("/xmlapi2/hot")
 	HotnessResponse getHotness(@Query("type") String type);
@@ -124,23 +138,19 @@ public interface BggService {
 	PlaysResponse plays(@QueryMap Map<String, String> options);
 
 	@GET("/xmlapi2/plays")
-	PlaysResponse playsByDate(@Query("username") String username, @Query("mindate") String minDate,
-		@Query("maxdate") String maxDate);
+	PlaysResponse playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
 
 	@GET("/xmlapi2/plays")
 	PlaysResponse playsByGame(@Query("username") String username, @Query("id") int gameId);
 
 	@GET("/xmlapi2/plays")
-	PlaysResponse plays(@Query("username") String username, @Query("id") int gameId, @Query("mindate") String minDate,
-		@Query("maxdate") String maxDate);
+	PlaysResponse plays(@Query("username") String username, @Query("id") int gameId, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
 
 	@GET("/xmlapi2/plays")
-	PlaysResponse playsByMinDate(@Query("username") String username, @Query("mindate") String minDate,
-		@Query("page") int page);
+	PlaysResponse playsByMinDate(@Query("username") String username, @Query("mindate") String minDate, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
-	PlaysResponse playsByMaxDate(@Query("username") String username, @Query("maxdate") String maxDate,
-		@Query("page") int page);
+	PlaysResponse playsByMaxDate(@Query("username") String username, @Query("maxdate") String maxDate, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
 	PlaysResponse plays(@Query("username") String username, @Query("page") int page);
@@ -153,6 +163,14 @@ public interface BggService {
 
 	@GET("/xmlapi2/collection")
 	CollectionResponse collection(@Query("username") String username, @QueryMap Map<String, String> options);
+
+	@FormUrlEncoded
+	@POST("/geekcollection.php")
+	CollectionRatingPostResponse geekCollectionRating(@FieldMap Map<String, String> form);
+
+	@FormUrlEncoded
+	@POST("/geekcollection.php")
+	CollectionCommentPostResponse geekCollectionComment(@FieldMap Map<String, String> form);
 
 	@GET("/xmlapi2/thing")
 	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);

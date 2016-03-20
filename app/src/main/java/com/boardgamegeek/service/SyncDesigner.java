@@ -3,7 +3,9 @@ package com.boardgamegeek.service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
@@ -13,30 +15,37 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import timber.log.Timber;
 
 public class SyncDesigner extends UpdateTask {
-	private int mDesignerId;
+	private final int designerId;
 
 	public SyncDesigner(int designerId) {
-		mDesignerId = designerId;
+		this.designerId = designerId;
 	}
 
+	@NonNull
 	@Override
-	public String getDescription() {
-		if (mDesignerId == BggContract.INVALID_ID) {
-			return "update an unknown designer";
+	public String getDescription(Context context) {
+		if (isValid()) {
+			return context.getString(R.string.sync_msg_designer_valid, designerId);
 		}
-		return "update designer " + mDesignerId;
+		return context.getString(R.string.sync_msg_designer_invalid);
 	}
 
 	@Override
-	public void execute(Context context) {
-		BggService service = Adapter.create();
-		Person person = service.person(BggService.PERSON_TYPE_DESIGNER, mDesignerId);
-		Uri uri = Designers.buildDesignerUri(mDesignerId);
-		context.getContentResolver().update(uri, toValues(person), null, null);
-		Timber.i("Synced Designer " + mDesignerId);
+	public boolean isValid() {
+		return designerId != BggContract.INVALID_ID;
 	}
 
-	private static ContentValues toValues(Person person) {
+	@Override
+	public void execute(@NonNull Context context) {
+		BggService service = Adapter.create();
+		Person person = service.person(BggService.PERSON_TYPE_DESIGNER, designerId);
+		Uri uri = Designers.buildDesignerUri(designerId);
+		context.getContentResolver().update(uri, toValues(person), null, null);
+		Timber.i("Synced Designer " + designerId);
+	}
+
+	@NonNull
+	private static ContentValues toValues(@NonNull Person person) {
 		ContentValues values = new ContentValues();
 		values.put(Designers.DESIGNER_NAME, person.name);
 		values.put(Designers.DESIGNER_DESCRIPTION, person.description);

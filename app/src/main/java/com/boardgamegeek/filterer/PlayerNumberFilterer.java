@@ -1,87 +1,88 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class PlayerNumberFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 12;
 
-	private static final String delimiter = ":";
+	private int min;
+	private int max;
+	private boolean isExact;
 
-	private int mMin;
-	private int mMax;
-	private boolean mExact;
-
-	public PlayerNumberFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
+	public PlayerNumberFilterer(Context context) {
+		super(context);
 	}
 
-	public PlayerNumberFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Integer.valueOf(d[0]);
-		mMax = Integer.valueOf(d[1]);
-		mExact = (d[2].equals("1"));
-		init(context);
-	}
-
-	public PlayerNumberFilterer(Context context, int min, int max, boolean exact) {
-		mMin = min;
-		mMax = max;
-		mExact = exact;
-		init(context);
-	}
-
-	private void init(Context context) {
-		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
-		setDisplayText(context.getResources());
-		setSelection();
-	}
-
-	private void setDisplayText(Resources r) {
-		String range = "";
-		if (mExact) {
-			range = r.getString(R.string.exactly) + " ";
-		}
-		if (mMin == mMax) {
-			range += String.valueOf(mMax);
-		} else {
-			range += String.valueOf(mMin) + "-" + String.valueOf(mMax);
-		}
-		displayText(range + " " + r.getString(R.string.players));
-	}
-
-	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
-
-		if (mExact) {
-			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
-			selectionArgs(minValue, maxValue);
-		} else {
-			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS
-				+ " IS NULL)");
-			selectionArgs(minValue, maxValue);
-		}
-	}
-
-	public int getMin() {
-		return mMin;
-	}
-
-	public int getMax() {
-		return mMax;
-	}
-
-	public boolean isExact() {
-		return mExact;
+	public PlayerNumberFilterer(@NonNull Context context, int min, int max, boolean isExact) {
+		super(context);
+		this.min = min;
+		this.max = max;
+		this.isExact = isExact;
 	}
 
 	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		isExact = d.length > 2 && (d[2].equals("1"));
+	}
+
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_number_of_players;
+	}
+
+	@Override
+	public String getDisplayText() {
+		String range = "";
+		if (isExact) {
+			range = context.getString(R.string.exactly) + " ";
+		}
+		if (min == max) {
+			range += String.valueOf(max);
+		} else {
+			range += String.valueOf(min) + "-" + String.valueOf(max);
+		}
+		return range + " " + context.getString(R.string.players);
+	}
+
+	@Override
+	public String getSelection() {
+		if (isExact) {
+			return Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?";
+		} else {
+			return Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS + " IS NULL)";
+		}
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		return new String[] { String.valueOf(min), String.valueOf(max) };
+	}
+
+	public int getMin() {
+		return min;
+	}
+
+	public int getMax() {
+		return max;
+	}
+
+	public boolean isExact() {
+		return isExact;
+	}
+
+	@NonNull
+	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mExact ? "1" : "0");
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (isExact ? "1" : "0");
 	}
 }

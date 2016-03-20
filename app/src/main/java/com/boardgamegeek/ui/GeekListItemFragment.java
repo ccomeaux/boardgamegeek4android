@@ -186,7 +186,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 
 	@Override
 	public void onPaletteGenerated(Palette palette) {
-		mSwatch = PaletteUtils.getInverseSwatch(palette);
+		mSwatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
 		applySwatch();
 	}
 

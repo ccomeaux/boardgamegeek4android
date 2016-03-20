@@ -14,25 +14,27 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
 public abstract class SyncTask extends ServiceTask {
-	protected Context mContext;
-	protected BggService mService;
-	private boolean mShowNotifications;
-	private boolean mIsCancelled = false;
+	protected final Context context;
+	protected final BggService bggService;
+	private final boolean shouldShowNotifications;
+	private boolean isCancelled = false;
 
 	public SyncTask(Context context, BggService service) {
-		mContext = context;
-		mService = service;
-		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
+		this.context = context;
+		bggService = service;
+		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 	}
+
+	public abstract int getSyncType();
 
 	public abstract void execute(Account account, SyncResult syncResult);
 
 	public void cancel() {
-		mIsCancelled = true;
+		isCancelled = true;
 	}
 
 	public boolean isCancelled() {
-		return mIsCancelled;
+		return isCancelled;
 	}
 
 	protected void showNotification() {
@@ -44,7 +46,7 @@ public abstract class SyncTask extends ServiceTask {
 	}
 
 	private void showNotification(int messageId, String detail) {
-		if (!mShowNotifications) {
+		if (!shouldShowNotifications) {
 			return;
 		}
 
@@ -52,16 +54,18 @@ public abstract class SyncTask extends ServiceTask {
 			return;
 		}
 
-		String message = mContext.getString(messageId);
-		PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
+		String message = context.getString(messageId);
+		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(mContext, R.string.sync_notification_title).setContentText(message)
-			.setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_SERVICE)
+			.createNotificationBuilder(context, R.string.sync_notification_title)
+			.setContentText(message)
+			.setPriority(NotificationCompat.PRIORITY_LOW)
+			.setCategory(NotificationCompat.CATEGORY_SERVICE)
 			.setOngoing(true).setProgress(1, 0, true)
-			.addAction(R.drawable.ic_stat_cancel, mContext.getString(R.string.cancel), pi);
+			.addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi);
 		if (!TextUtils.isEmpty(detail)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().setSummaryText(message).bigText(detail));
 		}
-		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC, builder);
+		NotificationUtils.notify(context, NotificationUtils.ID_SYNC, builder);
 	}
 }

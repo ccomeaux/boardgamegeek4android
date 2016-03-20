@@ -65,7 +65,7 @@ public class PaletteUtils {
 	/**
 	 * Gets a swatch from the palette suitable as a dark background with inverse text on top.
 	 */
-	public static Palette.Swatch getInverseSwatch(Palette palette) {
+	public static Palette.Swatch getInverseSwatch(Palette palette, int defaultColor) {
 		Palette.Swatch swatch = palette.getLightMutedSwatch();
 		if (swatch != null) {
 			return swatch;
@@ -76,7 +76,7 @@ public class PaletteUtils {
 			return swatch;
 		}
 
-		return palette.getSwatches().get(0);
+		return new Palette.Swatch(defaultColor, 0);
 	}
 
 	/**
@@ -89,6 +89,23 @@ public class PaletteUtils {
 		}
 
 		swatch = palette.getVibrantSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		return palette.getSwatches().get(0);
+	}
+
+	/**
+	 * Gets a swatch from the palette suitable for light text.
+	 */
+	public static Palette.Swatch getDarkSwatch(Palette palette) {
+		Palette.Swatch swatch = palette.getDarkMutedSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		swatch = palette.getDarkVibrantSwatch();
 		if (swatch != null) {
 			return swatch;
 		}

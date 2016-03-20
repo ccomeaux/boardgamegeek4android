@@ -16,13 +16,13 @@ import com.boardgamegeek.util.ToolbarUtils;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
-public class LocationsActivity extends TopLevelSinglePaneActivity {
-	private int mCount = -1;
-	private int mSortType = LocationsSorterFactory.TYPE_DEFAULT;
+public class LocationsActivity extends SimpleSinglePaneActivity {
+	private int locationCount = -1;
+	private int sortType = LocationsSorterFactory.TYPE_DEFAULT;
 
 	@DebugLog
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new LocationsFragment();
 	}
 
@@ -40,13 +40,13 @@ public class LocationsActivity extends TopLevelSinglePaneActivity {
 			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, "");
 		} else {
 			menu.findItem(R.id.menu_sort).setVisible(true);
-			if (mSortType == LocationsSorterFactory.TYPE_QUANTITY) {
+			if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
 				menu.findItem(R.id.menu_sort_quantity).setChecked(true);
 			} else {
 				menu.findItem(R.id.menu_sort_name).setChecked(true);
 			}
 			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
-				mCount <= 0 ? "" : String.valueOf(mCount));
+				locationCount <= 0 ? "" : String.valueOf(locationCount));
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -66,27 +66,23 @@ public class LocationsActivity extends TopLevelSinglePaneActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@DebugLog
-	@Override
-	protected int getDrawerResId() {
-		return R.string.title_locations;
-	}
-
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(LocationsCountChangedEvent event) {
-		mCount = event.count;
+		locationCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(LocationSelectedEvent event) {
-		Intent intent = new Intent(this, LocationActivity.class);
-		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, event.locationName);
+		Intent intent = ActivityUtils.createLocationIntent(this, event.getLocationName());
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(LocationSortChangedEvent event) {
-		mSortType = event.sortType;
+		sortType = event.getSortType();
 	}
 }

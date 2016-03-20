@@ -1,5 +1,9 @@
 package com.boardgamegeek.model;
 
+import android.text.TextUtils;
+
+import com.boardgamegeek.provider.BggContract;
+
 public class GeekListEntry {
 	private String href;
 	private int numpositive;
@@ -15,6 +19,9 @@ public class GeekListEntry {
 	}
 
 	public int getId() {
+		if (TextUtils.isEmpty(href)){
+			return BggContract.INVALID_ID;
+		}
 		int start = href.indexOf("/geeklist/");
 		return Integer.valueOf(href.substring(start + 10, href.lastIndexOf("/")));
 	}

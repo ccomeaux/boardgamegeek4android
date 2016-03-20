@@ -32,8 +32,21 @@
 	<TextView
 		android:id="@android:id/title"
 		style="@style/Text.Primary"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
+		android:layout_weight="1"
 		tools:text="Blue"/>
+
+	<ImageButton
+		android:id="@+id/delete"
+		android:layout_width="@dimen/image_button_size"
+		android:layout_height="@dimen/image_button_size"
+		android:layout_gravity="center"
+		android:layout_marginLeft="@dimen/padding_extra"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:contentDescription="@string/delete"
+		android:focusable="false"
+		android:scaleType="center"
+		android:src="@drawable/ic_action_delete_light"/>
 
 </LinearLayout>

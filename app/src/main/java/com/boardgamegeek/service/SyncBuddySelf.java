@@ -2,7 +2,9 @@ package com.boardgamegeek.service;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
@@ -14,9 +16,15 @@ import com.boardgamegeek.util.PresentationUtils;
 import timber.log.Timber;
 
 public class SyncBuddySelf extends UpdateTask {
+	@NonNull
 	@Override
-	public String getDescription() {
-		return "update self";
+	public String getDescription(Context context) {
+		return context.getString(R.string.sync_msg_buddy_self);
+	}
+
+	@Override
+	public boolean isValid() {
+		return true;
 	}
 
 	@Override

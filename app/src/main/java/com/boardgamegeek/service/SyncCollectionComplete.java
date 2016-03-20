@@ -1,23 +1,24 @@
 package com.boardgamegeek.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.PreferencesUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -25,28 +26,29 @@ import timber.log.Timber;
  * Syncs the user's collection in brief mode, one collection status at a time.
  */
 public class SyncCollectionComplete extends SyncTask {
-	private static final String STATUS_PLAYED = "played";
+	private List<String> statuses;
 
 	public SyncCollectionComplete(Context context, BggService service) {
 		super(context, service);
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
-		Timber.i("Syncing full collection list...");
-		boolean success = true;
-		try {
-			CollectionPersister persister = new CollectionPersister(mContext);
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD;
+	}
 
-			List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(mContext)));
-			if (statuses.remove(STATUS_PLAYED)) {
-				statuses.add(0, STATUS_PLAYED);
-			}
+	@Override
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+		Timber.i("Syncing full collection list...");
+		try {
+			CollectionPersister persister = new CollectionPersister(context).brief();
+
+			statuses = getSyncableStatuses();
 
 			for (int i = 0; i < statuses.size(); i++) {
 				if (isCancelled()) {
-					success = false;
-					break;
+					Timber.i("...cancelled");
+					return;
 				}
 
 				String status = statuses.get(i);
@@ -55,14 +57,9 @@ public class SyncCollectionComplete extends SyncTask {
 					continue;
 				}
 				Timber.i("...syncing status [" + status + "]");
+
 				showNotification(String.format("Syncing %s collection items", status));
-
-				Map<String, String> options = new HashMap<>();
-				options.put(status, "1");
-				for (int j = 0; j < i; j++) {
-					options.put(statuses.get(j), "0");
-				}
-
+				ArrayMap<String, String> options = createOptions(i, status);
 				requestAndPersist(account.name, persister, options, syncResult);
 
 				showNotification(String.format("Syncing %s collection accessories", status));
@@ -70,26 +67,37 @@ public class SyncCollectionComplete extends SyncTask {
 				requestAndPersist(account.name, persister, options, syncResult);
 			}
 
-			if (success) {
-				Timber.i("...deleting old collection entries");
-				// Delete all collection items that weren't updated in the sync above
-				int count = mContext.getContentResolver().delete(Collection.CONTENT_URI,
-					Collection.UPDATED_LIST + "<?", new String[] { String.valueOf(persister.getTimeStamp()) });
-				Timber.i("...deleted " + count + " old collection entries");
-				// TODO: delete games as well?!
-				// TODO: delete thumbnail images associated with this list (both collection and game)
-
-				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_COMPLETE, persister.getTimeStamp());
-				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
-			}
+			final long initialTimestamp = persister.getInitialTimestamp();
+			deleteUnusedItems(initialTimestamp);
+			updateTimestamps(initialTimestamp);
 		} finally {
 			Timber.i("...complete!");
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
-								   SyncResult syncResult) {
-		CollectionResponse response = getCollectionResponse(mService, username, options);
+	@NonNull
+	private List<String> getSyncableStatuses() {
+		List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
+		// Played games should be synced first - they don't respect the "exclude" flag
+		if (statuses.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
+			statuses.add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		}
+		return statuses;
+	}
+
+	@NonNull
+	private ArrayMap<String, String> createOptions(int i, String status) {
+		ArrayMap<String, String> options = new ArrayMap<>();
+		options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+		options.put(status, "1");
+		for (int j = 0; j < i; j++) {
+			options.put(statuses.get(j), "0");
+		}
+		return options;
+	}
+
+	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
+		CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);
 			syncResult.stats.numEntries += response.items.size();
@@ -97,6 +105,22 @@ public class SyncCollectionComplete extends SyncTask {
 		} else {
 			Timber.i("...no collection items to save");
 		}
+	}
+
+	private void deleteUnusedItems(long initialTimestamp) {
+		Timber.i("...deleting old collection entries");
+		int count = context.getContentResolver().delete(
+			Collection.CONTENT_URI,
+			Collection.UPDATED_LIST + "<?",
+			new String[] { String.valueOf(initialTimestamp) });
+		Timber.i("...deleted " + count + " old collection entries");
+		// TODO: delete games as well?!
+		// TODO: delete thumbnail images associated with this list (both collection and game)
+	}
+
+	private void updateTimestamps(long initialTimestamp) {
+		Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, initialTimestamp);
+		Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, initialTimestamp);
 	}
 
 	@Override

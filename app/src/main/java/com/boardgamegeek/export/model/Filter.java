@@ -1,12 +1,13 @@
 package com.boardgamegeek.export.model;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.google.gson.annotations.Expose;
 
 public class Filter {
-	public static String[] PROJECTION = new String[] {
+	public static final String[] PROJECTION = new String[] {
 		CollectionViewFilters._ID,
 		CollectionViewFilters.TYPE,
 		CollectionViewFilters.DATA
@@ -26,7 +27,8 @@ public class Filter {
 		return data;
 	}
 
-	public static Filter fromCursor(Cursor cursor) {
+	@NonNull
+	public static Filter fromCursor(@NonNull Cursor cursor) {
 		Filter filter = new Filter();
 		filter.type = cursor.getInt(TYPE);
 		filter.data = cursor.getString(DATA);

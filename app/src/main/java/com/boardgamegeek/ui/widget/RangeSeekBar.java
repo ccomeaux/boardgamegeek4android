@@ -23,11 +23,11 @@ import android.widget.ImageView;
  * one of Long, Double, Integer, Float, Short, Byte or BigDecimal.<br />
  * <br />
  * Improved {@link MotionEvent} handling for smoother use, anti-aliased painting for improved aesthetics.
- * 
+ *
  * @author Stephan Tittel (stephan.tittel@kom.tu-darmstadt.de)
  * @author Peter Sinnott (psinnott@gmail.com)
  * @author Thomas Barrasso (tbarrasso@sevenplusandroid.org)
- * 
+ *
  * @param <T>
  *            The Number type of the range values. One of Long, Double, Integer, Float, Short, Byte or BigDecimal.
  */
@@ -84,7 +84,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Creates a new RangeSeekBar.
-	 * 
+	 *
 	 * @param absoluteMinValue
 	 *            The minimum value of the selectable range.
 	 * @param absoluteMaxValue
@@ -125,7 +125,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Should the widget notify the listener callback while the user is still dragging a thumb? Default is false.
-	 * 
+	 *
 	 * @param flag
 	 */
 	public void setNotifyWhileDragging(boolean flag) {
@@ -134,7 +134,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Returns the absolute minimum value of the range that has been set at construction time.
-	 * 
+	 *
 	 * @return The absolute minimum value of the range.
 	 */
 	public T getAbsoluteMinValue() {
@@ -143,7 +143,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Returns the absolute maximum value of the range that has been set at construction time.
-	 * 
+	 *
 	 * @return The absolute maximum value of the range.
 	 */
 	public T getAbsoluteMaxValue() {
@@ -152,7 +152,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Returns the currently selected min value.
-	 * 
+	 *
 	 * @return The currently selected min value.
 	 */
 	public T getSelectedMinValue() {
@@ -161,7 +161,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Sets the currently selected minimum value. The widget will be invalidated and redrawn.
-	 * 
+	 *
 	 * @param value
 	 *            The Number value to set the minimum value to. Will be clamped to given absolute minimum/maximum range.
 	 */
@@ -176,7 +176,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Returns the currently selected max value.
-	 * 
+	 *
 	 * @return The currently selected max value.
 	 */
 	public T getSelectedMaxValue() {
@@ -185,7 +185,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Sets the currently selected maximum value. The widget will be invalidated and redrawn.
-	 * 
+	 *
 	 * @param value
 	 *            The Number value to set the maximum value to. Will be clamped to given absolute minimum/maximum range.
 	 */
@@ -200,7 +200,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Registers given listener callback to notify about changed selected values.
-	 * 
+	 *
 	 * @param listener
 	 *            The listener to notify about changed selected values.
 	 */
@@ -431,7 +431,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Draws the "normal" resp. "pressed" thumb image on specified x-coordinate.
-	 * 
+	 *
 	 * @param screenCoord
 	 *            The x-coordinate in screen space where to draw the image.
 	 * @param pressed
@@ -446,7 +446,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Decides which (if any) thumb is touched by the given x-coordinate.
-	 * 
+	 *
 	 * @param touchX
 	 *            The x-coordinate of a touch event in screen space.
 	 * @return The pressed thumb or null if none has been touched.
@@ -470,7 +470,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	/**
 	 * Decides if given x-coordinate in screen space needs to be interpreted as "within" the normalized thumb
 	 * x-coordinate.
-	 * 
+	 *
 	 * @param touchX
 	 *            The x-coordinate in screen space to check.
 	 * @param normalizedThumbValue
@@ -484,7 +484,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	/**
 	 * Sets normalized min value to value so that 0 <= value <= normalized max value <= 1. The View will get invalidated
 	 * when calling this method.
-	 * 
+	 *
 	 * @param value
 	 *            The new normalized min value to set.
 	 */
@@ -496,7 +496,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	/**
 	 * Sets normalized max value to value so that 0 <= normalized min value <= value <= 1. The View will get invalidated
 	 * when calling this method.
-	 * 
+	 *
 	 * @param value
 	 *            The new normalized max value to set.
 	 */
@@ -507,7 +507,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Converts a normalized value to a Number object in the value space between absolute minimum and maximum.
-	 * 
+	 *
 	 * @param normalized
 	 * @return
 	 */
@@ -519,7 +519,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Converts the given Number value to a normalized double.
-	 * 
+	 *
 	 * @param value
 	 *            The Number value to normalize.
 	 * @return The normalized double.
@@ -534,7 +534,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Converts a normalized value into screen space.
-	 * 
+	 *
 	 * @param normalizedCoord
 	 *            The normalized value to convert.
 	 * @return The converted value in screen space.
@@ -545,7 +545,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Converts screen space x-coordinates into normalized values.
-	 * 
+	 *
 	 * @param screenCoord
 	 *            The x-coordinate in screen space to convert.
 	 * @return The normalized value.
@@ -563,30 +563,30 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
 	/**
 	 * Callback listener interface to notify about changed range values.
-	 * 
+	 *
 	 * @author Stephan Tittel (stephan.tittel@kom.tu-darmstadt.de)
-	 * 
+	 *
 	 * @param <T>
 	 *            The Number type the RangeSeekBar has been declared with.
 	 */
 	public interface OnRangeSeekBarChangeListener<T> {
-		public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, T minValue, T maxValue);
+		void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, T minValue, T maxValue);
 	}
 
 	/**
 	 * Thumb constants (min and max).
 	 */
-	private static enum Thumb {
+	private enum Thumb {
 		MIN, MAX
 	}
 
 	/**
 	 * Utility enumeration used to convert between Numbers and doubles.
-	 * 
+	 *
 	 * @author Stephan Tittel (stephan.tittel@kom.tu-darmstadt.de)
-	 * 
+	 *
 	 */
-	private static enum NumberType {
+	private enum NumberType {
 		LONG, DOUBLE, INTEGER, FLOAT, SHORT, BYTE, BIG_DECIMAL;
 
 		public static <E extends Number> NumberType fromNumber(E value) throws IllegalArgumentException {
@@ -614,7 +614,6 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 			throw new IllegalArgumentException("Number class '" + value.getClass().getName() + "' is not supported");
 		}
 
-		@SuppressLint("UseValueOf")
 		public Number toNumber(double value) {
 			switch (this) {
 				case LONG:
@@ -624,7 +623,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 				case INTEGER:
 					return (int) value;
 				case FLOAT:
-					return new Float(value);
+					return (float) value;
 				case SHORT:
 					return (short) value;
 				case BYTE:

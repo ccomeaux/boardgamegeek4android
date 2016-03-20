@@ -4,16 +4,17 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
+import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -26,14 +27,19 @@ public class SyncCollectionModifiedSince extends SyncTask {
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
-		AccountManager accountManager = AccountManager.get(mContext);
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD;
+	}
+
+	@Override
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+		AccountManager accountManager = AccountManager.get(context);
 		long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 
 		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
-			CollectionPersister persister = new CollectionPersister(mContext).includeStats().includePrivateInfo().validStatusesOnly();
-			Map<String, String> options = new HashMap<>();
+			CollectionPersister persister = new CollectionPersister(context).includeStats().includePrivateInfo().validStatusesOnly();
+			ArrayMap<String, String> options = new ArrayMap<>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
 			if (isCancelled()) {
@@ -54,16 +60,15 @@ public class SyncCollectionModifiedSince extends SyncTask {
 			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 			requestAndPersist(account.name, persister, options, syncResult);
 
-			Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
+			Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getInitialTimestamp());
 		} finally {
 			Timber.i("...complete!");
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
-								   SyncResult syncResult) {
+	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		CollectionResponse response;
-		response = getCollectionResponse(mService, username, options);
+		response = new CollectionRequest(bggService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

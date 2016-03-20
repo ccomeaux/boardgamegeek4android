@@ -2,13 +2,16 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.util.StringUtils;
 
 public abstract class CollectionSorter extends Sorter {
-	protected int mSubDescriptionId;
+	protected int subDescriptionId;
 
-	public CollectionSorter(Context context) {
+	public CollectionSorter(@NonNull Context context) {
 		super(context);
 	}
 
@@ -18,11 +21,19 @@ public abstract class CollectionSorter extends Sorter {
 	@Override
 	public String getDescription() {
 		String description = super.getDescription();
-		if (mSubDescriptionId > 0) {
-			description += " - " + mContext.getString(mSubDescriptionId);
+		if (subDescriptionId > 0) {
+			description += " - " + context.getString(subDescriptionId);
 		}
 		return description;
 	}
+
+	@Override
+	public int getType() {
+		return StringUtils.parseInt(context.getString(getTypeResource()), CollectionSorterFactory.TYPE_DEFAULT);
+	}
+
+	@StringRes
+	protected abstract int getTypeResource();
 
 	@Override
 	protected String getDefaultSort() {

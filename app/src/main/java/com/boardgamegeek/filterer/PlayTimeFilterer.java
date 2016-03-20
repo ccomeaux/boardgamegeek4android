@@ -1,94 +1,102 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class PlayTimeFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 300;
 
-	private static final String delimiter = ":";
+	private int min;
+	private int max;
+	private boolean includeUndefined;
 
-	private int mMin;
-	private int mMax;
-	private boolean mUndefined;
-
-	public PlayTimeFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
+	public PlayTimeFilterer(Context context) {
+		super(context);
 	}
 
-	public PlayTimeFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Integer.valueOf(d[0]);
-		mMax = Integer.valueOf(d[1]);
-		mUndefined = (d[2].equals("1"));
-		init(context);
+	public PlayTimeFilterer(@NonNull Context context, int min, int max, boolean includeUndefined) {
+		super(context);
+		this.min = min;
+		this.max = max;
+		this.includeUndefined = includeUndefined;
 	}
 
-	public PlayTimeFilterer(Context context, int min, int max, boolean undefined) {
-		mMin = min;
-		mMax = max;
-		mUndefined = undefined;
-		init(context);
+	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseInt(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseInt(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		includeUndefined = d.length > 2 && (d[2].equals("1"));
 	}
 
-	private void init(Context context) {
-		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
-		setDisplayText(context.getResources());
-		setSelection();
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_play_time;
 	}
 
-	private void setDisplayText(Resources r) {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+	@Override
+	public String getDisplayText() {
+		String text;
+		String minText = String.valueOf(min);
+		String maxText = String.valueOf(max);
 
-		if (mMax == MAX_RANGE) {
-			displayText(minValue + "+");
-		} else if (mMin == mMax) {
-			displayText(maxValue);
+		if (max == MAX_RANGE) {
+			text = minText + "+";
+		} else if (min == max) {
+			text = maxText;
 		} else {
-			displayText(minValue + "-" + maxValue);
+			text = minText + "-" + maxText;
 		}
-		if (mUndefined) {
-			displayText(getDisplayText() + " (+?)");
+		if (includeUndefined) {
+			text += " (+?)";
 		}
-		displayText(getDisplayText() + " " + r.getString(R.string.minutes_abbr));
+		return text + " " + context.getResources().getString(R.string.minutes_abbr);
 	}
 
-	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
-
-		if (mMax == MAX_RANGE) {
-			selection("(" + Games.PLAYING_TIME + ">=?)");
-			selectionArgs(minValue);
+	@Override
+	public String getSelection() {
+		String selection;
+		if (max == MAX_RANGE) {
+			selection = "(" + Games.PLAYING_TIME + ">=?)";
 		} else {
-			selection("(" + Games.PLAYING_TIME + ">=? AND " + Games.PLAYING_TIME + "<=?)");
-			selectionArgs(minValue, maxValue);
+			selection = "(" + Games.PLAYING_TIME + ">=? AND " + Games.PLAYING_TIME + "<=?)";
 		}
+		if (includeUndefined) {
+			selection += " OR " + Games.PLAYING_TIME + " IS NULL";
+		}
+		return selection;
+	}
 
-		if (mUndefined) {
-			selection(getSelection() + " OR " + Games.PLAYING_TIME + " IS NULL");
+	@Override
+	public String[] getSelectionArgs() {
+		if (max == MAX_RANGE) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
 		}
 	}
 
 	public int getMin() {
-		return mMin;
+		return min;
 	}
 
 	public int getMax() {
-		return mMax;
+		return max;
 	}
 
-	public boolean isUndefined() {
-		return mUndefined;
+	public boolean includeUndefined() {
+		return includeUndefined;
 	}
 
+	@NonNull
 	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mUndefined ? "1" : "0");
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUndefined ? "1" : "0");
 	}
 }

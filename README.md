@@ -12,7 +12,7 @@ The installer is available through the Play Store. If you are interested in Beta
 License
 -------
     BoardGameGeek for Android
-    Copyright (C) 2015  Chris Comeaux
+    Copyright (C) 2016  Chris Comeaux
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

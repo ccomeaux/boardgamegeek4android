@@ -10,67 +10,75 @@ import android.view.View;
 import com.boardgamegeek.R;
 
 public abstract class TopLevelActivity extends DrawerActivity {
-	private CharSequence mTitle;
-	private CharSequence mDrawerTitle;
-	private ActionBarDrawerToggle mDrawerToggle;
+	private CharSequence title;
+	private CharSequence drawerTitle;
+	private ActionBarDrawerToggle drawerToggle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mDrawerTitle = getString(R.string.app_name);
-		mTitle = getTitle();
+		drawerTitle = getString(R.string.app_name);
+		title = getTitle();
 
-		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
 			// TODO: finish and start CAB with the drawer open/close
 			public void onDrawerClosed(View view) {
 				final ActionBar actionBar = getSupportActionBar();
-				actionBar.setTitle(mTitle);
-				if (isTitleHidden()) {
-					actionBar.setDisplayShowTitleEnabled(false);
-					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+				if (actionBar != null) {
+					actionBar.setTitle(title);
+					if (isTitleHidden()) {
+						actionBar.setDisplayShowTitleEnabled(false);
+						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+					}
 				}
 				supportInvalidateOptionsMenu();
 			}
 
 			public void onDrawerOpened(View drawerView) {
 				final ActionBar actionBar = getSupportActionBar();
-				if (isTitleHidden()) {
-					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-					actionBar.setDisplayShowTitleEnabled(true);
+				if (actionBar != null) {
+					if (isTitleHidden()) {
+						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+						actionBar.setDisplayShowTitleEnabled(true);
+					}
+					actionBar.setTitle(drawerTitle);
 				}
-				actionBar.setTitle(mDrawerTitle);
 				supportInvalidateOptionsMenu();
 			}
 		};
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setHomeButtonEnabled(true);
-
-		// TODO open the drawer upon launch until user opens it themselves
+		drawerLayout.setDrawerListener(drawerToggle);
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setHomeButtonEnabled(true);
+		}
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		mDrawerToggle.syncState();
+		drawerToggle.syncState();
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		mDrawerToggle.onConfigurationChanged(newConfig);
+		drawerToggle.onConfigurationChanged(newConfig);
 	}
 
 	@Override
 	public void setTitle(CharSequence title) {
-		mTitle = title;
-		getSupportActionBar().setTitle(mTitle);
+		this.title = title;
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setTitle(this.title);
+		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+		return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
 	}
 
 	protected boolean isTitleHidden() {

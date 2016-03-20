@@ -32,6 +32,7 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 
 	@Override
 	protected void onBindDialogView(@NonNull View view) {
+		super.onBindDialogView(view);
 		TextView collectionFull = (TextView) view.findViewById(R.id.sync_timestamp_collection_full);
 		TextView collectionPartial = (TextView) view.findViewById(R.id.sync_timestamp_collection_partial);
 		TextView buddies = (TextView) view.findViewById(R.id.sync_timestamp_buddy);

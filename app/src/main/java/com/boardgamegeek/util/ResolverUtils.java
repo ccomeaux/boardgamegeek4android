@@ -42,11 +42,7 @@ public class ResolverUtils {
 				return results;
 			} else {
 				try {
-					ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-					if (result == null) {
-						return new ContentProviderResult[] { };
-					}
-					return result;
+					return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
 				} catch (OperationApplicationException | RemoteException e) {
 					String m = "Applying batch: " + debugMessage;
 					Timber.e(e, m);
@@ -54,7 +50,7 @@ public class ResolverUtils {
 				}
 			}
 		}
-		return new ContentProviderResult[] { };
+		return new ContentProviderResult[] {};
 	}
 
 	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo, String debugMessage) {
@@ -62,7 +58,7 @@ public class ResolverUtils {
 		batch.add(cpo);
 		try {
 			ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-			if (result != null && result.length > 0) {
+			if (result.length > 0) {
 				return result[0];
 			}
 		} catch (OperationApplicationException | RemoteException e) {
@@ -119,7 +115,7 @@ public class ResolverUtils {
 							   String selection, String[] selectionArgs) {
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
 		try {
-			int count = cursor.getCount();
+			int count = cursor != null ? cursor.getCount() : 0;
 			if (count != 1) {
 				return defaultValue;
 			}
@@ -154,7 +150,7 @@ public class ResolverUtils {
 								 String selection, String[] selectionArgs) {
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
 		try {
-			int count = cursor.getCount();
+			int count = cursor != null ? cursor.getCount() : 0;
 			if (count != 1) {
 				return defaultValue;
 			}
@@ -188,7 +184,7 @@ public class ResolverUtils {
 		List<Integer> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				list.add(cursor.getInt(0));
 			}
 		} finally {
@@ -220,7 +216,7 @@ public class ResolverUtils {
 		List<Long> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				list.add(cursor.getLong(0));
 			}
 		} finally {
@@ -252,7 +248,7 @@ public class ResolverUtils {
 		List<String> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				list.add(cursor.getString(0));
 			}
 		} finally {
@@ -269,7 +265,7 @@ public class ResolverUtils {
 		String value;
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, null, null, null);
 		try {
-			int count = cursor.getCount();
+			int count = cursor != null ? cursor.getCount() : 0;
 			if (count != 1) {
 				return null;
 			}

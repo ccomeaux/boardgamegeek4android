@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -84,14 +85,14 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		mSorter = PlayersSorterFactory.create(sortType, getActivity());
+		mSorter = PlayersSorterFactory.create(getActivity(), sortType);
 
 		setEmptyText(getString(R.string.empty_players));
 		requery();
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (!TextUtils.isEmpty(mSelectedName) || !TextUtils.isEmpty(mSelectedUsername)) {
 			outState.putString(STATE_SELECTED_NAME, mSelectedName);
@@ -128,10 +129,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	public void setSort(int sort) {
 		if (mSorter.getType() != sort) {
-			mSorter = PlayersSorterFactory.create(sort, getActivity());
-			if (mSorter == null) {
-				mSorter = PlayersSorterFactory.create(PlayersSorterFactory.TYPE_DEFAULT, getActivity());
-			}
+			mSorter = PlayersSorterFactory.create(getActivity(), sort);
 			requery();
 		}
 	}
@@ -207,7 +205,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			holder.name.setText(player.getName());
 			holder.username.setText(player.getUsername());
 			holder.username.setVisibility(TextUtils.isEmpty(player.getUsername()) ? View.GONE : View.VISIBLE);
-			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, player.getPlayCount(), player.getPlayCount()));
+			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays_suffix, player.getPlayCount(), player.getPlayCount()));
 
 			view.setTag(R.id.name, player.getName());
 			view.setTag(R.id.username, player.getUsername());

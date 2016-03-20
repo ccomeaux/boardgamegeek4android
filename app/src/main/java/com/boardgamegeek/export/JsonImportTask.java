@@ -1,12 +1,11 @@
 package com.boardgamegeek.export;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.widget.Toast;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
-import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -17,23 +16,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
-public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
-	private static final int ERROR_FILE_ACCESS = 1;
-	private static final int SUCCESS = 0;
-	private static final int ERROR = -1;
-	private static final int ERROR_STORAGE_ACCESS = -2;
-	private final Context mContext;
-	private final boolean mIsAutoBackupMode;
-
+public class JsonImportTask extends ImporterExporterTask {
 	public JsonImportTask(Context context, boolean isAutoBackupMode) {
-		mContext = context.getApplicationContext();
-		mIsAutoBackupMode = isAutoBackupMode;
+		super(context, isAutoBackupMode);
 	}
 
 	@Override
@@ -51,12 +40,11 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 			return ERROR_STORAGE_ACCESS;
 		}
 
-		List<ImporterExporter> importers = new ArrayList<>();
-		importers.add(new CollectionViewImporterExporter());
-		importers.add(new GameImporterExporter());
-
-		for (ImporterExporter importer : importers) {
+		int progress = 0;
+		for (Step importer : mSteps) {
 			int result = importFile(importPath, importer);
+			progress++;
+			publishProgress(progress, mSteps.size(), progress - 1);
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			} else if (result < ERROR) {
@@ -68,38 +56,32 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	@Override
-	protected void onProgressUpdate(Integer... values) {
-		EventBus.getDefault().post(new ImportProgressEvent(values[0], values[1]));
-	}
-
-	@Override
-	protected void onPostExecute(Integer result) {
-		int messageId;
+	protected void onPostExecute(@NonNull Integer result) {
+		@StringRes int messageId;
 		switch (result) {
 			case SUCCESS:
-				messageId = R.string.pref_advanced_import_msg_success;
+				messageId = R.string.msg_import_success;
 				break;
 			case ERROR_STORAGE_ACCESS:
-				messageId = R.string.pref_advanced_import_msg_failed_nosd;
+				messageId = R.string.msg_import_failed_nosd;
 				break;
 			case ERROR_FILE_ACCESS:
-				messageId = R.string.pref_advanced_import_msg_failed_nofile;
+				messageId = R.string.msg_import_failed_nofile;
 				break;
 			default:
-				messageId = R.string.pref_advanced_import_msg_failed;
+				messageId = R.string.msg_import_failed;
 				break;
 		}
-		Toast.makeText(mContext, messageId, Toast.LENGTH_LONG).show();
-		EventBus.getDefault().post(new ImportFinishedEvent());
+		EventBus.getDefault().post(new ImportFinishedEvent(messageId));
 	}
 
-	private int importFile(File importPath, ImporterExporter importer) {
-		File file = new File(importPath, importer.getFileName());
+	private int importFile(File importPath, @NonNull Step step) {
+		File file = new File(importPath, step.getFileName());
 		if (!file.exists() || !file.canRead()) {
 			return ERROR_FILE_ACCESS;
 		}
 
-		importer.initializeImport(mContext);
+		step.initializeImport(mContext);
 
 		try {
 			InputStream in = new FileInputStream(file);
@@ -110,12 +92,12 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 			reader.beginArray();
 
 			while (reader.hasNext()) {
-				importer.importRecord(mContext, gson, reader);
+				step.importRecord(mContext, gson, reader);
 			}
 
 			reader.endArray();
 			reader.close();
-		} catch (JsonParseException | IOException e) {
+		} catch (@NonNull JsonParseException | IOException e) {
 			// the given Json might not be valid or unreadable
 			Timber.e(e, "JSON show import failed");
 			return ERROR;

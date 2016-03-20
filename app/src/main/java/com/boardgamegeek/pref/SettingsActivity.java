@@ -8,27 +8,25 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.VersionUtils;
 import com.mikepenz.aboutlibraries.Libs;
 
-import java.util.HashMap;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
 public class SettingsActivity extends AppCompatPreferenceActivity {
-	private final static String ACTION_SEARCH = "com.boardgamegeek.prefs.SEARCH";
 	private final static String ACTION_LOG = "com.boardgamegeek.prefs.LOG";
 	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
 	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
 	private final static String ACTION_ABOUT = "com.boardgamegeek.prefs.ABOUT";
-	private static final HashMap<String, Integer> mFragmentMap = buildFragmentMap();
+	private static final ArrayMap<String, Integer> FRAGMENT_MAP = buildFragmentMap();
 
-	private static HashMap<String, Integer> buildFragmentMap() {
-		HashMap<String, Integer> map = new HashMap<>();
-		map.put(ACTION_SEARCH, R.xml.preference_search);
+	private static ArrayMap<String, Integer> buildFragmentMap() {
+		ArrayMap<String, Integer> map = new ArrayMap<>();
 		map.put(ACTION_LOG, R.xml.preference_log);
 		map.put(ACTION_SYNC, R.xml.preference_sync);
 		map.put(ACTION_ADVANCED, R.xml.preference_advanced);
@@ -46,7 +44,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			String action = getIntent().getAction();
 			if (action != null) {
-				Integer fragmentId = mFragmentMap.get(action);
+				Integer fragmentId = FRAGMENT_MAP.get(action);
 				if (fragmentId != null) {
 					addPreferencesFromResource(fragmentId);
 				}
@@ -92,7 +90,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 			super.onCreate(savedInstanceState);
 			String fragment = getArguments().getString("fragment");
 			if (fragment != null) {
-				Integer fragmentId = mFragmentMap.get(fragment);
+				Integer fragmentId = FRAGMENT_MAP.get(fragment);
 				if (fragmentId != null) {
 					addPreferencesFromResource(fragmentId);
 				}
@@ -112,7 +110,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 								"RangeSeekBar",
 								"StickyListHeaders",
 								"AndroidIcons",
-								"EventBus")
+								"EventBus",
+								"MPAndroidChart",
+								"AndroidRandomColor")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))

@@ -18,23 +18,31 @@
 		<item name="android:textColor">#000</item>
 	</style>
 
-	<style name="Button.Info" parent="android:Widget.ImageButton">
-		<item name="android:adjustViewBounds">true</item>
+	<style name="InfoBar">
+		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:background">@color/info_background</item>
+		<item name="android:minHeight">48dp</item>
+		<item name="android:gravity">center</item>
 	</style>
 
-	<style name="Text.InfoButton">
-		<item name="android:layout_gravity">center_vertical</item>
-	</style>
-
-	<style name="Text.Info">
+	<style name="InfoBarItem" parent="@android:style/TextAppearance">
+		<item name="android:paddingBottom">@dimen/padding_half</item>
+		<item name="android:paddingLeft">@dimen/padding_half</item>
+		<item name="android:paddingRight">@dimen/padding_half</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
 		<item name="android:layout_gravity">center_vertical|left</item>
-		<item name="android:gravity">center_vertical</item>
+		<item name="android:gravity">center</item>
 		<item name="android:drawablePadding">@dimen/padding_half</item>
-		<item name="android:layout_height">@dimen/edit_row_height</item>
+		<item name="android:minHeight">@dimen/edit_row_height</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:textSize">14sp</item>
 	</style>
 
-	<style name="Text.Info.Table">
-		<item name="android:layout_weight">1</item>
+	<style name="Text.Code" parent="@android:style/TextAppearance">
+		<item name="android:textSize">14sp</item>
+		<item name="android:typeface">monospace</item>
 	</style>
 
 	<style name="Text" parent="@android:style/TextAppearance">
@@ -78,7 +86,7 @@
 
 	<style name="Text.Primary.DrawerHeader">
 		<item name="android:textColor">@color/light_text</item>
-		<item name="android:textStyle"></item>
+		<item name="android:textStyle"/>
 		<item name="android:textSize">14sp</item>
 	</style>
 
@@ -94,6 +102,11 @@
 	<style name="Text.Secondary.DrawerHeader">
 	</style>
 
+	<style name="Text.FilterButton">
+		<item name="android:textColor">@color/inverse_text_body</item>
+		<item name="android:textSize">12sp</item>
+	</style>
+
 	<style name="Text.Footnote">
 		<item name="android:textSize">10sp</item>
 	</style>
@@ -105,6 +118,11 @@
 
 	<style name="Text.Footnote2.Inverse">
 		<item name="android:textColor">@color/inverse_text_body</item>
+	</style>
+
+	<style name="Text.Footnote2.Hidden">
+		<item name="android:textColor">#fff</item>
+		<item name="android:textSize">10sp</item>
 	</style>
 
 	<style name="Text.Dialog">
@@ -141,13 +159,21 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.DrawerItem" parent="Text.Big">
+	<style name="DrawerItem" parent="Text">
 		<item name="android:layout_gravity">left|center_vertical</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 		<item name="android:paddingRight">@dimen/padding_standard</item>
-		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">@color/primary_text_default_material_light</item>
 		<item name="android:gravity">left|center_vertical</item>
+	</style>
+
+	<style name="Text.ActionBar">
+		<item name="android:textColor">@color/actionbar_text</item>
+		<item name="android:textSize">18sp</item>
+	</style>
+
+	<style name="Text.ActionBar.Small">
+		<item name="android:textColor">@color/actionbar_text</item>
+		<item name="android:textSize">12sp</item>
 	</style>
 
 	<style name="DrawerItemContainer">
@@ -213,6 +239,13 @@
 	<style name="Text.Body">
 	</style>
 
+	<style name="Text.Clickable">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:minHeight">@dimen/edit_row_height</item>
+
+	</style>
+
 	<style name="Text.Header">
 		<item name="android:textColor">@color/accent</item>
 	</style>
@@ -226,6 +259,19 @@
 	<style name="Text.Header.Card">
 		<item name="android:layout_height">32dp</item>
 		<item name="android:gravity">center_vertical</item>
+	</style>
+
+	<style name="Text.Footer">
+		<item name="android:textColor">@color/light_text</item>
+	</style>
+
+	<style name="Text.Footer.Card">
+		<item name="android:minHeight">40dp</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:layout_gravity">right</item>
+		<item name="android:paddingLeft">@dimen/padding_half</item>
+		<item name="android:paddingRight">@dimen/padding_half</item>
+		<item name="android:background">?attr/selectableItemBackground</item>
 	</style>
 
 	<style name="Text.Header.Underline">
@@ -386,6 +432,13 @@
 		<item name="android:paddingTop">@dimen/padding_half</item>
 	</style>
 
+	<style name="RatingSmall" parent="@style/Text">
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingLeft">@dimen/padding_half</item>
+		<item name="android:paddingRight">@dimen/padding_half</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+	</style>
+
 	<style name="FormContainer">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
@@ -423,6 +476,22 @@
 		<item name="contentPaddingLeft">@dimen/material_margin_horizontal_card_contents</item>
 		<item name="contentPaddingRight">@dimen/material_margin_horizontal_card_contents</item>
 		<item name="contentPaddingTop">@dimen/material_margin_vertical_card_contents</item>
+	</style>
+
+	<style name="CardRow">
+		<item name="android:minHeight">40dp</item>
+	</style>
+
+	<style name="CardRow.Clickable">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:descendantFocusability">blocksDescendants</item>
+	</style>
+
+	<style name="CardRowContent">
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:minHeight">40dp</item>
+		<item name="android:paddingTop">2dp</item>
+		<item name="android:paddingBottom">2dp</item>
 	</style>
 
 	<style name="Icon">

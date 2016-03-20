@@ -1,66 +1,69 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class ExpansionStatusFilterer extends CollectionFilterer {
-	private int mSelected;
+	private int selectedSubtype;
 
-	public ExpansionStatusFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
+	public ExpansionStatusFilterer(Context context) {
+		super(context);
 	}
 
-	public ExpansionStatusFilterer(Context context, String data) {
-		mSelected = Integer.valueOf(data);
-		init(context);
-	}
-
-	public ExpansionStatusFilterer(Context context, int selected) {
-		mSelected = selected;
-		init(context);
-	}
-
-	private void init(Context context) {
-		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
-		createDisplayText(context.getResources());
-		setSelection(context.getResources());
-	}
-
-	private void createDisplayText(Resources resources) {
-		String text = "";
-		String[] statuses = resources.getStringArray(R.array.expansion_status_filter);
-		if (statuses != null && mSelected != 0 && mSelected < statuses.length) {
-			text = statuses[mSelected];
-		}
-		displayText(text);
-	}
-
-	public int getSelected() {
-		return mSelected;
+	public ExpansionStatusFilterer(@NonNull Context context, int selectedSubtype) {
+		super(context);
+		this.selectedSubtype = selectedSubtype;
 	}
 
 	@Override
-	public String flatten() {
-		return String.valueOf(mSelected);
+	public void setData(@NonNull String data) {
+		selectedSubtype = Integer.valueOf(data);
 	}
 
-	private void setSelection(Resources resources) {
-		String value = "";
-		String[] values = resources.getStringArray(R.array.expansion_status_filter_values);
-		if (values != null && mSelected != 0 && mSelected < values.length) {
-			value = values[mSelected];
-		}
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_subtype;
+	}
 
+	@Override
+	public String getDisplayText() {
+		return getSelectedFromStringArray(R.array.expansion_status_filter);
+	}
+
+	public int getSelectedSubtype() {
+		return selectedSubtype;
+	}
+
+	@NonNull
+	@Override
+	public String flatten() {
+		return String.valueOf(selectedSubtype);
+	}
+
+	@Override
+	public String getSelection() {
+		String value = getSelectedFromStringArray(R.array.expansion_status_filter_values);
 		if (!TextUtils.isEmpty(value)) {
-			selection(Games.SUBTYPE + "=?");
-			selectionArgs(value);
+			return Games.SUBTYPE + "=?";
 		} else {
-			selection("");
-			selectionArgs("");
+			return "";
 		}
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		return new String[] { getSelectedFromStringArray(R.array.expansion_status_filter_values) };
+	}
+
+	private String getSelectedFromStringArray(int resId) {
+		String[] values = context.getResources().getStringArray(resId);
+		if (values != null && selectedSubtype != 0 && selectedSubtype < values.length) {
+			return values[selectedSubtype];
+		}
+		return "";
 	}
 }

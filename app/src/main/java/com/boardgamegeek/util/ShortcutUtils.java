@@ -56,9 +56,10 @@ public class ShortcutUtils {
 
 	private static File getThumbnailFile(Context context, String url) {
 		if (!TextUtils.isEmpty(url)) {
-			return new File(
-				FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS),
-				FileUtils.getFileNameFromUrl(url));
+			String filename = FileUtils.getFileNameFromUrl(url);
+			if (filename != null) {
+				return new File(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS), filename);
+			}
 		}
 		return null;
 	}
@@ -87,10 +88,14 @@ public class ShortcutUtils {
 			}
 
 			mContext.sendBroadcast(mShortcut);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void nothing) {
 			if (!VersionUtils.hasJellyBean()) {
 				Toast.makeText(mContext, R.string.msg_shortcut_created, Toast.LENGTH_SHORT).show();
 			}
-			return null;
 		}
 
 		private Bitmap fetchThumbnail() {

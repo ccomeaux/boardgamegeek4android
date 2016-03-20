@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog" />
+	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
+		<item name="android:windowNoTitle">false</item>
+	</style>
 
 	<style name="Theme.bgglight.Dialog.NoTitle">
 		<item name="android:windowNoTitle">false</item>
@@ -66,6 +68,11 @@
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
+	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
+		<item name="android:textAllCaps">true</item>
+		<item name="android:textColor">@color/light_text</item>
+	</style>
+
 	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"/>
 
 	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
@@ -97,9 +104,8 @@
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 	</style>
 
-	<style name="Text.DrawerItem" parent="TextAppearance.AppCompat">
+	<style name="DrawerItem" parent="TextAppearance.AppCompat">
 		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">@color/primary_text_default_material_light</item>
 		<item name="android:gravity">left|center_vertical</item>
 		<item name="android:textIsSelectable">false</item>
 		<item name="android:layout_gravity">left|center_vertical</item>

@@ -17,7 +17,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class GamePlaysActivity extends SimpleSinglePaneActivity  {
+public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_COUNT = "COUNT";
 	private int mGameId;
 	private String mGameName;
@@ -36,8 +36,10 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity  {
 		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		if (!TextUtils.isEmpty(mGameName)) {
-			ActionBar bar = getSupportActionBar();
-			bar.setSubtitle(mGameName);
+			ActionBar actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 	}
 
@@ -80,12 +82,12 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity  {
 
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
+		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@DebugLog
 	public void onEvent(PlaysCountChangedEvent event) {
-		mCount = event.count;
+		mCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 }

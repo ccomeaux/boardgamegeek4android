@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -21,6 +22,10 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Artists;
+import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
@@ -34,6 +39,7 @@ public class GameDetailRow extends LinearLayout {
 	private String mOneMore;
 	private String mSomeMore;
 	private int mNameColumnIndex;
+	private int mIdColumnIndex;
 	private int mCount;
 	private int mGameId;
 	private String mGameName;
@@ -113,12 +119,17 @@ public class GameDetailRow extends LinearLayout {
 		setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getContext(), GameDetailActivity.class);
-				intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
-				intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
-				getContext().startActivity(intent);
+				Uri uri = (Uri) getTag();
+				if (uri != null) {
+					getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+				} else {
+					Intent intent = new Intent(getContext(), GameDetailActivity.class);
+					intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
+					intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+					intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
+					getContext().startActivity(intent);
+				}
 			}
 		});
 	}
@@ -150,8 +161,9 @@ public class GameDetailRow extends LinearLayout {
 		mDataView.setTextColor(swatch.getRgb());
 	}
 
-	public void bind(Cursor cursor, int nameColumnIndex, int gameId, String gameName) {
+	public void bind(Cursor cursor, int nameColumnIndex, int idColumnIndex, int gameId, String gameName) {
 		mNameColumnIndex = nameColumnIndex;
+		mIdColumnIndex = idColumnIndex;
 		mGameId = gameId;
 		mGameName = gameName;
 		updateData(cursor);
@@ -169,6 +181,25 @@ public class GameDetailRow extends LinearLayout {
 				summary = String.format(mSomeMore, mCount);
 			}
 		}
+		if (mCount == 1 && mIdColumnIndex != -1) {
+			cursor.moveToFirst();
+			Uri uri = null;
+			int id = cursor.getInt(mIdColumnIndex);
+			if (mQueryToken == getResources().getInteger(R.integer.query_token_designers)) {
+				uri = Designers.buildDesignerUri(id);
+			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_artists)) {
+				uri = Artists.buildArtistUri(id);
+			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_publishers)) {
+				uri = Publishers.buildPublisherUri(id);
+			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_expansions) ||
+				mQueryToken == getResources().getInteger(R.integer.query_token_base_games)) {
+				uri = Games.buildGameUri(id);
+			}
+			if (uri != null) {
+				setTag(uri);
+			}
+		}
+
 		mDataView.setText(summary);
 	}
 

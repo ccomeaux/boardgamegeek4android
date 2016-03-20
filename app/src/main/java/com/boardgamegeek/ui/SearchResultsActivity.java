@@ -4,94 +4,146 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 
-public class SearchResultsActivity extends SimpleSinglePaneActivity implements SearchResultsFragment.Callbacks {
-	private static final String VOICE_SEARCH_ACTION = "com.google.android.gms.actions.SEARCH_ACTION";
+import timber.log.Timber;
+
+public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
-	private String mSearchText;
+	@Nullable private String searchText;
+	private SearchView searchView;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTitle(R.string.title_search_results);
-
+		setTitle(null);
 		if (savedInstanceState != null) {
-			mSearchText = savedInstanceState.getString(SEARCH_TEXT);
+			searchText = savedInstanceState.getString(SEARCH_TEXT);
 		}
 
 		HelpUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		outState.putString(SEARCH_TEXT, mSearchText);
+	protected void onNewIntent(@NonNull Intent intent) {
+		super.onNewIntent(intent);
+		parseIntent(intent);
+		if (searchView != null) {
+			String query = searchView.getQuery().toString();
+			if (!query.equals(searchText)) {
+				searchView.setQuery(searchText, true);
+			}
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		outState.putString(SEARCH_TEXT, searchText);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_only;
+		return R.menu.search_widget;
 	}
 
 	@Override
-	public void onResultCount(int subtitle) {
-		String message = String.format(getResources().getString(R.string.search_results), subtitle, mSearchText);
-		getSupportActionBar().setSubtitle(message);
-	}
-
-	@Override
-	public void onExactMatch() {
-		finish();
-	}
-
-	@Override
-	protected Fragment onCreatePane(Intent intent) {
-		Fragment fragment;
-		String action = intent.getAction();
-		if (action == null) {
-			fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + "<null>");
-		} else {
-			switch (action) {
-				case Intent.ACTION_SEARCH:
-				case VOICE_SEARCH_ACTION:
-					mSearchText = intent.getExtras().getString(SearchManager.QUERY);
-					if (TextUtils.isEmpty(mSearchText)) {
-						fragment = buildTextFragment(getString(R.string.search_error_no_text));
-					} else {
-						getSupportActionBar().setSubtitle(
-							String.format(getResources().getString(R.string.search_searching), mSearchText));
-						fragment = new SearchResultsFragment();
-					}
-					break;
-				case Intent.ACTION_VIEW:
-					Uri uri = intent.getData();
-					if (uri == null) {
-						fragment = buildTextFragment(getString(R.string.search_error_no_data));
-					} else {
-						ActivityUtils.launchGame(this, Games.getGameId(uri), "");
+	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		final MenuItem searchItem = menu.findItem(R.id.menu_search);
+		if (searchItem != null) {
+			searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+			if (searchView == null) {
+				Timber.w("Could not set up search view, view is null.");
+			} else {
+				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+				searchView.setIconified(false);
+				searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+					@Override
+					public boolean onClose() {
 						finish();
-						return null;
+						return true;
 					}
-					break;
-				default:
-					fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + action);
-					break;
+				});
+				searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+					@Override
+					public boolean onQueryTextSubmit(@Nullable String query) {
+						if (query != null && query.length() > 1 && query.length() <= 2) {
+							((SearchResultsFragment) getFragment()).forceQueryUpdate(query);
+						}
+						// close the auto-complete list; don't pass to a different activity
+						searchView.clearFocus();
+						searchText = query;
+						return true;
+					}
+
+					@Override
+					public boolean onQueryTextChange(@Nullable String newText) {
+						if (newText != null && newText.length() > 2) {
+							((SearchResultsFragment) getFragment()).requestQueryUpdate(newText);
+							searchText = newText;
+						} else {
+							((SearchResultsFragment) getFragment()).requestQueryUpdate("");
+						}
+						return true;
+					}
+				});
+				if (!TextUtils.isEmpty(searchText)) {
+					searchView.setQuery(searchText, false);
+				}
 			}
 		}
-		return fragment;
+		return true;
 	}
 
-	private Fragment buildTextFragment(String text) {
-		mFragment = new TextFragment();
-		getIntent().putExtra(ActivityUtils.KEY_TEXT, text);
-		return mFragment;
+	@NonNull
+	@Override
+	protected Fragment onCreatePane(@NonNull Intent intent) {
+		parseIntent(intent);
+		return new SearchResultsFragment();
+	}
+
+	private void parseIntent(@NonNull Intent intent) {
+		String action = intent.getAction();
+		if (action != null && Intent.ACTION_VIEW.equals(action)) {
+			Uri uri = intent.getData();
+			if (uri == null) {
+				Toast.makeText(this, R.string.search_error_no_data, Toast.LENGTH_LONG).show();
+			} else {
+				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
+			}
+			finish();
+		} else if (action != null &&
+			(Intent.ACTION_SEARCH.equals(action) || "com.google.android.gms.actions.SEARCH_ACTION".equals(action))) {
+			searchText = "";
+			if (intent.hasExtra(SearchManager.QUERY)) {
+				searchText = intent.getExtras().getString(SearchManager.QUERY);
+			}
+			final ActionBar actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setSubtitle(String.format(getResources().getString(R.string.search_searching), searchText));
+			}
+		}
+	}
+
+	@Override
+	protected int getDrawerResId() {
+		return R.string.title_search;
 	}
 }

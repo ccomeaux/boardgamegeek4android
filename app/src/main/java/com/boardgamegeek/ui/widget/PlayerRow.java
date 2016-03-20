@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -63,6 +64,8 @@ public class PlayerRow extends LinearLayout {
 		mNameTypeface = mName.getTypeface();
 		mUsernameTypeface = mUsername.getTypeface();
 		mScoreTypeface = mScore.getTypeface();
+
+		mScoreButton.setColorFilter(getResources().getColor(R.color.button_under_text), Mode.SRC_IN);
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
 	}

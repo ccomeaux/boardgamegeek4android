@@ -2,24 +2,15 @@
 <resources>
 
 	<string name="welcome_text">Welcome to the new BoardGameGeek for Android. Access the navigation menu by clicking on the icon in the top left or by dragging from the left edge of the screen.</string>
-	<string name="average_meter_text">Average = %s</string>
-	<string name="bayes_meter_text">Bayes Average = %s</string>
-	<string name="median_meter_text">Median = %s</string>
-	<string name="stdDev_meter_text">Standard Deviation = %s</string>
-	<string name="weight_1_text">%s - \"Light\"</string>
-	<string name="weight_2_text">%s - \"Medium Light\"</string>
-	<string name="weight_3_text">%s - \"Medium\"</string>
-	<string name="weight_4_text">%s - \"Medium Heavy\"</string>
-	<string name="weight_5_text">%s - \"Heavy\"</string>
-	<string name="rating_count">%s ratings</string>
-	<string name="weight_count">%s weights</string>
-	<string name="user_total">%s users</string>
+	<string name="weight_1_text">Light (<b>%.2f</b>/5)</string>
+	<string name="weight_2_text">Medium Light (<b>%.2f</b>/5)</string>
+	<string name="weight_3_text">Medium (<b>%.2f</b>/5)</string>
+	<string name="weight_4_text">Medium Heavy (<b>%.2f</b>/5)</string>
+	<string name="weight_5_text">Heavy (<b>%.2f</b>/5)</string>
 	<string name="owning_meter_text">%s Owning</string>
-	<string name="rating_meter_text">%s Rating</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
 	<string name="wishing_meter_text">%s Wishing</string>
-	<string name="weighting_meter_text">%s Weighting</string>
 	<string name="id_list_text">ID: %s</string>
 	<string name="designers">Designers</string>
 	<string name="artists">Artists</string>
@@ -42,6 +33,7 @@
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
 	<string name="no_location">&lt;No location&gt;</string>
+	<string name="nowhere_in_angle_brackets">&lt;Nowhere&gt;</string>
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
@@ -62,6 +54,8 @@
 	<string name="plays">Plays</string>
 	<string name="no_plays">No plays</string>
 	<string name="played">Played</string>
+	<string name="rated">Rated</string>
+	<string name="commented">Commented</string>
 	<string name="rematch">Rematch</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
@@ -77,9 +71,12 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
+	<string name="my_rating">My Rating</string>
 	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
-	<string name="ratings">Ratings</string>
+	<string name="average_win">Average win</string>
+	<string name="high">High</string>
+	<string name="low">Low</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -90,13 +87,13 @@
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
-    <string name="title_clear_colors">Clear Colors?</string>
-    <string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
-    <string name="msg_color_error_no_players">There are no players that need colors.</string>
-    <string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
-    <string name="msg_color_error_missing_player_name">Can\'t assign colors if a player doesn\'t have a user name or unique name.</string>
-    <string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
-    <string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
+	<string name="title_clear_colors">Clear Colors?</string>
+	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
+	<string name="msg_color_error_no_players">There are no players that need colors.</string>
+	<string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
+	<string name="msg_color_error_missing_player_name">Can\'t assign colors if a player doesn\'t have a user name or unique name.</string>
+	<string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
+	<string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
@@ -109,18 +106,27 @@
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
-	<string name="title_search_results">Search Results</string>
+	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
+	<string name="title_data">Data</string>
 	<string name="title_settings">Settings</string>
 	<string name="title_geeklists">GeekLists</string>
 	<string name="title_geeklist">GeekList</string>
 	<string name="title_game">Game</string>
 	<string name="title_board_game">Board Game</string>
-	<string name="title_board_game_expansion">Board Game Expansion</string>
 	<string name="title_board_game_accessory">Board Game Accessory</string>
 	<string name="title_board_game_publisher">Board Game Publisher</string>
 	<string name="title_board_game_designer">Board Game Designer</string>
+	<string name="title_expansion">Expansion</string>
+	<string name="title_accessory">Accessory</string>
+	<string name="title_abstract">Abstract</string>
+	<string name="title_childrens">Children\'s</string>
+	<string name="title_customizable">Customizable</string>
+	<string name="title_party">Party</string>
+	<string name="title_strategy">Strategy</string>
+	<string name="title_thematic">Thematic</string>
+	<string name="title_war">War</string>
 	<string name="title_thing">Thing</string>
 	<string name="title_company">Company</string>
 	<string name="title_person">Person</string>
@@ -152,13 +158,41 @@
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_edit_location">Edit Location</string>
 	<string name="title_edit_player">Edit Player</string>
+	<string name="title_add_username">Add Username</string>
 	<string name="title_error">Error!</string>
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
+	<string name="title_personal">Personal</string>
+	<string name="title_charts">Charts</string>
+	<string name="title_opponents">Opponents</string>
+	<string name="title_backup">Backup</string>
+	<string name="title_export">Export</string>
+	<string name="title_import">Import</string>
+	<string name="add_comment">Add comment</string>
+	<string name="title_sort">Sort by</string>
+	<string name="title_filter">Filter by</string>
+	<string name="description_backup">Export will save certain data in the app to the following file location. Import will restore data from these same files.</string>
+	<string name="msg_export_confirmation">Are you sure you want to (potentially) replace the export files?</string>
+	<string name="msg_import_confirmation">Are you sure you want to replace the data in app with data from the files?</string>
+	<string name="msg_export_success">Export successful.</string>
+	<string name="msg_export_failed">Export failed.</string>
+	<string name="msg_export_failed_nosd">Export folder is not available.</string>
+	<string name="msg_import_success">Import successful.</string>
+	<string name="msg_import_failed">Import failed.</string>
+	<string name="msg_import_failed_nofile">Import file doesn\'t exist or can\'t be read.</string>
+	<string name="msg_import_failed_nosd">Import folder is not available.</string>
+	<string name="favorite_colors_hint">Click to set your favorite colors when logging plays.</string>
+	<string name="backup_type_collection_view">Collection view</string>
+	<string name="backup_type_game">Game color</string>
+	<string name="backup_type_user">Player color</string>
+	<string name="backup_description">- %1$s: %2$s</string>
+	<string name="msg_export_permission_rationale">To write the export files, the app needs permission to write to the external storage.</string>
+	<string name="msg_export_permission_denied">Can\'t export without the proper permission.</string>
+	<string name="msg_shortcut_create">Select a game  to place it on the home screen.</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
-	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
+	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="title_signin">Sign In</string>
 	<string name="loading">Loading…</string>
@@ -167,6 +201,7 @@
 	<string name="empty_locations">It appears as if you have played nowhere.</string>
 	<string name="empty_buddies_sync_off">If you want to see your GeekBuddies, go to Settings > Sync and check the box next to GeekBuddies.</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
+	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
 	<string name="empty_collection_filter_on">You have no games in your collection that match this filter.</string>
 	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
@@ -191,28 +226,33 @@
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
+	<string name="title_play_count">Play Count</string>
+	<string name="title_dates">Dates</string>
+	<string name="title_play_time">Play Time</string>
+	<string name="title_advanced">Advanced</string>
+	<string name="title_wins">Wins</string>
+	<string name="title_scores">Scores</string>
 	<string name="search_label">BoardGameGeek</string>
-	<string name="search_hint">Search collection</string>
+	<string name="search_hint">Search…</string>
+	<string name="search_voice_prompt">Name a game…</string>
 	<string name="search_settings_description">Games in collection</string>
 	<string name="search_searching">Searching for \"%s\"</string>
-	<string name="search_results">%1$s matches for \"%2$s\"</string>
 	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
-	<string name="search_error_no_text">Search performed with no search text.</string>
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
-	<string name="search_error_bad_intent">Received bad intent action: </string>
+	<string name="search_initial_help">Use the search field above to search against BoardGameGeek\'s entire database. Autocomplete will show only games in your collection.</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
-	<string name="menu_view_in_browser">View in broswer</string>
+	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
-	<string name="menu_refresh">Refresh</string>
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
-	<string name="menu_links">Links…</string>
-	<string name="menu_link_bgg">BoardGameGeek</string>
-	<string name="menu_link_bg_prices">Board Game Prices</string>
-	<string name="menu_link_amazon">Amazon</string>
-	<string name="menu_link_ebay">eBay</string>
+	<string name="menu_view_image">View image</string>
+	<string name="links">Links</string>
+	<string name="link_bgg">BoardGameGeek</string>
+	<string name="link_bg_prices">Board Game Prices</string>
+	<string name="link_amazon">Amazon</string>
+	<string name="link_ebay">eBay</string>
 	<string name="menu_share">Share</string>
 	<string name="menu_sort">Sort</string>
 	<string name="menu_collection_filter_add">Add filter…</string>
@@ -222,18 +262,30 @@
 	<string name="menu_collection_status">Collection Status</string>
 	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
-	<string name="menu_collection_sort_name">Name</string>
-	<string name="menu_collection_sort_rating">Average Rating</string>
-	<string name="menu_collection_sort_geek_rating">Geek Rating</string>
-	<string name="menu_collection_sort_rank">Rank</string>
-	<string name="menu_collection_sort_myrating">My Rating</string>
-	<string name="menu_collection_sort_last_viewed">Last Viewed</string>
-	<string name="menu_collection_sort_wishlist_priority">Wishlist Priority</string>
-	<string name="menu_collection_sort_plays">Play Count</string>
-	<string name="menu_collection_sort_played_most">Most Played</string>
-	<string name="menu_collection_sort_played_least">Least Played</string>
-	<string name="menu_collection_sort_published">Year Published</string>
-	<string name="menu_collection_sort_acquisition_date">Acquisition Date</string>
+	<string name="collection_sort_acquisition_date">Acquisition Date</string>
+	<string name="collection_sort_average_rating">Average Rating</string>
+	<string name="collection_sort_average_weight">Average Weight</string>
+	<string name="collection_sort_collection_name">Name</string>
+	<string name="collection_sort_geek_rating">Geek Rating</string>
+	<string name="collection_sort_last_viewed">Last Viewed</string>
+	<string name="collection_sort_my_rating">My Rating</string>
+	<string name="collection_sort_play_count_asc">Least Played</string>
+	<string name="collection_sort_play_count_desc">Most Played</string>
+	<string name="collection_sort_play_time">Play Time</string>
+	<string name="collection_sort_rank">Rank</string>
+	<string name="collection_sort_suggested_age">Suggested Age</string>
+	<string name="collection_sort_wishlist_priority">Wishlist Priority</string>
+	<string name="collection_sort_year_published">Year Published</string>
+	<string name="collection_filter_stats">Stats</string>
+	<string name="collection_filter_community">Community</string>
+	<string name="collection_filter_personal">Personal</string>
+	<string name="collection_sort_stats">Stats</string>
+	<string name="collection_sort_community">Community</string>
+	<string name="collection_sort_personal">Personal</string>
+	<string name="collection_sort_local">Local</string>
+	<string name="collection_sort_acquired_from">Acquired From</string>
+	<string name="collection_sort_price_paid">Price Paid</string>
+	<string name="collection_sort_current_value">Current Value</string>
 	<string name="menu_plays_sort_date">Date</string>
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
@@ -244,14 +296,12 @@
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
 	<string name="menu_sort_quantity">Play count</string>
+	<string name="undo">Undo</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
-	<string name="menu_collection_sort_playtime">Play Time</string>
 	<string name="shortest">Shortest</string>
 	<string name="longest">Longest</string>
-	<string name="menu_collection_sort_age">Suggested Age</string>
 	<string name="youngest">Youngest</string>
-	<string name="menu_collection_sort_weight">Average Weight</string>
 	<string name="heaviest">Heaviest</string>
 	<string name="lightest">Lightest</string>
 	<string name="year_positive">%s</string>
@@ -263,19 +313,20 @@
 	<string name="menu_geek_ranking">Rank</string>
 	<string name="menu_geek_rating">Geek Rating</string>
 	<string name="menu_average_rating">Average Rating</string>
+	<string name="menu_my_rating">My Rating</string>
 	<string name="menu_average_weight">Average Weight</string>
 	<string name="menu_year_published">Year Published</string>
 	<string name="menu_collection_random_game">Random game</string>
-	<string name="menu_create_shortcut">Create shortcut</string>
+	<string name="menu_create_shortcut">Place on Home screen</string>
 	<string name="menu_edit">Edit</string>
 	<string name="menu_delete">Delete</string>
 	<string name="menu_sort_geeklists_hot">Hot</string>
 	<string name="menu_sort_geeklists_recent">Recent</string>
 	<string name="menu_sort_geeklists_active">Active</string>
-	<string name="menu_colors_add">Add color</string>
 	<string name="menu_colors_generate">Generate colors</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
+	<string name="menu_add_username">Add username</string>
 	<string name="sort_description">by %s</string>
 	<string name="msg_player_deleted">Player deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
@@ -285,7 +336,9 @@
 	<string name="msg_play_deleted">Deleted a play of</string>
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
+	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
+	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
 	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
@@ -311,13 +364,25 @@
 	<string name="players">players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
-	<string name="unknown">unknown</string>
 	<string name="minutes">minutes</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="ages">Ages</string>
+	<string name="play_description_game_segment">Played %s</string>
+	<string name="play_description_quantity_segment">\u0020%,d times</string>
+	<string name="play_description_date_segment">\u0020on %s</string>
+	<string name="play_description_location_segment">\u0020at %s</string>
+	<string name="play_description_players_segment">\u0020with %,d players</string>
+	<string name="play_description_game_url_segment">www.boardgamegeek.com/play/%s</string>
+	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
+	<string name="player_description_starting_position_segment">%s)\u0020</string>
+	<string name="player_description_username_segment">\u0020(%s)</string>
+	<string name="player_description_new_segment">\u0020(new)</string>
+	<string name="player_description_color_segment">\u0020as %s</string>
+	<string name="player_description_score_segment">: %s</string>
+	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
 	<string name="suggested_playerage">Suggested ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
@@ -328,7 +393,9 @@
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="votes_suffix">"%s votes"</string>
+	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
+	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
+	<string name="votes_suffix"><b>%,d</b> votes</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>
 	<string name="by_prefix">by %s</string>
@@ -342,7 +409,6 @@
 	<string name="menu_random_player_order">Random player order</string>
 	<string name="generic_player">Player #%d</string>
 	<string name="notification_start_player">%s starts!</string>
-	<string name="stats">Stats</string>
 	<string name="unrated">Unrated</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
@@ -356,8 +422,9 @@
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>
 	<string name="help_title">Help</string>
-	<string name="help_home">If plays aren\'t uploading, please try signing out and back in.\n\nInstalling this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
-	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
+	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
+	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
+	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Share\n - Create a shortcut on the home screen\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
 	<string name="help_collection">Got lots of games? You can filter and sort your collection, save it as a view, and even choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
@@ -385,8 +452,13 @@
 	<string name="play_stat_distinct_games">Distinct games</string>
 	<string name="play_stat_quarters">Quarters</string>
 	<string name="play_stat_quarter">Quarter</string>
+	<string name="play_stat_half_dollar">Half-dollar</string>
+	<string name="play_stat_dollar">Dollar</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
+	<string name="play_stat_win_percentage">Win percentage</string>
+	<string name="play_stat_win_skill">Win skill</string>
+	<string name="play_stat_win_skill_info">How skilled are you at winning this game?\n\n0 = you never win\n100 = you win as much as you should\nEverything else scales from these numbers</string>
 	<string name="play_stat_average_play_time">Average play time</string>
 	<string name="play_stat_average_play_time_faster">Faster than advertised</string>
 	<string name="play_stat_average_play_time_slower">Slower than advertised</string>
@@ -397,6 +469,11 @@
 	<string name="play_stat_last_play">Last play</string>
 	<string name="play_stat_h_index">H-index</string>
 	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
+	<string name="play_stat_h_index_offset_in">This game contributes to your H-index.</string>
+	<string name="play_stat_h_index_offset_out">plays outside of your H-index.</string>
+	<string name="h_index_prefix">H-Index <b>%d</b></string>
+	<string name="card_footer_colors">Edit colors</string>
+	<string name="card_footer_stats">See more stats</string>
 	<string name="play_stat_fhm">FHM</string>
 	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
 	<string name="play_stat_hhm">HHM</string>
@@ -410,8 +487,11 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_played_not_synced">These stats are more accurate of if you synced your Played games. Do you want to modify your prefences?</string>
-	<string name="play_stat_status_played_not_synced_message">Do you want to sync your Played games?</string>
+	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
+	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
+	<string name="last_played_prefix">Last played <b>%s</b></string>
+	<string name="removed_suffix">%s removed.</string>
+	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -445,17 +525,21 @@
 		<item quantity="one">%s reply</item>
 		<item quantity="other">%s replies</item>
 	</plurals>
-	<plurals name="plays">
-		<item quantity="one">%s plays</item>
-		<item quantity="other">%s plays</item>
+	<plurals name="plays_prefix">
+		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
+		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
 	</plurals>
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
+	<plurals name="msg_updated_plays_buddy_nickname">
+		<item quantity="one">Updated %1$,d play for %2$s with nickname \"%3$s\".</item>
+		<item quantity="other">Updated %1$,d plays for %2$s with nickname \"%3$s\".</item>
+	</plurals>
 	<plurals name="player_description">
-		<item quantity="one">with %s player </item>
-		<item quantity="other">with %s players </item>
+		<item quantity="one">with %s player</item>
+		<item quantity="other">with %s players</item>
 	</plurals>
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Logging play…</item>
@@ -465,25 +549,40 @@
 		<item quantity="one">%s total edit</item>
 		<item quantity="other">%s total edits</item>
 	</plurals>
-	<plurals name="plays_summary">
-		<item quantity="one">%1$,d Play; last play on %2$s</item>
-		<item quantity="other">%1$,d Plays; last play on %2$s</item>
-	</plurals>
 	<plurals name="colors_suffix">
-		<item quantity="one">%,d Color/Team</item>
-		<item quantity="other">%,d Colors/Teams</item>
+		<item quantity="one"><b>%,d</b> Color/Team</item>
+		<item quantity="other"><b>%,d</b> Colors/Teams</item>
 	</plurals>
 	<plurals name="comments_suffix">
-		<item quantity="one">%,d Comment</item>
-		<item quantity="other">%,d Comments</item>
-	</plurals>
-	<plurals name="ratings_suffix">
-		<item quantity="one">%,d Rating</item>
-		<item quantity="other">%,d Ratings</item>
+		<item quantity="one"><b>%,d</b> Comment</item>
+		<item quantity="other"><b>%,d</b> Comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
 		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
 		<item quantity="other">Changed %1$s plays from \"%2$s\" to \"%3$s\"</item>
 	</plurals>
-
+	<plurals name="search_results">
+		<item quantity="one">%1$s match for \"%2$s\"</item>
+		<item quantity="other">%1$s matches for \"%2$s\"</item>
+	</plurals>
+	<plurals name="search_results_exact">
+		<item quantity="one">%1$s exact match for \"%2$s\"</item>
+		<item quantity="other">%1$s exact matches for \"%2$s\"</item>
+	</plurals>
+	<plurals name="users_suffix">
+		<item quantity="one"><b>%,d</b> User</item>
+		<item quantity="other"><b>%,d</b> Users</item>
+	</plurals>
+	<plurals name="plays_suffix">
+		<item quantity="one"><b>%,d</b> play</item>
+		<item quantity="other"><b>%,d</b> plays</item>
+	</plurals>
+	<plurals name="players_suffix">
+		<item quantity="one">%1$s player</item>
+		<item quantity="other">%1$s players</item>
+	</plurals>
+	<plurals name="locations_suffix">
+		<item quantity="one">%1$s location</item>
+		<item quantity="other">%1$s locations</item>
+	</plurals>
 </resources>

@@ -1,23 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+	style="@style/CardRow"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:orientation="horizontal"
-	android:paddingBottom="@dimen/padding_small"
-	android:paddingTop="@dimen/padding_small" >
+	android:orientation="horizontal">
 
 	<TextView
 		android:id="@+id/rank_row_label"
 		style="@style/Text"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_weight="1" />
+		android:layout_weight="2"
+		tools:text="Strategy"/>
 
 	<TextView
 		android:id="@+id/rank_row_rank"
 		style="@style/Text"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:gravity="right" />
+		android:layout_weight="1"
+		android:gravity="center"
+		tools:text="42"/>
 
+	<TextView
+		android:id="@+id/rank_row_rating"
+		style="@style/RatingSmall"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:gravity="center"
+		tools:background="#088"
+		tools:text="7.43"/>
 </LinearLayout>

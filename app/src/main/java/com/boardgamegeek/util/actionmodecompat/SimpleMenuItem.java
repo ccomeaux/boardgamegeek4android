@@ -34,7 +34,7 @@ import android.view.View;
  */
 public class SimpleMenuItem implements MenuItem {
 
-    private SimpleMenu mMenu;
+    private final SimpleMenu mMenu;
 
     private final int mId;
     private final int mOrder;
@@ -99,7 +99,8 @@ public class SimpleMenuItem implements MenuItem {
         }
 
         if (mIconResId != 0) {
-            return mMenu.getResources().getDrawable(mIconResId);
+			//noinspection deprecation
+			return mMenu.getResources().getDrawable(mIconResId);
         }
 
         return null;

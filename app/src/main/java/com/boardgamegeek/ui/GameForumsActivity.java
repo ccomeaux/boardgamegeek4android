@@ -22,8 +22,10 @@ public class GameForumsActivity extends SimpleSinglePaneActivity {
 		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		if (!TextUtils.isEmpty(mGameName)) {
-			ActionBar bar = getSupportActionBar();
-			bar.setSubtitle(mGameName);
+			ActionBar actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 	}
 

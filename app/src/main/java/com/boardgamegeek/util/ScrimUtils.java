@@ -52,9 +52,36 @@ public class ScrimUtils {
 		}
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	public static void applyInvertedScrim(View view) {
+		if (view == null) {
+			return;
+		}
+		Drawable scrim = ScrimUtils.makeInvertedScrimDrawable(view.getContext());
+		if (VersionUtils.hasJellyBean()) {
+			view.setBackground(scrim);
+		} else {
+			//noinspection deprecation
+			view.setBackgroundDrawable(scrim);
+		}
+	}
+
+	/**
+	 * A black scrim that's darkest at the top.
+	 */
 	public static Drawable makeDefaultScrimDrawable(Context context) {
+		//noinspection deprecation
 		return ScrimUtils.makeCubicGradientScrimDrawable(
 			context.getResources().getColor(R.color.black_overlay), 4, Gravity.TOP);
+	}
+
+	/**
+	 * A white scrim that's lightest at the bottom.
+	 */
+	public static Drawable makeInvertedScrimDrawable(Context context) {
+		//noinspection deprecation
+		return ScrimUtils.makeCubicGradientScrimDrawable(
+			context.getResources().getColor(R.color.white_overlay), 3, Gravity.BOTTOM);
 	}
 
 	/**

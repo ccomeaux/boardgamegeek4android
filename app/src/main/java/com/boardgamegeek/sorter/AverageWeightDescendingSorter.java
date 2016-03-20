@@ -1,19 +1,22 @@
 package com.boardgamegeek.sorter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class AverageWeightDescendingSorter extends AverageWeightSorter {
-	public AverageWeightDescendingSorter(Context context) {
+	public AverageWeightDescendingSorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.STATS_AVERAGE_WEIGHT, true);
-		mSubDescriptionId = R.string.heaviest;
+		orderByClause = getClause(Collection.STATS_AVERAGE_WEIGHT, true);
+		subDescriptionId = R.string.heaviest;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_average_weight_desc;
 	}
 }

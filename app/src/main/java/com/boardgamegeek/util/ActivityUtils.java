@@ -1,9 +1,13 @@
 package com.boardgamegeek.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
+import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -13,22 +17,30 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
+import com.boardgamegeek.ui.ImageActivity;
+import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
+import com.boardgamegeek.ui.PlayerPlaysActivity;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 public class ActivityUtils {
-	public final static String KEY_TITLE = "TITLE";
-	public final static String KEY_GAME_ID = "GAME_ID";
-	public final static String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_TITLE = "TITLE";
+	public static final String KEY_GAME_ID = "GAME_ID";
+	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_COLLECTION_ID = "COLLECTION_ID";
 	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
-	public final static String KEY_IMAGE_URL = "IMAGE_URL";
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
+	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
-	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
-	public final static String KEY_SORT = "SORT";
+	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
+	public static final String KEY_SORT = "SORT";
 	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_USER = "USER";
 	public static final String KEY_USERNAME = "USERNAME";
 	public static final String KEY_FORUM_ID = "FORUM_ID";
@@ -76,59 +88,78 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void startBuddyActivity(Context context, String buddyName) {
-		context.startActivity(createBuddyIntent(context, buddyName));
+	public static void startBuddyActivity(Context context, String username, String playerName) {
+		context.startActivity(createBuddyIntent(context, username, playerName));
 	}
 
 	public static void navigateUpToBuddy(Context context, String buddyName) {
-		Intent intent = createBuddyIntent(context, buddyName);
+		navigateUpToBuddy(context, buddyName, null);
+	}
+
+	public static void navigateUpToBuddy(Context context, String buddyName, String playerName) {
+		Intent intent = createBuddyIntent(context, buddyName, playerName);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
 	}
 
-	private static Intent createBuddyIntent(Context context, String buddyName) {
+	private static Intent createBuddyIntent(Context context, String username, String playerName) {
 		Intent intent = new Intent(context, BuddyActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
+		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		return intent;
 	}
 
-	public static void share(Context context, String subject, String text, int titleResId) {
-		Intent intent = new Intent(Intent.ACTION_SEND);
-		intent.setType("text/plain");
-		intent.putExtra(Intent.EXTRA_SUBJECT, subject.trim());
-		intent.putExtra(Intent.EXTRA_TEXT, text.trim());
-		context.startActivity(Intent.createChooser(intent, context.getResources().getString(titleResId)));
+	public static void startPlayerPlaysActivity(Context context, String name, String username) {
+		Intent intent = new Intent(context, PlayerPlaysActivity.class);
+		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_NAME, name);
+		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_USERNAME, username);
+		context.startActivity(intent);
 	}
 
-	public static void shareGame(Context context, int gameId, String gameName) {
-		Resources r = context.getResources();
+	@NonNull
+	public static Intent createLocationIntent(Context context, String locationName) {
+		Intent intent = new Intent(context, LocationActivity.class);
+		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, locationName);
+		return intent;
+	}
+
+	public static void share(Activity activity, String subject, String text, @StringRes int titleResId) {
+		Intent intent = ShareCompat.IntentBuilder.from(activity)
+			.setType("text/plain")
+			.setSubject(subject.trim())
+			.setText(text.trim())
+			.setChooserTitle(titleResId)
+			.createChooserIntent();
+		activity.startActivity(intent);
+	}
+
+	public static void shareGame(Activity activity, int gameId, String gameName) {
+		Resources r = activity.getResources();
 		String subject = String.format(r.getString(R.string.share_game_subject), gameName);
 		String text = r.getString(R.string.share_game_text) + "\n\n" + formatGameLink(gameId, gameName);
-		share(context, subject, text, R.string.title_share_game);
+		share(activity, subject, text, R.string.title_share_game);
 	}
 
-	public static void shareGames(Context context, List<Pair<Integer, String>> games) {
-		Resources r = context.getResources();
+	public static void shareGames(Activity activity, List<Pair<Integer, String>> games) {
+		Resources r = activity.getResources();
 		StringBuilder text = new StringBuilder(r.getString(R.string.share_games_text));
 		text.append("\n").append("\n");
 		for (Pair<Integer, String> game : games) {
 			text.append(formatGameLink(game.first, game.second));
 		}
-		share(context, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
+		share(activity, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
 	}
 
 	private static String formatGameLink(int id, String name) {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
-	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-										 String imageUrl) {
+	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName,
-										  String thumbnailUrl, String imageUrl) {
+	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
 		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
@@ -138,21 +169,18 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-								String imageUrl) {
+	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-							   String imageUrl) {
+	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-							   String imageUrl) {
+	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createRematchIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
@@ -163,15 +191,13 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl,
-							   boolean customPlayerSort) {
+	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
 		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
-	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
-											  String thumbnailUrl, String imageUrl) {
+	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
@@ -179,6 +205,16 @@ public class ActivityUtils {
 		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(LogPlayActivity.KEY_IMAGE_URL, imageUrl);
 		return intent;
+	}
+
+	public static void startImageActivity(Context context, String imageUrl) {
+		if (TextUtils.isEmpty(imageUrl)) {
+			Timber.w("Missing the required image URL.");
+			return;
+		}
+		Intent intent = new Intent(context, ImageActivity.class);
+		intent.putExtra(KEY_IMAGE_URL, imageUrl);
+		context.startActivity(intent);
 	}
 
 	public static void logQuickPlay(Context context, int gameId, String gameName) {

@@ -1,81 +1,101 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.MathUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class GeekRatingFilterer extends CollectionFilterer {
-	public static final double MIN_RANGE = 0.0;
+	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 10.0;
 
-	private static final String delimiter = ":";
+	private double min;
+	private double max;
+	private boolean includeUnrated;
 
-	private double mMin;
-	private double mMax;
-
-	public GeekRatingFilterer() {
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
+	public GeekRatingFilterer(Context context) {
+		super(context);
 	}
 
-	public GeekRatingFilterer(Context context, double min, double max) {
-		mMin = min;
-		mMax = max;
-		init(context);
-	}
-
-	public GeekRatingFilterer(Context context, String data) {
-		String[] d = data.split(delimiter);
-		mMin = Double.valueOf(d[0]);
-		mMax = Double.valueOf(d[1]);
-		init(context);
+	public GeekRatingFilterer(@NonNull Context context, double min, double max, boolean includeUnrated) {
+		super(context);
+		this.min = min;
+		this.max = max;
+		this.includeUnrated = includeUnrated;
 	}
 
 	@Override
+	public void setData(@NonNull String data) {
+		String[] d = data.split(DELIMITER);
+		min = d.length > 0 ? MathUtils.constrain(StringUtils.parseDouble(d[0], MIN_RANGE), MIN_RANGE, MAX_RANGE) : MIN_RANGE;
+		max = d.length > 1 ? MathUtils.constrain(StringUtils.parseDouble(d[1], MAX_RANGE), MIN_RANGE, MAX_RANGE) : MAX_RANGE;
+		includeUnrated = d.length > 2 ? (d[2].equals("1")) : (Double.valueOf(d[0]) < 1.0);
+	}
+
+	@Override
+	public int getTypeResourceId() {
+		return R.string.collection_filter_type_geek_rating;
+	}
+
+	@NonNull
+	@Override
 	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax);
+		return String.valueOf(min) + DELIMITER + String.valueOf(max) + DELIMITER + (includeUnrated ? "1" : "0");
 	}
 
 	public double getMax() {
-		return mMax;
+		return max;
 	}
 
 	public double getMin() {
-		return mMin;
+		return min;
 	}
 
-	private void init(Context context) {
-		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
-		setDisplayText(context.getResources());
-		setSelection();
+	public boolean includeUnrated() {
+		return includeUnrated;
 	}
 
-	private void setDisplayText(Resources r) {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
+	@Override
+	public String getDisplayText() {
+		String minText = String.valueOf(min);
+		String maxText = String.valueOf(max);
 
 		String text;
-		if (mMin == mMax) {
-			text = maxValue;
+		if (min == max) {
+			text = maxText;
 		} else {
-			text = minValue + "-" + maxValue;
+			text = minText + "-" + maxText;
 		}
-		displayText(r.getString(R.string.rating) + " " + text);
+		if (includeUnrated) {
+			text += " (+" + context.getString(R.string.unrated) + ")";
+		}
+
+		return context.getString(R.string.rating) + " " + text;
 	}
 
-	private void setSelection() {
-		String minValue = String.valueOf(mMin);
-		String maxValue = String.valueOf(mMax);
-
+	@Override
+	public String getSelection() {
 		String selection;
-		if (mMin == mMax) {
+		if (min == max) {
 			selection = Games.STATS_BAYES_AVERAGE + "=?";
-			selectionArgs(minValue);
 		} else {
 			selection = "(" + Games.STATS_BAYES_AVERAGE + ">=? AND " + Games.STATS_BAYES_AVERAGE + "<=?)";
-			selectionArgs(minValue, maxValue);
 		}
-		selection(selection);
+		if (includeUnrated) {
+			selection += " OR " + Games.STATS_BAYES_AVERAGE + "=0 OR " + Games.STATS_BAYES_AVERAGE + " IS NULL";
+		}
+		return selection;
+	}
+
+	@Override
+	public String[] getSelectionArgs() {
+		if (min == max) {
+			return new String[] { String.valueOf(min) };
+		} else {
+			return new String[] { String.valueOf(min), String.valueOf(max) };
+		}
 	}
 }

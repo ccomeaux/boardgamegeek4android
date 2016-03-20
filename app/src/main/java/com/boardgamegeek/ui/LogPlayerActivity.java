@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
@@ -21,6 +22,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -39,8 +41,6 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
-import com.melnykov.fab.FloatingActionButton;
-import com.melnykov.fab.ObservableScrollView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +75,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	private Player mPlayer;
 	private Player mOriginalPlayer;
 
-	@InjectView(R.id.scroll_container) ObservableScrollView mScrollContainer;
+	@InjectView(R.id.scroll_container) ScrollView mScrollContainer;
 	@InjectView(R.id.header) TextView mHeader;
 	@InjectView(R.id.two_line_container) View mTwoLineContainer;
 	@InjectView(R.id.header2) TextView mHeader2;
@@ -165,7 +165,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 		setContentView(R.layout.activity_logplayer);
 		ButterKnife.inject(this);
-		mFab.attachToScrollView(mScrollContainer);
+
 		mName.setOnItemClickListener(nameClickListener());
 
 		ToolbarUtils.setDoneCancelActionBarView(this, mActionBarListener);
@@ -263,7 +263,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@OnClick(R.id.color_view)
 	public void onColorClick(View v) {
 		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, 4);
+			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, null, 4);
 
 		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override

@@ -7,7 +7,7 @@ import java.util.List;
 import retrofit.RetrofitError;
 
 public abstract class Data<T> {
-	private String mErrorMessage;
+	private String errorMessage;
 
 	public Data() {
 	}
@@ -16,26 +16,27 @@ public abstract class Data<T> {
 		if (e instanceof RetrofitError) {
 			RetrofitError re = (RetrofitError) e;
 			if (re.getKind() == RetrofitError.Kind.NETWORK && re.getResponse() == null) {
-				mErrorMessage = getOfflineMessage();
+				errorMessage = getOfflineMessage();
 			} else {
-				mErrorMessage = re.getMessage();
+				errorMessage = re.getMessage();
 			}
 		} else {
-			mErrorMessage = e.getMessage();
+			errorMessage = e.getMessage();
 		}
 	}
 
 	protected String getOfflineMessage() {
+		//TODO: externalize
 		return "Looks like you're offline.";
 	}
 
 	protected abstract List<T> list();
 
 	public boolean hasError() {
-		return !TextUtils.isEmpty(mErrorMessage);
+		return !TextUtils.isEmpty(errorMessage);
 	}
 
 	public String getErrorMessage() {
-		return mErrorMessage;
+		return errorMessage;
 	}
 }

@@ -1,11 +1,10 @@
 package com.boardgamegeek.service;
 
-import java.util.List;
-
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
@@ -16,6 +15,8 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
+import java.util.List;
+
 import timber.log.Timber;
 
 /**
@@ -23,25 +24,29 @@ import timber.log.Timber;
  */
 public class SyncGamesRemove extends SyncTask {
 	private static final int HOURS_OLD = 72;
-	private static final String STATUS_PLAYED = "played";
 
 	public SyncGamesRemove(Context context, BggService service) {
 		super(context, service);
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD;
+	}
+
+	@Override
+	public void execute(Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Removing games not in the collection...");
 		try {
 			long hoursAgo = DateTimeUtils.hoursAgo(HOURS_OLD);
 
-			String date = DateUtils.formatDateTime(mContext, hoursAgo, DateUtils.FORMAT_SHOW_DATE
+			String date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE
 				| DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME);
 			Timber.i("...not viewed since " + date);
 
-			ContentResolver resolver = mContext.getContentResolver();
+			ContentResolver resolver = context.getContentResolver();
 			String selection = "collection." + Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + "<?";
-			if (PreferencesUtils.isSyncStatus(mContext, STATUS_PLAYED)) {
+			if (PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
 				selection += " AND games." + Games.NUM_PLAYS + "=0";
 			}
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, selection,

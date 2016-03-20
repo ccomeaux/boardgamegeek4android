@@ -1,5 +1,9 @@
 package com.boardgamegeek.auth;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.util.Date;
@@ -15,9 +19,9 @@ public class AuthResponse {
 	public long sessionIdExpiry;
 
 	private AuthResponse() {
-		//noop
 	}
 
+	@NonNull
 	public static AuthResponse getMock() {
 		AuthResponse authResponse = new AuthResponse();
 		authResponse.authToken = "password";
@@ -27,45 +31,48 @@ public class AuthResponse {
 		return authResponse;
 	}
 
-	public static AuthResponse fromCookieStore(CookieStore cookieStore) {
-		if (cookieStore == null) {
-			Timber.w("missing cookies");
-			return null;
-		}
-		List<HttpCookie> cookies = cookieStore.getCookies();
-		if (cookies == null || cookies.isEmpty()) {
+	@Nullable
+	public static AuthResponse fromCookieStore(@Nullable CookieStore cookieStore) {
+		if (cookieStore == null || cookieStore.getCookies() == null || cookieStore.getCookies().isEmpty()) {
 			Timber.w("missing cookies");
 			return null;
 		}
 
-		boolean isValid = false;
-		AuthResponse authResponse = new AuthResponse();
-		for (HttpCookie cookie : cookies) {
-			String name = cookie.getName();
-			if (name.equals("bggpassword")) {
-				authResponse.authToken = cookie.getValue();
-				authResponse.authTokenExpiry = getExpiryTime(cookie);
-				isValid = true;
-			} else if (name.equals("SessionID")) {
-				authResponse.sessionId = cookie.getValue();
-				authResponse.sessionIdExpiry = getExpiryTime(cookie);
-			}
-		}
-		if (isValid) {
+		AuthResponse authResponse = createAuthResponse(cookieStore.getCookies());
+		if (authResponse.isValid()) {
 			return authResponse;
 		} else {
 			return null;
 		}
 	}
 
-	private static long getExpiryTime(HttpCookie cookie) {
-		long seconds = cookie.getMaxAge();
-		return System.currentTimeMillis() + seconds * 1000;
+	@NonNull
+	private static AuthResponse createAuthResponse(List<HttpCookie> cookies) {
+		AuthResponse authResponse = new AuthResponse();
+		for (HttpCookie cookie : cookies) {
+			String name = cookie.getName();
+			if (name.equals("bggpassword")) {
+				authResponse.authToken = cookie.getValue();
+				authResponse.authTokenExpiry = getExpiryTime(cookie);
+			} else if (name.equals("SessionID")) {
+				authResponse.sessionId = cookie.getValue();
+				authResponse.sessionIdExpiry = getExpiryTime(cookie);
+			}
+		}
+		return authResponse;
 	}
 
+	private boolean isValid() {
+		return !TextUtils.isEmpty(authToken);
+	}
+
+	private static long getExpiryTime(@NonNull HttpCookie cookie) {
+		return System.currentTimeMillis() + cookie.getMaxAge() * 1000;
+	}
+
+	@NonNull
 	@Override
 	public String toString() {
-		return "token: " + authToken + " (" + new Date(authTokenExpiry) + ")" +
-			"; session: " + sessionIdExpiry + " (" + new Date(sessionIdExpiry) + ")";
+		return String.format("token: %s (%s); session: %s (%s)", authToken, new Date(authTokenExpiry), sessionIdExpiry, new Date(sessionIdExpiry));
 	}
 }

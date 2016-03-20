@@ -37,24 +37,32 @@ import butterknife.InjectView;
 public class GeekListFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<GeekListFragment.GeekListData> {
 	private static final int LOADER_ID = 99103;
-	private int mGeekListId;
-	private String mGeekListTitle;
-	private GeekListAdapter mGeekListAdapter;
-	private View mHeader;
-	@SuppressWarnings("unused") @InjectView(R.id.username) TextView mUsernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.description) TextView mDescription;
-	@SuppressWarnings("unused") @InjectView(R.id.items) TextView mItemsView;
-	@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView mThumbsView;
-	@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView mPostDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView mEditDateView;
+	private int geekListId;
+	private String geekListTitle;
+	private GeekListAdapter adapter;
+	private View headerView;
+	private Header header;
+
+	public static class Header {
+		@SuppressWarnings("unused") @InjectView(R.id.username) TextView username;
+		@SuppressWarnings("unused") @InjectView(R.id.description) TextView description;
+		@SuppressWarnings("unused") @InjectView(R.id.items) TextView items;
+		@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView thumbs;
+		@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView postDate;
+		@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView editDate;
+
+		public Header(View view) {
+			ButterKnife.inject(this, view);
+		}
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGeekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		mGeekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
+		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
 	}
 
 	@Override
@@ -66,9 +74,9 @@ public class GeekListFragment extends BggListFragment implements
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		mHeader = View.inflate(getActivity(), R.layout.header_geeklist, null);
-		getListView().addHeaderView(mHeader);
-		ButterKnife.inject(this, mHeader);
+		headerView = View.inflate(getActivity(), R.layout.header_geeklist, null);
+		getListView().addHeaderView(headerView);
+		header = new Header(headerView);
 	}
 
 	@Override
@@ -82,16 +90,16 @@ public class GeekListFragment extends BggListFragment implements
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
 		if (position == 0) {
 			Intent intent = new Intent(getActivity(), GeekListDescriptionActivity.class);
-			intent.putExtra(ActivityUtils.KEY_ID, mGeekListId);
-			intent.putExtra(ActivityUtils.KEY_TITLE, mGeekListTitle);
-			intent.putExtra(ActivityUtils.KEY_GEEKLIST, (Parcelable) mHeader.getTag());
+			intent.putExtra(ActivityUtils.KEY_ID, geekListId);
+			intent.putExtra(ActivityUtils.KEY_TITLE, geekListTitle);
+			intent.putExtra(ActivityUtils.KEY_GEEKLIST, (Parcelable) headerView.getTag());
 			startActivity(intent);
 		} else {
 			ViewHolder holder = (ViewHolder) convertView.getTag();
 			if (holder != null && holder.objectId != BggContract.INVALID_ID) {
 				Intent intent = new Intent(getActivity(), GeekListItemActivity.class);
-				intent.putExtra(ActivityUtils.KEY_ID, mGeekListId);
-				intent.putExtra(ActivityUtils.KEY_TITLE, mGeekListTitle);
+				intent.putExtra(ActivityUtils.KEY_ID, geekListId);
+				intent.putExtra(ActivityUtils.KEY_TITLE, geekListTitle);
 				intent.putExtra(ActivityUtils.KEY_ORDER, holder.order.getText().toString());
 				intent.putExtra(ActivityUtils.KEY_NAME, holder.name.getText().toString());
 				intent.putExtra(ActivityUtils.KEY_TYPE, holder.type.getText().toString());
@@ -111,7 +119,7 @@ public class GeekListFragment extends BggListFragment implements
 
 	@Override
 	public Loader<GeekListData> onCreateLoader(int id, Bundle data) {
-		return new GeekListLoader(getActivity(), mGeekListId);
+		return new GeekListLoader(getActivity(), geekListId);
 	}
 
 	@Override
@@ -120,9 +128,9 @@ public class GeekListFragment extends BggListFragment implements
 			return;
 		}
 
-		if (mGeekListAdapter == null) {
-			mGeekListAdapter = new GeekListAdapter(getActivity(), data.list());
-			setListAdapter(mGeekListAdapter);
+		if (adapter == null) {
+			adapter = new GeekListAdapter(getActivity(), data.list());
+			setListAdapter(adapter);
 			bindHeader(data);
 		}
 		initializeTimeBasedUi();
@@ -142,16 +150,16 @@ public class GeekListFragment extends BggListFragment implements
 	private void bindHeader(GeekListData data) {
 		GeekList geekList = data.getGeekList();
 		if (geekList != null) {
-			mHeader.setTag(geekList);
-			mUsernameView.setText(getString(R.string.by_prefix, geekList.getUsername()));
+			headerView.setTag(geekList);
+			header.username.setText(getString(R.string.by_prefix, geekList.getUsername()));
 			if (!TextUtils.isEmpty(geekList.getDescription())) {
-				mDescription.setVisibility(View.VISIBLE);
-				mDescription.setText(geekList.getDescription());
+				header.description.setVisibility(View.VISIBLE);
+				header.description.setText(geekList.getDescription());
 			}
-			mItemsView.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
-			mThumbsView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
-			mPostDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getPostDate())));
-			mEditDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getEditDate())));
+			header.items.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
+			header.thumbs.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
+			header.postDate.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getPostDate())));
+			header.editDate.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getEditDate())));
 		}
 	}
 
@@ -161,26 +169,26 @@ public class GeekListFragment extends BggListFragment implements
 
 	@Override
 	protected void updateTimeBasedUi() {
-		if (mGeekListAdapter != null) {
-			mGeekListAdapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
 	private static class GeekListLoader extends BggLoader<GeekListData> {
-		private final BggService mService;
-		private final int mGeekListId;
+		private final BggService service;
+		private final int geekListId;
 
 		public GeekListLoader(Context context, int geekListId) {
 			super(context);
-			mService = Adapter.create();
-			mGeekListId = geekListId;
+			service = Adapter.create();
+			this.geekListId = geekListId;
 		}
 
 		@Override
 		public GeekListData loadInBackground() {
 			GeekListData geeklistData;
 			try {
-				geeklistData = new GeekListData(mService.geekList(mGeekListId));
+				geeklistData = new GeekListData(service.geekList(geekListId));
 			} catch (Exception e) {
 				geeklistData = new GeekListData(e);
 			}
@@ -189,11 +197,11 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	static class GeekListData extends Data<GeekListItem> {
-		private GeekList mGeekList;
+		private GeekList geekList;
 
 		public GeekListData(GeekList geeklist) {
 			super();
-			mGeekList = geeklist;
+			geekList = geeklist;
 		}
 
 		public GeekListData(Exception e) {
@@ -202,30 +210,30 @@ public class GeekListFragment extends BggListFragment implements
 
 		@Override
 		protected List<GeekListItem> list() {
-			if (mGeekList == null || mGeekList.getItems() == null) {
+			if (geekList == null || geekList.getItems() == null) {
 				return new ArrayList<>();
 			}
-			return mGeekList.getItems();
+			return geekList.getItems();
 		}
 
 		public GeekList getGeekList() {
-			return mGeekList;
+			return geekList;
 		}
 	}
 
 	public class GeekListAdapter extends ArrayAdapter<GeekListItem> {
-		private final LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		public GeekListAdapter(Activity activity, List<GeekListItem> items) {
 			super(activity, R.layout.row_geeklist_item, items);
-			mInflater = activity.getLayoutInflater();
+			inflater = activity.getLayoutInflater();
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_geeklist_item, parent, false);
+				convertView = inflater.inflate(R.layout.row_geeklist_item, parent, false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {

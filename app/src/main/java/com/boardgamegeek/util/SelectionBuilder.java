@@ -20,12 +20,12 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +37,7 @@ import timber.log.Timber;
  */
 public class SelectionBuilder {
 	private String mTable = null;
-	private final Map<String, String> mProjectionMap = new HashMap<>();
+	private final Map<String, String> mProjectionMap = new ArrayMap<>();
 	private final StringBuilder mSelection = new StringBuilder();
 	private final List<String> mSelectionArgs = new ArrayList<>();
 	private final List<String> mGroupBy = new ArrayList<>();
@@ -129,7 +129,7 @@ public class SelectionBuilder {
 	}
 
 	private void assertHaving() {
-		if (!TextUtils.isEmpty(mHaving) && (mGroupBy == null || mGroupBy.size() == 0)) {
+		if (!TextUtils.isEmpty(mHaving) && (mGroupBy.size() == 0)) {
 			throw new IllegalStateException("Group by must be specified for Having clause");
 		}
 	}
@@ -190,7 +190,7 @@ public class SelectionBuilder {
 	}
 
 	public String getGroupByClause() {
-		if (mGroupBy == null || mGroupBy.size() == 0) {
+		if (mGroupBy.size() == 0) {
 			return "";
 		}
 		StringBuilder clause = new StringBuilder();

@@ -1,70 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/swipe_refresh"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="@android:color/white" >
+	android:layout_height="match_parent">
 
-	<LinearLayout
-		android:id="@+id/progressContainer"
+	<FrameLayout
+		android:id="@+id/frame_container"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:gravity="center"
-		android:orientation="vertical"
-		android:visibility="gone" >
+		android:background="@android:color/white">
 
-		<ProgressBar
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
-	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/listContainer"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical"
-		android:visibility="gone" >
-
-		<FrameLayout
-			android:id="@+id/list_content"
+		<LinearLayout
+			android:id="@+id/progressContainer"
 			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_weight="1" >
+			android:layout_height="match_parent"
+			android:gravity="center"
+			android:orientation="vertical"
+			android:visibility="gone">
 
-			<se.emilsjolander.stickylistheaders.StickyListHeadersListView
-				android:id="@android:id/list"
+			<ProgressBar
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/listContainer"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:visibility="gone">
+
+			<FrameLayout
+				android:id="@+id/list_content"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:cacheColorHint="@android:color/white"
-				android:drawSelectorOnTop="false"
-				android:fastScrollEnabled="true" />
+				android:layout_height="0dp"
+				android:layout_weight="1">
 
-			<TextView
-				android:id="@android:id/empty"
-				style="@style/Text"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:gravity="center"
-				android:paddingBottom="@dimen/material_margin_vertical"
-				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/material_margin_vertical"
-				android:text="@string/empty_collection" />
-		</FrameLayout>
+				<se.emilsjolander.stickylistheaders.StickyListHeadersListView
+					android:id="@android:id/list"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:cacheColorHint="@android:color/white"
+					android:drawSelectorOnTop="false"
+					android:fastScrollEnabled="true"/>
 
-		<HorizontalScrollView
-			android:id="@+id/filter_scroll_view"
+				<TextView
+					android:id="@android:id/empty"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:gravity="center"
+					android:paddingBottom="@dimen/material_margin_vertical"
+					android:paddingLeft="@dimen/material_margin_horizontal"
+					android:paddingRight="@dimen/material_margin_horizontal"
+					android:paddingTop="@dimen/material_margin_vertical"
+					android:text="@string/empty_collection"/>
+			</FrameLayout>
+
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/footer_container"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/primary_dark"
-			android:scrollbars="none" >
+			android:layout_gravity="bottom"
+			android:orientation="vertical">
 
-			<LinearLayout
-				android:id="@+id/filter_linear_layout"
-				android:layout_width="wrap_content"
+			<HorizontalScrollView
+				android:id="@+id/filter_scroll_view"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal" />
-		</HorizontalScrollView>
-	</LinearLayout>
+				android:background="@color/primary"
+				android:clipToPadding="false"
+				android:elevation="@dimen/material_elevation"
+				android:paddingLeft="@dimen/padding_standard"
+				android:paddingRight="@dimen/padding_standard"
+				android:paddingTop="@dimen/padding_half"
+				android:scrollbars="none">
 
-</FrameLayout>
+				<LinearLayout
+					android:id="@+id/filter_linear_layout"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"/>
+			</HorizontalScrollView>
+
+			<android.support.v7.widget.Toolbar
+				android:id="@+id/toolbar_footer"
+				style="@style/ActionBar">
+
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/row_count"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:singleLine="true"
+						android:textAppearance="@style/Text.ActionBar"
+						tools:text="42"/>
+
+					<TextView
+						android:id="@+id/sort_description"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:singleLine="true"
+						android:textAppearance="@style/Text.ActionBar.Small"
+						tools:text="by Name"/>
+
+				</LinearLayout>
+			</android.support.v7.widget.Toolbar>
+		</LinearLayout>
+
+		<View
+			android:id="@+id/fab"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:visibility="gone"/>
+	</FrameLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

@@ -29,16 +29,10 @@ public class PreferencesUtils {
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
+	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
+	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
 
 	private PreferencesUtils() {
-	}
-
-	public static boolean getExactSearch(Context context) {
-		return getBoolean(context, "exactSearch", true);
-	}
-
-	public static boolean getSkipResults(Context context) {
-		return getBoolean(context, "skipResults", true);
 	}
 
 	public static boolean showLogPlay(Context context) {
@@ -99,6 +93,18 @@ public class PreferencesUtils {
 
 	public static boolean showLogPlayerNew(Context context) {
 		return getBoolean(context, "logPlayerNew", !getBoolean(context, "logHideNew", true));
+	}
+
+	public static boolean logPlayStatsIncomplete(Context context) {
+		return getBoolean(context, "logPlayStatsIncomplete", false);
+	}
+
+	public static boolean logPlayStatsExpansions(Context context) {
+		return getBoolean(context, "logPlayStatsExpansions", false);
+	}
+
+	public static boolean logPlayStatsAccessories(Context context) {
+		return getBoolean(context, "logPlayStatsAccessories", false);
 	}
 
 	public static boolean showLogPlayerWin(Context context) {
@@ -272,10 +278,29 @@ public class PreferencesUtils {
 		return putString(context, KEY_LAST_PLAY_PLAYERS, sb.toString());
 	}
 
+	public static boolean hasSeenNavDrawer(Context context) {
+		return getBoolean(context, KEY_HAS_SEEN_NAV_DRAWER, false);
+	}
+
+	public static void sawNavDrawer(Context context) {
+		putBoolean(context, KEY_HAS_SEEN_NAV_DRAWER, true);
+	}
+
+	public static boolean getHapticFeedback(Context context) {
+		return getBoolean(context, KEY_HAPTIC_FEEDBACK, true);
+	}
+
 	private static boolean remove(Context context, String key) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
 		editor.remove(key);
+		return editor.commit();
+	}
+
+	private static boolean putBoolean(Context context, String key, boolean value) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putBoolean(key, value);
 		return editor.commit();
 	}
 

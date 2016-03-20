@@ -1,18 +1,15 @@
 package com.boardgamegeek.ui;
 
-import android.app.SearchManager;
+import android.support.annotation.MenuRes;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.UpdateErrorEvent;
 import com.boardgamegeek.service.SyncService;
 
@@ -20,18 +17,14 @@ import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 /**
- * Provide common menu functions.
- * 1. Search
- * 2. Cancel sync
- * 3. Toggling navigation drawer
- * 4. Inflation helper.
- * Also provides a sign out method.
+ * Registers/unregisters a sticky event bus, with a default error handler (toast)
+ * Provides common menu functions:
+ * 1. Cancel sync
+ * 2. Toggling navigation drawer
+ * 3. Inflation helper.
+ * Subtitle setter
  */
 public abstract class BaseActivity extends AppCompatActivity {
-	protected int getOptionsMenuId() {
-		return 0;
-	}
-
 	@DebugLog
 	@Override
 	protected void onStart() {
@@ -46,9 +39,15 @@ public abstract class BaseActivity extends AppCompatActivity {
 		super.onStop();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEventMainThread(UpdateErrorEvent event) {
-		Toast.makeText(this, event.message, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
+	}
+
+	@MenuRes
+	protected int getOptionsMenuId() {
+		return 0;
 	}
 
 	@DebugLog
@@ -59,7 +58,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 		menuInflater.inflate(R.menu.base, menu);
 		if (getOptionsMenuId() != 0) {
 			menuInflater.inflate(getOptionsMenuId(), menu);
-			setupSearchMenuItem(menu);
 		}
 		return true;
 	}
@@ -67,7 +65,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
+		final MenuItem item = menu.findItem(R.id.menu_cancel_sync);
+		if (item != null) {
+			item.setVisible(SyncService.isActiveOrPending(this));
+		}
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -95,22 +96,5 @@ public abstract class BaseActivity extends AppCompatActivity {
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@DebugLog
-	protected void signOut() {
-		Authenticator.signOut(this);
-	}
-
-	@DebugLog
-	private void setupSearchMenuItem(Menu menu) {
-		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null) {
-			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-			if (searchView != null) {
-				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-			}
-		}
 	}
 }

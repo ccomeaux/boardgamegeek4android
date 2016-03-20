@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -20,13 +21,19 @@ public class SyncBuddiesDetailOldest extends SyncBuddiesDetail {
 	}
 
 	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_BUDDIES;
+	}
+
+	@NonNull
+	@Override
 	protected String getLogMessage() {
 		return "Syncing oldest buddies...";
 	}
 
 	@Override
 	protected List<String> getBuddyNames() {
-		return ResolverUtils.queryStrings(mContext.getContentResolver(), BggContract.Buddies.CONTENT_URI,
+		return ResolverUtils.queryStrings(context.getContentResolver(), BggContract.Buddies.CONTENT_URI,
 			BggContract.Buddies.BUDDY_NAME, null, null,
 			BggContract.Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
 	}

@@ -1,25 +1,28 @@
 package com.boardgamegeek.sorter;
 
-import java.text.DecimalFormat;
-
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class CollectionNameSorter extends CollectionSorter {
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.00");
+import java.text.DecimalFormat;
 
-	public CollectionNameSorter(Context context) {
+public class CollectionNameSorter extends CollectionSorter {
+	@NonNull private final DecimalFormat displayFormat = new DecimalFormat("0.00");
+
+	public CollectionNameSorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = Collection.DEFAULT_SORT;
-		mDescriptionId = R.string.name;
+		orderByClause = Collection.DEFAULT_SORT;
+		descriptionId = R.string.collection_sort_collection_name;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_COLLECTION_NAME;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_collection_name;
 	}
 
 	@Override
@@ -27,13 +30,14 @@ public class CollectionNameSorter extends CollectionSorter {
 		return new String[] { Collection.COLLECTION_SORT_NAME, Collection.STATS_AVERAGE };
 	}
 
+	@NonNull
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		return getFirstChar(cursor, Collection.COLLECTION_SORT_NAME);
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
-		return getDoubleAsString(cursor, Collection.STATS_AVERAGE, "?", true, mDisplayFormat);
+	public String getDisplayInfo(@NonNull Cursor cursor) {
+		return getDoubleAsString(cursor, Collection.STATS_AVERAGE, "?", true, displayFormat);
 	}
 }

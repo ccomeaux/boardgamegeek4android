@@ -4,11 +4,11 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 
 public interface CollectionView {
 
-	public abstract void removeFilter(CollectionFilterer filter);
+	void removeFilter(int type);
 
-	public abstract void addFilter(CollectionFilterer filter);
+	void addFilter(CollectionFilterer filter);
 
-	public abstract void createView(long id, String name);
-	
-	public abstract void deleteView(long id);
+	void createView(long id, String name);
+
+	void deleteView(long id);
 }

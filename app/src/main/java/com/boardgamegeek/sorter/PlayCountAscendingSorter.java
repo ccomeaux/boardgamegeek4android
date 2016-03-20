@@ -1,19 +1,22 @@
 package com.boardgamegeek.sorter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class PlayCountAscendingSorter extends PlayCountSorter {
-	public PlayCountAscendingSorter(Context context) {
+	public PlayCountAscendingSorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.NUM_PLAYS, false);
-		mDescriptionId = R.string.menu_collection_sort_played_least;
+		orderByClause = getClause(Collection.NUM_PLAYS, false);
+		descriptionId = R.string.collection_sort_play_count_asc;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_PLAY_COUNT_ASC;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_play_count_asc;
 	}
 }

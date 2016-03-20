@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto" >
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_log_play"
@@ -20,7 +20,7 @@
 	<item
 		android:id="@+id/menu_link"
 		android:icon="@drawable/ic_action_web_site_light"
-		android:title="@string/menu_link_bgg"
+		android:title="@string/link_bgg"
 		app:showAsAction="ifRoom"/>
 
 </menu>

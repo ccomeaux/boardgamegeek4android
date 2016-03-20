@@ -14,12 +14,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.sorter.LocationsSorter;
-import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.events.LocationSelectedEvent;
 import com.boardgamegeek.events.LocationSortChangedEvent;
 import com.boardgamegeek.events.LocationsCountChangedEvent;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.sorter.LocationsSorter;
+import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.util.UIUtils;
 
@@ -38,20 +38,6 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@DebugLog
-	@Override
-	public void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
-
-	@DebugLog
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_locations));
@@ -67,7 +53,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	public void onEvent(LocationSelectedEvent event) {
-		mSelectedName = event.locationName;
+		mSelectedName = event.getLocationName();
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
@@ -75,7 +61,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	public void onEvent(LocationSortChangedEvent event) {
-		setSort(event.sortType);
+		setSort(event.getSortType());
 	}
 
 	@DebugLog
@@ -86,10 +72,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	@DebugLog
 	public void setSort(int sort) {
 		if (mSorter == null || mSorter.getType() != sort) {
-			mSorter = LocationsSorterFactory.create(sort, getActivity());
-			if (mSorter == null) {
-				mSorter = LocationsSorterFactory.create(LocationsSorterFactory.TYPE_DEFAULT, getActivity());
-			}
+			mSorter = LocationsSorterFactory.create(getActivity(), sort);
 			requery();
 		}
 	}
@@ -158,7 +141,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 				holder.name.setText(location.getName());
 			}
 			holder.quantity.setText(getResources()
-				.getQuantityString(R.plurals.plays, location.getPlayCount(), location.getPlayCount()));
+				.getQuantityString(R.plurals.plays_suffix, location.getPlayCount(), location.getPlayCount()));
 
 			view.setTag(R.id.name, location.getName());
 			UIUtils.setActivatedCompat(view, location.getName().equals(mSelectedName));

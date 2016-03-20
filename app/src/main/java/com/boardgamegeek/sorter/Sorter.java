@@ -3,42 +3,42 @@ package com.boardgamegeek.sorter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
-
-import com.boardgamegeek.R;
 
 import java.text.DecimalFormat;
 import java.util.Locale;
 
 public abstract class Sorter {
-	protected Context mContext;
-	protected String mOrderByClause;
-	protected int mDescriptionId;
-	private DecimalFormat mDoubleFormat = new DecimalFormat("#.0");
+	@NonNull protected final Context context;
+	protected String orderByClause;
+	protected int descriptionId;
+	private final DecimalFormat doubleFormat = new DecimalFormat("#.0");
 
-	public Sorter(Context context) {
-		mContext = context;
+	public Sorter(@NonNull Context context) {
+		this.context = context;
 	}
 
 	/**
-	 * Gets the description to display in the UI when this sort is applied. Subclasses should set mDescriptionId and
-	 * mSubDescriptionId to control this value.
+	 * Gets the description to display in the UI when this sort is applied. Subclasses should set descriptionId
+	 * to control this value.
 	 */
 	public String getDescription() {
-		return String.format(mContext.getString(R.string.sort_description),
-			mContext.getString(mDescriptionId));
+		return context.getString(descriptionId);
 	}
 
 	/**
 	 * Gets the sort order clause to use in the query.
 	 */
 	public String getOrderByClause() {
-		return mOrderByClause;
+		return orderByClause;
 	}
 
 	/**
 	 * Get the names of the columns to add to the select projection.
 	 */
+	@Nullable
 	public String[] getColumns() {
 		return null;
 	}
@@ -46,13 +46,15 @@ public abstract class Sorter {
 	/**
 	 * Get the text to display in the section header.
 	 */
-	public String getHeaderText(Cursor cursor, int position) {
+	public String getHeaderText(@Nullable Cursor cursor, int position) {
+		String text = "";
 		if (cursor == null || position < 0) {
-			return "";
+			return text;
 		}
 		int pos = cursor.getPosition();
-		cursor.moveToPosition(position);
-		String text = getHeaderText(cursor);
+		if (cursor.moveToPosition(position)) {
+			text = getHeaderText(cursor);
+		}
 		cursor.moveToPosition(pos);
 		return text;
 	}
@@ -64,13 +66,15 @@ public abstract class Sorter {
 		return "";
 	}
 
-	public long getHeaderId(Cursor cursor, int position) {
+	public long getHeaderId(@Nullable Cursor cursor, int position) {
+		long id = 0;
 		if (cursor == null || position < 0) {
-			return 0;
+			return id;
 		}
 		int pos = cursor.getPosition();
-		cursor.moveToPosition(position);
-		long id = getHeaderId(cursor);
+		if (cursor.moveToPosition(position)) {
+			id = getHeaderId(cursor);
+		}
 		cursor.moveToPosition(pos);
 		return id;
 	}
@@ -97,7 +101,7 @@ public abstract class Sorter {
 
 	protected abstract String getDefaultSort();
 
-	protected long getLong(Cursor cursor, String columnName) {
+	protected long getLong(@NonNull Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
 			return 0;
@@ -105,11 +109,11 @@ public abstract class Sorter {
 		return cursor.getLong(index);
 	}
 
-	protected int getInt(Cursor cursor, String columnName) {
+	protected int getInt(@NonNull Cursor cursor, String columnName) {
 		return getInt(cursor, columnName, 0);
 	}
 
-	protected int getInt(Cursor cursor, String columnName, int defaultValue) {
+	protected int getInt(@NonNull Cursor cursor, String columnName, int defaultValue) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;
@@ -117,11 +121,11 @@ public abstract class Sorter {
 		return cursor.getInt(index);
 	}
 
-	protected String getIntAsString(Cursor cursor, String columnName, String defaultValue) {
+	protected String getIntAsString(@NonNull Cursor cursor, String columnName, String defaultValue) {
 		return getIntAsString(cursor, columnName, defaultValue, false);
 	}
 
-	protected String getIntAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull) {
+	protected String getIntAsString(@NonNull Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;
@@ -135,12 +139,11 @@ public abstract class Sorter {
 		return String.valueOf(value);
 	}
 
-	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue) {
-		return getDoubleAsString(cursor, columnName, defaultValue, false, mDoubleFormat);
+	protected String getDoubleAsString(@NonNull Cursor cursor, String columnName, String defaultValue) {
+		return getDoubleAsString(cursor, columnName, defaultValue, false, doubleFormat);
 	}
 
-	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull,
-									   DecimalFormat format) {
+	protected String getDoubleAsString(@NonNull Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull, @Nullable DecimalFormat format) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;
@@ -152,22 +155,23 @@ public abstract class Sorter {
 		}
 
 		if (format == null) {
-			return mDoubleFormat.format(value);
+			return doubleFormat.format(value);
 		} else {
 			return format.format(value);
 		}
 	}
 
+	@NonNull
 	@SuppressLint("DefaultLocale")
-	protected String getFirstChar(Cursor cursor, String columnName) {
+	protected String getFirstChar(@NonNull Cursor cursor, String columnName) {
 		return getString(cursor, columnName, "-").substring(0, 1).toUpperCase(Locale.getDefault());
 	}
 
-	protected String getString(Cursor cursor, String columnName) {
+	protected String getString(@NonNull Cursor cursor, String columnName) {
 		return getString(cursor, columnName, null);
 	}
 
-	protected String getString(Cursor cursor, String columnName, String defaultValue) {
+	protected String getString(@NonNull Cursor cursor, String columnName, String defaultValue) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;

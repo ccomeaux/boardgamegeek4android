@@ -1,45 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<Preference
-		android:icon="@drawable/ic_action_search_light"
-		android:title="@string/pref_search" >
-		<intent
-			android:action="com.boardgamegeek.prefs.SEARCH"
-			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek" />
-	</Preference>
-	<Preference
 		android:icon="@drawable/ic_action_refresh_light"
-		android:title="@string/pref_sync" >
+		android:title="@string/pref_sync">
 		<intent
 			android:action="com.boardgamegeek.prefs.SYNC"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek" />
+			android:targetPackage="com.boardgamegeek"/>
 	</Preference>
 	<Preference
-		android:icon="@drawable/ic_action_calendar_light"
-		android:title="@string/pref_log" >
+		android:icon="@drawable/ic_action_today_light"
+		android:title="@string/pref_log">
 		<intent
 			android:action="com.boardgamegeek.prefs.LOG"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek" />
+			android:targetPackage="com.boardgamegeek"/>
 	</Preference>
 	<Preference
 		android:icon="@drawable/ic_action_alert_light"
-		android:title="@string/pref_advanced" >
+		android:title="@string/pref_advanced">
 		<intent
 			android:action="com.boardgamegeek.prefs.ADVANCED"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek" />
+			android:targetPackage="com.boardgamegeek"/>
 	</Preference>
 	<Preference
 		android:icon="@drawable/ic_action_info_light"
-		android:title="@string/pref_about" >
+		android:title="@string/pref_about">
 		<intent
 			android:action="com.boardgamegeek.prefs.ABOUT"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek" />
+			android:targetPackage="com.boardgamegeek"/>
 	</Preference>
 
 </PreferenceScreen>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
@@ -20,7 +21,10 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 		final Intent intent = getIntent();
 		mGeekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
 		mGeekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
-		getSupportActionBar().setTitle(mGeekListTitle);
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setTitle(mGeekListTitle);
+		}
 	}
 
 	@Override
@@ -30,7 +34,7 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_view_share;
+		return R.menu.view_share;
 	}
 
 	@Override

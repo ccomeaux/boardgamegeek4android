@@ -2,6 +2,7 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -29,6 +30,14 @@ public class CursorUtils {
 	 */
 	public static boolean getBoolean(Cursor cursor, String columnName, boolean defaultValue) {
 		int idx = cursor.getColumnIndex(columnName);
+		return getBoolean(cursor, idx, defaultValue);
+	}
+
+	public static boolean getBoolean(Cursor cursor, int idx) {
+		return getBoolean(cursor, idx, false);
+	}
+
+	public static boolean getBoolean(Cursor cursor, int idx, boolean defaultValue) {
 		if (idx == -1) {
 			return defaultValue;
 		} else {
@@ -94,21 +103,38 @@ public class CursorUtils {
 	}
 
 	/**
-	 * Gets a string from the specified column on the current row of the cursor. Returns an empty string if the column doesn't exist.
+	 * Gets a string from the specified column on the current row of the cursor. Returns an empty string if the column doesn't exist or is null.
 	 */
 	public static String getString(Cursor cursor, String columnName) {
 		return getString(cursor, columnName, "");
 	}
 
 	/**
-	 * Gets a string from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist.
+	 * Gets a string from the specified column on the current row of the cursor. Returns an empty string if the column doesn't exist or is null.
+	 */
+	public static String getString(Cursor cursor, int columnIndex) {
+		return getString(cursor, columnIndex, "");
+	}
+
+	/**
+	 * Gets a string from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist or is null.
 	 */
 	public static String getString(Cursor cursor, String columnName, String defaultValue) {
-		int idx = cursor.getColumnIndex(columnName);
-		if (idx == -1) {
+		return getString(cursor, cursor.getColumnIndex(columnName), defaultValue);
+	}
+
+	/**
+	 * Gets a string from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist or is null.
+	 */
+	public static String getString(Cursor cursor, int columnIndex, String defaultValue) {
+		if (columnIndex == -1) {
 			return defaultValue;
 		} else {
-			return cursor.getString(idx);
+			String value = cursor.getString(columnIndex);
+			if (value == null) {
+				return defaultValue;
+			}
+			return value;
 		}
 	}
 
@@ -128,6 +154,15 @@ public class CursorUtils {
 			cursor.moveToPosition(position);
 		}
 		return array;
+	}
+
+	public static long getDateInMillis(Cursor cursor, int columnIndex) {
+		String date = cursor.getString(columnIndex);
+		if (!TextUtils.isEmpty(date)) {
+			Calendar calendar = getCalendar(date);
+			return calendar.getTimeInMillis();
+		}
+		return 0;
 	}
 
 	/**
@@ -154,17 +189,23 @@ public class CursorUtils {
 		String date = cursor.getString(columnIndex);
 		if (!TextUtils.isEmpty(date)) {
 			try {
-				int year = Integer.parseInt(date.substring(0, 4));
-				int month = Integer.parseInt(date.substring(5, 7)) - 1;
-				int day = Integer.parseInt(date.substring(8, 10));
-				Calendar c = Calendar.getInstance();
-				c.set(year, month, day);
-				return DateUtils.formatDateTime(context, c.getTimeInMillis(), flags);
+				Calendar calendar = getCalendar(date);
+				return DateUtils.formatDateTime(context, calendar.getTimeInMillis(), flags);
 			} catch (Exception e) {
 				Timber.e(e, "Could find a date in here: " + date);
 			}
 		}
 		return "";
+	}
+
+	@NonNull
+	private static Calendar getCalendar(String date) {
+		int year = Integer.parseInt(date.substring(0, 4));
+		int month = Integer.parseInt(date.substring(5, 7)) - 1;
+		int day = Integer.parseInt(date.substring(8, 10));
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(year, month, day);
+		return calendar;
 	}
 
 	public static String getFirstCharacter(Cursor cursor, int position, String columnName, String defaultValue) {
@@ -179,8 +220,11 @@ public class CursorUtils {
 
 		int cur = cursor.getPosition();
 		try {
+			String value = null;
 			cursor.moveToPosition(position);
-			String value = cursor.getString(columnIndex);
+			if (columnIndex < cursor.getColumnCount()) {
+				value = cursor.getString(columnIndex);
+			}
 			if (TextUtils.isEmpty(value)) {
 				return defaultValue;
 			}

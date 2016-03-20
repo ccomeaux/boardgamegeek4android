@@ -16,6 +16,7 @@ apply plugin: 'com.github.ben-manes.versions'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
 }
 
 def getBranchName = { ->
@@ -28,15 +29,16 @@ def getBranchName = { ->
 }
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "com.boardgamegeek"
         minSdkVersion 9
-        targetSdkVersion 22
-        versionCode 50
-        versionName "5.1.1"
+        targetSdkVersion 23
+        versionCode 52
+        versionName "5.2"
+        buildConfigField "String", "BRANCH", "\"" + getBranchName() + "\""
     }
     buildTypes {
         release {
@@ -44,6 +46,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
+            // applicationIdSuffix ".debug"
             versionNameSuffix '-' + getBranchName()
         }
     }
@@ -55,28 +58,35 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:palette-v7:22.2.0'
-    compile 'com.android.support:cardview-v7:22.2.0'
-    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:cardview-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:palette-v7:23.2.1'
+    compile 'com.android.support:support-annotations:23.2.1'
+    compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile ('com.squareup.retrofit:converter-simplexml:1.9.0') {
+    compile('com.squareup.retrofit:converter-simplexml:1.9.0') {
         exclude group: 'stax', module: 'stax-api'
         exclude group: 'stax', module: 'stax'
         exclude group: 'xpp3', module: 'xpp3'
     }
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'se.emilsjolander:stickylistheaders:2.7.0'
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'com.jakewharton.timber:timber:3.1.0'
-    compile 'com.github.chrisbanes.photoview:library:1.2.3'
-    compile 'com.melnykov:floatingactionbutton:1.3.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.3.2@aar') {
+    compile 'com.github.chrisbanes.photoview:library:1.2.4'
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
     compile('com.mikepenz.aboutlibraries:library:4.5.9@aar') {
         transitive = true;
     }
     compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
+    compile 'com.github.lzyzsd.randomcolor:library:1.0.0'
+
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
 }

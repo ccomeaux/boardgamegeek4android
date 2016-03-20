@@ -29,11 +29,13 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
-			if (TextUtils.isEmpty(mGameName)) {
-				actionBar.setSubtitle(forumTitle);
-			} else {
-				actionBar.setTitle(forumTitle);
-				actionBar.setSubtitle(mGameName);
+			if (actionBar != null) {
+				if (TextUtils.isEmpty(mGameName)) {
+					actionBar.setSubtitle(forumTitle);
+				} else {
+					actionBar.setTitle(forumTitle);
+					actionBar.setSubtitle(mGameName);
+				}
 			}
 		}
 	}
@@ -45,7 +47,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_view;
+		return R.menu.view;
 	}
 
 	@Override

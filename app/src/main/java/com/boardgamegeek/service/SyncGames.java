@@ -3,55 +3,52 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RetryableException;
+import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.util.StringUtils;
-import com.crashlytics.android.Crashlytics;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 16;
-	private static final int MAX_RETRIES = 5;
-	private static final int RETRY_BACKOFF_IN_MS = 500;
-	private int mGamesPerFetch;
+	private int fetchSize;
 
 	public SyncGames(Context context, BggService service) {
 		super(context, service);
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
+	public void execute(Account account, @NonNull SyncResult syncResult) {
 		Timber.i(getIntroLogMessage());
 		try {
-			mGamesPerFetch = GAMES_PER_FETCH;
+			fetchSize = GAMES_PER_FETCH;
 			int numberOfFetches = 0;
 			do {
 				if (isCancelled()) {
 					break;
 				}
 				numberOfFetches++;
-				List<String> gameIds = getGameIds(mGamesPerFetch);
+				List<String> gameIds = getGameIds(fetchSize);
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
 					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
-					String detail = mGamesPerFetch + " games: " + gameIdDescription;
+					String detail = fetchSize + " games: " + gameIdDescription;
 					if (numberOfFetches > 1) {
 						detail += " (page " + numberOfFetches + ")";
 					}
 					showNotification(detail);
 
-					GamePersister persister = new GamePersister(mContext);
-					ThingResponse response = getThingResponse(mService, gameIds);
+					GamePersister persister = new GamePersister(context);
+					ThingResponse response = getThingResponse(bggService, gameIds);
 					final List<Game> games = response.getGames();
 					if (games != null && games.size() > 0) {
 						int count = persister.save(games, detail);
@@ -74,35 +71,19 @@ public abstract class SyncGames extends SyncTask {
 		return 1;
 	}
 
-	protected ThingResponse getThingResponse(BggService service, List<String> gameIds) {
-		int retries = 0;
+	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
 		while (true) {
 			try {
 				String ids = TextUtils.join(",", gameIds);
-				if (Fabric.isInitialized()) {
-					Crashlytics.setString("GAME_IDS", ids);
-				}
-				return service.thing(ids, 1);
+				return new ThingRequest(service, ids).execute();
 			} catch (Exception e) {
 				if (e.getCause() instanceof SocketTimeoutException) {
-					if (mGamesPerFetch == 1) {
+					if (fetchSize == 1) {
 						Timber.i("...timeout with only 1 game; aborting.");
 						break;
 					}
-					mGamesPerFetch = mGamesPerFetch / 2;
-					Timber.i("...timeout - reducing games per fetch to " + mGamesPerFetch);
-				} else if (e.getCause() instanceof RetryableException) {
-					retries++;
-					if (retries > MAX_RETRIES) {
-						break;
-					}
-					try {
-						Timber.i("...retrying #" + retries);
-						Thread.sleep(retries * retries * RETRY_BACKOFF_IN_MS);
-					} catch (InterruptedException e1) {
-						Timber.i("Interrupted while sleeping before retry " + retries);
-						break;
-					}
+					fetchSize = fetchSize / 2;
+					Timber.i("...timeout - reducing games per fetch to " + fetchSize);
 				} else {
 					throw e;
 				}
@@ -111,8 +92,10 @@ public abstract class SyncGames extends SyncTask {
 		return new ThingResponse();
 	}
 
+	@NonNull
 	protected abstract String getIntroLogMessage();
 
+	@NonNull
 	protected abstract String getExitLogMessage();
 
 	protected abstract List<String> getGameIds(int gamesPerFetch);

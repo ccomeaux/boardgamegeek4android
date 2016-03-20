@@ -59,12 +59,18 @@ public class PlaysPlayersProvider extends BaseProvider {
 					.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS)
 					.groupBy(PlayPlayers.COLOR);
 				break;
-			default:
+			case BggContract.QUERY_VALUE_PLAY:
 				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
 					.mapToTable(Plays._ID, Tables.PLAYS)
 					.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 					.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS)
 					.groupBy(Plays.PLAY_ID);
+				break;
+			default:
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
+					.mapToTable(PlayPlayers._ID, Tables.PLAY_PLAYERS)
+					.mapToTable(PlayPlayers.PLAY_ID, Tables.PLAY_PLAYERS)
+					.mapToTable(PlayPlayers.NAME, Tables.PLAY_PLAYERS);
 				break;
 		}
 		builder

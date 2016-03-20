@@ -1,64 +1,44 @@
 package com.boardgamegeek.filterer;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
-public class CollectionFilterer implements Parcelable {
-	private int type;
-	private String displayText;
-	private String selection;
-	private String[] selectionArgs = {};
-	private String path;
+import com.boardgamegeek.util.StringUtils;
 
-	public CollectionFilterer() {
+public abstract class CollectionFilterer {
+	protected static final String DELIMITER = ":";
+	protected Context context;
+
+	public CollectionFilterer(@NonNull Context context) {
+		this.context = context;
 	}
 
-	public CollectionFilterer(int type) {
-		this.type = type;
-	}
+	public abstract void setData(@NonNull String data);
 
-	public void setType(int type) {
-		this.type = type;
-	}
+	@StringRes
+	public abstract int getTypeResourceId();
 
 	public int getType() {
-		return type;
+		return StringUtils.parseInt(context.getString(getTypeResourceId(), CollectionFiltererFactory.TYPE_UNKNOWN));
 	}
 
-	public String getDisplayText() {
-		return displayText;
-	}
+	public abstract String getDisplayText();
 
-	public String getSelection() {
-		return selection;
-	}
+	public abstract String getSelection();
 
-	public String[] getSelectionArgs() {
-		return selectionArgs;
-	}
+	public abstract String[] getSelectionArgs();
 
-	public CollectionFilterer displayText(String displayText) {
-		this.displayText = displayText;
-		return this;
-	}
-
-	public CollectionFilterer selection(String selection) {
-		this.selection = selection;
-		return this;
-	}
-
-	public CollectionFilterer selectionArgs(String... selectionArgs) {
-		this.selectionArgs = selectionArgs;
-		return this;
-	}
+	public abstract String flatten();
 
 	public boolean isValid() {
-		return !TextUtils.isEmpty(displayText) && (!TextUtils.isEmpty(selection) || !TextUtils.isEmpty(path));
+		return !TextUtils.isEmpty(getDisplayText()) && !TextUtils.isEmpty(getSelection());
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (o == null || !(o instanceof CollectionFilterer)) {
 			return false;
 		}
@@ -69,39 +49,5 @@ public class CollectionFilterer implements Parcelable {
 	@Override
 	public int hashCode() {
 		return this.getType();
-	}
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeInt(type);
-		out.writeString(displayText);
-		out.writeString(selection);
-		out.writeStringArray(selectionArgs);
-	}
-
-	public static final Parcelable.Creator<CollectionFilterer> CREATOR = new Parcelable.Creator<CollectionFilterer>() {
-		public CollectionFilterer createFromParcel(Parcel in) {
-			return new CollectionFilterer(in);
-		}
-
-		public CollectionFilterer[] newArray(int size) {
-			return new CollectionFilterer[size];
-		}
-	};
-
-	private CollectionFilterer(Parcel in) {
-		type = in.readInt();
-		displayText = in.readString();
-		selection = in.readString();
-		selectionArgs = in.createStringArray();
-	}
-
-	public String flatten() {
-		return "";
 	}
 }

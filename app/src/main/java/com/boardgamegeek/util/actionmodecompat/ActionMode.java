@@ -20,7 +20,6 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ListView;
 
 import com.boardgamegeek.util.VersionUtils;
@@ -80,7 +79,6 @@ public abstract class ActionMode {
 	 *
 	 * @param title Title string to set
 	 * @see #setTitle(int)
-	 * @see #setCustomView(View)
 	 */
 	public abstract void setTitle(CharSequence title);
 
@@ -90,7 +88,6 @@ public abstract class ActionMode {
 	 *
 	 * @param resId Resource ID of a string to set as the title
 	 * @see #setTitle(CharSequence)
-	 * @see #setCustomView(View)
 	 */
 	public abstract void setTitle(int resId);
 
@@ -127,7 +124,6 @@ public abstract class ActionMode {
 	 * present an action mode UI that requires focus, such as an EditText as a custom view.
 	 *
 	 * @return true if the UI used to show this action mode can take focus
-	 * @hide Internal use only
 	 */
 	public boolean isUiFocusable() {
 		return true;
@@ -136,7 +132,7 @@ public abstract class ActionMode {
 
 	/**
 	 * Callback interface for action modes. Supplied to
-	 * {@link View#startActionMode(Callback)}, a Callback
+	 * View.startActionMode(Callback), a Callback
 	 * configures and handles events raised by a user's interaction with an action mode.
 	 * <p/>
 	 * <p>An action mode's lifecycle is as follows:
@@ -161,7 +157,7 @@ public abstract class ActionMode {
 		 * @return true if the action mode should be created, false if entering this
 		 * mode should be aborted.
 		 */
-		public boolean onCreateActionMode(ActionMode mode, Menu menu);
+		boolean onCreateActionMode(ActionMode mode, Menu menu);
 
 		/**
 		 * Called to refresh an action mode's action menu whenever it is invalidated.
@@ -170,7 +166,7 @@ public abstract class ActionMode {
 		 * @param menu Menu used to populate action buttons
 		 * @return true if the menu or action mode was updated, false otherwise.
 		 */
-		public boolean onPrepareActionMode(ActionMode mode, Menu menu);
+		boolean onPrepareActionMode(ActionMode mode, Menu menu);
 
 		/**
 		 * Called to report a user click on an action button.
@@ -180,13 +176,13 @@ public abstract class ActionMode {
 		 * @return true if this callback handled the event, false if the standard MenuItem
 		 * invocation should continue.
 		 */
-		public boolean onActionItemClicked(ActionMode mode, MenuItem item);
+		boolean onActionItemClicked(ActionMode mode, MenuItem item);
 
 		/**
 		 * Called when an action mode is about to be exited and destroyed.
 		 *
 		 * @param mode The current ActionMode being destroyed
 		 */
-		public void onDestroyActionMode(ActionMode mode);
+		void onDestroyActionMode(ActionMode mode);
 	}
 }

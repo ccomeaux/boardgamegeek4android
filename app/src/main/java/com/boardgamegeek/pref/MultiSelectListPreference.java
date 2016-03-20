@@ -40,16 +40,13 @@ import java.util.Set;
  * <p/>
  * This preference will store a set of strings into the SharedPreferences. This set will contain one or more values from
  * the {@link #setEntryValues(CharSequence[])} array.
- *
- * @attr ref android.R.styleable#MultiSelectListPreference_entries
- * @attr ref android.R.styleable#MultiSelectListPreference_entryValues
  */
 public class MultiSelectListPreference extends DialogPreference {
 	private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
 	private CharSequence[] mEntries;
 	private CharSequence[] mEntryValues;
-	private Set<String> mValues = new HashSet<>();
-	private Set<String> mNewValues = new HashSet<>();
+	private final Set<String> mValues = new HashSet<>();
+	private final Set<String> mNewValues = new HashSet<>();
 	private boolean mPreferenceChanged;
 
 	public MultiSelectListPreference(Context context, AttributeSet attrs) {

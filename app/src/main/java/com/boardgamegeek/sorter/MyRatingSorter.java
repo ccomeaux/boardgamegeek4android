@@ -1,26 +1,29 @@
 package com.boardgamegeek.sorter;
 
-import java.text.DecimalFormat;
-
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
+import java.text.DecimalFormat;
+
 public class MyRatingSorter extends CollectionSorter {
 	private static final String DEFAULT_VALUE = "?";
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.0");
+	private final DecimalFormat displayFormat = new DecimalFormat("0.0");
 
-	public MyRatingSorter(Context context) {
+	public MyRatingSorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = getClause(Collection.RATING, true);
-        mDescriptionId = R.string.menu_collection_sort_myrating;
+		orderByClause = getClause(Collection.RATING, true);
+		descriptionId = R.string.collection_sort_my_rating;
 	}
 
+	@StringRes
 	@Override
-	public int getType() {
-		return CollectionSorterFactory.TYPE_MY_RATING;
+	public int getTypeResource() {
+		return R.string.collection_sort_type_my_rating;
 	}
 
 	@Override
@@ -29,16 +32,16 @@ public class MyRatingSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		return getInfo(cursor, null);
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
-		return getInfo(cursor, mDisplayFormat);
+	public String getDisplayInfo(@NonNull Cursor cursor) {
+		return getInfo(cursor, displayFormat);
 	}
 
-	private String getInfo(Cursor cursor, DecimalFormat format) {
+	private String getInfo(@NonNull Cursor cursor, DecimalFormat format) {
 		return getDoubleAsString(cursor, Collection.RATING, DEFAULT_VALUE, true, format);
 	}
 }

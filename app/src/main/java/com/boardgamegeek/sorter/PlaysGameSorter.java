@@ -2,16 +2,16 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 
 public class PlaysGameSorter extends PlaysSorter {
-
-	public PlaysGameSorter(Context context) {
+	public PlaysGameSorter(@NonNull Context context) {
 		super(context);
-		mOrderByClause = getClause("play_items." + PlayItems.NAME, false);
-		mDescriptionId = R.string.menu_plays_sort_game;
+		orderByClause = getClause("play_items." + PlayItems.NAME, false);
+		descriptionId = R.string.menu_plays_sort_game;
 	}
 
 	@Override
@@ -25,12 +25,12 @@ public class PlaysGameSorter extends PlaysSorter {
 	}
 
 	@Override
-	public String getHeaderText(Cursor cursor) {
+	public String getHeaderText(@NonNull Cursor cursor) {
 		return getString(cursor, PlayItems.NAME);
 	}
 
 	@Override
-	public long getHeaderId(Cursor cursor) {
+	public long getHeaderId(@NonNull Cursor cursor) {
 		return getLong(cursor, PlayItems.OBJECT_ID);
 	}
 }

@@ -3,6 +3,7 @@ package com.boardgamegeek.auth;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 
 public class AccountUtils {
 	private static final String KEY_PREFIX = "account_";
@@ -25,14 +26,17 @@ public class AccountUtils {
 		setString(context, avatarUrl, KEY_AVATAR_URL);
 	}
 
+	@Nullable
 	public static String getUsername(final Context context) {
 		return getString(context, KEY_USERNAME);
 	}
 
+	@Nullable
 	public static String getFullName(final Context context) {
 		return getString(context, KEY_FULL_NAME);
 	}
 
+	@Nullable
 	public static String getAvatarUrl(final Context context) {
 		return getString(context, KEY_AVATAR_URL);
 	}
@@ -42,6 +46,7 @@ public class AccountUtils {
 		sp.edit().putString(key, value).apply();
 	}
 
+	@Nullable
 	private static String getString(Context context, String key) {
 		SharedPreferences sp = getSharedPreferences(context);
 		return sp.getString(key, null);

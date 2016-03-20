@@ -27,6 +27,7 @@ import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.Data;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
@@ -163,15 +164,7 @@ public class HotnessFragment extends BggListFragment implements
 			HotGame game = getItem(position);
 			if (game != null) {
 				holder.name.setText(game.name);
-				String yearText;
-				if (game.yearPublished > 0) {
-					yearText = getString(R.string.year_positive, game.yearPublished);
-				} else if (game.yearPublished == 0) {
-					yearText = getString(R.string.year_zero, game.yearPublished);
-				} else {
-					yearText = getString(R.string.year_negative, -game.yearPublished);
-				}
-				holder.year.setText(yearText);
+				holder.year.setText(PresentationUtils.describeYear(getActivity(), game.yearPublished));
 				holder.rank.setText(String.valueOf(game.rank));
 				loadThumbnail(game.thumbnailUrl, holder.thumbnail);
 			}

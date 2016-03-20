@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Button xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/Text.Footnote"
+<Button
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:layout_margin="@dimen/padding_small"
-	android:background="@drawable/button_filter_normal"
+	android:background="@color/primary_dark"
+	android:elevation="@dimen/material_elevation_subtle"
 	android:longClickable="true"
-	android:minHeight="24dp" />
+	android:minHeight="24dp"
+	android:paddingBottom="@dimen/padding_half"
+	android:paddingLeft="@dimen/padding_standard"
+	android:paddingRight="@dimen/padding_standard"
+	android:paddingTop="@dimen/padding_half"
+	android:textAppearance="@style/Text.FilterButton"
+	tools:text="Wishlist"/>

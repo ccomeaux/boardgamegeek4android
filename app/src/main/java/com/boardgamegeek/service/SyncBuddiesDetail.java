@@ -3,9 +3,10 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RetryableException;
+import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -17,24 +18,22 @@ import java.util.List;
 import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
-	private static final int MAX_RETRIES = 4;
-	private static final int RETRY_BACKOFF_IN_MS = 5000;
-	private BuddyPersister mPersister;
+	private BuddyPersister persister;
 
 	public SyncBuddiesDetail(Context context, BggService service) {
 		super(context, service);
 	}
 
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
+	public void execute(Account account, @NonNull SyncResult syncResult) {
 		Timber.i(getLogMessage());
 		try {
-			if (!PreferencesUtils.getSyncBuddies(mContext)) {
+			if (!PreferencesUtils.getSyncBuddies(context)) {
 				Timber.i("...buddies not set to sync");
 				return;
 			}
 
-			mPersister = new BuddyPersister(mContext);
+			persister = new BuddyPersister(context);
 			int count = 0;
 			List<String> names = getBuddyNames();
 			Timber.i("...found " + names.size() + " buddies to update");
@@ -46,7 +45,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						Timber.i("...canceled while syncing buddies");
 						break;
 					}
-					User user = getUser(mService, name);
+					User user = new UserRequest(bggService, name).execute();
 					if (user != null) {
 						buddies.add(user);
 					}
@@ -68,44 +67,17 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
-	private int save(SyncResult syncResult, List<User> buddies) {
-		int count = mPersister.save(buddies);
+	private int save(@NonNull SyncResult syncResult, @NonNull List<User> buddies) {
+		int count = persister.save(buddies);
 		Timber.i("...saved " + buddies.size() + " buddies");
 		syncResult.stats.numUpdates += buddies.size();
 		return count;
 	}
 
-	protected User getUser(BggService service, String name) {
-		Timber.i("...syncing username=" + name);
-		int retries = 0;
-		while (true) {
-			try {
-				return service.user(name);
-			} catch (Exception e) {
-				if (e.getCause() instanceof RetryableException) {
-					retries++;
-					if (retries > MAX_RETRIES) {
-						Timber.i("...giving up - too many retries");
-						break;
-					}
-					try {
-						long time = retries * retries * RETRY_BACKOFF_IN_MS;
-						Timber.i("...retry #" + retries + " in " + time / 1000 + "s");
-						Thread.sleep(time);
-					} catch (InterruptedException e1) {
-						Timber.i("Interrupted while sleeping before retry " + retries);
-						break;
-					}
-				} else {
-					Timber.e(e, "Syncing buddy " + name);
-					throw e;
-				}
-			}
-		}
-
-		return null;
-	}
-
+	/**
+	 * Returns a log message to use for debugging purposes.
+	 */
+	@NonNull
 	protected abstract String getLogMessage();
 
 	protected abstract List<String> getBuddyNames();

@@ -4,17 +4,24 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
+import android.os.Handler;
+import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.PluralsRes;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -26,10 +33,12 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.SearchResult;
+import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.Data;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -38,75 +47,54 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class SearchResultsFragment extends BggListFragment implements
-	LoaderManager.LoaderCallbacks<SearchResultsFragment.SearchData>, MultiChoiceModeListener {
+public class SearchResultsFragment extends BggListFragment implements LoaderCallbacks<SearchData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 0;
+	private static final int MESSAGE_QUERY_UPDATE = 1;
+	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
+	private static final String KEY_SEARCH_TEXT = "SEARCH_TEXT";
+	private static final String KEY_SEARCH_EXACT = "SEARCH_EXACT";
 
-	private String mSearchText;
-	private SearchResultsAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
-	private MenuItem mLogPlayMenuItem;
-	private MenuItem mLogPlayQuickMenuItem;
-	private MenuItem mBggLinkMenuItem;
+	private String previousSearchText;
+	private boolean previousShouldSearchExact;
+	private SearchResultsAdapter searchResultsAdapter;
+	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
+	private MenuItem logPlayMenuItem;
+	private MenuItem logPlayQuickMenuItem;
+	private MenuItem bggLinkMenuItem;
+	private Snackbar snackbar;
 
-	public interface Callbacks {
-		public void onResultCount(int count);
-
-		public void onExactMatch();
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
+	private final Handler requeryHandler = new Handler() {
 		@Override
-		public void onResultCount(int count) {
-		}
-
-		@Override
-		public void onExactMatch() {
+		public void handleMessage(Message msg) {
+			if (msg.what == MESSAGE_QUERY_UPDATE) {
+				@SuppressWarnings("unchecked") Pair<String, Boolean> pair = (Pair<String, Boolean>) msg.obj;
+				requery(pair.first, pair.second);
+			}
 		}
 	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mSearchText = intent.getStringExtra(SearchManager.QUERY);
-	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		setEmptyText(getString(R.string.empty_search));
+		setEmptyText(getString(R.string.search_initial_help));
 		getListView().setOnCreateContextMenuListener(this);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(LOADER_ID, null, this);
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
+		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		restartLoader(intent.getStringExtra(SearchManager.QUERY), true);
 	}
 
 	@Override
 	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean padBottomForSnackBar() {
 		return true;
 	}
 
@@ -117,42 +105,76 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	@Override
 	public Loader<SearchData> onCreateLoader(int id, Bundle data) {
-		return new SearchLoader(getActivity(), mSearchText);
+		return new SearchLoader(getActivity(),
+			data.getString(KEY_SEARCH_TEXT),
+			data.getBoolean(KEY_SEARCH_EXACT, true));
 	}
 
 	@Override
 	public void onLoadFinished(Loader<SearchData> loader, SearchData data) {
+		setProgressShown(false);
+
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (data != null && data.count() == 1 && PreferencesUtils.getSkipResults(getActivity())) {
-			SearchResult game = data.list().get(0);
-			ActivityUtils.launchGame(getActivity(), game.id, game.name);
-			mCallbacks.onExactMatch();
-			return;
+		int count = data == null ? 0 : data.count();
+		final String searchText = data == null ? "" : data.getSearchText();
+		boolean isExactMatch = data != null && data.isExactMatch;
+
+		if (data != null) {
+			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.list());
+			setListAdapter(searchResultsAdapter);
+		} else if (searchResultsAdapter != null) {
+			searchResultsAdapter.clear();
 		}
 
-		if (mAdapter == null && data != null) {
-			mAdapter = new SearchResultsAdapter(getActivity(), data.list());
-			setListAdapter(mAdapter);
-		}
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
-		}
-
-		if (data == null) {
-			setEmptyText(getString(R.string.empty_search));
-		} else if (data.hasError()) {
+		if (data != null && data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
-			if (isResumed()) {
-				setListShown(true);
+			if (TextUtils.isEmpty(searchText)) {
+				setEmptyText(getString(R.string.search_initial_help));
 			} else {
-				setListShownNoAnimation(true);
+				setEmptyText(getString(R.string.empty_search));
 			}
-			restoreScrollState();
-			mCallbacks.onResultCount(data.count());
+		}
+
+		if (isResumed()) {
+			setListShown(true);
+		} else {
+			setListShownNoAnimation(true);
+		}
+
+		restoreScrollState();
+
+		if (TextUtils.isEmpty(searchText)) {
+			if (snackbar != null) {
+				snackbar.dismiss();
+			}
+		} else {
+			@PluralsRes final int messageId = isExactMatch ? R.plurals.search_results_exact : R.plurals.search_results;
+			if (snackbar == null || !snackbar.isShown()) {
+				snackbar = Snackbar.make(getListContainer(),
+					getResources().getQuantityString(messageId, count, count, searchText),
+					Snackbar.LENGTH_INDEFINITE);
+				snackbar.getView().setBackgroundResource(R.color.primary_dark);
+				snackbar.setActionTextColor(getResources().getColor(R.color.inverse_text));
+			} else {
+				snackbar.setText(getResources().getQuantityString(messageId, count, count, searchText));
+			}
+			if (isExactMatch) {
+				snackbar.setAction(R.string.more, new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
+						setProgressShown(true);
+						requery(searchText, false);
+					}
+				});
+			} else {
+				snackbar.setAction("", null);
+			}
+			snackbar.show();
 		}
 	}
 
@@ -160,84 +182,138 @@ public class SearchResultsFragment extends BggListFragment implements
 	public void onLoaderReset(Loader<SearchData> results) {
 	}
 
+	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		SearchResult game = mAdapter.getItem(position);
+		SearchResult game = searchResultsAdapter.getItem(position);
 		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
-	private static class SearchLoader extends BggLoader<SearchData> {
-		private BggService mService;
-		private String mQuery;
+	public void requestQueryUpdate(String query) {
+		setProgressShown(true);
+		if (TextUtils.isEmpty(query)) {
+			requery(query, true);
+		} else {
+			requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
+			requeryHandler.sendMessageDelayed(Message.obtain(requeryHandler, MESSAGE_QUERY_UPDATE, new Pair<>(query, true)), QUERY_UPDATE_DELAY_MILLIS);
+		}
+	}
 
-		public SearchLoader(Context context, String query) {
+	public void forceQueryUpdate(String query) {
+		requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
+		setProgressShown(true);
+		requery(query, true);
+	}
+
+	private void requery(@Nullable String query, boolean shouldSearchExact) {
+		if (!isAdded()) {
+			return;
+		}
+		if (query == null && previousSearchText == null) {
+			return;
+		}
+		if (previousSearchText != null && previousSearchText.equals(query) && shouldSearchExact == previousShouldSearchExact) {
+			return;
+		}
+		restartLoader(query, shouldSearchExact);
+	}
+
+	private void restartLoader(String query, boolean shouldSearchExact) {
+		previousSearchText = query;
+		previousShouldSearchExact = shouldSearchExact;
+		Bundle args = new Bundle();
+		args.putString(KEY_SEARCH_TEXT, query);
+		args.putBoolean(KEY_SEARCH_EXACT, shouldSearchExact);
+		getLoaderManager().restartLoader(LOADER_ID, args, SearchResultsFragment.this);
+	}
+
+	private static class SearchLoader extends BggLoader<SearchData> {
+		private final BggService bggService;
+		private final String searchText;
+		private final boolean shouldSearchExact;
+
+		public SearchLoader(Context context, String searchText, boolean shouldSearchExact) {
 			super(context);
-			mService = Adapter.create();
-			mQuery = query;
+			bggService = Adapter.create();
+			this.searchText = searchText;
+			this.shouldSearchExact = shouldSearchExact;
 		}
 
 		@Override
 		public SearchData loadInBackground() {
+			if (TextUtils.isEmpty(searchText)) {
+				return null;
+			}
 			SearchData games = null;
-			try {
-				if (PreferencesUtils.getExactSearch(getContext())) {
-					games = new SearchData(mService.search(mQuery, BggService.SEARCH_TYPE_BOARD_GAME, 1));
+			if (shouldSearchExact) {
+				try {
+					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
+				} catch (Exception e) {
+					// we'll try it again below
 				}
-			} catch (Exception e) {
-				// we'll try it again below
 			}
 			try {
 				if (games == null || games.count() == 0) {
-					games = new SearchData(mService.search(mQuery, BggService.SEARCH_TYPE_BOARD_GAME, 0));
+					games = new SearchData(searchText, false, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0));
 				}
 			} catch (Exception e) {
-				games = new SearchData(e);
+				games = new SearchData(searchText, e);
 			}
 			return games;
 		}
 	}
 
 	static class SearchData extends Data<SearchResult> {
-		private SearchResponse mResponse;
+		private final String searchText;
+		private final boolean isExactMatch;
+		private SearchResponse response;
 
-		public SearchData(SearchResponse response) {
-			mResponse = response;
+		public SearchData(String searchText, boolean isExactMatch, SearchResponse response) {
+			this.searchText = searchText;
+			this.isExactMatch = isExactMatch;
+			this.response = response;
 		}
 
-		public SearchData(Exception e) {
+		public SearchData(String searchText, Exception e) {
 			super(e);
+			this.searchText = searchText;
+			this.isExactMatch = false;
+		}
+
+		public String getSearchText() {
+			return searchText;
 		}
 
 		public int count() {
-			if (mResponse == null) {
+			if (response == null) {
 				return 0;
 			}
-			return mResponse.total;
+			return response.total;
 		}
 
 		@Override
 		public List<SearchResult> list() {
-			if (mResponse == null || mResponse.games == null) {
+			if (response == null || response.games == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.games;
+			return response.games;
 		}
 	}
 
 	public static class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
-		private LayoutInflater mInflater;
-		private Resources mResources;
+		@NonNull private final LayoutInflater layoutInflater;
+		@NonNull private final String gameIdFormat;
 
-		public SearchResultsAdapter(Activity activity, List<SearchResult> results) {
+		public SearchResultsAdapter(@NonNull Activity activity, @NonNull List<SearchResult> results) {
 			super(activity, R.layout.row_search, results);
-			mInflater = activity.getLayoutInflater();
-			mResources = activity.getResources();
+			layoutInflater = activity.getLayoutInflater();
+			gameIdFormat = activity.getResources().getString(R.string.id_list_text);
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_search, parent, false);
+				convertView = layoutInflater.inflate(R.layout.row_search, parent, false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
@@ -264,17 +340,8 @@ public class SearchResultsFragment extends BggListFragment implements
 						break;
 				}
 				holder.name.setTypeface(holder.name.getTypeface(), style);
-				int year = game.getYearPublished();
-				String yearText;
-				if (year > 0) {
-					yearText = mResources.getString(R.string.year_positive, year);
-				} else if (year == 0) {
-					yearText = mResources.getString(R.string.year_zero, year);
-				} else {
-					yearText = mResources.getString(R.string.year_negative, -year);
-				}
-				holder.year.setText(yearText);
-				holder.gameId.setText(String.format(mResources.getString(R.string.id_list_text), game.id));
+				holder.year.setText(PresentationUtils.describeYear(getContext(), game.getYearPublished()));
+				holder.gameId.setText(String.format(gameIdFormat, game.id));
 			}
 
 			return convertView;
@@ -282,11 +349,11 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	static class ViewHolder {
-		TextView name;
-		TextView year;
-		TextView gameId;
+		@NonNull final TextView name;
+		@NonNull final TextView year;
+		@NonNull final TextView gameId;
 
-		public ViewHolder(View view) {
+		public ViewHolder(@NonNull View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 			gameId = (TextView) view.findViewById(R.id.gameId);
@@ -297,10 +364,10 @@ public class SearchResultsFragment extends BggListFragment implements
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
-		mLogPlayMenuItem = menu.findItem(R.id.menu_log_play);
-		mLogPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
-		mBggLinkMenuItem = menu.findItem(R.id.menu_link);
-		mSelectedPositions.clear();
+		logPlayMenuItem = menu.findItem(R.id.menu_log_play);
+		logPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
+		bggLinkMenuItem = menu.findItem(R.id.menu_link);
+		selectedPositions.clear();
 		return true;
 	}
 
@@ -316,25 +383,25 @@ public class SearchResultsFragment extends BggListFragment implements
 	@Override
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 		if (checked) {
-			mSelectedPositions.add(position);
+			selectedPositions.add(position);
 		} else {
-			mSelectedPositions.remove(position);
+			selectedPositions.remove(position);
 		}
 
-		int count = mSelectedPositions.size();
+		int count = selectedPositions.size();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 
-		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		mLogPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
-		mBggLinkMenuItem.setVisible(count == 1);
+		logPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		logPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		bggLinkMenuItem.setVisible(count == 1);
 	}
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+		if (!selectedPositions.iterator().hasNext()) {
 			return false;
 		}
-		SearchResult game = mAdapter.getItem(mSelectedPositions.iterator().next());
+		SearchResult game = searchResultsAdapter.getItem(selectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -342,21 +409,21 @@ public class SearchResultsFragment extends BggListFragment implements
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, selectedPositions.size());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-				for (int position : mSelectedPositions) {
-					SearchResult g = mAdapter.getItem(position);
+				for (int position : selectedPositions) {
+					SearchResult g = searchResultsAdapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
-				if (mSelectedPositions.size() == 1) {
+				if (selectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
-					for (int position : mSelectedPositions) {
-						SearchResult g = mAdapter.getItem(position);
+					List<Pair<Integer, String>> games = new ArrayList<>(selectedPositions.size());
+					for (int position : selectedPositions) {
+						SearchResult g = searchResultsAdapter.getItem(position);
 						games.add(new Pair<>(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);

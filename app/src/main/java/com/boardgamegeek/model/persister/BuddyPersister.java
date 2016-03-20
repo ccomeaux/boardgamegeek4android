@@ -20,16 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BuddyPersister {
-	private Context mContext;
-	private long mUpdateTime;
+	private final Context context;
+	private final long updateTime;
 
 	public BuddyPersister(Context context) {
-		mContext = context;
-		mUpdateTime = System.currentTimeMillis();
+		this.context = context;
+		updateTime = System.currentTimeMillis();
 	}
 
 	public long getTimestamp() {
-		return mUpdateTime;
+		return updateTime;
 	}
 
 	public int save(User buddy) {
@@ -39,14 +39,14 @@ public class BuddyPersister {
 	}
 
 	public int save(List<User> buddies) {
-		ContentResolver resolver = mContext.getContentResolver();
+		ContentResolver resolver = context.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		StringBuilder debugMessage = new StringBuilder();
 		if (buddies != null) {
 			for (User buddy : buddies) {
 				Uri uri = Buddies.buildBuddyUri(buddy.name);
 				ContentValues values = new ContentValues();
-				values.put(Buddies.UPDATED, mUpdateTime);
+				values.put(Buddies.UPDATED, updateTime);
 				int oldSyncHashCode = ResolverUtils.queryInt(resolver, uri, Buddies.SYNC_HASH_CODE);
 				int newSyncHashCode = generateSyncHashCode(buddy);
 				if (oldSyncHashCode != newSyncHashCode) {
@@ -57,11 +57,11 @@ public class BuddyPersister {
 					values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
 					values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
 				}
-				debugMessage.append("Updating " + uri + "; ");
+				debugMessage.append("Updating ").append(uri).append("; ");
 				addToBatch(resolver, values, batch, uri, debugMessage);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage.toString());
+		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch, debugMessage.toString());
 		if (result == null) {
 			return 0;
 		} else {
@@ -76,7 +76,7 @@ public class BuddyPersister {
 	}
 
 	public int saveList(List<Buddy> buddies) {
-		ContentResolver resolver = mContext.getContentResolver();
+		ContentResolver resolver = context.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		StringBuilder debugMessage = new StringBuilder();
 		if (buddies != null) {
@@ -87,7 +87,7 @@ public class BuddyPersister {
 				}
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage.toString());
+		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch, debugMessage.toString());
 		if (result == null) {
 			return 0;
 		} else {
@@ -97,11 +97,11 @@ public class BuddyPersister {
 
 	private void addToBatch(ContentResolver resolver, ContentValues values, ArrayList<ContentProviderOperation> batch, Uri uri, StringBuilder debugMessage) {
 		if (!ResolverUtils.rowExists(resolver, uri)) {
-			debugMessage.append("Inserting " + uri + "; ");
-			values.put(Buddies.UPDATED_LIST, mUpdateTime);
+			debugMessage.append("Inserting ").append(uri).append("; ");
+			values.put(Buddies.UPDATED_LIST, updateTime);
 			batch.add(ContentProviderOperation.newInsert(Buddies.CONTENT_URI).withValues(values).build());
 		} else {
-			debugMessage.append("Updating " + uri + "; ");
+			debugMessage.append("Updating ").append(uri).append("; ");
 			maybeDeleteAvatar(values, uri, resolver);
 			values.remove(Buddies.BUDDY_NAME);
 			batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
@@ -112,7 +112,7 @@ public class BuddyPersister {
 		ContentValues values = new ContentValues();
 		values.put(Buddies.BUDDY_ID, buddy.getId());
 		values.put(Buddies.BUDDY_NAME, buddy.name);
-		values.put(Buddies.UPDATED_LIST, mUpdateTime);
+		values.put(Buddies.UPDATED_LIST, updateTime);
 		// we assume only actually "buddies" call this (other users call above)
 		values.put(Buddies.BUDDY_FLAG, 1);
 		return values;

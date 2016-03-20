@@ -14,18 +14,20 @@ import com.boardgamegeek.util.ActivityUtils;
 import hugo.weaving.DebugLog;
 
 public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
-	private String mBuddyName;
+	private String buddyName;
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mBuddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 
-		if (!TextUtils.isEmpty(mBuddyName)) {
+		if (!TextUtils.isEmpty(buddyName)) {
 			ActionBar bar = getSupportActionBar();
-			bar.setSubtitle(mBuddyName);
+			if (bar != null) {
+				bar.setSubtitle(buddyName);
+			}
 		}
 	}
 
@@ -40,19 +42,23 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, mBuddyName);
+				ActivityUtils.navigateUpToBuddy(this, buddyName);
 				finish();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(CollectionStatusChangedEvent event) {
 		String text = getString(R.string.title_collection);
-		if (!TextUtils.isEmpty(event.description)) {
-			text += " - " + event.description;
+		if (!TextUtils.isEmpty(event.getDescription())) {
+			text += " - " + event.getDescription();
 		}
-		getSupportActionBar().setTitle(text);
+		ActionBar bar = getSupportActionBar();
+		if (bar != null) {
+			bar.setSubtitle(text);
+		}
 	}
 }

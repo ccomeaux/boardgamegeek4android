@@ -1,9 +1,11 @@
 package com.boardgamegeek.model;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Locale;
+import android.text.TextUtils;
+
+import com.boardgamegeek.model.Game.Rank;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -12,18 +14,16 @@ import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
-import android.text.TextUtils;
-
-import com.boardgamegeek.model.Game.Rank;
-import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.StringUtils;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
 
 @Root(name = "item")
 public class CollectionItem {
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
-	private long mLastModifiedDate = DateTimeUtils.UNPARSED_DATE;
+	private long lastModifiedDate = DateTimeUtils.UNPARSED_DATE;
 
 	public static class Statistics {
 		@Attribute(required = false) public int minplayers;
@@ -139,7 +139,8 @@ public class CollectionItem {
 		return StringUtils.parseInt(quantity, 1);
 	}
 
-	@Path("privateinfo") @Attribute(name = "acquisitiondate", required = false) public String acquisitionDate; // "2000-12-08"
+	@Path("privateinfo") @Attribute(name = "acquisitiondate", required = false)
+	public String acquisitionDate; // "2000-12-08"
 
 	@Path("privateinfo") @Attribute(name = "acquiredfrom", required = false) public String acquiredFrom;
 
@@ -184,7 +185,13 @@ public class CollectionItem {
 	}
 
 	public long lastModifiedDate() {
-		mLastModifiedDate = DateTimeUtils.tryParseDate(mLastModifiedDate, lastmodified, FORMAT);
-		return mLastModifiedDate;
+		lastModifiedDate = DateTimeUtils.tryParseDate(lastModifiedDate, lastmodified, FORMAT);
+		return lastModifiedDate;
+	}
+
+	private long ratingDirtyTimestamp;
+
+	public long getRatingDirtyTimestamp() {
+		return ratingDirtyTimestamp;
 	}
 }

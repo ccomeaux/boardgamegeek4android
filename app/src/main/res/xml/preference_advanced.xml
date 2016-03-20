@@ -13,13 +13,10 @@
 		android:summaryOff="@string/pref_advanced_debug_inserts_off"
 		android:summaryOn="@string/pref_advanced_debug_inserts_on"
 		android:title="@string/pref_advanced_debug_inserts"/>
-	<com.boardgamegeek.pref.ExportDialogPreference
-		android:dialogMessage="@string/pref_advanced_export_message"
-		android:summary="@string/pref_advanced_export_summary"
-		android:title="@string/pref_advanced_export"/>
-	<com.boardgamegeek.pref.ImportDialogPreference
-		android:dialogMessage="@string/pref_advanced_import_message"
-		android:summary="@string/pref_advanced_import_summary"
-		android:title="@string/pref_advanced_import"/>
+	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="haptic_feedback"
+		android:title="@string/pref_advanced_haptic_feedback"
+		android:summary="@string/pref_advanced_haptic_feedback_summary"/>
 
 </PreferenceScreen>

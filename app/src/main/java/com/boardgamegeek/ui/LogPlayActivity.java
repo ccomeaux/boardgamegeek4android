@@ -13,13 +13,15 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.internal.view.menu.MenuBuilder;
-import android.support.v7.internal.view.menu.MenuBuilder.Callback;
-import android.support.v7.internal.view.menu.MenuPopupHelper;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuBuilder.Callback;
+import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -50,10 +52,10 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
-import com.boardgamegeek.ui.dialog.ScoreDialogFragment;
+import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -64,7 +66,6 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.melnykov.fab.FloatingActionButton;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 
@@ -431,21 +432,22 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	public void onEventMainThread(ColorAssignmentCompleteEvent event) {
-		if (event.success) {
+		EventBus.getDefault().removeStickyEvent(event);
+		if (event.isSuccessful()) {
 			bindUiPlayers();
 		}
-		EventBus.getDefault().removeStickyEvent(event);
+		if (event.getMessageId() != 0) {
+			Snackbar.make(mPlayerList, event.getMessageId(), Snackbar.LENGTH_LONG).show();
+		}
 	}
 
 	@DebugLog
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
-		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_logplay, null), null, false);
+		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
 
 		ButterKnife.inject(this);
-
-		mFab.attachToListView(mPlayerList);
 
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
@@ -908,7 +910,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			cursor = getContentResolver().query(Plays.buildPlayersByUniqueNameUri(),
 				new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
 					PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				String username = cursor.getString(1);
 				String name = cursor.getString(2);
 				if (!containsPlayer(username, name)) {
@@ -1062,7 +1064,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		popup.show();
 	}
 
-	@DebugLog
 	private Callback popupMenuCallback() {
 		return new MenuBuilder.Callback() {
 			@Override
@@ -1247,7 +1248,9 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		@DebugLog
 		@Override
 		public Object getItem(int position) {
-			return mPlay == null ? null : mPlay.getPlayers().get(position);
+			return (mPlay == null || mPlay.getPlayerCount() < position) ?
+				null :
+				mPlay.getPlayers().get(position);
 		}
 
 		@DebugLog
@@ -1324,11 +1327,16 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		@Override
 		public void onClick(View v) {
 			final Player player = mPlay.getPlayers().get(mPosition);
-			final ScoreDialogFragment fragment = ScoreDialogFragment.newInstance(player.getDescription(), player.score, player.color);
-			fragment.setOnDoneClickListener(new ScoreDialogFragment.OnClickListener() {
+			final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.score, player.color);
+			fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 				@Override
-				public void onDoneClick(String score) {
-					player.score = score;
+				public void onDoneClick(String output) {
+					player.score = output;
+					double highScore = mPlay.getHighScore();
+					for (Player p : mPlay.getPlayers()) {
+						double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
+						p.Win(score == highScore);
+					}
 					bindUiPlayers();
 				}
 			});

@@ -1,46 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/swipe_refresh"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="@android:color/white" >
-
-	<LinearLayout
-		android:id="@+id/progressContainer"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:gravity="center"
-		android:orientation="vertical"
-		android:visibility="gone" >
-
-		<ProgressBar
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
-	</LinearLayout>
+	android:layout_height="match_parent">
 
 	<FrameLayout
-		android:id="@+id/listContainer"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent" >
+		android:layout_height="match_parent"
+		android:background="@android:color/white">
 
-		<se.emilsjolander.stickylistheaders.StickyListHeadersListView
-			android:id="@android:id/list"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:cacheColorHint="@android:color/white"
-			android:drawSelectorOnTop="false"
-			android:fastScrollEnabled="true" />
-
-		<TextView
-			android:id="@android:id/empty"
-			style="@style/Text"
+		<LinearLayout
+			android:id="@+id/progressContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:gravity="center"
-			android:paddingBottom="@dimen/material_margin_vertical"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal"
-			android:paddingTop="@dimen/material_margin_vertical" />
-	</FrameLayout>
+			android:orientation="vertical"
+			android:visibility="gone">
 
-</FrameLayout>
+			<ProgressBar
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"/>
+		</LinearLayout>
+
+		<android.support.design.widget.CoordinatorLayout
+			android:id="@+id/listContainer"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<se.emilsjolander.stickylistheaders.StickyListHeadersListView
+				android:id="@android:id/list"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:cacheColorHint="@android:color/white"
+				android:drawSelectorOnTop="false"
+				android:fastScrollEnabled="true"/>
+
+			<TextView
+				android:id="@android:id/empty"
+				style="@style/Text"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:gravity="center"
+				android:paddingBottom="@dimen/material_margin_vertical"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal"
+				android:paddingTop="@dimen/material_margin_vertical"/>
+
+			<android.support.design.widget.FloatingActionButton
+				android:id="@+id/fab"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="bottom|right"
+				android:layout_margin="@dimen/padding_fab"
+				android:src="@drawable/ic_action_add"
+				android:visibility="gone"
+				app:elevation="@dimen/fab_elevation"
+				app:pressedTranslationZ="@dimen/fab_translation"
+				app:rippleColor="@color/primary_dark"
+				tools:visibility="visible"/>
+		</android.support.design.widget.CoordinatorLayout>
+
+	</FrameLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

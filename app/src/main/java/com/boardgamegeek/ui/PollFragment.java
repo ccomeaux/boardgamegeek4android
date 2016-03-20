@@ -2,15 +2,16 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.util.Pair;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,19 +26,32 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.widget.PieChartView;
+import com.boardgamegeek.ui.widget.IntegerValueFormatter;
 import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.mikephil.charting.animation.Easing.EasingOption;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.Legend.LegendPosition;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import timber.log.Timber;
 
-public class PollFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
 	public static final String LANGUAGE_DEPENDENCE = "language_dependence";
 	public static final String SUGGESTED_PLAYERAGE = "suggested_playerage";
 	public static final String SUGGESTED_NUMPLAYERS = "suggested_numplayers";
@@ -46,16 +60,20 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	private static final String RECOMMENDED = "Recommended";
 	private static final String NOT_RECOMMENDED = "Not Recommended";
 
+	private static final Format FORMAT = new DecimalFormat("#0");
+
 	private String mType;
 	private int mPollCount;
 	private int mKeyCount;
 	private boolean mBarChart;
 	private Uri mUri;
+	private int[] mColors;
+	private Snackbar mSnackbar;
 
 	@InjectView((R.id.progress)) View mProgress;
 	@InjectView(R.id.poll_scroll) ScrollView mScrollView;
 	@InjectView(R.id.poll_vote_total) TextView mVoteTotalView;
-	@InjectView(R.id.pie_chart) PieChartView mPieChart;
+	@InjectView(R.id.pie_chart) PieChart mPieChart;
 	@InjectView(R.id.poll_list) LinearLayout mPollList;
 	@InjectView(R.id.poll_key) LinearLayout mKeyList;
 	@InjectView(R.id.poll_key2) LinearLayout mKeyList2;
@@ -76,7 +94,29 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
 		ButterKnife.inject(this, rootView);
+
+		mPieChart.setDrawSliceText(false);
+		mPieChart.setRotationEnabled(false);
+		Legend legend = mPieChart.getLegend();
+		legend.setPosition(LegendPosition.BELOW_CHART_LEFT);
+		legend.setWordWrapEnabled(true);
+		mPieChart.setDescription(null);
+		mPieChart.setOnChartValueSelectedListener(this);
+
 		return rootView;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		// size the graph to be 80% of the screen width
+		Display display = getActivity().getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		ViewGroup.LayoutParams lp = mPieChart.getLayoutParams();
+		lp.width = (int) (size.x * .8);
+		mPieChart.setLayoutParams(lp);
 	}
 
 	@Override
@@ -88,9 +128,11 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		switch (mType) {
 			case LANGUAGE_DEPENDENCE:
 				getDialog().setTitle(R.string.language_dependence);
+				mColors = ColorUtils.FIVE_STAGE_COLORS;
 				break;
 			case SUGGESTED_PLAYERAGE:
 				getDialog().setTitle(R.string.suggested_playerage);
+				mColors = null;
 				break;
 			case SUGGESTED_NUMPLAYERS:
 				mBarChart = true;
@@ -126,18 +168,21 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 				mPollCount = 0;
 			}
 			mVoteTotalView.setText(getResources().getString(R.string.votes_suffix, mPollCount));
-			mProgress.setVisibility(View.GONE);
-			mScrollView.setVisibility(View.VISIBLE);
+			mVoteTotalView.setVisibility(!mBarChart ? View.GONE : View.VISIBLE);
+
 			mPieChart.setVisibility((mPollCount == 0 || mBarChart) ? View.GONE : View.VISIBLE);
 			mPollList.setVisibility((mPollCount == 0 || !mBarChart) ? View.GONE : View.VISIBLE);
-			mKeyContainer.setVisibility((mPollCount == 0) ? View.GONE : View.VISIBLE);
+			mKeyContainer.setVisibility((mPollCount == 0 || !mBarChart) ? View.GONE : View.VISIBLE);
 			if (mPollCount > 0) {
 				if (mBarChart) {
 					createBarChart(cursor);
 				} else {
-					createPieChart(cursor);
+					createPieChart(cursor, mPollCount);
 				}
 			}
+
+			mProgress.setVisibility(View.GONE);
+			mScrollView.setVisibility(View.VISIBLE);
 		} else {
 			if (cursor != null) {
 				cursor.close();
@@ -147,6 +192,27 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@Override
+	public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+		if (e == null || mPieChart == null) {
+			if (mSnackbar != null) {
+				mSnackbar.dismiss();
+			}
+			return;
+		}
+
+		String s = getString(R.string.pie_chart_click_description, FORMAT.format(e.getVal()), mPieChart.getXValue(e.getXIndex()));
+		mSnackbar = Snackbar.make(getView(), s, Snackbar.LENGTH_INDEFINITE);
+		mSnackbar.show();
+	}
+
+	@Override
+	public void onNothingSelected() {
+		if (mSnackbar != null) {
+			mSnackbar.dismiss();
+		}
 	}
 
 	private void createBarChart(Cursor cursor) {
@@ -203,23 +269,32 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		} while (cursor.moveToNext());
 	}
 
-	private void createPieChart(Cursor cursor) {
-		ArrayList<Pair<CharSequence, Integer>> slices = new ArrayList<>();
+	private void createPieChart(Cursor cursor, int voteCount) {
+		List<String> labels = new ArrayList<>();
+		List<Entry> entries = new ArrayList<>();
+		int index = 0;
 		do {
 			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
 			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-			if (votes > 0) {
-				slices.add(new Pair<CharSequence, Integer>(value, votes));
-			}
+
+			labels.add(value);
+			entries.add(new Entry(votes, index));
+			index++;
 		} while (cursor.moveToNext());
 
-		mKeyCount = 0;
-		int[] colors = CreateColors(slices.size());
-		for (int i = 0; i < slices.size(); i++) {
-			Pair<CharSequence, Integer> slice = slices.get(i);
-			mPieChart.addSlice(slice.second, colors[i]);
-			addKeyRow(colors[i], slice.first, String.valueOf(slice.second));
+		PieDataSet dataSet = new PieDataSet(entries, "");
+		dataSet.setValueFormatter(new IntegerValueFormatter(true));
+		if (mColors != null) {
+			dataSet.setColors(mColors);
+		} else {
+			dataSet.setColors(ColorUtils.createColors(index));
 		}
+
+		PieData data = new PieData(labels, dataSet);
+		mPieChart.setData(data);
+		mPieChart.setCenterText(getResources().getString(R.string.votes_suffix, voteCount));
+
+		mPieChart.animateY(1000, EasingOption.EaseOutCubic);
 	}
 
 	private void addKeyRow(int color, CharSequence text) {
@@ -241,29 +316,6 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		} else {
 			mKeyList.addView(pkr);
 		}
-	}
-
-	/**
-	 * Calculate an array of high-contrast, alternating colors
-	 */
-	private int[] CreateColors(int count) {
-		int[] colors = new int[count];
-		if (count > 0) {
-			float[] hsv = new float[3];
-			hsv[1] = 0.75f;
-			hsv[2] = 1f;
-			float factor = (float) (360.0 / count);
-			int colorIndex = 0;
-			for (int i = 0; i < count; i++) {
-				hsv[0] = i * factor;
-				colors[colorIndex] = Color.HSVToColor(hsv);
-				colorIndex += 2;
-				if (colorIndex >= colors.length) {
-					colorIndex = 1;
-				}
-			}
-		}
-		return colors;
 	}
 
 	private interface Query {

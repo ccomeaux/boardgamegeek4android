@@ -2,6 +2,7 @@ package com.boardgamegeek.export.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    public static String[] PROJECTION = new String[]{
+    public static final String[] PROJECTION = new String[]{
             Buddies.BUDDY_NAME,
     };
 
@@ -32,13 +33,14 @@ public class User {
         return colors;
     }
 
-    public static User fromCursor(Cursor cursor) {
+    @NonNull
+	public static User fromCursor(@NonNull Cursor cursor) {
         User user = new User();
         user.name = cursor.getString(BUDDY_NAME);
         return user;
     }
 
-    public void addColors(Context context) {
+    public void addColors(@NonNull Context context) {
         colors = new ArrayList<>();
 
         final Cursor cursor = context.getContentResolver().query(

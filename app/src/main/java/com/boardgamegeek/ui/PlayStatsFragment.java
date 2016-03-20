@@ -1,12 +1,14 @@
 package com.boardgamegeek.ui;
 
-import android.content.DialogInterface;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,25 +16,27 @@ import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.Play;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.ui.widget.PlayStatView;
-import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.PreferencesUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
-import timber.log.Timber;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	public static final String STATUS_PLAYED = "played";
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table) TableLayout mTable;
-	@InjectView(R.id.sync_message) View mSyncMessage;
+	@InjectView(R.id.table_hindex) TableLayout mHIndexTable;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,13 +51,6 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().restartLoader(PlayCountQuery._TOKEN, null, this);
-		setMessageVisibility();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		setMessageVisibility();
 	}
 
 	@Override
@@ -61,12 +58,53 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		CursorLoader loader = null;
 		switch (id) {
 			case PlayCountQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.buildUniqueGameUri(), PlayCountQuery.PROJECTION,
-					Games.NUM_PLAYS + ">0", null, Games.NUM_PLAYS + " DESC");
+				Uri uri = Plays.CONTENT_URI.buildUpon()
+					.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.PlayItems.OBJECT_ID)
+					.build();
+				loader = new CursorLoader(getActivity(), uri,
+					PlayCountQuery.PROJECTION,
+					getSelection(),
+					getSelectionArgs(),
+					Plays.SUM_QUANTITY + " DESC, " + Games.GAME_NAME + " ASC");
 				loader.setUpdateThrottle(2000);
 				break;
 		}
 		return loader;
+	}
+
+	@NonNull
+	private String getSelection() {
+		String selection = Plays.SYNC_STATUS + "=?";
+		if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+			selection += " AND " + Plays.INCOMPLETE + "!=?";
+		}
+		if (!PreferencesUtils.logPlayStatsExpansions(getActivity()) &&
+			!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			selection += " AND " + Games.SUBTYPE + "=?";
+		} else if (!PreferencesUtils.logPlayStatsExpansions(getActivity()) ||
+			!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			selection += " AND " + Games.SUBTYPE + "!=?";
+		}
+		return selection;
+	}
+
+	@NonNull
+	private String[] getSelectionArgs() {
+		List<String> args = new ArrayList<>();
+		args.add(String.valueOf(Play.SYNC_STATUS_SYNCED));
+		if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+			args.add("1");
+		}
+
+		if (!PreferencesUtils.logPlayStatsExpansions(getActivity()) &&
+			!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			args.add(BggService.THING_SUBTYPE_BOARDGAME);
+		} else if (!PreferencesUtils.logPlayStatsExpansions(getActivity())) {
+			args.add(BggService.THING_SUBTYPE_BOARDGAME_EXPANSION);
+		} else if (!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			args.add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+		}
+		return args.toArray(new String[args.size()]);
 	}
 
 	@Override
@@ -83,54 +121,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		int token = loader.getId();
 		switch (token) {
 			case PlayCountQuery._TOKEN:
-				// Calculate data
-				int numberOfPlays = 0;
-				int numberOfGames = 0;
-				int quarters = 0;
-				int dimes = 0;
-				int nickels = 0;
-				int currentCount = Integer.MAX_VALUE;
-				int currentCounter = 0;
-				int hIndex = 0;
-				int hIndexCounter = 1;
-				do {
-					int playCount = cursor.getInt(PlayCountQuery.NUM_PLAYS);
-					numberOfPlays += playCount;
-					numberOfGames++;
-
-					if (playCount != currentCount) {
-						Timber.i(currentCount + " Plays: " + currentCounter);
-						currentCount = playCount;
-						currentCounter = 1;
-					} else {
-						currentCounter++;
-					}
-
-					if (playCount >= 25) {
-						quarters++;
-					} else if (playCount >= 10) {
-						dimes++;
-					} else if (playCount > 5) {
-						nickels++;
-					}
-
-					if (hIndex == 0 && hIndexCounter > playCount) {
-						hIndex = hIndexCounter - 1;
-					}
-					hIndexCounter++;
-
-				} while (cursor.moveToNext());
-				Timber.i(currentCount + " Plays: " + currentCounter);
-
-				// Populate UI
-				mTable.removeAllViews();
-				addStatRow(R.string.play_stat_play_count, numberOfPlays);
-				addStatRow(R.string.play_stat_distinct_games, numberOfGames);
-				addStatRow(R.string.play_stat_quarters, quarters);
-				addStatRow(R.string.play_stat_dimes, dimes);
-				addStatRow(R.string.play_stat_nickels, nickels);
-				addStatRow(R.string.play_stat_h_index, hIndex, R.string.play_stat_h_index_info);
-
+				Stats stats = new Stats(cursor);
+				bindUi(stats);
 				showData();
 				break;
 			default:
@@ -143,23 +135,27 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	@OnClick(R.id.sync_message)
-	public void onMessageClick(View v) {
-		DialogUtils.createConfirmationDialog(getActivity(), R.string.play_stat_status_played_not_synced_message,
-			new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					PreferencesUtils.addSyncStatus(getActivity(), STATUS_PLAYED);
-					setMessageVisibility();
-					SyncService.clearCollection(getActivity());
-					SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
-				}
-			}).show();
-	}
+	private void bindUi(Stats stats) {
+		mTable.removeAllViews();
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.numberOfPlays));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.numberOfGames));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.quarters));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.dimes));
+		addStatRow(mTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.nickels));
 
-	private void setMessageVisibility() {
-		if (getActivity() != null && mSyncMessage != null) {
-			final boolean arePlaysSynced = PreferencesUtils.isSyncStatus(getActivity(), STATUS_PLAYED);
-			mSyncMessage.setVisibility(arePlaysSynced ? View.GONE : View.VISIBLE);
+		addStatRow(mHIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.hIndex).infoId(R.string.play_stat_h_index_info));
+		addDivider(mHIndexTable);
+		boolean addDivider = true;
+		for (Pair<String, Integer> game : stats.hIndexGames) {
+			final Builder builder = new Builder().labelText(game.first).value(game.second);
+			if (game.second == stats.hIndex) {
+				builder.backgroundResource(R.color.primary);
+				addDivider = false;
+			} else if (game.second < stats.hIndex && addDivider) {
+				addDivider(mHIndexTable);
+				addDivider = false;
+			}
+			addStatRow(mHIndexTable, builder);
 		}
 	}
 
@@ -179,24 +175,94 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		mDataView.setVisibility(View.VISIBLE);
 	}
 
-	private void addStatRow(int labelId, int value) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(labelId);
-		view.setValue(String.valueOf(value));
-		mTable.addView(view);
+	private void addStatRow(ViewGroup container, Builder builder) {
+		container.addView(builder.build(getActivity()));
 	}
 
-	private void addStatRow(int labelId, int value, int infoId) {
-		PlayStatView view = new PlayStatView(getActivity());
-		view.setLabel(labelId);
-		view.setValue(String.valueOf(value));
-		view.setInfoText(infoId);
-		mTable.addView(view);
+	private void addDivider(ViewGroup container) {
+		View view = new View(getActivity());
+		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
+		view.setBackgroundResource(R.color.primary_dark);
+		container.addView(view);
+	}
+
+	private static class Stats {
+		private static final int MIN_H_INDEX_GAMES = 2;
+		private static final int MAX_H_INDEX_GAMES = 6;
+		int numberOfPlays = 0;
+		int numberOfGames = 0;
+		int quarters = 0;
+		int dimes = 0;
+		int nickels = 0;
+		int hIndex = 0;
+		int hIndexCounter = 1;
+		List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+		private Stack<Pair<String, Integer>> hIndexGamesStack = new Stack<>();
+		private int postIndexCount = 0;
+		private int priorPlayCount;
+
+		public Stats(Cursor cursor) {
+			init(cursor);
+		}
+
+		private void init(Cursor cursor) {
+			do {
+				int playCount = cursor.getInt(PlayCountQuery.SUM_QUANTITY);
+				String gameName = cursor.getString(PlayCountQuery.GAME_NAME);
+
+				numberOfPlays += playCount;
+				numberOfGames++;
+
+				if (playCount >= 25) {
+					quarters++;
+				} else if (playCount >= 10) {
+					dimes++;
+				} else if (playCount > 5) {
+					nickels++;
+				}
+
+				if (hIndex == 0) {
+					hIndexGamesStack.push(new Pair<>(gameName, playCount));
+					if (hIndexCounter > playCount) {
+						hIndex = hIndexCounter - 1;
+						int preIndexCount = 0;
+						while (!hIndexGamesStack.isEmpty()) {
+							Pair<String, Integer> game = hIndexGamesStack.pop();
+							if (preIndexCount < MIN_H_INDEX_GAMES) {
+								hIndexGames.add(0, game);
+								if (game.second != hIndex) {
+									preIndexCount++;
+									priorPlayCount = game.second;
+								}
+							} else if (preIndexCount >= MAX_H_INDEX_GAMES) {
+								//do nothing
+							} else if (game.second == priorPlayCount) {
+								hIndexGames.add(0, game);
+								preIndexCount++;
+							}
+						}
+					}
+					hIndexCounter++;
+				} else {
+					if (postIndexCount < MIN_H_INDEX_GAMES) {
+						hIndexGames.add(new Pair<>(gameName, playCount));
+						postIndexCount++;
+						priorPlayCount = playCount;
+					} else if (postIndexCount >= MAX_H_INDEX_GAMES) {
+						// do nothing
+					} else if (playCount == priorPlayCount) {
+						hIndexGames.add(new Pair<>(gameName, playCount));
+						postIndexCount++;
+					}
+				}
+			} while (cursor.moveToNext());
+		}
 	}
 
 	private interface PlayCountQuery {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { Games._ID, Games.NUM_PLAYS };
-		int NUM_PLAYS = 1;
+		String[] PROJECTION = { Plays.SUM_QUANTITY, Games.GAME_NAME };
+		int SUM_QUANTITY = 0;
+		int GAME_NAME = 1;
 	}
 }
