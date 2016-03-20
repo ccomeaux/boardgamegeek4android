@@ -36,12 +36,14 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		final ActionBar actionBar = getSupportActionBar();
-		if (TextUtils.isEmpty(mGameName)) {
-			actionBar.setTitle(mForumTitle);
-			actionBar.setSubtitle(mThreadSubject);
-		} else {
-			actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
-			actionBar.setSubtitle(mGameName);
+		if (actionBar != null) {
+			if (TextUtils.isEmpty(mGameName)) {
+				actionBar.setTitle(mForumTitle);
+				actionBar.setSubtitle(mThreadSubject);
+			} else {
+				actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 
 		HelpUtils.showHelpDialog(this, HelpUtils.HELP_THREAD_KEY, HELP_VERSION, R.string.help_thread);

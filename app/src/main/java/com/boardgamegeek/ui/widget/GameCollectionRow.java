@@ -40,6 +40,7 @@ public class GameCollectionRow extends LinearLayout {
 	private String collectionName;
 	private int collectionId;
 	private int yearPublished;
+	private String imageUrl;
 
 	public GameCollectionRow(Context context) {
 		super(context);
@@ -64,6 +65,7 @@ public class GameCollectionRow extends LinearLayout {
 				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, collectionId);
 				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, collectionName);
+				intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 				getContext().startActivity(intent);
 			}
 		});
@@ -85,11 +87,12 @@ public class GameCollectionRow extends LinearLayout {
 		return backgroundResId;
 	}
 
-	public void bind(int gameId, String gameName, int collectionId, int yearPublished) {
+	public void bind(int gameId, String gameName, int collectionId, int yearPublished, String imageUrl) {
 		this.gameId = gameId;
 		this.gameName = gameName;
 		this.collectionId = collectionId;
 		this.yearPublished = yearPublished;
+		this.imageUrl = imageUrl;
 	}
 
 	public void setStatus(@NonNull List<String> statuses, int playCount, double rating, String comment) {

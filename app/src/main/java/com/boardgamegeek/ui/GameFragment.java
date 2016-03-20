@@ -547,9 +547,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				final int gameId = Games.getGameId(gameUri);
 				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
 				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);
-				row.bind(gameId, gameName, collectionId, yearPublished);
+				final String imageUrl = cursor.getString(CollectionQuery.COLLECTION_IMAGE_URL);
+				row.bind(gameId, gameName, collectionId, yearPublished, imageUrl);
 
-				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL);
+				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL_URL);
 				final String collectionName = cursor.getString(CollectionQuery.COLLECTION_NAME);
 				final int collectionYearPublished = cursor.getInt(CollectionQuery.COLLECTION_YEAR);
 				final int numberOfPlays = cursor.getInt(CollectionQuery.NUM_PLAYS);
@@ -853,12 +854,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE, Collection.STATUS_WANT,
 			Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST, Collection.STATUS_WANT_TO_PLAY,
 			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS,
-			Collection.COMMENT, Games.YEAR_PUBLISHED, Collection.RATING };
+			Collection.COMMENT, Games.YEAR_PUBLISHED, Collection.RATING, Collection.IMAGE_URL };
 		int _TOKEN = 0x20;
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int COLLECTION_YEAR = 3;
-		int COLLECTION_THUMBNAIL = 4;
+		int COLLECTION_THUMBNAIL_URL = 4;
 		int STATUS_1 = 5;
 		int STATUS_N = 12;
 		int STATUS_WISHLIST = 10;
@@ -867,6 +868,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int COMMENT = 15;
 		int YEAR_PUBLISHED = 16;
 		int RATING = 17;
+		int COLLECTION_IMAGE_URL = 18;
 	}
 
 	private interface PlaysQuery {

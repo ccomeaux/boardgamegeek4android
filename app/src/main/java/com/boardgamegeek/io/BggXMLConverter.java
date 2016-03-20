@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import retrofit.converter.ConversionException;
 import retrofit.converter.SimpleXMLConverter;
 import retrofit.mime.TypedInput;
+import timber.log.Timber;
 
 public class BggXMLConverter extends SimpleXMLConverter {
 	private static final String MESSAGE = "Your request for this collection has been accepted and will be processed.  Please try again later for access.";
@@ -37,7 +38,12 @@ public class BggXMLConverter extends SimpleXMLConverter {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader reader;
 		try {
-			body.in().reset();
+			try {
+				body.in().reset();
+			} catch (IOException ex) {
+				Timber.w("Error resetting input; ignoring.", ex);
+			}
+
 			reader = new BufferedReader(new InputStreamReader(body.in(), "UTF-8"));
 			String line;
 			while ((line = reader.readLine()) != null) {

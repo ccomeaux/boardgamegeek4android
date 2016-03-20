@@ -45,6 +45,24 @@ public class StringUtils {
 	}
 
 	/**
+	 * Parse a string to an long, returning 0 if it's not parsable.
+	 */
+	public static long parseLong(String text) {
+		return parseLong(text, 0);
+	}
+
+	/**
+	 * Parse a string to an long, returning the default value if it's not parsable.
+	 */
+	public static long parseLong(String text, int defaultValue) {
+		try {
+			return Long.parseLong(text);
+		} catch (NumberFormatException | NullPointerException ex) {
+			return defaultValue;
+		}
+	}
+
+	/**
 	 * Parse a string to an double, returning the 0.0 if it's not parsable.
 	 */
 	public static double parseDouble(String text) {

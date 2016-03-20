@@ -25,9 +25,11 @@ public class DeleteView {
 						.setMessage(R.string.are_you_sure_delete_collection_view).setCancelable(false)
 						.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								cursor.moveToPosition(which);
-								long filterId = cursor.getLong(0);
-								deleteFilters(cr, filterId);
+								if (cursor != null) {
+									cursor.moveToPosition(which);
+									long filterId = cursor.getLong(0);
+									deleteFilters(cr, filterId);
+								}
 							}
 						}).setNegativeButton(R.string.no, null).create().show();
 				}

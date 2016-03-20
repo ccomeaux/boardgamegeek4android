@@ -36,8 +36,8 @@ android {
         applicationId "com.boardgamegeek"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 50
-        versionName "5.1.1"
+        versionCode 52
+        versionName "5.2"
         buildConfigField "String", "BRANCH", "\"" + getBranchName() + "\""
     }
     buildTypes {
@@ -58,11 +58,11 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:23.2.0'
-    compile 'com.android.support:cardview-v7:23.2.0'
-    compile 'com.android.support:design:23.2.0'
-    compile 'com.android.support:palette-v7:23.2.0'
-    compile 'com.android.support:support-annotations:23.2.0'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:cardview-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:palette-v7:23.2.1'
+    compile 'com.android.support:support-annotations:23.2.1'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile('com.squareup.retrofit:converter-simplexml:1.9.0') {

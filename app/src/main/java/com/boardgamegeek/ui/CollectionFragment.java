@@ -127,10 +127,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				} else {
 					CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
 					for (int i = 0; i < types.size(); i++) {
-						CollectionFilterer filterer = factory.create(types.get(i));
-						filterer.setData(data.get(i));
-						filters.add(filterer);
-
+						final Integer filterType = types.get(i);
+						CollectionFilterer filterer = factory.create(filterType);
+						if (filterer == null) {
+							Timber.w("Couldn't create filterer with type " + filterType);
+						} else {
+							filterer.setData(data.get(i));
+							filters.add(filterer);
+						}
 					}
 				}
 			}
@@ -305,6 +309,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 								launchFilterDialog(filterType);
 							}
 						});
+					for (CollectionFilterer filter : filters) {
+						filterFragment.addEnabledFilter(filter.getType());
+					}
 					filterFragment.show(getFragmentManager(), "filter");
 					return true;
 			}

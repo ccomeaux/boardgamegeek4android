@@ -64,7 +64,7 @@ public class SyncService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		return syncAdapter.getSyncAdapterBinder();
+		return syncAdapter != null ? syncAdapter.getSyncAdapterBinder() : null;
 	}
 
 	public static void sync(Context context, int syncType) {

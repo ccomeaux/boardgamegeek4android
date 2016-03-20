@@ -1,7 +1,5 @@
 package com.boardgamegeek.model.builder;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -13,6 +11,8 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
+
+import java.util.ArrayList;
 
 public class PlayBuilder {
 	public static final String KEY_PLAY_ID = "PLAY_ID";
@@ -56,7 +56,7 @@ public class PlayBuilder {
 			Cursor c = null;
 			try {
 				c = context.getContentResolver().query(play.playerUri(), null, null, null, null);
-				while (c.moveToNext()) {
+				while (c != null ? c.moveToNext() : false) {
 					play.addPlayer(new Player(c));
 				}
 			} finally {

@@ -72,7 +72,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	protected void onPostInject() {
 		super.onPostInject();
 		if (PreferencesUtils.showLogPlay(this)) {
-			fab.setImageResource(R.drawable.ic_action_edit_white);
+			fab.setImageResource(R.drawable.ic_event_available);
 			fab.setVisibility(View.VISIBLE);
 		}
 	}
@@ -115,6 +115,9 @@ public class GameActivity extends HeroActivity implements Callback {
 			case R.id.menu_log_play_quick:
 				Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, gameId, gameName);
+				return true;
+			case R.id.menu_view_image:
+				ActivityUtils.startImageActivity(this, imageUrl);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
