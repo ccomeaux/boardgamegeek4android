@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -290,11 +291,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				break;
 			case PlaysQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlaysQuery.PROJECTION,
-					PlayItems.OBJECT_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?" ,
+					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 				break;
 			case ColorQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId),
-					GameColorAdapter.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId), GameColorAdapter.PROJECTION, null, null, null);
 				break;
 			default:
 				Timber.w("Invalid query token=" + id);

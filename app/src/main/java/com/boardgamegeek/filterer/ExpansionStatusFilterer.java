@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.StringUtils;
 
 public class ExpansionStatusFilterer extends CollectionFilterer {
 	private int selectedSubtype;
@@ -21,7 +22,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 
 	@Override
 	public void setData(@NonNull String data) {
-		selectedSubtype = Integer.valueOf(data);
+		selectedSubtype = StringUtils.parseInt(data);
 	}
 
 	@Override

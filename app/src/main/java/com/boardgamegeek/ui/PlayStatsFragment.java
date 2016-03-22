@@ -32,18 +32,16 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	@InjectView(R.id.progress) View mProgressView;
-	@InjectView(R.id.empty) View mEmptyView;
-	@InjectView(R.id.data) View mDataView;
-	@InjectView(R.id.table) TableLayout mTable;
-	@InjectView(R.id.table_hindex) TableLayout mHIndexTable;
+	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
+	@SuppressWarnings("unused")@InjectView(R.id.empty) View emptyView;
+	@SuppressWarnings("unused")@InjectView(R.id.data) View dataView;
+	@SuppressWarnings("unused")@InjectView(R.id.table) TableLayout table;
+	@SuppressWarnings("unused")@InjectView(R.id.table_hindex) TableLayout hIndexTable;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
-
 		ButterKnife.inject(this, rootView);
-
 		return rootView;
 	}
 
@@ -136,15 +134,15 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	}
 
 	private void bindUi(Stats stats) {
-		mTable.removeAllViews();
-		addStatRow(mTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.numberOfPlays));
-		addStatRow(mTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.numberOfGames));
-		addStatRow(mTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.quarters));
-		addStatRow(mTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.dimes));
-		addStatRow(mTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.nickels));
+		table.removeAllViews();
+		addStatRow(table, new Builder().labelId(R.string.play_stat_play_count).value(stats.numberOfPlays));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.numberOfGames));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_quarters).value(stats.quarters));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_dimes).value(stats.dimes));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.nickels));
 
-		addStatRow(mHIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.hIndex).infoId(R.string.play_stat_h_index_info));
-		addDivider(mHIndexTable);
+		addStatRow(hIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.hIndex).infoId(R.string.play_stat_h_index_info));
+		addDivider(hIndexTable);
 		boolean addDivider = true;
 		for (Pair<String, Integer> game : stats.hIndexGames) {
 			final Builder builder = new Builder().labelText(game.first).value(game.second);
@@ -152,27 +150,27 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 				builder.backgroundResource(R.color.primary);
 				addDivider = false;
 			} else if (game.second < stats.hIndex && addDivider) {
-				addDivider(mHIndexTable);
+				addDivider(hIndexTable);
 				addDivider = false;
 			}
-			addStatRow(mHIndexTable, builder);
+			addStatRow(hIndexTable, builder);
 		}
 	}
 
 	private void showEmpty() {
-		mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		mEmptyView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-		mProgressView.setVisibility(View.GONE);
-		mEmptyView.setVisibility(View.VISIBLE);
-		mDataView.setVisibility(View.GONE);
+		progressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		emptyView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		progressView.setVisibility(View.GONE);
+		emptyView.setVisibility(View.VISIBLE);
+		dataView.setVisibility(View.GONE);
 	}
 
 	private void showData() {
-		mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		mDataView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-		mProgressView.setVisibility(View.GONE);
-		mEmptyView.setVisibility(View.GONE);
-		mDataView.setVisibility(View.VISIBLE);
+		progressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		dataView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		progressView.setVisibility(View.GONE);
+		emptyView.setVisibility(View.GONE);
+		dataView.setVisibility(View.VISIBLE);
 	}
 
 	private void addStatRow(ViewGroup container, Builder builder) {
@@ -196,8 +194,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		int nickels = 0;
 		int hIndex = 0;
 		int hIndexCounter = 1;
-		List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
-		private Stack<Pair<String, Integer>> hIndexGamesStack = new Stack<>();
+		final List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+		private final Stack<Pair<String, Integer>> hIndexGamesStack = new Stack<>();
 		private int postIndexCount = 0;
 		private int priorPlayCount;
 
@@ -234,7 +232,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 									preIndexCount++;
 									priorPlayCount = game.second;
 								}
-							} else if (preIndexCount >= MAX_H_INDEX_GAMES) {
+							} else //noinspection StatementWithEmptyBody
+								if (preIndexCount >= MAX_H_INDEX_GAMES) {
 								//do nothing
 							} else if (game.second == priorPlayCount) {
 								hIndexGames.add(0, game);
@@ -248,7 +247,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 						hIndexGames.add(new Pair<>(gameName, playCount));
 						postIndexCount++;
 						priorPlayCount = playCount;
-					} else if (postIndexCount >= MAX_H_INDEX_GAMES) {
+					} else //noinspection StatementWithEmptyBody
+						if (postIndexCount >= MAX_H_INDEX_GAMES) {
 						// do nothing
 					} else if (playCount == priorPlayCount) {
 						hIndexGames.add(new Pair<>(gameName, playCount));
