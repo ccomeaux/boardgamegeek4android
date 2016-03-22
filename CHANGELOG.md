@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 5.2.1
+-------------
+* Coming soon...
+
 Version 5.2
 -----------
  * Rate your games by clicking on the rating in the game's collection page
