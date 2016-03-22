@@ -33,10 +33,10 @@ import butterknife.InjectView;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
-	@SuppressWarnings("unused")@InjectView(R.id.empty) View emptyView;
-	@SuppressWarnings("unused")@InjectView(R.id.data) View dataView;
-	@SuppressWarnings("unused")@InjectView(R.id.table) TableLayout table;
-	@SuppressWarnings("unused")@InjectView(R.id.table_hindex) TableLayout hIndexTable;
+	@SuppressWarnings("unused") @InjectView(R.id.empty) View emptyView;
+	@SuppressWarnings("unused") @InjectView(R.id.data) View dataView;
+	@SuppressWarnings("unused") @InjectView(R.id.table) TableLayout table;
+	@SuppressWarnings("unused") @InjectView(R.id.table_hindex) TableLayout hIndexTable;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -135,21 +135,21 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	private void bindUi(Stats stats) {
 		table.removeAllViews();
-		addStatRow(table, new Builder().labelId(R.string.play_stat_play_count).value(stats.numberOfPlays));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.numberOfGames));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_quarters).value(stats.quarters));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_dimes).value(stats.dimes));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.nickels));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_play_count).value(stats.getNumberOfPlays()));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfGames()));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
 
-		addStatRow(hIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.hIndex).infoId(R.string.play_stat_h_index_info));
+		addStatRow(hIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.gethIndex()).infoId(R.string.play_stat_h_index_info));
 		addDivider(hIndexTable);
 		boolean addDivider = true;
-		for (Pair<String, Integer> game : stats.hIndexGames) {
+		for (Pair<String, Integer> game : stats.getHIndexGames()) {
 			final Builder builder = new Builder().labelText(game.first).value(game.second);
-			if (game.second == stats.hIndex) {
+			if (game.second == stats.gethIndex()) {
 				builder.backgroundResource(R.color.primary);
 				addDivider = false;
-			} else if (game.second < stats.hIndex && addDivider) {
+			} else if (game.second < stats.gethIndex() && addDivider) {
 				addDivider(hIndexTable);
 				addDivider = false;
 			}
@@ -187,14 +187,14 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	private static class Stats {
 		private static final int MIN_H_INDEX_GAMES = 2;
 		private static final int MAX_H_INDEX_GAMES = 6;
-		int numberOfPlays = 0;
-		int numberOfGames = 0;
-		int quarters = 0;
-		int dimes = 0;
-		int nickels = 0;
-		int hIndex = 0;
-		int hIndexCounter = 1;
-		final List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+		private int numberOfPlays = 0;
+		private int numberOfGames = 0;
+		private int numberOfQuarters = 0;
+		private int numberOfDimes = 0;
+		private int numberOfNickels = 0;
+		private int hIndex = 0;
+		private int hIndexCounter = 1;
+		private final List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
 		private final Stack<Pair<String, Integer>> hIndexGamesStack = new Stack<>();
 		private int postIndexCount = 0;
 		private int priorPlayCount;
@@ -212,11 +212,11 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 				numberOfGames++;
 
 				if (playCount >= 25) {
-					quarters++;
+					numberOfQuarters++;
 				} else if (playCount >= 10) {
-					dimes++;
+					numberOfDimes++;
 				} else if (playCount > 5) {
-					nickels++;
+					numberOfNickels++;
 				}
 
 				if (hIndex == 0) {
@@ -234,11 +234,11 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 								}
 							} else //noinspection StatementWithEmptyBody
 								if (preIndexCount >= MAX_H_INDEX_GAMES) {
-								//do nothing
-							} else if (game.second == priorPlayCount) {
-								hIndexGames.add(0, game);
-								preIndexCount++;
-							}
+									//do nothing
+								} else if (game.second == priorPlayCount) {
+									hIndexGames.add(0, game);
+									preIndexCount++;
+								}
 						}
 					}
 					hIndexCounter++;
@@ -249,13 +249,41 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 						priorPlayCount = playCount;
 					} else //noinspection StatementWithEmptyBody
 						if (postIndexCount >= MAX_H_INDEX_GAMES) {
-						// do nothing
-					} else if (playCount == priorPlayCount) {
-						hIndexGames.add(new Pair<>(gameName, playCount));
-						postIndexCount++;
-					}
+							// do nothing
+						} else if (playCount == priorPlayCount) {
+							hIndexGames.add(new Pair<>(gameName, playCount));
+							postIndexCount++;
+						}
 				}
 			} while (cursor.moveToNext());
+		}
+
+		public int getNumberOfPlays() {
+			return numberOfPlays;
+		}
+
+		public int getNumberOfGames() {
+			return numberOfGames;
+		}
+
+		public int getNumberOfQuarters() {
+			return numberOfQuarters;
+		}
+
+		public int getNumberOfDimes() {
+			return numberOfDimes;
+		}
+
+		public int getNumberOfNickels() {
+			return numberOfNickels;
+		}
+
+		public int gethIndex() {
+			return hIndex;
+		}
+
+		public List<Pair<String, Integer>> getHIndexGames() {
+			return hIndexGames;
 		}
 	}
 
