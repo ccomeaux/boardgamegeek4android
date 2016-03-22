@@ -27,6 +27,7 @@ import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -48,7 +49,9 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private BggService bggSaveService;
 	private BggService bggDeleteService;
 	private PlayPersister persister;
-	private Play currentPlayForMessage;
+	private int currentPlayIdForMessage;
+	private int currentGameIdForMessage;
+	private String currentGameNameForMessage;
 
 	@DebugLog
 	public SyncPlaysUpload(Context context, BggService service) {
@@ -135,25 +138,30 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					syncResult.stats.numIoExceptions++;
 					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
 				} else if (!response.hasError()) {
-					String message = play.hasBeenSynced() ?
-						context.getString(R.string.msg_play_updated) :
-						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
-					currentPlayForMessage = play;
-					currentPlayForMessage.playId = response.getPlayId();
-					notifyUser(StringUtils.boldSecondString(message, play.gameName));
+					final int newPlayId = response.getPlayId();
+					final int oldPlayId = play.playId;
 
-					// delete the old plays
-					int oldPlayId = play.playId;
-					deletePlay(play);
+					if (newPlayId != oldPlayId) {
+						// delete the old play
+						deletePlay(play);
 
-					// then save play as a new record
-					play.playId = response.getPlayId();
+						// then save play as a new record
+						PreferencesUtils.putNewPlayId(context, oldPlayId, play.playId);
+						Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
+						broadcastManager.sendBroadcast(intent);
+
+						play.playId = newPlayId;
+					}
 					play.syncStatus = Play.SYNC_STATUS_SYNCED;
 					persister.save(context, play);
 
-					PreferencesUtils.putNewPlayId(context, oldPlayId, play.playId);
-					Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
-					broadcastManager.sendBroadcast(intent);
+					String message = play.hasBeenSynced() ?
+						context.getString(R.string.msg_play_updated) :
+						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
+					currentPlayIdForMessage = newPlayId;
+					currentGameIdForMessage = play.gameId;
+					currentGameNameForMessage = play.gameName;
+					notifyUser(StringUtils.boldSecondString(message, play.gameName));
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
@@ -342,11 +350,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	protected Action createMessageAction() {
-		if (currentPlayForMessage != null) {
+		if (currentPlayIdForMessage != BggContract.INVALID_ID) {
 			Intent intent = ActivityUtils.createRematchIntent(context,
-				currentPlayForMessage.playId,
-				currentPlayForMessage.gameId,
-				currentPlayForMessage.gameName, null, null);
+				currentPlayIdForMessage,
+				currentGameIdForMessage,
+				currentGameNameForMessage, null, null);
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			NotificationCompat.Action.Builder builder = new NotificationCompat.Action.Builder(
 				R.drawable.ic_replay_black_24dp,
