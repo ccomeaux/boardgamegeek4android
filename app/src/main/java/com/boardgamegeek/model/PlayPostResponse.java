@@ -29,7 +29,8 @@ public class PlayPostResponse {
 	 * Indicates the user attempted to modify a play without being authenticated.
 	 */
 	public boolean hasAuthError() {
-		return "You must login to save plays".equals(error);
+		return "You must login to save plays".equals(error) ||
+			"You can't delete this play".equals(error);
 	}
 
 	/**

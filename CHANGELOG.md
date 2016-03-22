@@ -3,6 +3,7 @@ Release Notes
 
 Version 5.2.1
 -------------
+* Fix play logging issues 
 * Fix crash when filtering by subtype
 
 Version 5.2
