@@ -3,7 +3,7 @@ Release Notes
 
 Version 5.2.1
 -------------
-* Coming soon...
+* Fix crash when filtering by subtype
 
 Version 5.2
 -----------
