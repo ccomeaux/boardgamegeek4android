@@ -8,7 +8,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -19,11 +18,10 @@ import android.text.SpannableString;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.PlaysActivity;
+import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -139,40 +137,24 @@ public class SyncService extends Service {
 	}
 
 	private static int calculateHIndex(@NonNull Context context) {
-		int hIndex = INVALID_H_INDEX;
 		Cursor cursor = null;
 		try {
-			Uri uri = Plays.CONTENT_SIMPLE_URI.buildUpon()
-				.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.PlayItems.OBJECT_ID)
-				.build();
 			cursor = context.getContentResolver().query(
-				uri, new String[] { Plays.SUM_QUANTITY },
-				Plays.SYNC_STATUS + "=?", new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) },
-				Plays.SUM_QUANTITY + " DESC");
+				PlayStats.getUri(),
+				PlayStats.PROJECTION,
+				PlayStats.getSelection(context),
+				PlayStats.getSelectionArgs(context),
+				PlayStats.getSortOrder());
 			if (cursor != null) {
-				int i = 1;
-				while (cursor.moveToNext()) {
-					int numPlays = cursor.getInt(0);
-					if (i > numPlays) {
-						hIndex = i - 1;
-						break;
-					}
-					if (numPlays == 0) {
-						hIndex = 0;
-						break;
-					}
-					i++;
-				}
-				if (hIndex == INVALID_H_INDEX) {
-					hIndex = cursor.getCount();
-				}
+				PlayStats stats = PlayStats.fromCursor(cursor);
+				return stats.getHIndex();
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}
-		return hIndex;
+		return INVALID_H_INDEX;
 	}
 
 	private static void notifyHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
