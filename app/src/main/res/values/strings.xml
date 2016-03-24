@@ -487,11 +487,13 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
+	<string name="play_stat_status_accuracy">These stats don\'t include %s.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
 	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
+	<string name="incomplete_games">incomplete games</string>
+	<string name="accessories">accessories</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>

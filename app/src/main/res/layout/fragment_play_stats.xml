@@ -61,7 +61,7 @@
 			</android.support.v7.widget.CardView>
 
 			<TextView
-				android:id="@+id/sync_message"
+				android:id="@+id/accuracy_message"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackground"

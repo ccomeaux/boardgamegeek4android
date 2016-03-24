@@ -12,10 +12,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
+import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -27,11 +33,13 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	@SuppressWarnings("unused") @InjectView(R.id.data) View dataView;
 	@SuppressWarnings("unused") @InjectView(R.id.table) TableLayout table;
 	@SuppressWarnings("unused") @InjectView(R.id.table_hindex) TableLayout hIndexTable;
+	@SuppressWarnings("unused") @InjectView(R.id.accuracy_message) TextView accuracyMessage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
 		ButterKnife.inject(this, rootView);
+		bindAccuracyMessage();
 		return rootView;
 	}
 
@@ -84,6 +92,22 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	private void bindAccuracyMessage() {
+		List<String> things = new ArrayList<>(3);
+		if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+			things.add(getString(R.string.incomplete_games).toLowerCase());
+		}
+		if (!PreferencesUtils.logPlayStatsExpansions(getActivity())) {
+			things.add(getString(R.string.expansions).toLowerCase());
+		}
+		if (!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+			things.add(getString(R.string.accessories).toLowerCase());
+		}
+		accuracyMessage.setVisibility(things.size() == 0 ? View.GONE : View.VISIBLE);
+		accuracyMessage.setText(getString(R.string.play_stat_status_accuracy,
+			StringUtils.formatList(things, getString(R.string.or).toLowerCase(), ",")));
 	}
 
 	private void bindUi(PlayStats stats) {
