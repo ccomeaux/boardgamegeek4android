@@ -291,7 +291,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				break;
 			case PlaysQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlaysQuery.PROJECTION,
-					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?" ,
+					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?",
 					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 				break;
 			case ColorQuery._TOKEN:
@@ -378,7 +378,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void colorize() {
-		if (palette == null || primaryInfoContainer == null) {
+		if (palette == null || primaryInfoContainer == null || isAdded()) {
 			return;
 		}
 		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
