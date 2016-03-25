@@ -125,7 +125,7 @@ public class PlayStats {
 			selection += " AND (" + Games.SUBTYPE + "=? OR " + Games.SUBTYPE + " IS NULL)";
 		} else if (!PreferencesUtils.logPlayStatsExpansions(context) ||
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
-			selection += " AND " + Games.SUBTYPE + "!=?";
+			selection += " AND (" + Games.SUBTYPE + "!=? OR " + Games.SUBTYPE + " IS NULL)";
 		}
 		return selection;
 	}
