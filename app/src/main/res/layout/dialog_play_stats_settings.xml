@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	android:id="@+id/scroll_container"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical">
+
+	<LinearLayout
+		android:id="@+id/container"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<CheckBox
+			android:id="@+id/incomplete"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:text="@string/pref_log_stats_incomplete"/>
+
+		<CheckBox
+			android:id="@+id/expansions"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:text="@string/pref_log_stats_expansions"/>
+
+		<CheckBox
+			android:id="@+id/accessories"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:text="@string/pref_log_stats_accessories"/>
+	</LinearLayout>
+</ScrollView>

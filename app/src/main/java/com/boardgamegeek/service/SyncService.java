@@ -2,31 +2,21 @@ package com.boardgamegeek.service;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.app.NotificationCompat;
-import android.text.SpannableString;
 
-import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.ui.PlayStatsActivity;
-import com.boardgamegeek.ui.PlaysActivity;
+import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.StringUtils;
 
 public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";
@@ -47,8 +37,6 @@ public class SyncService extends Service {
 	public static final String TIMESTAMP_BUDDIES = "com.boardgamegeek.TIMESTAMP_BUDDIES";
 	public static final String TIMESTAMP_PLAYS_NEWEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE";
 	public static final String TIMESTAMP_PLAYS_OLDEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE";
-
-	private static final int INVALID_H_INDEX = -1;
 
 	private static final Object SYNC_ADAPTER_LOCK = new Object();
 	@Nullable private static SyncAdapter syncAdapter = null;
@@ -129,65 +117,27 @@ public class SyncService extends Service {
 
 	public static void hIndex(@NonNull Context context) {
 		int hIndex = calculateHIndex(context);
-		if (hIndex != INVALID_H_INDEX) {
-			int oldHIndex = PreferencesUtils.getHIndex(context);
-			if (oldHIndex != hIndex) {
-				PreferencesUtils.putHIndex(context, hIndex);
-				notifyHIndex(context, hIndex, oldHIndex);
-			}
-		}
+		PreferencesUtils.updateHIndex(context, hIndex);
 	}
 
 	private static int calculateHIndex(@NonNull Context context) {
-		int hIndex = INVALID_H_INDEX;
 		Cursor cursor = null;
 		try {
-			Uri uri = Plays.CONTENT_SIMPLE_URI.buildUpon()
-				.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.PlayItems.OBJECT_ID)
-				.build();
 			cursor = context.getContentResolver().query(
-				uri, new String[] { Plays.SUM_QUANTITY },
-				Plays.SYNC_STATUS + "=?", new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) },
-				Plays.SUM_QUANTITY + " DESC");
+				PlayStats.getUri(),
+				PlayStats.PROJECTION,
+				PlayStats.getSelection(context),
+				PlayStats.getSelectionArgs(context),
+				PlayStats.getSortOrder());
 			if (cursor != null) {
-				int i = 1;
-				while (cursor.moveToNext()) {
-					int numPlays = cursor.getInt(0);
-					if (i > numPlays) {
-						hIndex = i - 1;
-						break;
-					}
-					if (numPlays == 0) {
-						hIndex = 0;
-						break;
-					}
-					i++;
-				}
-				if (hIndex == INVALID_H_INDEX) {
-					hIndex = cursor.getCount();
-				}
+				PlayStats stats = PlayStats.fromCursor(cursor);
+				return stats.getHIndex();
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}
-		return hIndex;
-	}
-
-	private static void notifyHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
-		@StringRes int messageId;
-		if (hIndex > oldHIndex) {
-			messageId = R.string.sync_notification_h_index_increase;
-		} else {
-			messageId = R.string.sync_notification_h_index_decrease;
-		}
-		SpannableString ss = StringUtils.boldSecondString(context.getString(messageId), String.valueOf(hIndex));
-		Intent intent = new Intent(context, PlayStatsActivity.class);
-		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
-			.setContentText(ss).setContentIntent(pi);
-		NotificationUtils.notify(context, NotificationUtils.ID_H_INDEX, builder);
+		return PreferencesUtils.INVALID_H_INDEX;
 	}
 }
