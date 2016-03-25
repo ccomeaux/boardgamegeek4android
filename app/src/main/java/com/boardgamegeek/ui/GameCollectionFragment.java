@@ -241,7 +241,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@DebugLog
 	private void colorize(Palette palette) {
-		if (palette == null) {
+		if (palette == null || !isAdded()) {
 			return;
 		}
 		@SuppressWarnings("deprecation") Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
