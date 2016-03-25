@@ -37,7 +37,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 54
-        versionName "5.2.2"
+        versionName "5.3"
         buildConfigField "String", "BRANCH", "\"" + getBranchName() + "\""
     }
     buildTypes {

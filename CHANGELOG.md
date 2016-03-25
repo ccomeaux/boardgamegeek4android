@@ -1,15 +1,19 @@
 Release Notes
 =============
 
+Coming Soon...
+--------------
+ * Some cool stuff
+
 Version 5.2.2
 -------------
-* Improve H-Index calculations
-* Bug fixes
+ * Improve H-Index calculations
+ * Bug fixes
 
 Version 5.2.1
 -------------
-* Fix play logging issues 
-* Fix crash when filtering by subtype
+ * Fix play logging issues
+ * Fix crash when filtering by subtype
 
 Version 5.2
 -----------
