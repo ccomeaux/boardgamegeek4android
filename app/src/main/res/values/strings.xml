@@ -88,6 +88,7 @@
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
 	<string name="title_clear_colors">Clear Colors?</string>
+	<string name="title_change_settings">Change Settings</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
 	<string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>

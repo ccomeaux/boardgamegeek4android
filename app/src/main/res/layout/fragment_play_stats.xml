@@ -70,6 +70,18 @@
 				android:paddingRight="@dimen/material_margin_horizontal"
 				android:paddingTop="@dimen/material_margin_vertical"
 				android:text="@string/play_stat_status_accuracy"/>
+
+			<Button
+				android:id="@+id/settings"
+				style="@style/Text.Footer.Card"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right|center_vertical"
+				android:layout_marginBottom="@dimen/material_margin_vertical"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:layout_marginRight="@dimen/material_margin_horizontal"
+				android:layout_marginTop="@dimen/material_margin_vertical"
+				android:text="@string/title_change_settings"/>
 		</LinearLayout>
 
 	</ScrollView>

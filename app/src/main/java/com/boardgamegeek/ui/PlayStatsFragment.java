@@ -1,7 +1,9 @@
 package com.boardgamegeek.ui;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -15,8 +17,10 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.ui.dialog.PlayStatsSettingsDialogFragment;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -25,12 +29,14 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
-public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int TOKEN = 0x01;
 	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
 	@SuppressWarnings("unused") @InjectView(R.id.empty) View emptyView;
-	@SuppressWarnings("unused") @InjectView(R.id.data) View dataView;
+	@SuppressWarnings("unused") @InjectView(R.id.data) ViewGroup dataView;
 	@SuppressWarnings("unused") @InjectView(R.id.table) TableLayout table;
 	@SuppressWarnings("unused") @InjectView(R.id.table_hindex) TableLayout hIndexTable;
 	@SuppressWarnings("unused") @InjectView(R.id.accuracy_message) TextView accuracyMessage;
@@ -47,6 +53,18 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().restartLoader(TOKEN, null, this);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -160,5 +178,18 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
 		view.setBackgroundResource(R.color.primary_dark);
 		container.addView(view);
+	}
+
+	@SuppressWarnings("unused")
+	@OnClick(R.id.settings)
+	void onSettingsClick(@SuppressWarnings("UnusedParameters") View v) {
+		PlayStatsSettingsDialogFragment df = PlayStatsSettingsDialogFragment.newInstance(dataView);
+		DialogUtils.showFragment(getActivity(), df, "play_stats_settings");
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		bindAccuracyMessage();
+		getLoaderManager().restartLoader(TOKEN, null, this);
 	}
 }

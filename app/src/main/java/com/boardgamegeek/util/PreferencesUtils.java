@@ -99,12 +99,24 @@ public class PreferencesUtils {
 		return getBoolean(context, "logPlayStatsIncomplete", false);
 	}
 
+	public static void putPlayStatsIncomplete(Context context, boolean value) {
+		putBoolean(context, "logPlayStatsIncomplete", value);
+	}
+
 	public static boolean logPlayStatsExpansions(Context context) {
 		return getBoolean(context, "logPlayStatsExpansions", false);
 	}
 
+	public static void putPlayStatsExpansions(Context context, boolean value) {
+		putBoolean(context, "logPlayStatsExpansions", value);
+	}
+
 	public static boolean logPlayStatsAccessories(Context context) {
 		return getBoolean(context, "logPlayStatsAccessories", false);
+	}
+
+	public static void putPlayStatsAccessories(Context context, boolean value) {
+		putBoolean(context, "logPlayStatsAccessories", value);
 	}
 
 	public static boolean showLogPlayerWin(Context context) {
