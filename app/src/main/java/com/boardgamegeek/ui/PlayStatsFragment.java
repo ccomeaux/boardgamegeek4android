@@ -151,6 +151,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 			}
 			addStatRow(hIndexTable, builder);
 		}
+
+		PreferencesUtils.updateHIndex(getActivity(), stats.getHIndex());
 	}
 
 	private void showEmpty() {

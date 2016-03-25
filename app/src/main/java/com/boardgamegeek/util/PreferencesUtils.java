@@ -1,15 +1,23 @@
 package com.boardgamegeek.util;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
+import android.support.v4.app.NotificationCompat;
+import android.text.SpannableString;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.PlayStatsActivity;
+import com.boardgamegeek.ui.PlaysActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +30,8 @@ import java.util.Set;
  */
 public class PreferencesUtils {
 	public static final long VIEW_ID_COLLECTION = -1;
+	public static final int INVALID_H_INDEX = -1;
+
 	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
 	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
@@ -234,8 +244,30 @@ public class PreferencesUtils {
 		return getInt(context, "hIndex", 0);
 	}
 
-	public static boolean putHIndex(Context context, int hIndex) {
-		return putInt(context, "hIndex", hIndex);
+	public static void updateHIndex(@NonNull Context context, int hIndex) {
+		if (hIndex != INVALID_H_INDEX) {
+			int oldHIndex = PreferencesUtils.getHIndex(context);
+			if (oldHIndex != hIndex) {
+				putInt(context, "hIndex", hIndex);
+				notifyHIndex(context, hIndex, oldHIndex);
+			}
+		}
+	}
+
+	private static void notifyHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
+		@StringRes int messageId;
+		if (hIndex > oldHIndex) {
+			messageId = R.string.sync_notification_h_index_increase;
+		} else {
+			messageId = R.string.sync_notification_h_index_decrease;
+		}
+		SpannableString ss = StringUtils.boldSecondString(context.getString(messageId), String.valueOf(hIndex));
+		Intent intent = new Intent(context, PlayStatsActivity.class);
+		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		NotificationCompat.Builder builder = NotificationUtils
+			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
+			.setContentText(ss).setContentIntent(pi);
+		NotificationUtils.notify(context, NotificationUtils.ID_H_INDEX, builder);
 	}
 
 	public static long getViewDefaultId(Context context) {
