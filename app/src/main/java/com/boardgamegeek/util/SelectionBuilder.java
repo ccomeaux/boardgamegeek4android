@@ -36,23 +36,23 @@ import timber.log.Timber;
  * This class is <em>not</em> thread safe. Borrowed, then expanded, from com.google.android.apps.iosched.util.
  */
 public class SelectionBuilder {
-	private String mTable = null;
-	private final Map<String, String> mProjectionMap = new ArrayMap<>();
-	private final StringBuilder mSelection = new StringBuilder();
-	private final List<String> mSelectionArgs = new ArrayList<>();
-	private final List<String> mGroupBy = new ArrayList<>();
-	private String mHaving = null;
-	private String mLimit = null;
+	private String tableName = null;
+	private final Map<String, String> projectionMap = new ArrayMap<>();
+	private final StringBuilder selection = new StringBuilder();
+	private final List<String> selectionArgs = new ArrayList<>();
+	private final List<String> groupBy = new ArrayList<>();
+	private String having = null;
+	private String limit = null;
 
 	/**
 	 * Reset any internal state, allowing this builder to be recycled.
 	 */
 	public SelectionBuilder reset() {
-		mTable = null;
-		mProjectionMap.clear();
-		mSelection.setLength(0);
-		mSelectionArgs.clear();
-		mGroupBy.clear();
+		tableName = null;
+		projectionMap.clear();
+		selection.setLength(0);
+		selectionArgs.clear();
+		groupBy.clear();
 		return this;
 	}
 
@@ -95,79 +95,79 @@ public class SelectionBuilder {
 		}
 
 		// TODO: map selection similar to projection
-		if (mSelection.length() > 0) {
-			mSelection.append(" AND ");
+		if (this.selection.length() > 0) {
+			this.selection.append(" AND ");
 		}
-		mSelection.append("(").append(selection).append(")");
+		this.selection.append("(").append(selection).append(")");
 
 		if (selectionArgs != null) {
-			Collections.addAll(mSelectionArgs, selectionArgs);
+			Collections.addAll(this.selectionArgs, selectionArgs);
 		}
 
 		return this;
 	}
 
 	public SelectionBuilder table(String table) {
-		mTable = table;
+		tableName = table;
 		return this;
 	}
 
 	public SelectionBuilder limit(String rowCount) {
 		int count = StringUtils.parseInt(rowCount, 0);
 		if (count > 0) {
-			mLimit = rowCount;
+			limit = rowCount;
 		} else {
-			mLimit = null;
+			limit = null;
 		}
 		return this;
 	}
 
 	private void assertTable() {
-		if (mTable == null) {
+		if (tableName == null) {
 			throw new IllegalStateException("Table not specified");
 		}
 	}
 
 	private void assertHaving() {
-		if (!TextUtils.isEmpty(mHaving) && (mGroupBy.size() == 0)) {
+		if (!TextUtils.isEmpty(having) && (groupBy.size() == 0)) {
 			throw new IllegalStateException("Group by must be specified for Having clause");
 		}
 	}
 
 	public SelectionBuilder mapToTable(String column, String table) {
 		if (column.equals(BaseColumns._ID)) {
-			mapToTable(column, table, column);
+			return mapToTable(column, table, column);
 		} else {
-			mProjectionMap.put(column, table + "." + column);
+			projectionMap.put(column, table + "." + column);
 		}
 		return this;
 	}
 
 	public SelectionBuilder mapToTable(String column, String table, String fromColumn) {
-		mProjectionMap.put(column, table + "." + column + " AS " + fromColumn);
+		projectionMap.put(column, table + "." + column + " AS " + fromColumn);
 		return this;
 	}
 
 	public SelectionBuilder mapToTable(String column, String table, String fromColumn, String nullDefault) {
-		mProjectionMap.put(column, "IFNULL(" + table + "." + column + "," + nullDefault + ") AS " + fromColumn);
+		projectionMap.put(column, "IFNULL(" + table + "." + column + "," + nullDefault + ") AS " + fromColumn);
 		return this;
 	}
 
 	public SelectionBuilder map(String fromColumn, String toClause) {
-		mProjectionMap.put(fromColumn, toClause + " AS " + fromColumn);
+		projectionMap.put(fromColumn, toClause + " AS " + fromColumn);
 		return this;
 	}
 
 	public SelectionBuilder groupBy(String... groupArgs) {
-		mGroupBy.clear();
+		groupBy.clear();
 		if (groupArgs != null) {
-			Collections.addAll(mGroupBy, groupArgs);
+			Collections.addAll(groupBy, groupArgs);
 		}
 		return this;
 	}
 
 	public SelectionBuilder having(String having) {
-		mHaving = having;
+		this.having = having;
 		return this;
 	}
 
@@ -177,7 +177,7 @@ public class SelectionBuilder {
 	 * @see #getSelectionArgs()
 	 */
 	public String getSelection() {
-		return mSelection.toString();
+		return selection.toString();
 	}
 
 	/**
@@ -186,19 +186,19 @@ public class SelectionBuilder {
 	 * @see #getSelection()
 	 */
 	public String[] getSelectionArgs() {
-		return mSelectionArgs.toArray(new String[mSelectionArgs.size()]);
+		return selectionArgs.toArray(new String[selectionArgs.size()]);
 	}
 
 	public String getGroupByClause() {
-		if (mGroupBy.size() == 0) {
+		if (groupBy.size() == 0) {
 			return "";
 		}
 		StringBuilder clause = new StringBuilder();
-		for (String arg : mGroupBy) {
+		for (String arg : groupBy) {
 			if (clause.length() > 0) {
 				clause.append(", ");
 			}
-			final String target = mProjectionMap.get(arg);
+			final String target = projectionMap.get(arg);
 			if (target != null) {
 				if (!target.contains(" AS ")) {
 					arg = target;
@@ -211,7 +211,7 @@ public class SelectionBuilder {
 
 	private void mapColumns(String[] columns) {
 		for (int i = 0; i < columns.length; i++) {
-			final String target = mProjectionMap.get(columns[i]);
+			final String target = projectionMap.get(columns[i]);
 			if (target != null) {
 				columns[i] = target;
 			}
@@ -220,8 +220,8 @@ public class SelectionBuilder {
 
 	@Override
 	public String toString() {
-		return "table=[" + mTable + "], selection=[" + getSelection() + "], selectionArgs="
-			+ Arrays.toString(getSelectionArgs()) + ", groupBy=[" + getGroupByClause() + "], having=[" + mHaving + "]";
+		return "table=[" + tableName + "], selection=[" + getSelection() + "], selectionArgs="
+			+ Arrays.toString(getSelectionArgs()) + ", groupBy=[" + getGroupByClause() + "], having=[" + having + "]";
 	}
 
 	/**
@@ -229,7 +229,7 @@ public class SelectionBuilder {
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String orderBy) {
 		assertHaving();
-		return query(db, columns, getGroupByClause(), mHaving, orderBy, mLimit);
+		return query(db, columns, getGroupByClause(), having, orderBy, limit);
 	}
 
 	/**
@@ -241,7 +241,7 @@ public class SelectionBuilder {
 			mapColumns(columns);
 		}
 		Timber.v("QUERY: columns=" + Arrays.toString(columns) + ", " + this);
-		Cursor c = db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
+		Cursor c = db.query(tableName, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
 		Timber.v("queried " + c.getCount() + " rows");
 		return c;
 	}
@@ -252,7 +252,7 @@ public class SelectionBuilder {
 	public int update(SQLiteDatabase db, ContentValues values) {
 		assertTable();
 		Timber.v("UPDATE: " + this);
-		int count = db.update(mTable, values, getSelection(), getSelectionArgs());
+		int count = db.update(tableName, values, getSelection(), getSelectionArgs());
 		Timber.v("updated " + count + " rows");
 		return count;
 	}
@@ -268,7 +268,7 @@ public class SelectionBuilder {
 			// this forces delete to return the count
 			selection = "1";
 		}
-		int count = db.delete(mTable, selection, getSelectionArgs());
+		int count = db.delete(tableName, selection, getSelectionArgs());
 		Timber.v("deleted " + count + " rows");
 		return count;
 	}

@@ -13,44 +13,44 @@ import timber.log.Timber;
  * A builder for creating and replacing tables.
  */
 public class TableBuilder {
-	private String mTable = null;
-	private Column mPrimaryKey = null;
-	private List<Column> mColumns = new ArrayList<>();
-	private List<String> mUniqueColumnNames = new ArrayList<>();
-	private CONFLICT_RESOLUTION mResolution = CONFLICT_RESOLUTION.IGNORE;
-	private boolean mFtsTable = false;
+	private String tableName = null;
+	private Column primaryKey = null;
+	private List<Column> columns = new ArrayList<>();
+	private List<String> uniqueColumnNames = new ArrayList<>();
+	private CONFLICT_RESOLUTION resolution = CONFLICT_RESOLUTION.IGNORE;
+	private boolean isFtsTable = false;
 
 	public TableBuilder reset() {
-		mTable = null;
-		mPrimaryKey = null;
-		mColumns = new ArrayList<>();
-		mUniqueColumnNames = new ArrayList<>();
-		mResolution = CONFLICT_RESOLUTION.IGNORE;
+		tableName = null;
+		primaryKey = null;
+		columns = new ArrayList<>();
+		uniqueColumnNames = new ArrayList<>();
+		resolution = CONFLICT_RESOLUTION.IGNORE;
 		return this;
 	}
 
 	public void create(SQLiteDatabase db) {
-		if (TextUtils.isEmpty(mTable)) {
+		if (TextUtils.isEmpty(tableName)) {
 			throw new IllegalStateException("Table not specified");
 		}
-		if (mPrimaryKey == null) {
+		if (primaryKey == null) {
 			throw new IllegalStateException("Primary key not specified");
 		}
-		String table = mFtsTable ? "CREATE VIRTUAL TABLE " + mTable + " USING fts3" : "CREATE TABLE " + mTable;
+		String table = isFtsTable ? "CREATE VIRTUAL TABLE " + tableName + " USING fts3" : "CREATE TABLE " + tableName;
 		StringBuilder sb = new StringBuilder();
-		sb.append(table).append(" (").append(mPrimaryKey.build()).append(" PRIMARY KEY AUTOINCREMENT,");
-		for (Column column : mColumns) {
+		sb.append(table).append(" (").append(primaryKey.build()).append(" PRIMARY KEY AUTOINCREMENT,");
+		for (Column column : columns) {
 			sb.append(column.build()).append(",");
 		}
-		if (mUniqueColumnNames.size() > 0) {
+		if (uniqueColumnNames.size() > 0) {
 			sb.append("UNIQUE (");
-			for (int i = 0; i < mUniqueColumnNames.size(); i++) {
+			for (int i = 0; i < uniqueColumnNames.size(); i++) {
 				if (i > 0) {
 					sb.append(",");
 				}
-				sb.append(mUniqueColumnNames.get(i));
+				sb.append(uniqueColumnNames.get(i));
 			}
-			sb.append(") ON CONFLICT ").append(mResolution);
+			sb.append(") ON CONFLICT ").append(resolution);
 		} else {
 			// remove comma
 			sb = new StringBuilder(sb.substring(0, sb.length() - 1));
@@ -61,7 +61,7 @@ public class TableBuilder {
 	}
 
 	public void replace(SQLiteDatabase db) {
-		if (TextUtils.isEmpty(mTable)) {
+		if (TextUtils.isEmpty(tableName)) {
 			throw new IllegalStateException("Table not specified");
 		}
 		db.beginTransaction();
@@ -77,22 +77,22 @@ public class TableBuilder {
 	}
 
 	private String tempTable() {
-		return mTable + "_tmp";
+		return tableName + "_tmp";
 	}
 
 	private void rename(SQLiteDatabase db) {
-		db.execSQL("ALTER TABLE " + mTable + " RENAME TO " + tempTable());
+		db.execSQL("ALTER TABLE " + tableName + " RENAME TO " + tempTable());
 	}
 
 	private void copy(SQLiteDatabase db) {
 		StringBuilder sb = new StringBuilder();
-		for (Column column : mColumns) {
+		for (Column column : columns) {
 			if (sb.length() > 0) {
 				sb.append(",");
 			}
 			sb.append(column.name);
 		}
-		String sql = "INSERT INTO " + mTable + "(" + sb.toString() + ") SELECT " + sb.toString() + " FROM "
+		String sql = "INSERT INTO " + tableName + "(" + sb.toString() + ") SELECT " + sb.toString() + " FROM "
 			+ tempTable();
 		Timber.d(sql);
 		db.execSQL(sql);
@@ -103,26 +103,26 @@ public class TableBuilder {
 	}
 
 	public TableBuilder setTable(String table) {
-		mTable = table;
-		mFtsTable = false;
+		tableName = table;
+		isFtsTable = false;
 		return this;
 	}
 
 	public TableBuilder setFtsTable(String table) {
-		mTable = table;
-		mFtsTable = true;
+		tableName = table;
+		isFtsTable = true;
 		return this;
 	}
 
 	public TableBuilder setConflictResolution(CONFLICT_RESOLUTION resolution) {
-		mResolution = resolution;
+		this.resolution = resolution;
 		return this;
 	}
 
 	public TableBuilder setPrimaryKey(String columnName, COLUMN_TYPE type) {
-		mPrimaryKey = new Column();
-		mPrimaryKey.name = columnName;
-		mPrimaryKey.type = type;
+		primaryKey = new Column();
+		primaryKey.name = columnName;
+		primaryKey.type = type;
 		return this;
 	}
 
@@ -130,9 +130,9 @@ public class TableBuilder {
 	 * Add an _ID column and sets it as the primary key.
 	 */
 	public TableBuilder useDefaultPrimaryKey() {
-		mPrimaryKey = new Column();
-		mPrimaryKey.name = BaseColumns._ID;
-		mPrimaryKey.type = COLUMN_TYPE.INTEGER;
+		primaryKey = new Column();
+		primaryKey.name = BaseColumns._ID;
+		primaryKey.type = COLUMN_TYPE.INTEGER;
 		return this;
 	}
 
@@ -171,13 +171,13 @@ public class TableBuilder {
 		c.setReference(referenceTable, referenceColumn);
 		c.onCascadeDelete = onCascadeDelete;
 		c.defaultValue = defaultValue;
-		mColumns.add(c);
+		columns.add(c);
 
 		if (unique) {
 			if (!notNull) {
 				throw new IllegalStateException("Unique columns must be non-null");
 			}
-			mUniqueColumnNames.add(name);
+			uniqueColumnNames.add(name);
 		}
 
 		return this;

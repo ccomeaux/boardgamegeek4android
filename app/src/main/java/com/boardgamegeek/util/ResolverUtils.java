@@ -111,8 +111,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get an integer from the specified column at the URI with the selection applied.
 	 * Returns defaultValue if there's not exactly one row at the URI.
 	 */
-	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
-							   String selection, String[] selectionArgs) {
+	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue, String selection, String[] selectionArgs) {
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
 		try {
 			int count = cursor != null ? cursor.getCount() : 0;
@@ -171,16 +170,14 @@ public class ResolverUtils {
 	/*
 	 * Use the content resolver to get a list of integers from the specified column at the URI.
 	 */
-	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
-										  String[] selectionArgs) {
+	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs) {
 		return queryInts(resolver, uri, columnName, selection, selectionArgs, null);
 	}
 
 	/*
 	 * Use the content resolver to get a list of integers from the specified column at the URI.
 	 */
-	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
-										  String[] selectionArgs, String sortOrder) {
+	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs, String sortOrder) {
 		List<Integer> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
@@ -203,16 +200,14 @@ public class ResolverUtils {
 	/*
 	 * Use the content resolver to get a list of longs from the specified column at the URI.
 	 */
-	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
-										String[] selectionArgs) {
+	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs) {
 		return queryLongs(resolver, uri, columnName, selection, selectionArgs, null);
 	}
 
 	/*
 	 * Use the content resolver to get a list of longs from the specified column at the URI.
 	 */
-	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
-										String[] selectionArgs, String sortOrder) {
+	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs, String sortOrder) {
 		List<Long> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
@@ -235,16 +230,14 @@ public class ResolverUtils {
 	/*
 	 * Use the content resolver to get a list of strings from the specified column at the URI.
 	 */
-	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
-											String[] selectionArgs) {
+	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs) {
 		return queryStrings(resolver, uri, columnName, selection, selectionArgs, null);
 	}
 
 	/*
 	 * Use the content resolver to get a list of strings from the specified column at the URI.
 	 */
-	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
-											String[] selectionArgs, String sortOrder) {
+	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs, String sortOrder) {
 		List<String> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {

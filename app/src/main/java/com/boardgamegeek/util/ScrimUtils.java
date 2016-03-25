@@ -16,6 +16,7 @@
 
 package com.boardgamegeek.util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
@@ -89,6 +90,7 @@ public class ScrimUtils {
 	 * <a href="https://plus.google.com/+RomanNurik/posts/2QvHVFWrHZf">this post</a> for more
 	 * details.
 	 */
+	@SuppressLint("RtlHardcoded")
 	public static Drawable makeCubicGradientScrimDrawable(int baseColor, int numStops, int gravity) {
 		numStops = Math.max(numStops, 2);
 

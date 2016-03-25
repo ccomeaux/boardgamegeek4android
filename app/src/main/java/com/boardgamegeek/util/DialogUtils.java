@@ -59,9 +59,7 @@ public class DialogUtils {
 		return createConfirmationDialog(context, messageId, null, null, okListener, null);
 	}
 
-	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view,
-												   DialogInterface.OnClickListener okListener,
-												   DialogInterface.OnClickListener cancelListener) {
+	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view, DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
 			.setNegativeButton(android.R.string.cancel, cancelListener)
 			.setPositiveButton(android.R.string.ok, okListener)
