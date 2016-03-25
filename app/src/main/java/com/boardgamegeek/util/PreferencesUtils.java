@@ -22,6 +22,7 @@ import java.util.Set;
  */
 public class PreferencesUtils {
 	public static final long VIEW_ID_COLLECTION = -1;
+	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
 	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
@@ -31,6 +32,9 @@ public class PreferencesUtils {
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
+	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
+	private static final String LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions";
+	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
 
 	private PreferencesUtils() {
 	}
@@ -96,27 +100,27 @@ public class PreferencesUtils {
 	}
 
 	public static boolean logPlayStatsIncomplete(Context context) {
-		return getBoolean(context, "logPlayStatsIncomplete", false);
+		return getBoolean(context, LOG_PLAY_STATS_INCOMPLETE, false);
 	}
 
 	public static void putPlayStatsIncomplete(Context context, boolean value) {
-		putBoolean(context, "logPlayStatsIncomplete", value);
+		putBoolean(context, LOG_PLAY_STATS_INCOMPLETE, value);
 	}
 
 	public static boolean logPlayStatsExpansions(Context context) {
-		return getBoolean(context, "logPlayStatsExpansions", false);
+		return getBoolean(context, LOG_PLAY_STATS_EXPANSIONS, false);
 	}
 
 	public static void putPlayStatsExpansions(Context context, boolean value) {
-		putBoolean(context, "logPlayStatsExpansions", value);
+		putBoolean(context, LOG_PLAY_STATS_EXPANSIONS, value);
 	}
 
 	public static boolean logPlayStatsAccessories(Context context) {
-		return getBoolean(context, "logPlayStatsAccessories", false);
+		return getBoolean(context, LOG_PLAY_STATS_ACCESSORIES, false);
 	}
 
 	public static void putPlayStatsAccessories(Context context, boolean value) {
-		putBoolean(context, "logPlayStatsAccessories", value);
+		putBoolean(context, LOG_PLAY_STATS_ACCESSORIES, value);
 	}
 
 	public static boolean showLogPlayerWin(Context context) {

@@ -189,7 +189,9 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		bindAccuracyMessage();
-		getLoaderManager().restartLoader(TOKEN, null, this);
+		if (key.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX)) {
+			bindAccuracyMessage();
+			getLoaderManager().restartLoader(TOKEN, null, this);
+		}
 	}
 }
