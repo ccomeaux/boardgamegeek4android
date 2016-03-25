@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 5.2.2
+-------------
+* Improve H-Index calculations
+* Bug fixes
+
 Version 5.2.1
 -------------
 * Fix play logging issues 
