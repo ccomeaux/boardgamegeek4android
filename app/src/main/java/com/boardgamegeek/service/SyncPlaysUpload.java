@@ -141,6 +141,14 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					final int newPlayId = response.getPlayId();
 					final int oldPlayId = play.playId;
 
+					String message = play.hasBeenSynced() ?
+						context.getString(R.string.msg_play_updated) :
+						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
+					currentPlayIdForMessage = newPlayId;
+					currentGameIdForMessage = play.gameId;
+					currentGameNameForMessage = play.gameName;
+					notifyUser(StringUtils.boldSecondString(message, play.gameName));
+
 					if (newPlayId != oldPlayId) {
 						// delete the old play
 						deletePlay(play);
@@ -154,14 +162,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					}
 					play.syncStatus = Play.SYNC_STATUS_SYNCED;
 					persister.save(context, play);
-
-					String message = play.hasBeenSynced() ?
-						context.getString(R.string.msg_play_updated) :
-						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
-					currentPlayIdForMessage = newPlayId;
-					currentGameIdForMessage = play.gameId;
-					currentGameNameForMessage = play.gameName;
-					notifyUser(StringUtils.boldSecondString(message, play.gameName));
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
