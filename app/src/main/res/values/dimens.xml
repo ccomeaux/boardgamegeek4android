@@ -20,7 +20,7 @@
 	<dimen name="edit_label_width">56dp</dimen>
 	<dimen name="player_row_height">48dp</dimen>
 	<dimen name="drawer_item_height">48dp</dimen>
-	<dimen name="thumbnail_list_size">64dp</dimen>
+	<dimen name="thumbnail_list_size">56dp</dimen>
 	<dimen name="thumbnail_list_size_small">40dp</dimen>
 	<dimen name="thumbnail_list_size_small_margin">16dp</dimen>
 	<dimen name="thumbnail_size">72dp</dimen>
