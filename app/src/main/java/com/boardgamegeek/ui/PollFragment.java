@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -11,7 +10,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.view.Display;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,11 +110,9 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		super.onViewCreated(view, savedInstanceState);
 
 		// size the graph to be 80% of the screen width
-		Display display = getActivity().getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
+		DisplayMetrics display = this.getResources().getDisplayMetrics();
 		ViewGroup.LayoutParams lp = mPieChart.getLayoutParams();
-		lp.width = (int) (size.x * .8);
+		lp.width = (int) (display.widthPixels * .8);
 		mPieChart.setLayoutParams(lp);
 	}
 
