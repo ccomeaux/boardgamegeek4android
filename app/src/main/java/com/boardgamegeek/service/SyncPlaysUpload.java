@@ -150,11 +150,9 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					notifyUser(StringUtils.boldSecondString(message, play.gameName));
 
 					if (newPlayId != oldPlayId) {
-						// delete the old play
 						deletePlay(play);
 
-						// then save play as a new record
-						PreferencesUtils.putNewPlayId(context, oldPlayId, play.playId);
+						PreferencesUtils.putNewPlayId(context, oldPlayId, newPlayId);
 						Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
 						broadcastManager.sendBroadcast(intent);
 
