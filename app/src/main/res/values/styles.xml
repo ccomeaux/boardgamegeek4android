@@ -6,18 +6,6 @@
 		<item name="android:paddingTop">@dimen/padding_small</item>
 	</style>
 
-	<style name="BodySeparator">
-		<item name="android:layout_marginTop">@dimen/padding_standard</item>
-		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
-		<item name="android:background">@android:drawable/divider_horizontal_bright</item>
-	</style>
-
-	<style name="StatsCount">
-		<item name="android:gravity">right</item>
-		<item name="android:paddingLeft">@dimen/padding_small</item>
-		<item name="android:textColor">#000</item>
-	</style>
-
 	<style name="InfoBar">
 		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
@@ -45,11 +33,12 @@
 		<item name="android:typeface">monospace</item>
 	</style>
 
-	<style name="Text" parent="@android:style/TextAppearance">
+	<style name="Text" parent="@style/TextAppearance.AppCompat.Body1">
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
 		<item name="android:textSize">14sp</item>
 	</style>
 
-	<style name="Text.NumberStat">
+	<style name="Text.NumberStat" parent="@style/Text.Primary">
 		<item name="android:textStyle">bold</item>
 		<item name="android:gravity">right</item>
 	</style>
@@ -75,9 +64,9 @@
 		<item name="android:textSize">45sp</item>
 	</style>
 
-	<style name="Text.Primary" parent="Text.Big">
-		<item name="android:textStyle">bold</item>
-		<item name="android:lineSpacingMultiplier">0.9</item>
+	<style name="Text.Primary" parent="@style/TextAppearance.AppCompat.Subhead">
+		<item name="android:textColor">#000</item>
+		<!-- <item name="android:textColor">@color/primary_text_default_material_light</item> -->
 	</style>
 
 	<style name="Text.Primary.Inverse">
@@ -85,14 +74,12 @@
 	</style>
 
 	<style name="Text.Primary.DrawerHeader">
-		<item name="android:textColor">@color/light_text</item>
-		<item name="android:textStyle"/>
 		<item name="android:textSize">14sp</item>
 	</style>
 
-	<style name="Text.Secondary">
-		<item name="android:textColor">@color/light_text</item>
-		<item name="android:textSize">12sp</item>
+	<style name="Text.Secondary" parent="@style/TextAppearance.AppCompat.Body1">
+		<item name="android:textColor">@color/secondary_text_default_material_light</item>
+		<item name="android:textSize">14sp</item>
 	</style>
 
 	<style name="Text.Secondary.Inverse">
@@ -107,13 +94,12 @@
 		<item name="android:textSize">12sp</item>
 	</style>
 
-	<style name="Text.Footnote">
-		<item name="android:textSize">10sp</item>
+	<style name="Text.Footnote" parent="@style/TextAppearance.AppCompat.Caption">
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
 	</style>
 
-	<style name="Text.Footnote2">
-		<item name="android:textColor">@color/light_text</item>
-		<item name="android:textSize">10sp</item>
+	<style name="Text.Footnote2" parent="@style/TextAppearance.AppCompat.Caption">
+		<item name="android:textColor">@color/secondary_text_default_material_light</item>
 	</style>
 
 	<style name="Text.Footnote2.Inverse">
@@ -134,18 +120,13 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.Title">
-		<item name="android:textSize">22sp</item>
-		<item name="android:textStyle">bold</item>
+	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"/>
+
+	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Subhead">
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
 	</style>
 
-	<style name="Text.Subtitle">
-		<item name="android:textColor">@color/light_text</item>
-	</style>
-
-	<style name="Text.Headline">
-		<item name="android:textSize">24sp</item>
-	</style>
+	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
 
 	<style name="Text.Label">
 		<item name="android:paddingTop">@dimen/padding_standard</item>
@@ -159,11 +140,11 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="DrawerItem" parent="Text">
-		<item name="android:layout_gravity">left|center_vertical</item>
-		<item name="android:paddingLeft">@dimen/padding_standard</item>
-		<item name="android:paddingRight">@dimen/padding_standard</item>
+	<style name="DrawerItem" parent="TextAppearance.AppCompat">
+		<item name="android:textSize">14sp</item>
 		<item name="android:gravity">left|center_vertical</item>
+		<item name="android:textIsSelectable">false</item>
+		<item name="android:layout_gravity">left|center_vertical</item>
 	</style>
 
 	<style name="Text.ActionBar">
@@ -180,24 +161,21 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:minHeight">@dimen/drawer_item_height</item>
-		<item name="android:paddingBottom">@dimen/padding_standard</item>
-		<item name="android:paddingLeft">@dimen/padding_standard</item>
-		<item name="android:paddingRight">@dimen/padding_standard</item>
-		<item name="android:paddingTop">@dimen/padding_standard</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 	</style>
 
 	<style name="RowContainer">
 		<item name="android:gravity">center</item>
-		<item name="android:minHeight">?android:attr/listPreferredItemHeight</item>
-		<item name="android:paddingBottom">@dimen/padding_standard</item>
-		<item name="android:paddingLeft">@dimen/padding_standard</item>
-		<item name="android:paddingRight">@dimen/padding_standard</item>
-		<item name="android:paddingTop">@dimen/padding_standard</item>
+		<item name="android:minHeight">48dp</item>
+		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 	</style>
 
 	<style name="RowContainer.WithThumbnail">
-		<item name="android:paddingBottom">0dp</item>
-		<item name="android:paddingTop">0dp</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal_thumbnail</item>
 	</style>
 
 	<style name="RowContainer.Medium">
@@ -212,17 +190,15 @@
 		<item name="android:minHeight">88dp</item>
 	</style>
 
-	<style name="RowSeparator">
+	<style name="RowSeparator" parent="@style/TextAppearance.AppCompat.Menu">
 		<item name="android:background">@color/primary_dark</item>
-		<item name="android:clickable">false</item>
-		<item name="android:focusable">false</item>
-		<item name="android:gravity">center_horizontal</item>
-		<item name="android:paddingBottom">@dimen/padding_small</item>
-		<item name="android:paddingLeft">@dimen/padding_extra</item>
-		<item name="android:paddingRight">@dimen/padding_extra</item>
-		<item name="android:paddingTop">@dimen/padding_small</item>
-		<item name="android:textColor">#FFF</item>
-		<item name="android:textStyle">bold</item>
+		<item name="android:gravity">center</item>
+		<item name="android:minHeight">32dp</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:textAllCaps">true</item>
+		<item name="android:textColor">@color/inverse_text_title</item>
+		<item name="android:textIsSelectable">false</item>
 	</style>
 
 	<style name="ImageList">
@@ -230,13 +206,7 @@
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 
-	<style name="GameDetailRow">
-		<item name="android:minHeight">@dimen/edit_row_height</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
-	</style>
-
-	<style name="Text.Body">
+	<style name="Text.Body" parent="@style/TextAppearance.AppCompat.Body1">
 	</style>
 
 	<style name="Text.Clickable">
@@ -246,7 +216,8 @@
 
 	</style>
 
-	<style name="Text.Header">
+	<style name="Text.Header" parent="@style/TextAppearance.AppCompat.Button">
+		<item name="android:textAllCaps">true</item>
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
@@ -261,7 +232,8 @@
 		<item name="android:gravity">center_vertical</item>
 	</style>
 
-	<style name="Text.Footer">
+	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
+		<item name="android:textAllCaps">true</item>
 		<item name="android:textColor">@color/light_text</item>
 	</style>
 
@@ -334,8 +306,6 @@
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 	</style>
 
-	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Dialog"/>
-
 	<style name="ActionBar">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
@@ -345,7 +315,9 @@
 
 	<style name="ActionBarButtonContainer">
 		<item name="android:divider">?android:attr/dividerVertical</item>
+		<item name="android:dividerPadding">12dp</item>
 		<item name="android:orientation">horizontal</item>
+		<item name="android:showDividers">middle</item>
 	</style>
 
 	<style name="ActionBarButton" parent="android:style/Widget.Holo.Light.ActionButton">
@@ -366,7 +338,7 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:textAppearance">?android:attr/actionMenuTextAppearance</item>
-		<item name="android:textColor">#000000</item>
+		<item name="android:textColor">?android:attr/actionMenuTextColor</item>
 		<item name="android:orientation">horizontal</item>
 		<item name="android:singleLine">true</item>
 		<item name="android:ellipsize">none</item>
@@ -383,7 +355,6 @@
 	<style name="DrawerList">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">match_parent</item>
-		<item name="android:divider">?android:dividerHorizontal</item>
 		<item name="android:orientation">vertical</item>
 	</style>
 
@@ -398,12 +369,6 @@
 		<item name="android:layout_height">match_parent</item>
 		<item name="android:scaleType">centerCrop</item>
 		<item name="android:background">@color/no_image</item>
-	</style>
-
-	<style name="HeroOverlay">
-		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">match_parent</item>
-		<item name="android:background">@color/black_overlay</item>
 	</style>
 
 	<style name="RatingLarge" parent="@style/Text.Title">

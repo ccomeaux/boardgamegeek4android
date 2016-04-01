@@ -13,7 +13,7 @@ import android.support.v4.util.ArrayMap;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.VersionUtils;
-import com.mikepenz.aboutlibraries.Libs;
+import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import java.util.List;
 
@@ -83,7 +83,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
-		private int mSyncType = 0;
+		private int syncType = 0;
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -100,23 +100,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 			if (oslPref != null) {
 				oslPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 					public boolean onPreferenceClick(Preference preference) {
-						new Libs.Builder()
+						new LibsBuilder()
 							.withFields(R.string.class.getFields())
 							.withLibraries(
-								"OkHttp",
 								"DragSortListView",
 								"Hugo",
 								"PhotoView",
 								"RangeSeekBar",
 								"StickyListHeaders",
 								"AndroidIcons",
-								"EventBus",
 								"MPAndroidChart",
-								"AndroidRandomColor")
+								"AndroidRandomColor",
+								"LeakCanary")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))
-							.withActivityTheme(R.style.Theme_bgglight)
+							.withActivityTheme(R.style.Theme_bgglight_NoActionBar)
+							.withAboutIconShown(true)
+							.withAboutAppName(getString(R.string.app_name))
 							.withAboutVersionShown(true)
 							.start(PrefFragment.this.getActivity());
 						return true;
@@ -140,8 +141,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		@Override
 		public void onStop() {
 			super.onStop();
-			if (mSyncType > 0) {
-				SyncService.sync(getActivity(), mSyncType);
+			if (syncType > 0) {
+				SyncService.sync(getActivity(), syncType);
 			}
 		}
 
@@ -150,15 +151,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 			switch (key) {
 				case "syncStatuses":
 					SyncService.clearCollection(getActivity());
-					mSyncType |= SyncService.FLAG_SYNC_COLLECTION;
+					syncType |= SyncService.FLAG_SYNC_COLLECTION;
 					break;
 				case "syncPlays":
 					SyncService.clearPlays(getActivity());
-					mSyncType |= SyncService.FLAG_SYNC_PLAYS;
+					syncType |= SyncService.FLAG_SYNC_PLAYS;
 					break;
 				case "syncBuddies":
 					SyncService.clearBuddies(getActivity());
-					mSyncType |= SyncService.FLAG_SYNC_BUDDIES;
+					syncType |= SyncService.FLAG_SYNC_BUDDIES;
 					break;
 			}
 		}

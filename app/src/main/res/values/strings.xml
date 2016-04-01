@@ -352,7 +352,6 @@
 	<string name="share_games_subject">Games on BoardGameGeek</string>
 	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
-	<string name="share_play_played">Played</string>
 	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
 	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
 	<string name="share_thread_article_text">I found this reply in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
@@ -531,10 +530,6 @@
 	<plurals name="plays_prefix">
 		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
 		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
-	</plurals>
-	<plurals name="msg_updated_plays">
-		<item quantity="one">Updated %s play!</item>
-		<item quantity="other">Updated %s plays!</item>
 	</plurals>
 	<plurals name="msg_updated_plays_buddy_nickname">
 		<item quantity="one">Updated %1$,d play for %2$s with nickname \"%3$s\".</item>
