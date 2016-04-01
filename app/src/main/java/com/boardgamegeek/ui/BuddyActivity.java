@@ -66,7 +66,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.add_username) {
-			EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newUsernameInstance(R.string.title_edit_player, null, new EditTextDialogListener() {
+			EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newUsernameInstance(R.string.title_add_username, null, new EditTextDialogListener() {
 				@Override
 				public void onFinishEditDialog(String inputText) {
 					if (!TextUtils.isEmpty(inputText)) {

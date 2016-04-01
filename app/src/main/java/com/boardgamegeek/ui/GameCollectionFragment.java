@@ -131,6 +131,13 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		return rootView;
 	}
 
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
 	@Override
 	@DebugLog
 	public void onResume() {
@@ -157,6 +164,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			needsUploading = false;
 		}
 		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@DebugLog

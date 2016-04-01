@@ -30,14 +30,14 @@ def getBranchName = { ->
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "com.boardgamegeek"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 54
-        versionName "5.2.2"
+        versionCode 55
+        versionName "5.2.3"
         buildConfigField "String", "BRANCH", "\"" + getBranchName() + "\""
     }
     buildTypes {

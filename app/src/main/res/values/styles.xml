@@ -40,6 +40,22 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="DialogCheckbox">
+		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
+		<item name="android:textSize">18sp</item>
+		<item name="android:textColor">?attr/textColorAlertDialogListItem</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingLeft">20dp</item>
+		<item name="android:paddingRight">24dp</item>
+		<item name="android:ellipsize">end</item>
+	</style>
+
+	<style name="DialogRadioButton">
+		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:background">?attr/selectableItemBackground</item>
+	</style>
+
 	<style name="Text.Code" parent="@android:style/TextAppearance">
 		<item name="android:textSize">14sp</item>
 		<item name="android:typeface">monospace</item>
@@ -251,9 +267,13 @@
 	</style>
 
 	<style name="Text.Header.Section">
-		<item name="android:layout_height">40dp</item>
+		<item name="android:minHeight">40dp</item>
 		<item name="android:gravity">bottom</item>
 		<item name="android:paddingBottom">8dp</item>
+	</style>
+
+	<style name="Text.Header.Section.Dialog">
+		<item name="android:paddingLeft">4dp</item>
 	</style>
 
 	<style name="Text.Header.Card">
