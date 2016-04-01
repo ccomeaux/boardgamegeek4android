@@ -461,4 +461,13 @@
 		<item name="android:textAppearance">@style/Text.Pad</item>
 	</style>
 
+	<style name="RaisedButton" parent="Theme.AppCompat">
+		<item name="android:minHeight">36dp</item>
+		<item name="android:minWidth">88dp</item>
+		<item name="colorButtonNormal">@color/primary_dark</item>
+		<item name="colorControlHighlight">@color/primary</item>
+		<item name="elevation">2dp</item>
+		<item name="gravity">center</item>
+	</style>
+
 </resources>
