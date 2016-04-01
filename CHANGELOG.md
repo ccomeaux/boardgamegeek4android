@@ -5,6 +5,10 @@ Coming Soon...
 --------------
  * Some cool stuff
 
+Version 5.2.3
+-------------
+ * Bug fixes
+
 Version 5.2.2
 -------------
  * Improve H-Index calculations

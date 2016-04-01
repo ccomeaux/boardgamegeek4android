@@ -15,195 +15,174 @@
 		android:layout_height="wrap_content">
 
 		<TextView
-			style="@style/Text.Header"
+			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_sort_stats"/>
 
 		<RadioButton
 			android:id="@+id/name"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_collection_name"/>
 
 		<RadioButton
 			android:id="@+id/year_published_asc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_year_published_asc"/>
 
 		<RadioButton
 			android:id="@+id/year_published_desc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_year_published_desc"/>
 
 		<RadioButton
 			android:id="@+id/play_time_asc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_time_asc"/>
 
 		<RadioButton
 			android:id="@+id/play_time_desc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_time_desc"/>
 
 		<RadioButton
 			android:id="@+id/suggested_age_asc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_suggested_age_asc"/>
 
 		<RadioButton
 			android:id="@+id/suggested_age_desc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_suggested_age_desc"/>
 
 		<TextView
-			style="@style/Text.Header"
+			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_sort_community"/>
 
 		<RadioButton
 			android:id="@+id/rank"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_rank"/>
 
 		<RadioButton
 			android:id="@+id/geek_rating"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_geek_rating"/>
 
 		<RadioButton
 			android:id="@+id/average_rating"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_average_rating"/>
 
 		<RadioButton
 			android:id="@+id/average_weight_asc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_average_weight_asc"/>
 
 		<RadioButton
 			android:id="@+id/average_weight_desc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_average_weight_desc"/>
 
 		<TextView
-			style="@style/Text.Header"
+			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_sort_personal"/>
 
 		<RadioButton
 			android:id="@+id/my_rating"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_my_rating"/>
 
 		<RadioButton
 			android:id="@+id/wishlist_priority"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_wishlist_priority"/>
 
 		<RadioButton
 			android:id="@+id/play_count_desc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_count_desc"/>
 
 		<RadioButton
 			android:id="@+id/play_count_asc"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_play_count_asc"/>
 
 		<RadioButton
 			android:id="@+id/acquisition_date"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_acquisition_date"/>
 
 		<RadioButton
 			android:id="@+id/acquired_from"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_acquired_from"/>
 
 		<RadioButton
 			android:id="@+id/price_paid"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_price_paid"/>
 
 		<RadioButton
 			android:id="@+id/current_value"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_current_value"/>
 
 		<TextView
-			style="@style/Text.Header"
+			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_sort_local"/>
 
 		<RadioButton
 			android:id="@+id/last_viewed"
+			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
 			android:tag="@string/collection_sort_type_last_viewed"/>
 	</RadioGroup>
 </ScrollView>

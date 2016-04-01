@@ -36,7 +36,7 @@ android {
         applicationId "com.boardgamegeek"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 54
+        versionCode 55
         versionName "5.3"
         buildConfigField "String", "BRANCH", "\"" + getBranchName() + "\""
     }

@@ -141,20 +141,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					final int newPlayId = response.getPlayId();
 					final int oldPlayId = play.playId;
 
-					if (newPlayId != oldPlayId) {
-						// delete the old play
-						deletePlay(play);
-
-						// then save play as a new record
-						PreferencesUtils.putNewPlayId(context, oldPlayId, play.playId);
-						Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
-						broadcastManager.sendBroadcast(intent);
-
-						play.playId = newPlayId;
-					}
-					play.syncStatus = Play.SYNC_STATUS_SYNCED;
-					persister.save(context, play);
-
 					String message = play.hasBeenSynced() ?
 						context.getString(R.string.msg_play_updated) :
 						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
@@ -162,6 +148,18 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
 					notifyUser(StringUtils.boldSecondString(message, play.gameName));
+
+					if (newPlayId != oldPlayId) {
+						deletePlay(play);
+
+						PreferencesUtils.putNewPlayId(context, oldPlayId, newPlayId);
+						Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
+						broadcastManager.sendBroadcast(intent);
+
+						play.playId = newPlayId;
+					}
+					play.syncStatus = Play.SYNC_STATUS_SYNCED;
+					persister.save(context, play);
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
