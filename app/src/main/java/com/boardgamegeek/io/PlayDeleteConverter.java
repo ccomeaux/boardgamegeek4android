@@ -37,7 +37,6 @@ public class PlayDeleteConverter extends PostConverter {
 		}
 	}
 
-	@NonNull
 	@Override
 	protected Object convertContent(String content) {
 		// not called; fromBody overridden instead

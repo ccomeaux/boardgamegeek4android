@@ -56,7 +56,7 @@ public class PlayBuilder {
 			Cursor c = null;
 			try {
 				c = context.getContentResolver().query(play.playerUri(), null, null, null, null);
-				while (c != null ? c.moveToNext() : false) {
+				while (c != null && c.moveToNext()) {
 					play.addPlayer(new Player(c));
 				}
 			} finally {
