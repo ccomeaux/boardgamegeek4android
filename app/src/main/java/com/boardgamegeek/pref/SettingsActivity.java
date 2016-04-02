@@ -1,23 +1,18 @@
 package com.boardgamegeek.pref;
 
-import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
 import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.VersionUtils;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import java.util.List;
 
-@SuppressWarnings("deprecation")
 public class SettingsActivity extends AppCompatPreferenceActivity {
 	private final static String ACTION_LOG = "com.boardgamegeek.prefs.LOG";
 	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
@@ -35,45 +30,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		buildLegacyPreferences();
-	}
-
-	private void buildLegacyPreferences() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			String action = getIntent().getAction();
-			if (action != null) {
-				Integer fragmentId = FRAGMENT_MAP.get(action);
-				if (fragmentId != null) {
-					addPreferencesFromResource(fragmentId);
-				}
-			} else if (!VersionUtils.hasHoneycomb()) {
-				addPreferencesFromResource(R.xml.preference_headers_legacy);
-			}
-		}
-	}
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	@Override
 	public void onBuildHeaders(List<Header> target) {
 		super.onBuildHeaders(target);
 		loadHeadersFromResource(R.xml.preference_headers, target);
-	}
-
-	@Override
-	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-		super.onPreferenceTreeClick(preferenceScreen, preference);
-		if (preference != null)
-			if (preference instanceof PreferenceScreen)
-				if (((PreferenceScreen) preference).getDialog() != null)
-					((PreferenceScreen) preference)
-						.getDialog()
-						.getWindow()
-						.getDecorView()
-						.setBackgroundDrawable(
-							this.getWindow().getDecorView().getBackground().getConstantState().newDrawable());
-		return false;
 	}
 
 	@Override
@@ -81,7 +40,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		return fragmentName.equals(PrefFragment.class.getName());
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 		private int syncType = 0;
 
