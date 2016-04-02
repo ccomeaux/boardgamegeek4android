@@ -5,10 +5,8 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog.Builder;
 import android.text.InputType;
@@ -25,7 +23,6 @@ import com.boardgamegeek.auth.AuthResponse;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -162,33 +159,26 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	 * Shows the progress UI and hides the login form.
 	 */
 	@DebugLog
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 	private void showProgress(final boolean show) {
-		// Fade in/out if possible
-		if (VersionUtils.hasHoneycombMR2()) {
-			int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+		int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-			loginStatusView.setVisibility(View.VISIBLE);
-			loginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						loginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-					}
-				});
+		loginStatusView.setVisibility(View.VISIBLE);
+		loginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					loginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+				}
+			});
 
-			loginFormView.setVisibility(View.VISIBLE);
-			loginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						loginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
-					}
-				});
-		} else {
-			loginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-			loginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
-		}
+		loginFormView.setVisibility(View.VISIBLE);
+		loginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					loginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+				}
+			});
 	}
 
 	/**

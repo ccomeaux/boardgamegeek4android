@@ -14,10 +14,6 @@ public class TaskUtils {
 	@SafeVarargs
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static <T> void executeAsyncTask(AsyncTask<T, ?, ?> task, T... params) {
-		if (VersionUtils.hasHoneycomb()) {
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-		} else {
-			task.execute(params);
-		}
+		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
 	}
 }
