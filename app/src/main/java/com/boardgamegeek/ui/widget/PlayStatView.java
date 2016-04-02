@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
@@ -20,7 +18,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -58,12 +55,10 @@ public class PlayStatView extends TableRow {
 		mValue.setText(text);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(@StringRes int textId) {
 		setInfoText(getContext().getString(textId));
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(String text) {
 		mInfo.setVisibility(View.VISIBLE);
 		setClickBackground();
@@ -84,18 +79,15 @@ public class PlayStatView extends TableRow {
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setClickBackground() {
-		if (VersionUtils.hasHoneycomb()) {
-			int resId = 0;
-			TypedArray a = getContext().obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
-			try {
-				resId = a.getResourceId(0, resId);
-			} finally {
-				a.recycle();
-			}
-			mContainer.setBackgroundResource(resId);
+		int resId = 0;
+		TypedArray a = getContext().obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
+		try {
+			resId = a.getResourceId(0, resId);
+		} finally {
+			a.recycle();
 		}
+		mContainer.setBackgroundResource(resId);
 	}
 
 	public static class Builder {

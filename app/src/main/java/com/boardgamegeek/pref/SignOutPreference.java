@@ -9,7 +9,6 @@ import android.util.TypedValue;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.util.VersionUtils;
 
 public class SignOutPreference extends DialogPreference {
 
@@ -23,15 +22,10 @@ public class SignOutPreference extends DialogPreference {
 		init();
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void init() {
-		int dialogResourceId = android.R.drawable.ic_dialog_alert;
-		if (VersionUtils.hasHoneycomb()) {
-			TypedValue typedValue = new TypedValue();
-			getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);
-			dialogResourceId = typedValue.resourceId;
-		}
-		setDialogIcon(dialogResourceId);
+		TypedValue typedValue = new TypedValue();
+		getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);
+		setDialogIcon(typedValue.resourceId);
 		setDialogLayoutResource(R.layout.widget_dialogpreference_textview);
 	}
 

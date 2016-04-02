@@ -5,7 +5,6 @@ import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 
 import com.boardgamegeek.util.CrashReportingTree;
-import com.boardgamegeek.util.VersionUtils;
 import com.crashlytics.android.Crashlytics;
 import com.squareup.leakcanary.LeakCanary;
 
@@ -38,11 +37,7 @@ public class BggApplication extends Application {
 		Builder builder = new Builder()
 			.detectAll()
 			.penaltyLog();
-		if (VersionUtils.hasHoneycomb()) {
-			builder.penaltyFlashScreen();
-		} else {
-			builder.penaltyDialog();
-		}
+		builder.penaltyFlashScreen();
 		StrictMode.setThreadPolicy(builder.build());
 	}
 }

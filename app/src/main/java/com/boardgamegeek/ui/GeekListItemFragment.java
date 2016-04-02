@@ -23,7 +23,6 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 import com.boardgamegeek.util.XmlConverter;
 
 import java.util.List;
@@ -68,7 +67,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		R.id.edited_date
 	}) List<TextView> colorizedTextViews;
 
-	private final ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
@@ -101,7 +100,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		ScrimUtils.applyDefaultScrim(headerContainer);
 		ViewTreeObserver vto = rootView.getViewTreeObserver();
 		if (vto.isAlive()) {
-			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+			vto.addOnGlobalLayoutListener(globalLayoutListener);
 		}
 
 		orderView.setText(order);
@@ -175,11 +174,11 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 
 		ViewTreeObserver vto = rootView.getViewTreeObserver();
 		if (vto.isAlive()) {
-			if (VersionUtils.hasJellyBean()) {
-				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				vto.removeOnGlobalLayoutListener(globalLayoutListener);
 			} else {
 				//noinspection deprecation
-				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+				vto.removeGlobalOnLayoutListener(globalLayoutListener);
 			}
 		}
 	}
