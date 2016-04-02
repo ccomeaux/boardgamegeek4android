@@ -706,10 +706,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			viewId = 0;
 			viewName = "";
 			resetScrollState();
-			filters.clear();
-			sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
-			requery();
 		}
+		filters.clear();
+		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
+		requery();
 	}
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
