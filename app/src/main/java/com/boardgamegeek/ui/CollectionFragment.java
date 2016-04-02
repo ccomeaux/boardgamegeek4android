@@ -19,15 +19,18 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.Toolbar.OnMenuItemClickListener;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,8 +64,6 @@ import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -181,7 +182,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			requery();
 		}
 		if (getListView() != null) {
-			ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+			final ListView listView = getListView().getWrappedList();
+			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			listView.setMultiChoiceModeListener(this);
 		}
 	}
 

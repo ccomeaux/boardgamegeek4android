@@ -16,6 +16,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,8 +42,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -83,7 +83,11 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+
+		final ListView listView = getListView();
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		listView.setMultiChoiceModeListener(this);
+
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		restartLoader(intent.getStringExtra(SearchManager.QUERY), true);
 	}

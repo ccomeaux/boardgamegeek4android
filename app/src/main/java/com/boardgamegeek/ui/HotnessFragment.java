@@ -35,8 +35,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class HotnessFragment extends BggListFragment implements
-	LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
+public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 1;
 
 	private BoardGameAdapter adapter;

@@ -17,13 +17,16 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.DatePicker;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -52,8 +55,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
 import java.util.Calendar;
 import java.util.LinkedHashSet;
@@ -66,8 +67,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import timber.log.Timber;
 
-public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	MultiChoiceModeListener {
+public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
 	public static final String KEY_MODE = "MODE";
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_USER_NAME = "USER_NAME";
@@ -154,7 +154,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 		final StickyListHeadersListView listView = getListView();
 		if (listView != null) {
-			ActionMode.setMultiChoiceMode(listView.getWrappedList(), getActivity(), this);
+			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			listView.setMultiChoiceModeListener(this);
 		}
 	}
 
