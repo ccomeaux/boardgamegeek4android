@@ -22,7 +22,6 @@ public class SignOutPreference extends DialogPreference {
 		init();
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void init() {
 		TypedValue typedValue = new TypedValue();
 		getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);

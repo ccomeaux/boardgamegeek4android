@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
@@ -57,12 +55,10 @@ public class PlayStatView extends TableRow {
 		mValue.setText(text);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(@StringRes int textId) {
 		setInfoText(getContext().getString(textId));
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(String text) {
 		mInfo.setVisibility(View.VISIBLE);
 		setClickBackground();
