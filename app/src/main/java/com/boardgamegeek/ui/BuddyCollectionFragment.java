@@ -36,20 +36,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import icepick.Icepick;
+import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	LoaderManager.LoaderCallbacks<BuddyCollectionFragment.BuddyCollectionData> {
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
-	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
-	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
 
 	private BuddyCollectionAdapter adapter;
 	private SubMenu subMenu;
 	private String buddyName;
-	private String statusValue;
-	private String statusLabel;
+	@State String statusValue;
+	@State String statusLabel;
 	private String[] statusValues;
 	private String[] statusEntries;
 
@@ -69,12 +69,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		statusValues = getResources().getStringArray(R.array.pref_sync_status_values);
 
 		setHasOptionsMenu(true);
-		if (savedInstanceState == null) {
+		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (TextUtils.isEmpty(statusValue)) {
 			statusValue = statusValues[0];
+		}
+		if (TextUtils.isEmpty(statusLabel)) {
 			statusLabel = statusEntries[0];
-		} else {
-			statusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
-			statusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
 		}
 	}
 
@@ -95,9 +95,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		outState.putString(STATE_STATUS_VALUE, statusValue);
-		outState.putString(STATE_STATUS_LABEL, statusLabel);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
