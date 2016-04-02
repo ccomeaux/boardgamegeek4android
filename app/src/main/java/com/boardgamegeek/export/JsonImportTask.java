@@ -35,16 +35,16 @@ public class JsonImportTask extends ImporterExporterTask {
 		// TODO: Ensure no large database ops are running?
 
 		// Ensure the export directory exists
-		File importPath = FileUtils.getExportPath(mIsAutoBackupMode);
+		File importPath = FileUtils.getExportPath(isAutoBackupMode);
 		if (!importPath.exists()) {
 			return ERROR_STORAGE_ACCESS;
 		}
 
 		int progress = 0;
-		for (Step importer : mSteps) {
+		for (Step importer : steps) {
 			int result = importFile(importPath, importer);
 			progress++;
-			publishProgress(progress, mSteps.size(), progress - 1);
+			publishProgress(progress, steps.size(), progress - 1);
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			} else if (result < ERROR) {
@@ -81,7 +81,7 @@ public class JsonImportTask extends ImporterExporterTask {
 			return ERROR_FILE_ACCESS;
 		}
 
-		step.initializeImport(mContext);
+		step.initializeImport(context);
 
 		try {
 			InputStream in = new FileInputStream(file);
@@ -89,14 +89,18 @@ public class JsonImportTask extends ImporterExporterTask {
 			Gson gson = new Gson();
 
 			JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-			reader.beginArray();
 
-			while (reader.hasNext()) {
-				step.importRecord(mContext, gson, reader);
+			try {
+				reader.beginArray();
+				while (reader.hasNext()) {
+					step.importRecord(context, gson, reader);
+				}
+				reader.endArray();
+			} catch (IllegalStateException e) {
+				Timber.w(e, "Problem trying to import a file.");
+			} finally {
+				reader.close();
 			}
-
-			reader.endArray();
-			reader.close();
 		} catch (@NonNull JsonParseException | IOException e) {
 			// the given Json might not be valid or unreadable
 			Timber.e(e, "JSON show import failed");

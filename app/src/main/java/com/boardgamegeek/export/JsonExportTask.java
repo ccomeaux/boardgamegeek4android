@@ -32,7 +32,7 @@ public class JsonExportTask extends ImporterExporterTask {
 
 	@Override
 	protected Integer doInBackground(Void... params) {
-		int permissionCheck = ContextCompat.checkSelfPermission(mContext, permission.WRITE_EXTERNAL_STORAGE);
+		int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
 		if (permissionCheck == PackageManager.PERMISSION_DENIED) {
 			Timber.i("No permissions to write to external storage");
 			return ERROR_STORAGE_ACCESS;
@@ -45,7 +45,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		}
 
 		// Ensure the export directory exists
-		File exportPath = FileUtils.getExportPath(mIsAutoBackupMode);
+		File exportPath = FileUtils.getExportPath(isAutoBackupMode);
 		if (!exportPath.exists()) {
 			if (!exportPath.mkdirs()) {
 				Timber.i("Export path %s can't be created", exportPath);
@@ -54,7 +54,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		}
 
 		int stepIndex = 0;
-		for (Step exporter : mSteps) {
+		for (Step exporter : steps) {
 			int result = export(exportPath, exporter, stepIndex);
 			stepIndex++;
 			if (result == ERROR || isCancelled()) {
@@ -63,9 +63,9 @@ public class JsonExportTask extends ImporterExporterTask {
 		}
 
 		//TODO: auto-backup
-		//		if (mIsAutoBackupMode) {
+		//		if (isAutoBackupMode) {
 		//			// store current time = last backup time
-		//			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		//			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		//			prefs.edit().putLong(KEY_LAST_BACKUP, System.currentTimeMillis()).commit();
 		//		}
 
@@ -90,7 +90,7 @@ public class JsonExportTask extends ImporterExporterTask {
 	}
 
 	private int export(File exportPath, @NonNull Step step, int stepIndex) {
-		final Cursor cursor = step.getCursor(mContext);
+		final Cursor cursor = step.getCursor(context);
 
 		if (cursor == null) {
 			return ERROR;
@@ -130,7 +130,7 @@ public class JsonExportTask extends ImporterExporterTask {
 				break;
 			}
 
-			step.writeJsonRecord(mContext, cursor, gson, writer);
+			step.writeJsonRecord(context, cursor, gson, writer);
 			publishProgress(numTotal, ++numExported, stepIndex);
 		}
 
