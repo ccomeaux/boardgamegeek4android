@@ -28,27 +28,22 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
-	private static final String STATE_VIEW_INDEX = "STATE_VIEW_INDEX";
-
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	private boolean isTitleHidden;
-	private int viewIndex;
+	@State int viewIndex;
 
 	@Override
 	@DebugLog
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			viewId = -1;
-			viewIndex = savedInstanceState.getInt(STATE_VIEW_INDEX);
-		} else {
-			viewId = PreferencesUtils.getViewDefaultId(this);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
+		viewId = savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this);
 
 		boolean shortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
@@ -71,8 +66,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	@DebugLog
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_VIEW_INDEX, viewIndex);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
