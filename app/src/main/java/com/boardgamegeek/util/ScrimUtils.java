@@ -44,13 +44,7 @@ public class ScrimUtils {
 		if (view == null) {
 			return;
 		}
-		Drawable scrim = ScrimUtils.makeDefaultScrimDrawable(view.getContext());
-		if (VersionUtils.hasJellyBean()) {
-			view.setBackground(scrim);
-		} else {
-			//noinspection deprecation
-			view.setBackgroundDrawable(scrim);
-		}
+		setBackground(view, ScrimUtils.makeDefaultScrimDrawable(view.getContext()));
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -58,13 +52,7 @@ public class ScrimUtils {
 		if (view == null) {
 			return;
 		}
-		Drawable scrim = ScrimUtils.makeInvertedScrimDrawable(view.getContext());
-		if (VersionUtils.hasJellyBean()) {
-			view.setBackground(scrim);
-		} else {
-			//noinspection deprecation
-			view.setBackgroundDrawable(scrim);
-		}
+		setBackground(view, ScrimUtils.makeInvertedScrimDrawable(view.getContext()));
 	}
 
 	/**
@@ -72,8 +60,7 @@ public class ScrimUtils {
 	 */
 	public static Drawable makeDefaultScrimDrawable(Context context) {
 		//noinspection deprecation
-		return ScrimUtils.makeCubicGradientScrimDrawable(
-			context.getResources().getColor(R.color.black_overlay), 4, Gravity.TOP);
+		return ScrimUtils.makeCubicGradientScrimDrawable(context.getResources().getColor(R.color.black_overlay), 4, Gravity.TOP);
 	}
 
 	/**
@@ -81,8 +68,7 @@ public class ScrimUtils {
 	 */
 	public static Drawable makeInvertedScrimDrawable(Context context) {
 		//noinspection deprecation
-		return ScrimUtils.makeCubicGradientScrimDrawable(
-			context.getResources().getColor(R.color.white_overlay), 3, Gravity.BOTTOM);
+		return ScrimUtils.makeCubicGradientScrimDrawable(context.getResources().getColor(R.color.white_overlay), 3, Gravity.BOTTOM);
 	}
 
 	/**
@@ -154,5 +140,14 @@ public class ScrimUtils {
 		});
 
 		return paintDrawable;
+	}
+
+	private static void setBackground(View view, Drawable scrim) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			view.setBackground(scrim);
+		} else {
+			//noinspection deprecation
+			view.setBackgroundDrawable(scrim);
+		}
 	}
 }
