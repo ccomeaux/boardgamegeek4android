@@ -163,6 +163,14 @@
 		<item name="android:layout_gravity">left|center_vertical</item>
 	</style>
 
+	<style name="DrawerIcon">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:paddingRight">32dp</item>
+		<item name="android:layout_height">32dp</item>
+		<item name="android:gravity">left|center_vertical</item>
+		<item name="android:scaleType">center</item>
+	</style>
+
 	<style name="Text.ActionBar">
 		<item name="android:textColor">@color/actionbar_text</item>
 		<item name="android:textSize">18sp</item>
