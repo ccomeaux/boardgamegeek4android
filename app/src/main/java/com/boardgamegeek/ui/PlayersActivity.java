@@ -11,22 +11,22 @@ import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
+import icepick.Icepick;
+import icepick.State;
+
 public class PlayersActivity extends SimpleSinglePaneActivity implements PlayersFragment.Callbacks {
-	private static final String KEY_COUNT = "KEY_COUNT";
-	private int playerCount = -1;
+	@State int playerCount = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (savedInstanceState != null) {
-			playerCount = savedInstanceState.getInt(KEY_COUNT);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_COUNT, playerCount);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
