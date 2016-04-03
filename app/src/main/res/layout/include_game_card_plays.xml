@@ -33,7 +33,7 @@
 			<ImageView
 				android:id="@+id/icon_plays"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_today_light"/>
+				android:src="@drawable/ic_plays"/>
 
 			<LinearLayout
 				android:layout_width="0dp"
@@ -72,7 +72,7 @@
 			<ImageView
 				android:id="@+id/icon_play_stats"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_pie_chart"/>
+				android:src="@drawable/ic_play_stats"/>
 
 			<TextView
 				android:id="@+id/play_stats_label"
@@ -97,7 +97,7 @@
 			<ImageView
 				android:id="@+id/icon_colors"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_colors_light"/>
+				android:src="@drawable/ic_colors"/>
 
 			<TextView
 				android:id="@+id/game_colors_label"
