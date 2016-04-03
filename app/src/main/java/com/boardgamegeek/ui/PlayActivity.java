@@ -16,6 +16,8 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import de.greenrobot.event.EventBus;
+import icepick.Icepick;
+import icepick.State;
 
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
 	public static final String KEY_PLAY_ID = "PLAY_ID";
@@ -23,21 +25,18 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
-	private BroadcastReceiver mReceiver;
-	private int mPlayId = BggContract.INVALID_ID;
+	private BroadcastReceiver broadcastReceiver;
+	@State int playId = BggContract.INVALID_ID;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			newPlayId(savedInstanceState.getInt(KEY_PLAY_ID, BggContract.INVALID_ID));
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		EventBus.getDefault().removeStickyEvent(PlaySelectedEvent.class);
 
 		final int originalPlayId = getPlayId();
-		mReceiver = new BroadcastReceiver() {
+		broadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				int playId = PreferencesUtils.getNewPlayId(PlayActivity.this, originalPlayId);
@@ -49,8 +48,8 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	}
 
 	private int getPlayId() {
-		if (mPlayId != BggContract.INVALID_ID) {
-			return mPlayId;
+		if (playId != BggContract.INVALID_ID) {
+			return playId;
 		}
 		return getIntent().getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 	}
@@ -58,32 +57,32 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	@Override
 	protected void onStart() {
 		super.onStart();
-		LocalBroadcastManager.getInstance(this).registerReceiver((mReceiver), new IntentFilter(SyncService.ACTION_PLAY_ID_CHANGED));
+		LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(SyncService.ACTION_PLAY_ID_CHANGED));
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_PLAY_ID, mPlayId);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
 	protected void onStop() {
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
 		super.onStop();
 	}
 
 	@Override
 	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
-		if (mPlayId != BggContract.INVALID_ID) {
-			arguments = UIUtils.replaceData(arguments, Plays.buildPlayUri(mPlayId));
+		if (playId != BggContract.INVALID_ID) {
+			arguments = UIUtils.replaceData(arguments, Plays.buildPlayUri(playId));
 		}
 		return arguments;
 	}
 
 	private void newPlayId(int playId) {
 		if (playId != BggContract.INVALID_ID) {
-			mPlayId = playId;
+			this.playId = playId;
 			((PlayFragment) getFragment()).setNewPlayId(playId);
 		}
 	}

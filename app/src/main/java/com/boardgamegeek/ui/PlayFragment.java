@@ -57,10 +57,11 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final String KEY_NOTIFIED = "NOTIFIED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
@@ -95,7 +96,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@InjectView(R.id.play_saved) TextView mSavedTimeStamp;
 	@InjectView(R.id.play_unsynced_message) TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
-	private boolean mNotified;
+	@State boolean hasBeenNotified;
 
 	final private OnScrollListener mOnScrollListener = new OnScrollListener() {
 		@Override
@@ -149,10 +150,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		mHandler = new Handler();
-		if (savedInstanceState != null) {
-			mNotified = savedInstanceState.getBoolean(KEY_NOTIFIED);
-		}
 
 		setHasOptionsMenu(true);
 
@@ -214,7 +213,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		super.onResume();
 		if (mPlay != null && mPlay.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
-			mNotified = true;
+			hasBeenNotified = true;
 		}
 		if (mUpdaterRunnable != null) {
 			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
@@ -239,7 +238,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_NOTIFIED, mNotified);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -535,7 +534,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private void maybeShowNotification() {
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
-		} else if (mNotified) {
+		} else if (hasBeenNotified) {
 			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
 		}
 	}
