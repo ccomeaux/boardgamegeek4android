@@ -27,26 +27,24 @@ import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
+import icepick.Icepick;
+import icepick.State;
+
 public class CommentsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final int COMMENTS_LOADER_ID = 0;
-	private static final String STATE_BY_RATING = "by_rating";
-
-	private CommentsAdapter mCommentsAdapter;
-	private int mGameId;
-	private boolean mByRating = false;
+	private CommentsAdapter adapter;
+	private int gameId;
+	@State boolean isSortedByRating = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = Games.getGameId(intent.getData());
-		mByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
-
-		if (savedInstanceState != null) {
-			mByRating = savedInstanceState.getBoolean(STATE_BY_RATING);
-		}
+		gameId = Games.getGameId(intent.getData());
+		isSortedByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
 	}
 
 	@Override
@@ -72,7 +70,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(STATE_BY_RATING, mByRating);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -108,7 +106,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	@Override
 	public Loader<PaginatedData<Comment>> onCreateLoader(int id, Bundle data) {
-		return new CommentsLoader(getActivity(), mGameId, mByRating);
+		return new CommentsLoader(getActivity(), gameId, isSortedByRating);
 	}
 
 	@Override
@@ -117,12 +115,13 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 			return;
 		}
 
-		if (mCommentsAdapter == null) {
-			mCommentsAdapter = new CommentsAdapter(getActivity(), R.layout.row_comment, data);
-			setListAdapter(mCommentsAdapter);
+		if (adapter == null) {
+			adapter = new CommentsAdapter(getActivity(), R.layout.row_comment, data);
+			setListAdapter(adapter);
 		} else {
-			mCommentsAdapter.update(data);
+			adapter.update(data);
 		}
+		restoreScrollState();
 	}
 
 	@Override
