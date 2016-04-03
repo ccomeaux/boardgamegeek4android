@@ -373,7 +373,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void colorize() {
-		if (palette == null || primaryInfoContainer == null || isAdded()) {
+		if (palette == null || primaryInfoContainer == null || !isAdded()) {
 			return;
 		}
 		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
