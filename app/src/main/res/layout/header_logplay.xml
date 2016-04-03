@@ -83,7 +83,7 @@
 				android:id="@+id/timer_toggle"
 				style="@style/Icon"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:src="@drawable/ic_action_timer"/>
+				android:src="@drawable/ic_timer"/>
 
 			<FrameLayout
 				android:id="@+id/log_play_length_container_inner"

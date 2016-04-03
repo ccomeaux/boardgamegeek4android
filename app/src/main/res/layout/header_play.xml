@@ -140,7 +140,7 @@
 						android:background="?attr/selectableItemBackgroundBorderless"
 						android:onClick="onTimer"
 						android:scaleType="center"
-						android:src="@drawable/ic_action_timer_light"/>
+						android:src="@drawable/ic_timer_off"/>
 				</LinearLayout>
 			</FrameLayout>
 		</LinearLayout>

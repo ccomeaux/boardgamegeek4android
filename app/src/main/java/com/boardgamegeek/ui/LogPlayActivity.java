@@ -527,10 +527,10 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		if (mPlay.hasStarted()) {
 			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_action_timer_off);
+			mTimerToggle.setImageResource(R.drawable.ic_timer_off);
 		} else if (DateUtils.isToday(mPlay.getDateInMillis() + mPlay.length * 60 * 1000)) {
 			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_action_timer);
+			mTimerToggle.setImageResource(R.drawable.ic_timer);
 		} else {
 			mTimerToggle.setEnabled(false);
 		}
