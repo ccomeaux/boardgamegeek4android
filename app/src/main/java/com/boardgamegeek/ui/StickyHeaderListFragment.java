@@ -29,15 +29,12 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public abstract class StickyHeaderListFragment extends Fragment implements OnRefreshListener {
-	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
-	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
-	private static final String STATE_POSITION = "position";
-	private static final String STATE_TOP = "top";
-
 	final private Handler focusHandler = new Handler();
 
 	final private Runnable listViewFocusRunnable = new Runnable() {
@@ -69,7 +66,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			}
 			int newScrollY = getTopItemScrollY();
 			if (isSameRow(firstVisibleItem)) {
-				boolean isSignificantDelta = Math.abs(lastScrollY - newScrollY) > scrollThreshold;
+				boolean isSignificantDelta = Math.abs(lastScrollY - newScrollY) > SCROLL_THRESHOLD;
 				if (isSignificantDelta) {
 					if (lastScrollY > newScrollY) {
 						onScrollUp();
@@ -93,6 +90,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		return getSyncType() != SyncService.FLAG_SYNC_NONE;
 	}
 
+	private static final int SCROLL_THRESHOLD = 20;
 	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@Nullable @SuppressWarnings("unused") @InjectView(android.R.id.empty) TextView emptyTextView;
 	@Nullable @SuppressWarnings("unused") @InjectView(R.id.progressContainer) View progressContainer;
@@ -102,12 +100,11 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@Nullable private StickyListHeadersAdapter adapter;
 	private CharSequence emptyText;
 	private boolean isListShown;
-	private int listViewStatePosition;
-	private int listViewStateTop;
+	@State int listViewStatePosition;
+	@State int listViewStateTop;
 	private boolean isSyncing;
 	private int previousFirstVisibleItem;
 	private int lastScrollY;
-	private int scrollThreshold = 20;
 
 	@Nullable
 	@Override
@@ -147,13 +144,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (savedInstanceState != null) {
-			listViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
-			listViewStateTop = savedInstanceState.getInt(STATE_TOP, LIST_VIEW_STATE_TOP_DEFAULT);
-		} else {
-			listViewStatePosition = LIST_VIEW_STATE_POSITION_DEFAULT;
-			listViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@DebugLog
@@ -172,9 +163,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		saveScrollState();
-		outState.putInt(STATE_POSITION, listViewStatePosition);
-		outState.putInt(STATE_TOP, listViewStateTop);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@DebugLog
@@ -318,7 +308,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	private void saveScrollState() {
 		if (isAdded()) {
-			View v = listView.getChildAt(0);
+			View v = listView.getWrappedList().getChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();
 			listViewStatePosition = listView.getFirstVisiblePosition();
 			listViewStateTop = top;
@@ -326,14 +316,14 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	protected void restoreScrollState() {
-		if (listViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
-			listView.setSelectionFromTop(listViewStatePosition, listViewStateTop);
+		if (listViewStatePosition >= 0 && isAdded()) {
+			listView.getWrappedList().setSelectionFromTop(listViewStatePosition, listViewStateTop);
 		}
 	}
 
 	protected void resetScrollState() {
 		listViewStatePosition = 0;
-		listViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
+		listViewStateTop = -1;
 	}
 
 	protected void loadThumbnail(String path, ImageView target) {

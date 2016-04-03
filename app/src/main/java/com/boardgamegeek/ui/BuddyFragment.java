@@ -50,10 +50,11 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
-	private static final String KEY_REFRESHED = "REFRESHED";
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
@@ -65,7 +66,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private String buddyName;
 	private String playerName;
 	private boolean isRefreshing;
-	private boolean hasBeenRefreshed;
+	@State boolean hasBeenRefreshed;
 
 	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
@@ -84,11 +85,9 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		timeHintUpdateHandler = new Handler();
-		if (savedInstanceState != null) {
-			hasBeenRefreshed = savedInstanceState.getBoolean(KEY_REFRESHED);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
+		timeHintUpdateHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
@@ -97,7 +96,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_REFRESHED, hasBeenRefreshed);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -396,7 +395,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		forceRefresh();
+		requestRefresh();
 	}
 
 	@DebugLog

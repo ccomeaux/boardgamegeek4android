@@ -27,6 +27,8 @@ import java.util.Queue;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import icepick.Icepick;
+import icepick.State;
 
 /**
  * A {@link android.support.v4.app.ListFragment} with a few extra features:
@@ -35,16 +37,12 @@ import butterknife.OnClick;
  * 3. helper methods for loading thumbnails
  */
 public abstract class BggListFragment extends Fragment {
-	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
-	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
-	private static final String STATE_POSITION = "position";
-	private static final String STATE_TOP = "top";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
 	private Runnable mUpdaterRunnable = null;
-	private int mListViewStatePosition;
-	private int mListViewStateTop;
+	@State int listViewStatePosition;
+	@State int listViewStateTop;
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private ListAdapter mAdapter;
@@ -119,13 +117,7 @@ public abstract class BggListFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (savedInstanceState != null) {
-			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
-			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, LIST_VIEW_STATE_TOP_DEFAULT);
-		} else {
-			mListViewStatePosition = LIST_VIEW_STATE_POSITION_DEFAULT;
-			mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@Override
@@ -148,9 +140,8 @@ public abstract class BggListFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		saveScrollState();
-		outState.putInt(STATE_POSITION, mListViewStatePosition);
-		outState.putInt(STATE_TOP, mListViewStateTop);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	protected boolean padTop() {
@@ -267,20 +258,15 @@ public abstract class BggListFragment extends Fragment {
 		if (isAdded()) {
 			View v = mList.getChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();
-			mListViewStatePosition = mList.getFirstVisiblePosition();
-			mListViewStateTop = top;
+			listViewStatePosition = mList.getFirstVisiblePosition();
+			listViewStateTop = top;
 		}
 	}
 
 	protected void restoreScrollState() {
-		if (mListViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
-			mList.setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
+		if (listViewStatePosition >= 0 && isAdded()) {
+			mList.setSelectionFromTop(listViewStatePosition, listViewStateTop);
 		}
-	}
-
-	protected void resetScrollState() {
-		mListViewStatePosition = 0;
-		mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
 	}
 
 	protected void loadThumbnail(int imageId, ImageView target) {

@@ -59,13 +59,13 @@ import butterknife.InjectViews;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import timber.log.Timber;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final String KEY_RANKS_EXPANDED = "RANKS_EXPANDED";
-	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler timeHintUpdateHandler = new Handler();
@@ -170,8 +170,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.users_wishing_bar,
 	}) List<StatBar> statBars;
 
-	private boolean isRanksExpanded;
-	private boolean isDescriptionExpanded;
+	@State boolean isRanksExpanded;
+	@State boolean isDescriptionExpanded;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 
@@ -179,6 +179,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		timeHintUpdateHandler = new Handler();
 
@@ -187,11 +188,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		if (gameUri == null) {
 			return;
-		}
-
-		if (savedInstanceState != null) {
-			isRanksExpanded = savedInstanceState.getBoolean(KEY_RANKS_EXPANDED);
-			isDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
 		}
 
 		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -249,8 +245,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_RANKS_EXPANDED, isRanksExpanded);
-		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, isDescriptionExpanded);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override

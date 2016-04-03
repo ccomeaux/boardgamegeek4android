@@ -73,6 +73,8 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
@@ -97,7 +99,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Nullable private Runnable timeUpdateRunnable = null;
 	private int selectedCollectionId;
 	private CollectionAdapter adapter;
-	private long viewId;
+	@State long viewId;
 	@Nullable private String viewName = "";
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
@@ -222,6 +224,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 		outState.putLong(STATE_VIEW_ID, viewId);
 		outState.putString(STATE_VIEW_NAME, viewName);
 		outState.putInt(STATE_SORT_TYPE, sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType());
@@ -698,10 +701,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	public void clearView() {
-		setProgressShown(true);
-		viewId = 0;
-		viewName = "";
-		resetScrollState();
+		if (viewId != 0) {
+			setProgressShown(true);
+			viewId = 0;
+			viewName = "";
+			resetScrollState();
+		}
 		filters.clear();
 		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
 		requery();

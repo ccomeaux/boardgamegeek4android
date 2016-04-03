@@ -28,26 +28,23 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import icepick.Icepick;
+import icepick.State;
 
-public class GeekListsFragment extends BggListFragment implements OnScrollListener,
-	LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
+public class GeekListsFragment extends BggListFragment implements OnScrollListener, LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
 	private static final int LOADER_ID = 0;
-	private static final String STATE_SORT = "SORT";
-	private static final int SORT_INVALID = -1;
-	private static final int SORT_HOT = 0;
-	private static final int SORT_RECENT = 1;
-	private static final int SORT_ACTIVE = 2;
-	private int mSort = 0;
-
-	private GeekListsAdapter mGeekListsAdapter;
+	private static final int SORT_TYPE_INVALID = -1;
+	private static final int SORT_TYPE_HOT = 0;
+	private static final int SORT_TYPE_RECENT = 1;
+	private static final int SORT_TYPE_ACTIVE = 2;
+	@State int sortType = 0;
+	private GeekListsAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		setHasOptionsMenu(true);
-		if (savedInstanceState != null) {
-			mSort = savedInstanceState.getInt(STATE_SORT);
-		}
 	}
 
 	@Override
@@ -71,20 +68,20 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(STATE_SORT, mSort);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.geeklists, menu);
-		switch (mSort) {
-			case SORT_RECENT:
+		switch (sortType) {
+			case SORT_TYPE_RECENT:
 				menu.findItem(R.id.menu_sort_geeklists_recent).setChecked(true);
 				break;
-			case SORT_ACTIVE:
+			case SORT_TYPE_ACTIVE:
 				menu.findItem(R.id.menu_sort_geeklists_active).setChecked(true);
 				break;
-			case SORT_HOT:
+			case SORT_TYPE_HOT:
 			default:
 				menu.findItem(R.id.menu_sort_geeklists_hot).setChecked(true);
 				break;
@@ -94,30 +91,30 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		int sort = SORT_INVALID;
+		int sort = SORT_TYPE_INVALID;
 		int id = item.getItemId();
 		switch (id) {
 			case R.id.menu_sort_geeklists_recent:
-				if (mSort != SORT_RECENT) {
-					sort = SORT_RECENT;
+				if (sortType != SORT_TYPE_RECENT) {
+					sort = SORT_TYPE_RECENT;
 				}
 				break;
 			case R.id.menu_sort_geeklists_active:
-				if (mSort != SORT_ACTIVE) {
-					sort = SORT_ACTIVE;
+				if (sortType != SORT_TYPE_ACTIVE) {
+					sort = SORT_TYPE_ACTIVE;
 				}
 				break;
 			case R.id.menu_sort_geeklists_hot:
-				if (mSort != SORT_HOT) {
-					sort = SORT_HOT;
+				if (sortType != SORT_TYPE_HOT) {
+					sort = SORT_TYPE_HOT;
 				}
 				break;
 		}
-		if (sort != SORT_INVALID) {
-			mSort = sort;
+		if (sort != SORT_TYPE_INVALID) {
+			sortType = sort;
 			item.setChecked(true);
-			if (mGeekListsAdapter != null) {
-				mGeekListsAdapter.clear();
+			if (adapter != null) {
+				adapter.clear();
 			}
 			getLoaderManager().restartLoader(LOADER_ID, null, this);
 			return true;
@@ -170,7 +167,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 	@Override
 	public Loader<PaginatedData<GeekListEntry>> onCreateLoader(int id, Bundle data) {
-		return new GeekListsLoader(getActivity(), mSort);
+		return new GeekListsLoader(getActivity(), sortType);
 	}
 
 	@Override
@@ -179,11 +176,11 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			return;
 		}
 
-		if (mGeekListsAdapter == null) {
-			mGeekListsAdapter = new GeekListsAdapter(getActivity(), R.layout.row_geeklist, data);
-			setListAdapter(mGeekListsAdapter);
+		if (adapter == null) {
+			adapter = new GeekListsAdapter(getActivity(), R.layout.row_geeklist, data);
+			setListAdapter(adapter);
 		} else {
-			mGeekListsAdapter.update(data);
+			adapter.update(data);
 		}
 		restoreScrollState();
 	}
@@ -211,13 +208,13 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	}
 
 	private static class GeekListsLoader extends PaginatedLoader<GeekListEntry> {
-		private BggService mService;
-		private int mSort;
+		private BggService bggService;
+		private int sortType;
 
-		public GeekListsLoader(Context context, int sort) {
+		public GeekListsLoader(Context context, int sortType) {
 			super(context);
-			mService = Adapter.createWithJson();
-			mSort = sort;
+			bggService = Adapter.createWithJson();
+			this.sortType = sortType;
 		}
 
 		@Override
@@ -227,15 +224,15 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			try {
 				int page = getNextPage();
 				String sort = BggService.GEEKLIST_SORT_HOT;
-				switch (mSort) {
-					case SORT_RECENT:
+				switch (sortType) {
+					case SORT_TYPE_RECENT:
 						sort = BggService.GEEKLIST_SORT_RECENT;
 						break;
-					case SORT_ACTIVE:
+					case SORT_TYPE_ACTIVE:
 						sort = BggService.GEEKLIST_SORT_ACTIVE;
 						break;
 				}
-				data = new GeekListsData(mService.geekLists(page, sort), page);
+				data = new GeekListsData(bggService.geekLists(page, sort), page);
 			} catch (Exception e) {
 				data = new GeekListsData(e);
 			}
