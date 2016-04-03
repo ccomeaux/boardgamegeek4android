@@ -164,9 +164,12 @@
 	</style>
 
 	<style name="DrawerIcon">
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:paddingRight">32dp</item>
+		<item name="android:layout_width">32dp</item>
 		<item name="android:layout_height">32dp</item>
+		<item name="android:layout_marginBottom">8dp</item>
+		<item name="android:layout_marginLeft">0dp</item>
+		<item name="android:layout_marginRight">24dp</item>
+		<item name="android:layout_marginTop">8dp</item>
 		<item name="android:gravity">left|center_vertical</item>
 		<item name="android:scaleType">center</item>
 	</style>
@@ -464,19 +467,21 @@
 	<style name="CardRowContent">
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:minHeight">48dp</item>
-		<item name="android:paddingTop">12dp</item>
-		<item name="android:paddingBottom">12dp</item>
+		<item name="android:paddingTop">8dp</item>
+		<item name="android:paddingBottom">8dp</item>
 	</style>
 
 	<style name="Icon">
-		<item name="android:layout_width">40dp</item>
-		<item name="android:layout_height">48dp</item>
-		<item name="android:paddingTop">12dp</item>
-		<item name="android:paddingBottom">12dp</item>
-		<item name="android:paddingRight">8dp</item>
-		<item name="android:paddingLeft">8dp</item>
-		<item name="android:layout_marginLeft">-8dp</item>
-		<item name="android:layout_marginRight">16dp</item>
+		<item name="android:layout_width">32dp</item>
+		<item name="android:layout_height">32dp</item>
+		<item name="android:paddingTop">4dp</item>
+		<item name="android:paddingBottom">4dp</item>
+		<item name="android:paddingRight">4dp</item>
+		<item name="android:paddingLeft">4dp</item>
+		<item name="android:layout_marginBottom">8dp</item>
+		<item name="android:layout_marginLeft">0dp</item>
+		<item name="android:layout_marginRight">24dp</item>
+		<item name="android:layout_marginTop">8dp</item>
 		<item name="android:scaleType">center</item>
 	</style>
 
