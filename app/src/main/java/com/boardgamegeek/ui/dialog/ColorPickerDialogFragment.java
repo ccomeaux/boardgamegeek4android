@@ -25,16 +25,14 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import icepick.Icepick;
+import icepick.State;
 
 public class ColorPickerDialogFragment extends DialogFragment {
 	private static final String KEY_TITLE_ID = "title_id";
 	private static final String KEY_COLOR_COUNT = "color_count";
 	private static final String KEY_COLORS_DESCRIPTION = "colors_desc";
 	private static final String KEY_COLORS = "colors";
-	private static final String KEY_FEATURED_COLORS = "featured_colors";
-	private static final String KEY_DISABLED_COLORS = "disabled_colors";
-	private static final String KEY_HIDDEN_COLORS = "hidden_colors";
-	private static final String KEY_SELECTED_COLOR = "selected_color";
 	private static final String KEY_COLUMNS = "columns";
 
 	@SuppressWarnings("unused") @InjectView(R.id.color_grid) GridView colorGrid;
@@ -44,11 +42,11 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	private ColorGridAdapter colorGridAdapter;
 	private ColorGridAdapter featuredColorGridAdapter;
 	private List<Pair<String, Integer>> colorChoices = new ArrayList<>();
-	private ArrayList<String> featuredColors = new ArrayList<>();
+	@State ArrayList<String> featuredColors = new ArrayList<>();
 	private int numberOfColumns = 3;
-	private String selectedColor;
-	private ArrayList<String> disabledColors;
-	private ArrayList<String> hiddenColors;
+	@State String selectedColor;
+	@State ArrayList<String> disabledColors;
+	@State ArrayList<String> hiddenColors;
 	@StringRes private int titleResId = 0;
 	private OnColorSelectedListener listener;
 
@@ -127,16 +125,13 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 		outState.putInt(KEY_COLOR_COUNT, colorChoices.size());
 		for (int i = 0; i < colorChoices.size(); i++) {
 			Pair<String, Integer> color = colorChoices.get(i);
 			outState.putString(KEY_COLORS_DESCRIPTION + i, color.first);
 			outState.putInt(KEY_COLORS + i, color.second);
 		}
-		outState.putStringArrayList(KEY_FEATURED_COLORS, featuredColors);
-		outState.putStringArrayList(KEY_DISABLED_COLORS, disabledColors);
-		outState.putStringArrayList(KEY_HIDDEN_COLORS, hiddenColors);
-		outState.putString(KEY_SELECTED_COLOR, selectedColor);
 	}
 
 	@Override
@@ -149,18 +144,14 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);
 			numberOfColumns = getArguments().getInt(KEY_COLUMNS);
 		}
-
 		if (savedInstanceState != null) {
 			colorChoices = new ArrayList<>();
 			for (int i = 0; i < savedInstanceState.getInt(KEY_COLOR_COUNT); i++) {
 				colorChoices.add(new Pair<>(savedInstanceState.getString(KEY_COLORS_DESCRIPTION + i),
 					savedInstanceState.getInt(KEY_COLORS + i)));
 			}
-			featuredColors = savedInstanceState.getStringArrayList(KEY_FEATURED_COLORS);
-			disabledColors = savedInstanceState.getStringArrayList(KEY_DISABLED_COLORS);
-			hiddenColors = savedInstanceState.getStringArrayList(KEY_HIDDEN_COLORS);
-			selectedColor = savedInstanceState.getString(KEY_SELECTED_COLOR);
 		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		ButterKnife.inject(this, rootView);
 		colorGrid.setNumColumns(numberOfColumns);
