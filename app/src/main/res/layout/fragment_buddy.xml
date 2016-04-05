@@ -143,7 +143,7 @@
 					<ImageView
 						android:id="@+id/icon_plays"
 						style="@style/Icon"
-						android:src="@drawable/ic_action_today_light"/>
+						android:src="@drawable/ic_log_play"/>
 
 					<TextView
 						android:id="@+id/plays_label"
@@ -176,7 +176,7 @@
 					<ImageView
 						android:id="@+id/icon_colors"
 						style="@style/Icon"
-						android:src="@drawable/ic_action_colors_light"/>
+						android:src="@drawable/ic_colors"/>
 
 					<TextView
 						android:id="@+id/colors_label"
