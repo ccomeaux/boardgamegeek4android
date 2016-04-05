@@ -114,22 +114,22 @@ public abstract class DrawerActivity extends BaseActivity {
 				drawerList.addView(view);
 			}
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_collection, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_log_play, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_user, drawerList));
 		}
 		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
 		drawerList.addView(makeNavDrawerItem(R.string.title_search, R.drawable.ic_action_search, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_whatshot_black_24dp, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_list_black_24dp, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_action_forum, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_hotness, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_geek_list, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_forums, drawerList));
 		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_action_insert_drive_file, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings_black_24dp, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_data, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings, drawerList));
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
 	}
 

@@ -111,7 +111,7 @@
 					<ImageView
 						android:id="@+id/icon_collection"
 						style="@style/Icon"
-						android:src="@drawable/ic_my_library_books_black_24dp"/>
+						android:src="@drawable/ic_collection"/>
 
 					<TextView
 						android:id="@+id/collection_label"

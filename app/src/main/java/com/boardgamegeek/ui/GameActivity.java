@@ -72,7 +72,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	protected void onPostInject() {
 		super.onPostInject();
 		if (PreferencesUtils.showLogPlay(this)) {
-			fab.setImageResource(R.drawable.ic_event_available);
+			fab.setImageResource(R.drawable.fab_log_play);
 			fab.setVisibility(View.VISIBLE);
 		}
 	}
