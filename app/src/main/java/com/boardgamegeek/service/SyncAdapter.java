@@ -99,7 +99,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
 			} catch (Exception e) {
 				Timber.e(e, "Syncing " + currentTask);
-				syncResult.stats.numIoExceptions++;
+				syncResult.stats.numIoExceptions += 10;
 				showError(currentTask, e);
 			}
 		}
