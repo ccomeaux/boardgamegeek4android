@@ -32,7 +32,7 @@
 
 			<ImageView
 				style="@style/ActionBarButtonImage"
-				android:src="@drawable/ic_action_accept_light"/>
+				android:src="@drawable/ic_done"/>
 
 			<TextView
 				style="@style/ActionBarButtonText"

@@ -86,7 +86,7 @@
 
 						<ImageView
 							style="@style/Icon"
-							android:src="@drawable/ic_action_person"/>
+							android:src="@drawable/ic_user"/>
 
 						<AutoCompleteTextView
 							android:id="@+id/log_player_name"
@@ -162,7 +162,7 @@
 
 						<ImageView
 							style="@style/Icon"
-							android:src="@drawable/ic_action_sort_light"/>
+							android:src="@drawable/ic_sort"/>
 
 						<EditText
 							android:id="@+id/log_player_position"
@@ -189,7 +189,7 @@
 
 						<ImageView
 							style="@style/Icon"
-							android:src="@drawable/ic_action_line_chart"/>
+							android:src="@drawable/ic_score"/>
 
 						<EditText
 							android:id="@+id/log_player_score"
@@ -216,7 +216,7 @@
 
 						<ImageView
 							style="@style/Icon"
-							android:src="@drawable/ic_action_stars"/>
+							android:src="@drawable/ic_rating"/>
 
 						<EditText
 							android:id="@+id/log_player_rating"

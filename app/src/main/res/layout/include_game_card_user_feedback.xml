@@ -28,7 +28,7 @@
 			<ImageView
 				android:id="@+id/icon_ratings"
 				style="@style/Icon"
-				android:src="@drawable/ic_ratings"/>
+				android:src="@drawable/ic_rating"/>
 
 			<LinearLayout
 				android:id="@+id/rating_container"

@@ -428,7 +428,7 @@
 
 	<style name="FormRowContainer">
 		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">@dimen/edit_row_height</item>
+		<item name="android:layout_height">48dp</item>
 		<item name="android:orientation">horizontal</item>
 		<item name="android:gravity">center_vertical</item>
 	</style>
@@ -482,7 +482,7 @@
 		<item name="android:layout_marginLeft">0dp</item>
 		<item name="android:layout_marginRight">24dp</item>
 		<item name="android:layout_marginTop">8dp</item>
-		<item name="android:scaleType">center</item>
+		<item name="android:scaleType">centerInside</item>
 	</style>
 
 	<style name="NumPad">
