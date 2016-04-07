@@ -17,23 +17,20 @@ import com.boardgamegeek.ui.widget.RangeSeekBar;
 import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 
 public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	private Integer low;
 	private Integer high;
-	private TextView explanationView;
-	private TextView rangeDescriptionView;
 	private RangeSeekBar<Integer> rangeSeekBar;
-	private CheckBox checkBox;
+	@SuppressWarnings("unused") @InjectView(R.id.explanation) TextView explanationView;
+	@SuppressWarnings("unused") @InjectView(R.id.range_description) TextView rangeDescriptionView;
+	@SuppressWarnings("unused") @InjectView(R.id.checkbox) CheckBox checkBox;
 
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
-
-		rangeDescriptionView = (TextView) layout.findViewById(R.id.range_description);
-		checkBox = (CheckBox) layout.findViewById(R.id.checkbox);
-		explanationView = (TextView) layout.findViewById(R.id.explanation);
 		FrameLayout container = (FrameLayout) layout.findViewById(R.id.range_seek_bar_container);
 		rangeSeekBar = new RangeSeekBar<>(getAbsoluteMin(), getAbsoluteMax(), context);
 		container.addView(rangeSeekBar);
