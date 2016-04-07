@@ -23,8 +23,6 @@
 	<string name="pref_log_player_rating">Rating</string>
 	<string name="pref_log_player_new">New</string>
 	<string name="pref_log_player_win">Win</string>
-	<string name="pref_log_off">Add it when you need it</string>
-	<string name="pref_log_on">Always show</string>
 	<string name="pref_stats">Stats</string>
 	<string name="pref_log_stats_incomplete">Include incomplete plays</string>
 	<string name="pref_log_stats_expansions">Include board game expansions</string>
