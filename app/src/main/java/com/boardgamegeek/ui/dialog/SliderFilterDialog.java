@@ -7,14 +7,14 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.appyvet.rangebar.RangeBar;
+import com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
-import com.boardgamegeek.ui.widget.RangeSeekBar;
-import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
+import com.boardgamegeek.util.StringUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -23,17 +23,14 @@ import butterknife.OnClick;
 public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	private Integer low;
 	private Integer high;
-	private RangeSeekBar<Integer> rangeSeekBar;
 	@SuppressWarnings("unused") @InjectView(R.id.explanation) TextView explanationView;
 	@SuppressWarnings("unused") @InjectView(R.id.range_description) TextView rangeDescriptionView;
 	@SuppressWarnings("unused") @InjectView(R.id.checkbox) CheckBox checkBox;
+	@SuppressWarnings("unused") @InjectView(R.id.range_bar) RangeBar rangeBar;
 
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
-		FrameLayout container = (FrameLayout) layout.findViewById(R.id.range_seek_bar_container);
-		rangeSeekBar = new RangeSeekBar<>(getAbsoluteMin(), getAbsoluteMax(), context);
-		container.addView(rangeSeekBar);
 		ButterKnife.inject(this, layout);
 
 		InitialValues initialValues = initValues(filter);
@@ -66,50 +63,58 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	private void initSlider() {
-		rangeSeekBar.setNotifyWhileDragging(true);
-		rangeSeekBar.setSelectedMinValue(low);
-		rangeSeekBar.setSelectedMaxValue(high);
+		rangeBar.setTickStart(getAbsoluteMin());
+		rangeBar.setTickEnd(getAbsoluteMax());
+		rangeBar.setRangePinsByValue(low, high);
 
-		rangeSeekBar.setOnRangeSeekBarChangeListener(new OnRangeSeekBarChangeListener<Integer>() {
+		rangeBar.setOnRangeBarChangeListener(new OnRangeBarChangeListener() {
 			@Override
-			public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
-				adjustSeekBar(minValue, maxValue);
+			public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+				adjustSeekBar(leftPinValue, rightPinValue);
 			}
 		});
 	}
 
 	@OnClick(R.id.min_up)
 	public void onMinUpClick(View v) {
-		rangeSeekBar.setSelectedMinValue(rangeSeekBar.getSelectedMinValue() + 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getLeftIndex() < rangeBar.getTickCount() - 1) {
+			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex() + 1, rangeBar.getRightIndex());
+			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+		}
 	}
 
 	@OnClick(R.id.min_down)
 	public void onMinDownClick(View v) {
-		rangeSeekBar.setSelectedMinValue(rangeSeekBar.getSelectedMinValue() - 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getLeftIndex() > 0) {
+			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex());
+			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+		}
 	}
 
 	@OnClick(R.id.max_up)
 	public void onMaxUpClick(View v) {
-		rangeSeekBar.setSelectedMaxValue(rangeSeekBar.getSelectedMaxValue() + 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getRightIndex() < rangeBar.getTickCount() - 1) {
+			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex(), rangeBar.getRightIndex() + 1);
+			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+		}
 	}
 
 	@OnClick(R.id.max_down)
 	public void onMaxDownClick(View v) {
-		rangeSeekBar.setSelectedMaxValue(rangeSeekBar.getSelectedMaxValue() - 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getRightIndex() > 0) {
+			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex(), rangeBar.getRightIndex() - 1);
+			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+		}
 	}
 
-	private void adjustSeekBar(Integer minValue, Integer maxValue) {
-		low = minValue;
-		high = maxValue;
+	private void adjustSeekBar(String minValue, String maxValue) {
+		low = StringUtils.parseInt(minValue);
+		high = StringUtils.parseInt(maxValue);
 		CharSequence text;
-		if (minValue.equals(maxValue)) {
-			text = intervalText(minValue);
+		if (low.equals(high)) {
+			text = intervalText(low);
 		} else {
-			text = intervalText(minValue, maxValue);
+			text = intervalText(low, high);
 		}
 		rangeDescriptionView.setText(text);
 	}
