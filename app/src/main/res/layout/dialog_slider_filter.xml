@@ -32,7 +32,9 @@
 			android:layout_height="72dp"
 			app:barWeight="1dp"
 			app:pinMaxFont="10sp"
-			app:tickEnd="10"
+			app:pinRadius="12dp"
+			app:temporaryPins="false"
+			app:tickEnd="100000000"
 			app:tickInterval="1"
 			app:tickStart="1"/>
 

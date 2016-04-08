@@ -78,33 +78,35 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	@OnClick(R.id.min_up)
 	public void onMinUpClick(View v) {
 		if (rangeBar.getLeftIndex() < rangeBar.getTickCount() - 1) {
-			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex() + 1, rangeBar.getRightIndex());
-			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+			updateRange(rangeBar.getLeftIndex() + 1, rangeBar.getRightIndex());
 		}
 	}
 
 	@OnClick(R.id.min_down)
 	public void onMinDownClick(View v) {
 		if (rangeBar.getLeftIndex() > 0) {
-			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex());
-			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+			updateRange(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex());
 		}
 	}
 
 	@OnClick(R.id.max_up)
 	public void onMaxUpClick(View v) {
 		if (rangeBar.getRightIndex() < rangeBar.getTickCount() - 1) {
-			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex(), rangeBar.getRightIndex() + 1);
-			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+			updateRange(rangeBar.getLeftIndex(), rangeBar.getRightIndex() + 1);
 		}
 	}
 
 	@OnClick(R.id.max_down)
 	public void onMaxDownClick(View v) {
 		if (rangeBar.getRightIndex() > 0) {
-			rangeBar.setRangePinsByIndices(rangeBar.getLeftIndex(), rangeBar.getRightIndex() - 1);
-			adjustSeekBar(rangeBar.getLeftPinValue(), rangeBar.getRightPinValue());
+			updateRange(rangeBar.getLeftIndex(), rangeBar.getRightIndex() - 1);
 		}
+		}
+
+	private void updateRange(int leftPinIndex, int rightIndex) {
+		rangeBar.setRangePinsByIndices(leftPinIndex, rightIndex);
+		// HACK to make the pins remain visible
+		rangeBar.setLeft(rangeBar.getLeft() + 1);
 	}
 
 	private void adjustSeekBar(String minValue, String maxValue) {
