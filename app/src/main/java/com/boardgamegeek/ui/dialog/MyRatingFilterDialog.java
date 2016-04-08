@@ -46,7 +46,7 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getTitleId() {
-		return R.string.menu_geek_rating;
+		return R.string.menu_my_rating;
 	}
 
 	@Override
