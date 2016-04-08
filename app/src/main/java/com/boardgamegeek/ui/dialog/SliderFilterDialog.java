@@ -25,7 +25,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	private Integer low;
 	private Integer high;
 	@SuppressWarnings("unused") @InjectView(R.id.explanation) TextView explanationView;
-	@SuppressWarnings("unused") @InjectView(R.id.range_description) TextView rangeDescriptionView;
 	@SuppressWarnings("unused") @InjectView(R.id.checkbox) CheckBox checkBox;
 	@SuppressWarnings("unused") @InjectView(R.id.range_bar) RangeBar rangeBar;
 
@@ -45,7 +44,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		checkBox.setChecked(initialValues.isChecked);
 
 		initExplanation();
-		rangeDescriptionView.setText(intervalText(low, high));
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(getTitleId())
 			.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
@@ -78,7 +76,8 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		rangeBar.setOnRangeBarChangeListener(new OnRangeBarChangeListener() {
 			@Override
 			public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
-				adjustSeekBar(leftPinValue, rightPinValue);
+				low = getPinValue(leftPinValue);
+				high = getPinValue(rightPinValue);
 			}
 		});
 	}
@@ -125,18 +124,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		rangeBar.setLeft(rangeBar.getLeft() + 1);
 	}
 
-	private void adjustSeekBar(String minValue, String maxValue) {
-		low = getPinValue(minValue);
-		high = getPinValue(maxValue);
-		CharSequence text;
-		if (low.equals(high)) {
-			text = intervalText(low);
-		} else {
-			text = intervalText(low, high);
-		}
-		rangeDescriptionView.setText(text);
-	}
-
 	private void initExplanation() {
 		if (getDescriptionId() == -1) {
 			explanationView.setVisibility(View.GONE);
@@ -178,10 +165,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	protected int getPinValue(String text) {
 		return StringUtils.parseInt(text);
 	}
-
-	protected abstract String intervalText(int number);
-
-	protected abstract String intervalText(int min, int max);
 
 	class InitialValues {
 		final int min;

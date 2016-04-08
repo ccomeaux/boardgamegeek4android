@@ -12,14 +12,6 @@
 			  android:paddingTop="@dimen/material_margin_vertical"
 			  tools:context=".ui.dialog.SliderFilterDialog">
 
-	<TextView
-		android:id="@+id/range_description"
-		style="@style/Text.DialogHeader"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center"
-		tools:text="1 - 10"/>
-
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

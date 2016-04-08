@@ -72,14 +72,4 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	protected int getPinValue(String text) {
 		return (int) (StringUtils.parseDouble(text) * FACTOR);
 	}
-
-	@Override
-	protected String intervalText(int number) {
-		return String.valueOf((double) number / FACTOR);
-	}
-
-	@Override
-	protected String intervalText(int min, int max) {
-		return String.valueOf((double) min / FACTOR) + " - " + String.valueOf((double) max / FACTOR);
-	}
 }
