@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.appyvet.rangebar.RangeBar;
 import com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener;
+import com.appyvet.rangebar.RangeBar.PinTextFormatter;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
@@ -67,6 +68,13 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		rangeBar.setTickEnd(getAbsoluteMax());
 		rangeBar.setRangePinsByValue(low, high);
 
+		rangeBar.setPinTextFormatter(new PinTextFormatter() {
+			@Override
+			public String getText(String value) {
+				return getPinText(value);
+			}
+		});
+
 		rangeBar.setOnRangeBarChangeListener(new OnRangeBarChangeListener() {
 			@Override
 			public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
@@ -118,8 +126,8 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	private void adjustSeekBar(String minValue, String maxValue) {
-		low = StringUtils.parseInt(minValue);
-		high = StringUtils.parseInt(maxValue);
+		low = getPinValue(minValue);
+		high = getPinValue(maxValue);
 		CharSequence text;
 		if (low.equals(high)) {
 			text = intervalText(low);
@@ -162,6 +170,14 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	protected abstract int getAbsoluteMin();
 
 	protected abstract int getAbsoluteMax();
+
+	protected String getPinText(String value) {
+		return value;
+	}
+
+	protected int getPinValue(String text) {
+		return StringUtils.parseInt(text);
+	}
 
 	protected abstract String intervalText(int number);
 
