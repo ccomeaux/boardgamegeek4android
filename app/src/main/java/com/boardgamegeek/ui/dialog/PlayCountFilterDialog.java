@@ -6,6 +6,7 @@ import android.view.View;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.PlayCountFilterer;
+import com.boardgamegeek.util.StringUtils;
 
 public class PlayCountFilterDialog extends SliderFilterDialog {
 	@Override
@@ -48,6 +49,23 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 			max = data.getMax();
 		}
 		return new InitialValues(min, max);
+	}
+
+	@Override
+	protected String getPinText(String value) {
+		int year = StringUtils.parseInt(value, PlayCountFilterer.MIN_RANGE);
+		if (year == PlayCountFilterer.MAX_RANGE) {
+			return value + "+";
+		}
+		return super.getPinText(value);
+	}
+
+	@Override
+	protected int getPinValue(String text) {
+		if (text.endsWith("+")) {
+			return PlayCountFilterer.MAX_RANGE;
+		}
+		return super.getPinValue(text);
 	}
 
 	@Override

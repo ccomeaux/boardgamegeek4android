@@ -6,9 +6,13 @@ import android.view.View;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.AverageRatingFilterer;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.util.StringUtils;
+
+import java.text.DecimalFormat;
 
 public class AverageRatingFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
+	private static final DecimalFormat FORMAT = new DecimalFormat("#.0");
 
 	@Override
 	protected int getCheckboxVisibility() {
@@ -57,6 +61,16 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 			unrated = data.includeUnrated();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
+	}
+
+	@Override
+	protected String getPinText(String value) {
+		return FORMAT.format((double) StringUtils.parseInt(value, 0) / FACTOR);
+	}
+
+	@Override
+	protected int getPinValue(String text) {
+		return (int) (StringUtils.parseDouble(text) * FACTOR);
 	}
 
 	@Override
