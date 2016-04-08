@@ -64,7 +64,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 								"DragSortListView",
 								"Hugo",
 								"PhotoView",
-								"RangeSeekBar",
 								"StickyListHeaders",
 								"AndroidIcons",
 								"MPAndroidChart",
