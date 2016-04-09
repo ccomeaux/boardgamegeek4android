@@ -7,36 +7,30 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.appyvet.rangebar.RangeBar;
+import com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener;
+import com.appyvet.rangebar.RangeBar.PinTextFormatter;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
-import com.boardgamegeek.ui.widget.RangeSeekBar;
-import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
+import com.boardgamegeek.util.StringUtils;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 
 public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	private Integer low;
 	private Integer high;
-	private TextView explanationView;
-	private TextView rangeDescriptionView;
-	private RangeSeekBar<Integer> rangeSeekBar;
-	private CheckBox checkBox;
+	@SuppressWarnings("unused") @InjectView(R.id.explanation) TextView explanationView;
+	@SuppressWarnings("unused") @InjectView(R.id.checkbox) CheckBox checkBox;
+	@SuppressWarnings("unused") @InjectView(R.id.range_bar) RangeBar rangeBar;
 
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
-
-		rangeDescriptionView = (TextView) layout.findViewById(R.id.range_description);
-		checkBox = (CheckBox) layout.findViewById(R.id.checkbox);
-		explanationView = (TextView) layout.findViewById(R.id.explanation);
-		FrameLayout container = (FrameLayout) layout.findViewById(R.id.range_seek_bar_container);
-		rangeSeekBar = new RangeSeekBar<>(getAbsoluteMin(), getAbsoluteMax(), context);
-		container.addView(rangeSeekBar);
 		ButterKnife.inject(this, layout);
 
 		InitialValues initialValues = initValues(filter);
@@ -50,7 +44,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		checkBox.setChecked(initialValues.isChecked);
 
 		initExplanation();
-		rangeDescriptionView.setText(intervalText(low, high));
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(getTitleId())
 			.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
@@ -69,52 +62,66 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	private void initSlider() {
-		rangeSeekBar.setNotifyWhileDragging(true);
-		rangeSeekBar.setSelectedMinValue(low);
-		rangeSeekBar.setSelectedMaxValue(high);
+		rangeBar.setTickStart(getAbsoluteMin());
+		rangeBar.setTickEnd(getAbsoluteMax());
+		rangeBar.setRangePinsByValue(low, high);
 
-		rangeSeekBar.setOnRangeSeekBarChangeListener(new OnRangeSeekBarChangeListener<Integer>() {
+		rangeBar.setPinTextFormatter(new PinTextFormatter() {
 			@Override
-			public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
-				adjustSeekBar(minValue, maxValue);
+			public String getText(String value) {
+				return getPinText(value);
+			}
+		});
+
+		rangeBar.setOnRangeBarChangeListener(new OnRangeBarChangeListener() {
+			@Override
+			public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+				low = getPinValue(leftPinValue);
+				high = getPinValue(rightPinValue);
 			}
 		});
 	}
 
 	@OnClick(R.id.min_up)
 	public void onMinUpClick(View v) {
-		rangeSeekBar.setSelectedMinValue(rangeSeekBar.getSelectedMinValue() + 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getLeftIndex() < rangeBar.getTickCount() - 1) {
+			if (rangeBar.getLeftIndex() == rangeBar.getRightIndex()) {
+				updateRange(rangeBar.getLeftIndex() + 1, rangeBar.getRightIndex() + 1);
+			} else {
+				updateRange(rangeBar.getLeftIndex() + 1, rangeBar.getRightIndex());
+			}
+		}
 	}
 
 	@OnClick(R.id.min_down)
 	public void onMinDownClick(View v) {
-		rangeSeekBar.setSelectedMinValue(rangeSeekBar.getSelectedMinValue() - 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getLeftIndex() > 0) {
+			updateRange(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex());
+		}
 	}
 
 	@OnClick(R.id.max_up)
 	public void onMaxUpClick(View v) {
-		rangeSeekBar.setSelectedMaxValue(rangeSeekBar.getSelectedMaxValue() + 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getRightIndex() < rangeBar.getTickCount() - 1) {
+			updateRange(rangeBar.getLeftIndex(), rangeBar.getRightIndex() + 1);
+		}
 	}
 
 	@OnClick(R.id.max_down)
 	public void onMaxDownClick(View v) {
-		rangeSeekBar.setSelectedMaxValue(rangeSeekBar.getSelectedMaxValue() - 1);
-		adjustSeekBar(rangeSeekBar.getSelectedMinValue(), rangeSeekBar.getSelectedMaxValue());
+		if (rangeBar.getRightIndex() > 0) {
+			if (rangeBar.getLeftIndex() == rangeBar.getRightIndex()) {
+				updateRange(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex() - 1);
+			} else {
+				updateRange(rangeBar.getLeftIndex(), rangeBar.getRightIndex() - 1);
+			}
+		}
 	}
 
-	private void adjustSeekBar(Integer minValue, Integer maxValue) {
-		low = minValue;
-		high = maxValue;
-		CharSequence text;
-		if (minValue.equals(maxValue)) {
-			text = intervalText(minValue);
-		} else {
-			text = intervalText(minValue, maxValue);
-		}
-		rangeDescriptionView.setText(text);
+	private void updateRange(int leftPinIndex, int rightIndex) {
+		rangeBar.setRangePinsByIndices(leftPinIndex, rightIndex);
+		// HACK to make the pins remain visible
+		rangeBar.setLeft(rangeBar.getLeft() + 1);
 	}
 
 	private void initExplanation() {
@@ -151,9 +158,13 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 	protected abstract int getAbsoluteMax();
 
-	protected abstract String intervalText(int number);
+	protected String getPinText(String value) {
+		return value;
+	}
 
-	protected abstract String intervalText(int min, int max);
+	protected int getPinValue(String text) {
+		return StringUtils.parseInt(text);
+	}
 
 	class InitialValues {
 		final int min;

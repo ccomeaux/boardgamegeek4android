@@ -64,12 +64,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 								"DragSortListView",
 								"Hugo",
 								"PhotoView",
-								"RangeSeekBar",
 								"StickyListHeaders",
 								"AndroidIcons",
 								"MPAndroidChart",
 								"AndroidRandomColor",
-								"LeakCanary")
+								"LeakCanary",
+								"MaterialRangeBar")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))

@@ -5,9 +5,13 @@ import android.content.Context;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.AverageWeightFilterer;
 import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.util.StringUtils;
+
+import java.text.DecimalFormat;
 
 public class AverageWeightFilterDialog extends SliderFilterDialog {
 	private static final int FACTOR = 10;
+	private static final DecimalFormat FORMAT = new DecimalFormat("#.0");
 
 	@Override
 	protected int getAbsoluteMax() {
@@ -54,12 +58,12 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected String intervalText(int number) {
-		return String.valueOf((double) number / FACTOR);
+	protected String getPinText(String value) {
+		return FORMAT.format((double) StringUtils.parseInt(value, 0) / FACTOR);
 	}
 
 	@Override
-	protected String intervalText(int min, int max) {
-		return String.valueOf((double) min / FACTOR) + " - " + String.valueOf((double) max / FACTOR);
+	protected int getPinValue(String text) {
+		return (int) (StringUtils.parseDouble(text) * FACTOR);
 	}
 }

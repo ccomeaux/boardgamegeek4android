@@ -55,14 +55,4 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 		}
 		return new InitialValues(min, max, isExact);
 	}
-
-	@Override
-	protected String intervalText(int number) {
-		return String.valueOf(number);
-	}
-
-	@Override
-	protected String intervalText(int min, int max) {
-		return String.valueOf(min) + " - " + String.valueOf(max);
-	}
 }
