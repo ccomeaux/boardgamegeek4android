@@ -68,7 +68,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 								"AndroidIcons",
 								"MPAndroidChart",
 								"AndroidRandomColor",
-								"LeakCanary")
+								"LeakCanary",
+								"MaterialRangeBar")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))

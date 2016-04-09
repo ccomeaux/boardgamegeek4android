@@ -3,7 +3,7 @@ Release Notes
 
 Coming Soon...
 --------------
- * Some cool stuff
+ * Spiffy up the collection filter dialogs
 
 Version 5.2.3
 -------------
