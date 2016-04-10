@@ -29,8 +29,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.text.NumberFormat;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ForumFragment extends BggListFragment implements OnScrollListener,
@@ -249,15 +249,15 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		@SuppressWarnings("unused")
 		public static class ViewHolder {
 			public int threadId;
-			@InjectView(R.id.thread_title) TextView subject;
-			@InjectView(R.id.thread_author) TextView author;
-			@InjectView(R.id.thread_numarticles) TextView numberOfArticles;
-			@InjectView(R.id.thread_lastpostdate) TextView lastPostDate;
-			@InjectView(R.id.thread_postdate) TextView postDate;
+			@Bind(R.id.thread_title) TextView subject;
+			@Bind(R.id.thread_author) TextView author;
+			@Bind(R.id.thread_numarticles) TextView numberOfArticles;
+			@Bind(R.id.thread_lastpostdate) TextView lastPostDate;
+			@Bind(R.id.thread_postdate) TextView postDate;
 
 			@DebugLog
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 				Resources r = view.getResources();
 				mAuthorText = r.getString(R.string.forum_thread_author);
 				mLastPostText = r.getString(R.string.forum_last_post);

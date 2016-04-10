@@ -57,8 +57,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -70,22 +70,22 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private double mRating;
 	private Stats mStats;
 
-	@InjectView(R.id.progress) View mProgressView;
-	@InjectView(R.id.empty) View mEmptyView;
-	@InjectView(R.id.data) View mDataView;
-	@InjectView(R.id.table_play_count) TableLayout mPlayCountTable;
-	@InjectView(R.id.chart_play_count) HorizontalBarChart mPlayCountChart;
-	@InjectView(R.id.card_wins) View mWins;
-	@InjectView(R.id.table_wins) TableLayout mWinTable;
-	@InjectView(R.id.card_score) View mScores;
-	@InjectView(R.id.table_score) TableLayout mScoreTable;
-	@InjectView(R.id.card_opponents) View mOpponents;
-	@InjectView(R.id.table_opponents) TableLayout mOpponentsTable;
-	@InjectView(R.id.table_dates) TableLayout mDatesTable;
-	@InjectView(R.id.table_play_time) TableLayout mPlayTimeTable;
-	@InjectView(R.id.card_locations) View mLocations;
-	@InjectView(R.id.table_locations) TableLayout mLocationsTable;
-	@InjectView(R.id.table_advanced) TableLayout mAdvancedTable;
+	@Bind(R.id.progress) View mProgressView;
+	@Bind(R.id.empty) View mEmptyView;
+	@Bind(R.id.data) View mDataView;
+	@Bind(R.id.table_play_count) TableLayout mPlayCountTable;
+	@Bind(R.id.chart_play_count) HorizontalBarChart mPlayCountChart;
+	@Bind(R.id.card_wins) View mWins;
+	@Bind(R.id.table_wins) TableLayout mWinTable;
+	@Bind(R.id.card_score) View mScores;
+	@Bind(R.id.table_score) TableLayout mScoreTable;
+	@Bind(R.id.card_opponents) View mOpponents;
+	@Bind(R.id.table_opponents) TableLayout mOpponentsTable;
+	@Bind(R.id.table_dates) TableLayout mDatesTable;
+	@Bind(R.id.table_play_time) TableLayout mPlayTimeTable;
+	@Bind(R.id.card_locations) View mLocations;
+	@Bind(R.id.table_locations) TableLayout mLocationsTable;
+	@Bind(R.id.table_advanced) TableLayout mAdvancedTable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -98,7 +98,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		mPlayCountChart.setDrawGridBackground(false);
 		mPlayCountChart.getAxisRight().setValueFormatter(new IntegerYAxisValueFormatter());

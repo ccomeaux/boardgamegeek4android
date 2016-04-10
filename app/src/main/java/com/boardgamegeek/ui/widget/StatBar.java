@@ -14,14 +14,14 @@ import com.boardgamegeek.R;
 
 import java.text.NumberFormat;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class StatBar extends FrameLayout {
 	private static final NumberFormat FORMAT = NumberFormat.getInstance();
-	@SuppressWarnings("unused") @InjectView(R.id.value) View valueView;
-	@SuppressWarnings("unused") @InjectView(R.id.no_value) View noValueView;
-	@SuppressWarnings("unused") @InjectView(android.R.id.text1) TextView textView;
+	@SuppressWarnings("unused") @Bind(R.id.value) View valueView;
+	@SuppressWarnings("unused") @Bind(R.id.no_value) View noValueView;
+	@SuppressWarnings("unused") @Bind(android.R.id.text1) TextView textView;
 
 	public StatBar(Context context) {
 		this(context, null);
@@ -45,7 +45,7 @@ public class StatBar extends FrameLayout {
 		LayoutInflater li = LayoutInflater.from(context);
 		li.inflate(R.layout.widget_stat_bar, this, true);
 
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 	}
 
 	public void setBar(int id, double progress, double max) {

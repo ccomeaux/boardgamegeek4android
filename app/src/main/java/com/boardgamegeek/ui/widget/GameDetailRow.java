@@ -27,14 +27,14 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import icepick.Icepick;
 import icepick.State;
 
 public class GameDetailRow extends LinearLayout {
-	@SuppressWarnings("unused") @InjectView(android.R.id.icon) ImageView iconView;
-	@SuppressWarnings("unused") @InjectView(R.id.data) TextView dataView;
+	@SuppressWarnings("unused") @Bind(android.R.id.icon) ImageView iconView;
+	@SuppressWarnings("unused") @Bind(R.id.data) TextView dataView;
 	private int queryToken;
 	private String oneMore;
 	private String someMore;
@@ -85,7 +85,7 @@ public class GameDetailRow extends LinearLayout {
 		setOrientation(HORIZONTAL);
 
 		LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		if (attrs != null) {
 			a = context.obtainStyledAttributes(attrs, R.styleable.GameDetailRow);

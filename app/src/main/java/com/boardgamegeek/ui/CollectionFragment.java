@@ -69,8 +69,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
@@ -87,13 +87,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_FILTER_DATA = "STATE_FILTER_DATA";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	@SuppressWarnings("unused") @InjectView(R.id.frame_container) ViewGroup frameContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.footer_container) ViewGroup footerContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.filter_scroll_view) View filterButtonScroll;
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
-	@SuppressWarnings("unused") @InjectView(R.id.row_count) TextView rowCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.sort_description) TextView sortDescriptionView;
+	@SuppressWarnings("unused") @Bind(R.id.frame_container) ViewGroup frameContainer;
+	@SuppressWarnings("unused") @Bind(R.id.footer_container) ViewGroup footerContainer;
+	@SuppressWarnings("unused") @Bind(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
+	@SuppressWarnings("unused") @Bind(R.id.filter_scroll_view) View filterButtonScroll;
+	@SuppressWarnings("unused") @Bind(R.id.toolbar_footer) Toolbar footerToolbar;
+	@SuppressWarnings("unused") @Bind(R.id.row_count) TextView rowCountView;
+	@SuppressWarnings("unused") @Bind(R.id.sort_description) TextView sortDescriptionView;
 
 	@NonNull private Handler timeUpdateHandler = new Handler();
 	@Nullable private Runnable timeUpdateRunnable = null;
@@ -151,7 +151,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_collection, container, false);
-		ButterKnife.inject(this, view);
+		ButterKnife.bind(this, view);
 		return view;
 	}
 

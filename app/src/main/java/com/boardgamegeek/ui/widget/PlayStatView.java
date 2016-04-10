@@ -25,22 +25,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class PlayStatView extends TableRow {
-	@InjectView(R.id.label) TextView mLabel;
-	@InjectView(R.id.value) TextView mValue;
-	@InjectView(R.id.info) ImageView mInfo;
-	@InjectView(R.id.label_container) View mContainer;
+	@Bind(R.id.label) TextView mLabel;
+	@Bind(R.id.value) TextView mValue;
+	@Bind(R.id.info) ImageView mInfo;
+	@Bind(R.id.label_container) View mContainer;
 	private AlertDialog.Builder mBuilder;
 
 	public PlayStatView(Context context) {
 		super(context);
 		LayoutInflater inflater = LayoutInflater.from(context);
 		inflater.inflate(R.layout.widget_play_stat, this);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 	}
 
 	public void setLabel(CharSequence text) {

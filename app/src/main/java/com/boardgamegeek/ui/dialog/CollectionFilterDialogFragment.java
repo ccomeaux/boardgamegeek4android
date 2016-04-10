@@ -19,9 +19,8 @@ import com.boardgamegeek.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
@@ -34,8 +33,8 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 	private ViewGroup root;
 	private Listener listener;
 	private final List<Integer> enabledFilterTypes = new ArrayList<>();
-	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ScrollView scrollContainer;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind(R.id.scroll_container) ScrollView scrollContainer;
+	@SuppressWarnings("unused") @Bind({
 		R.id.collection_status,
 		R.id.subtype,
 		R.id.geek_ranking,
@@ -74,7 +73,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_collection_filter, root, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 		setEnabledFilterTypes();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);

@@ -45,8 +45,8 @@ import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
@@ -70,15 +70,15 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.buddy_info) View buddyInfoView;
-	@SuppressWarnings("unused") @InjectView(R.id.full_name) TextView fullNameView;
-	@SuppressWarnings("unused") @InjectView(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView avatarView;
-	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView nicknameView;
-	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsView;
-	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updatedView;
+	@SuppressWarnings("unused") @Bind(R.id.buddy_info) View buddyInfoView;
+	@SuppressWarnings("unused") @Bind(R.id.full_name) TextView fullNameView;
+	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
+	@SuppressWarnings("unused") @Bind(R.id.avatar) ImageView avatarView;
+	@SuppressWarnings("unused") @Bind(R.id.nickname) TextView nicknameView;
+	@SuppressWarnings("unused") @Bind(R.id.collection_card) View collectionCard;
+	@SuppressWarnings("unused") @Bind(R.id.plays_label) TextView playsView;
+	@SuppressWarnings("unused") @Bind(R.id.color_container) LinearLayout colorContainer;
+	@SuppressWarnings("unused") @Bind(R.id.updated) TextView updatedView;
 	private int defaultTextColor;
 	private int lightTextColor;
 
@@ -103,7 +103,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);

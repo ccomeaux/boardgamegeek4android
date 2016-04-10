@@ -53,9 +53,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
@@ -76,63 +75,63 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_rating) TextView ratingView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_description) TextView descriptionView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_rank) TextView rankView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_year_published) TextView yearPublishedView;
+	@SuppressWarnings("unused") @Bind(R.id.game_rating) TextView ratingView;
+	@SuppressWarnings("unused") @Bind(R.id.game_description) TextView descriptionView;
+	@SuppressWarnings("unused") @Bind(R.id.game_rank) TextView rankView;
+	@SuppressWarnings("unused") @Bind(R.id.game_year_published) TextView yearPublishedView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.primary_info_container) View primaryInfoContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.number_of_players) TextView numberOfPlayersView;
-	@SuppressWarnings("unused") @InjectView(R.id.play_time) TextView playTimeView;
-	@SuppressWarnings("unused") @InjectView(R.id.player_age) TextView playerAgeView;
+	@SuppressWarnings("unused") @Bind(R.id.primary_info_container) View primaryInfoContainer;
+	@SuppressWarnings("unused") @Bind(R.id.number_of_players) TextView numberOfPlayersView;
+	@SuppressWarnings("unused") @Bind(R.id.play_time) TextView playTimeView;
+	@SuppressWarnings("unused") @Bind(R.id.player_age) TextView playerAgeView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_subtype) TextView subtypeView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_subtype_container) ViewGroup subtypeContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.subtype_expander) ImageView subtypeExpander;
+	@SuppressWarnings("unused") @Bind(R.id.game_subtype) TextView subtypeView;
+	@SuppressWarnings("unused") @Bind(R.id.game_subtype_container) ViewGroup subtypeContainer;
+	@SuppressWarnings("unused") @Bind(R.id.subtype_expander) ImageView subtypeExpander;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_designers) GameDetailRow designersView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_artists) GameDetailRow artistsView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_publishers) GameDetailRow publishersView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_categories) GameDetailRow categoriesView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_mechanics) GameDetailRow mechanicsView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_expansions) GameDetailRow expansionsView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_base_games) GameDetailRow baseGamesView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_designers) GameDetailRow designersView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_artists) GameDetailRow artistsView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_publishers) GameDetailRow publishersView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_categories) GameDetailRow categoriesView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_mechanics) GameDetailRow mechanicsView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_expansions) GameDetailRow expansionsView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_base_games) GameDetailRow baseGamesView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
-	@SuppressWarnings("unused") @InjectView(R.id.collection_container) ViewGroup collectionContainer;
+	@SuppressWarnings("unused") @Bind(R.id.collection_card) View collectionCard;
+	@SuppressWarnings("unused") @Bind(R.id.collection_container) ViewGroup collectionContainer;
 
-	@SuppressWarnings("unused") @InjectView(R.id.plays_card) View playsCard;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_root) View playsRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_last_play) TextView lastPlayView;
-	@SuppressWarnings("unused") @InjectView(R.id.play_stats_root) View playStatsRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.colors_root) View colorsRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.game_colors_label) TextView colorsLabel;
+	@SuppressWarnings("unused") @Bind(R.id.plays_card) View playsCard;
+	@SuppressWarnings("unused") @Bind(R.id.plays_root) View playsRoot;
+	@SuppressWarnings("unused") @Bind(R.id.plays_label) TextView playsLabel;
+	@SuppressWarnings("unused") @Bind(R.id.plays_last_play) TextView lastPlayView;
+	@SuppressWarnings("unused") @Bind(R.id.play_stats_root) View playStatsRoot;
+	@SuppressWarnings("unused") @Bind(R.id.colors_root) View colorsRoot;
+	@SuppressWarnings("unused") @Bind(R.id.game_colors_label) TextView colorsLabel;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_comments_label) TextView commentsLabel;
+	@SuppressWarnings("unused") @Bind(R.id.game_comments_label) TextView commentsLabel;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_label) TextView ratingsLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_votes) TextView ratingsVotes;
-	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_standard_deviation) TextView ratingsStandardDeviation;
+	@SuppressWarnings("unused") @Bind(R.id.game_ratings_label) TextView ratingsLabel;
+	@SuppressWarnings("unused") @Bind(R.id.game_ratings_votes) TextView ratingsVotes;
+	@SuppressWarnings("unused") @Bind(R.id.game_ratings_standard_deviation) TextView ratingsStandardDeviation;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_weight) TextView weightView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
+	@SuppressWarnings("unused") @Bind(R.id.game_weight) TextView weightView;
+	@SuppressWarnings("unused") @Bind(R.id.game_weight_votes) TextView weightVotes;
 
-	@SuppressWarnings("unused") @InjectView(R.id.users_count) TextView userCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.users_owning_bar) StatBar numberOwningBar;
-	@SuppressWarnings("unused") @InjectView(R.id.users_trading_bar) StatBar numberTradingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.users_wanting_bar) StatBar numberWantingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.users_wishing_bar) StatBar numberWishingBar;
+	@SuppressWarnings("unused") @Bind(R.id.users_count) TextView userCountView;
+	@SuppressWarnings("unused") @Bind(R.id.users_owning_bar) StatBar numberOwningBar;
+	@SuppressWarnings("unused") @Bind(R.id.users_trading_bar) StatBar numberTradingBar;
+	@SuppressWarnings("unused") @Bind(R.id.users_wanting_bar) StatBar numberWantingBar;
+	@SuppressWarnings("unused") @Bind(R.id.users_wishing_bar) StatBar numberWishingBar;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_id) TextView idView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_last_updated) TextView updatedView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_id) TextView idView;
+	@SuppressWarnings("unused") @Bind(R.id.game_info_last_updated) TextView updatedView;
 
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind({
 		R.id.number_of_players,
 		R.id.play_time,
 		R.id.player_age
 	}) List<TextView> colorizedTextViews;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind({
 		R.id.game_info_designers,
 		R.id.game_info_artists,
 		R.id.game_info_publishers,
@@ -141,14 +140,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.game_info_expansions,
 		R.id.game_info_base_games
 	}) List<GameDetailRow> colorizedRows;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind({
 		R.id.card_header_details,
 		R.id.card_header_collection,
 		R.id.card_header_plays,
 		R.id.card_header_user_feedback,
 		R.id.card_header_links
 	}) List<TextView> colorizedHeaders;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind({
 		R.id.icon_plays,
 		R.id.icon_play_stats,
 		R.id.icon_colors,
@@ -163,7 +162,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_link_amazon,
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind({
 		R.id.users_owning_bar,
 		R.id.users_trading_bar,
 		R.id.users_wanting_bar,
@@ -197,7 +196,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		colorize();
 		openOrCloseDescription();
@@ -238,7 +237,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.reset(this);
+		ButterKnife.unbind(this);
 	}
 
 	@Override

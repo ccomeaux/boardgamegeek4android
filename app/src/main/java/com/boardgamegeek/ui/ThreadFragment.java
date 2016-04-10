@@ -28,8 +28,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ThreadFragment.ThreadData> {
@@ -208,14 +208,14 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	@SuppressWarnings("unused")
 	public static class ViewHolder {
-		@InjectView(R.id.article_username) TextView username;
-		@InjectView(R.id.article_editdate) TextView editDate;
-		@InjectView(R.id.article_body) TextView body;
-		@InjectView(R.id.article_view) View viewArticle;
+		@Bind(R.id.article_username) TextView username;
+		@Bind(R.id.article_editdate) TextView editDate;
+		@Bind(R.id.article_body) TextView body;
+		@Bind(R.id.article_view) View viewArticle;
 
 		@DebugLog
 		public ViewHolder(View view) {
-			ButterKnife.inject(this, view);
+			ButterKnife.bind(this, view);
 		}
 	}
 }

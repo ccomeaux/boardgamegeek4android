@@ -24,8 +24,8 @@ import com.squareup.picasso.Picasso;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
@@ -46,12 +46,12 @@ public abstract class BggListFragment extends Fragment {
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private ListAdapter mAdapter;
-	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@InjectView(android.R.id.empty) TextView mEmptyView;
-	@InjectView(R.id.progress_container) View mProgressContainer;
-	@InjectView(R.id.list_container) View mListContainer;
-	@InjectView(android.R.id.list) ListView mList;
-	@InjectView(R.id.fab) View mFab;
+	@Bind(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@Bind(android.R.id.empty) TextView mEmptyView;
+	@Bind(R.id.progress_container) View mProgressContainer;
+	@Bind(R.id.list_container) View mListContainer;
+	@Bind(android.R.id.list) ListView mList;
+	@Bind(R.id.fab) View mFab;
 
 	final private Runnable mRequestFocus = new Runnable() {
 		public void run() {
@@ -314,7 +314,7 @@ public abstract class BggListFragment extends Fragment {
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		ButterKnife.inject(this, root);
+		ButterKnife.bind(this, root);
 
 		mSwipeRefreshLayout.setEnabled(false);
 

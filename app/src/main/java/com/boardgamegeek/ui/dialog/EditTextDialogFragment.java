@@ -18,8 +18,8 @@ import android.widget.EditText;
 
 import com.boardgamegeek.R;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class EditTextDialogFragment extends DialogFragment {
 	public interface EditTextDialogListener {
@@ -33,7 +33,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	private boolean isUsername;
 	private boolean isLongForm;
 
-	@SuppressWarnings("unused") @InjectView(R.id.edit_text) EditText editText;
+	@SuppressWarnings("unused") @Bind(R.id.edit_text) EditText editText;
 	private String existingText;
 
 	@NonNull
@@ -95,7 +95,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_edit_text, root, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		if (getArguments() != null) {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);

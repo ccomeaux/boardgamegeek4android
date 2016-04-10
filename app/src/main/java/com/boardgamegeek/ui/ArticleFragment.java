@@ -15,8 +15,8 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ArticleFragment extends Fragment {
@@ -30,11 +30,11 @@ public class ArticleFragment extends Fragment {
 	private int mEditCount;
 	private String mBody;
 
-	@SuppressWarnings("unused") @InjectView(R.id.article_username) TextView mUserView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_postdate) TextView mPostDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_editdate) TextView mEditDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_editcount) TextView mEditCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_body) WebView mBodyView;
+	@SuppressWarnings("unused") @Bind(R.id.article_username) TextView mUserView;
+	@SuppressWarnings("unused") @Bind(R.id.article_postdate) TextView mPostDateView;
+	@SuppressWarnings("unused") @Bind(R.id.article_editdate) TextView mEditDateView;
+	@SuppressWarnings("unused") @Bind(R.id.article_editcount) TextView mEditCountView;
+	@SuppressWarnings("unused") @Bind(R.id.article_body) WebView mBodyView;
 
 	@Override
 	@DebugLog
@@ -53,7 +53,7 @@ public class ArticleFragment extends Fragment {
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		updateTimeBasedUi();
 		if (mUpdaterRunnable != null) {

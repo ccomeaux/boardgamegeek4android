@@ -59,8 +59,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -630,13 +630,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 
 		class ViewHolder {
-			@InjectView(android.R.id.title) TextView title;
-			@InjectView(android.R.id.text1) TextView text1;
-			@InjectView(android.R.id.text2) TextView text2;
-			@InjectView(android.R.id.message) TextView status;
+			@Bind(android.R.id.title) TextView title;
+			@Bind(android.R.id.text1) TextView text1;
+			@Bind(android.R.id.text2) TextView text2;
+			@Bind(android.R.id.message) TextView status;
 
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 			}
 		}
 

@@ -27,24 +27,24 @@ import com.boardgamegeek.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int TOKEN = 0x01;
-	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
-	@SuppressWarnings("unused") @InjectView(R.id.empty) View emptyView;
-	@SuppressWarnings("unused") @InjectView(R.id.data) ViewGroup dataView;
-	@SuppressWarnings("unused") @InjectView(R.id.table) TableLayout table;
-	@SuppressWarnings("unused") @InjectView(R.id.table_hindex) TableLayout hIndexTable;
-	@SuppressWarnings("unused") @InjectView(R.id.accuracy_message) TextView accuracyMessage;
+	@SuppressWarnings("unused") @Bind(R.id.progress) View progressView;
+	@SuppressWarnings("unused") @Bind(R.id.empty) View emptyView;
+	@SuppressWarnings("unused") @Bind(R.id.data) ViewGroup dataView;
+	@SuppressWarnings("unused") @Bind(R.id.table) TableLayout table;
+	@SuppressWarnings("unused") @Bind(R.id.table_hindex) TableLayout hIndexTable;
+	@SuppressWarnings("unused") @Bind(R.id.accuracy_message) TextView accuracyMessage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 		bindAccuracyMessage();
 		return rootView;
 	}

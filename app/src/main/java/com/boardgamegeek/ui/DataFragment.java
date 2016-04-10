@@ -30,19 +30,19 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TaskUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
-	@SuppressWarnings("unused") @InjectView(R.id.backup_location) TextView fileLocationView;
-	@SuppressWarnings("unused") @InjectView(R.id.backup_types) ViewGroup fileTypesView;
-	@SuppressWarnings("unused") @InjectView(R.id.progress_container) View progressContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.progress) ProgressBar progressBar;
-	@SuppressWarnings("unused") @InjectView(R.id.progress_detail) TextView progressDetailView;
+	@SuppressWarnings("unused") @Bind(R.id.backup_location) TextView fileLocationView;
+	@SuppressWarnings("unused") @Bind(R.id.backup_types) ViewGroup fileTypesView;
+	@SuppressWarnings("unused") @Bind(R.id.progress_container) View progressContainer;
+	@SuppressWarnings("unused") @Bind(R.id.progress) ProgressBar progressBar;
+	@SuppressWarnings("unused") @Bind(R.id.progress_detail) TextView progressDetailView;
 	private ImporterExporterTask task;
 
 	@DebugLog
@@ -51,7 +51,7 @@ public class DataFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_data, container, false);
 
-		ButterKnife.inject(this, root);
+		ButterKnife.bind(this, root);
 
 		fileLocationView.setText(FileUtils.getExportPath(false).getPath());
 

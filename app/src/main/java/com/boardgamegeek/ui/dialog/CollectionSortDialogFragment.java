@@ -22,9 +22,8 @@ import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -36,9 +35,9 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 	private ViewGroup root;
 	private Listener listener;
 	private int selectedType;
-	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ScrollView scrollContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.radio_group) RadioGroup radioGroup;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind(R.id.scroll_container) ScrollView scrollContainer;
+	@SuppressWarnings("unused") @Bind(R.id.radio_group) RadioGroup radioGroup;
+	@SuppressWarnings("unused") @Bind({
 		R.id.name,
 		R.id.rank,
 		R.id.geek_rating,
@@ -86,7 +85,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_collection_sort, root, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 		setChecked();
 		radioGroup.setOnCheckedChangeListener(this);
 		createNames();

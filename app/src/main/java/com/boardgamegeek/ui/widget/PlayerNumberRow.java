@@ -10,15 +10,15 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class PlayerNumberRow extends LinearLayout {
-	@InjectView(R.id.poll_player_text) TextView mTextView;
-	@InjectView(R.id.best) View mBest;
-	@InjectView(R.id.recommended) View mRecommended;
-	@InjectView(R.id.no_votes) View mNoVotes;
-	@InjectView(R.id.not_recommended) View mNotRecommended;
+	@Bind(R.id.poll_player_text) TextView mTextView;
+	@Bind(R.id.best) View mBest;
+	@Bind(R.id.recommended) View mRecommended;
+	@Bind(R.id.no_votes) View mNoVotes;
+	@Bind(R.id.not_recommended) View mNotRecommended;
 
 	public PlayerNumberRow(Context context) {
 		super(context);
@@ -33,7 +33,7 @@ public class PlayerNumberRow extends LinearLayout {
 	private void init(Context context) {
 		LayoutInflater li = LayoutInflater.from(context);
 		li.inflate(R.layout.row_poll_players, this);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 	}
 
 	public void setText(CharSequence text) {

@@ -23,8 +23,8 @@ import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.util.UIUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -175,11 +175,11 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 
 		class ViewHolder {
-			@InjectView(android.R.id.title) TextView name;
-			@InjectView(android.R.id.text1) TextView quantity;
+			@Bind(android.R.id.title) TextView name;
+			@Bind(android.R.id.text1) TextView quantity;
 
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 			}
 		}
 

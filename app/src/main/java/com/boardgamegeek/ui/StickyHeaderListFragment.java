@@ -24,8 +24,8 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
@@ -91,11 +91,11 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	private static final int SCROLL_THRESHOLD = 20;
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@Nullable @SuppressWarnings("unused") @InjectView(android.R.id.empty) TextView emptyTextView;
-	@Nullable @SuppressWarnings("unused") @InjectView(R.id.progressContainer) View progressContainer;
-	@Nullable @SuppressWarnings("unused") @InjectView(R.id.listContainer) View listContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.fab) View fabView;
+	@SuppressWarnings("unused") @Bind(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@Nullable @SuppressWarnings("unused") @Bind(android.R.id.empty) TextView emptyTextView;
+	@Nullable @SuppressWarnings("unused") @Bind(R.id.progressContainer) View progressContainer;
+	@Nullable @SuppressWarnings("unused") @Bind(R.id.listContainer) View listContainer;
+	@SuppressWarnings("unused") @Bind(R.id.fab) View fabView;
 	@Nullable private StickyListHeadersListView listView;
 	@Nullable private StickyListHeadersAdapter adapter;
 	private CharSequence emptyText;
@@ -345,7 +345,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		ButterKnife.inject(this, root);
+		ButterKnife.bind(this, root);
 
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.setEnabled(isRefreshable());

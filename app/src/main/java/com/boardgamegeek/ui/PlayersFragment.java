@@ -22,8 +22,8 @@ import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.UIUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
@@ -240,12 +240,12 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			@InjectView(android.R.id.title) TextView name;
-			@InjectView(android.R.id.text1) TextView username;
-			@InjectView(android.R.id.text2) TextView quantity;
+			@Bind(android.R.id.title) TextView name;
+			@Bind(android.R.id.text1) TextView username;
+			@Bind(android.R.id.text2) TextView quantity;
 
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 			}
 		}
 

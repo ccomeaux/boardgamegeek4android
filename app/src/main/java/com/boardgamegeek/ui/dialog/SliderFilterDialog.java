@@ -17,21 +17,21 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.util.StringUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	private Integer low;
 	private Integer high;
-	@SuppressWarnings("unused") @InjectView(R.id.explanation) TextView explanationView;
-	@SuppressWarnings("unused") @InjectView(R.id.checkbox) CheckBox checkBox;
-	@SuppressWarnings("unused") @InjectView(R.id.range_bar) RangeBar rangeBar;
+	@SuppressWarnings("unused") @Bind(R.id.explanation) TextView explanationView;
+	@SuppressWarnings("unused") @Bind(R.id.checkbox) CheckBox checkBox;
+	@SuppressWarnings("unused") @Bind(R.id.range_bar) RangeBar rangeBar;
 
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
-		ButterKnife.inject(this, layout);
+		ButterKnife.bind(this, layout);
 
 		InitialValues initialValues = initValues(filter);
 		low = initialValues.min;

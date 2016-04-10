@@ -17,15 +17,15 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.util.PreferencesUtils;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import hugo.weaving.DebugLog;
 
 public class PlayStatsSettingsDialogFragment extends DialogFragment {
 	private ViewGroup root;
-	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ScrollView scrollContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.incomplete) CheckBox includeIncompleteGamesView;
-	@SuppressWarnings("unused") @InjectView(R.id.expansions) CheckBox includeExpansionsView;
-	@SuppressWarnings("unused") @InjectView(R.id.accessories) CheckBox includeAccessoriesView;
+	@SuppressWarnings("unused") @Bind(R.id.scroll_container) ScrollView scrollContainer;
+	@SuppressWarnings("unused") @Bind(R.id.incomplete) CheckBox includeIncompleteGamesView;
+	@SuppressWarnings("unused") @Bind(R.id.expansions) CheckBox includeExpansionsView;
+	@SuppressWarnings("unused") @Bind(R.id.accessories) CheckBox includeAccessoriesView;
 
 	@DebugLog
 	public PlayStatsSettingsDialogFragment() {
@@ -45,7 +45,7 @@ public class PlayStatsSettingsDialogFragment extends DialogFragment {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_play_stats_settings, root, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 		bindUi();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())

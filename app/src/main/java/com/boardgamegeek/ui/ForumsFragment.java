@@ -32,8 +32,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
@@ -268,21 +268,21 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	@SuppressWarnings("unused")
 	static class ForumViewHolder {
 		public int forumId;
-		@InjectView(R.id.forum_title) TextView forumTitle;
-		@InjectView(R.id.numthreads) TextView numThreads;
-		@InjectView(R.id.lastpost) TextView lastPost;
+		@Bind(R.id.forum_title) TextView forumTitle;
+		@Bind(R.id.numthreads) TextView numThreads;
+		@Bind(R.id.lastpost) TextView lastPost;
 
 		public ForumViewHolder(View view) {
-			ButterKnife.inject(this, view);
+			ButterKnife.bind(this, view);
 		}
 	}
 
 	@SuppressWarnings("unused")
 	static class HeaderViewHolder {
-		@InjectView(android.R.id.title) TextView header;
+		@Bind(android.R.id.title) TextView header;
 
 		public HeaderViewHolder(View view) {
-			ButterKnife.inject(this, view);
+			ButterKnife.bind(this, view);
 		}
 	}
 }

@@ -26,8 +26,8 @@ import com.boardgamegeek.util.ActivityUtils;
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import icepick.Icepick;
 import icepick.State;
 
@@ -269,13 +269,13 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	public static class GeekListRowViewBinder {
 		public static class ViewHolder {
 			public int id;
-			@InjectView(R.id.geeklist_title) TextView title;
-			@InjectView(R.id.geeklist_creator) TextView creator;
-			@InjectView(R.id.geeklist_items) TextView numItems;
-			@InjectView(R.id.geeklist_thumbs) TextView numThumbs;
+			@Bind(R.id.geeklist_title) TextView title;
+			@Bind(R.id.geeklist_creator) TextView creator;
+			@Bind(R.id.geeklist_items) TextView numItems;
+			@Bind(R.id.geeklist_thumbs) TextView numThumbs;
 
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 			}
 		}
 

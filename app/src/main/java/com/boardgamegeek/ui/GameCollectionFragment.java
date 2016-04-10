@@ -47,9 +47,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
@@ -60,36 +59,36 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
-	@SuppressWarnings("unused") @InjectView(R.id.year) TextView year;
-	@SuppressWarnings("unused") @InjectView(R.id.info_bar) View infoBar;
-	@SuppressWarnings("unused") @InjectView(R.id.status) TextView status;
-	@SuppressWarnings("unused") @InjectView(R.id.last_modified) TextView lastModified;
-	@SuppressWarnings("unused") @InjectView(R.id.rating_container) View ratingContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView rating;
-	@SuppressWarnings("unused") @InjectView(R.id.rating_timestamp) TextView ratingTimestampView;
-	@SuppressWarnings("unused") @InjectView(R.id.comment_container) ViewGroup commentContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.add_comment) View addCommentView;
-	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView comment;
-	@SuppressWarnings("unused") @InjectView(R.id.comment_timestamp) TextView commentTimestampView;
-	@SuppressWarnings("unused") @InjectView(R.id.private_info_container) View privateInfoContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.private_info) TextView privateInfo;
-	@SuppressWarnings("unused") @InjectView(R.id.private_info_comments) TextView privateInfoComments;
-	@SuppressWarnings("unused") @InjectView(R.id.wishlist_container) View wishlistContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.wishlist_comment) TextView wishlistComment;
-	@SuppressWarnings("unused") @InjectView(R.id.condition_container) View conditionContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.condition_comment) TextView conditionComment;
-	@SuppressWarnings("unused") @InjectView(R.id.want_parts_container) View wantPartsContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.want_parts_comment) TextView wantPartsComment;
-	@SuppressWarnings("unused") @InjectView(R.id.has_parts_container) View hasPartsContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.has_parts_comment) TextView hasPartsComment;
-	@SuppressWarnings("unused") @InjectView(R.id.collection_id) TextView id;
-	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updated;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind(R.id.year) TextView year;
+	@SuppressWarnings("unused") @Bind(R.id.info_bar) View infoBar;
+	@SuppressWarnings("unused") @Bind(R.id.status) TextView status;
+	@SuppressWarnings("unused") @Bind(R.id.last_modified) TextView lastModified;
+	@SuppressWarnings("unused") @Bind(R.id.rating_container) View ratingContainer;
+	@SuppressWarnings("unused") @Bind(R.id.rating) TextView rating;
+	@SuppressWarnings("unused") @Bind(R.id.rating_timestamp) TextView ratingTimestampView;
+	@SuppressWarnings("unused") @Bind(R.id.comment_container) ViewGroup commentContainer;
+	@SuppressWarnings("unused") @Bind(R.id.add_comment) View addCommentView;
+	@SuppressWarnings("unused") @Bind(R.id.comment) TextView comment;
+	@SuppressWarnings("unused") @Bind(R.id.comment_timestamp) TextView commentTimestampView;
+	@SuppressWarnings("unused") @Bind(R.id.private_info_container) View privateInfoContainer;
+	@SuppressWarnings("unused") @Bind(R.id.private_info) TextView privateInfo;
+	@SuppressWarnings("unused") @Bind(R.id.private_info_comments) TextView privateInfoComments;
+	@SuppressWarnings("unused") @Bind(R.id.wishlist_container) View wishlistContainer;
+	@SuppressWarnings("unused") @Bind(R.id.wishlist_comment) TextView wishlistComment;
+	@SuppressWarnings("unused") @Bind(R.id.condition_container) View conditionContainer;
+	@SuppressWarnings("unused") @Bind(R.id.condition_comment) TextView conditionComment;
+	@SuppressWarnings("unused") @Bind(R.id.want_parts_container) View wantPartsContainer;
+	@SuppressWarnings("unused") @Bind(R.id.want_parts_comment) TextView wantPartsComment;
+	@SuppressWarnings("unused") @Bind(R.id.has_parts_container) View hasPartsContainer;
+	@SuppressWarnings("unused") @Bind(R.id.has_parts_comment) TextView hasPartsComment;
+	@SuppressWarnings("unused") @Bind(R.id.collection_id) TextView id;
+	@SuppressWarnings("unused") @Bind(R.id.updated) TextView updated;
+	@SuppressWarnings("unused") @Bind({
 		R.id.status,
 		R.id.last_modified,
 		R.id.year
 	}) List<TextView> colorizedTextViews;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind({
 		R.id.add_comment,
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
@@ -121,7 +120,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		colorize(palette);
 
@@ -171,7 +170,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.reset(this);
+		ButterKnife.unbind(this);
 	}
 
 	@DebugLog

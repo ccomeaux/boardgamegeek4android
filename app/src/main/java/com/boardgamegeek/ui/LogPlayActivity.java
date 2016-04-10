@@ -73,8 +73,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
@@ -133,19 +133,19 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private final List<String> mUsernames = new ArrayList<>();
 	private final List<String> mNames = new ArrayList<>();
 
-	@InjectView(R.id.header) TextView mHeaderView;
-	@InjectView(R.id.log_play_date) TextView mDateButton;
-	@InjectView(R.id.log_play_quantity) EditText mQuantityView;
-	@InjectView(R.id.log_play_length) EditText mLengthView;
-	@InjectView(R.id.log_play_location) AutoCompleteTextView mLocationView;
-	@InjectView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
-	@InjectView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
-	@InjectView(R.id.timer) Chronometer mTimer;
-	@InjectView(R.id.timer_toggle) ImageView mTimerToggle;
-	@InjectView(R.id.log_play_comments) EditText mCommentsView;
-	@InjectView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
-	@InjectView(R.id.log_play_players_label) TextView mPlayerLabel;
-	@InjectView(R.id.fab) FloatingActionButton mFab;
+	@Bind(R.id.header) TextView mHeaderView;
+	@Bind(R.id.log_play_date) TextView mDateButton;
+	@Bind(R.id.log_play_quantity) EditText mQuantityView;
+	@Bind(R.id.log_play_length) EditText mLengthView;
+	@Bind(R.id.log_play_location) AutoCompleteTextView mLocationView;
+	@Bind(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
+	@Bind(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
+	@Bind(R.id.timer) Chronometer mTimer;
+	@Bind(R.id.timer_toggle) ImageView mTimerToggle;
+	@Bind(R.id.log_play_comments) EditText mCommentsView;
+	@Bind(R.id.log_play_players_header) LinearLayout mPlayerHeader;
+	@Bind(R.id.log_play_players_label) TextView mPlayerLabel;
+	@Bind(R.id.fab) FloatingActionButton mFab;
 	private DragSortListView mPlayerList;
 	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
@@ -447,7 +447,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
 		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
 
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);

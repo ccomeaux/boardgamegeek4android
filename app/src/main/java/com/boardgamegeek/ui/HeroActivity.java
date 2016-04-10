@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.UIUtils;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * A navigation drawer activity that displays a hero image.
@@ -26,12 +26,12 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	private Fragment fragment;
 	private boolean isRefreshing;
 
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.coordinator) CoordinatorLayout coordinator;
-	@SuppressWarnings("unused") @InjectView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar_image) ImageView toolbarImage;
-	@SuppressWarnings("unused") @InjectView(R.id.scrim) View scrimView;
-	@SuppressWarnings("unused") @InjectView(R.id.fab) FloatingActionButton fab;
+	@SuppressWarnings("unused") @Bind(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@SuppressWarnings("unused") @Bind(R.id.coordinator) CoordinatorLayout coordinator;
+	@SuppressWarnings("unused") @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
+	@SuppressWarnings("unused") @Bind(R.id.toolbar_image) ImageView toolbarImage;
+	@SuppressWarnings("unused") @Bind(R.id.scrim) View scrimView;
+	@SuppressWarnings("unused") @Bind(R.id.fab) FloatingActionButton fab;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

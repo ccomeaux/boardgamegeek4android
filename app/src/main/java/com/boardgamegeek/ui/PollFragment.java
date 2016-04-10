@@ -46,8 +46,8 @@ import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
@@ -69,15 +69,15 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	private int[] mColors;
 	private Snackbar mSnackbar;
 
-	@InjectView((R.id.progress)) View mProgress;
-	@InjectView(R.id.poll_scroll) ScrollView mScrollView;
-	@InjectView(R.id.poll_vote_total) TextView mVoteTotalView;
-	@InjectView(R.id.pie_chart) PieChart mPieChart;
-	@InjectView(R.id.poll_list) LinearLayout mPollList;
-	@InjectView(R.id.poll_key) LinearLayout mKeyList;
-	@InjectView(R.id.poll_key2) LinearLayout mKeyList2;
-	@InjectView(R.id.poll_key_container) View mKeyContainer;
-	@InjectView(R.id.poll_key_divider) View mKeyDivider;
+	@Bind((R.id.progress)) View mProgress;
+	@Bind(R.id.poll_scroll) ScrollView mScrollView;
+	@Bind(R.id.poll_vote_total) TextView mVoteTotalView;
+	@Bind(R.id.pie_chart) PieChart mPieChart;
+	@Bind(R.id.poll_list) LinearLayout mPollList;
+	@Bind(R.id.poll_key) LinearLayout mKeyList;
+	@Bind(R.id.poll_key2) LinearLayout mKeyList2;
+	@Bind(R.id.poll_key_container) View mKeyContainer;
+	@Bind(R.id.poll_key_divider) View mKeyDivider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -92,7 +92,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		mPieChart.setDrawSliceText(false);
 		mPieChart.setRotationEnabled(false);

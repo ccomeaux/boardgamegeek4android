@@ -26,8 +26,8 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -190,12 +190,12 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			@SuppressWarnings("unused") @InjectView(R.id.list_fullname) TextView fullName;
-			@SuppressWarnings("unused") @InjectView(R.id.list_name) TextView name;
-			@SuppressWarnings("unused") @InjectView(R.id.list_avatar) ImageView avatar;
+			@SuppressWarnings("unused") @Bind(R.id.list_fullname) TextView fullName;
+			@SuppressWarnings("unused") @Bind(R.id.list_name) TextView name;
+			@SuppressWarnings("unused") @Bind(R.id.list_avatar) ImageView avatar;
 
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 			}
 		}
 

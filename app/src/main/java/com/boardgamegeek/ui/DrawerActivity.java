@@ -22,8 +22,8 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.squareup.picasso.Picasso;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
@@ -31,11 +31,11 @@ import butterknife.InjectView;
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGN_IN = 1;
 
-	@SuppressWarnings("unused") @InjectView(R.id.drawer_layout) DrawerLayout drawerLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.drawer_container) View drawerListContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.left_drawer) LinearLayout drawerList;
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar) Toolbar toolbar;
-	@SuppressWarnings("unused") @InjectView(R.id.root_container) ViewGroup rootContainer;
+	@SuppressWarnings("unused") @Bind(R.id.drawer_layout) DrawerLayout drawerLayout;
+	@SuppressWarnings("unused") @Bind(R.id.drawer_container) View drawerListContainer;
+	@SuppressWarnings("unused") @Bind(R.id.left_drawer) LinearLayout drawerList;
+	@SuppressWarnings("unused") @Bind(R.id.toolbar) Toolbar toolbar;
+	@SuppressWarnings("unused") @Bind(R.id.root_container) ViewGroup rootContainer;
 
 	protected int getDrawerResId() {
 		return 0;
@@ -45,7 +45,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(getLayoutResId());
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
 		}

@@ -46,8 +46,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import hugo.weaving.DebugLog;
@@ -71,24 +71,24 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@State Player mPlayer;
 	private Player mOriginalPlayer;
 
-	@InjectView(R.id.scroll_container) ScrollView mScrollContainer;
-	@InjectView(R.id.header) TextView mHeader;
-	@InjectView(R.id.two_line_container) View mTwoLineContainer;
-	@InjectView(R.id.header2) TextView mHeader2;
-	@InjectView(R.id.subheader) TextView mSubheader;
-	@InjectView(R.id.log_player_username) AutoCompleteTextView mUsername;
-	@InjectView(R.id.log_player_name) AutoCompleteTextView mName;
-	@InjectView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
-	@InjectView(R.id.color_view) ImageView mColorView;
-	@InjectView(R.id.log_player_position) EditText mPosition;
-	@InjectView(R.id.log_player_position_button) Button mPositionButton;
-	@InjectView(R.id.log_player_score) EditText mScore;
-	@InjectView(R.id.log_player_score_button) Button mScoreButton;
-	@InjectView(R.id.log_player_rating) EditText mRating;
-	@InjectView(R.id.log_player_new) SwitchCompat mNew;
-	@InjectView(R.id.log_player_win) SwitchCompat mWin;
-	@InjectView(R.id.fab) FloatingActionButton mFab;
-	@InjectView(R.id.fab_buffer) View mFabBuffer;
+	@Bind(R.id.scroll_container) ScrollView mScrollContainer;
+	@Bind(R.id.header) TextView mHeader;
+	@Bind(R.id.two_line_container) View mTwoLineContainer;
+	@Bind(R.id.header2) TextView mHeader2;
+	@Bind(R.id.subheader) TextView mSubheader;
+	@Bind(R.id.log_player_username) AutoCompleteTextView mUsername;
+	@Bind(R.id.log_player_name) AutoCompleteTextView mName;
+	@Bind(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
+	@Bind(R.id.color_view) ImageView mColorView;
+	@Bind(R.id.log_player_position) EditText mPosition;
+	@Bind(R.id.log_player_position_button) Button mPositionButton;
+	@Bind(R.id.log_player_score) EditText mScore;
+	@Bind(R.id.log_player_score_button) Button mScoreButton;
+	@Bind(R.id.log_player_rating) EditText mRating;
+	@Bind(R.id.log_player_new) SwitchCompat mNew;
+	@Bind(R.id.log_player_win) SwitchCompat mWin;
+	@Bind(R.id.fab) FloatingActionButton mFab;
+	@Bind(R.id.fab_buffer) View mFabBuffer;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -160,7 +160,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_logplayer);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		mName.setOnItemClickListener(nameClickListener());
 

@@ -24,8 +24,8 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -38,11 +38,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private String username;
 	private String password;
 
-	@SuppressWarnings("unused") @InjectView(R.id.username) EditText usernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.password) EditText passwordView;
-	@SuppressWarnings("unused") @InjectView(R.id.login_form) View loginFormView;
-	@SuppressWarnings("unused") @InjectView(R.id.login_status) View loginStatusView;
-	@SuppressWarnings("unused") @InjectView(R.id.login_status_message) TextView loginStatusMessageView;
+	@SuppressWarnings("unused") @Bind(R.id.username) EditText usernameView;
+	@SuppressWarnings("unused") @Bind(R.id.password) EditText passwordView;
+	@SuppressWarnings("unused") @Bind(R.id.login_form) View loginFormView;
+	@SuppressWarnings("unused") @Bind(R.id.login_status) View loginStatusView;
+	@SuppressWarnings("unused") @Bind(R.id.login_status_message) TextView loginStatusMessageView;
 
 	private UserLoginTask userLoginTask = null;
 	private AccountManager accountManager;
@@ -55,7 +55,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		setContentView(R.layout.activity_login);
 
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		accountManager = AccountManager.get(this);
 		username = getIntent().getStringExtra(ActivityUtils.KEY_USER);

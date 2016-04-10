@@ -27,9 +27,8 @@ import com.boardgamegeek.util.XmlConverter;
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 
 public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
@@ -48,19 +47,19 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	private Palette.Swatch swatch;
 
 	private ViewGroup rootView;
-	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.order) TextView orderView;
-	@SuppressWarnings("unused") @InjectView(R.id.title) TextView titleView;
-	@SuppressWarnings("unused") @InjectView(R.id.type) TextView typeView;
-	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView imageView;
-	@SuppressWarnings("unused") @InjectView(R.id.author_container) View authorContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView thumbsView;
-	@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView postedDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView editedDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.body) WebView bodyView;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind(R.id.hero_container) View heroContainer;
+	@SuppressWarnings("unused") @Bind(R.id.header_container) View headerContainer;
+	@SuppressWarnings("unused") @Bind(R.id.order) TextView orderView;
+	@SuppressWarnings("unused") @Bind(R.id.title) TextView titleView;
+	@SuppressWarnings("unused") @Bind(R.id.type) TextView typeView;
+	@SuppressWarnings("unused") @Bind(R.id.image) ImageView imageView;
+	@SuppressWarnings("unused") @Bind(R.id.author_container) View authorContainer;
+	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
+	@SuppressWarnings("unused") @Bind(R.id.thumbs) TextView thumbsView;
+	@SuppressWarnings("unused") @Bind(R.id.posted_date) TextView postedDateView;
+	@SuppressWarnings("unused") @Bind(R.id.edited_date) TextView editedDateView;
+	@SuppressWarnings("unused") @Bind(R.id.body) WebView bodyView;
+	@SuppressWarnings("unused") @Bind({
 		R.id.username,
 		R.id.thumbs,
 		R.id.posted_date,
@@ -94,7 +93,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		applySwatch();
 		ScrimUtils.applyDefaultScrim(headerContainer);
@@ -161,7 +160,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.reset(this);
+		ButterKnife.unbind(this);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
