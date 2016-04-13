@@ -79,12 +79,6 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
-	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
-	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
-	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
-	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
-	private static final String STATE_FILTER_TYPES = "STATE_FILTER_TYPES";
-	private static final String STATE_FILTER_DATA = "STATE_FILTER_DATA";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	@SuppressWarnings("unused") @Bind(R.id.frame_container) ViewGroup frameContainer;
@@ -97,10 +91,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@NonNull private Handler timeUpdateHandler = new Handler();
 	@Nullable private Runnable timeUpdateRunnable = null;
-	private int selectedCollectionId;
 	private CollectionAdapter adapter;
+	@State int selectedCollectionId;
 	@State long viewId;
-	@Nullable private String viewName = "";
+	@State @Nullable String viewName = "";
+	@State int sortType;
+	@State ArrayList<Integer> types;
+	@State  ArrayList<String> data;
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
@@ -117,13 +114,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		super.onCreate(savedInstanceState);
 		timeUpdateHandler = new Handler();
 		if (savedInstanceState != null) {
-			selectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
-			viewId = savedInstanceState.getLong(STATE_VIEW_ID);
-			viewName = savedInstanceState.getString(STATE_VIEW_NAME);
+			Icepick.restoreInstanceState(this, savedInstanceState);
 
 			filters.clear();
-			ArrayList<Integer> types = savedInstanceState.getIntegerArrayList(STATE_FILTER_TYPES);
-			ArrayList<String> data = savedInstanceState.getStringArrayList(STATE_FILTER_DATA);
 			if (types != null && data != null) {
 				if (types.size() != data.size()) {
 					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2@s", types.size(), data.size());
@@ -175,10 +168,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		int sortType = CollectionSorterFactory.TYPE_DEFAULT;
-		if (savedInstanceState != null) {
-			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		sorter = getCollectionSorter(sortType);
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
@@ -224,23 +214,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
-		outState.putLong(STATE_VIEW_ID, viewId);
-		outState.putString(STATE_VIEW_NAME, viewName);
-		outState.putInt(STATE_SORT_TYPE, sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType());
-
-		ArrayList<Integer> types = new ArrayList<>();
-		ArrayList<String> data = new ArrayList<>();
+		sortType = sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType();
+		types = new ArrayList<>();
+		data = new ArrayList<>();
 		for (CollectionFilterer filterer : filters) {
 			types.add(filterer.getType());
 			data.add(filterer.flatten());
 		}
-		outState.putIntegerArrayList(STATE_FILTER_TYPES, types);
-		outState.putStringArrayList(STATE_FILTER_DATA, data);
-
-		if (selectedCollectionId > 0) {
-			outState.putInt(STATE_SELECTED_ID, selectedCollectionId);
-		}
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
