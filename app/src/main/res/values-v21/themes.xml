@@ -2,14 +2,12 @@
 <resources>
 
 	<style name="Theme.bgglight.Base" parent="@style/Theme.AppCompat.Light.NoActionBar">
+	</style>
+
+	<style name="Theme.bgglight.NavDrawer">
 		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
 		<item name="android:statusBarColor">@android:color/transparent</item>
 		<item name="android:windowTranslucentStatus">true</item>
-	</style>
-
-	<style name="Theme.bgglight.NoActionBar">
-		<item name="android:statusBarColor">@color/primary_dark</item>
-		<item name="android:windowTranslucentStatus">false</item>
 	</style>
 
 	<style name="Theme.bgglight.Settings" parent="@style/Theme.AppCompat.Light">

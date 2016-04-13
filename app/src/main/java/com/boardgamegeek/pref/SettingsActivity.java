@@ -73,7 +73,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))
-							.withActivityTheme(R.style.Theme_bgglight_NoActionBar)
+							.withActivityTheme(R.style.Theme_bgglight)
 							.withAboutIconShown(true)
 							.withAboutAppName(getString(R.string.app_name))
 							.withAboutVersionShown(true)

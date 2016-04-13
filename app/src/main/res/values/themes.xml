@@ -12,7 +12,7 @@
 
 	<style name="Theme.bgglight.Base" parent="@style/Theme.AppCompat.Light.NoActionBar"/>
 
-	<style name="Theme.bgglight.NoActionBar"/>
+	<style name="Theme.bgglight.NavDrawer"/>
 
 	<style name="Theme.bgglight.Settings" parent="@style/Theme.AppCompat.Light">
 		<item name="colorPrimary">@color/primary</item>
