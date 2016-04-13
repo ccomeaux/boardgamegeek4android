@@ -80,12 +80,6 @@ public abstract class DrawerActivity extends BaseActivity {
 		refreshDrawer();
 	}
 
-	public boolean isDrawerOpen() {
-		return drawerLayout != null &&
-			drawerListContainer != null &&
-			drawerLayout.isDrawerOpen(drawerListContainer);
-	}
-
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

@@ -41,21 +41,16 @@ public class PlayersActivity extends SimpleSinglePaneActivity implements Players
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (isDrawerOpen()) {
-			menu.findItem(R.id.menu_sort).setVisible(false);
-			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, "");
-		} else {
-			menu.findItem(R.id.menu_sort).setVisible(true);
-			PlayersFragment fragment = (PlayersFragment) getFragment();
-			if (fragment != null) {
-				if (fragment.getSort() == PlayersSorterFactory.TYPE_QUANTITY) {
-					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
-				} else {
-					menu.findItem(R.id.menu_sort_name).setChecked(true);
-				}
+		menu.findItem(R.id.menu_sort).setVisible(true);
+		PlayersFragment fragment = (PlayersFragment) getFragment();
+		if (fragment != null) {
+			if (fragment.getSort() == PlayersSorterFactory.TYPE_QUANTITY) {
+				menu.findItem(R.id.menu_sort_quantity).setChecked(true);
+			} else {
+				menu.findItem(R.id.menu_sort_name).setChecked(true);
 			}
-			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playerCount <= 0 ? "" : String.valueOf(playerCount));
 		}
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playerCount <= 0 ? "" : String.valueOf(playerCount));
 		return super.onPrepareOptionsMenu(menu);
 	}
 

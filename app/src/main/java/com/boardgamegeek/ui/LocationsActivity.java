@@ -35,19 +35,13 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (isDrawerOpen()) {
-			menu.findItem(R.id.menu_sort).setVisible(false);
-			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, "");
+		menu.findItem(R.id.menu_sort).setVisible(true);
+		if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
+			menu.findItem(R.id.menu_sort_quantity).setChecked(true);
 		} else {
-			menu.findItem(R.id.menu_sort).setVisible(true);
-			if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
-				menu.findItem(R.id.menu_sort_quantity).setChecked(true);
-			} else {
-				menu.findItem(R.id.menu_sort_name).setChecked(true);
-			}
-			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
-				locationCount <= 0 ? "" : String.valueOf(locationCount));
+			menu.findItem(R.id.menu_sort_name).setChecked(true);
 		}
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, locationCount <= 0 ? "" : String.valueOf(locationCount));
 		return super.onPrepareOptionsMenu(menu);
 	}
 

@@ -23,7 +23,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, (isDrawerOpen() || numberOfBuddies <= 0) ? "" : String.valueOf(numberOfBuddies));
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, numberOfBuddies <= 0 ? "" : String.valueOf(numberOfBuddies));
 		return super.onPrepareOptionsMenu(menu);
 	}
 

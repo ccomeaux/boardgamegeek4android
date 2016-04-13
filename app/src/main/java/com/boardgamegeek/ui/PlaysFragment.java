@@ -93,7 +93,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;
-	private LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<>();
+	private final LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem mSendMenuItem;
 	private MenuItem mEditMenuItem;
 
@@ -170,55 +170,38 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		DrawerActivity activity = (DrawerActivity) getActivity();
-		boolean showOptions = true;
-		if (activity != null) {
-			showOptions = !activity.isDrawerOpen();
+		switch (mFilterType) {
+			case Play.SYNC_STATUS_IN_PROGRESS:
+				checkMenuItemSafely(menu, R.id.menu_filter_in_progress);
+				break;
+			case Play.SYNC_STATUS_PENDING:
+				checkMenuItemSafely(menu, R.id.menu_filter_pending);
+				break;
+			case Play.SYNC_STATUS_ALL:
+			default:
+				checkMenuItemSafely(menu, R.id.menu_filter_all);
+				break;
 		}
-		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
-		showMenuItemSafely(menu, R.id.menu_filter, showOptions);
-		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
-		if (showOptions) {
-			switch (mFilterType) {
-				case Play.SYNC_STATUS_IN_PROGRESS:
-					checkMenuItemSafely(menu, R.id.menu_filter_in_progress);
+		if (mSorter != null) {
+			switch (mSorter.getType()) {
+				case PlaysSorterFactory.TYPE_PLAY_DATE:
+					checkMenuItemSafely(menu, R.id.menu_sort_date);
 					break;
-				case Play.SYNC_STATUS_PENDING:
-					checkMenuItemSafely(menu, R.id.menu_filter_pending);
+				case PlaysSorterFactory.TYPE_PLAY_GAME:
+					checkMenuItemSafely(menu, R.id.menu_sort_game);
 					break;
-				case Play.SYNC_STATUS_ALL:
+				case PlaysSorterFactory.TYPE_PLAY_LENGTH:
+					checkMenuItemSafely(menu, R.id.menu_sort_length);
+					break;
+				case PlaysSorterFactory.TYPE_PLAY_LOCATION:
+					checkMenuItemSafely(menu, R.id.menu_sort_location);
+					break;
 				default:
-					checkMenuItemSafely(menu, R.id.menu_filter_all);
+					checkMenuItemSafely(menu, R.id.menu_sort_date);
 					break;
-			}
-			if (mSorter != null) {
-				switch (mSorter.getType()) {
-					case PlaysSorterFactory.TYPE_PLAY_DATE:
-						checkMenuItemSafely(menu, R.id.menu_sort_date);
-						break;
-					case PlaysSorterFactory.TYPE_PLAY_GAME:
-						checkMenuItemSafely(menu, R.id.menu_sort_game);
-						break;
-					case PlaysSorterFactory.TYPE_PLAY_LENGTH:
-						checkMenuItemSafely(menu, R.id.menu_sort_length);
-						break;
-					case PlaysSorterFactory.TYPE_PLAY_LOCATION:
-						checkMenuItemSafely(menu, R.id.menu_sort_location);
-						break;
-					default:
-						checkMenuItemSafely(menu, R.id.menu_sort_date);
-						break;
-				}
 			}
 		}
 		super.onPrepareOptionsMenu(menu);
-	}
-
-	private static void showMenuItemSafely(Menu menu, int resourceId, boolean visible) {
-		MenuItem menuItem = menu.findItem(resourceId);
-		if (menuItem != null) {
-			menuItem.setVisible(visible);
-		}
 	}
 
 	private static void checkMenuItemSafely(Menu menu, int resourceId) {
@@ -265,6 +248,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		return true;
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
 		mSelectedPlayId = event.getPlayId();
@@ -273,10 +257,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void onEventMainThread(UpdateEvent event) {
 		isSyncing((event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.getType() == UpdateService.SYNC_TYPE_PLAYS_DATE));
 	}
 
+	@SuppressWarnings({ "UnusedParameters", "unused" })
 	public void onEventMainThread(UpdateCompleteEvent event) {
 		isSyncing(false);
 	}
@@ -295,10 +281,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, getArguments(), this);
 	}
 
+	@SuppressWarnings("unused")
 	public void onEvent(PlaysSortChangedEvent event) {
 		setSort(event.getType());
 	}
 
+	@SuppressWarnings("unused")
 	public void onEvent(PlaysFilterChangedEvent event) {
 		filter(event.getType(), event.getDescription());
 	}
@@ -630,10 +618,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 
 		class ViewHolder {
-			@Bind(android.R.id.title) TextView title;
-			@Bind(android.R.id.text1) TextView text1;
-			@Bind(android.R.id.text2) TextView text2;
-			@Bind(android.R.id.message) TextView status;
+			@SuppressWarnings("unused") @Bind(android.R.id.title) TextView title;
+			@SuppressWarnings("unused") @Bind(android.R.id.text1) TextView text1;
+			@SuppressWarnings("unused") @Bind(android.R.id.text2) TextView text2;
+			@SuppressWarnings("unused") @Bind(android.R.id.message) TextView status;
 
 			public ViewHolder(View view) {
 				ButterKnife.bind(this, view);
@@ -710,7 +698,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (mSelectedPlaysPositions == null || !mSelectedPlaysPositions.iterator().hasNext()) {
+		if (!mSelectedPlaysPositions.iterator().hasNext()) {
 			return false;
 		}
 		switch (item.getItemId()) {
