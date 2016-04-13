@@ -181,11 +181,13 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static void clearPassword(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
-		String authToken = accountManager.peekAuthToken(account, Authenticator.AUTH_TOKEN_TYPE);
-		if (authToken != null) {
-			accountManager.invalidateAuthToken(Authenticator.AUTH_TOKEN_TYPE, authToken);
-		} else {
-			accountManager.clearPassword(account);
+		if (account != null) {
+			String authToken = accountManager.peekAuthToken(account, Authenticator.AUTH_TOKEN_TYPE);
+			if (authToken != null) {
+				accountManager.invalidateAuthToken(Authenticator.AUTH_TOKEN_TYPE, authToken);
+			} else {
+				accountManager.clearPassword(account);
+			}
 		}
 	}
 
