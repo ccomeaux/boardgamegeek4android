@@ -35,7 +35,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	private static final int HELP_VERSION = 1;
 	private CollectionViewAdapter adapter;
 	private long viewId;
-	private boolean isTitleHidden;
 	@State int viewIndex;
 
 	@Override
@@ -84,11 +83,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	@Override
-	protected boolean isTitleHidden() {
-		return isTitleHidden;
 	}
 
 	@Override
@@ -152,7 +146,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 				actionBar.setListNavigationCallbacks(adapter, this);
 				actionBar.setSelectedNavigationItem(viewIndex);
 			}
-			isTitleHidden = true;
 		} else {
 			cursor.close();
 		}
