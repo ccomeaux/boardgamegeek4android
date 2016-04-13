@@ -197,13 +197,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	private static class CollectionViewAdapter extends SimpleCursorAdapter {
-		private final LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		public CollectionViewAdapter(Context context, Cursor cursor) {
 			super(context, android.R.layout.simple_spinner_item, cursor, new String[] { CollectionViews._ID,
 				CollectionViews.NAME }, new int[] { 0, android.R.id.text1 }, 0);
 			setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		@Override
@@ -232,7 +232,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		private View createDefaultItem(View convertView, ViewGroup parent, int layout) {
 			View v;
 			if (convertView == null) {
-				v = mInflater.inflate(layout, parent, false);
+				v = inflater.inflate(layout, parent, false);
 			} else {
 				v = convertView;
 			}

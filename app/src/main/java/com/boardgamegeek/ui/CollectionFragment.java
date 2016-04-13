@@ -713,18 +713,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		@NonNull private final LayoutInflater mInflater;
+		@NonNull private final LayoutInflater inflater;
 
 		@DebugLog
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
-			mInflater = getActivity().getLayoutInflater();
+			inflater = getActivity().getLayoutInflater();
 		}
 
 		@Override
 		@DebugLog
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_collection, parent, false);
+			View row = inflater.inflate(R.layout.row_collection, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -766,7 +766,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
-				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				convertView = inflater.inflate(R.layout.row_header, parent, false);
 				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
