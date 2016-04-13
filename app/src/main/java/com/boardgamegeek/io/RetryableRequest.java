@@ -22,11 +22,11 @@ public abstract class RetryableRequest<T> {
 				return request();
 			} catch (Exception e) {
 				if (e.getCause() instanceof RetryableException) {
-					Timber.w(e, "Retryable exception");
+					Timber.w(e, "Retry-able exception");
 					numberOfRetries++;
 					wait(numberOfRetries);
 				} else {
-					Timber.e(e, "Syncing plays");
+					Timber.e(e, "Non-retry-able exception");
 					throw e;
 				}
 			}
