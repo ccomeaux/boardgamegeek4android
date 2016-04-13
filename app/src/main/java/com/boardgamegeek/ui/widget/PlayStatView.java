@@ -30,11 +30,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class PlayStatView extends TableRow {
-	@Bind(R.id.label) TextView mLabel;
-	@Bind(R.id.value) TextView mValue;
-	@Bind(R.id.info) ImageView mInfo;
-	@Bind(R.id.label_container) View mContainer;
-	private AlertDialog.Builder mBuilder;
+	@Bind(R.id.label) TextView labelView;
+	@Bind(R.id.value) TextView valueView;
+	@Bind(R.id.info) ImageView infoImageView;
+	@Bind(R.id.label_container) View container;
+	private AlertDialog.Builder builder;
 
 	public PlayStatView(Context context) {
 		super(context);
@@ -44,15 +44,15 @@ public class PlayStatView extends TableRow {
 	}
 
 	public void setLabel(CharSequence text) {
-		mLabel.setText(text);
+		labelView.setText(text);
 	}
 
 	public void setLabel(@StringRes int textId) {
-		mLabel.setText(textId);
+		labelView.setText(textId);
 	}
 
 	public void setValue(CharSequence text) {
-		mValue.setText(text);
+		valueView.setText(text);
 	}
 
 	public void setInfoText(@StringRes int textId) {
@@ -60,18 +60,18 @@ public class PlayStatView extends TableRow {
 	}
 
 	public void setInfoText(String text) {
-		mInfo.setVisibility(View.VISIBLE);
+		infoImageView.setVisibility(View.VISIBLE);
 		setClickBackground();
 		final SpannableString s = new SpannableString(text);
 		Linkify.addLinks(s, Linkify.ALL);
-		mBuilder = new AlertDialog.Builder(getContext());
-		mBuilder.setTitle(mLabel.getText()).setMessage(s);
+		builder = new AlertDialog.Builder(getContext());
+		builder.setTitle(labelView.getText()).setMessage(s);
 	}
 
 	@OnClick(R.id.label_container)
-	public void onInfoClick(View v) {
-		if (mBuilder != null) {
-			AlertDialog dialog = mBuilder.show();
+	public void onInfoClick() {
+		if (builder != null) {
+			AlertDialog dialog = builder.show();
 			TextView textView = (TextView) dialog.findViewById(android.R.id.message);
 			if (textView != null) {
 				textView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -87,7 +87,7 @@ public class PlayStatView extends TableRow {
 		} finally {
 			a.recycle();
 		}
-		mContainer.setBackgroundResource(resId);
+		container.setBackgroundResource(resId);
 	}
 
 	public static class Builder {
