@@ -3,6 +3,7 @@ Release Notes
 
 Version 5.2.4
 -------------
+* Fix for disappearing collection
 * Bug fixes
 
 Version 5.2.3
