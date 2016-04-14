@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 5.2.4
+-------------
+* Bug fixes
+
 Version 5.2.3
 -------------
 * Bug fixes
