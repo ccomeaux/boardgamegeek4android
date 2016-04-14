@@ -10,11 +10,14 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -31,11 +34,12 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
+public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 1;
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	@State int viewIndex;
+	private Spinner spinner;
 
 	@Override
 	@DebugLog
@@ -47,12 +51,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		boolean shortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-			actionBar.setCustomView(R.layout.actionbar_text_2line);
 			if (shortcut) {
 				actionBar.setHomeButtonEnabled(false);
 				actionBar.setDisplayHomeAsUpEnabled(false);
 				actionBar.setTitle(R.string.app_name);
+			} else {
+				actionBar.setDisplayShowTitleEnabled(false);
+				actionBar.setDisplayShowCustomEnabled(true);
+				actionBar.setCustomView(R.layout.actionbar_collection);
 			}
 		}
 		if (!shortcut) {
@@ -67,6 +73,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		spinner = (Spinner) findViewById(R.id.menu_spinner);
+		bindSpinner();
+		return true;
 	}
 
 	@Override
@@ -139,15 +153,36 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			if (viewId != -1) {
 				viewIndex = findViewIndex(viewId);
 			}
-			final ActionBar actionBar = getSupportActionBar();
-			if (actionBar != null) {
-				actionBar.setDisplayShowTitleEnabled(false);
-				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-				actionBar.setListNavigationCallbacks(adapter, this);
-				actionBar.setSelectedNavigationItem(viewIndex);
-			}
+			bindSpinner();
 		} else {
 			cursor.close();
+		}
+	}
+
+	private void bindSpinner() {
+		if (spinner != null && adapter != null) {
+			spinner.setAdapter(adapter);
+			spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+					CollectionFragment fragment = (CollectionFragment) getFragment();
+					long oldId = fragment.getViewId();
+					if (id != oldId) {
+						viewIndex = findViewIndex(id);
+						if (id < 0) {
+							fragment.clearView();
+						} else {
+							fragment.setView(id);
+						}
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+					// Do nothing
+				}
+			});
+			spinner.setSelection(viewIndex);
 		}
 	}
 
@@ -155,22 +190,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.changeCursor(null);
-	}
-
-	@Override
-	@DebugLog
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		CollectionFragment fragment = (CollectionFragment) getFragment();
-		long oldId = fragment.getViewId();
-		if (itemId != oldId) {
-			viewIndex = findViewIndex(itemId);
-			if (itemId < 0) {
-				fragment.clearView();
-			} else {
-				fragment.setView(itemId);
-			}
-		}
-		return true;
 	}
 
 	@DebugLog
