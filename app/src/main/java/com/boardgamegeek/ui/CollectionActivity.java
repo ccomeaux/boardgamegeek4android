@@ -40,6 +40,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	private long viewId;
 	@State int viewIndex;
 	private Spinner spinner;
+	private boolean isCreatingShortcut;
 
 	@Override
 	@DebugLog
@@ -48,10 +49,10 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		viewId = savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this);
 
-		boolean shortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
+		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			if (shortcut) {
+			if (isCreatingShortcut) {
 				actionBar.setHomeButtonEnabled(false);
 				actionBar.setDisplayHomeAsUpEnabled(false);
 				actionBar.setTitle(R.string.app_name);
@@ -61,7 +62,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 				actionBar.setCustomView(R.layout.actionbar_collection);
 			}
 		}
-		if (!shortcut) {
+		if (!isCreatingShortcut) {
 			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
 		}
 
@@ -85,7 +86,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search;
+		if (isCreatingShortcut) {
+			return super.getOptionsMenuId();
+		} else {
+			return R.menu.search;
+		}
 	}
 
 	@Override
