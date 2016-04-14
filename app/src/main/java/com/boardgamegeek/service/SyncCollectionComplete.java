@@ -45,6 +45,7 @@ public class SyncCollectionComplete extends SyncTask {
 
 			statuses = getSyncableStatuses();
 
+			boolean wasSuccessful = false;
 			for (int i = 0; i < statuses.size(); i++) {
 				if (isCancelled()) {
 					Timber.i("...cancelled");
@@ -60,16 +61,18 @@ public class SyncCollectionComplete extends SyncTask {
 
 				showNotification(String.format("Syncing %s collection items", status));
 				ArrayMap<String, String> options = createOptions(i, status);
-				requestAndPersist(account.name, persister, options, syncResult);
+				wasSuccessful |= requestAndPersist(account.name, persister, options, syncResult);
 
 				showNotification(String.format("Syncing %s collection accessories", status));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-				requestAndPersist(account.name, persister, options, syncResult);
+				wasSuccessful |= requestAndPersist(account.name, persister, options, syncResult);
 			}
 
-			final long initialTimestamp = persister.getInitialTimestamp();
-			deleteUnusedItems(initialTimestamp);
-			updateTimestamps(initialTimestamp);
+			if (wasSuccessful) {
+				final long initialTimestamp = persister.getInitialTimestamp();
+				deleteUnusedItems(initialTimestamp);
+				updateTimestamps(initialTimestamp);
+			}
 		} finally {
 			Timber.i("...complete!");
 		}
@@ -96,14 +99,16 @@ public class SyncCollectionComplete extends SyncTask {
 		return options;
 	}
 
-	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
+	private boolean requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);
 			syncResult.stats.numEntries += response.items.size();
 			Timber.i("...saved " + rows + " records for " + response.items.size() + " collection items");
+			return true;
 		} else {
 			Timber.i("...no collection items to save");
+			return false;
 		}
 	}
 

@@ -16,24 +16,27 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 	protected static final int SUCCESS = 0;
 	protected static final int ERROR = -1;
 	protected static final int ERROR_STORAGE_ACCESS = -2;
+	private static final int PROGRESS_CURRENT = 0;
+	private static final int PROGRESS_TOTAL = 1;
+	private static final int PROGRESS_STEP = 2;
 
-	protected final Context mContext;
-	protected final boolean mIsAutoBackupMode;
-	protected final List<Step> mSteps = new ArrayList<>();
+	protected final Context context;
+	protected final boolean isAutoBackupMode;
+	protected final List<Step> steps = new ArrayList<>();
 
 	public ImporterExporterTask(@NonNull Context context, boolean isAutoBackupMode) {
-		mContext = context.getApplicationContext();
-		mIsAutoBackupMode = isAutoBackupMode;
+		this.context = context.getApplicationContext();
+		this.isAutoBackupMode = isAutoBackupMode;
 
-		mSteps.clear();
-		mSteps.add(new CollectionViewStep());
-		mSteps.add(new GameStep());
-		mSteps.add(new UserStep());
+		steps.clear();
+		steps.add(new CollectionViewStep());
+		steps.add(new GameStep());
+		steps.add(new UserStep());
 	}
 
 	@NonNull
 	public List<Step> getSteps() {
-		return mSteps;
+		return steps;
 	}
 
 	@Override
@@ -41,11 +44,11 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 		return ERROR;
 	}
 
-	// 0 = current progress
-	// 1 = total progress
-	// 2 = current step
 	@Override
 	protected void onProgressUpdate(Integer... values) {
-		EventBus.getDefault().post(new ExportProgressEvent(values[0], values[1], values[2]));
+		EventBus.getDefault().post(new ExportProgressEvent(
+			values[PROGRESS_CURRENT],
+			values[PROGRESS_TOTAL],
+			values[PROGRESS_STEP]));
 	}
 }

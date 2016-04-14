@@ -239,6 +239,10 @@ public class BuddyColorsActivity extends BaseActivity {
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@OnClick(R.id.fab)
 	void onFabClick(View view) {
+		if (colors == null) {
+			return;
+		}
+
 		ArrayList<String> usedColors = new ArrayList<>(colors.size());
 		for (BuddyColor color : colors) {
 			usedColors.add(color.getColor());
