@@ -5,7 +5,6 @@ import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -27,8 +26,8 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 	private final String newLocationName;
 
 	@DebugLog
-	public RenameLocationTask(@NonNull Context context, String oldLocation, String newLocation) {
-		this.context = context.getApplicationContext();
+	public RenameLocationTask(Context context, String oldLocation, String newLocation) {
+		this.context = (context == null ? null : context.getApplicationContext());
 		oldLocationName = oldLocation;
 		newLocationName = newLocation;
 	}
@@ -36,6 +35,10 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 	@DebugLog
 	@Override
 	protected String doInBackground(String... params) {
+		if (context == null) {
+			return "";
+		}
+
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
 		ContentValues values = new ContentValues();

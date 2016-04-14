@@ -30,8 +30,8 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private final String nickname;
 	private final boolean shouldUpdatePlays;
 
-	public BuddyNicknameUpdateTask(@NonNull Context context, String username, String nickname, boolean shouldUpdatePlays) {
-		this.context = context.getApplicationContext();
+	public BuddyNicknameUpdateTask(Context context, String username, String nickname, boolean shouldUpdatePlays) {
+		this.context = (context == null ? null : context.getApplicationContext());
 		this.username = username;
 		this.nickname = nickname;
 		this.shouldUpdatePlays = shouldUpdatePlays;
@@ -39,6 +39,10 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 
 	@Override
 	protected String doInBackground(Void... params) {
+		if (context == null) {
+			return "";
+		}
+
 		String result;
 		updateNickname(Buddies.buildBuddyUri(username));
 		if (shouldUpdatePlays) {
