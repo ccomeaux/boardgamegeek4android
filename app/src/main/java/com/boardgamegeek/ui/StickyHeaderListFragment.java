@@ -14,6 +14,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -27,6 +28,7 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.Optional;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -94,7 +96,9 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@Optional @Nullable @SuppressWarnings("unused") @InjectView(R.id.empty_container) ViewGroup emptyContainer;
 	@Nullable @SuppressWarnings("unused") @InjectView(android.R.id.empty) TextView emptyTextView;
+	@Optional @Nullable @SuppressWarnings("unused") @InjectView(R.id.empty_button) Button emptyButton;
 	@Nullable @SuppressWarnings("unused") @InjectView(R.id.progressContainer) View progressContainer;
 	@Nullable @SuppressWarnings("unused") @InjectView(R.id.listContainer) View listContainer;
 	@SuppressWarnings("unused") @InjectView(R.id.fab) View fabView;
@@ -260,7 +264,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		ensureList();
 		emptyTextView.setText(text);
 		if (emptyText == null) {
-			listView.setEmptyView(emptyTextView);
+			listView.setEmptyView(emptyContainer);
 		}
 		emptyText = text;
 	}
@@ -362,7 +366,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			swipeRefreshLayout.setOnRefreshListener(this);
 			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 		}
-		emptyTextView.setVisibility(View.GONE);
+		emptyContainer.setVisibility(View.GONE);
 		View rawListView = root.findViewById(android.R.id.list);
 		if (!(rawListView instanceof StickyListHeadersListView)) {
 			throw new RuntimeException("Content has view with id attribute 'android.R.id.list' that is not a StickyListHeadersListView class");
@@ -374,7 +378,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		}
 		if (emptyText != null) {
 			emptyTextView.setText(emptyText);
-			listView.setEmptyView(emptyTextView);
+			listView.setEmptyView(emptyContainer);
 		}
 		listView.setDivider(null);
 		isListShown = true;
@@ -403,6 +407,12 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@OnClick(R.id.fab)
 	protected void onFabClicked(View v) {
 		// convenience for overriding
+	}
+
+	@OnClick(R.id.empty_button)
+	void onSyncClick(View v) {
+		SyncService.clearCollection(getActivity());
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
 	}
 
 	protected void onScrollUp() {

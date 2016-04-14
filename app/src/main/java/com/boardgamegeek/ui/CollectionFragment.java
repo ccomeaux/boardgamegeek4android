@@ -568,10 +568,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		@StringRes int resId = R.string.empty_collection;
 		if (!hasEverSynced()) {
 			resId = R.string.empty_collection_sync_never;
+			emptyButton.setVisibility(View.GONE);
 		} else if (hasFiltersApplied()) {
 			resId = R.string.empty_collection_filter_on;
+			emptyButton.setVisibility(View.VISIBLE);
 		} else if (!hasSyncSettings()) {
 			resId = R.string.empty_collection_sync_off;
+			emptyButton.setVisibility(View.VISIBLE);
 		}
 		setEmptyText(getString(resId));
 	}
