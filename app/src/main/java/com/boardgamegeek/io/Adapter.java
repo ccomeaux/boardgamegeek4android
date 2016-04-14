@@ -77,18 +77,20 @@ public class Adapter {
 
 		AccountManager accountManager = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(accountManager);
-		try {
-			final String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
-			requestInterceptor = new RequestInterceptor() {
-				@Override
-				public void intercept(RequestFacade request) {
-					if (account != null && !TextUtils.isEmpty(account.name) && !TextUtils.isEmpty(authToken)) {
-						request.addHeader("Cookie", "bggusername=" + account.name + "; bggpassword=" + authToken);
+		if (account != null) {
+			try {
+				final String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
+				requestInterceptor = new RequestInterceptor() {
+					@Override
+					public void intercept(RequestFacade request) {
+						if (!TextUtils.isEmpty(account.name) && !TextUtils.isEmpty(authToken)) {
+							request.addHeader("Cookie", "bggusername=" + account.name + "; bggpassword=" + authToken);
+						}
 					}
-				}
-			};
-		} catch (OperationCanceledException | AuthenticatorException | IOException e) {
-			// TODO handle this somehow; maybe just return create()
+				};
+			} catch (OperationCanceledException | AuthenticatorException | IOException e) {
+				// TODO handle this somehow; maybe just return create()
+			}
 		}
 
 		if (requestInterceptor != null) {

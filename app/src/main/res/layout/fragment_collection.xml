@@ -47,17 +47,32 @@
 					android:drawSelectorOnTop="false"
 					android:fastScrollEnabled="true"/>
 
-				<TextView
-					android:id="@android:id/empty"
-					style="@style/Text"
+				<LinearLayout
+					android:id="@+id/empty_container"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:gravity="center"
+					android:orientation="vertical"
 					android:paddingBottom="@dimen/material_margin_vertical"
 					android:paddingLeft="@dimen/material_margin_horizontal"
 					android:paddingRight="@dimen/material_margin_horizontal"
-					android:paddingTop="@dimen/material_margin_vertical"
-					android:text="@string/empty_collection"/>
+					android:paddingTop="@dimen/material_margin_vertical">
+
+					<TextView
+						android:id="@android:id/empty"
+						style="@style/Text"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:gravity="center"
+						android:text="@string/empty_collection"/>
+
+					<Button
+						android:id="@+id/empty_button"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/re_sync"
+						android:visibility="gone"/>
+				</LinearLayout>
 			</FrameLayout>
 
 

@@ -202,8 +202,9 @@
 	<string name="empty_buddies_sync_off">If you want to see your GeekBuddies, go to Settings > Sync and check the box next to GeekBuddies.</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
-	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
-	<string name="empty_collection_filter_on">You have no games in your collection that match this filter.</string>
+	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection. If you\'ve already done that and you\'re still seeing this message, it\'s probably time to re-sync.</string>
+	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. If you think you should, you might want to try to re-sync.</string>
+	<string name="re_sync">Re-sync</string>
 	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
 	<string name="empty_colors">No teams/colors set for this game.</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>

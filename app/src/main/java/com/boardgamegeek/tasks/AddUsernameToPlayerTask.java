@@ -35,7 +35,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	private final String username;
 	private boolean wasSuccessful;
 
-	public AddUsernameToPlayerTask(@NonNull Context context, String playerName, String username) {
+	public AddUsernameToPlayerTask(Context context, String playerName, String username) {
 		this.context = context.getApplicationContext();
 		this.playerName = playerName;
 		this.username = username;
@@ -44,6 +44,10 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	@NonNull
 	@Override
 	protected String doInBackground(Void... params) {
+		if (context == null) {
+			return "";
+		}
+
 		BggService service = Adapter.create();
 		User user = new UserRequest(service, username).execute();
 		if (user == null || user.getId() == BggContract.INVALID_ID) {
