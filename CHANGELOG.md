@@ -5,6 +5,16 @@ Coming Soon...
 --------------
  * Spiffy up the collection filter dialogs
 
+Version 5.2.5
+-------------
+ * Really fix the disappearing collection
+ * Bug fixes
+
+Version 5.2.4
+-------------
+ * Fix for disappearing collection
+ * Bug fixes
+
 Version 5.2.3
 -------------
  * Bug fixes

@@ -1,46 +1,49 @@
 package com.boardgamegeek.io;
 
+
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
+
 import timber.log.Timber;
 
-public abstract class RetryableRequest<T> {
+public class RetryInterceptor implements Interceptor {
+	private static final int COLLECTION_REQUEST_PROCESSING = 202;
+	private static final int API_RATE_EXCEEDED = 503;
+
 	private static final int BACKOFF_TYPE_EXPONENTIAL = 0;
 	private static final int BACKOFF_TYPE_GEOMETRIC = 1;
 
 	private static final long MIN_WAIT_TIME = 100L;
 	private static final long MAX_WAIT_TIME = 60000L;
 	private static final int MAX_RETRIES = 10;
-	protected final BggService bggService;
 
-	public RetryableRequest(BggService service) {
-		bggService = service;
-	}
-
-	public T execute() {
+	@Override
+	public Response intercept(Chain chain) throws IOException {
+		Request originalRequest = chain.request();
 		int numberOfRetries = 0;
 		do {
-			try {
-				return request();
-			} catch (Exception e) {
-				if (e.getCause() instanceof RetryableException) {
-					Timber.w(e, "Retry-able exception");
-					numberOfRetries++;
-					wait(numberOfRetries);
-				} else {
-					Timber.e(e, "Non-retry-able exception");
-					throw e;
-				}
+			Response response = chain.proceed(originalRequest);
+			final int responseCode = response.code();
+			if (responseCode == COLLECTION_REQUEST_PROCESSING ||
+				responseCode == API_RATE_EXCEEDED) {
+				Timber.i("Retry-able response code %s", responseCode);
+				numberOfRetries++;
+				wait(numberOfRetries);
+				Timber.i("...retrying");
+			} else {
+				return response;
 			}
 		} while (numberOfRetries < getMaxRetries());
-		String errorMessage = String.format("Exceeded maximum number of retries: [%s]", getMaxRetries());
-		Timber.w(errorMessage);
-		throw new RuntimeException(errorMessage);
+		Timber.w("Exceeded maximum number of retries of %,d.", getMaxRetries());
+		return chain.proceed(originalRequest);
 	}
-
-	protected abstract T request();
 
 	private void wait(int numberOfRetries) {
 		long waitTime = calculateWaitTime(numberOfRetries);
-		Timber.i("...retry #" + numberOfRetries + " in " + waitTime + "ms");
+		Timber.i("...retry #%1$,d in %2$,dms...", numberOfRetries, waitTime);
 		try {
 			Thread.sleep(waitTime);
 		} catch (InterruptedException e) {

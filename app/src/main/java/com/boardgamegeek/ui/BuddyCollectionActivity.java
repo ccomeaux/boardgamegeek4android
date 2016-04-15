@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
-import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 
@@ -52,7 +51,7 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	public void onEvent(CollectionStatusChangedEvent event) {
-		String text = getString(R.string.title_collection);
+		String text = buddyName;
 		if (!TextUtils.isEmpty(event.getDescription())) {
 			text += " - " + event.getDescription();
 		}
