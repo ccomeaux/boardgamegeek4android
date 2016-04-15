@@ -1,24 +1,28 @@
 Release Notes
 =============
 
+Version 5.2.5
+-------------
+ * Bug fixes
+
 Version 5.2.4
 -------------
-* Fix for disappearing collection
-* Bug fixes
+ * Fix for disappearing collection
+ * Bug fixes
 
 Version 5.2.3
 -------------
-* Bug fixes
+ * Bug fixes
 
 Version 5.2.2
 -------------
-* Improve H-Index calculations
-* Bug fixes
+ * Improve H-Index calculations
+ * Bug fixes
 
 Version 5.2.1
 -------------
-* Fix play logging issues
-* Fix crash when filtering by subtype
+ * Fix play logging issues
+ * Fix crash when filtering by subtype
 
 Version 5.2
 -----------
