@@ -213,15 +213,17 @@ public abstract class BggListFragment extends Fragment {
 	}
 
 	public void setProgressShown(boolean shown) {
-		if (shown) {
-			if (mProgressContainer.getVisibility() != View.VISIBLE) {
-				mProgressContainer.clearAnimation();
-				mProgressContainer.setVisibility(View.VISIBLE);
-			}
-		} else {
-			if (mProgressContainer.getVisibility() != View.GONE) {
-				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-				mProgressContainer.setVisibility(View.GONE);
+		if (mProgressContainer != null) {
+			if (shown) {
+				if (mProgressContainer.getVisibility() != View.VISIBLE) {
+					mProgressContainer.clearAnimation();
+					mProgressContainer.setVisibility(View.VISIBLE);
+				}
+			} else {
+				if (mProgressContainer.getVisibility() != View.GONE) {
+					mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+					mProgressContainer.setVisibility(View.GONE);
+				}
 			}
 		}
 	}
