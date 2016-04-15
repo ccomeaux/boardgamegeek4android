@@ -9,23 +9,21 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.auth.Authenticator;
+import com.squareup.okhttp.OkHttpClient;
 
 import java.io.IOException;
 
-import retrofit.ErrorHandler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RestAdapter.Builder;
 import retrofit.RestAdapter.LogLevel;
-import retrofit.RetrofitError;
 import retrofit.android.AndroidLog;
-import retrofit.client.Response;
+import retrofit.client.OkClient;
 import retrofit.converter.Converter;
+import retrofit.converter.SimpleXMLConverter;
 
 public class Adapter {
 	private static final boolean DEBUG = BuildConfig.DEBUG;
-	private static final int COLLECTION_REQUEST_PROCESSING = 202;
-	private static final int API_RATE_EXCEEDED = 503;
 
 	public static BggService create() {
 		return createBuilder().build().create(BggService.class);
@@ -44,31 +42,20 @@ public class Adapter {
 	}
 
 	private static Builder createBuilder() {
-		return createBuilderWithoutConverter().setConverter(new BggXMLConverter());
+		return createBuilderWithoutConverter().setConverter(new SimpleXMLConverter(false));
 	}
 
 	private static Builder createBuilderWithoutConverter() {
-		ErrorHandler errorHandler = new ErrorHandler() {
-			@Override
-			public Throwable handleError(RetrofitError cause) {
-				Response r = cause.getResponse();
-				if (r != null) {
-					if (r.getStatus() == COLLECTION_REQUEST_PROCESSING) {
-						return new RetryableException(cause);
-					} else if (r.getStatus() == API_RATE_EXCEEDED) {
-						return new RetryableException(cause);
-					}
-				}
-				return cause;
-			}
-		};
+		OkHttpClient client = new OkHttpClient();
+		client.interceptors().add(new RetryInterceptor());
 
 		Builder builder = new RestAdapter.Builder()
 			.setEndpoint("https://www.boardgamegeek.com/")
-			.setErrorHandler(errorHandler);
+			.setClient(new OkClient(client));
 		if (DEBUG) {
 			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
 		}
+
 		return builder;
 	}
 

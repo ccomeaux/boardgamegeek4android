@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto" >
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_collection_status"
+		android:icon="@drawable/ic_my_library_books_black_24dp"
 		android:title="@string/menu_collection_status_"
-		app:showAsAction="never">
+		app:showAsAction="ifRoom">
 		<menu>
 		</menu>
 	</item>
@@ -13,6 +14,6 @@
 		android:id="@+id/menu_collection_random_game"
 		android:icon="@drawable/ic_action_help_light"
 		android:title="@string/menu_collection_random_game"
-		app:showAsAction="never"/>
+		app:showAsAction="ifRoom"/>
 
 </menu>

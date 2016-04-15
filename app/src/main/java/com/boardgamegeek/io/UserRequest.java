@@ -2,26 +2,16 @@ package com.boardgamegeek.io;
 
 import com.boardgamegeek.model.User;
 
-public class UserRequest extends RetryableRequest<User> {
+public class UserRequest {
+	private final BggService bggService;
 	private final String name;
 
 	public UserRequest(BggService service, String name) {
-		super(service);
+		this.bggService = service;
 		this.name = name;
 	}
 
-	@Override
-	protected User request() {
+	public User execute() {
 		return bggService.user(name);
-	}
-
-	@Override
-	protected long getMinWaitTime() {
-		return 5000L;
-	}
-
-	@Override
-	protected int getMaxRetries() {
-		return 4;
 	}
 }
