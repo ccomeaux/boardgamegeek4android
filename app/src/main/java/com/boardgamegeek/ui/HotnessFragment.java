@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -34,6 +34,9 @@ import com.boardgamegeek.util.PresentationUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 1;
@@ -105,18 +108,20 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	private static class HotnessLoader extends BggLoader<HotnessData> {
-		private BggService bggService;
+		private BoardGameGeekService bggService;
 
 		public HotnessLoader(Context context) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.create2();
 		}
 
 		@Override
 		public HotnessData loadInBackground() {
 			HotnessData games;
 			try {
-				games = new HotnessData(bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
+				Call<HotnessResponse> call = bggService.getHotness(BoardGameGeekService.HOTNESS_TYPE_BOARDGAME);
+				Response<HotnessResponse> response = call.execute();
+				games = new HotnessData(response.body());
 			} catch (Exception e) {
 				games = new HotnessData(e);
 			}

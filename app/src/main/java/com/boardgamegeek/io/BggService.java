@@ -8,7 +8,6 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListsResponse;
-import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
@@ -30,7 +29,6 @@ import retrofit.http.Query;
 import retrofit.http.QueryMap;
 
 public interface BggService {
-	String HOTNESS_TYPE_BOARDGAME = "boardgame";
 	// rpg
 	// videogame
 	// boardgameperson
@@ -83,9 +81,6 @@ public interface BggService {
 	String COLLECTION_QUERY_STATUS_PLAYED = "played";
 	SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-
-	@GET("/xmlapi2/hot")
-	HotnessResponse getHotness(@Query("type") String type);
 
 	@GET("/xmlapi2/forumlist")
 	ForumListResponse forumList(@Query("type") String type, @Query("id") int id);
