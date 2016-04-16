@@ -3,6 +3,7 @@ package com.boardgamegeek.io;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.HotnessResponse;
+import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.ThreadResponse;
 
@@ -18,6 +19,15 @@ public interface BoardGameGeekService {
 	@GET("/xmlapi2/thing?ratingcomments=1")
 	Call<ThingResponse> thingWithRatings(@Query("id") int gameId, @Query("page") int page);
 
+	String SEARCH_TYPE_BOARD_GAME = "boardgame";
+	String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";
+	String SEARCH_TYPE_RPG = "rpg";
+	String SEARCH_TYPE_RPG_ITEM = "rpgitem";
+	String SEARCH_TYPE_VIDEO_GAME = "videogame";
+	// other search types: boardgameartist, boardgamedesigner, boardgamepublisher
+
+	@GET("/xmlapi2/search")
+	Call<SearchResponse> search(@Query("query") String query, @Query("type") String type, @Query("exact") int exact);
 
 	String HOTNESS_TYPE_BOARDGAME = "boardgame";
 

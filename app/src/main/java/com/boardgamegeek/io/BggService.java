@@ -9,7 +9,6 @@ import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
-import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.User;
 
@@ -51,12 +50,6 @@ public interface BggService {
 	String PERSON_TYPE_ARTIST = "boardgameartist";
 	String PERSON_TYPE_DESIGNER = "boardgamedesigner";
 	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
-	String SEARCH_TYPE_BOARD_GAME = "boardgame";
-	String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";
-	String SEARCH_TYPE_RPG = "rpg";
-	String SEARCH_TYPE_RPG_ITEM = "rpgitem";
-	String SEARCH_TYPE_VIDEO_GAME = "videogame";
-	// other search types: boardgameartist, boardgamedesigner, boardgamepublisher
 
 	String GEEKLIST_SORT_HOT = "hot";
 	String GEEKLIST_SORT_RECENT = "recent";
@@ -91,9 +84,6 @@ public interface BggService {
 
 	@GET("/xmlapi/{type}/{id}")
 	Company company(@Path("type") String type, @Path("id") int id);
-
-	@GET("/xmlapi2/search")
-	SearchResponse search(@Query("query") String query, @Query("type") String type, @Query("exact") int exact);
 
 	// username=NAME Name of the player you want to request play information for. Data is returned in
 	// backwards-chronological form. You must include either a username or an id and type to get results.

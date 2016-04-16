@@ -32,7 +32,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
@@ -231,13 +231,13 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	}
 
 	private static class SearchLoader extends BggLoader<SearchData> {
-		private final BggService bggService;
+		private final BoardGameGeekService bggService;
 		private final String searchText;
 		private final boolean shouldSearchExact;
 
 		public SearchLoader(Context context, String searchText, boolean shouldSearchExact) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.create2();
 			this.searchText = searchText;
 			this.shouldSearchExact = shouldSearchExact;
 		}
@@ -250,14 +250,14 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			SearchData games = null;
 			if (shouldSearchExact) {
 				try {
-					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
+					games = new SearchData(searchText, true, bggService.search(searchText, BoardGameGeekService.SEARCH_TYPE_BOARD_GAME, 1).execute().body());
 				} catch (Exception e) {
 					// we'll try it again below
 				}
 			}
 			try {
 				if (games == null || games.count() == 0) {
-					games = new SearchData(searchText, false, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0));
+					games = new SearchData(searchText, false, bggService.search(searchText, BoardGameGeekService.SEARCH_TYPE_BOARD_GAME, 0).execute().body());
 				}
 			} catch (Exception e) {
 				games = new SearchData(searchText, e);
