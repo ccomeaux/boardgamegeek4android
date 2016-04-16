@@ -154,12 +154,6 @@ public interface BggService {
 	@GET("/xmlapi2/thing")
 	ThingResponse thing(@Query("id") String gameIds, @Query("stats") int stats);
 
-	@GET("/xmlapi2/thing?comments=1")
-	ThingResponse thingWithComments(@Query("id") int gameId, @Query("page") int page);
-
-	@GET("/xmlapi2/thing?ratingcomments=1")
-	ThingResponse thingWithRatings(@Query("id") int gameId, @Query("page") int page);
-
 	@FormUrlEncoded
 	@POST("/geekplay.php")
 	PlayPostResponse geekPlay(@FieldMap Map<String, String> form);
