@@ -3,9 +3,10 @@ package com.boardgamegeek.util;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.squareup.okhttp.OkHttpClient;
-
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.OkHttpClient.Builder;
 
 public class HttpUtils {
 	private static final int HTTP_REQUEST_TIMEOUT_SEC = 15;
@@ -24,9 +25,12 @@ public class HttpUtils {
 	 * Configures the default HTTP client.
 	 */
 	public static OkHttpClient getHttpClient() {
-		OkHttpClient client = new OkHttpClient();
-		client.setConnectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS);
-		client.setReadTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+		OkHttpClient.Builder builder = new Builder();
+		OkHttpClient client = builder
+			.connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+			.readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+			.writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+			.build();
 		return client;
 	}
 

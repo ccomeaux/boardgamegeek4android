@@ -72,6 +72,7 @@ dependencies {
         exclude group: 'xpp3', module: 'xpp3'
     }
     compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'se.emilsjolander:stickylistheaders:2.7.0'
     compile 'com.jakewharton:butterknife:7.0.1'
