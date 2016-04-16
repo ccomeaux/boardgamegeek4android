@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract;
@@ -127,13 +127,13 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	private static class ForumsLoader extends BggLoader<ForumsData> {
-		private final BggService bggService;
+		private final BoardGameGeekService bggService;
 		private final int gameId;
 
 		@DebugLog
 		public ForumsLoader(Context context, int gameId) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.create2();
 			this.gameId = gameId;
 		}
 
@@ -143,9 +143,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			ForumsData forums;
 			try {
 				if (gameId == BggContract.INVALID_ID) {
-					forums = new ForumsData(bggService.forumList(BggService.FORUM_TYPE_REGION, BggService.FORUM_REGION_BOARDGAME));
+					forums = new ForumsData(bggService.forumList(BoardGameGeekService.FORUM_TYPE_REGION, BoardGameGeekService.FORUM_REGION_BOARDGAME).execute().body());
 				} else {
-					forums = new ForumsData(bggService.forumList(BggService.FORUM_TYPE_THING, gameId));
+					forums = new ForumsData(bggService.forumList(BoardGameGeekService.FORUM_TYPE_THING, gameId).execute().body());
 				}
 			} catch (Exception e) {
 				forums = new ForumsData(e);

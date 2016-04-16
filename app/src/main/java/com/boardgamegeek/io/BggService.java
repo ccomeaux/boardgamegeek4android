@@ -4,8 +4,6 @@ import com.boardgamegeek.model.CollectionCommentPostResponse;
 import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
-import com.boardgamegeek.model.ForumListResponse;
-import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.Person;
@@ -13,7 +11,6 @@ import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
-import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.model.User;
 
 import java.text.SimpleDateFormat;
@@ -65,13 +62,6 @@ public interface BggService {
 	String GEEKLIST_SORT_RECENT = "recent";
 	String GEEKLIST_SORT_ACTIVE = "active";
 
-	String FORUM_TYPE_REGION = "region";
-	String FORUM_TYPE_THING = "thing";
-
-	int FORUM_REGION_BOARDGAME = 1;
-	int FORUM_REGION_RPG = 2;
-	int FORUM_REGION_VIDEOGAME = 3;
-
 	String COLLECTION_QUERY_KEY_ID = "id";
 	String COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate";
 	String COLLECTION_QUERY_KEY_STATS = "stats";
@@ -81,12 +71,6 @@ public interface BggService {
 	String COLLECTION_QUERY_STATUS_PLAYED = "played";
 	SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-
-	@GET("/xmlapi2/forumlist")
-	ForumListResponse forumList(@Query("type") String type, @Query("id") int id);
-
-	@GET("/xmlapi2/forum")
-	ForumResponse forum(@Query("id") int id, @Query("page") int page);
 
 	@GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&showcount=12&tradelists=0&version=v2")
 	GeekListsResponse geekLists(@Query("pageid") int page, @Query("sort") String sort);
@@ -101,9 +85,6 @@ public interface BggService {
 	// time (HH:MM:SS) or later will be returned.
 	// count=NNN Limits the number of articles returned to no more than NNN.
 	// username=NAME
-
-	@GET("/xmlapi2/thread")
-	ThreadResponse thread(@Query("id") int id);
 
 	@GET("/xmlapi/{type}/{id}")
 	Person person(@Path("type") String type, @Path("id") int id);

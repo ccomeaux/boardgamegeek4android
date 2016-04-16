@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.Article;
 import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
@@ -115,12 +115,12 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	private static class ThreadLoader extends BggLoader<ThreadData> {
-		private final BggService bggService;
+		private final BoardGameGeekService bggService;
 		private final int threadId;
 
 		public ThreadLoader(Context context, int threadId) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.create2();
 			this.threadId = threadId;
 		}
 
@@ -128,7 +128,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		public ThreadData loadInBackground() {
 			ThreadData forums;
 			try {
-				forums = new ThreadData(bggService.thread(threadId));
+				forums = new ThreadData(bggService.thread(threadId).execute().body());
 			} catch (Exception e) {
 				forums = new ThreadData(e);
 			}
