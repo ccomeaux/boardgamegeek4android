@@ -213,15 +213,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
-		CharSequence text = context.getText(task.getNotification());
-		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_error)
-			.setContentText(text)
-			.setCategory(NotificationCompat.CATEGORY_ERROR);
-		if (!TextUtils.isEmpty(message)) {
-			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+		final int notification = task.getNotification();
+		if (notification != ServiceTask.NO_NOTIFICATION) {
+			CharSequence text = context.getText(notification);
+			NotificationCompat.Builder builder = NotificationUtils
+				.createNotificationBuilder(context, R.string.sync_notification_title_error)
+				.setContentText(text)
+				.setCategory(NotificationCompat.CATEGORY_ERROR);
+			if (!TextUtils.isEmpty(message)) {
+				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+			}
+			NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 		}
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 
 	@DebugLog
