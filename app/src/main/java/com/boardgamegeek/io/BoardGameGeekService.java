@@ -19,6 +19,12 @@ import retrofit2.http.Query;
 
 public interface BoardGameGeekService {
 
+	@GET("/xmlapi2/thing")
+	Call<ThingResponse> thing(@Query("id") int gameId, @Query("stats") int stats);
+
+	@GET("/xmlapi2/thing")
+	Call<ThingResponse> thing(@Query("id") String gameIds, @Query("stats") int stats);
+
 	@GET("/xmlapi2/thing?comments=1")
 	Call<ThingResponse> thingWithComments(@Query("id") int gameId, @Query("page") int page);
 

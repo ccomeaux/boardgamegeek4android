@@ -5,7 +5,6 @@ import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
-import com.boardgamegeek.model.ThingResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -97,12 +96,6 @@ public interface BggService {
 	@FormUrlEncoded
 	@POST("/geekcollection.php")
 	CollectionCommentPostResponse geekCollectionComment(@FieldMap Map<String, String> form);
-
-	@GET("/xmlapi2/thing")
-	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);
-
-	@GET("/xmlapi2/thing")
-	ThingResponse thing(@Query("id") String gameIds, @Query("stats") int stats);
 
 	@FormUrlEncoded
 	@POST("/geekplay.php")

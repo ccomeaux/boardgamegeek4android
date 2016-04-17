@@ -6,7 +6,9 @@ import android.content.SyncResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
@@ -20,10 +22,12 @@ import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 16;
+	private final BoardGameGeekService service;
 	private int fetchSize;
 
 	public SyncGames(Context context, BggService service) {
 		super(context, service);
+		this.service = Adapter.create2();
 	}
 
 	@Override
@@ -48,7 +52,7 @@ public abstract class SyncGames extends SyncTask {
 					showNotification(detail);
 
 					GamePersister persister = new GamePersister(context);
-					ThingResponse response = getThingResponse(bggService, gameIds);
+					ThingResponse response = getThingResponse(service, gameIds);
 					final List<Game> games = response.getGames();
 					if (games != null && games.size() > 0) {
 						int count = persister.save(games, detail);
@@ -71,7 +75,7 @@ public abstract class SyncGames extends SyncTask {
 		return 1;
 	}
 
-	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
+	private ThingResponse getThingResponse(BoardGameGeekService service, List<String> gameIds) {
 		while (true) {
 			try {
 				String ids = TextUtils.join(",", gameIds);
