@@ -8,6 +8,7 @@ import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.ThreadResponse;
+import com.boardgamegeek.model.User;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -21,6 +22,12 @@ public interface BoardGameGeekService {
 
 	@GET("/xmlapi2/thing?ratingcomments=1")
 	Call<ThingResponse> thingWithRatings(@Query("id") int gameId, @Query("page") int page);
+
+	@GET("/xmlapi2/user")
+	Call<User> user(@Query("name") String name);
+
+	@GET("/xmlapi2/user")
+	Call<User> user(@Query("name") String name, @Query("buddies") int buddies, @Query("page") int page);
 
 	String PERSON_TYPE_ARTIST = "boardgameartist";
 	String PERSON_TYPE_DESIGNER = "boardgamedesigner";

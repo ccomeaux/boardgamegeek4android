@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.User;
@@ -48,8 +47,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 			return "";
 		}
 
-		BggService service = Adapter.create();
-		User user = new UserRequest(service, username).execute();
+		User user = new UserRequest(Adapter.create2(), username).execute();
 		if (user == null || user.getId() == BggContract.INVALID_ID) {
 			return context.getString(R.string.msg_invalid_username, username);
 		}

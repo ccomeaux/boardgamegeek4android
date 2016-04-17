@@ -8,7 +8,10 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.Buddy;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
@@ -22,8 +25,11 @@ import timber.log.Timber;
  * Syncs the list of buddies. Only runs every few days.
  */
 public class SyncBuddiesList extends SyncTask {
+	private BoardGameGeekService service;
+
 	public SyncBuddiesList(Context context, BggService service) {
 		super(context, service);
+		this.service = Adapter.create2();
 	}
 
 	@Override
@@ -47,7 +53,10 @@ public class SyncBuddiesList extends SyncTask {
 			}
 
 			showNotification("Downloading list of GeekBuddies");
-			User user = bggService.user(account.name, 1, 1);// XXX: buddies don't seem to be paged at 100
+			User user = new UserRequest(service, account.name, true).execute();
+			if (user == null) {
+				return;
+			}
 
 			showNotification("Storing list of GeekBuddies");
 

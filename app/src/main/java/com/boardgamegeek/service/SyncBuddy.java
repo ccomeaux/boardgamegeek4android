@@ -6,7 +6,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract;
@@ -36,9 +36,7 @@ public class SyncBuddy extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		BggService service = Adapter.create();
-		User user = service.user(name);
-
+		User user = new UserRequest(Adapter.create2(), name).execute();
 		if (user == null || user.getId() == 0 || user.getId() == BggContract.INVALID_ID) {
 			Timber.i("Invalid user: " + name);
 			return;

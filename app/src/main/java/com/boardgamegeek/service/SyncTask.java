@@ -15,6 +15,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 public abstract class SyncTask extends ServiceTask {
 	protected final Context context;
+	//TODO: change this to the new service
 	protected final BggService bggService;
 	private final boolean shouldShowNotifications;
 	private boolean isCancelled = false;

@@ -8,7 +8,6 @@ import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.ThingResponse;
-import com.boardgamegeek.model.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -100,12 +99,6 @@ public interface BggService {
 
 	@GET("/xmlapi2/plays")
 	PlaysResponse plays(@Query("username") String username, @Query("page") int page);
-
-	@GET("/xmlapi2/user")
-	User user(@Query("name") String name);
-
-	@GET("/xmlapi2/user")
-	User user(@Query("name") String name, @Query("buddies") int buddies, @Query("page") int page);
 
 	@GET("/xmlapi2/collection")
 	CollectionResponse collection(@Query("username") String username, @QueryMap Map<String, String> options);
