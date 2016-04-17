@@ -3,10 +3,8 @@ package com.boardgamegeek.io;
 import com.boardgamegeek.model.CollectionCommentPostResponse;
 import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
-import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListsResponse;
-import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.ThingResponse;
@@ -47,10 +45,6 @@ public interface BggService {
 	String RANK_FAMILY_NAME_THEMATIC_GAMES = "thematic";
 	String RANK_FAMILY_NAME_WAR_GAMES = "wargames";
 
-	String PERSON_TYPE_ARTIST = "boardgameartist";
-	String PERSON_TYPE_DESIGNER = "boardgamedesigner";
-	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
-
 	String GEEKLIST_SORT_HOT = "hot";
 	String GEEKLIST_SORT_RECENT = "recent";
 	String GEEKLIST_SORT_ACTIVE = "active";
@@ -70,20 +64,6 @@ public interface BggService {
 
 	@GET("/xmlapi/geeklist/{id}?comments=1")
 	GeekList geekList(@Path("id") int id);
-
-	// minarticleid=NNN Filters the results so that only articles with an equal or higher id than NNN will be returned.
-	// minarticledate=YYYY-MM-DD Filters the results so that only articles on the specified date or later will be
-	// returned.
-	// minarticledate=YYYY-MM-DD%20HH%3AMM%3ASS Filters the results so that only articles after the specified date an
-	// time (HH:MM:SS) or later will be returned.
-	// count=NNN Limits the number of articles returned to no more than NNN.
-	// username=NAME
-
-	@GET("/xmlapi/{type}/{id}")
-	Person person(@Path("type") String type, @Path("id") int id);
-
-	@GET("/xmlapi/{type}/{id}")
-	Company company(@Path("type") String type, @Path("id") int id);
 
 	// username=NAME Name of the player you want to request play information for. Data is returned in
 	// backwards-chronological form. You must include either a username or an id and type to get results.

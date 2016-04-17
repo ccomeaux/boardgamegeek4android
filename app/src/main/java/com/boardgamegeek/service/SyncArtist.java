@@ -7,10 +7,12 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
+
+import java.io.IOException;
 
 import timber.log.Timber;
 
@@ -37,11 +39,15 @@ public class SyncArtist extends UpdateTask {
 
 	@Override
 	public void execute(@NonNull Context context) {
-		BggService service = Adapter.create();
-		Person person = service.person(BggService.PERSON_TYPE_ARTIST, artistId);
-		Uri uri = Artists.buildArtistUri(artistId);
-		context.getContentResolver().update(uri, toValues(person), null, null);
-		Timber.i("Synced Artist " + artistId);
+		BoardGameGeekService service = Adapter.create2();
+		try {
+			Person person = service.person(BoardGameGeekService.PERSON_TYPE_ARTIST, artistId).execute().body();
+			Uri uri = Artists.buildArtistUri(artistId);
+			context.getContentResolver().update(uri, toValues(person), null, null);
+			Timber.i("Synced Artist " + artistId);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@NonNull

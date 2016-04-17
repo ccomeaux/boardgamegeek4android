@@ -1,14 +1,17 @@
 package com.boardgamegeek.io;
 
+import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.HotnessResponse;
+import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.ThreadResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface BoardGameGeekService {
@@ -18,6 +21,17 @@ public interface BoardGameGeekService {
 
 	@GET("/xmlapi2/thing?ratingcomments=1")
 	Call<ThingResponse> thingWithRatings(@Query("id") int gameId, @Query("page") int page);
+
+	String PERSON_TYPE_ARTIST = "boardgameartist";
+	String PERSON_TYPE_DESIGNER = "boardgamedesigner";
+
+	@GET("/xmlapi/{type}/{id}")
+	Call<Person> person(@Path("type") String type, @Path("id") int id);
+
+	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
+
+	@GET("/xmlapi/{type}/{id}")
+	Call<Company> company(@Path("type") String type, @Path("id") int id);
 
 	String SEARCH_TYPE_BOARD_GAME = "boardgame";
 	String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";

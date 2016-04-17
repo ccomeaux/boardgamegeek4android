@@ -81,6 +81,7 @@ public class UpdateService extends IntentService {
 		try {
 			task.execute(this);
 		} catch (Exception e) {
+			Timber.e(e, "Error executing task");
 			String message = createErrorMessage(task, e);
 			maybeShowNotification(message);
 			postError(message);
