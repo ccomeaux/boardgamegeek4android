@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.io.AuthInterceptor;
+import com.boardgamegeek.io.RetryInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +39,7 @@ public class HttpUtils {
 	 */
 	public static OkHttpClient getHttpClient(boolean includeDebug) {
 		Builder builder = getBuilder(includeDebug);
+		builder.interceptors().add(new RetryInterceptor());
 		return builder.build();
 	}
 
@@ -46,8 +48,8 @@ public class HttpUtils {
 	 */
 	public static OkHttpClient getHttpClientWithAuth(boolean includeDebug, Context context) {
 		OkHttpClient.Builder builder = getBuilder(includeDebug);
-		AuthInterceptor interceptor = new AuthInterceptor(context);
-		builder.addInterceptor(interceptor);
+		builder.addInterceptor(new AuthInterceptor(context));
+		builder.addInterceptor(new RetryInterceptor());
 		return builder.build();
 	}
 

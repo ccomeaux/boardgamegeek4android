@@ -29,10 +29,6 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 public class Adapter {
 	private static final boolean DEBUG = BuildConfig.DEBUG;
 
-	public static BggService create() {
-		return createBuilder().build().create(BggService.class);
-	}
-
 	public static BoardGameGeekService create2() {
 		Retrofit.Builder builder = createBuilderWithoutConverterFactory(null);
 		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
@@ -74,7 +70,6 @@ public class Adapter {
 
 	private static Builder createBuilderWithoutConverter() {
 		OkHttpClient client = new OkHttpClient();
-		client.interceptors().add(new RetryInterceptor());
 
 		Builder builder = new RestAdapter.Builder()
 			.setEndpoint("https://www.boardgamegeek.com/")
