@@ -64,7 +64,7 @@ public class SyncCollectionComplete extends SyncTask {
 				requestAndPersist(account.name, persister, options, syncResult);
 
 				showNotification(String.format("Syncing %s collection accessories", status));
-				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+				options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE, BoardGameGeekService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 				requestAndPersist(account.name, persister, options, syncResult);
 			}
 
@@ -80,8 +80,8 @@ public class SyncCollectionComplete extends SyncTask {
 	private List<String> getSyncableStatuses() {
 		List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
 		// Played games should be synced first - they don't respect the "exclude" flag
-		if (statuses.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
-			statuses.add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		if (statuses.remove(BoardGameGeekService.COLLECTION_QUERY_STATUS_PLAYED)) {
+			statuses.add(0, BoardGameGeekService.COLLECTION_QUERY_STATUS_PLAYED);
 		}
 		return statuses;
 	}
@@ -89,7 +89,7 @@ public class SyncCollectionComplete extends SyncTask {
 	@NonNull
 	private ArrayMap<String, String> createOptions(int i, String status) {
 		ArrayMap<String, String> options = new ArrayMap<>();
-		options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+		options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		options.put(status, "1");
 		for (int j = 0; j < i; j++) {
 			options.put(statuses.get(j), "0");
@@ -98,7 +98,7 @@ public class SyncCollectionComplete extends SyncTask {
 	}
 
 	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
-		CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
+		CollectionResponse response = new CollectionRequest(service, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);
 			syncResult.stats.numEntries += response.items.size();

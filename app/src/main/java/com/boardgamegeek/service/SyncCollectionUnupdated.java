@@ -43,8 +43,8 @@ public class SyncCollectionUnupdated extends SyncTask {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 			ArrayMap<String, String> options = new ArrayMap<>();
-			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_STATS, "1");
 
 			do {
 				if (isCancelled()) {
@@ -66,11 +66,11 @@ public class SyncCollectionUnupdated extends SyncTask {
 					}
 					showNotification(detail);
 
-					options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
-					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
+					options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
+					options.remove(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE);
 					boolean success = requestAndPersist(account.name, persister, options, syncResult);
 
-					options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+					options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE, BoardGameGeekService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 					success |= requestAndPersist(account.name, persister, options, syncResult);
 
 					if (!success) {
@@ -89,7 +89,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 
 	private boolean requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		Timber.i("..requesting collection items with options %s", options);
-		CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
+		CollectionResponse response = new CollectionRequest(service, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

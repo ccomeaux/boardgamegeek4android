@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -140,11 +140,11 @@ public class PlayStats {
 
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
-			args.add(BggService.THING_SUBTYPE_BOARDGAME);
+			args.add(BoardGameGeekService.THING_SUBTYPE_BOARDGAME);
 		} else if (!PreferencesUtils.logPlayStatsExpansions(context)) {
-			args.add(BggService.THING_SUBTYPE_BOARDGAME_EXPANSION);
+			args.add(BoardGameGeekService.THING_SUBTYPE_BOARDGAME_EXPANSION);
 		} else if (!PreferencesUtils.logPlayStatsAccessories(context)) {
-			args.add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+			args.add(BoardGameGeekService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 		}
 		return args.toArray(new String[args.size()]);
 	}

@@ -41,16 +41,16 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		try {
 			CollectionPersister persister = new CollectionPersister(context).includeStats().includePrivateInfo().validStatusesOnly();
 			ArrayMap<String, String> options = new ArrayMap<>();
-			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
+			String modifiedSince = BoardGameGeekService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
 			if (isCancelled()) {
 				return;
 			}
 
 			showNotification(String.format("Syncing collection items modified since %s", modifiedSince));
-			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
-			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-			options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
+			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_STATS, "1");
+			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
 			requestAndPersist(account.name, persister, options, syncResult);
 
 			if (isCancelled()) {
@@ -58,7 +58,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 			}
 
 			showNotification(String.format("Syncing collection accessories modified since %s", modifiedSince));
-			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE, BoardGameGeekService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 			requestAndPersist(account.name, persister, options, syncResult);
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getInitialTimestamp());
@@ -69,7 +69,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		CollectionResponse response;
-		response = new CollectionRequest(bggService, username, options).execute();
+		response = new CollectionRequest(service, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

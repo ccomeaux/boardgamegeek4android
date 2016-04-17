@@ -22,8 +22,8 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.BuddyCollectionRequest;
+import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -218,24 +218,24 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
-		private final BggService bggService;
+		private final BoardGameGeekService bggService;
 		private final String username;
 		private final ArrayMap<String, String> options;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.create2();
 			this.username = username;
 			options = new ArrayMap<>();
 			options.put(status, "1");
-			options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		}
 
 		@Override
 		public BuddyCollectionData loadInBackground() {
 			BuddyCollectionData collection;
 			try {
-				CollectionResponse response = new BuddyCollectionRequest(bggService, username, options).execute();
+				CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 				collection = new BuddyCollectionData(response);
 			} catch (Exception e) {
 				collection = new BuddyCollectionData(e);
