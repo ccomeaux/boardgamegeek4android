@@ -34,26 +34,34 @@ public class Adapter {
 	}
 
 	public static BoardGameGeekService create2() {
-		Retrofit.Builder builder = createBuilderWithoutConverterFactory();
+		Retrofit.Builder builder = createBuilderWithoutConverterFactory(null);
+		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
+		return builder.build().create(BoardGameGeekService.class);
+	}
+
+	public static BoardGameGeekService createForXmlWithAuth(Context context) {
+		Retrofit.Builder builder = createBuilderWithoutConverterFactory(context);
 		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
 		return builder.build().create(BoardGameGeekService.class);
 	}
 
 	public static BoardGameGeekService createForJson() {
-		Retrofit.Builder builder = createBuilderWithoutConverterFactory();
+		Retrofit.Builder builder = createBuilderWithoutConverterFactory(null);
 		builder.addConverterFactory(GsonConverterFactory.create());
 		return builder.build().create(BoardGameGeekService.class);
 	}
 
-	public static Retrofit.Builder createBuilderWithoutConverterFactory() {
+	private static Retrofit.Builder createBuilderWithoutConverterFactory(Context context) {
+		okhttp3.OkHttpClient httpClient;
+		if (context == null) {
+			httpClient = HttpUtils.getHttpClient(DEBUG);
+		} else {
+			httpClient = HttpUtils.getHttpClientWithAuth(DEBUG, context);
+		}
 		Retrofit.Builder builder = new Retrofit.Builder()
 			.baseUrl("https://www.boardgamegeek.com/")
-			.client(HttpUtils.getHttpClient(DEBUG));
+			.client(httpClient);
 		return builder;
-	}
-
-	public static BggService createWithJson() {
-		return createBuilderWithoutConverter().build().create(BggService.class);
 	}
 
 	public static BggService createWithAuth(Context context) {

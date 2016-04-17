@@ -1,7 +1,11 @@
 package com.boardgamegeek.util;
 
+import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import com.boardgamegeek.io.AuthInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +37,23 @@ public class HttpUtils {
 	 * Configures the default HTTP client, optionally with a debug logger.
 	 */
 	public static OkHttpClient getHttpClient(boolean includeDebug) {
-		OkHttpClient.Builder builder = new Builder()
+		Builder builder = getBuilder(includeDebug);
+		return builder.build();
+	}
+
+	/**
+	 * Configures the default HTTP client, adds BGG auth, optionally with a debug logger.
+	 */
+	public static OkHttpClient getHttpClientWithAuth(boolean includeDebug, Context context) {
+		OkHttpClient.Builder builder = getBuilder(includeDebug);
+		AuthInterceptor interceptor = new AuthInterceptor(context);
+		builder.addInterceptor(interceptor);
+		return builder.build();
+	}
+
+	@NonNull
+	private static Builder getBuilder(boolean includeDebug) {
+		Builder builder = new Builder()
 			.connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
 			.readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
 			.writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS);
@@ -42,7 +62,7 @@ public class HttpUtils {
 			httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 			builder.addInterceptor(httpLoggingInterceptor);
 		}
-		return builder.build();
+		return builder;
 	}
 
 	/**

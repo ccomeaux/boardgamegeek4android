@@ -153,7 +153,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@NonNull
 	private List<SyncTask> createTasks(Context context, final int type) {
 		BggService bggService = Adapter.createWithAuth(context);
-		BoardGameGeekService service = Adapter.create2();
+		BoardGameGeekService service = Adapter.createForXmlWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION_UPLOAD) == SyncService.FLAG_SYNC_COLLECTION_UPLOAD) {
 			tasks.add(new SyncCollectionUpload(context, bggService, service));
