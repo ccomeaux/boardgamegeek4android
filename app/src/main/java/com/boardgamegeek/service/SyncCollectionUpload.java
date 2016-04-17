@@ -13,6 +13,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.CollectionCommentConverter;
 import com.boardgamegeek.io.CollectionRatingConverter;
 import com.boardgamegeek.io.PostConverter;
@@ -37,8 +38,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	private ContentValues contentValues;
 
 	@DebugLog
-	public SyncCollectionUpload(Context context, BggService service) {
-		super(context, service);
+	public SyncCollectionUpload(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@DebugLog

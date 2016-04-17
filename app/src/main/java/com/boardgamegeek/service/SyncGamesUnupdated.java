@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ResolverUtils;
 
@@ -15,8 +16,8 @@ import java.util.List;
  */
 public class SyncGamesUnupdated extends SyncGames {
 
-	public SyncGamesUnupdated(Context context, BggService service) {
-		super(context, service);
+	public SyncGamesUnupdated(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@Override

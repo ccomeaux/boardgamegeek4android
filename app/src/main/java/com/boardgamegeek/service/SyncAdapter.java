@@ -20,6 +20,7 @@ import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.util.BatteryUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
@@ -151,38 +152,39 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@DebugLog
 	@NonNull
 	private List<SyncTask> createTasks(Context context, final int type) {
-		BggService service = Adapter.createWithAuth(context);
+		BggService bggService = Adapter.createWithAuth(context);
+		BoardGameGeekService service = Adapter.create2();
 		List<SyncTask> tasks = new ArrayList<>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION_UPLOAD) == SyncService.FLAG_SYNC_COLLECTION_UPLOAD) {
-			tasks.add(new SyncCollectionUpload(context, service));
+			tasks.add(new SyncCollectionUpload(context, bggService, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
 			if (PreferencesUtils.isSyncStatus(context)) {
 				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-					tasks.add(new SyncCollectionModifiedSince(context, service));
+					tasks.add(new SyncCollectionModifiedSince(context, bggService, service));
 				} else {
-					tasks.add(new SyncCollectionComplete(context, service));
+					tasks.add(new SyncCollectionComplete(context, bggService, service));
 				}
 			} else {
 				Timber.i("...no statuses set to sync");
 			}
 
-			tasks.add(new SyncCollectionUnupdated(context, service));
-			tasks.add(new SyncGamesRemove(context, service));
-			tasks.add(new SyncGamesOldest(context, service));
-			tasks.add(new SyncGamesUnupdated(context, service));
+			tasks.add(new SyncCollectionUnupdated(context, bggService, service));
+			tasks.add(new SyncGamesRemove(context, bggService, service));
+			tasks.add(new SyncGamesOldest(context, bggService, service));
+			tasks.add(new SyncGamesUnupdated(context, bggService, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
-			tasks.add(new SyncPlaysUpload(context, service));
+			tasks.add(new SyncPlaysUpload(context, bggService, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
-			tasks.add(new SyncPlays(context, service));
+			tasks.add(new SyncPlays(context, bggService, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
-			tasks.add(new SyncBuddiesList(context, service));
-			tasks.add(new SyncBuddiesDetailOldest(context, service));
-			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
+			tasks.add(new SyncBuddiesList(context, bggService, service));
+			tasks.add(new SyncBuddiesDetailOldest(context, bggService, service));
+			tasks.add(new SyncBuddiesDetailUnupdated(context, bggService, service));
 		}
 		return tasks;
 	}
@@ -192,8 +194,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
 		PackageManager pm = context.getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ?
-			PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-			PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
 			PackageManager.DONT_KILL_APP);
 	}
 

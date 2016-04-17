@@ -20,6 +20,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.PlayDeleteConverter;
 import com.boardgamegeek.io.PlaySaveConverter;
 import com.boardgamegeek.model.Play;
@@ -54,8 +55,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private String currentGameNameForMessage;
 
 	@DebugLog
-	public SyncPlaysUpload(Context context, BggService service) {
-		super(context, service);
+	public SyncPlaysUpload(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@DebugLog

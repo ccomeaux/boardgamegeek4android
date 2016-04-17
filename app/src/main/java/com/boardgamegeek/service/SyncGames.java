@@ -6,7 +6,6 @@ import android.content.SyncResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.ThingRequest;
@@ -22,12 +21,10 @@ import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 16;
-	private final BoardGameGeekService service;
 	private int fetchSize;
 
-	public SyncGames(Context context, BggService service) {
-		super(context, service);
-		this.service = Adapter.create2();
+	public SyncGames(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@Override

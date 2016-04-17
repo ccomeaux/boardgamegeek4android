@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
@@ -49,12 +49,12 @@ public class SyncGamePlays extends UpdateTask {
 			return;
 		}
 
-		BggService service = Adapter.create();
+		BoardGameGeekService service = Adapter.create2();
 		PlayPersister persister = new PlayPersister(context);
 		PlaysResponse response;
 		try {
 			long startTime = System.currentTimeMillis();
-			response = service.playsByGame(account.name, gameId);
+			response = service.playsByGame(account.name, gameId).execute().body();
 			persister.save(response.plays, startTime);
 			updateGameTimestamp(context);
 			SyncService.hIndex(context);

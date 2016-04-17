@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
@@ -28,8 +29,8 @@ import timber.log.Timber;
 public class SyncCollectionComplete extends SyncTask {
 	private List<String> statuses;
 
-	public SyncCollectionComplete(Context context, BggService service) {
-		super(context, service);
+	public SyncCollectionComplete(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@Override

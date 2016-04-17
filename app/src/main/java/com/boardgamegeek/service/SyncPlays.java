@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.PlaysRequest;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlaysResponse;
@@ -22,8 +23,8 @@ public class SyncPlays extends SyncTask {
 	private PlayPersister persister;
 	private long startTime;
 
-	public SyncPlays(Context context, BggService service) {
-		super(context, service);
+	public SyncPlays(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays since " + date, page));
 
-					response = new PlaysRequest(bggService, PlaysRequest.TYPE_MIN, account.name, page, date).execute();
+					response = new PlaysRequest(service, PlaysRequest.TYPE_MIN, account.name, page, date).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -69,7 +70,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating all plays", page));
 
-					response = new PlaysRequest(bggService, account.name, page).execute();
+					response = new PlaysRequest(service, account.name, page).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -89,7 +90,7 @@ public class SyncPlays extends SyncTask {
 					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays before " + date, page));
 
-					response = new PlaysRequest(bggService, PlaysRequest.TYPE_MAX, account.name, page, date).execute();
+					response = new PlaysRequest(service, PlaysRequest.TYPE_MAX, account.name, page, date).execute();
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {

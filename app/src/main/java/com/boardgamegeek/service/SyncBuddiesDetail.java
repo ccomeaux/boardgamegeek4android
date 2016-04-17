@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
 
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.UserRequest;
@@ -21,11 +20,9 @@ import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
 	private BuddyPersister persister;
-	private BoardGameGeekService service;
 
-	public SyncBuddiesDetail(Context context, BggService service) {
-		super(context, service);
-		this.service = Adapter.create2();
+	public SyncBuddiesDetail(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@Override

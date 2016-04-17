@@ -4,7 +4,6 @@ import com.boardgamegeek.model.CollectionCommentPostResponse;
 import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.PlayPostResponse;
-import com.boardgamegeek.model.PlaysResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -49,42 +48,6 @@ public interface BggService {
 	String COLLECTION_QUERY_STATUS_PLAYED = "played";
 	SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-
-	// username=NAME Name of the player you want to request play information for. Data is returned in
-	// backwards-chronological form. You must include either a username or an id and type to get results.
-	// id=NNN Id number of the item you want to request play information for. Data is returned in
-	// backwards-chronological form.
-	// type=TYPE Type of the item you want to request play information for. Valid types include:
-	// thing
-	// family
-	// mindate=YYYY-MM-DD Returns only plays of the specified date or later.
-	// maxdate=YYYY-MM-DD Returns only plays of the specified date or earlier.
-	// subtype=TYPE Limits play results to the specified TYPE; boardgame is the default. Valid types include:
-	// boardgame
-	// boardgameexpansion
-	// rpgitem
-	// videogame
-	// page=NNN The page of information to request. Page size is 100 records.
-	@GET("/xmlapi2/plays")
-	PlaysResponse plays(@QueryMap Map<String, String> options);
-
-	@GET("/xmlapi2/plays")
-	PlaysResponse playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
-
-	@GET("/xmlapi2/plays")
-	PlaysResponse playsByGame(@Query("username") String username, @Query("id") int gameId);
-
-	@GET("/xmlapi2/plays")
-	PlaysResponse plays(@Query("username") String username, @Query("id") int gameId, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
-
-	@GET("/xmlapi2/plays")
-	PlaysResponse playsByMinDate(@Query("username") String username, @Query("mindate") String minDate, @Query("page") int page);
-
-	@GET("/xmlapi2/plays")
-	PlaysResponse playsByMaxDate(@Query("username") String username, @Query("maxdate") String maxDate, @Query("page") int page);
-
-	@GET("/xmlapi2/plays")
-	PlaysResponse plays(@Query("username") String username, @Query("page") int page);
 
 	@GET("/xmlapi2/collection")
 	CollectionResponse collection(@Query("username") String username, @QueryMap Map<String, String> options);

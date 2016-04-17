@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.ResolverUtils;
 
@@ -16,8 +17,8 @@ import java.util.List;
 public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
 	private static final int SYNC_LIMIT = 250;
 
-	public SyncBuddiesDetailUnupdated(Context context, BggService service) {
-		super(context, service);
+	public SyncBuddiesDetailUnupdated(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@Override

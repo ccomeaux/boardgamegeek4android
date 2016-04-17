@@ -9,6 +9,7 @@ import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -25,8 +26,8 @@ import timber.log.Timber;
 public class SyncGamesRemove extends SyncTask {
 	private static final int HOURS_OLD = 72;
 
-	public SyncGamesRemove(Context context, BggService service) {
-		super(context, service);
+	public SyncGamesRemove(Context context, BggService bggService, BoardGameGeekService service) {
+		super(context, bggService, service);
 	}
 
 	@Override

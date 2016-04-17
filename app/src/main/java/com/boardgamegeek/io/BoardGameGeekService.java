@@ -7,15 +7,19 @@ import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
+import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.model.User;
 
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 public interface BoardGameGeekService {
 
@@ -30,6 +34,27 @@ public interface BoardGameGeekService {
 
 	@GET("/xmlapi2/thing?ratingcomments=1")
 	Call<ThingResponse> thingWithRatings(@Query("id") int gameId, @Query("page") int page);
+
+	@GET("/xmlapi2/plays")
+	Call<PlaysResponse> plays(@QueryMap Map<String, String> options);
+
+	@GET("/xmlapi2/plays")
+	Call<PlaysResponse> playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
+
+	@GET("/xmlapi2/plays")
+	Call<PlaysResponse> playsByGame(@Query("username") String username, @Query("id") int gameId);
+
+	@GET("/xmlapi2/plays")
+	Call<PlaysResponse> plays(@Query("username") String username, @Query("id") int gameId, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
+
+	@GET("/xmlapi2/plays")
+	Call<PlaysResponse> playsByMinDate(@Query("username") String username, @Query("mindate") String minDate, @Query("page") int page);
+
+	@GET("/xmlapi2/plays")
+	Call<PlaysResponse> playsByMaxDate(@Query("username") String username, @Query("maxdate") String maxDate, @Query("page") int page);
+
+	@GET("/xmlapi2/plays")
+	Call<PlaysResponse> plays(@Query("username") String username, @Query("page") int page);
 
 	@GET("/xmlapi2/user")
 	Call<User> user(@Query("name") String name);
