@@ -64,10 +64,6 @@ public class Adapter {
 		return builder;
 	}
 
-	public static BggService createWithAuth(Context context) {
-		return addAuth(context, createBuilder()).build().create(BggService.class);
-	}
-
 	public static BggService createForPost(Context context, Converter converter) {
 		return addAuth(context, createBuilder()).setConverter(converter).build().create(BggService.class);
 	}

@@ -8,7 +8,6 @@ import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
@@ -27,8 +26,8 @@ import timber.log.Timber;
 public class SyncCollectionUnupdated extends SyncTask {
 	private static final int GAME_PER_FETCH = 25;
 
-	public SyncCollectionUnupdated(Context context, BggService bggService, BoardGameGeekService service) {
-		super(context, bggService, service);
+	public SyncCollectionUnupdated(Context context, BoardGameGeekService service) {
+		super(context, service);
 	}
 
 	@Override

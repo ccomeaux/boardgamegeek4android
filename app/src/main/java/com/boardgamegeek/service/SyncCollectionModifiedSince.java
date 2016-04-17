@@ -9,7 +9,6 @@ import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
@@ -23,8 +22,8 @@ import timber.log.Timber;
  * Syncs the user's collection modified since the date stored in the sync service, one collection status at a time.
  */
 public class SyncCollectionModifiedSince extends SyncTask {
-	public SyncCollectionModifiedSince(Context context, BggService bggService, BoardGameGeekService service) {
-		super(context, bggService, service);
+	public SyncCollectionModifiedSince(Context context, BoardGameGeekService service) {
+		super(context, service);
 	}
 
 	@Override

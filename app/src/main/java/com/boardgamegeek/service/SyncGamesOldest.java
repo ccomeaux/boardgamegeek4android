@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ResolverUtils;
@@ -15,8 +14,8 @@ import java.util.List;
  * Syncs a number of games that haven't been updated in a long time.
  */
 public class SyncGamesOldest extends SyncGames {
-	public SyncGamesOldest(Context context, BggService bggService, BoardGameGeekService service) {
-		super(context, bggService, service);
+	public SyncGamesOldest(Context context, BoardGameGeekService service) {
+		super(context, service);
 	}
 
 	@Override

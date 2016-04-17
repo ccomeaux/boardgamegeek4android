@@ -55,8 +55,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private String currentGameNameForMessage;
 
 	@DebugLog
-	public SyncPlaysUpload(Context context, BggService bggService, BoardGameGeekService service) {
-		super(context, bggService, service);
+	public SyncPlaysUpload(Context context, BoardGameGeekService service) {
+		super(context, service);
 	}
 
 	@DebugLog

@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.Buddy;
@@ -24,8 +23,8 @@ import timber.log.Timber;
  * Syncs the list of buddies. Only runs every few days.
  */
 public class SyncBuddiesList extends SyncTask {
-	public SyncBuddiesList(Context context, BggService bggService, BoardGameGeekService service) {
-		super(context, bggService, service);
+	public SyncBuddiesList(Context context, BoardGameGeekService service) {
+		super(context, service);
 	}
 
 	@Override
