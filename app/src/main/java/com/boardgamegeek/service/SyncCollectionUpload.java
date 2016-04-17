@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.text.Html;
 import android.text.SpannableString;
 
 import com.boardgamegeek.R;
@@ -24,14 +23,11 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import java.io.IOException;
-
 import hugo.weaving.DebugLog;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Request.Builder;
-import okhttp3.Response;
 import timber.log.Timber;
 
 public class SyncCollectionUpload extends SyncUploadTask {
@@ -133,7 +129,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			contentValues = new ContentValues();
 			if (ratingTimestamp > 0) {
 				FormBody form = createRatingForm(gameId, collectionId, rating);
-				CollectionRatingPostResponse response = postForm(form);
+				CollectionRatingPostResponse response = postRatingForm(form);
 				if (processResponseForError(response)) {
 					return;
 				}
@@ -181,49 +177,15 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			.add("collid", String.valueOf(collectionId));
 	}
 
-	private CollectionRatingPostResponse postForm(FormBody form) {
-		OkHttpClient client = HttpUtils.getHttpClientWithAuth(true, context);
+	private CollectionRatingPostResponse postRatingForm(FormBody form) {
+		OkHttpClient client = HttpUtils.getHttpClientWithAuth(false, context);
 		Request request = new Builder()
 			.url(GEEK_COLLECTION_URL)
 			.post(form)
 			.build();
-		try {
-			Response response = client.newCall(request).execute();
-			if (response.isSuccessful()) {
-				final String content = response.body().string();
-				Timber.w(content);
-				if (content.startsWith(ERROR_DIV)) {
-					return new CollectionRatingPostResponse(new RuntimeException(Html.fromHtml(content).toString().trim()));
-				}
-				return new CollectionRatingPostResponse(extractRating(content));
-			} else {
-				return new CollectionRatingPostResponse(new RuntimeException("Unsuccessful post: " + response.code()));
-			}
-		} catch (IOException e) {
-			return new CollectionRatingPostResponse(e);
-		}
+		return new CollectionRatingPostResponse(client, request);
 	}
 
-	private static final String RATING_DIV = "<div class='ratingtext'>";
-	private static final String N_A_SPAN = "<span>N/A</span>";
-
-	private double extractRating(String content) {
-		if (content.contains(N_A_SPAN)) {
-			return CollectionRatingPostResponse.INVALID_RATING;
-		}
-		if (content.contains(RATING_DIV)) {
-			int index = content.indexOf(RATING_DIV) + RATING_DIV.length();
-			String message = content.substring(index);
-			index = message.indexOf("<");
-			if (index > 0) {
-				message = message.substring(0, index);
-			}
-			return StringUtils.parseDouble(message.trim(), CollectionRatingPostResponse.INVALID_RATING);
-		}
-		return CollectionRatingPostResponse.INVALID_RATING;
-	}
-
-	private static final String ERROR_DIV = "<div class='messagebox error'>";
 
 	private CollectionCommentPostResponse postCommentForm(FormBody form) {
 		OkHttpClient client = HttpUtils.getHttpClientWithAuth(false, context);
@@ -231,20 +193,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			.url(GEEK_COLLECTION_URL)
 			.post(form)
 			.build();
-		try {
-			Response response = client.newCall(request).execute();
-			if (response.isSuccessful()) {
-				final String content = response.body().string();
-				if (content.startsWith(ERROR_DIV)) {
-					return new CollectionCommentPostResponse(new RuntimeException(Html.fromHtml(content).toString().trim()));
-				}
-				return new CollectionCommentPostResponse(content);
-			} else {
-				return new CollectionCommentPostResponse(new RuntimeException("Unsuccessful post: " + response.code()));
-			}
-		} catch (IOException e) {
-			return new CollectionCommentPostResponse(e);
-		}
+		return new CollectionCommentPostResponse(client, request);
 	}
 
 	private void notifySuccess(String collectionName) {
