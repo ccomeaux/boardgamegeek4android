@@ -14,7 +14,6 @@ import com.squareup.okhttp.OkHttpClient;
 
 import java.io.IOException;
 
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RestAdapter.Builder;
@@ -24,6 +23,7 @@ import retrofit.client.OkClient;
 import retrofit.converter.Converter;
 import retrofit.converter.SimpleXMLConverter;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class Adapter {
@@ -34,19 +34,22 @@ public class Adapter {
 	}
 
 	public static BoardGameGeekService create2() {
-		okhttp3.OkHttpClient okHttpClient = HttpUtils.getHttpClient();
+		Retrofit.Builder builder = createBuilderWithoutConverterFactory();
+		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
+		return builder.build().create(BoardGameGeekService.class);
+	}
+
+	public static BoardGameGeekService createForJson() {
+		Retrofit.Builder builder = createBuilderWithoutConverterFactory();
+		builder.addConverterFactory(GsonConverterFactory.create());
+		return builder.build().create(BoardGameGeekService.class);
+	}
+
+	public static Retrofit.Builder createBuilderWithoutConverterFactory() {
 		Retrofit.Builder builder = new Retrofit.Builder()
 			.baseUrl("https://www.boardgamegeek.com/")
-			.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
-		if (DEBUG) {
-			final okhttp3.OkHttpClient.Builder clientBuilder = okHttpClient.newBuilder();
-			HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-			httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-			clientBuilder.addInterceptor(httpLoggingInterceptor);
-			okHttpClient = clientBuilder.build();
-		}
-		builder.client(okHttpClient);
-		return builder.build().create(BoardGameGeekService.class);
+			.client(HttpUtils.getHttpClient(DEBUG));
+		return builder;
 	}
 
 	public static BggService createWithJson() {

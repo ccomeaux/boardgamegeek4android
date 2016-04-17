@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class HttpUtils {
 	private static final int HTTP_REQUEST_TIMEOUT_SEC = 15;
@@ -25,13 +26,23 @@ public class HttpUtils {
 	 * Configures the default HTTP client.
 	 */
 	public static OkHttpClient getHttpClient() {
-		OkHttpClient.Builder builder = new Builder();
-		OkHttpClient client = builder
+		return getHttpClient(false);
+	}
+
+	/**
+	 * Configures the default HTTP client, optionally with a debug logger.
+	 */
+	public static OkHttpClient getHttpClient(boolean includeDebug) {
+		OkHttpClient.Builder builder = new Builder()
 			.connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
 			.readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-			.writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-			.build();
-		return client;
+			.writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+		if (includeDebug) {
+			HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+			httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+			builder.addInterceptor(httpLoggingInterceptor);
+		}
+		return builder.build();
 	}
 
 	/**

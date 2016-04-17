@@ -3,6 +3,8 @@ package com.boardgamegeek.io;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
+import com.boardgamegeek.model.GeekList;
+import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.SearchResponse;
@@ -70,4 +72,14 @@ public interface BoardGameGeekService {
 
 	@GET("/xmlapi2/thread")
 	Call<ThreadResponse> thread(@Query("id") int id);
+
+	String GEEK_LIST_SORT_HOT = "hot";
+	String GEEK_LIST_SORT_RECENT = "recent";
+	String GEEK_LIST_SORT_ACTIVE = "active";
+
+	@GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&showcount=12&tradelists=0&version=v2")
+	Call<GeekListsResponse> geekLists(@Query("pageid") int page, @Query("sort") String sort);
+
+	@GET("/xmlapi/geeklist/{id}?comments=1")
+	Call<GeekList> geekList(@Path("id") int id);
 }

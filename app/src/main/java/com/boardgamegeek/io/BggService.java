@@ -3,8 +3,6 @@ package com.boardgamegeek.io;
 import com.boardgamegeek.model.CollectionCommentPostResponse;
 import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.model.CollectionResponse;
-import com.boardgamegeek.model.GeekList;
-import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.ThingResponse;
@@ -17,7 +15,6 @@ import retrofit.http.FieldMap;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.POST;
-import retrofit.http.Path;
 import retrofit.http.Query;
 import retrofit.http.QueryMap;
 
@@ -44,10 +41,6 @@ public interface BggService {
 	String RANK_FAMILY_NAME_THEMATIC_GAMES = "thematic";
 	String RANK_FAMILY_NAME_WAR_GAMES = "wargames";
 
-	String GEEKLIST_SORT_HOT = "hot";
-	String GEEKLIST_SORT_RECENT = "recent";
-	String GEEKLIST_SORT_ACTIVE = "active";
-
 	String COLLECTION_QUERY_KEY_ID = "id";
 	String COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate";
 	String COLLECTION_QUERY_KEY_STATS = "stats";
@@ -57,12 +50,6 @@ public interface BggService {
 	String COLLECTION_QUERY_STATUS_PLAYED = "played";
 	SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-
-	@GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&showcount=12&tradelists=0&version=v2")
-	GeekListsResponse geekLists(@Query("pageid") int page, @Query("sort") String sort);
-
-	@GET("/xmlapi/geeklist/{id}?comments=1")
-	GeekList geekList(@Path("id") int id);
 
 	// username=NAME Name of the player you want to request play information for. Data is returned in
 	// backwards-chronological form. You must include either a username or an id and type to get results.

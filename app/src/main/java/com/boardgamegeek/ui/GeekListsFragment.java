@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.BoardGameGeekService;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
@@ -177,7 +177,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		}
 
 		if (adapter == null) {
-			adapter = new GeekListsAdapter(getActivity(), R.layout.row_geeklist, data);
+			adapter = new GeekListsAdapter(getActivity(), data);
 			setListAdapter(adapter);
 		} else {
 			adapter.update(data);
@@ -208,12 +208,12 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	}
 
 	private static class GeekListsLoader extends PaginatedLoader<GeekListEntry> {
-		private BggService bggService;
-		private int sortType;
+		private final BoardGameGeekService bggService;
+		private final int sortType;
 
 		public GeekListsLoader(Context context, int sortType) {
 			super(context);
-			bggService = Adapter.createWithJson();
+			bggService = Adapter.createForJson();
 			this.sortType = sortType;
 		}
 
@@ -223,16 +223,16 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			GeekListsData data;
 			try {
 				int page = getNextPage();
-				String sort = BggService.GEEKLIST_SORT_HOT;
+				String sort = BoardGameGeekService.GEEK_LIST_SORT_HOT;
 				switch (sortType) {
 					case SORT_TYPE_RECENT:
-						sort = BggService.GEEKLIST_SORT_RECENT;
+						sort = BoardGameGeekService.GEEK_LIST_SORT_RECENT;
 						break;
 					case SORT_TYPE_ACTIVE:
-						sort = BggService.GEEKLIST_SORT_ACTIVE;
+						sort = BoardGameGeekService.GEEK_LIST_SORT_ACTIVE;
 						break;
 				}
-				data = new GeekListsData(bggService.geekLists(page, sort), page);
+				data = new GeekListsData(bggService.geekLists(page, sort).execute().body(), page);
 			} catch (Exception e) {
 				data = new GeekListsData(e);
 			}
@@ -251,8 +251,8 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	}
 
 	private class GeekListsAdapter extends PaginatedArrayAdapter<GeekListEntry> {
-		public GeekListsAdapter(Context context, int resource, PaginatedData<GeekListEntry> data) {
-			super(context, resource, data);
+		public GeekListsAdapter(Context context, PaginatedData<GeekListEntry> data) {
+			super(context, R.layout.row_geeklist, data);
 		}
 
 		@Override
@@ -269,17 +269,17 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	public static class GeekListRowViewBinder {
 		public static class ViewHolder {
 			public int id;
-			@Bind(R.id.geeklist_title) TextView title;
-			@Bind(R.id.geeklist_creator) TextView creator;
-			@Bind(R.id.geeklist_items) TextView numItems;
-			@Bind(R.id.geeklist_thumbs) TextView numThumbs;
+			@SuppressWarnings("unused") @Bind(R.id.geeklist_title) TextView title;
+			@SuppressWarnings("unused") @Bind(R.id.geeklist_creator) TextView creator;
+			@SuppressWarnings("unused") @Bind(R.id.geeklist_items) TextView numItems;
+			@SuppressWarnings("unused") @Bind(R.id.geeklist_thumbs) TextView numThumbs;
 
 			public ViewHolder(View view) {
 				ButterKnife.bind(this, view);
 			}
 		}
 
-		public static void bindActivityView(View rootView, GeekListEntry geeklist) {
+		public static void bindActivityView(View rootView, GeekListEntry geekListEntry) {
 			ViewHolder tag = (ViewHolder) rootView.getTag();
 			final ViewHolder holder;
 			if (tag != null) {
@@ -290,11 +290,11 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			}
 
 			Context context = rootView.getContext();
-			holder.id = geeklist.getId();
-			holder.title.setText(geeklist.getTitle());
-			holder.creator.setText(context.getString(R.string.by_prefix, geeklist.getAuthor()));
-			holder.numItems.setText(context.getString(R.string.items_suffix, geeklist.getNumberOfItems()));
-			holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geeklist.getNumberOfThumbs()));
+			holder.id = geekListEntry.getId();
+			holder.title.setText(geekListEntry.getTitle());
+			holder.creator.setText(context.getString(R.string.by_prefix, geekListEntry.getAuthor()));
+			holder.numItems.setText(context.getString(R.string.items_suffix, geekListEntry.getNumberOfItems()));
+			holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geekListEntry.getNumberOfThumbs()));
 		}
 	}
 }
