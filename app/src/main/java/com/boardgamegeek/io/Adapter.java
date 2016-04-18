@@ -2,7 +2,6 @@ package com.boardgamegeek.io;
 
 import android.content.Context;
 
-import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.util.HttpUtils;
 
 import retrofit2.Retrofit;
@@ -10,8 +9,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class Adapter {
-	private static final boolean DEBUG = BuildConfig.DEBUG;
-
 	public static BoardGameGeekService create2() {
 		Retrofit.Builder builder = createBuilderWithoutConverterFactory(null);
 		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
@@ -33,9 +30,9 @@ public class Adapter {
 	private static Retrofit.Builder createBuilderWithoutConverterFactory(Context context) {
 		okhttp3.OkHttpClient httpClient;
 		if (context == null) {
-			httpClient = HttpUtils.getHttpClient(DEBUG);
+			httpClient = HttpUtils.getHttpClient();
 		} else {
-			httpClient = HttpUtils.getHttpClientWithAuth(DEBUG, context);
+			httpClient = HttpUtils.getHttpClientWithAuth(context);
 		}
 		Retrofit.Builder builder = new Retrofit.Builder()
 			.baseUrl("https://www.boardgamegeek.com/")

@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.io.AuthInterceptor;
 import com.boardgamegeek.io.RetryInterceptor;
 
@@ -30,36 +31,32 @@ public class HttpUtils {
 	}
 
 	public static OkHttpClient getHttpClient() {
-		return getHttpClient(false);
-	}
-
-	public static OkHttpClient getHttpClient(boolean includeDebug) {
-		Builder builder = getBuilder(includeDebug);
+		Builder builder = getBuilder();
 		builder.interceptors().add(new RetryInterceptor());
 		return builder.build();
 	}
 
-	public static OkHttpClient getHttpClientWithAuth(boolean includeDebug, Context context) {
-		OkHttpClient.Builder builder = getBuilder(includeDebug);
+	public static OkHttpClient getHttpClientWithAuth(Context context) {
+		OkHttpClient.Builder builder = getBuilder();
 		builder.addInterceptor(new AuthInterceptor(context));
 		builder.addInterceptor(new RetryInterceptor());
 		return builder.build();
 	}
 
 	public static OkHttpClient getHttpClientWithCache(Context context) {
-		OkHttpClient.Builder builder = getBuilder(false);
+		OkHttpClient.Builder builder = getBuilder();
 		File cacheDir = new File(context.getCacheDir(), "http");
 		Cache cache = new Cache(cacheDir, 10 * 1024 * 1024);
 		return builder.cache(cache).build();
 	}
 
 	@NonNull
-	private static Builder getBuilder(boolean includeDebug) {
+	private static Builder getBuilder() {
 		Builder builder = new Builder()
 			.connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
 			.readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
 			.writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS);
-		if (includeDebug) {
+		if (BuildConfig.DEBUG) {
 			HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
 			httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 			builder.addInterceptor(httpLoggingInterceptor);

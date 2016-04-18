@@ -99,7 +99,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
-		httpClient = HttpUtils.getHttpClientWithAuth(false, context);
+		httpClient = HttpUtils.getHttpClientWithAuth(context);
 		broadcastManager = LocalBroadcastManager.getInstance(context);
 		persister = new PlayPersister(context);
 

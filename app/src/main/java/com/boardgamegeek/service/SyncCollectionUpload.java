@@ -177,7 +177,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	}
 
 	private CollectionRatingPostResponse postRatingForm(FormBody form) {
-		OkHttpClient client = HttpUtils.getHttpClientWithAuth(false, context);
+		OkHttpClient client = HttpUtils.getHttpClientWithAuth(context);
 		Request request = new Builder()
 			.url(GEEK_COLLECTION_URL)
 			.post(form)
@@ -187,7 +187,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 
 	private CollectionCommentPostResponse postCommentForm(FormBody form) {
-		OkHttpClient client = HttpUtils.getHttpClientWithAuth(false, context);
+		OkHttpClient client = HttpUtils.getHttpClientWithAuth(context);
 		Request request = new Builder()
 			.url(GEEK_COLLECTION_URL)
 			.post(form)
