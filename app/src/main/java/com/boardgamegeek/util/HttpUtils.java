@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.io.AuthInterceptor;
 import com.boardgamegeek.io.RetryInterceptor;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +61,7 @@ public class HttpUtils {
 			HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
 			httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 			builder.addInterceptor(httpLoggingInterceptor);
+			builder.addNetworkInterceptor(new StethoInterceptor());
 		}
 		return builder;
 	}

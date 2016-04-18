@@ -7,6 +7,7 @@ import android.os.StrictMode.ThreadPolicy.Builder;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.crashlytics.android.Crashlytics;
+import com.facebook.stetho.Stetho;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.Picasso;
@@ -25,6 +26,11 @@ public class BggApplication extends Application {
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
 			enableStrictMode();
+			Stetho.initialize(
+				Stetho.newInitializerBuilder(this)
+					.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+					.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+					.build());
 		} else {
 			Fabric.with(this, new Crashlytics());
 			Timber.plant(new CrashReportingTree());
