@@ -10,17 +10,17 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public class ThingRequest {
-	private final BoardGameGeekService bggService;
+	private final BggService bggService;
 	private final int id;
 	private final String ids;
 
-	public ThingRequest(BoardGameGeekService service, int id) {
+	public ThingRequest(BggService service, int id) {
 		this.bggService = service;
 		this.id = id;
 		this.ids = null;
 	}
 
-	public ThingRequest(BoardGameGeekService service, String ids) {
+	public ThingRequest(BggService service, String ids) {
 		this.bggService = service;
 		this.id = BggContract.INVALID_ID;
 		this.ids = ids;

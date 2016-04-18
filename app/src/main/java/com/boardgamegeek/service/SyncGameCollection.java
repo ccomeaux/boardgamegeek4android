@@ -8,7 +8,7 @@ import android.support.v4.util.ArrayMap;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
@@ -59,12 +59,12 @@ public class SyncGameCollection extends UpdateTask {
 
 	private List<CollectionItem> request(Context context, @NonNull Account account) {
 		// Only one of these requests will return results
-		BoardGameGeekService service = Adapter.createForXmlWithAuth(context);
+		BggService service = Adapter.createForXmlWithAuth(context);
 
 		ArrayMap<String, String> options = new ArrayMap<>();
-		options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-		options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_STATS, "1");
-		options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_ID, String.valueOf(gameId));
+		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(gameId));
 		List<CollectionItem> items;
 
 		items = requestItems(account, service, options);
@@ -72,20 +72,20 @@ public class SyncGameCollection extends UpdateTask {
 			return items;
 		}
 
-		options.put(BoardGameGeekService.COLLECTION_QUERY_STATUS_PLAYED, "1");
+		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
 		items = requestItems(account, service, options);
 		if (items != null) {
 			return items;
 		}
 
-		options.remove(BoardGameGeekService.COLLECTION_QUERY_STATUS_PLAYED);
-		options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE, BoardGameGeekService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+		options.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 		items = requestItems(account, service, options);
 		if (items != null) {
 			return items;
 		}
 
-		options.put(BoardGameGeekService.COLLECTION_QUERY_STATUS_PLAYED, "1");
+		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
 		items = requestItems(account, service, options);
 		if (items != null) {
 			return items;
@@ -95,7 +95,7 @@ public class SyncGameCollection extends UpdateTask {
 		return null;
 	}
 
-	private List<CollectionItem> requestItems(@NonNull Account account, BoardGameGeekService service, ArrayMap<String, String> options) {
+	private List<CollectionItem> requestItems(@NonNull Account account, BggService service, ArrayMap<String, String> options) {
 		CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 		if (response == null || response.items == null || response.items.size() == 0) {
 			Timber.i("No collection items for game ID=" + gameId + " with options=" + options);

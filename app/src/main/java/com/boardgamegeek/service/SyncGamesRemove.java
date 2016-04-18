@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -25,7 +25,7 @@ import timber.log.Timber;
 public class SyncGamesRemove extends SyncTask {
 	private static final int HOURS_OLD = 72;
 
-	public SyncGamesRemove(Context context, BoardGameGeekService service) {
+	public SyncGamesRemove(Context context, BggService service) {
 		super(context, service);
 	}
 
@@ -46,7 +46,7 @@ public class SyncGamesRemove extends SyncTask {
 
 			ContentResolver resolver = context.getContentResolver();
 			String selection = "collection." + Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + "<?";
-			if (PreferencesUtils.isSyncStatus(context, BoardGameGeekService.COLLECTION_QUERY_STATUS_PLAYED)) {
+			if (PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
 				selection += " AND games." + Games.NUM_PLAYS + "=0";
 			}
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, selection,

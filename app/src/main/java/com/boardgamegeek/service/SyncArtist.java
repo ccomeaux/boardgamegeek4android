@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -39,9 +39,9 @@ public class SyncArtist extends UpdateTask {
 
 	@Override
 	public void execute(@NonNull Context context) {
-		BoardGameGeekService service = Adapter.create2();
+		BggService service = Adapter.createForXml();
 		try {
-			Person person = service.person(BoardGameGeekService.PERSON_TYPE_ARTIST, artistId).execute().body();
+			Person person = service.person(BggService.PERSON_TYPE_ARTIST, artistId).execute().body();
 			Uri uri = Artists.buildArtistUri(artistId);
 			context.getContentResolver().update(uri, toValues(person), null, null);
 			Timber.i("Synced Artist " + artistId);

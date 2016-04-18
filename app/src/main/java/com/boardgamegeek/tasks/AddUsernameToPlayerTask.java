@@ -47,7 +47,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 			return "";
 		}
 
-		User user = new UserRequest(Adapter.create2(), username).execute();
+		User user = new UserRequest(Adapter.createForXml(), username).execute();
 		if (user == null || user.getId() == BggContract.INVALID_ID) {
 			return context.getString(R.string.msg_invalid_username, username);
 		}

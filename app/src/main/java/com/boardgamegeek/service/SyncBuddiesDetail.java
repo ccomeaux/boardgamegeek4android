@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
 
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
@@ -20,7 +20,7 @@ import timber.log.Timber;
 public abstract class SyncBuddiesDetail extends SyncTask {
 	private BuddyPersister persister;
 
-	public SyncBuddiesDetail(Context context, BoardGameGeekService service) {
+	public SyncBuddiesDetail(Context context, BggService service) {
 		super(context, service);
 	}
 

@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Publishers;
@@ -39,9 +39,9 @@ public class SyncPublisher extends UpdateTask {
 
 	@Override
 	public void execute(@NonNull Context context) {
-		BoardGameGeekService service = Adapter.create2();
+		BggService service = Adapter.createForXml();
 		try {
-			Company company = service.company(BoardGameGeekService.COMPANY_TYPE_PUBLISHER, publisherId).execute().body();
+			Company company = service.company(BggService.COMPANY_TYPE_PUBLISHER, publisherId).execute().body();
 			Uri uri = Publishers.buildPublisherUri(publisherId);
 			context.getContentResolver().update(uri, toValues(company), null, null);
 			Timber.i("Synced Publisher " + publisherId);

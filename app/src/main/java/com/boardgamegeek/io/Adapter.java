@@ -9,22 +9,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class Adapter {
-	public static BoardGameGeekService create2() {
+	public static BggService createForXml() {
 		Retrofit.Builder builder = createBuilderWithoutConverterFactory(null);
 		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
-		return builder.build().create(BoardGameGeekService.class);
+		return builder.build().create(BggService.class);
 	}
 
-	public static BoardGameGeekService createForXmlWithAuth(Context context) {
+	public static BggService createForXmlWithAuth(Context context) {
 		Retrofit.Builder builder = createBuilderWithoutConverterFactory(context);
 		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
-		return builder.build().create(BoardGameGeekService.class);
+		return builder.build().create(BggService.class);
 	}
 
-	public static BoardGameGeekService createForJson() {
+	public static BggService createForJson() {
 		Retrofit.Builder builder = createBuilderWithoutConverterFactory(null);
 		builder.addConverterFactory(GsonConverterFactory.create());
-		return builder.build().create(BoardGameGeekService.class);
+		return builder.build().create(BggService.class);
 	}
 
 	private static Retrofit.Builder createBuilderWithoutConverterFactory(Context context) {

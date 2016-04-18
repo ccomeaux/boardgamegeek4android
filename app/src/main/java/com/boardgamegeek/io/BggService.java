@@ -24,7 +24,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
-public interface BoardGameGeekService {
+public interface BggService {
 	String THING_SUBTYPE_BOARDGAME = "boardgame";
 	String THING_SUBTYPE_BOARDGAME_EXPANSION = "boardgameexpansion";
 	String THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory";

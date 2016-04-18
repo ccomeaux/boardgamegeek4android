@@ -11,13 +11,13 @@ public class PlaysRequest {
 	public static final int TYPE_MIN = 1;
 	public static final int TYPE_MAX = 2;
 
-	private final BoardGameGeekService bggService;
+	private final BggService bggService;
 	private final int type;
 	private final String username;
 	private final int page;
 	private final String date;
 
-	public PlaysRequest(BoardGameGeekService service, int type, String username, int page, String date) {
+	public PlaysRequest(BggService service, int type, String username, int page, String date) {
 		this.bggService = service;
 		this.type = type;
 		this.username = username;
@@ -25,7 +25,7 @@ public class PlaysRequest {
 		this.page = page;
 	}
 
-	public PlaysRequest(BoardGameGeekService service, String username, int page) {
+	public PlaysRequest(BggService service, String username, int page) {
 		this.bggService = service;
 		this.type = TYPE_ALL;
 		this.username = username;

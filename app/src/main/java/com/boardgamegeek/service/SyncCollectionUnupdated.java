@@ -8,7 +8,7 @@ import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
@@ -26,7 +26,7 @@ import timber.log.Timber;
 public class SyncCollectionUnupdated extends SyncTask {
 	private static final int GAME_PER_FETCH = 25;
 
-	public SyncCollectionUnupdated(Context context, BoardGameGeekService service) {
+	public SyncCollectionUnupdated(Context context, BggService service) {
 		super(context, service);
 	}
 
@@ -42,8 +42,8 @@ public class SyncCollectionUnupdated extends SyncTask {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 			ArrayMap<String, String> options = new ArrayMap<>();
-			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_STATS, "1");
+			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 
 			do {
 				if (isCancelled()) {
@@ -65,11 +65,11 @@ public class SyncCollectionUnupdated extends SyncTask {
 					}
 					showNotification(detail);
 
-					options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
-					options.remove(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE);
+					options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
+					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
 					boolean success = requestAndPersist(account.name, persister, options, syncResult);
 
-					options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE, BoardGameGeekService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+					options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 					success |= requestAndPersist(account.name, persister, options, syncResult);
 
 					if (!success) {

@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
@@ -208,7 +208,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	}
 
 	private static class GeekListsLoader extends PaginatedLoader<GeekListEntry> {
-		private final BoardGameGeekService bggService;
+		private final BggService bggService;
 		private final int sortType;
 
 		public GeekListsLoader(Context context, int sortType) {
@@ -223,13 +223,13 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			GeekListsData data;
 			try {
 				int page = getNextPage();
-				String sort = BoardGameGeekService.GEEK_LIST_SORT_HOT;
+				String sort = BggService.GEEK_LIST_SORT_HOT;
 				switch (sortType) {
 					case SORT_TYPE_RECENT:
-						sort = BoardGameGeekService.GEEK_LIST_SORT_RECENT;
+						sort = BggService.GEEK_LIST_SORT_RECENT;
 						break;
 					case SORT_TYPE_ACTIVE:
-						sort = BoardGameGeekService.GEEK_LIST_SORT_ACTIVE;
+						sort = BggService.GEEK_LIST_SORT_ACTIVE;
 						break;
 				}
 				data = new GeekListsData(bggService.geekLists(page, sort).execute().body(), page);

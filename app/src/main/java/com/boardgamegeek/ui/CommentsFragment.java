@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Game.Comment;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -147,13 +147,13 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	}
 
 	private static class CommentsLoader extends PaginatedLoader<Comment> {
-		final BoardGameGeekService bggService;
+		final BggService bggService;
 		private final int gameId;
 		private final boolean isSortedByRating;
 
 		public CommentsLoader(Context context, int gameId, boolean isSortedByRating) {
 			super(context);
-			bggService = Adapter.create2();
+			bggService = Adapter.createForXml();
 			this.gameId = gameId;
 			this.isSortedByRating = isSortedByRating;
 		}

@@ -11,7 +11,7 @@ import android.text.SpannableString;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.CollectionCommentPostResponse;
 import com.boardgamegeek.model.CollectionPostResponse;
 import com.boardgamegeek.model.CollectionRatingPostResponse;
@@ -36,7 +36,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	private ContentValues contentValues;
 
 	@DebugLog
-	public SyncCollectionUpload(Context context, BoardGameGeekService service) {
+	public SyncCollectionUpload(Context context, BggService service) {
 		super(context, service);
 	}
 

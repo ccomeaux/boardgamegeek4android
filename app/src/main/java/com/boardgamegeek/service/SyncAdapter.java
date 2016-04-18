@@ -19,7 +19,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.BatteryUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
@@ -151,7 +151,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@DebugLog
 	@NonNull
 	private List<SyncTask> createTasks(Context context, final int type) {
-		BoardGameGeekService service = Adapter.createForXmlWithAuth(context);
+		BggService service = Adapter.createForXmlWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION_UPLOAD) == SyncService.FLAG_SYNC_COLLECTION_UPLOAD) {
 			tasks.add(new SyncCollectionUpload(context, service));

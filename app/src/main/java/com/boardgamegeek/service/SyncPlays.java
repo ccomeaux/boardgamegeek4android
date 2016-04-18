@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.PlaysRequest;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlaysResponse;
@@ -22,7 +22,7 @@ public class SyncPlays extends SyncTask {
 	private PlayPersister persister;
 	private long startTime;
 
-	public SyncPlays(Context context, BoardGameGeekService service) {
+	public SyncPlays(Context context, BggService service) {
 		super(context, service);
 	}
 

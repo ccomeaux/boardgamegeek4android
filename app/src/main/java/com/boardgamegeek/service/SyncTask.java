@@ -9,17 +9,17 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
 public abstract class SyncTask extends ServiceTask {
 	protected final Context context;
-	protected final BoardGameGeekService service;
+	protected final BggService service;
 	private final boolean shouldShowNotifications;
 	private boolean isCancelled = false;
 
-	public SyncTask(Context context, BoardGameGeekService service) {
+	public SyncTask(Context context, BggService service) {
 		this.context = context;
 		this.service = service;
 		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);

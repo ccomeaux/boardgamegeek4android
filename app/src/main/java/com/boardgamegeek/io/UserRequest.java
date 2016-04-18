@@ -9,17 +9,17 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public class UserRequest {
-	private final BoardGameGeekService bggService;
+	private final BggService bggService;
 	private final String name;
 	private final boolean includeBuddies;
 
-	public UserRequest(BoardGameGeekService service, String name) {
+	public UserRequest(BggService service, String name) {
 		this.bggService = service;
 		this.name = name;
 		this.includeBuddies = false;
 	}
 
-	public UserRequest(BoardGameGeekService service, String name, boolean includeBuddies) {
+	public UserRequest(BggService service, String name, boolean includeBuddies) {
 		this.bggService = service;
 		this.name = name;
 		this.includeBuddies = includeBuddies;

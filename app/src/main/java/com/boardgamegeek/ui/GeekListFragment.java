@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
@@ -175,12 +175,12 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	private static class GeekListLoader extends BggLoader<GeekListData> {
-		private final BoardGameGeekService service;
+		private final BggService service;
 		private final int geekListId;
 
 		public GeekListLoader(Context context, int geekListId) {
 			super(context);
-			service = Adapter.create2();
+			service = Adapter.createForXml();
 			this.geekListId = geekListId;
 		}
 

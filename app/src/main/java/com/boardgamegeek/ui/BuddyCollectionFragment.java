@@ -22,7 +22,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
@@ -218,17 +218,17 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
-		private final BoardGameGeekService bggService;
+		private final BggService bggService;
 		private final String username;
 		private final ArrayMap<String, String> options;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
-			bggService = Adapter.create2();
+			bggService = Adapter.createForXml();
 			this.username = username;
 			options = new ArrayMap<>();
 			options.put(status, "1");
-			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_BRIEF, "1");
+			options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		}
 
 		@Override

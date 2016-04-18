@@ -9,7 +9,7 @@ import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
@@ -22,7 +22,7 @@ import timber.log.Timber;
  * Syncs the user's collection modified since the date stored in the sync service, one collection status at a time.
  */
 public class SyncCollectionModifiedSince extends SyncTask {
-	public SyncCollectionModifiedSince(Context context, BoardGameGeekService service) {
+	public SyncCollectionModifiedSince(Context context, BggService service) {
 		super(context, service);
 	}
 
@@ -40,16 +40,16 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		try {
 			CollectionPersister persister = new CollectionPersister(context).includeStats().includePrivateInfo().validStatusesOnly();
 			ArrayMap<String, String> options = new ArrayMap<>();
-			String modifiedSince = BoardGameGeekService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
+			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
 			if (isCancelled()) {
 				return;
 			}
 
 			showNotification(String.format("Syncing collection items modified since %s", modifiedSince));
-			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_STATS, "1");
-			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
+			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+			options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
 			requestAndPersist(account.name, persister, options, syncResult);
 
 			if (isCancelled()) {
@@ -57,7 +57,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 			}
 
 			showNotification(String.format("Syncing collection accessories modified since %s", modifiedSince));
-			options.put(BoardGameGeekService.COLLECTION_QUERY_KEY_SUBTYPE, BoardGameGeekService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 			requestAndPersist(account.name, persister, options, syncResult);
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getInitialTimestamp());

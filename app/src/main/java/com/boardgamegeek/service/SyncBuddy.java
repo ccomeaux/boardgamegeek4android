@@ -36,7 +36,7 @@ public class SyncBuddy extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		User user = new UserRequest(Adapter.create2(), name).execute();
+		User user = new UserRequest(Adapter.createForXml(), name).execute();
 		if (user == null || user.getId() == 0 || user.getId() == BggContract.INVALID_ID) {
 			Timber.i("Invalid user: " + name);
 			return;

@@ -35,7 +35,7 @@ public class SyncGame extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		ThingResponse response = new ThingRequest(Adapter.create2(), gameId).execute();
+		ThingResponse response = new ThingRequest(Adapter.createForXml(), gameId).execute();
 		GamePersister gp = new GamePersister(context);
 		gp.save(response.getGames(), "Game " + gameId);
 		Timber.i("Synced Game " + gameId);

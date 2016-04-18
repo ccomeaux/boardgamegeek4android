@@ -8,7 +8,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
 
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.NotificationUtils;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public abstract class SyncUploadTask extends SyncTask {
 	private final List<CharSequence> notificationMessages = new ArrayList<>();
 
 	@DebugLog
-	public SyncUploadTask(Context context, BoardGameGeekService service) {
+	public SyncUploadTask(Context context, BggService service) {
 		super(context, service);
 	}
 

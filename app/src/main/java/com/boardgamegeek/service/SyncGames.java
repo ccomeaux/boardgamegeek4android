@@ -6,7 +6,7 @@ import android.content.SyncResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
@@ -22,7 +22,7 @@ public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 16;
 	private int fetchSize;
 
-	public SyncGames(Context context, BoardGameGeekService service) {
+	public SyncGames(Context context, BggService service) {
 		super(context, service);
 	}
 
@@ -71,7 +71,7 @@ public abstract class SyncGames extends SyncTask {
 		return 1;
 	}
 
-	private ThingResponse getThingResponse(BoardGameGeekService service, List<String> gameIds) {
+	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
 		while (true) {
 			try {
 				String ids = TextUtils.join(",", gameIds);

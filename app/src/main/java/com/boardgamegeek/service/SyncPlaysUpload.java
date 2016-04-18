@@ -17,7 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlayDeleteResponse;
 import com.boardgamegeek.model.PlaySaveResponse;
@@ -55,7 +55,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private String currentGameNameForMessage;
 
 	@DebugLog
-	public SyncPlaysUpload(Context context, BoardGameGeekService service) {
+	public SyncPlaysUpload(Context context, BggService service) {
 		super(context, service);
 	}
 

@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 
@@ -42,7 +42,7 @@ public class SyncPlaysByDate extends UpdateTask {
 			return;
 		}
 
-		BoardGameGeekService service = Adapter.create2();
+		BggService service = Adapter.createForXml();
 		PlayPersister persister = new PlayPersister(context);
 		PlaysResponse response;
 		try {

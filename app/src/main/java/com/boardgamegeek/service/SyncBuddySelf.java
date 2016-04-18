@@ -35,7 +35,7 @@ public class SyncBuddySelf extends UpdateTask {
 			return;
 		}
 
-		User user = new UserRequest(Adapter.create2(), account.name).execute();
+		User user = new UserRequest(Adapter.createForXml(), account.name).execute();
 		if (user == null || user.getId() == 0 || user.getId() == BggContract.INVALID_ID) {
 			Timber.i("Invalid user: " + account.name);
 			return;

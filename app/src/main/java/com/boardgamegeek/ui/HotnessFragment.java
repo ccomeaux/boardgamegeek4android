@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BoardGameGeekService;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -108,18 +108,18 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	private static class HotnessLoader extends BggLoader<HotnessData> {
-		private BoardGameGeekService bggService;
+		private BggService bggService;
 
 		public HotnessLoader(Context context) {
 			super(context);
-			bggService = Adapter.create2();
+			bggService = Adapter.createForXml();
 		}
 
 		@Override
 		public HotnessData loadInBackground() {
 			HotnessData games;
 			try {
-				Call<HotnessResponse> call = bggService.getHotness(BoardGameGeekService.HOTNESS_TYPE_BOARDGAME);
+				Call<HotnessResponse> call = bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME);
 				Response<HotnessResponse> response = call.execute();
 				games = new HotnessData(response.body());
 			} catch (Exception e) {
