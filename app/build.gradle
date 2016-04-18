@@ -65,7 +65,6 @@ dependencies {
     compile 'com.android.support:palette-v7:23.3.0'
     compile 'com.android.support:support-annotations:23.3.0'
     compile 'com.google.code.gson:gson:2.6.2'
-    compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile('com.squareup.retrofit2:converter-simplexml:2.0.2') {
@@ -73,14 +72,9 @@ dependencies {
         exclude group: 'stax', module: 'stax'
         exclude group: 'xpp3', module: 'xpp3'
     }
-    compile('com.squareup.retrofit:converter-simplexml:1.9.0') {
-        exclude group: 'stax', module: 'stax-api'
-        exclude group: 'stax', module: 'stax'
-        exclude group: 'xpp3', module: 'xpp3'
-    }
-    compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.1.2'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
+    compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'se.emilsjolander:stickylistheaders:2.7.0'
     compile 'com.jakewharton:butterknife:7.0.1'

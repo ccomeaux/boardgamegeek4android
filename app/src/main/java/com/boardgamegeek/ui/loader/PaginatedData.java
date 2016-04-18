@@ -5,8 +5,6 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.RetrofitError;
-
 public class PaginatedData<T> {
 	private List<T> data;
 	private String errorMessage;
@@ -32,12 +30,6 @@ public class PaginatedData<T> {
 
 	public PaginatedData(Exception e) {
 		updateErrorMessage(e.getMessage());
-		if (e instanceof RetrofitError) {
-			RetrofitError re = (RetrofitError) e;
-			if (re.getKind() == RetrofitError.Kind.NETWORK && re.getResponse() == null) {
-				updateErrorMessage("Looks like you're offline.");
-			}
-		}
 	}
 
 	public PaginatedData(PaginatedData<T> data) {

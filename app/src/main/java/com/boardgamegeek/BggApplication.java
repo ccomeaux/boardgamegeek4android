@@ -5,8 +5,11 @@ import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 
 import com.boardgamegeek.util.CrashReportingTree;
+import com.boardgamegeek.util.HttpUtils;
 import com.crashlytics.android.Crashlytics;
+import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.leakcanary.LeakCanary;
+import com.squareup.picasso.Picasso;
 
 import hugo.weaving.DebugLog;
 import io.fabric.sdk.android.Fabric;
@@ -27,6 +30,10 @@ public class BggApplication extends Application {
 			Timber.plant(new CrashReportingTree());
 		}
 		LeakCanary.install(this);
+
+		Picasso.setSingletonInstance(new Picasso.Builder(this)
+			.downloader(new OkHttp3Downloader(HttpUtils.getHttpClientWithCache(this)))
+			.build());
 	}
 
 	private void enableStrictMode() {

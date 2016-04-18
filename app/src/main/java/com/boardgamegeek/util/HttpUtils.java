@@ -8,8 +8,10 @@ import android.text.TextUtils;
 import com.boardgamegeek.io.AuthInterceptor;
 import com.boardgamegeek.io.RetryInterceptor;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -27,30 +29,28 @@ public class HttpUtils {
 		return Uri.encode(s, "UTF-8");
 	}
 
-	/**
-	 * Configures the default HTTP client.
-	 */
 	public static OkHttpClient getHttpClient() {
 		return getHttpClient(false);
 	}
 
-	/**
-	 * Configures the default HTTP client, optionally with a debug logger.
-	 */
 	public static OkHttpClient getHttpClient(boolean includeDebug) {
 		Builder builder = getBuilder(includeDebug);
 		builder.interceptors().add(new RetryInterceptor());
 		return builder.build();
 	}
 
-	/**
-	 * Configures the default HTTP client, adds BGG auth, optionally with a debug logger.
-	 */
 	public static OkHttpClient getHttpClientWithAuth(boolean includeDebug, Context context) {
 		OkHttpClient.Builder builder = getBuilder(includeDebug);
 		builder.addInterceptor(new AuthInterceptor(context));
 		builder.addInterceptor(new RetryInterceptor());
 		return builder.build();
+	}
+
+	public static OkHttpClient getHttpClientWithCache(Context context) {
+		OkHttpClient.Builder builder = getBuilder(false);
+		File cacheDir = new File(context.getCacheDir(), "http");
+		Cache cache = new Cache(cacheDir, 10 * 1024 * 1024);
+		return builder.cache(cache).build();
 	}
 
 	@NonNull
