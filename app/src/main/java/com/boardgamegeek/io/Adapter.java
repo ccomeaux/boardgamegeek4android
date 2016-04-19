@@ -34,9 +34,8 @@ public class Adapter {
 		} else {
 			httpClient = HttpUtils.getHttpClientWithAuth(context);
 		}
-		Retrofit.Builder builder = new Retrofit.Builder()
+		return new Retrofit.Builder()
 			.baseUrl("https://www.boardgamegeek.com/")
 			.client(httpClient);
-		return builder;
 	}
 }

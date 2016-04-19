@@ -1,8 +1,6 @@
 package com.boardgamegeek.pref;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.util.TypedValue;
