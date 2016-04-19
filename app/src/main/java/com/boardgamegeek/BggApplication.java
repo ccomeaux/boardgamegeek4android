@@ -12,6 +12,8 @@ import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+
 import hugo.weaving.DebugLog;
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
@@ -36,6 +38,11 @@ public class BggApplication extends Application {
 			Timber.plant(new CrashReportingTree());
 		}
 		LeakCanary.install(this);
+
+		EventBus.builder()
+			.logNoSubscriberMessages(BuildConfig.DEBUG)
+			.throwSubscriberException(BuildConfig.DEBUG)
+			.installDefaultEventBus();
 
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
 			.downloader(new OkHttp3Downloader(HttpUtils.getHttpClientWithCache(this)))
