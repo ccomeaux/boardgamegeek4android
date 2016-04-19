@@ -8,7 +8,7 @@ import java.util.List;
 public class PlaysResponse {
 	private static final int PAGE_SIZE = 100;
 
-	@Attribute
+	@Attribute(required = false)
 	private String username;
 
 	@Attribute
