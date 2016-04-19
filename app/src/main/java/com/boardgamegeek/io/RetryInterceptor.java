@@ -46,7 +46,7 @@ public class RetryInterceptor implements Interceptor {
 		try {
 			Thread.sleep(waitTime);
 		} catch (InterruptedException e) {
-			Timber.e(e, "Interrupted while sleeping during retry.");
+			Timber.w(e, "Interrupted while sleeping during retry.");
 		}
 	}
 
