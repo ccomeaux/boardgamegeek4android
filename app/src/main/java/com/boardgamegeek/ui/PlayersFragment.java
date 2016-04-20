@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -16,11 +15,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlayerSelectedEvent;
+import com.boardgamegeek.events.PlayersCountChangedEvent;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.UIUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,34 +40,6 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	private String mSelectedName;
 	private String mSelectedUsername;
 	private PlayersSorter mSorter;
-
-	public interface Callbacks {
-		boolean onPlayerSelected(String name, String username);
-
-		void onPlayerCountChanged(int count);
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public boolean onPlayerSelected(String name, String username) {
-			return true;
-		}
-
-		@Override
-		public void onPlayerCountChanged(int count) {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-		mCallbacks = (Callbacks) activity;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -102,18 +77,11 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	}
 
 	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
 	public void onListItemClick(View v, int position, long id) {
 		final String name = (String) v.getTag(R.id.name);
 		final String username = (String) v.getTag(R.id.username);
-		if (mCallbacks.onPlayerSelected(name, username)) {
-			setSelectedPlayer(name, username);
-		}
+		EventBus.getDefault().post(new PlayerSelectedEvent(name, username));
+		setSelectedPlayer(name, username);
 	}
 
 	@DebugLog
@@ -161,7 +129,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 				setListAdapter(mAdapter);
 			}
 			mAdapter.changeCursor(cursor);
-			mCallbacks.onPlayerCountChanged(cursor.getCount());
+			EventBus.getDefault().postSticky(new PlayersCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
 			Timber.d("Query complete, Not Actionable: " + token);

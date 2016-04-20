@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +28,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlayDeletedEvent;
+import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.model.Play;
@@ -114,41 +115,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			}
 		}
 	};
-
-	public interface Callbacks {
-		void onNameChanged(String mGameName);
-
-		void onSent();
-
-		void onDeleted();
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onNameChanged(String gameName) {
-		}
-
-		@Override
-		public void onSent() {
-		}
-
-		@Override
-		public void onDeleted() {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -245,12 +211,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.play, menu);
 	}
@@ -283,7 +243,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
-				mCallbacks.onSent();
+				EventBus.getDefault().post(new PlaySentEvent());
 				return true;
 			case R.id.menu_delete: {
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
@@ -294,7 +254,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 							}
 							mPlay.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
-							mCallbacks.onDeleted();
+							EventBus.getDefault().post(new PlayDeletedEvent());
 						}
 					}).show();
 				return true;
@@ -436,8 +396,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);
 		mPlay.setPlayers(players);
-
-		mCallbacks.onNameChanged(mPlay.gameName);
 
 		mGameName.setText(mPlay.gameName);
 

@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySelectedEvent;
+import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -16,11 +18,12 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import icepick.Icepick;
 import icepick.State;
 
-public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
+public class PlayActivity extends SimpleSinglePaneActivity {
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -93,17 +96,15 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 		return new PlayFragment();
 	}
 
-	@Override
-	public void onNameChanged(String gameName) {
-	}
-
-	@Override
-	public void onSent() {
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@Subscribe
+	public void onEvent(PlaySentEvent event) {
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
-	@Override
-	public void onDeleted() {
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@Subscribe
+	public void onEvent(PlayDeletedEvent event) {
 		finish();
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
