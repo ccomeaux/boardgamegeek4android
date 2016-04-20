@@ -1,5 +1,6 @@
 package com.boardgamegeek.util;
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v7.graphics.Palette;
@@ -93,7 +94,11 @@ public class PaletteUtils {
 			return swatch;
 		}
 
-		return palette.getSwatches().get(0);
+		if (palette.getSwatches().size() > 0) {
+			return palette.getSwatches().get(0);
+		}
+
+		return new Palette.Swatch(Color.BLACK, 0);
 	}
 
 	/**
