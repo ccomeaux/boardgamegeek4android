@@ -3,7 +3,9 @@ package com.boardgamegeek;
 import android.app.Application;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
+import android.text.TextUtils;
 
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
@@ -35,6 +37,10 @@ public class BggApplication extends Application {
 					.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
 					.build());
 		} else {
+			String username = AccountUtils.getUsername(this);
+			if (!TextUtils.isEmpty(username)) {
+				Crashlytics.setUserIdentifier(username);
+			}
 			Fabric.with(this, new Crashlytics());
 			Timber.plant(new CrashReportingTree());
 		}
