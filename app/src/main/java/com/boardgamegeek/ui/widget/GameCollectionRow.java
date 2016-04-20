@@ -116,7 +116,7 @@ public class GameCollectionRow extends LinearLayout {
 
 	public void setDescription(String name, int yearPublished) {
 		collectionName = name;
-		if ((TextUtils.isEmpty(name) && !name.equals(gameName)) ||
+		if ((!TextUtils.isEmpty(name) && !name.equals(gameName)) ||
 			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
 			String description;
 			if (yearPublished == Constants.YEAR_UNKNOWN) {
