@@ -36,17 +36,17 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	private static final String STATE_SELECTED_USERNAME = "selectedUsername";
 	private static final String STATE_SORT_TYPE = "sortType";
 	private static final int TOKEN = 0;
-	private PlayersAdapter mAdapter;
-	private String mSelectedName;
-	private String mSelectedUsername;
-	private PlayersSorter mSorter;
+	private PlayersAdapter adapter;
+	private String selectedName;
+	private String selectedUsername;
+	private PlayersSorter sorter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState != null) {
-			mSelectedName = savedInstanceState.getString(STATE_SELECTED_NAME);
-			mSelectedUsername = savedInstanceState.getString(STATE_SELECTED_USERNAME);
+			selectedName = savedInstanceState.getString(STATE_SELECTED_NAME);
+			selectedUsername = savedInstanceState.getString(STATE_SELECTED_USERNAME);
 		}
 	}
 
@@ -60,7 +60,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		mSorter = PlayersSorterFactory.create(getActivity(), sortType);
+		sorter = PlayersSorterFactory.create(getActivity(), sortType);
 
 		setEmptyText(getString(R.string.empty_players));
 		requery();
@@ -69,11 +69,11 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (!TextUtils.isEmpty(mSelectedName) || !TextUtils.isEmpty(mSelectedUsername)) {
-			outState.putString(STATE_SELECTED_NAME, mSelectedName);
-			outState.putString(STATE_SELECTED_USERNAME, mSelectedUsername);
+		if (!TextUtils.isEmpty(selectedName) || !TextUtils.isEmpty(selectedUsername)) {
+			outState.putString(STATE_SELECTED_NAME, selectedName);
+			outState.putString(STATE_SELECTED_USERNAME, selectedUsername);
 		}
-		outState.putInt(STATE_SORT_TYPE, mSorter.getType());
+		outState.putInt(STATE_SORT_TYPE, sorter.getType());
 	}
 
 	@Override
@@ -90,30 +90,30 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	}
 
 	public int getSort() {
-		return mSorter.getType();
+		return sorter.getType();
 	}
 
 
 	@DebugLog
 	public void setSort(int sort) {
-		if (mSorter.getType() != sort) {
-			mSorter = PlayersSorterFactory.create(getActivity(), sort);
+		if (sorter.getType() != sort) {
+			sorter = PlayersSorterFactory.create(getActivity(), sort);
 			requery();
 		}
 	}
 
 	public void setSelectedPlayer(String name, String username) {
-		mSelectedName = name;
-		mSelectedUsername = username;
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
+		selectedName = name;
+		selectedUsername = username;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
-			Player.PROJECTION, null, null, mSorter.getOrderByClause());
+			Player.PROJECTION, null, null, sorter.getOrderByClause());
 	}
 
 	@Override
@@ -124,11 +124,11 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 		int token = loader.getId();
 		if (token == TOKEN) {
-			if (mAdapter == null) {
-				mAdapter = new PlayersAdapter(getActivity());
-				setListAdapter(mAdapter);
+			if (adapter == null) {
+				adapter = new PlayersAdapter(getActivity());
+				setListAdapter(adapter);
 			}
-			mAdapter.changeCursor(cursor);
+			adapter.changeCursor(cursor);
 			EventBus.getDefault().postSticky(new PlayersCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
@@ -139,22 +139,22 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		adapter.changeCursor(null);
 	}
 
 	public class PlayersAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		private LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		@DebugLog
 		public PlayersAdapter(Context context) {
 			super(context, null, false);
-			mInflater = LayoutInflater.from(context);
+			inflater = LayoutInflater.from(context);
 		}
 
 		@DebugLog
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_players_player, parent, false);
+			View row = inflater.inflate(R.layout.row_players_player, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -168,7 +168,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			Player player = Player.fromCursor(cursor);
 
 			UIUtils.setActivatedCompat(view,
-				player.getName().equals(mSelectedName) && player.getUsername().equals(mSelectedUsername));
+				player.getName().equals(selectedName) && player.getUsername().equals(selectedUsername));
 
 			holder.name.setText(player.getName());
 			holder.username.setText(player.getUsername());
@@ -182,7 +182,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		@DebugLog
 		@Override
 		public long getHeaderId(int position) {
-			return mSorter.getHeaderId(getCursor(), position);
+			return sorter.getHeaderId(getCursor(), position);
 		}
 
 		@DebugLog
@@ -191,7 +191,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
-				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				convertView = inflater.inflate(R.layout.row_header, parent, false);
 				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
@@ -204,7 +204,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 		@DebugLog
 		private String getHeaderText(int position) {
-			return mSorter.getHeaderText(getCursor(), position);
+			return sorter.getHeaderText(getCursor(), position);
 		}
 
 		class ViewHolder {

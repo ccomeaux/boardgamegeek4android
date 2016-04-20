@@ -307,12 +307,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@OnClick(R.id.header_container)
-	void viewGame(View v) {
+	void viewGame() {
 		ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
 	}
 
 	@OnClick(R.id.timer_end)
-	void onClick(View v) {
+	void onTimerClick() {
 		ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 	}
 
@@ -401,7 +401,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		mDate.setText(mPlay.getDateForDisplay(getActivity()));
 
-		mQuantity.setText(String.valueOf(mPlay.quantity) + " " + getString(R.string.times));
+		mQuantity.setText(getString(R.string.times_suffix, mPlay.quantity));
 		mQuantity.setVisibility((mPlay.quantity == 1) ? View.GONE : View.VISIBLE);
 
 		if (mPlay.length > 0) {

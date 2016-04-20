@@ -82,7 +82,6 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 		ActivityUtils.startBuddyActivity(this, event.getUsername(), event.getName());
 	}
 
-	@SuppressWarnings("unused")
 	@Subscribe(sticky = true)
 	public void onEvent(PlayersCountChangedEvent event) {
 		playerCount = event.getCount();
