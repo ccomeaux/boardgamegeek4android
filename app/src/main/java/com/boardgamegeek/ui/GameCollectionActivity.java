@@ -17,6 +17,9 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.ScrimUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hugo.weaving.DebugLog;
 
 public class GameCollectionActivity extends HeroActivity implements Callback {
@@ -70,7 +73,8 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(CollectionItemChangedEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CollectionItemChangedEvent event) {
 		safelySetTitle(event.getCollectionName());
 		ScrimUtils.applyInvertedScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
@@ -90,13 +94,15 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		updateRefreshStatus(event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION);
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
-	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		updateRefreshStatus(false);
 	}
 }

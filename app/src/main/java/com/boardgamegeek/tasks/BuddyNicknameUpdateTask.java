@@ -16,9 +16,9 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
 
-import java.util.List;
+import org.greenrobot.eventbus.EventBus;
 
-import de.greenrobot.event.EventBus;
+import java.util.List;
 
 /**
  * Updates a buddy wih a new nickname, and optionally updates all plays with this new nick ame.

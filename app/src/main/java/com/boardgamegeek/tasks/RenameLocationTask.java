@@ -12,9 +12,10 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 /**

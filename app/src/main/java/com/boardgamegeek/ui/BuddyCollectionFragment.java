@@ -32,10 +32,11 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import icepick.Icepick;
 import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -245,10 +246,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	static class BuddyCollectionData extends Data<CollectionItem> {
-		private CollectionResponse mResponse;
+		private CollectionResponse response;
 
 		public BuddyCollectionData(CollectionResponse response) {
-			mResponse = response;
+			this.response = response;
 		}
 
 		public BuddyCollectionData(Exception e) {
@@ -257,10 +258,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		@Override
 		public List<CollectionItem> list() {
-			if (mResponse == null || mResponse.items == null) {
+			if (response == null || response.items == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.items;
+			return response.items;
 		}
 	}
 

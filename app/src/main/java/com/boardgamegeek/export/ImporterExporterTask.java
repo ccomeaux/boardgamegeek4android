@@ -6,10 +6,10 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.events.ExportProgressEvent;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import de.greenrobot.event.EventBus;
 
 public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 	protected static final int ERROR_FILE_ACCESS = 1;

@@ -69,6 +69,10 @@ import com.boardgamegeek.util.UIUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -76,7 +80,6 @@ import java.util.Random;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -348,7 +351,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@Override
 	protected void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@DebugLog
@@ -431,7 +434,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	}
 
 	@DebugLog
-	public void onEventMainThread(ColorAssignmentCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ColorAssignmentCompleteEvent event) {
 		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
 			bindUiPlayers();

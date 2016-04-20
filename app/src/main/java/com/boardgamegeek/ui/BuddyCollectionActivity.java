@@ -10,6 +10,9 @@ import android.view.MenuItem;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hugo.weaving.DebugLog;
 
 public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
@@ -48,8 +51,8 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionStatusChangedEvent event) {
 		String text = buddyName;
 		if (!TextUtils.isEmpty(event.getDescription())) {

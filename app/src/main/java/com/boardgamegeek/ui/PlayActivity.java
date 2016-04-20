@@ -15,7 +15,8 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+
 import icepick.Icepick;
 import icepick.State;
 

@@ -86,7 +86,6 @@ dependencies {
     compile('com.mikepenz:aboutlibraries:5.6.5@aar') {
         transitive = true
     }
-    compile 'de.greenrobot:eventbus:2.4.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     compile 'com.github.lzyzsd.randomcolor:library:1.0.0'

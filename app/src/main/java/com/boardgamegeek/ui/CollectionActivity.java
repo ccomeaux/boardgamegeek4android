@@ -27,6 +27,8 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -104,12 +106,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(GameSelectedEvent event) {
 		ActivityUtils.launchGame(this, event.getId(), event.getName());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(GameShortcutCreatedEvent event) {
 		Intent intent = ShortcutUtils.createIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		setResult(RESULT_OK, intent);
@@ -118,6 +122,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(CollectionViewRequestedEvent event) {
 		viewId = event.getViewId();
 		viewIndex = findViewIndex(viewId);
