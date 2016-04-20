@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -26,11 +23,14 @@ import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SaveView {
 
-	public static void createDialog(final Context context, final CollectionView view, String name, final Sorter sort,
-		final List<CollectionFilterer> filters) {
+	public static void createDialog(final Context context, final CollectionView view, String name, final Sorter sort, final List<CollectionFilterer> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_save_view, null);
@@ -69,13 +69,13 @@ public class SaveView {
 									view.createView(viewId, name);
 								}
 							}).setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									long id = insert(resolver, name, sort.getType(), filters);
-									setDefault(id, isDefault);
-									view.createView(id, name);
-								}
-							}).create().show();
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								long id = insert(resolver, name, sort.getType(), filters);
+								setDefault(id, isDefault);
+								view.createView(id, name);
+							}
+						}).create().show();
 
 					} else {
 						long id = insert(resolver, name, sort.getType(), filters);
@@ -95,8 +95,7 @@ public class SaveView {
 					}
 				}
 
-				private long insert(ContentResolver resolver, String name, int sortType,
-					final List<CollectionFilterer> filters) {
+				private long insert(ContentResolver resolver, String name, int sortType, final List<CollectionFilterer> filters) {
 					ContentValues values = new ContentValues();
 					values.put(CollectionViews.NAME, name);
 					values.put(CollectionViews.STARRED, false);
@@ -106,11 +105,10 @@ public class SaveView {
 					int filterId = CollectionViews.getViewId(filterUri);
 					Uri uri = CollectionViews.buildViewFilterUri(filterId);
 					insertDetails(resolver, uri, filters);
-					return Long.valueOf(filterUri.getLastPathSegment());
+					return StringUtils.parseLong(filterUri.getLastPathSegment());
 				}
 
-				private void update(ContentResolver resolver, long viewId, int sortType,
-					final List<CollectionFilterer> filters) {
+				private void update(ContentResolver resolver, long viewId, int sortType, final List<CollectionFilterer> filters) {
 					ContentValues values = new ContentValues();
 					values.put(CollectionViews.SORT_TYPE, sortType);
 					resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
@@ -120,8 +118,7 @@ public class SaveView {
 					insertDetails(resolver, uri, filters);
 				}
 
-				private void insertDetails(ContentResolver resolver, Uri viewFiltersUri,
-					final List<CollectionFilterer> filters) {
+				private void insertDetails(ContentResolver resolver, Uri viewFiltersUri, final List<CollectionFilterer> filters) {
 					List<ContentValues> cvs = new ArrayList<>(filters.size());
 					for (CollectionFilterer filter : filters) {
 						if (filter != null) {

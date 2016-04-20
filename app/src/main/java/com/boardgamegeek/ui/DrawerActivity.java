@@ -22,8 +22,8 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.squareup.picasso.Picasso;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
@@ -31,11 +31,11 @@ import butterknife.InjectView;
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGN_IN = 1;
 
-	@SuppressWarnings("unused") @InjectView(R.id.drawer_layout) DrawerLayout drawerLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.drawer_container) View drawerListContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.left_drawer) LinearLayout drawerList;
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar) Toolbar toolbar;
-	@SuppressWarnings("unused") @InjectView(R.id.root_container) ViewGroup rootContainer;
+	@SuppressWarnings("unused") @Bind(R.id.drawer_layout) DrawerLayout drawerLayout;
+	@SuppressWarnings("unused") @Bind(R.id.drawer_container) View drawerListContainer;
+	@SuppressWarnings("unused") @Bind(R.id.left_drawer) LinearLayout drawerList;
+	@SuppressWarnings("unused") @Bind(R.id.toolbar) Toolbar toolbar;
+	@SuppressWarnings("unused") @Bind(R.id.root_container) ViewGroup rootContainer;
 
 	protected int getDrawerResId() {
 		return 0;
@@ -45,7 +45,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(getLayoutResId());
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
 		}
@@ -80,12 +80,6 @@ public abstract class DrawerActivity extends BaseActivity {
 		refreshDrawer();
 	}
 
-	public boolean isDrawerOpen() {
-		return drawerLayout != null &&
-			drawerListContainer != null &&
-			drawerLayout.isDrawerOpen(drawerListContainer);
-	}
-
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -114,22 +108,22 @@ public abstract class DrawerActivity extends BaseActivity {
 				drawerList.addView(view);
 			}
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_collection, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_log_play, drawerList));
+			drawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_user, drawerList));
 		}
 		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
 		drawerList.addView(makeNavDrawerItem(R.string.title_search, R.drawable.ic_action_search, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_whatshot_black_24dp, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_list_black_24dp, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_action_forum, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_hotness, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_geek_list, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_forums, drawerList));
 		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_action_insert_drive_file, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings_black_24dp, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_data, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings, drawerList));
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
 	}
 

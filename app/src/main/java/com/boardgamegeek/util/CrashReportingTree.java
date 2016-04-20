@@ -7,7 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import timber.log.Timber;
 
 /**
- * A {@link timber.log.Timber.Tree} that reports crashes to Crashlytics.
+ * A {@link timber.log.Timber.Tree} that reports crashes to Fabric.
  */
 public class CrashReportingTree extends Timber.Tree {
 	@Override
@@ -18,7 +18,7 @@ public class CrashReportingTree extends Timber.Tree {
 
 		Crashlytics.getInstance().core.log(priority, tag, message);
 
-		if (t != null) {
+		if (t != null && priority == Log.ERROR) {
 			Crashlytics.getInstance().core.logException(t);
 		}
 	}

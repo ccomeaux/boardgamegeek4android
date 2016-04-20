@@ -88,6 +88,7 @@
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
 	<string name="title_clear_colors">Clear Colors?</string>
+	<string name="title_change_settings">Change Settings</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
 	<string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
@@ -190,7 +191,6 @@
 	<string name="msg_export_permission_rationale">To write the export files, the app needs permission to write to the external storage.</string>
 	<string name="msg_export_permission_denied">Can\'t export without the proper permission.</string>
 	<string name="msg_shortcut_create">Select a game  to place it on the home screen.</string>
-	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
@@ -202,8 +202,9 @@
 	<string name="empty_buddies_sync_off">If you want to see your GeekBuddies, go to Settings > Sync and check the box next to GeekBuddies.</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
-	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
-	<string name="empty_collection_filter_on">You have no games in your collection that match this filter.</string>
+	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection. If you\'ve already done that and you\'re still seeing this message, it\'s probably time to re-sync.</string>
+	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. If you think you should, you might want to try to re-sync.</string>
+	<string name="re_sync">Re-sync</string>
 	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
 	<string name="empty_colors">No teams/colors set for this game.</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
@@ -247,6 +248,7 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
+	<string name="menu_view_image">View image</string>
 	<string name="links">Links</string>
 	<string name="link_bgg">BoardGameGeek</string>
 	<string name="link_bg_prices">Board Game Prices</string>
@@ -335,6 +337,7 @@
 	<string name="msg_play_deleted">Deleted a play of</string>
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
+	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
 	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
@@ -349,13 +352,13 @@
 	<string name="share_games_subject">Games on BoardGameGeek</string>
 	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
-	<string name="share_play_played">Played</string>
 	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
 	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
 	<string name="share_thread_article_text">I found this reply in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android:</string>
 	<string name="times">times</string>
+	<string name="times_suffix">%,d times</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
 	<string name="with">with</string>
@@ -368,6 +371,19 @@
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="ages">Ages</string>
+	<string name="play_description_game_segment">Played %s</string>
+	<string name="play_description_quantity_segment">\u0020%,d times</string>
+	<string name="play_description_date_segment">\u0020on %s</string>
+	<string name="play_description_location_segment">\u0020at %s</string>
+	<string name="play_description_players_segment">\u0020with %,d players</string>
+	<string name="play_description_game_url_segment">www.boardgamegeek.com/play/%s</string>
+	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
+	<string name="player_description_starting_position_segment">%s)\u0020</string>
+	<string name="player_description_username_segment">\u0020(%s)</string>
+	<string name="player_description_new_segment">\u0020(new)</string>
+	<string name="player_description_color_segment">\u0020as %s</string>
+	<string name="player_description_score_segment">: %s</string>
+	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
 	<string name="suggested_playerage">Suggested ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
@@ -407,8 +423,9 @@
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>
 	<string name="help_title">Help</string>
-	<string name="help_home">If plays aren\'t uploading, please try signing out and back in.\n\nInstalling this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
-	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
+	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
+	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
+	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Share\n - Create a shortcut on the home screen\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
 	<string name="help_collection">Got lots of games? You can filter and sort your collection, save it as a view, and even choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
@@ -471,11 +488,13 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_accuracy">These stats may be different than what is shown on the website. This app doesn\'t include expansions, accessories, or incomplete plays unless they are specifically included in the settings.</string>
+	<string name="play_stat_status_accuracy">These stats don\'t include %s.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
 	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
+	<string name="incomplete_games">incomplete games</string>
+	<string name="accessories">accessories</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
@@ -512,10 +531,6 @@
 	<plurals name="plays_prefix">
 		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
 		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
-	</plurals>
-	<plurals name="msg_updated_plays">
-		<item quantity="one">Updated %s play!</item>
-		<item quantity="other">Updated %s plays!</item>
 	</plurals>
 	<plurals name="msg_updated_plays_buddy_nickname">
 		<item quantity="one">Updated %1$,d play for %2$s with nickname \"%3$s\".</item>

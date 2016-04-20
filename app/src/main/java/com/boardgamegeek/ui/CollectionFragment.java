@@ -19,15 +19,18 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.Toolbar.OnMenuItemClickListener;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,43 +64,41 @@ import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
-	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
-	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
-	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
-	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
-	private static final String STATE_FILTER_TYPES = "STATE_FILTER_TYPES";
-	private static final String STATE_FILTER_DATA = "STATE_FILTER_DATA";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	@SuppressWarnings("unused") @InjectView(R.id.frame_container) ViewGroup frameContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.footer_container) ViewGroup footerContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.filter_scroll_view) View filterButtonScroll;
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar_footer) Toolbar footerToolbar;
-	@SuppressWarnings("unused") @InjectView(R.id.row_count) TextView rowCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.sort_description) TextView sortDescriptionView;
+	@SuppressWarnings("unused") @Bind(R.id.frame_container) ViewGroup frameContainer;
+	@SuppressWarnings("unused") @Bind(R.id.footer_container) ViewGroup footerContainer;
+	@SuppressWarnings("unused") @Bind(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
+	@SuppressWarnings("unused") @Bind(R.id.filter_scroll_view) View filterButtonScroll;
+	@SuppressWarnings("unused") @Bind(R.id.toolbar_footer) Toolbar footerToolbar;
+	@SuppressWarnings("unused") @Bind(R.id.row_count) TextView rowCountView;
+	@SuppressWarnings("unused") @Bind(R.id.sort_description) TextView sortDescriptionView;
 
 	@NonNull private Handler timeUpdateHandler = new Handler();
 	@Nullable private Runnable timeUpdateRunnable = null;
-	private int selectedCollectionId;
 	private CollectionAdapter adapter;
-	private long viewId;
-	@Nullable private String viewName = "";
+	@State int selectedCollectionId;
+	@State long viewId;
+	@State @Nullable String viewName = "";
+	@State int sortType;
+	@State ArrayList<Integer> types;
+	@State  ArrayList<String> data;
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
@@ -114,23 +115,23 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		super.onCreate(savedInstanceState);
 		timeUpdateHandler = new Handler();
 		if (savedInstanceState != null) {
-			selectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
-			viewId = savedInstanceState.getLong(STATE_VIEW_ID);
-			viewName = savedInstanceState.getString(STATE_VIEW_NAME);
+			Icepick.restoreInstanceState(this, savedInstanceState);
 
 			filters.clear();
-			ArrayList<Integer> types = savedInstanceState.getIntegerArrayList(STATE_FILTER_TYPES);
-			ArrayList<String> data = savedInstanceState.getStringArrayList(STATE_FILTER_DATA);
 			if (types != null && data != null) {
 				if (types.size() != data.size()) {
 					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2@s", types.size(), data.size());
 				} else {
 					CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
 					for (int i = 0; i < types.size(); i++) {
-						CollectionFilterer filterer = factory.create(types.get(i));
-						filterer.setData(data.get(i));
-						filters.add(filterer);
-
+						final Integer filterType = types.get(i);
+						CollectionFilterer filterer = factory.create(filterType);
+						if (filterer == null) {
+							Timber.w("Couldn't create filterer with type " + filterType);
+						} else {
+							filterer.setData(data.get(i));
+							filters.add(filterer);
+						}
 					}
 				}
 			}
@@ -144,7 +145,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_collection, container, false);
-		ButterKnife.inject(this, view);
+		ButterKnife.bind(this, view);
 		return view;
 	}
 
@@ -168,16 +169,15 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		int sortType = CollectionSorterFactory.TYPE_DEFAULT;
-		if (savedInstanceState != null) {
-			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		sorter = getCollectionSorter(sortType);
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
 		}
 		if (getListView() != null) {
-			ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+			final ListView listView = getListView().getWrappedList();
+			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			listView.setMultiChoiceModeListener(this);
 		}
 	}
 
@@ -215,22 +215,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putLong(STATE_VIEW_ID, viewId);
-		outState.putString(STATE_VIEW_NAME, viewName);
-		outState.putInt(STATE_SORT_TYPE, sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType());
-
-		ArrayList<Integer> types = new ArrayList<>();
-		ArrayList<String> data = new ArrayList<>();
+		sortType = sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType();
+		types = new ArrayList<>();
+		data = new ArrayList<>();
 		for (CollectionFilterer filterer : filters) {
 			types.add(filterer.getType());
 			data.add(filterer.flatten());
 		}
-		outState.putIntegerArrayList(STATE_FILTER_TYPES, types);
-		outState.putStringArrayList(STATE_FILTER_DATA, data);
-
-		if (selectedCollectionId > 0) {
-			outState.putInt(STATE_SELECTED_ID, selectedCollectionId);
-		}
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -305,6 +297,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 								launchFilterDialog(filterType);
 							}
 						});
+					for (CollectionFilterer filter : filters) {
+						filterFragment.addEnabledFilter(filter.getType());
+					}
 					filterFragment.show(getFragmentManager(), "filter");
 					return true;
 			}
@@ -561,10 +556,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		@StringRes int resId = R.string.empty_collection;
 		if (!hasEverSynced()) {
 			resId = R.string.empty_collection_sync_never;
+			emptyButton.setVisibility(View.GONE);
 		} else if (hasFiltersApplied()) {
 			resId = R.string.empty_collection_filter_on;
+			emptyButton.setVisibility(View.VISIBLE);
 		} else if (!hasSyncSettings()) {
 			resId = R.string.empty_collection_sync_off;
+			emptyButton.setVisibility(View.VISIBLE);
 		}
 		setEmptyText(getString(resId));
 	}
@@ -688,28 +686,30 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	public void clearView() {
-		setProgressShown(true);
-		viewId = 0;
-		viewName = "";
-		resetScrollState();
+		if (viewId != 0) {
+			setProgressShown(true);
+			viewId = 0;
+			viewName = "";
+			resetScrollState();
+		}
 		filters.clear();
 		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
 		requery();
 	}
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		@NonNull private final LayoutInflater mInflater;
+		@NonNull private final LayoutInflater inflater;
 
 		@DebugLog
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
-			mInflater = getActivity().getLayoutInflater();
+			inflater = getActivity().getLayoutInflater();
 		}
 
 		@Override
 		@DebugLog
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_collection, parent, false);
+			View row = inflater.inflate(R.layout.row_collection, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -751,7 +751,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
-				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				convertView = inflater.inflate(R.layout.row_header, parent, false);
 				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {

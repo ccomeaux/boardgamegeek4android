@@ -22,7 +22,7 @@
 			style="@style/InfoBarItem"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_action_calendar_light"
+			android:drawableTop="@drawable/ic_calendar"
 			tools:text="1996"/>
 
 		<TextView
@@ -31,7 +31,7 @@
 			android:layout_width="0dp"
 			android:layout_weight="1"
 			android:background="?attr/selectableItemBackground"
-			android:drawableTop="@drawable/ic_action_people"
+			android:drawableTop="@drawable/ic_users"
 			android:tag="suggested_numplayers"
 			tools:text="3 - 5"/>
 
@@ -40,7 +40,7 @@
 			style="@style/InfoBarItem"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_action_access_time"
+			android:drawableTop="@drawable/ic_time"
 			tools:text="90 min"/>
 
 		<TextView
@@ -49,7 +49,7 @@
 			android:layout_width="0dp"
 			android:layout_weight="1"
 			android:background="?attr/selectableItemBackground"
-			android:drawableTop="@drawable/ic_action_person"
+			android:drawableTop="@drawable/ic_ages"
 			android:tag="suggested_playerage"
 			tools:text="13+"/>
 	</LinearLayout>

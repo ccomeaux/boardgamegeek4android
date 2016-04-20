@@ -7,9 +7,11 @@ import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
-import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import hugo.weaving.DebugLog;
 
@@ -49,10 +51,10 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionStatusChangedEvent event) {
-		String text = getString(R.string.title_collection);
+		String text = buddyName;
 		if (!TextUtils.isEmpty(event.getDescription())) {
 			text += " - " + event.getDescription();
 		}

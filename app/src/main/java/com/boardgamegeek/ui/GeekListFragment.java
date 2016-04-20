@@ -31,8 +31,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class GeekListFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<GeekListFragment.GeekListData> {
@@ -44,15 +44,15 @@ public class GeekListFragment extends BggListFragment implements
 	private Header header;
 
 	public static class Header {
-		@SuppressWarnings("unused") @InjectView(R.id.username) TextView username;
-		@SuppressWarnings("unused") @InjectView(R.id.description) TextView description;
-		@SuppressWarnings("unused") @InjectView(R.id.items) TextView items;
-		@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView thumbs;
-		@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView postDate;
-		@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView editDate;
+		@SuppressWarnings("unused") @Bind(R.id.username) TextView username;
+		@SuppressWarnings("unused") @Bind(R.id.description) TextView description;
+		@SuppressWarnings("unused") @Bind(R.id.items) TextView items;
+		@SuppressWarnings("unused") @Bind(R.id.thumbs) TextView thumbs;
+		@SuppressWarnings("unused") @Bind(R.id.posted_date) TextView postDate;
+		@SuppressWarnings("unused") @Bind(R.id.edited_date) TextView editDate;
 
 		public Header(View view) {
-			ButterKnife.inject(this, view);
+			ButterKnife.bind(this, view);
 		}
 	}
 
@@ -180,7 +180,7 @@ public class GeekListFragment extends BggListFragment implements
 
 		public GeekListLoader(Context context, int geekListId) {
 			super(context);
-			service = Adapter.create();
+			service = Adapter.createForXml();
 			this.geekListId = geekListId;
 		}
 
@@ -188,7 +188,7 @@ public class GeekListFragment extends BggListFragment implements
 		public GeekListData loadInBackground() {
 			GeekListData geeklistData;
 			try {
-				geeklistData = new GeekListData(service.geekList(geekListId));
+				geeklistData = new GeekListData(service.geekList(geekListId).execute().body());
 			} catch (Exception e) {
 				geeklistData = new GeekListData(e);
 			}
@@ -280,14 +280,14 @@ public class GeekListFragment extends BggListFragment implements
 		public long editedDate;
 		public String objectUrl;
 		public boolean isBoardGame;
-		@InjectView(R.id.order) TextView order;
-		@InjectView(R.id.thumbnail) ImageView thumbnail;
-		@InjectView(R.id.game_name) TextView name;
-		@InjectView(R.id.username) TextView username;
-		@InjectView(R.id.type) TextView type;
+		@Bind(R.id.order) TextView order;
+		@Bind(R.id.thumbnail) ImageView thumbnail;
+		@Bind(R.id.game_name) TextView name;
+		@Bind(R.id.username) TextView username;
+		@Bind(R.id.type) TextView type;
 
 		public ViewHolder(View view) {
-			ButterKnife.inject(this, view);
+			ButterKnife.bind(this, view);
 		}
 	}
 }

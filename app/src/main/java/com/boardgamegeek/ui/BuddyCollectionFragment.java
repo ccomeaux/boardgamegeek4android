@@ -23,7 +23,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.BuddyCollectionRequest;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -32,24 +32,25 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import icepick.Icepick;
+import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	LoaderManager.LoaderCallbacks<BuddyCollectionFragment.BuddyCollectionData> {
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
-	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
-	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
 
 	private BuddyCollectionAdapter adapter;
 	private SubMenu subMenu;
 	private String buddyName;
-	private String statusValue;
-	private String statusLabel;
+	@State String statusValue;
+	@State String statusLabel;
 	private String[] statusValues;
 	private String[] statusEntries;
 
@@ -69,12 +70,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		statusValues = getResources().getStringArray(R.array.pref_sync_status_values);
 
 		setHasOptionsMenu(true);
-		if (savedInstanceState == null) {
+		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (TextUtils.isEmpty(statusValue)) {
 			statusValue = statusValues[0];
+		}
+		if (TextUtils.isEmpty(statusLabel)) {
 			statusLabel = statusEntries[0];
-		} else {
-			statusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
-			statusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
 		}
 	}
 
@@ -95,9 +96,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		outState.putString(STATE_STATUS_VALUE, statusValue);
-		outState.putString(STATE_STATUS_LABEL, statusLabel);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -225,7 +225,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.createForXml();
 			this.username = username;
 			options = new ArrayMap<>();
 			options.put(status, "1");
@@ -236,7 +236,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		public BuddyCollectionData loadInBackground() {
 			BuddyCollectionData collection;
 			try {
-				CollectionResponse response = new BuddyCollectionRequest(bggService, username, options).execute();
+				CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 				collection = new BuddyCollectionData(response);
 			} catch (Exception e) {
 				collection = new BuddyCollectionData(e);
@@ -246,10 +246,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	static class BuddyCollectionData extends Data<CollectionItem> {
-		private CollectionResponse mResponse;
+		private CollectionResponse response;
 
 		public BuddyCollectionData(CollectionResponse response) {
-			mResponse = response;
+			this.response = response;
 		}
 
 		public BuddyCollectionData(Exception e) {
@@ -258,10 +258,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		@Override
 		public List<CollectionItem> list() {
-			if (mResponse == null || mResponse.items == null) {
+			if (response == null || response.items == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.items;
+			return response.items;
 		}
 	}
 

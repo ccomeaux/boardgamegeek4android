@@ -14,6 +14,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,20 +25,20 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public abstract class StickyHeaderListFragment extends Fragment implements OnRefreshListener {
-	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
-	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
-	private static final String STATE_POSITION = "position";
-	private static final String STATE_TOP = "top";
-
 	final private Handler focusHandler = new Handler();
 
 	final private Runnable listViewFocusRunnable = new Runnable() {
@@ -69,7 +70,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			}
 			int newScrollY = getTopItemScrollY();
 			if (isSameRow(firstVisibleItem)) {
-				boolean isSignificantDelta = Math.abs(lastScrollY - newScrollY) > scrollThreshold;
+				boolean isSignificantDelta = Math.abs(lastScrollY - newScrollY) > SCROLL_THRESHOLD;
 				if (isSignificantDelta) {
 					if (lastScrollY > newScrollY) {
 						onScrollUp();
@@ -93,21 +94,23 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		return getSyncType() != SyncService.FLAG_SYNC_NONE;
 	}
 
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@Nullable @SuppressWarnings("unused") @InjectView(android.R.id.empty) TextView emptyTextView;
-	@Nullable @SuppressWarnings("unused") @InjectView(R.id.progressContainer) View progressContainer;
-	@Nullable @SuppressWarnings("unused") @InjectView(R.id.listContainer) View listContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.fab) View fabView;
+	private static final int SCROLL_THRESHOLD = 20;
+	@SuppressWarnings("unused") @Bind(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@Nullable @SuppressWarnings("unused") @Bind(R.id.empty_container) ViewGroup emptyContainer;
+	@Nullable @SuppressWarnings("unused") @Bind(android.R.id.empty) TextView emptyTextView;
+	@Nullable @SuppressWarnings("unused") @Bind(R.id.empty_button) Button emptyButton;
+	@Nullable @SuppressWarnings("unused") @Bind(R.id.progressContainer) View progressContainer;
+	@Nullable @SuppressWarnings("unused") @Bind(R.id.listContainer) View listContainer;
+	@SuppressWarnings("unused") @Bind(R.id.fab) View fabView;
 	@Nullable private StickyListHeadersListView listView;
 	@Nullable private StickyListHeadersAdapter adapter;
 	private CharSequence emptyText;
 	private boolean isListShown;
-	private int listViewStatePosition;
-	private int listViewStateTop;
+	@State int listViewStatePosition;
+	@State int listViewStateTop;
 	private boolean isSyncing;
 	private int previousFirstVisibleItem;
 	private int lastScrollY;
-	private int scrollThreshold = 20;
 
 	@Nullable
 	@Override
@@ -147,20 +150,14 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (savedInstanceState != null) {
-			listViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
-			listViewStateTop = savedInstanceState.getInt(STATE_TOP, LIST_VIEW_STATE_TOP_DEFAULT);
-		} else {
-			listViewStatePosition = LIST_VIEW_STATE_POSITION_DEFAULT;
-			listViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -172,9 +169,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		saveScrollState();
-		outState.putInt(STATE_POSITION, listViewStatePosition);
-		outState.putInt(STATE_TOP, listViewStateTop);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@DebugLog
@@ -186,7 +182,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(@NonNull SyncEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(@NonNull SyncEvent event) {
 		if ((event.getType() & getSyncType()) == getSyncType()) {
 			isSyncing(true);
 		}
@@ -194,7 +191,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
-	public void onEventMainThread(SyncCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(SyncCompleteEvent event) {
 		isSyncing(false);
 	}
 
@@ -260,7 +258,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		ensureList();
 		emptyTextView.setText(text);
 		if (emptyText == null) {
-			listView.setEmptyView(emptyTextView);
+			listView.setEmptyView(emptyContainer);
 		}
 		emptyText = text;
 	}
@@ -318,7 +316,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	private void saveScrollState() {
 		if (isAdded()) {
-			View v = listView.getChildAt(0);
+			View v = listView.getWrappedList().getChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();
 			listViewStatePosition = listView.getFirstVisiblePosition();
 			listViewStateTop = top;
@@ -326,14 +324,14 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	protected void restoreScrollState() {
-		if (listViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
-			listView.setSelectionFromTop(listViewStatePosition, listViewStateTop);
+		if (listViewStatePosition >= 0 && isAdded()) {
+			listView.getWrappedList().setSelectionFromTop(listViewStatePosition, listViewStateTop);
 		}
 	}
 
 	protected void resetScrollState() {
 		listViewStatePosition = 0;
-		listViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
+		listViewStateTop = -1;
 	}
 
 	protected void loadThumbnail(String path, ImageView target) {
@@ -355,14 +353,14 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		ButterKnife.inject(this, root);
+		ButterKnife.bind(this, root);
 
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.setEnabled(isRefreshable());
 			swipeRefreshLayout.setOnRefreshListener(this);
 			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 		}
-		emptyTextView.setVisibility(View.GONE);
+		emptyContainer.setVisibility(View.GONE);
 		View rawListView = root.findViewById(android.R.id.list);
 		if (!(rawListView instanceof StickyListHeadersListView)) {
 			throw new RuntimeException("Content has view with id attribute 'android.R.id.list' that is not a StickyListHeadersListView class");
@@ -374,7 +372,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		}
 		if (emptyText != null) {
 			emptyTextView.setText(emptyText);
-			listView.setEmptyView(emptyTextView);
+			listView.setEmptyView(emptyContainer);
 		}
 		listView.setDivider(null);
 		isListShown = true;
@@ -403,6 +401,12 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@OnClick(R.id.fab)
 	protected void onFabClicked(View v) {
 		// convenience for overriding
+	}
+
+	@OnClick(R.id.empty_button)
+	void onSyncClick(View v) {
+		SyncService.clearCollection(getActivity());
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
 	}
 
 	protected void onScrollUp() {

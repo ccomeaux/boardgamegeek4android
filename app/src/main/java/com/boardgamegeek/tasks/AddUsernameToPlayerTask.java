@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.User;
@@ -21,10 +20,11 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
@@ -35,7 +35,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	private final String username;
 	private boolean wasSuccessful;
 
-	public AddUsernameToPlayerTask(@NonNull Context context, String playerName, String username) {
+	public AddUsernameToPlayerTask(Context context, String playerName, String username) {
 		this.context = context.getApplicationContext();
 		this.playerName = playerName;
 		this.username = username;
@@ -44,8 +44,11 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	@NonNull
 	@Override
 	protected String doInBackground(Void... params) {
-		BggService service = Adapter.create();
-		User user = new UserRequest(service, username).execute();
+		if (context == null) {
+			return "";
+		}
+
+		User user = new UserRequest(Adapter.createForXml(), username).execute();
 		if (user == null || user.getId() == BggContract.INVALID_ID) {
 			return context.getString(R.string.msg_invalid_username, username);
 		}

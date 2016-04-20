@@ -25,21 +25,22 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class GameCollectionRow extends LinearLayout {
-	@SuppressWarnings("unused") @InjectView(R.id.thumbnail) ImageView thumbnailView;
-	@SuppressWarnings("unused") @InjectView(R.id.status) TextView statusView;
-	@SuppressWarnings("unused") @InjectView(R.id.description) TextView descriptionView;
-	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView commentView;
-	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView ratingView;
+	@SuppressWarnings("unused") @Bind(R.id.thumbnail) ImageView thumbnailView;
+	@SuppressWarnings("unused") @Bind(R.id.status) TextView statusView;
+	@SuppressWarnings("unused") @Bind(R.id.description) TextView descriptionView;
+	@SuppressWarnings("unused") @Bind(R.id.comment) TextView commentView;
+	@SuppressWarnings("unused") @Bind(R.id.rating) TextView ratingView;
 
 	private int gameId;
 	private String gameName;
 	private String collectionName;
 	private int collectionId;
 	private int yearPublished;
+	private String imageUrl;
 
 	public GameCollectionRow(Context context) {
 		super(context);
@@ -54,7 +55,7 @@ public class GameCollectionRow extends LinearLayout {
 		setPadding(0, padding, 0, padding);
 
 		LayoutInflater.from(context).inflate(R.layout.widget_collection_row, this, true);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		setOnClickListener(new OnClickListener() {
 			@Override
@@ -64,6 +65,7 @@ public class GameCollectionRow extends LinearLayout {
 				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, collectionId);
 				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, collectionName);
+				intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 				getContext().startActivity(intent);
 			}
 		});
@@ -71,10 +73,7 @@ public class GameCollectionRow extends LinearLayout {
 
 	private int obtainBackgroundResId(Context context) {
 		int backgroundResId = 0;
-		TypedArray a = null;
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-			a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
-		}
+		TypedArray a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
 		try {
 			backgroundResId = a != null ? a.getResourceId(0, backgroundResId) : 0;
 		} finally {
@@ -85,11 +84,12 @@ public class GameCollectionRow extends LinearLayout {
 		return backgroundResId;
 	}
 
-	public void bind(int gameId, String gameName, int collectionId, int yearPublished) {
+	public void bind(int gameId, String gameName, int collectionId, int yearPublished, String imageUrl) {
 		this.gameId = gameId;
 		this.gameName = gameName;
 		this.collectionId = collectionId;
 		this.yearPublished = yearPublished;
+		this.imageUrl = imageUrl;
 	}
 
 	public void setStatus(@NonNull List<String> statuses, int playCount, double rating, String comment) {
@@ -116,7 +116,7 @@ public class GameCollectionRow extends LinearLayout {
 
 	public void setDescription(String name, int yearPublished) {
 		collectionName = name;
-		if ((TextUtils.isEmpty(name) && !name.equals(gameName)) ||
+		if ((!TextUtils.isEmpty(name) && !name.equals(gameName)) ||
 			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
 			String description;
 			if (yearPublished == Constants.YEAR_UNKNOWN) {

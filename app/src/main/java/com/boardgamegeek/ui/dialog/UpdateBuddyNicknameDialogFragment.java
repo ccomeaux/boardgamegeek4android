@@ -19,8 +19,8 @@ import android.widget.EditText;
 
 import com.boardgamegeek.R;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 	public interface UpdateBuddyNicknameDialogListener {
@@ -32,8 +32,8 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 	private ViewGroup root;
 	private UpdateBuddyNicknameDialogListener listener;
 
-	@SuppressWarnings("unused") @InjectView(R.id.edit_nickname) EditText editText;
-	@SuppressWarnings("unused") @InjectView(R.id.change_plays) CheckBox changePlays;
+	@SuppressWarnings("unused") @Bind(R.id.edit_nickname) EditText editText;
+	@SuppressWarnings("unused") @Bind(R.id.change_plays) CheckBox changePlays;
 	private String nickname;
 
 	@NonNull
@@ -69,7 +69,7 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_edit_nickname, root, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		if (getArguments() != null) {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);

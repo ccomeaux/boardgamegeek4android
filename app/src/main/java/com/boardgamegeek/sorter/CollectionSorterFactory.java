@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 public class CollectionSorterFactory {
 	public static final int TYPE_UNKNOWN = 0;
 	public static final int TYPE_DEFAULT = 1; // name
@@ -42,6 +44,11 @@ public class CollectionSorterFactory {
 				return sorter;
 			}
 		}
+		if (type != TYPE_DEFAULT) {
+			Timber.i("Sort type %s not found; attempting to use default", type);
+			return create(TYPE_DEFAULT);
+		}
+		Timber.w("Sort type not found.");
 		return null;
 	}
 }

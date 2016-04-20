@@ -1,14 +1,17 @@
 package com.boardgamegeek.model;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
 public class CollectionCommentPostResponse extends CollectionPostResponse {
 	private String comment;
 
-	public CollectionCommentPostResponse(String comment) {
-		this.comment = comment;
+	public CollectionCommentPostResponse(OkHttpClient client, Request request) {
+		super(client, request);
 	}
 
-	public CollectionCommentPostResponse(Exception e) {
-		exception = e;
+	protected void saveContent(String content) {
+		comment = content;
 	}
 
 	public String getComment() {

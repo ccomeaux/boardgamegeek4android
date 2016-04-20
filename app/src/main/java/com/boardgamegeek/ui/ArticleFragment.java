@@ -15,66 +15,66 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ArticleFragment extends Fragment {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	private Handler mHandler = new Handler();
-	private Runnable mUpdaterRunnable = null;
-	private String mUser;
-	private long mPostDate;
-	private long mEditDate;
-	private int mEditCount;
-	private String mBody;
+	private Handler timeHintUpdateHandler = new Handler();
+	private Runnable timeHintUpdateRunnable = null;
+	private String user;
+	private long postDate;
+	private long editDate;
+	private int editCount;
+	private String body;
 
-	@SuppressWarnings("unused") @InjectView(R.id.article_username) TextView mUserView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_postdate) TextView mPostDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_editdate) TextView mEditDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_editcount) TextView mEditCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.article_body) WebView mBodyView;
+	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
+	@SuppressWarnings("unused") @Bind(R.id.post_date) TextView postDateView;
+	@SuppressWarnings("unused") @Bind(R.id.edit_date) TextView editDateView;
+	@SuppressWarnings("unused") @Bind(R.id.edit_count) TextView editCountView;
+	@SuppressWarnings("unused") @Bind(R.id.body) WebView bodyView;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mHandler = new Handler();
+		timeHintUpdateHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mUser = intent.getStringExtra(ActivityUtils.KEY_USER);
-		mPostDate = intent.getLongExtra(ActivityUtils.KEY_POST_DATE, 0);
-		mEditDate = intent.getLongExtra(ActivityUtils.KEY_EDIT_DATE, 0);
-		mEditCount = intent.getIntExtra(ActivityUtils.KEY_EDIT_COUNT, 0);
-		mBody = intent.getStringExtra(ActivityUtils.KEY_BODY);
+		user = intent.getStringExtra(ActivityUtils.KEY_USER);
+		postDate = intent.getLongExtra(ActivityUtils.KEY_POST_DATE, 0);
+		editDate = intent.getLongExtra(ActivityUtils.KEY_EDIT_DATE, 0);
+		editCount = intent.getIntExtra(ActivityUtils.KEY_EDIT_COUNT, 0);
+		body = intent.getStringExtra(ActivityUtils.KEY_BODY);
 	}
 
 	@Override
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		updateTimeBasedUi();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
-		mUpdaterRunnable = new Runnable() {
+		timeHintUpdateRunnable = new Runnable() {
 			@Override
 			public void run() {
 				updateTimeBasedUi();
-				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 			}
 		};
-		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 
-		mUserView.setText(mUser);
-		if (mEditCount > 0) {
-			mEditCountView.setText(getResources().getQuantityString(R.plurals.edit_count, mEditCount, mEditCount));
+		usernameView.setText(user);
+		if (editCount > 0) {
+			editCountView.setText(getResources().getQuantityString(R.plurals.edit_count, editCount, editCount));
 		} else {
-			mEditCountView.setVisibility(View.GONE);
+			editCountView.setVisibility(View.GONE);
 		}
-		UIUtils.setWebViewText(mBodyView, mBody);
+		UIUtils.setWebViewText(bodyView, body);
 
 		return rootView;
 	}
@@ -82,8 +82,8 @@ public class ArticleFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (mUpdaterRunnable != null) {
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 		}
 	}
 
@@ -91,8 +91,8 @@ public class ArticleFragment extends Fragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
 	}
 
@@ -101,15 +101,15 @@ public class ArticleFragment extends Fragment {
 		if (!isAdded()) {
 			return;
 		}
-		mPostDateView.setText(mPostDate == 0 ?
+		postDateView.setText(postDate == 0 ?
 			getString(R.string.text_not_available) :
-			getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), mPostDate)));
-		if (mEditDate != mPostDate) {
-			mEditDateView.setText(mEditDate == 0 ?
+			getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), postDate)));
+		if (editDate != postDate) {
+			editDateView.setText(editDate == 0 ?
 				getString(R.string.text_not_available) :
-				getString(R.string.last_edited_prefix, DateTimeUtils.formatForumDate(getActivity(), mEditDate)));
+				getString(R.string.last_edited_prefix, DateTimeUtils.formatForumDate(getActivity(), editDate)));
 		} else {
-			mEditDateView.setVisibility(View.GONE);
+			editDateView.setVisibility(View.GONE);
 		}
 	}
 }

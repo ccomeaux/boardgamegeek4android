@@ -38,8 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
@@ -51,11 +51,11 @@ public class BuddyColorsActivity extends BaseActivity {
 	private List<BuddyColor> colors;
 	private Adapter adapter;
 
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar) Toolbar toolbar;
-	@SuppressWarnings("unused") @InjectView(android.R.id.progress) View progressView;
-	@SuppressWarnings("unused") @InjectView(android.R.id.empty) View emptyView;
-	@SuppressWarnings("unused") @InjectView(android.R.id.list) DragSortListView list;
-	@SuppressWarnings("unused") @InjectView(R.id.coordinator) CoordinatorLayout coordinator;
+	@SuppressWarnings("unused") @Bind(R.id.toolbar) Toolbar toolbar;
+	@SuppressWarnings("unused") @Bind(android.R.id.progress) View progressView;
+	@SuppressWarnings("unused") @Bind(android.R.id.empty) View emptyView;
+	@SuppressWarnings("unused") @Bind(android.R.id.list) DragSortListView list;
+	@SuppressWarnings("unused") @Bind(R.id.coordinator) CoordinatorLayout coordinator;
 
 	@SuppressLint("HandlerLeak")
 	private class QueryHandler extends AsyncQueryHandler {
@@ -98,7 +98,7 @@ public class BuddyColorsActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_buddy_colors);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 		playerName = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
@@ -239,6 +239,10 @@ public class BuddyColorsActivity extends BaseActivity {
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@OnClick(R.id.fab)
 	void onFabClick(View view) {
+		if (colors == null) {
+			return;
+		}
+
 		ArrayList<String> usedColors = new ArrayList<>(colors.size());
 		for (BuddyColor color : colors) {
 			usedColors.add(color.getColor());

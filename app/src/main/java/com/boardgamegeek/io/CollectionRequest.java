@@ -4,28 +4,35 @@ import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.model.CollectionResponse;
 
-public class CollectionRequest extends RetryableRequest<CollectionResponse> {
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Response;
+import timber.log.Timber;
+
+public class CollectionRequest {
+	private final BggService bggService;
 	private final String username;
 	private final ArrayMap<String, String> options;
 
 	public CollectionRequest(BggService service, String username, ArrayMap<String, String> options) {
-		super(service);
+		this.bggService = service;
 		this.username = username;
 		this.options = options;
 	}
 
-	@Override
-	protected CollectionResponse request() {
-		return bggService.collection(username, options);
-	}
-
-	@Override
-	protected long getMinWaitTime() {
-		return 500L;
-	}
-
-	@Override
-	protected long getMaxWaitTime() {
-		return 120000L;
+	public CollectionResponse execute() {
+		Call<CollectionResponse> call = bggService.collection(username, options);
+		try {
+			Response<CollectionResponse> response = call.execute();
+			if (response.isSuccessful()) {
+				return response.body();
+			} else {
+				Timber.w("Unsuccessful collection fetch with code: %s", response.code());
+			}
+		} catch (IOException e) {
+			Timber.w(e, "Unsuccessful collection fetch");
+		}
+		return null;
 	}
 }

@@ -9,22 +9,22 @@ import com.boardgamegeek.R;
 
 import java.text.DecimalFormat;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class PlayerStatView extends TableRow {
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.0");
 
-	@InjectView(R.id.name) TextView mName;
-	@InjectView(R.id.play_count) TextView mPlayCount;
-	@InjectView(R.id.wins) TextView mWins;
-	@InjectView(R.id.score) TextView mScore;
+	@Bind(R.id.name) TextView mName;
+	@Bind(R.id.play_count) TextView mPlayCount;
+	@Bind(R.id.wins) TextView mWins;
+	@Bind(R.id.score) TextView mScore;
 
 	public PlayerStatView(Context context) {
 		super(context);
 		LayoutInflater inflater = LayoutInflater.from(context);
 		inflater.inflate(R.layout.widget_player_stat, this);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 	}
 
 	public void setName(CharSequence text) {

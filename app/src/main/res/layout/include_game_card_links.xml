@@ -32,7 +32,7 @@
 			<ImageView
 				android:id="@+id/icon_link_bgg"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_globe"/>
+				android:src="@drawable/ic_link"/>
 
 			<TextView
 				style="@style/Text"
@@ -57,7 +57,7 @@
 			<ImageView
 				android:id="@+id/icon_link_bg_prices"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_local_atm"/>
+				android:src="@drawable/ic_link_bg_prices"/>
 
 			<TextView
 				style="@style/Text"
@@ -107,7 +107,7 @@
 			<ImageView
 				android:id="@+id/icon_link_ebay"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_local_grocery_store"/>
+				android:src="@drawable/ic_link_ebay"/>
 
 			<TextView
 				style="@style/Text"

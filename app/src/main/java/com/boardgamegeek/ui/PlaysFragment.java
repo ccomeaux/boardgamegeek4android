@@ -17,13 +17,16 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.DatePicker;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -52,21 +55,22 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import timber.log.Timber;
 
-public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	MultiChoiceModeListener {
+public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
 	public static final String KEY_MODE = "MODE";
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_USER_NAME = "USER_NAME";
@@ -92,7 +96,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;
-	private LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<>();
+	private final LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem mSendMenuItem;
 	private MenuItem mEditMenuItem;
 
@@ -151,7 +155,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		setEmptyText(getString(getEmptyStringResource()));
 		requery();
 
-		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
+		final StickyListHeadersListView listView = getListView();
+		if (listView != null) {
+			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			listView.setMultiChoiceModeListener(this);
+		}
 	}
 
 	@Override
@@ -165,55 +173,38 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		DrawerActivity activity = (DrawerActivity) getActivity();
-		boolean showOptions = true;
-		if (activity != null) {
-			showOptions = !activity.isDrawerOpen();
+		switch (mFilterType) {
+			case Play.SYNC_STATUS_IN_PROGRESS:
+				checkMenuItemSafely(menu, R.id.menu_filter_in_progress);
+				break;
+			case Play.SYNC_STATUS_PENDING:
+				checkMenuItemSafely(menu, R.id.menu_filter_pending);
+				break;
+			case Play.SYNC_STATUS_ALL:
+			default:
+				checkMenuItemSafely(menu, R.id.menu_filter_all);
+				break;
 		}
-		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
-		showMenuItemSafely(menu, R.id.menu_filter, showOptions);
-		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
-		if (showOptions) {
-			switch (mFilterType) {
-				case Play.SYNC_STATUS_IN_PROGRESS:
-					checkMenuItemSafely(menu, R.id.menu_filter_in_progress);
+		if (mSorter != null) {
+			switch (mSorter.getType()) {
+				case PlaysSorterFactory.TYPE_PLAY_DATE:
+					checkMenuItemSafely(menu, R.id.menu_sort_date);
 					break;
-				case Play.SYNC_STATUS_PENDING:
-					checkMenuItemSafely(menu, R.id.menu_filter_pending);
+				case PlaysSorterFactory.TYPE_PLAY_GAME:
+					checkMenuItemSafely(menu, R.id.menu_sort_game);
 					break;
-				case Play.SYNC_STATUS_ALL:
+				case PlaysSorterFactory.TYPE_PLAY_LENGTH:
+					checkMenuItemSafely(menu, R.id.menu_sort_length);
+					break;
+				case PlaysSorterFactory.TYPE_PLAY_LOCATION:
+					checkMenuItemSafely(menu, R.id.menu_sort_location);
+					break;
 				default:
-					checkMenuItemSafely(menu, R.id.menu_filter_all);
+					checkMenuItemSafely(menu, R.id.menu_sort_date);
 					break;
-			}
-			if (mSorter != null) {
-				switch (mSorter.getType()) {
-					case PlaysSorterFactory.TYPE_PLAY_DATE:
-						checkMenuItemSafely(menu, R.id.menu_sort_date);
-						break;
-					case PlaysSorterFactory.TYPE_PLAY_GAME:
-						checkMenuItemSafely(menu, R.id.menu_sort_game);
-						break;
-					case PlaysSorterFactory.TYPE_PLAY_LENGTH:
-						checkMenuItemSafely(menu, R.id.menu_sort_length);
-						break;
-					case PlaysSorterFactory.TYPE_PLAY_LOCATION:
-						checkMenuItemSafely(menu, R.id.menu_sort_location);
-						break;
-					default:
-						checkMenuItemSafely(menu, R.id.menu_sort_date);
-						break;
-				}
 			}
 		}
 		super.onPrepareOptionsMenu(menu);
-	}
-
-	private static void showMenuItemSafely(Menu menu, int resourceId, boolean visible) {
-		MenuItem menuItem = menu.findItem(resourceId);
-		if (menuItem != null) {
-			menuItem.setVisible(visible);
-		}
 	}
 
 	private static void checkMenuItemSafely(Menu menu, int resourceId) {
@@ -260,7 +251,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		return true;
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
 		mSelectedPlayId = event.getPlayId();
 		if (mAdapter != null) {
@@ -268,11 +261,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
-	public void onEventMainThread(UpdateEvent event) {
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		isSyncing((event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.getType() == UpdateService.SYNC_TYPE_PLAYS_DATE));
 	}
 
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@SuppressWarnings({ "UnusedParameters", "unused" })
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		isSyncing(false);
 	}
 
@@ -290,10 +287,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, getArguments(), this);
 	}
 
+	@SuppressWarnings("unused")
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysSortChangedEvent event) {
 		setSort(event.getType());
 	}
 
+	@SuppressWarnings("unused")
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysFilterChangedEvent event) {
 		filter(event.getType(), event.getDescription());
 	}
@@ -625,13 +626,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 
 		class ViewHolder {
-			@InjectView(android.R.id.title) TextView title;
-			@InjectView(android.R.id.text1) TextView text1;
-			@InjectView(android.R.id.text2) TextView text2;
-			@InjectView(android.R.id.message) TextView status;
+			@SuppressWarnings("unused") @Bind(android.R.id.title) TextView title;
+			@SuppressWarnings("unused") @Bind(android.R.id.text1) TextView text1;
+			@SuppressWarnings("unused") @Bind(android.R.id.text2) TextView text2;
+			@SuppressWarnings("unused") @Bind(android.R.id.message) TextView status;
 
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 			}
 		}
 
@@ -705,7 +706,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (mSelectedPlaysPositions == null || !mSelectedPlaysPositions.iterator().hasNext()) {
+		if (!mSelectedPlaysPositions.iterator().hasNext()) {
 			return false;
 		}
 		switch (item.getItemId()) {

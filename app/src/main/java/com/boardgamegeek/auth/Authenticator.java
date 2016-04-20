@@ -90,12 +90,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// Ensure the password is valid and not expired, then return the stored AuthToken
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			AuthResponse ar = NetworkAuthenticator.authenticate(account.name, password);
-			if (ar != null) {
-				am.setAuthToken(account, authTokenType, ar.authToken);
-				am.setUserData(account, Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(ar.authTokenExpiry));
+			BggCookieJar cookieJar = NetworkAuthenticator.authenticate(account.name, password);
+			if (cookieJar != null) {
+				am.setAuthToken(account, authTokenType, cookieJar.getAuthToken());
+				am.setUserData(account, Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(cookieJar.getAuthTokenExpiry()));
 				Timber.v(toDebugString());
-				return createAuthTokenBundle(account, ar.authToken);
+				return createAuthTokenBundle(account, cookieJar.getAuthToken());
 			}
 		}
 
@@ -145,7 +145,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	@Nullable
 	public static Account getAccount(@NonNull AccountManager accountManager) {
 		Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
-		if (accounts == null || accounts.length == 0) {
+		if (accounts.length == 0) {
 			Timber.w("no account!");
 			return null;
 		} else if (accounts.length != 1) {
@@ -181,11 +181,13 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static void clearPassword(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
-		String authToken = accountManager.peekAuthToken(account, Authenticator.AUTH_TOKEN_TYPE);
-		if (authToken != null) {
-			accountManager.invalidateAuthToken(Authenticator.AUTH_TOKEN_TYPE, authToken);
-		} else {
-			accountManager.clearPassword(account);
+		if (account != null) {
+			String authToken = accountManager.peekAuthToken(account, Authenticator.AUTH_TOKEN_TYPE);
+			if (authToken != null) {
+				accountManager.invalidateAuthToken(Authenticator.AUTH_TOKEN_TYPE, authToken);
+			} else {
+				accountManager.clearPassword(account);
+			}
 		}
 	}
 
@@ -271,7 +273,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return bundle;
 	}
 
-	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, String key) {
+	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, @SuppressWarnings("SameParameterValue") String key) {
 		String expiration = am.getUserData(account, key);
 		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
 	}
@@ -325,10 +327,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		if (account == null) {
 			return "";
 		}
-		String debugString = "ACCOUNT" + "\n" +
+		return "ACCOUNT" + "\n" +
 			"Name:       " + account.name + "\n" +
 			"Type:       " + account.type + "\n" +
 			"Password:   " + accountManager.getPassword(account) + "\n";
-		return debugString;
 	}
 }

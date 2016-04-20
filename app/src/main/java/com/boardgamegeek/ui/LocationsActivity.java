@@ -13,7 +13,9 @@ import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
 
 public class LocationsActivity extends SimpleSinglePaneActivity {
@@ -35,19 +37,13 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (isDrawerOpen()) {
-			menu.findItem(R.id.menu_sort).setVisible(false);
-			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, "");
+		menu.findItem(R.id.menu_sort).setVisible(true);
+		if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
+			menu.findItem(R.id.menu_sort_quantity).setChecked(true);
 		} else {
-			menu.findItem(R.id.menu_sort).setVisible(true);
-			if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
-				menu.findItem(R.id.menu_sort_quantity).setChecked(true);
-			} else {
-				menu.findItem(R.id.menu_sort_name).setChecked(true);
-			}
-			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
-				locationCount <= 0 ? "" : String.valueOf(locationCount));
+			menu.findItem(R.id.menu_sort_name).setChecked(true);
 		}
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, locationCount <= 0 ? "" : String.valueOf(locationCount));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -68,6 +64,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(LocationsCountChangedEvent event) {
 		locationCount = event.getCount();
 		supportInvalidateOptionsMenu();
@@ -75,6 +72,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(LocationSelectedEvent event) {
 		Intent intent = ActivityUtils.createLocationIntent(this, event.getLocationName());
 		startActivity(intent);
@@ -82,6 +80,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(LocationSortChangedEvent event) {
 		sortType = event.getSortType();
 	}

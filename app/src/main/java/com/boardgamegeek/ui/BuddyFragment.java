@@ -45,15 +45,19 @@ import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
-	private static final String KEY_REFRESHED = "REFRESHED";
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
@@ -65,30 +69,28 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private String buddyName;
 	private String playerName;
 	private boolean isRefreshing;
-	private boolean hasBeenRefreshed;
+	@State boolean hasBeenRefreshed;
 
 	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.buddy_info) View buddyInfoView;
-	@SuppressWarnings("unused") @InjectView(R.id.full_name) TextView fullNameView;
-	@SuppressWarnings("unused") @InjectView(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView avatarView;
-	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView nicknameView;
-	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsView;
-	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updatedView;
+	@SuppressWarnings("unused") @Bind(R.id.buddy_info) View buddyInfoView;
+	@SuppressWarnings("unused") @Bind(R.id.full_name) TextView fullNameView;
+	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
+	@SuppressWarnings("unused") @Bind(R.id.avatar) ImageView avatarView;
+	@SuppressWarnings("unused") @Bind(R.id.nickname) TextView nicknameView;
+	@SuppressWarnings("unused") @Bind(R.id.collection_card) View collectionCard;
+	@SuppressWarnings("unused") @Bind(R.id.plays_label) TextView playsView;
+	@SuppressWarnings("unused") @Bind(R.id.color_container) LinearLayout colorContainer;
+	@SuppressWarnings("unused") @Bind(R.id.updated) TextView updatedView;
 	private int defaultTextColor;
 	private int lightTextColor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		timeHintUpdateHandler = new Handler();
-		if (savedInstanceState != null) {
-			hasBeenRefreshed = savedInstanceState.getBoolean(KEY_REFRESHED);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
+		timeHintUpdateHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
@@ -97,14 +99,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_REFRESHED, hasBeenRefreshed);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);
@@ -142,7 +144,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -171,13 +173,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@SuppressWarnings("unused")
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		isRefreshing = event.getType() == UpdateService.SYNC_TYPE_BUDDY;
 		updateRefreshStatus();
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		isRefreshing = false;
 		updateRefreshStatus();
 	}
@@ -396,7 +401,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		forceRefresh();
+		requestRefresh();
 	}
 
 	@DebugLog

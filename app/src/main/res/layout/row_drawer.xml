@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+	style="@style/DrawerItemContainer"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="horizontal"
-	style="@style/DrawerItemContainer"
 	tools:ignore="UseCompoundDrawables">
 
 	<ImageView
 		android:id="@android:id/icon"
-		style="@style/Icon"
+		style="@style/DrawerIcon"
 		tools:src="@drawable/ic_account_circle_black_24dp"/>
 
 	<TextView

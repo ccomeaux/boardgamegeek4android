@@ -10,13 +10,13 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ColorUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class PollKeyRow extends LinearLayout {
-	@InjectView(R.id.row_poll_key_view) View mView;
-	@InjectView(R.id.row_poll_key_text) TextView mTextView;
-	@InjectView(R.id.row_poll_key_info) TextView mInfoView;
+	@Bind(R.id.row_poll_key_view) View mView;
+	@Bind(R.id.row_poll_key_text) TextView mTextView;
+	@Bind(R.id.row_poll_key_info) TextView mInfoView;
 
 	public PollKeyRow(Context context) {
 		this(context, null);
@@ -30,7 +30,7 @@ public class PollKeyRow extends LinearLayout {
 	private void init(Context context) {
 		LayoutInflater li = LayoutInflater.from(context);
 		li.inflate(R.layout.row_poll_key, this);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 	}
 
 	public void setColor(int color) {

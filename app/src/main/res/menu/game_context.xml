@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_log_play"
-		android:icon="@drawable/ic_action_calendar_light"
+		android:icon="@drawable/ic_log_play"
 		android:title="@string/menu_log_play"
 		app:showAsAction="ifRoom"/>
 	<item

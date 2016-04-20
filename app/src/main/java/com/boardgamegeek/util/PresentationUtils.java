@@ -79,7 +79,7 @@ public class PresentationUtils {
 		if (year > 0) {
 			return context.getString(R.string.year_positive, year);
 		} else if (year == Constants.YEAR_UNKNOWN) {
-			return context.getString(R.string.year_zero, year);
+			return context.getString(R.string.year_zero);
 		} else {
 			return context.getString(R.string.year_negative, -year);
 		}
@@ -131,6 +131,12 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static String describeRankName(Context context, String type, String name) {
+		if (name == null) {
+			return "";
+		}
+		if (type == null) {
+			return name;
+		}
 		@StringRes int resId = R.string.title_game;
 		if (BggService.RANK_TYPE_SUBTYPE.equals(type)) {
 			switch (name) {
@@ -143,6 +149,8 @@ public class PresentationUtils {
 				case BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY:
 					resId = R.string.title_accessory;
 					break;
+				default:
+					return name;
 			}
 		} else if (BggService.RANK_TYPE_FAMILY.equals(type)) {
 			switch (name) {
@@ -284,7 +292,7 @@ public class PresentationUtils {
 			info += quantity + " " + context.getString(R.string.times) + " ";
 		}
 		if (!TextUtils.isEmpty(location)) {
-			info +=  context.getString(R.string.at) + " " + location + " ";
+			info += context.getString(R.string.at) + " " + location + " ";
 		}
 		if (length > 0) {
 			info += context.getString(R.string.for_) + " " + DateTimeUtils.formatMinutes(length) + " ";

@@ -6,9 +6,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -29,22 +27,24 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import icepick.Icepick;
+import icepick.State;
 
 public class GameDetailRow extends LinearLayout {
-	@InjectView(android.R.id.icon) ImageView mIconView;
-	@InjectView(R.id.data) TextView mDataView;
-	private int mQueryToken;
-	private String mOneMore;
-	private String mSomeMore;
-	private int mNameColumnIndex;
-	private int mIdColumnIndex;
-	private int mCount;
-	private int mGameId;
-	private String mGameName;
-	private String mLabel;
-	private Drawable mIcon;
+	@SuppressWarnings("unused") @Bind(android.R.id.icon) ImageView iconView;
+	@SuppressWarnings("unused") @Bind(R.id.data) TextView dataView;
+	private int queryToken;
+	private String oneMore;
+	private String someMore;
+	private int nameColumnIndex;
+	private int idColumnIndex;
+	@State int count;
+	private int gameId;
+	private String gameName;
+	private String label;
+	private Drawable icon;
 
 	public GameDetailRow(Context context) {
 		super(context);
@@ -58,28 +58,17 @@ public class GameDetailRow extends LinearLayout {
 
 	@Override
 	protected Parcelable onSaveInstanceState() {
-		Parcelable p = super.onSaveInstanceState();
-		SavedState state = new SavedState(p);
-		state.count = mCount;
-		return state;
+		return Icepick.saveInstanceState(this, super.onSaveInstanceState());
 	}
 
 	@Override
 	public void onRestoreInstanceState(Parcelable state) {
-		if (!(state instanceof SavedState)) {
-			super.onRestoreInstanceState(state);
-			return;
-		}
-
-		SavedState saved = (SavedState) state;
-		super.onRestoreInstanceState(saved.getSuperState());
-
-		mCount = saved.count;
+		super.onRestoreInstanceState(Icepick.restoreInstanceState(this, state));
 	}
 
 	private void init(Context context, AttributeSet attrs) {
-		mOneMore = context.getString(R.string.one_more);
-		mSomeMore = context.getString(R.string.some_more);
+		oneMore = context.getString(R.string.one_more);
+		someMore = context.getString(R.string.some_more);
 
 		setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 		int backgroundResId = 0;
@@ -96,24 +85,24 @@ public class GameDetailRow extends LinearLayout {
 		setOrientation(HORIZONTAL);
 
 		LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		if (attrs != null) {
 			a = context.obtainStyledAttributes(attrs, R.styleable.GameDetailRow);
 			try {
-				mLabel = a.getString(R.styleable.GameDetailRow_label);
-				mIcon = a.getDrawable(R.styleable.GameDetailRow_icon_res);
-				mQueryToken = a.getInt(R.styleable.GameDetailRow_query_token, BggContract.INVALID_ID);
+				label = a.getString(R.styleable.GameDetailRow_label);
+				icon = a.getDrawable(R.styleable.GameDetailRow_icon_res);
+				queryToken = a.getInt(R.styleable.GameDetailRow_query_token, BggContract.INVALID_ID);
 			} finally {
 				a.recycle();
 			}
 		}
 
-		if (mIcon == null) {
-			mIconView.setVisibility(View.GONE);
+		if (icon == null) {
+			iconView.setVisibility(View.GONE);
 		} else {
-			mIconView.setVisibility(View.VISIBLE);
-			mIconView.setImageDrawable(mIcon);
+			iconView.setVisibility(View.VISIBLE);
+			iconView.setImageDrawable(icon);
 		}
 
 		setOnClickListener(new OnClickListener() {
@@ -124,10 +113,10 @@ public class GameDetailRow extends LinearLayout {
 					getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
 				} else {
 					Intent intent = new Intent(getContext(), GameDetailActivity.class);
-					intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
-					intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
-					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
+					intent.putExtra(ActivityUtils.KEY_TITLE, label);
+					intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
+					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, queryToken);
 					getContext().startActivity(intent);
 				}
 			}
@@ -135,7 +124,7 @@ public class GameDetailRow extends LinearLayout {
 	}
 
 	public void clear() {
-		mDataView.setText("");
+		dataView.setText("");
 	}
 
 	public void color(Palette.Swatch swatch) {
@@ -144,7 +133,7 @@ public class GameDetailRow extends LinearLayout {
 	}
 
 	public void colorIcon(Palette.Swatch swatch) {
-		mIconView.setColorFilter(swatch.getRgb());
+		iconView.setColorFilter(swatch.getRgb());
 	}
 
 	public static final ButterKnife.Setter<GameDetailRow, Palette.Swatch> colorIconSetter =
@@ -158,41 +147,41 @@ public class GameDetailRow extends LinearLayout {
 		};
 
 	public void colorText(Palette.Swatch swatch) {
-		mDataView.setTextColor(swatch.getRgb());
+		dataView.setTextColor(swatch.getRgb());
 	}
 
 	public void bind(Cursor cursor, int nameColumnIndex, int idColumnIndex, int gameId, String gameName) {
-		mNameColumnIndex = nameColumnIndex;
-		mIdColumnIndex = idColumnIndex;
-		mGameId = gameId;
-		mGameName = gameName;
+		this.nameColumnIndex = nameColumnIndex;
+		this.idColumnIndex = idColumnIndex;
+		this.gameId = gameId;
+		this.gameName = gameName;
 		updateData(cursor);
 	}
 
 	private void updateData(Cursor cursor) {
-		mCount = cursor.getCount();
+		count = cursor.getCount();
 		CharSequence summary = null;
 		final CharSequence text = joinNames(cursor);
 		if (!TextUtils.isEmpty(text)) {
 			TextPaint paint = new TextPaint();
-			paint.setTextSize(mDataView.getTextSize());
-			summary = TextUtils.commaEllipsize(text, paint, mDataView.getWidth() * 2, mOneMore, mSomeMore);
+			paint.setTextSize(dataView.getTextSize());
+			summary = TextUtils.commaEllipsize(text, paint, dataView.getWidth() * 2, oneMore, someMore);
 			if (TextUtils.isEmpty(summary)) {
-				summary = String.format(mSomeMore, mCount);
+				summary = String.format(someMore, count);
 			}
 		}
-		if (mCount == 1 && mIdColumnIndex != -1) {
+		if (count == 1 && idColumnIndex != -1) {
 			cursor.moveToFirst();
 			Uri uri = null;
-			int id = cursor.getInt(mIdColumnIndex);
-			if (mQueryToken == getResources().getInteger(R.integer.query_token_designers)) {
+			int id = cursor.getInt(idColumnIndex);
+			if (queryToken == getResources().getInteger(R.integer.query_token_designers)) {
 				uri = Designers.buildDesignerUri(id);
-			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_artists)) {
+			} else if (queryToken == getResources().getInteger(R.integer.query_token_artists)) {
 				uri = Artists.buildArtistUri(id);
-			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_publishers)) {
+			} else if (queryToken == getResources().getInteger(R.integer.query_token_publishers)) {
 				uri = Publishers.buildPublisherUri(id);
-			} else if (mQueryToken == getResources().getInteger(R.integer.query_token_expansions) ||
-				mQueryToken == getResources().getInteger(R.integer.query_token_base_games)) {
+			} else if (queryToken == getResources().getInteger(R.integer.query_token_expansions) ||
+				queryToken == getResources().getInteger(R.integer.query_token_base_games)) {
 				uri = Games.buildGameUri(id);
 			}
 			if (uri != null) {
@@ -200,7 +189,7 @@ public class GameDetailRow extends LinearLayout {
 			}
 		}
 
-		mDataView.setText(summary);
+		dataView.setText(summary);
 	}
 
 	private String joinNames(Cursor cursor) {
@@ -213,44 +202,9 @@ public class GameDetailRow extends LinearLayout {
 				} else {
 					sb.append(", ");
 				}
-				sb.append(cursor.getString(mNameColumnIndex));
+				sb.append(cursor.getString(nameColumnIndex));
 			} while (cursor.moveToNext());
 		}
 		return sb.toString();
-	}
-
-	private static class SavedState extends BaseSavedState {
-		public int count;
-
-		SavedState(Parcelable superState) {
-			super(superState);
-		}
-
-		private SavedState(Parcel in) {
-			super(in);
-			count = in.readInt();
-		}
-
-		@Override
-		public int describeContents() {
-			return 0;
-		}
-
-		@Override
-		public void writeToParcel(@NonNull Parcel dest, int flags) {
-			super.writeToParcel(dest, flags);
-			dest.writeInt(count);
-		}
-
-		@SuppressWarnings("unused")
-		public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
-			public SavedState createFromParcel(Parcel in) {
-				return new SavedState(in);
-			}
-
-			public SavedState[] newArray(int size) {
-				return new SavedState[size];
-			}
-		};
 	}
 }

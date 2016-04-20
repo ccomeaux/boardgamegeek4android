@@ -46,11 +46,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -60,39 +62,33 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_USED_COLORS = "USED_COLORS";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
-	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
-	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
-	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
-	private static final String KEY_RATING_SHOWN = "RATING_SHOWN";
-	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
-	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
 
 	private static final int HELP_VERSION = 1;
 	private static final int TOKEN_COLORS = 1;
 
 	private String mGameName;
 
-	private Player mPlayer;
+	@State Player mPlayer;
 	private Player mOriginalPlayer;
 
-	@InjectView(R.id.scroll_container) ScrollView mScrollContainer;
-	@InjectView(R.id.header) TextView mHeader;
-	@InjectView(R.id.two_line_container) View mTwoLineContainer;
-	@InjectView(R.id.header2) TextView mHeader2;
-	@InjectView(R.id.subheader) TextView mSubheader;
-	@InjectView(R.id.log_player_username) AutoCompleteTextView mUsername;
-	@InjectView(R.id.log_player_name) AutoCompleteTextView mName;
-	@InjectView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
-	@InjectView(R.id.color_view) ImageView mColorView;
-	@InjectView(R.id.log_player_position) EditText mPosition;
-	@InjectView(R.id.log_player_position_button) Button mPositionButton;
-	@InjectView(R.id.log_player_score) EditText mScore;
-	@InjectView(R.id.log_player_score_button) Button mScoreButton;
-	@InjectView(R.id.log_player_rating) EditText mRating;
-	@InjectView(R.id.log_player_new) SwitchCompat mNew;
-	@InjectView(R.id.log_player_win) SwitchCompat mWin;
-	@InjectView(R.id.fab) FloatingActionButton mFab;
-	@InjectView(R.id.fab_buffer) View mFabBuffer;
+	@Bind(R.id.scroll_container) ScrollView mScrollContainer;
+	@Bind(R.id.header) TextView mHeader;
+	@Bind(R.id.two_line_container) View mTwoLineContainer;
+	@Bind(R.id.header2) TextView mHeader2;
+	@Bind(R.id.subheader) TextView mSubheader;
+	@Bind(R.id.log_player_username) AutoCompleteTextView mUsername;
+	@Bind(R.id.log_player_name) AutoCompleteTextView mName;
+	@Bind(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
+	@Bind(R.id.color_view) ImageView mColorView;
+	@Bind(R.id.log_player_position) EditText mPosition;
+	@Bind(R.id.log_player_position_button) Button mPositionButton;
+	@Bind(R.id.log_player_score) EditText mScore;
+	@Bind(R.id.log_player_score_button) Button mScoreButton;
+	@Bind(R.id.log_player_rating) EditText mRating;
+	@Bind(R.id.log_player_new) SwitchCompat mNew;
+	@Bind(R.id.log_player_win) SwitchCompat mWin;
+	@Bind(R.id.fab) FloatingActionButton mFab;
+	@Bind(R.id.fab_buffer) View mFabBuffer;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -100,12 +96,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 	private boolean mPrefShowRating;
 	private boolean mPrefShowNew;
 	private boolean mPrefShowWin;
-	private boolean mUserShowTeamColor;
-	private boolean mUserShowPosition;
-	private boolean mUserShowScore;
-	private boolean mUserShowRating;
-	private boolean mUserShowNew;
-	private boolean mUserShowWin;
+	@State boolean mUserShowTeamColor;
+	@State boolean mUserShowPosition;
+	@State boolean mUserShowScore;
+	@State boolean mUserShowRating;
+	@State boolean mUserShowNew;
+	@State boolean mUserShowWin;
 	private int mAutoPosition;
 	private ArrayList<String> mUsedColors;
 	private ArrayList<String> mColors;
@@ -164,7 +160,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_logplayer);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		mName.setOnItemClickListener(nameClickListener());
 
@@ -191,14 +187,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			}
 			mOriginalPlayer = new Player(mPlayer);
 		} else {
-			mUserShowTeamColor = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
-			mUserShowPosition = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
-			mUserShowScore = savedInstanceState.getBoolean(KEY_SCORE_SHOWN);
-			mUserShowRating = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
-			mUserShowNew = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
-			mUserShowWin = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
-
-			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
+			Icepick.restoreInstanceState(this, savedInstanceState);
 		}
 
 		mUsedColors = new ArrayList<>(Arrays.asList(usedColors));
@@ -234,13 +223,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putParcelable(KEY_PLAYER, mPlayer);
-		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mUserShowTeamColor);
-		outState.putBoolean(KEY_POSITION_SHOWN, mUserShowPosition);
-		outState.putBoolean(KEY_SCORE_SHOWN, mUserShowScore);
-		outState.putBoolean(KEY_RATING_SHOWN, mUserShowRating);
-		outState.putBoolean(KEY_NEW_SHOWN, mUserShowNew);
-		outState.putBoolean(KEY_WIN_SHOWN, mUserShowWin);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@DebugLog

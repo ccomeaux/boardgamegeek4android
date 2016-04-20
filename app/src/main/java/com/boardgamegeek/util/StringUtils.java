@@ -45,6 +45,24 @@ public class StringUtils {
 	}
 
 	/**
+	 * Parse a string to an long, returning 0 if it's not parsable.
+	 */
+	public static long parseLong(String text) {
+		return parseLong(text, 0);
+	}
+
+	/**
+	 * Parse a string to an long, returning the default value if it's not parsable.
+	 */
+	public static long parseLong(String text, int defaultValue) {
+		try {
+			return Long.parseLong(text);
+		} catch (NumberFormatException | NullPointerException ex) {
+			return defaultValue;
+		}
+	}
+
+	/**
 	 * Parse a string to an double, returning the 0.0 if it's not parsable.
 	 */
 	public static double parseDouble(String text) {
@@ -154,19 +172,23 @@ public class StringUtils {
 	 * Formats a list of items with commas and ampersands where necessary.
 	 */
 	public static <E> String formatList(List<E> list) {
+		return formatList(list, "&", ",");
+	}
+
+	public static <E> String formatList(List<E> list, String and, final String comma) {
 		StringBuilder sb = new StringBuilder();
 		if (list != null && list.size() > 0) {
 			if (list.size() == 1) {
 				sb.append(list.get(0));
 			} else if (list.size() == 2) {
-				sb.append(list.get(0)).append(" & ").append(list.get(1));
+				sb.append(list.get(0)).append(" ").append(and).append(" ").append(list.get(1));
 			} else {
 				for (int i = 0; i < list.size(); i++) {
 					sb.append(list.get(i));
 					if (i == list.size() - 2) {
-						sb.append(", & ");
+						sb.append(comma).append(" ").append(and).append(" ");
 					} else if (i < list.size() - 2) {
-						sb.append(", ");
+						sb.append(comma).append(" ");
 					}
 				}
 			}

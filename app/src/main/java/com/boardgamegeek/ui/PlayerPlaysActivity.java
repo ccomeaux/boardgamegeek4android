@@ -13,6 +13,8 @@ import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
 
 public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
@@ -74,19 +76,20 @@ public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
-			(isDrawerOpen() || playCount < 0) ? "" : String.valueOf(playCount));
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playCount < 0 ? "" : String.valueOf(playCount));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(@NonNull PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(@NonNull PlaysCountChangedEvent event) {
 		playCount = event.getCount();
 		supportInvalidateOptionsMenu();

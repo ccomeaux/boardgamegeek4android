@@ -25,27 +25,34 @@ public abstract class TopLevelActivity extends DrawerActivity {
 			// TODO: finish and start CAB with the drawer open/close
 			public void onDrawerClosed(View view) {
 				final ActionBar actionBar = getSupportActionBar();
-				actionBar.setTitle(title);
-				if (isTitleHidden()) {
-					actionBar.setDisplayShowTitleEnabled(false);
-					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+				if (actionBar != null) {
+					actionBar.setTitle(title);
+					if (isTitleHidden()) {
+						actionBar.setDisplayShowTitleEnabled(false);
+						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+					}
 				}
 				supportInvalidateOptionsMenu();
 			}
 
 			public void onDrawerOpened(View drawerView) {
 				final ActionBar actionBar = getSupportActionBar();
-				if (isTitleHidden()) {
-					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-					actionBar.setDisplayShowTitleEnabled(true);
+				if (actionBar != null) {
+					if (isTitleHidden()) {
+						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+						actionBar.setDisplayShowTitleEnabled(true);
+					}
+					actionBar.setTitle(drawerTitle);
 				}
-				actionBar.setTitle(drawerTitle);
 				supportInvalidateOptionsMenu();
 			}
 		};
 		drawerLayout.setDrawerListener(drawerToggle);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setHomeButtonEnabled(true);
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setHomeButtonEnabled(true);
+		}
 	}
 
 	@Override
@@ -63,7 +70,10 @@ public abstract class TopLevelActivity extends DrawerActivity {
 	@Override
 	public void setTitle(CharSequence title) {
 		this.title = title;
-		getSupportActionBar().setTitle(this.title);
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setTitle(this.title);
+		}
 	}
 
 	@Override

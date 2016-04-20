@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.annotation.TargetApi;
 import android.app.Dialog;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -21,13 +19,11 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -39,9 +35,9 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 	private ViewGroup root;
 	private Listener listener;
 	private int selectedType;
-	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ScrollView scrollContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.radio_group) RadioGroup radioGroup;
-	@SuppressWarnings("unused") @InjectViews({
+	@SuppressWarnings("unused") @Bind(R.id.scroll_container) ScrollView scrollContainer;
+	@SuppressWarnings("unused") @Bind(R.id.radio_group) RadioGroup radioGroup;
+	@SuppressWarnings("unused") @Bind({
 		R.id.name,
 		R.id.rank,
 		R.id.geek_rating,
@@ -89,7 +85,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_collection_sort, root, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 		setChecked();
 		radioGroup.setOnCheckedChangeListener(this);
 		createNames();
@@ -156,16 +152,13 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 	}
 
 	@DebugLog
-	@TargetApi(VERSION_CODES.HONEYCOMB)
 	private void focusRadioButton(final RadioButton radioButton) {
-		if (VersionUtils.hasHoneycomb()) {
-			new Handler().post(new Runnable() {
-				@Override
-				public void run() {
-					scrollContainer.scrollTo(0, (int) radioButton.getY());
-				}
-			});
-		}
+		new Handler().post(new Runnable() {
+			@Override
+			public void run() {
+				scrollContainer.scrollTo(0, (int) radioButton.getY());
+			}
+		});
 	}
 
 	@DebugLog

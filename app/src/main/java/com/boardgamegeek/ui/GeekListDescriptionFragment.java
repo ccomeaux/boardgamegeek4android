@@ -17,8 +17,8 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class GeekListDescriptionFragment extends Fragment {
@@ -26,12 +26,12 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	private Handler mHandler = new Handler();
 	private Runnable mUpdaterRunnable = null;
-	@SuppressWarnings("unused") @InjectView(R.id.username) TextView mUsernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.items) TextView mItemsView;
-	@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView mThumbsView;
-	@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView mPostedDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView mEditedDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.body) WebView mBodyView;
+	@SuppressWarnings("unused") @Bind(R.id.username) TextView mUsernameView;
+	@SuppressWarnings("unused") @Bind(R.id.items) TextView mItemsView;
+	@SuppressWarnings("unused") @Bind(R.id.thumbs) TextView mThumbsView;
+	@SuppressWarnings("unused") @Bind(R.id.posted_date) TextView mPostedDateView;
+	@SuppressWarnings("unused") @Bind(R.id.edited_date) TextView mEditedDateView;
+	@SuppressWarnings("unused") @Bind(R.id.body) WebView mBodyView;
 	private GeekList mGeekList;
 
 	@Override
@@ -47,7 +47,7 @@ public class GeekListDescriptionFragment extends Fragment {
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		mUsernameView.setText(mGeekList.getUsername());
 		mItemsView.setText(getString(R.string.items_suffix, mGeekList.getNumberOfItems()));

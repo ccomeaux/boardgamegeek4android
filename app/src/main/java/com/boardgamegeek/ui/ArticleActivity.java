@@ -12,34 +12,36 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class ArticleActivity extends SimpleSinglePaneActivity {
-	private String mThreadId;
-	private String mThreadSubject;
-	private String mForumId;
-	private String mForumTitle;
-	private int mGameId;
-	private String mGameName;
-	private String mLink;
+	private String threadId;
+	private String threadSubject;
+	private String forumId;
+	private String forumTitle;
+	private int gameId;
+	private String gameName;
+	private String link;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mThreadId = intent.getStringExtra(ActivityUtils.KEY_THREAD_ID);
-		mThreadSubject = intent.getStringExtra(ActivityUtils.KEY_THREAD_SUBJECT);
-		mForumId = intent.getStringExtra(ActivityUtils.KEY_FORUM_ID);
-		mForumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
-		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		mLink = intent.getStringExtra(ActivityUtils.KEY_LINK);
+		threadId = intent.getStringExtra(ActivityUtils.KEY_THREAD_ID);
+		threadSubject = intent.getStringExtra(ActivityUtils.KEY_THREAD_SUBJECT);
+		forumId = intent.getStringExtra(ActivityUtils.KEY_FORUM_ID);
+		forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
+		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		link = intent.getStringExtra(ActivityUtils.KEY_LINK);
 
 		final ActionBar actionBar = getSupportActionBar();
-		if (TextUtils.isEmpty(mGameName)) {
-			actionBar.setTitle(mForumTitle);
-			actionBar.setSubtitle(mThreadSubject);
-		} else {
-			actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
-			actionBar.setSubtitle(mGameName);
+		if (actionBar != null) {
+			if (TextUtils.isEmpty(gameName)) {
+				actionBar.setTitle(forumTitle);
+				actionBar.setSubtitle(threadSubject);
+			} else {
+				actionBar.setTitle(threadSubject + " - " + forumTitle);
+				actionBar.setSubtitle(gameName);
+			}
 		}
 	}
 
@@ -58,23 +60,23 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				Intent intent = new Intent(this, ThreadActivity.class);
-				intent.putExtra(ActivityUtils.KEY_THREAD_ID, mThreadId);
-				intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, mThreadSubject);
-				intent.putExtra(ActivityUtils.KEY_FORUM_ID, mForumId);
-				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, mForumTitle);
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+				intent.putExtra(ActivityUtils.KEY_THREAD_ID, threadId);
+				intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, threadSubject);
+				intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
+				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
 				return true;
 			case R.id.menu_view:
-				ActivityUtils.link(this, mLink);
+				ActivityUtils.link(this, link);
 				return true;
 			case R.id.menu_share:
-				String description = String.format(getString(R.string.share_thread_article_text), mThreadSubject,
-					mForumTitle, mGameName);
-				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + mLink,
+				String description = String.format(getString(R.string.share_thread_article_text), threadSubject,
+					forumTitle, gameName);
+				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link,
 					R.string.title_share);
 				return true;
 		}

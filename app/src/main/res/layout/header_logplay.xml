@@ -40,15 +40,15 @@
 
 			<ImageView
 				style="@style/Icon"
-				android:src="@drawable/ic_action_calendar_light"/>
+				android:src="@drawable/ic_today"/>
 
 			<TextView
 				android:id="@+id/log_play_date"
-				android:clickable="true"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
 				android:background="?attr/selectableItemBackground"
+				android:clickable="true"
 				android:gravity="left|center_vertical"
 				android:textAppearance="@style/Text.Big"
 				tools:text="January 1, 1970"/>
@@ -60,7 +60,7 @@
 
 			<ImageView
 				style="@style/Icon"
-				android:src="@drawable/ic_place_black_24dp"/>
+				android:src="@drawable/ic_location"/>
 
 			<AutoCompleteTextView
 				android:id="@+id/log_play_location"
@@ -83,7 +83,7 @@
 				android:id="@+id/timer_toggle"
 				style="@style/Icon"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:src="@drawable/ic_action_timer"/>
+				android:src="@drawable/ic_timer"/>
 
 			<FrameLayout
 				android:id="@+id/log_play_length_container_inner"
@@ -105,10 +105,8 @@
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:background="@color/primary"
-					android:gravity="center_vertical|center"
+					android:gravity="center"
 					android:maxLines="1"
-					android:paddingBottom="@dimen/padding_standard"
-					android:paddingTop="@dimen/padding_standard"
 					android:textAppearance="@style/Text.Big"/>
 			</FrameLayout>
 		</LinearLayout>
@@ -119,7 +117,7 @@
 
 			<ImageView
 				style="@style/Icon"
-				android:src="@drawable/ic_action_tiles_small"/>
+				android:src="@drawable/ic_quantity"/>
 
 			<EditText
 				android:id="@+id/log_play_quantity"
@@ -178,13 +176,13 @@
 		<LinearLayout
 			android:id="@+id/log_play_players_header"
 			style="@style/FormRowContainer"
-			android:gravity="left|bottom">
+			android:gravity="center_vertical">
 
 			<ImageView
 				android:id="@+id/player_sort"
 				style="@style/Icon"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:src="@drawable/ic_action_sort_light"/>
+				android:src="@drawable/ic_sort"/>
 
 			<TextView
 				android:id="@+id/log_play_players_label"
@@ -201,7 +199,7 @@
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
-				android:src="@drawable/ic_action_cancel_light"/>
+				android:src="@drawable/ic_clear"/>
 		</LinearLayout>
 	</LinearLayout>
 

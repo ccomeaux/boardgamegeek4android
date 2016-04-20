@@ -16,32 +16,34 @@ import com.boardgamegeek.util.HelpUtils;
 public class ThreadActivity extends SimpleSinglePaneActivity {
 	private static final int HELP_VERSION = 1;
 
-	private int mThreadId;
-	private String mThreadSubject;
-	private int mForumId;
-	private String mForumTitle;
-	private int mGameId;
-	private String mGameName;
+	private int threadId;
+	private String threadSubject;
+	private int forumId;
+	private String forumTitle;
+	private int gameId;
+	private String gameName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mThreadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
-		mThreadSubject = intent.getStringExtra(ActivityUtils.KEY_THREAD_SUBJECT);
-		mForumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
-		mForumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
-		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
+		threadSubject = intent.getStringExtra(ActivityUtils.KEY_THREAD_SUBJECT);
+		forumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
+		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		final ActionBar actionBar = getSupportActionBar();
-		if (TextUtils.isEmpty(mGameName)) {
-			actionBar.setTitle(mForumTitle);
-			actionBar.setSubtitle(mThreadSubject);
-		} else {
-			actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
-			actionBar.setSubtitle(mGameName);
+		if (actionBar != null) {
+			if (TextUtils.isEmpty(gameName)) {
+				actionBar.setTitle(forumTitle);
+				actionBar.setSubtitle(threadSubject);
+			} else {
+				actionBar.setTitle(threadSubject + " - " + forumTitle);
+				actionBar.setSubtitle(gameName);
+			}
 		}
 
 		HelpUtils.showHelpDialog(this, HelpUtils.HELP_THREAD_KEY, HELP_VERSION, R.string.help_thread);
@@ -62,21 +64,21 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				Intent intent = new Intent(this, ForumActivity.class);
-				intent.putExtra(ActivityUtils.KEY_FORUM_ID, mForumId);
-				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, mForumTitle);
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+				intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
+				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
 				return true;
 			case R.id.menu_view:
-				ActivityUtils.linkToBgg(this, "thread/" + mThreadId);
+				ActivityUtils.linkToBgg(this, "thread/" + threadId);
 				return true;
 			case R.id.menu_share:
-				String description = String.format(getString(R.string.share_thread_text), mThreadSubject, mForumTitle,
-					mGameName);
-				String link = ActivityUtils.createBggUri("thread/" + mThreadId).toString();
+				String description = String.format(getString(R.string.share_thread_text), threadSubject, forumTitle,
+					gameName);
+				String link = ActivityUtils.createBggUri("thread/" + threadId).toString();
 				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link,
 					R.string.title_share_game);
 				return true;
@@ -87,12 +89,12 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 	public void onButtonClick(View v) {
 		Intent intent = new Intent(this, ArticleActivity.class);
 		Bundle b = (Bundle) v.getTag();
-		b.putInt(ActivityUtils.KEY_THREAD_ID, mThreadId);
-		b.putString(ActivityUtils.KEY_THREAD_SUBJECT, mThreadSubject);
-		b.putInt(ActivityUtils.KEY_FORUM_ID, mForumId);
-		b.putString(ActivityUtils.KEY_FORUM_TITLE, mForumTitle);
-		b.putInt(ActivityUtils.KEY_GAME_ID, mGameId);
-		b.putString(ActivityUtils.KEY_GAME_NAME, mGameName);
+		b.putInt(ActivityUtils.KEY_THREAD_ID, threadId);
+		b.putString(ActivityUtils.KEY_THREAD_SUBJECT, threadSubject);
+		b.putInt(ActivityUtils.KEY_FORUM_ID, forumId);
+		b.putString(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
+		b.putInt(ActivityUtils.KEY_GAME_ID, gameId);
+		b.putString(ActivityUtils.KEY_GAME_NAME, gameName);
 		intent.putExtras(b);
 		startActivity(intent);
 	}

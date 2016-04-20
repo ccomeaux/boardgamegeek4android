@@ -27,28 +27,25 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
-	private static final String STATE_VIEW_INDEX = "STATE_VIEW_INDEX";
-
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	private boolean isTitleHidden;
-	private int viewIndex;
+	@State int viewIndex;
 
 	@Override
 	@DebugLog
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			viewId = -1;
-			viewIndex = savedInstanceState.getInt(STATE_VIEW_INDEX);
-		} else {
-			viewId = PreferencesUtils.getViewDefaultId(this);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
+		viewId = savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this);
 
 		boolean shortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
@@ -71,8 +68,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	@DebugLog
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_VIEW_INDEX, viewIndex);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -109,12 +106,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(GameSelectedEvent event) {
 		ActivityUtils.launchGame(this, event.getId(), event.getName());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(GameShortcutCreatedEvent event) {
 		Intent intent = ShortcutUtils.createIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		setResult(RESULT_OK, intent);
@@ -123,6 +122,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(CollectionViewRequestedEvent event) {
 		viewId = event.getViewId();
 		viewIndex = findViewIndex(viewId);
@@ -202,13 +202,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	private static class CollectionViewAdapter extends SimpleCursorAdapter {
-		private final LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		public CollectionViewAdapter(Context context, Cursor cursor) {
 			super(context, android.R.layout.simple_spinner_item, cursor, new String[] { CollectionViews._ID,
 				CollectionViews.NAME }, new int[] { 0, android.R.id.text1 }, 0);
 			setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		@Override
@@ -237,7 +237,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		private View createDefaultItem(View convertView, ViewGroup parent, int layout) {
 			View v;
 			if (convertView == null) {
-				v = mInflater.inflate(layout, parent, false);
+				v = inflater.inflate(layout, parent, false);
 			} else {
 				v = convertView;
 			}

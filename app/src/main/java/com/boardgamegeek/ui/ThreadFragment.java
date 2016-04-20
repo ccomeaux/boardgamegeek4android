@@ -28,15 +28,14 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ThreadFragment.ThreadData> {
-	private static final int THREAD_LOADER_ID = 103;
-
-	private ThreadAdapter mThreadAdapter;
-	private int mThreadId;
+	private static final int LOADER_ID = 103;
+	private ThreadAdapter adapter;
+	private int threadId;
 
 	@Override
 	@DebugLog
@@ -44,7 +43,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mThreadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
+		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -68,13 +67,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
-		getLoaderManager().initLoader(THREAD_LOADER_ID, null, this);
+		getLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
 	@DebugLog
 	public Loader<ThreadData> onCreateLoader(int id, Bundle data) {
-		return new ThreadLoader(getActivity(), mThreadId);
+		return new ThreadLoader(getActivity(), threadId);
 	}
 
 	@Override
@@ -84,9 +83,9 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			return;
 		}
 
-		if (mThreadAdapter == null) {
-			mThreadAdapter = new ThreadAdapter(getActivity(), data.list());
-			setListAdapter(mThreadAdapter);
+		if (adapter == null) {
+			adapter = new ThreadAdapter(getActivity(), data.list());
+			setListAdapter(adapter);
 		}
 		initializeTimeBasedUi();
 
@@ -110,26 +109,26 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	@Override
 	@DebugLog
 	protected void updateTimeBasedUi() {
-		if (mThreadAdapter != null) {
-			mThreadAdapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
 	private static class ThreadLoader extends BggLoader<ThreadData> {
-		private final BggService mService;
-		private final int mThreadId;
+		private final BggService bggService;
+		private final int threadId;
 
 		public ThreadLoader(Context context, int threadId) {
 			super(context);
-			mService = Adapter.create();
-			mThreadId = threadId;
+			bggService = Adapter.createForXml();
+			this.threadId = threadId;
 		}
 
 		@Override
 		public ThreadData loadInBackground() {
 			ThreadData forums;
 			try {
-				forums = new ThreadData(mService.thread(mThreadId));
+				forums = new ThreadData(bggService.thread(threadId).execute().body());
 			} catch (Exception e) {
 				forums = new ThreadData(e);
 			}
@@ -138,11 +137,11 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	static class ThreadData extends Data<Article> {
-		private ThreadResponse mResponse;
+		private ThreadResponse response;
 
 		public ThreadData(ThreadResponse response) {
 			super();
-			mResponse = response;
+			this.response = response;
 		}
 
 		public ThreadData(Exception e) {
@@ -151,20 +150,20 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 		@Override
 		protected List<Article> list() {
-			if (mResponse == null) {
+			if (response == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.getArticles();
+			return response.getArticles();
 		}
 	}
 
 	static class ThreadAdapter extends ArrayAdapter<Article> {
-		private final LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		@DebugLog
 		public ThreadAdapter(Activity activity, List<Article> articles) {
-			super(activity, R.layout.row_threadarticle, articles);
-			mInflater = activity.getLayoutInflater();
+			super(activity, R.layout.row_thread_article, articles);
+			inflater = activity.getLayoutInflater();
 		}
 
 		@Override
@@ -172,7 +171,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_threadarticle, parent, false);
+				convertView = inflater.inflate(R.layout.row_thread_article, parent, false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
@@ -186,13 +185,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				return convertView;
 			}
 			if (article != null) {
-				holder.username.setText(article.username);
+				holder.usernameView.setText(article.username);
 				int dateRes = R.string.posted_prefix;
 				if (article.getNumberOfEdits() > 0) {
 					dateRes = R.string.edited_prefix;
 				}
-				holder.editDate.setText(getContext().getString(dateRes, DateTimeUtils.formatForumDate(getContext(), article.editDate())));
-				UIUtils.setTextMaybeHtml(holder.body, article.body);
+				holder.editDateView.setText(getContext().getString(dateRes, DateTimeUtils.formatForumDate(getContext(), article.editDate())));
+				UIUtils.setTextMaybeHtml(holder.bodyView, article.body);
 				Bundle bundle = new Bundle();
 				bundle.putString(ActivityUtils.KEY_USER, article.username);
 				bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postDate());
@@ -200,7 +199,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
 				bundle.putString(ActivityUtils.KEY_BODY, article.body);
 				bundle.putString(ActivityUtils.KEY_LINK, article.link);
-				holder.viewArticle.setTag(bundle);
+				holder.viewButton.setTag(bundle);
 			}
 			return convertView;
 		}
@@ -208,14 +207,14 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	@SuppressWarnings("unused")
 	public static class ViewHolder {
-		@InjectView(R.id.article_username) TextView username;
-		@InjectView(R.id.article_editdate) TextView editDate;
-		@InjectView(R.id.article_body) TextView body;
-		@InjectView(R.id.article_view) View viewArticle;
+		@Bind(R.id.username) TextView usernameView;
+		@Bind(R.id.edit_date) TextView editDateView;
+		@Bind(R.id.body) TextView bodyView;
+		@Bind(R.id.view_button) View viewButton;
 
 		@DebugLog
 		public ViewHolder(View view) {
-			ButterKnife.inject(this, view);
+			ButterKnife.bind(this, view);
 		}
 	}
 }

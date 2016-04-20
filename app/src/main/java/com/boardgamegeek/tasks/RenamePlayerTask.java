@@ -17,10 +17,11 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 /**
@@ -33,8 +34,8 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	private final String oldName;
 	private final String newName;
 
-	public RenamePlayerTask(@NonNull Context context, String oldName, String newName) {
-		this.context = context.getApplicationContext();
+	public RenamePlayerTask(Context context, String oldName, String newName) {
+		this.context = (context == null ? null : context.getApplicationContext());
 		this.oldName = oldName;
 		this.newName = newName;
 	}
@@ -42,6 +43,10 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	@NonNull
 	@Override
 	protected String doInBackground(Void... params) {
+		if (context == null) {
+			return "";
+		}
+
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		updatePlays(batch);
 		updatePlayers(batch);

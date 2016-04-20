@@ -15,29 +15,31 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import hugo.weaving.DebugLog;
+import org.greenrobot.eventbus.Subscribe;
 
-public class GamePlaysActivity extends SimpleSinglePaneActivity  {
-	private static final String KEY_COUNT = "COUNT";
+import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
+
+public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	private int mGameId;
 	private String mGameName;
-	private int mCount = -1;
+	@State int mCount = -1;
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			mCount = savedInstanceState.getInt(KEY_COUNT);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		mGameId = BggContract.Games.getGameId(getIntent().getData());
 		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		if (!TextUtils.isEmpty(mGameName)) {
-			ActionBar bar = getSupportActionBar();
-			bar.setSubtitle(mGameName);
+			ActionBar actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 	}
 
@@ -45,7 +47,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity  {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_COUNT, mCount);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@DebugLog
@@ -79,11 +81,13 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity  {
 	}
 
 	@DebugLog
+	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysCountChangedEvent event) {
 		mCount = event.getCount();
 		supportInvalidateOptionsMenu();

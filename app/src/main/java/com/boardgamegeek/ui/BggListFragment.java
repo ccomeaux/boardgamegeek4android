@@ -24,9 +24,11 @@ import com.squareup.picasso.Picasso;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
+import icepick.Icepick;
+import icepick.State;
 
 /**
  * A {@link android.support.v4.app.ListFragment} with a few extra features:
@@ -35,25 +37,21 @@ import butterknife.OnClick;
  * 3. helper methods for loading thumbnails
  */
 public abstract class BggListFragment extends Fragment {
-	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
-	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
-	private static final String STATE_POSITION = "position";
-	private static final String STATE_TOP = "top";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
 	private Runnable mUpdaterRunnable = null;
-	private int mListViewStatePosition;
-	private int mListViewStateTop;
+	@State int listViewStatePosition;
+	@State int listViewStateTop;
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private ListAdapter mAdapter;
-	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@InjectView(android.R.id.empty) TextView mEmptyView;
-	@InjectView(R.id.progress_container) View mProgressContainer;
-	@InjectView(R.id.list_container) View mListContainer;
-	@InjectView(android.R.id.list) ListView mList;
-	@InjectView(R.id.fab) View mFab;
+	@Bind(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@Bind(android.R.id.empty) TextView mEmptyView;
+	@Bind(R.id.progress_container) View mProgressContainer;
+	@Bind(R.id.list_container) View mListContainer;
+	@Bind(android.R.id.list) ListView mList;
+	@Bind(R.id.fab) View mFab;
 
 	final private Runnable mRequestFocus = new Runnable() {
 		public void run() {
@@ -119,13 +117,7 @@ public abstract class BggListFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (savedInstanceState != null) {
-			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
-			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, LIST_VIEW_STATE_TOP_DEFAULT);
-		} else {
-			mListViewStatePosition = LIST_VIEW_STATE_POSITION_DEFAULT;
-			mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@Override
@@ -148,9 +140,8 @@ public abstract class BggListFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		saveScrollState();
-		outState.putInt(STATE_POSITION, mListViewStatePosition);
-		outState.putInt(STATE_TOP, mListViewStateTop);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	protected boolean padTop() {
@@ -213,15 +204,17 @@ public abstract class BggListFragment extends Fragment {
 	}
 
 	public void setProgressShown(boolean shown) {
-		if (shown) {
-			if (mProgressContainer.getVisibility() != View.VISIBLE) {
-				mProgressContainer.clearAnimation();
-				mProgressContainer.setVisibility(View.VISIBLE);
-			}
-		} else {
-			if (mProgressContainer.getVisibility() != View.GONE) {
-				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-				mProgressContainer.setVisibility(View.GONE);
+		if (mProgressContainer != null) {
+			if (shown) {
+				if (mProgressContainer.getVisibility() != View.VISIBLE) {
+					mProgressContainer.clearAnimation();
+					mProgressContainer.setVisibility(View.VISIBLE);
+				}
+			} else {
+				if (mProgressContainer.getVisibility() != View.GONE) {
+					mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+					mProgressContainer.setVisibility(View.GONE);
+				}
 			}
 		}
 	}
@@ -267,20 +260,15 @@ public abstract class BggListFragment extends Fragment {
 		if (isAdded()) {
 			View v = mList.getChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();
-			mListViewStatePosition = mList.getFirstVisiblePosition();
-			mListViewStateTop = top;
+			listViewStatePosition = mList.getFirstVisiblePosition();
+			listViewStateTop = top;
 		}
 	}
 
 	protected void restoreScrollState() {
-		if (mListViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
-			mList.setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
+		if (listViewStatePosition >= 0 && isAdded()) {
+			mList.setSelectionFromTop(listViewStatePosition, listViewStateTop);
 		}
-	}
-
-	protected void resetScrollState() {
-		mListViewStatePosition = 0;
-		mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
 	}
 
 	protected void loadThumbnail(int imageId, ImageView target) {
@@ -328,7 +316,7 @@ public abstract class BggListFragment extends Fragment {
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		ButterKnife.inject(this, root);
+		ButterKnife.bind(this, root);
 
 		mSwipeRefreshLayout.setEnabled(false);
 

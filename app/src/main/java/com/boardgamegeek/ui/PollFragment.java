@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -11,7 +10,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.view.Display;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,8 +46,8 @@ import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
@@ -70,15 +69,15 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	private int[] mColors;
 	private Snackbar mSnackbar;
 
-	@InjectView((R.id.progress)) View mProgress;
-	@InjectView(R.id.poll_scroll) ScrollView mScrollView;
-	@InjectView(R.id.poll_vote_total) TextView mVoteTotalView;
-	@InjectView(R.id.pie_chart) PieChart mPieChart;
-	@InjectView(R.id.poll_list) LinearLayout mPollList;
-	@InjectView(R.id.poll_key) LinearLayout mKeyList;
-	@InjectView(R.id.poll_key2) LinearLayout mKeyList2;
-	@InjectView(R.id.poll_key_container) View mKeyContainer;
-	@InjectView(R.id.poll_key_divider) View mKeyDivider;
+	@Bind((R.id.progress)) View mProgress;
+	@Bind(R.id.poll_scroll) ScrollView mScrollView;
+	@Bind(R.id.poll_vote_total) TextView mVoteTotalView;
+	@Bind(R.id.pie_chart) PieChart mPieChart;
+	@Bind(R.id.poll_list) LinearLayout mPollList;
+	@Bind(R.id.poll_key) LinearLayout mKeyList;
+	@Bind(R.id.poll_key2) LinearLayout mKeyList2;
+	@Bind(R.id.poll_key_container) View mKeyContainer;
+	@Bind(R.id.poll_key_divider) View mKeyDivider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +92,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		mPieChart.setDrawSliceText(false);
 		mPieChart.setRotationEnabled(false);
@@ -111,11 +110,9 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		super.onViewCreated(view, savedInstanceState);
 
 		// size the graph to be 80% of the screen width
-		Display display = getActivity().getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
+		DisplayMetrics display = this.getResources().getDisplayMetrics();
 		ViewGroup.LayoutParams lp = mPieChart.getLayoutParams();
-		lp.width = (int) (size.x * .8);
+		lp.width = (int) (display.widthPixels * .8);
 		mPieChart.setLayoutParams(lp);
 	}
 

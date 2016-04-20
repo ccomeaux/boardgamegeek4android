@@ -30,20 +30,23 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TaskUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
-	@SuppressWarnings("unused") @InjectView(R.id.backup_location) TextView mFileLocationView;
-	@SuppressWarnings("unused") @InjectView(R.id.backup_types) ViewGroup mFileTypes;
-	@SuppressWarnings("unused") @InjectView(R.id.progress_container) View mProgressContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.progress) ProgressBar mProgressBar;
-	@SuppressWarnings("unused") @InjectView(R.id.progress_detail) TextView mProgressDetail;
-	private ImporterExporterTask mTask;
+	@SuppressWarnings("unused") @Bind(R.id.backup_location) TextView fileLocationView;
+	@SuppressWarnings("unused") @Bind(R.id.backup_types) ViewGroup fileTypesView;
+	@SuppressWarnings("unused") @Bind(R.id.progress_container) View progressContainer;
+	@SuppressWarnings("unused") @Bind(R.id.progress) ProgressBar progressBar;
+	@SuppressWarnings("unused") @Bind(R.id.progress_detail) TextView progressDetailView;
+	private ImporterExporterTask task;
 
 	@DebugLog
 	@Nullable
@@ -51,15 +54,15 @@ public class DataFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_data, container, false);
 
-		ButterKnife.inject(this, root);
+		ButterKnife.bind(this, root);
 
-		mFileLocationView.setText(FileUtils.getExportPath(false).getPath());
+		fileLocationView.setText(FileUtils.getExportPath(false).getPath());
 
-		mTask = new ImporterExporterTask(getActivity(), false);
-		for (Step step : mTask.getSteps()) {
+		task = new ImporterExporterTask(getActivity(), false);
+		for (Step step : task.getSteps()) {
 			TextView textView = new TextView(getActivity());
 			textView.setText(getString(R.string.backup_description, step.getDescription(getActivity()), step.getFileName()));
-			mFileTypes.addView(textView);
+			fileTypesView.addView(textView);
 		}
 
 		return root;
@@ -139,45 +142,49 @@ public class DataFragment extends Fragment {
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ExportFinishedEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ExportFinishedEvent event) {
 		notifyEnd(event.getMessageId());
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ImportFinishedEvent event) {
+	@Subscribe
+	public void onEvent(ImportFinishedEvent event) {
 		notifyEnd(event.getMessageId());
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ExportProgressEvent event) {
-		if (mProgressBar != null) {
-			mProgressBar.setMax(event.getTotalCount());
-			mProgressBar.setProgress(event.getCurrentCount());
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ExportProgressEvent event) {
+		if (progressBar != null) {
+			progressBar.setMax(event.getTotalCount());
+			progressBar.setProgress(event.getCurrentCount());
 		}
-		if (mProgressDetail != null && mTask != null && event.getStepIndex() < mTask.getSteps().size()) {
-			String description = mTask.getSteps().get(event.getStepIndex()).getDescription(getActivity());
-			mProgressDetail.setText(description);
+		if (progressDetailView != null && task != null && event.getStepIndex() < task.getSteps().size()) {
+			String description = task.getSteps().get(event.getStepIndex()).getDescription(getActivity());
+			progressDetailView.setText(description);
 		}
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ImportProgressEvent event) {
-		if (mProgressBar != null) {
-			mProgressBar.setMax(event.getTotalCount());
-			mProgressBar.setProgress(event.getCurrentCount());
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(ImportProgressEvent event) {
+		if (progressBar != null) {
+			progressBar.setMax(event.getTotalCount());
+			progressBar.setProgress(event.getCurrentCount());
 		}
 	}
 
 	private void initProgressBar() {
-		if (mProgressContainer != null) {
-			mProgressContainer.setVisibility(View.VISIBLE);
+		if (progressContainer != null) {
+			progressContainer.setVisibility(View.VISIBLE);
 		}
-		if (mProgressBar != null) {
-			mProgressBar.setMax(1);
-			mProgressBar.setProgress(0);
+		if (progressBar != null) {
+			progressBar.setMax(1);
+			progressBar.setProgress(0);
 		}
 	}
 
@@ -187,7 +194,7 @@ public class DataFragment extends Fragment {
 			Snackbar.make(v, messageId, Snackbar.LENGTH_LONG).show();
 		}
 
-		mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		mProgressContainer.setVisibility(View.GONE);
+		progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		progressContainer.setVisibility(View.GONE);
 	}
 }

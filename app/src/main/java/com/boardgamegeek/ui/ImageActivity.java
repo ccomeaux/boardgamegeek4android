@@ -16,26 +16,27 @@ import com.boardgamegeek.util.PaletteTransformation;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class ImageActivity extends AppCompatActivity {
-	@InjectView(R.id.image) ImageView imageView;
-	@InjectView(R.id.progress) View progressBar;
+	@Bind(R.id.image) ImageView imageView;
+	@Bind(R.id.progress) View progressBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_image);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		String imageUrl = getIntent().getStringExtra(ActivityUtils.KEY_IMAGE_URL);
 
 		Picasso.with(this)
 			.load(HttpUtils.ensureScheme(imageUrl))
 			.error(R.drawable.thumbnail_image_empty)
-			.fit().centerInside()
+			.fit()
+			.centerInside()
 			.transform(PaletteTransformation.instance())
 			.into(imageView, new Callback.EmptyCallback() {
 				@Override

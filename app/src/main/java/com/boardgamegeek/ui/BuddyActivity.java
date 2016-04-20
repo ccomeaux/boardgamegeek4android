@@ -21,7 +21,10 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hugo.weaving.DebugLog;
 
 public class BuddyActivity extends SimpleSinglePaneActivity {
@@ -66,7 +69,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.add_username) {
-			EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newUsernameInstance(R.string.title_edit_player, null, new EditTextDialogListener() {
+			EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newUsernameInstance(R.string.title_add_username, null, new EditTextDialogListener() {
 				@Override
 				public void onFinishEditDialog(String inputText) {
 					if (!TextUtils.isEmpty(inputText)) {
@@ -83,12 +86,14 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(BuddyNicknameUpdateTask.Event event) {
 		showSnackbar(event.getMessage());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(AddUsernameToPlayerTask.Event event) {
 		if (event.isSuccessful()) {
 			username = event.getUsername();
@@ -102,6 +107,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(@NonNull RenamePlayerTask.Event event) {
 		name = event.getPlayerName();
 		getIntent().putExtra(ActivityUtils.KEY_PLAYER_NAME, name);

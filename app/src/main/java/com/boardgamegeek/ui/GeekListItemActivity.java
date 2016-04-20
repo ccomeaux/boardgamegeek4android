@@ -31,9 +31,11 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 		mUrl = intent.getStringExtra(ActivityUtils.KEY_OBJECT_URL);
 		mIsBoardGame = intent.getBooleanExtra(ActivityUtils.KEY_IS_BOARD_GAME, false);
 
-		final ActionBar actionBar = getSupportActionBar();
 		if (!TextUtils.isEmpty(mTitle)) {
-			actionBar.setTitle(mTitle);
+			final ActionBar actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setTitle(mTitle);
+			}
 		}
 	}
 

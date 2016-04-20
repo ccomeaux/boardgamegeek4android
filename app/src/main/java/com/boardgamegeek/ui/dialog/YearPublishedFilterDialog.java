@@ -6,6 +6,7 @@ import android.view.View;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.YearPublishedFilterer;
+import com.boardgamegeek.util.StringUtils;
 
 public class YearPublishedFilterDialog extends SliderFilterDialog {
 	@Override
@@ -51,20 +52,25 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected String intervalText(int number) {
-		return String.valueOf(number);
+	protected String getPinText(String value) {
+		int year = StringUtils.parseInt(value, YearPublishedFilterer.MIN_RANGE);
+		if (year == YearPublishedFilterer.MIN_RANGE) {
+			return "<" + value;
+		}
+		if (year == YearPublishedFilterer.MAX_RANGE) {
+			return value + "+";
+		}
+		return super.getPinText(value);
 	}
 
 	@Override
-	protected String intervalText(int min, int max) {
-		String text = String.valueOf(min);
-		if (min == YearPublishedFilterer.MIN_RANGE) {
-			text = "<" + text;
+	protected int getPinValue(String text) {
+		if (text.startsWith("<")) {
+			return YearPublishedFilterer.MIN_RANGE;
 		}
-		text += " - " + String.valueOf(max);
-		if (max == YearPublishedFilterer.MAX_RANGE) {
-			text += "+";
+		if (text.endsWith("+")) {
+			return YearPublishedFilterer.MAX_RANGE;
 		}
-		return text;
+		return super.getPinValue(text);
 	}
 }

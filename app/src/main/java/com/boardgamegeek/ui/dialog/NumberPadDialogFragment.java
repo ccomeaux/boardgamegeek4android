@@ -18,8 +18,8 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 
@@ -29,9 +29,9 @@ public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_COLOR = "COLOR";
 	private static final int MAX_LENGTH = 10;
 
-	@SuppressWarnings("unused") @InjectView(R.id.title) TextView titleView;
-	@SuppressWarnings("unused") @InjectView(R.id.output) TextView outputView;
-	@SuppressWarnings("unused") @InjectView(R.id.num_delete) View deleteView;
+	@Bind(R.id.title) TextView titleView;
+	@Bind(R.id.output) TextView outputView;
+	@Bind(R.id.num_delete) View deleteView;
 	private OnClickListener clickListener;
 	private double minValue = 0.0;
 	private double maxValue = Double.MAX_VALUE;
@@ -98,7 +98,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.dialog_number_pad, container, false);
-		ButterKnife.inject(this, view);
+		ButterKnife.bind(this, view);
 
 		Bundle args = getArguments();
 		if (args != null) {
@@ -146,7 +146,6 @@ public class NumberPadDialogFragment extends DialogFragment {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.num_done)
 	void onDoneClick(@SuppressWarnings("UnusedParameters") View v) {
 		if (clickListener != null) {
@@ -155,7 +154,6 @@ public class NumberPadDialogFragment extends DialogFragment {
 		dismiss();
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.num_delete)
 	void onDeleteClick(View v) {
 		final CharSequence text = outputView.getText();
@@ -175,7 +173,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 		}
 	}
 
-	@SuppressWarnings({ "unused", "SameReturnValue" })
+	@SuppressWarnings("SameReturnValue")
 	@OnLongClick(R.id.num_delete)
 	boolean onDeleteLongClick() {
 		outputView.setText("");

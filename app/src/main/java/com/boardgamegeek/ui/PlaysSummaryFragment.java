@@ -37,8 +37,8 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
@@ -48,22 +48,22 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int LOCATIONS_TOKEN = 4;
 	private static final int COLORS_TOKEN = 5;
 
-	@SuppressWarnings("unused") @InjectView(R.id.plays_container) LinearLayout playsContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.card_footer_plays) TextView playsFooter;
-	@SuppressWarnings("unused") @InjectView(R.id.players_container) LinearLayout playersContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.card_footer_players) TextView playersFooter;
-	@SuppressWarnings("unused") @InjectView(R.id.locations_container) LinearLayout locationsContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.card_footer_locations) TextView locationsFooter;
-	@SuppressWarnings("unused") @InjectView(R.id.card_colors) View colorsCard;
-	@SuppressWarnings("unused") @InjectView(R.id.colors_hint) View colorsHint;
-	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.h_index) TextView hIndexView;
+	@SuppressWarnings("unused") @Bind(R.id.plays_container) LinearLayout playsContainer;
+	@SuppressWarnings("unused") @Bind(R.id.card_footer_plays) TextView playsFooter;
+	@SuppressWarnings("unused") @Bind(R.id.players_container) LinearLayout playersContainer;
+	@SuppressWarnings("unused") @Bind(R.id.card_footer_players) TextView playersFooter;
+	@SuppressWarnings("unused") @Bind(R.id.locations_container) LinearLayout locationsContainer;
+	@SuppressWarnings("unused") @Bind(R.id.card_footer_locations) TextView locationsFooter;
+	@SuppressWarnings("unused") @Bind(R.id.card_colors) View colorsCard;
+	@SuppressWarnings("unused") @Bind(R.id.colors_hint) View colorsHint;
+	@SuppressWarnings("unused") @Bind(R.id.color_container) LinearLayout colorContainer;
+	@SuppressWarnings("unused") @Bind(R.id.h_index) TextView hIndexView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 		colorsCard.setVisibility(TextUtils.isEmpty(AccountUtils.getUsername(getActivity())) ? View.GONE : View.VISIBLE);
 		//TODO ensure this is bold
 		hIndexView.setText(getString(R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
@@ -205,7 +205,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		while (cursor.moveToNext()) {
 			Player player = Player.fromCursor(cursor);
 
-			if (accountUsername.equals(player.getUsername())) {
+			if (accountUsername != null && accountUsername.equals(player.getUsername())) {
 				continue;
 			}
 

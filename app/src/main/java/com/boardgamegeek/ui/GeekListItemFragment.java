@@ -23,177 +23,178 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 import com.boardgamegeek.util.XmlConverter;
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 
 public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	private Handler mHandler = new Handler();
-	private Runnable mUpdaterRunnable = null;
-	private String mOrder;
-	private String mTitle;
-	private String mType;
-	private int mImageId;
-	private String mUsername;
-	private int mThumbs;
-	private long mPostedDate;
-	private long mEditedDate;
-	private String mBody;
-	private Palette.Swatch mSwatch;
+	private Handler timeHintUpdateHandler = new Handler();
+	private Runnable timeHintUpdateRunnable = null;
+	private String order;
+	private String title;
+	private String type;
+	private int imageId;
+	private String username;
+	private int numberOfThumbs;
+	private long postedDate;
+	private long editedDate;
+	private String body;
+	private Palette.Swatch swatch;
 
-	private ViewGroup mRootView;
-	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View mHeroContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.header_container) View mHeaderContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.order) TextView mOrderView;
-	@SuppressWarnings("unused") @InjectView(R.id.title) TextView mTitleView;
-	@SuppressWarnings("unused") @InjectView(R.id.type) TextView mTypeView;
-	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView mImageView;
-	@SuppressWarnings("unused") @InjectView(R.id.author_container) View mAuthorContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.username) TextView mUsernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView mThumbsView;
-	@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView mPostedDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView mEditedDateView;
-	@SuppressWarnings("unused") @InjectView(R.id.body) WebView mBodyView;
-	@SuppressWarnings("unused") @InjectViews({
+	private ViewGroup rootView;
+	@SuppressWarnings("unused") @Bind(R.id.hero_container) View heroContainer;
+	@SuppressWarnings("unused") @Bind(R.id.header_container) View headerContainer;
+	@SuppressWarnings("unused") @Bind(R.id.order) TextView orderView;
+	@SuppressWarnings("unused") @Bind(R.id.title) TextView titleView;
+	@SuppressWarnings("unused") @Bind(R.id.type) TextView typeView;
+	@SuppressWarnings("unused") @Bind(R.id.image) ImageView imageView;
+	@SuppressWarnings("unused") @Bind(R.id.author_container) View authorContainer;
+	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
+	@SuppressWarnings("unused") @Bind(R.id.thumbs) TextView thumbsView;
+	@SuppressWarnings("unused") @Bind(R.id.posted_date) TextView postedDateView;
+	@SuppressWarnings("unused") @Bind(R.id.edited_date) TextView editedDateView;
+	@SuppressWarnings("unused") @Bind(R.id.body) WebView bodyView;
+	@SuppressWarnings("unused") @Bind({
 		R.id.username,
 		R.id.thumbs,
 		R.id.posted_date,
 		R.id.edited_date
-	}) List<TextView> mColorizedTextViews;
+	}) List<TextView> colorizedTextViews;
 
-	private final ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+	private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
-			ImageUtils.resizeImagePerAspectRatio(mImageView, mRootView.getHeight() / 3, mHeroContainer);
+			ImageUtils.resizeImagePerAspectRatio(imageView, rootView.getHeight() / 3, heroContainer);
 		}
 	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mHandler = new Handler();
+		timeHintUpdateHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mOrder = intent.getStringExtra(ActivityUtils.KEY_ORDER);
-		mTitle = intent.getStringExtra(ActivityUtils.KEY_NAME);
-		mType = intent.getStringExtra(ActivityUtils.KEY_TYPE);
-		mImageId = intent.getIntExtra(ActivityUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
-		mUsername = intent.getStringExtra(ActivityUtils.KEY_USERNAME);
-		mThumbs = intent.getIntExtra(ActivityUtils.KEY_THUMBS, 0);
-		mPostedDate = intent.getLongExtra(ActivityUtils.KEY_POSTED_DATE, 0);
-		mEditedDate = intent.getLongExtra(ActivityUtils.KEY_EDITED_DATE, 0);
-		mBody = intent.getStringExtra(ActivityUtils.KEY_BODY);
+		order = intent.getStringExtra(ActivityUtils.KEY_ORDER);
+		title = intent.getStringExtra(ActivityUtils.KEY_NAME);
+		type = intent.getStringExtra(ActivityUtils.KEY_TYPE);
+		imageId = intent.getIntExtra(ActivityUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
+		username = intent.getStringExtra(ActivityUtils.KEY_USERNAME);
+		numberOfThumbs = intent.getIntExtra(ActivityUtils.KEY_THUMBS, 0);
+		postedDate = intent.getLongExtra(ActivityUtils.KEY_POSTED_DATE, 0);
+		editedDate = intent.getLongExtra(ActivityUtils.KEY_EDITED_DATE, 0);
+		body = intent.getStringExtra(ActivityUtils.KEY_BODY);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
-		ButterKnife.inject(this, mRootView);
+		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
+		ButterKnife.bind(this, rootView);
 
 		applySwatch();
-		ScrimUtils.applyDefaultScrim(mHeaderContainer);
-		ViewTreeObserver vto = mRootView.getViewTreeObserver();
+		ScrimUtils.applyDefaultScrim(headerContainer);
+		ViewTreeObserver vto = rootView.getViewTreeObserver();
 		if (vto.isAlive()) {
-			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+			vto.addOnGlobalLayoutListener(globalLayoutListener);
 		}
 
-		mOrderView.setText(mOrder);
-		mTitleView.setText(mTitle);
-		mTypeView.setText(mType);
-		ImageUtils.safelyLoadImage(mImageView, mImageId, this);
-		mUsernameView.setText(mUsername);
-		mThumbsView.setText(getString(R.string.thumbs_suffix, mThumbs));
-		mPostedDateView.setTag(mPostedDate);
-		mEditedDateView.setTag(mEditedDate);
-		String content = new XmlConverter().toHtml(mBody);
-		UIUtils.setWebViewText(mBodyView, content);
+		orderView.setText(order);
+		titleView.setText(title);
+		typeView.setText(type);
+		ImageUtils.safelyLoadImage(imageView, imageId, this);
+		usernameView.setText(username);
+		thumbsView.setText(getString(R.string.thumbs_suffix, numberOfThumbs));
+		postedDateView.setTag(postedDate);
+		editedDateView.setTag(editedDate);
+		String content = new XmlConverter().toHtml(body);
+		UIUtils.setWebViewText(bodyView, content);
 
 		updateTimeBasedUi();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
-		mUpdaterRunnable = new Runnable() {
+		timeHintUpdateRunnable = new Runnable() {
 			@Override
 			public void run() {
 				updateTimeBasedUi();
-				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 			}
 		};
-		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 
-		return mRootView;
+		return rootView;
 	}
 
 	private void updateTimeBasedUi() {
 		if (!isAdded()) {
 			return;
 		}
-		if (mPostedDateView != null) {
-			mPostedDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), mPostedDate)));
+		if (postedDateView != null) {
+			postedDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), postedDate)));
 		}
-		if (mEditedDateView != null) {
-			mEditedDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), mEditedDate)));
+		if (editedDateView != null) {
+			editedDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), editedDate)));
 		}
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (mUpdaterRunnable != null) {
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.reset(this);
+		ButterKnife.unbind(this);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (mRootView == null) {
+		if (rootView == null) {
 			return;
 		}
 
-		ViewTreeObserver vto = mRootView.getViewTreeObserver();
+		ViewTreeObserver vto = rootView.getViewTreeObserver();
 		if (vto.isAlive()) {
-			if (VersionUtils.hasJellyBean()) {
-				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				vto.removeOnGlobalLayoutListener(globalLayoutListener);
 			} else {
 				//noinspection deprecation
-				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+				vto.removeGlobalOnLayoutListener(globalLayoutListener);
 			}
 		}
 	}
 
 	@Override
 	public void onPaletteGenerated(Palette palette) {
-		mSwatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
+		if (!isAdded()) {
+			return;
+		}
+		swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
 		applySwatch();
 	}
 
 	private void applySwatch() {
-		if (mAuthorContainer != null && mSwatch != null) {
-			mAuthorContainer.setBackgroundColor(mSwatch.getRgb());
-			ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, mSwatch);
+		if (authorContainer != null && swatch != null) {
+			authorContainer.setBackgroundColor(swatch.getRgb());
+			ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		}
 	}
 }

@@ -1,25 +1,37 @@
 package com.boardgamegeek.model;
 
+import android.text.Html;
 import android.text.TextUtils;
 
-import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.StringUtils;
+import java.io.IOException;
 
-public class PlayPostResponse {
-	@SuppressWarnings("unused") private String html;
-	@SuppressWarnings("unused") private String numplays;
-	@SuppressWarnings("unused") private String playid;
-	@SuppressWarnings("unused") private String error;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
-	private Exception mException;
+public abstract class PlayPostResponse {
+	protected static final String ERROR_DIV = "<div class='messagebox error'>";
+	protected String error;
+	protected Exception exception;
 
-	public PlayPostResponse(String errorMessage) {
-		this.error = errorMessage;
+	public PlayPostResponse(OkHttpClient client, Request request) {
+		try {
+			Response response = client.newCall(request).execute();
+			if (response.isSuccessful()) {
+				final String content = response.body().string();
+				if (content.startsWith(ERROR_DIV)) {
+					error = Html.fromHtml(content).toString().trim();
+				}
+				saveContent(content);
+			} else {
+				error = "Unsuccessful post: " + response.code();
+			}
+		} catch (IOException e) {
+			exception = e;
+		}
 	}
 
-	public PlayPostResponse(Exception e) {
-		mException = e;
-	}
+	protected abstract void saveContent(String content);
 
 	public boolean hasError() {
 		return !TextUtils.isEmpty(getErrorMessage());
@@ -29,37 +41,26 @@ public class PlayPostResponse {
 	 * Indicates the user attempted to modify a play without being authenticated.
 	 */
 	public boolean hasAuthError() {
-		return "You must login to save plays".equals(error);
+		return "You must login to save plays".equalsIgnoreCase(error) ||
+			"You can't delete this play".equalsIgnoreCase(error);
 	}
 
 	/**
 	 * Indicates the user attempted to modify a play that doesn't exist.
 	 */
 	public boolean hasInvalidIdError() {
-		if ("You are not permitted to edit this play.".equals(error)) {
+		if ("You are not permitted to edit this play.".equalsIgnoreCase(error)) {
 			return true;
-		} else if ("Play does not exist.".equals(error)) {
+		} else if ("Play does not exist.".equalsIgnoreCase(error)) {
 			return true;
 		}
 		return false;
 	}
 
 	public String getErrorMessage() {
-		if (mException != null) {
-			return mException.getMessage();
+		if (exception != null) {
+			return exception.getMessage();
 		}
 		return error;
-	}
-
-	public int getPlayCount() {
-		if (hasError()) {
-			return 0;
-		} else {
-			return StringUtils.parseInt(numplays);
-		}
-	}
-
-	public int getPlayId() {
-		return StringUtils.parseInt(playid, BggContract.INVALID_ID);
 	}
 }

@@ -45,20 +45,4 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 		}
 		return new InitialValues(min, max, includeUnranked);
 	}
-
-	@Override
-	protected String intervalText(int number) {
-		if (number >= GeekRankingFilterer.MAX_RANGE) {
-			return String.valueOf(GeekRankingFilterer.MAX_RANGE) + "+";
-		}
-		return String.valueOf(number);
-	}
-
-	@Override
-	protected String intervalText(int min, int max) {
-		if (min >= GeekRankingFilterer.MAX_RANGE) {
-			return String.valueOf(GeekRankingFilterer.MAX_RANGE) + "+";
-		}
-		return String.valueOf(min) + " - " + String.valueOf(max);
-	}
 }

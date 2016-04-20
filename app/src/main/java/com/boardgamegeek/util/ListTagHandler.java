@@ -25,9 +25,9 @@ public class ListTagHandler implements Html.TagHandler {
 	private static final int LIST_ITEM_INDENTATION_IN_PIXELS = INDENTATION_IN_PIXELS * 2;
 	private static final BulletSpan BULLET_SPAN = new BulletSpan(INDENTATION_IN_PIXELS);
 	// Keeps track of lists (ol, ul). On bottom of Stack is the outermost list and on top of Stack is the most nested
-	private final Stack<String> mLists = new Stack<>();
+	private final Stack<String> lists = new Stack<>();
 	// Tracks indexes of ordered lists so that after a nested list ends we can continue with correct index of outer list
-	private final Stack<Integer> mNextOrderedIndex = new Stack<>();
+	private final Stack<Integer> nextOrderedIndex = new Stack<>();
 
 	private static void startListItem(Editable text, Object type) {
 		int length = text.length();
@@ -61,49 +61,49 @@ public class ListTagHandler implements Html.TagHandler {
 	public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
 		if (tagIsTypeOf(tag, UL)) {
 			if (opening) {
-				mLists.push(tag);
+				lists.push(tag);
 			} else {
-				mLists.pop();
+				lists.pop();
 			}
 		} else if (tagIsTypeOf(tag, OL)) {
 			if (opening) {
-				mLists.push(tag);
-				mNextOrderedIndex.push(1);
+				lists.push(tag);
+				nextOrderedIndex.push(1);
 			} else {
-				mLists.pop();
-				mNextOrderedIndex.pop();
+				lists.pop();
+				nextOrderedIndex.pop();
 			}
 		} else if (tagIsTypeOf(tag, LI)) {
-			String currentListTag = mLists.peek();
+			String currentListTag = lists.peek();
 			ensureTrailingNewLine(output);
 			if (opening) {
 				if (tagIsTypeOf(currentListTag, UL)) {
 					startListItem(output, new Ul());
 				} else if (tagIsTypeOf(currentListTag, OL)) {
 					startListItem(output, new Ol());
-					output.append(mNextOrderedIndex.peek().toString()).append(". ");
-					mNextOrderedIndex.push(mNextOrderedIndex.pop() + 1);
+					output.append(nextOrderedIndex.peek().toString()).append(". ");
+					nextOrderedIndex.push(nextOrderedIndex.pop() + 1);
 				}
 			} else {
 				if (tagIsTypeOf(currentListTag, UL)) {
 					// Nested BulletSpans increases distance between bullet and text, so we must prevent it.
 					int margin = INDENTATION_IN_PIXELS;
-					if (mLists.size() > 1) {
+					if (lists.size() > 1) {
 						margin = INDENTATION_IN_PIXELS - BULLET_SPAN.getLeadingMargin(true);
-						if (mLists.size() > 2) {
+						if (lists.size() > 2) {
 							// This gets more complicated when we add a LeadingMarginSpan into the same line:
 							// we have also counter it's effect to BulletSpan
-							margin -= (mLists.size() - 2) * LIST_ITEM_INDENTATION_IN_PIXELS;
+							margin -= (lists.size() - 2) * LIST_ITEM_INDENTATION_IN_PIXELS;
 						}
 					}
 					BulletSpan newBullet = new BulletSpan(margin);
 					endListItem(output, Ul.class, new LeadingMarginSpan.Standard(LIST_ITEM_INDENTATION_IN_PIXELS
-						* (mLists.size() - 1)), newBullet);
+						* (lists.size() - 1)), newBullet);
 				} else if (tagIsTypeOf(currentListTag, OL)) {
-					int margin = LIST_ITEM_INDENTATION_IN_PIXELS * (mLists.size() - 1);
-					if (mLists.size() > 2) {
+					int margin = LIST_ITEM_INDENTATION_IN_PIXELS * (lists.size() - 1);
+					if (lists.size() > 2) {
 						// Same as in ordered lists: counter the effect of nested Spans
-						margin -= (mLists.size() - 2) * LIST_ITEM_INDENTATION_IN_PIXELS;
+						margin -= (lists.size() - 2) * LIST_ITEM_INDENTATION_IN_PIXELS;
 					}
 					endListItem(output, Ol.class, new LeadingMarginSpan.Standard(margin));
 				}

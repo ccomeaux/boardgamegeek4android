@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- Do not change these values - they are stored in the database -->
-	<string name="collection_sort_type_unknown">0</string>
-	<string name="collection_sort_type_default">1</string>
+	<!--<string name="collection_sort_type_unknown">0</string>-->
+	<!--<string name="collection_sort_type_default">1</string>-->
 	<string name="collection_sort_type_collection_name">1</string>
 	<string name="collection_sort_type_geek_rating">2</string>
 	<string name="collection_sort_type_play_count_asc">3</string>

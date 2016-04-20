@@ -23,8 +23,6 @@
 	<string name="pref_log_player_rating">Rating</string>
 	<string name="pref_log_player_new">New</string>
 	<string name="pref_log_player_win">Win</string>
-	<string name="pref_log_off">Add it when you need it</string>
-	<string name="pref_log_on">Always show</string>
 	<string name="pref_stats">Stats</string>
 	<string name="pref_log_stats_incomplete">Include incomplete plays</string>
 	<string name="pref_log_stats_expansions">Include board game expansions</string>
@@ -97,16 +95,6 @@
 	<string name="library_DragSortListView_isOpenSource">true</string>
 	<string name="library_DragSortListView_repositoryLink">https://github.com/bauerca/drag-sort-listview</string>
 
-	<string name="define_int_EventBus"></string>
-	<string name="library_EventBus_author">green robot</string>
-	<string name="library_EventBus_authorWebsite">http://greenrobot.de/</string>
-	<string name="library_EventBus_libraryName">EventBus</string>
-	<string name="library_EventBus_libraryDescription">Android optimized event bus that simplifies communication between Activities, Fragments, Threads, Services, etc. Less code, better quality.</string>
-	<string name="library_EventBus_libraryVersion">2.4.0</string>
-	<string name="library_EventBus_licenseId">apache_2_0</string>
-	<string name="library_EventBus_isOpenSource">true</string>
-	<string name="library_EventBus_repositoryLink">https://github.com/greenrobot/EventBus</string>
-
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
@@ -155,28 +143,6 @@
 	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
 	<string name="library_AndroidIcons_isOpenSource">true</string>
 	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
-
-	<string name="define_int_mpandroidchart"></string>
-	<string name="library_mpandroidchart_author">PhilJay</string>
-	<string name="library_mpandroidchart_authorWebsite">https://github.com/PhilJay/MPAndroidChart</string>
-	<string name="library_mpandroidchart_libraryName">MPAndroidChart</string>
-	<string name="library_mpandroidchart_libraryDescription">MPAndroidChart is a powerful and easy to use chart library for Android, supporting line-, bar-, scatter-, candlestick-, bubble-, pie- and radarcharts (spider web), as well as scaling, dragging (panning), selecting and animations.</string>
-	<string name="library_mpandroidchart_libraryWebsite">https://github.com/PhilJay/MPAndroidChart</string>
-	<string name="library_mpandroidchart_libraryVersion">v2.0.8</string>
-	<string name="library_mpandroidchart_licenseId">apache_2_0</string>
-	<string name="library_mpandroidchart_isOpenSource">true</string>
-	<string name="library_mpandroidchart_repositoryLink">https://github.com/PhilJay/MPAndroidChart</string>
-
-	<string name="define_int_androidrandomcolor"></string>
-	<string name="library_androidrandomcolor_author">lzyzsd</string>
-	<string name="library_androidrandomcolor_authorWebsite">https://github.com/lzyzsd</string>
-	<string name="library_androidrandomcolor_libraryName">Android Random Color</string>
-	<string name="library_androidrandomcolor_libraryDescription">android random color generator library</string>
-	<string name="library_androidrandomcolor_libraryWebsite">>https://github.com/lzyzsd/AndroidRandomColor</string>
-	<string name="library_androidrandomcolor_libraryVersion">1.0.0</string>
-	<string name="library_androidrandomcolor_licenseId">mit</string>
-	<string name="library_androidrandomcolor_isOpenSource">true</string>
-	<string name="library_androidrandomcolor_repositoryLink">https://github.com/lzyzsd/AndroidRandomColor</string>
 
 	<string name="define_license_CCBYSA_4_0"></string>
 	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>

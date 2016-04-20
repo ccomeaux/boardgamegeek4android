@@ -5,6 +5,7 @@ import android.content.Context;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.SuggestedAgeFilterer;
+import com.boardgamegeek.util.StringUtils;
 
 public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	@Override
@@ -52,20 +53,19 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected String intervalText(int number) {
-		String text = String.valueOf(number);
-		if (number == SuggestedAgeFilterer.MAX_RANGE) {
-			text += "+";
+	protected String getPinText(String value) {
+		int year = StringUtils.parseInt(value, SuggestedAgeFilterer.MIN_RANGE);
+		if (year == SuggestedAgeFilterer.MAX_RANGE) {
+			return value + "+";
 		}
-		return text;
+		return super.getPinText(value);
 	}
 
 	@Override
-	protected String intervalText(int min, int max) {
-		String text = String.valueOf(min) + " - " + String.valueOf(max);
-		if (max == SuggestedAgeFilterer.MAX_RANGE) {
-			text += "+";
+	protected int getPinValue(String text) {
+		if (text.endsWith("+")) {
+			return SuggestedAgeFilterer.MAX_RANGE;
 		}
-		return text;
+		return super.getPinValue(text);
 	}
 }

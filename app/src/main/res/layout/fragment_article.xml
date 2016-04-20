@@ -18,7 +18,7 @@
 		android:paddingTop="@dimen/material_margin_vertical">
 
 		<TextView
-			android:id="@+id/article_username"
+			android:id="@+id/username"
 			style="@style/Text.Primary.Inverse"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -26,21 +26,21 @@
 			tools:text="ccomeaux"/>
 
 		<TextView
-			android:id="@+id/article_postdate"
+			android:id="@+id/post_date"
 			style="@style/Text.Secondary.Inverse"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			tools:text="Posted Yesterday"/>
 
 		<TextView
-			android:id="@+id/article_editdate"
+			android:id="@+id/edit_date"
 			style="@style/Text.Secondary.Inverse"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			tools:text="Edited Today"/>
 
 		<TextView
-			android:id="@+id/article_editcount"
+			android:id="@+id/edit_count"
 			style="@style/Text.Secondary.Inverse"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
 	<FrameLayout style="@style/WebViewContainer">
 
 		<WebView
-			android:id="@+id/article_body"
+			android:id="@+id/body"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"/>
 	</FrameLayout>

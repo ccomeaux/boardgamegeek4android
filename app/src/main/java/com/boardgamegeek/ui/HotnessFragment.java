@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Pair;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -28,22 +30,22 @@ import com.boardgamegeek.ui.loader.Data;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class HotnessFragment extends BggListFragment implements
-	LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
+import retrofit2.Call;
+import retrofit2.Response;
+
+public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 1;
 
-	private BoardGameAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
-	private MenuItem mLogPlayMenuItem;
-	private MenuItem mLogPlayQuickMenuItem;
-	private MenuItem mBggLinkMenuItem;
+	private BoardGameAdapter adapter;
+	private LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
+	private MenuItem logPlayMenuItem;
+	private MenuItem logPlayQuickMenuItem;
+	private MenuItem bggLinkMenuItem;
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -55,7 +57,10 @@ public class HotnessFragment extends BggListFragment implements
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(LOADER_ID, null, this);
-		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+
+		final ListView listView = getListView();
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		listView.setMultiChoiceModeListener(this);
 	}
 
 	@Override
@@ -74,11 +79,11 @@ public class HotnessFragment extends BggListFragment implements
 			return;
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new BoardGameAdapter(getActivity(), data.list());
-			setListAdapter(mAdapter);
+		if (adapter == null) {
+			adapter = new BoardGameAdapter(getActivity(), data.list());
+			setListAdapter(adapter);
 		}
-		mAdapter.notifyDataSetChanged();
+		adapter.notifyDataSetChanged();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -98,23 +103,25 @@ public class HotnessFragment extends BggListFragment implements
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		HotGame game = mAdapter.getItem(position);
+		HotGame game = adapter.getItem(position);
 		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
 	private static class HotnessLoader extends BggLoader<HotnessData> {
-		private BggService mService;
+		private BggService bggService;
 
 		public HotnessLoader(Context context) {
 			super(context);
-			mService = Adapter.create();
+			bggService = Adapter.createForXml();
 		}
 
 		@Override
 		public HotnessData loadInBackground() {
 			HotnessData games;
 			try {
-				games = new HotnessData(mService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
+				Call<HotnessResponse> call = bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME);
+				Response<HotnessResponse> response = call.execute();
+				games = new HotnessData(response.body());
 			} catch (Exception e) {
 				games = new HotnessData(e);
 			}
@@ -123,10 +130,10 @@ public class HotnessFragment extends BggListFragment implements
 	}
 
 	static class HotnessData extends Data<HotGame> {
-		private HotnessResponse mResponse;
+		private HotnessResponse response;
 
 		public HotnessData(HotnessResponse response) {
-			mResponse = response;
+			this.response = response;
 		}
 
 		public HotnessData(Exception e) {
@@ -135,26 +142,26 @@ public class HotnessFragment extends BggListFragment implements
 
 		@Override
 		public List<HotGame> list() {
-			if (mResponse == null || mResponse.games == null) {
+			if (response == null || response.games == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.games;
+			return response.games;
 		}
 	}
 
 	private class BoardGameAdapter extends ArrayAdapter<HotGame> {
-		private LayoutInflater mInflater;
+		private LayoutInflater inflater;
 
 		public BoardGameAdapter(Activity activity, List<HotGame> games) {
 			super(activity, R.layout.row_hotness, games);
-			mInflater = activity.getLayoutInflater();
+			inflater = activity.getLayoutInflater();
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_hotness, parent, false);
+				convertView = inflater.inflate(R.layout.row_hotness, parent, false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
@@ -191,10 +198,10 @@ public class HotnessFragment extends BggListFragment implements
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
-		mLogPlayMenuItem = menu.findItem(R.id.menu_log_play);
-		mLogPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
-		mBggLinkMenuItem = menu.findItem(R.id.menu_link);
-		mSelectedPositions.clear();
+		logPlayMenuItem = menu.findItem(R.id.menu_log_play);
+		logPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
+		bggLinkMenuItem = menu.findItem(R.id.menu_link);
+		selectedPositions.clear();
 		return true;
 	}
 
@@ -210,25 +217,25 @@ public class HotnessFragment extends BggListFragment implements
 	@Override
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 		if (checked) {
-			mSelectedPositions.add(position);
+			selectedPositions.add(position);
 		} else {
-			mSelectedPositions.remove(position);
+			selectedPositions.remove(position);
 		}
 
-		int count = mSelectedPositions.size();
+		int count = selectedPositions.size();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 
-		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		mLogPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
-		mBggLinkMenuItem.setVisible(count == 1);
+		logPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		logPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		bggLinkMenuItem.setVisible(count == 1);
 	}
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+		if (selectedPositions == null || !selectedPositions.iterator().hasNext()) {
 			return false;
 		}
-		HotGame game = mAdapter.getItem(mSelectedPositions.iterator().next());
+		HotGame game = adapter.getItem(selectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -236,21 +243,21 @@ public class HotnessFragment extends BggListFragment implements
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, selectedPositions.size());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-				for (int position : mSelectedPositions) {
-					HotGame g = mAdapter.getItem(position);
+				for (int position : selectedPositions) {
+					HotGame g = adapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
-				if (mSelectedPositions.size() == 1) {
+				if (selectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
-					for (int position : mSelectedPositions) {
-						HotGame g = mAdapter.getItem(position);
+					List<Pair<Integer, String>> games = new ArrayList<>(selectedPositions.size());
+					for (int position : selectedPositions) {
+						HotGame g = adapter.getItem(position);
 						games.add(new Pair<>(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);

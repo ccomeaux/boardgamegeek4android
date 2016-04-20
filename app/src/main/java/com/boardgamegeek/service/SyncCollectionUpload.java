@@ -12,29 +12,29 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.CollectionCommentConverter;
-import com.boardgamegeek.io.CollectionRatingConverter;
-import com.boardgamegeek.io.PostConverter;
 import com.boardgamegeek.model.CollectionCommentPostResponse;
 import com.boardgamegeek.model.CollectionPostResponse;
 import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.ui.CollectionActivity;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import hugo.weaving.DebugLog;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Request.Builder;
 import timber.log.Timber;
 
 public class SyncCollectionUpload extends SyncUploadTask {
+	public static final String GEEK_COLLECTION_URL = "https://www.boardgamegeek.com/geekcollection.php";
 	private ContentResolver resolver;
 	private SyncResult syncResult;
 	private ContentValues contentValues;
@@ -141,16 +141,16 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		if (collectionId != BggContract.INVALID_ID) {
 			contentValues = new ContentValues();
 			if (ratingTimestamp > 0) {
-				Map<String, String> form = createRatingForm(gameId, collectionId, rating);
-				CollectionRatingPostResponse response = postForm(form, new CollectionRatingConverter());
+				FormBody form = createRatingForm(gameId, collectionId, rating);
+				CollectionRatingPostResponse response = postRatingForm(form);
 				if (processResponseForError(response)) {
 					return;
 				}
 				createRatingContentValues(response.getRating());
 			}
 			if (commentTimestamp > 0) {
-				Map<String, String> form = createCommentForm(gameId, collectionId, comment);
-				CollectionCommentPostResponse response = postCommentForm(form, new CollectionCommentConverter());
+				FormBody form = createCommentForm(gameId, collectionId, comment);
+				CollectionCommentPostResponse response = postCommentForm(form);
 				if (processResponseForError(response)) {
 					return;
 				}
@@ -165,51 +165,48 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		}
 	}
 
-	private Map<String, String> createRatingForm(int gameId, int collectionId, double rating) {
-		Map<String, String> form = createForm(gameId, collectionId);
-		form.put("fieldname", "rating");
-		form.put("rating", String.valueOf(rating));
-		return form;
+	private FormBody createRatingForm(int gameId, int collectionId, double rating) {
+		return createForm(gameId, collectionId)
+			.add("fieldname", "rating")
+			.add("rating", String.valueOf(rating))
+			.build();
 	}
 
-	private Map<String, String> createCommentForm(int gameId, int collectionId, String comment) {
-		Map<String, String> form = createForm(gameId, collectionId);
-		form.put("fieldname", "comment");
-		form.put("value", comment);
-		return form;
+	private FormBody createCommentForm(int gameId, int collectionId, String comment) {
+		return createForm(gameId, collectionId)
+			.add("fieldname", "comment")
+			.add("value", comment)
+			.build();
 	}
 
 	@NonNull
-	private Map<String, String> createForm(int gameId, int collectionId) {
-		Map<String, String> form = new HashMap<>();
-		form.put("ajax", "1");
-		form.put("action", "savedata");
-		form.put("objecttype", "thing");
-		form.put("objectid", String.valueOf(gameId));
-		form.put("collid", String.valueOf(collectionId));
-		return form;
+	private FormBody.Builder createForm(int gameId, int collectionId) {
+		return new FormBody.Builder()
+			.add("B1", "Cancel")
+			.add("ajax", "1")
+			.add("action", "savedata")
+			.add("objecttype", "thing")
+			.add("objectid", String.valueOf(gameId))
+			.add("collid", String.valueOf(collectionId));
 	}
 
-	private CollectionRatingPostResponse postForm(Map<String, String> form, PostConverter converter) {
-		CollectionRatingPostResponse response;
-		try {
-			BggService service = Adapter.createForPost(context, converter);
-			response = service.geekCollectionRating(form);
-		} catch (Exception e) {
-			response = new CollectionRatingPostResponse(e);
-		}
-		return response;
+	private CollectionRatingPostResponse postRatingForm(FormBody form) {
+		OkHttpClient client = HttpUtils.getHttpClientWithAuth(context);
+		Request request = new Builder()
+			.url(GEEK_COLLECTION_URL)
+			.post(form)
+			.build();
+		return new CollectionRatingPostResponse(client, request);
 	}
 
-	private CollectionCommentPostResponse postCommentForm(Map<String, String> form, PostConverter converter) {
-		CollectionCommentPostResponse response;
-		try {
-			BggService service = Adapter.createForPost(context, converter);
-			response = service.geekCollectionComment(form);
-		} catch (Exception e) {
-			response = new CollectionCommentPostResponse(e);
-		}
-		return response;
+
+	private CollectionCommentPostResponse postCommentForm(FormBody form) {
+		OkHttpClient client = HttpUtils.getHttpClientWithAuth(context);
+		Request request = new Builder()
+			.url(GEEK_COLLECTION_URL)
+			.post(form)
+			.build();
+		return new CollectionCommentPostResponse(client, request);
 	}
 
 	private void notifySuccess(String collectionName) {

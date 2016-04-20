@@ -28,7 +28,7 @@
 			<ImageView
 				android:id="@+id/icon_ratings"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_stars"/>
+				android:src="@drawable/ic_rating"/>
 
 			<LinearLayout
 				android:id="@+id/rating_container"
@@ -97,7 +97,7 @@
 			<ImageView
 				android:id="@+id/icon_forums"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_forum"/>
+				android:src="@drawable/ic_forums"/>
 
 			<TextView
 				style="@style/CardRowContent"
@@ -119,7 +119,7 @@
 			<ImageView
 				android:id="@+id/icon_weight"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_anchor"/>
+				android:src="@drawable/ic_weight"/>
 
 			<LinearLayout
 				android:id="@+id/weight_container"
@@ -178,7 +178,7 @@
 			<ImageView
 				android:id="@+id/icon_users"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_users"/>
+				android:src="@drawable/ic_users"/>
 
 			<LinearLayout
 				style="@style/CardRowContent"

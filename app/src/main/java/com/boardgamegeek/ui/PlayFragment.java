@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +28,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlayDeletedEvent;
+import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.model.Play;
@@ -50,17 +51,21 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final String KEY_NOTIFIED = "NOTIFIED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
@@ -71,31 +76,31 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String mThumbnailUrl;
 	private String mImageUrl;
 
-	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@InjectView(R.id.progress) View mProgressContainer;
-	@InjectView(R.id.list_container) View mListContainer;
-	@InjectView(R.id.empty) TextView mEmpty;
-	@InjectView(R.id.thumbnail) ImageView mThumbnailView;
-	@InjectView(R.id.header) TextView mGameName;
-	@InjectView(R.id.play_date) TextView mDate;
-	@InjectView(R.id.play_quantity) TextView mQuantity;
-	@InjectView(R.id.length_root) View mLengthRoot;
-	@InjectView(R.id.play_length) TextView mLength;
-	@InjectView(R.id.timer_root) View mTimerRoot;
-	@InjectView(R.id.timer) Chronometer mTimer;
-	@InjectView(R.id.location_root) View mLocationRoot;
-	@InjectView(R.id.play_location) TextView mLocation;
-	@InjectView(R.id.play_incomplete) View mIncomplete;
-	@InjectView(R.id.play_no_win_stats) View mNoWinStats;
-	@InjectView(R.id.play_comments) TextView mComments;
-	@InjectView(R.id.play_comments_label) View mCommentsLabel;
-	@InjectView(R.id.play_players_label) View mPlayersLabel;
-	@InjectView(R.id.updated) TextView mUpdated;
-	@InjectView(R.id.play_id) TextView mPlayIdView;
-	@InjectView(R.id.play_saved) TextView mSavedTimeStamp;
-	@InjectView(R.id.play_unsynced_message) TextView mUnsyncedMessage;
+	@Bind(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@Bind(R.id.progress) View mProgressContainer;
+	@Bind(R.id.list_container) View mListContainer;
+	@Bind(R.id.empty) TextView mEmpty;
+	@Bind(R.id.thumbnail) ImageView mThumbnailView;
+	@Bind(R.id.header) TextView mGameName;
+	@Bind(R.id.play_date) TextView mDate;
+	@Bind(R.id.play_quantity) TextView mQuantity;
+	@Bind(R.id.length_root) View mLengthRoot;
+	@Bind(R.id.play_length) TextView mLength;
+	@Bind(R.id.timer_root) View mTimerRoot;
+	@Bind(R.id.timer) Chronometer mTimer;
+	@Bind(R.id.location_root) View mLocationRoot;
+	@Bind(R.id.play_location) TextView mLocation;
+	@Bind(R.id.play_incomplete) View mIncomplete;
+	@Bind(R.id.play_no_win_stats) View mNoWinStats;
+	@Bind(R.id.play_comments) TextView mComments;
+	@Bind(R.id.play_comments_label) View mCommentsLabel;
+	@Bind(R.id.play_players_label) View mPlayersLabel;
+	@Bind(R.id.updated) TextView mUpdated;
+	@Bind(R.id.play_id) TextView mPlayIdView;
+	@Bind(R.id.play_saved) TextView mSavedTimeStamp;
+	@Bind(R.id.play_unsynced_message) TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
-	private boolean mNotified;
+	@State boolean hasBeenNotified;
 
 	final private OnScrollListener mOnScrollListener = new OnScrollListener() {
 		@Override
@@ -111,48 +116,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	};
 
-	public interface Callbacks {
-		void onNameChanged(String mGameName);
-
-		void onSent();
-
-		void onDeleted();
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onNameChanged(String gameName) {
-		}
-
-		@Override
-		public void onSent() {
-		}
-
-		@Override
-		public void onDeleted() {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		mHandler = new Handler();
-		if (savedInstanceState != null) {
-			mNotified = savedInstanceState.getBoolean(KEY_NOTIFIED);
-		}
 
 		setHasOptionsMenu(true);
 
@@ -181,7 +149,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		playersView.addHeaderView(View.inflate(getActivity(), R.layout.header_play, null), null, false);
 		playersView.addFooterView(View.inflate(getActivity(), R.layout.footer_play, null), null, false);
 
-		ButterKnife.inject(this, rootView);
+		ButterKnife.bind(this, rootView);
 
 		if (mSwipeRefreshLayout != null) {
 			mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -206,7 +174,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -214,7 +182,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		super.onResume();
 		if (mPlay != null && mPlay.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
-			mNotified = true;
+			hasBeenNotified = true;
 		}
 		if (mUpdaterRunnable != null) {
 			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
@@ -239,13 +207,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_NOTIFIED, mNotified);
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -257,12 +219,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_send).setVisible(mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		MenuItem menuItem = menu.findItem(R.id.menu_discard);
-		if (menuItem != null &&
-			mPlay.hasBeenSynced() &&
-			mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-			menuItem.setVisible(true);
-		} else {
-			menuItem.setVisible(false);
+		if (menuItem != null) {
+			menuItem.setVisible(mPlay.hasBeenSynced() && mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		}
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.syncStatus == Play.SYNC_STATUS_SYNCED);
 
@@ -285,7 +243,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
-				mCallbacks.onSent();
+				EventBus.getDefault().post(new PlaySentEvent());
 				return true;
 			case R.id.menu_delete: {
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
@@ -296,7 +254,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 							}
 							mPlay.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
-							mCallbacks.onDeleted();
+							EventBus.getDefault().post(new PlayDeletedEvent());
 						}
 					}).show();
 				return true;
@@ -308,7 +266,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
-					mPlay.toLongDescription(getActivity()), R.string.share_play_title);
+					mPlay.toLongDescriptionWithPlayers(getActivity()), R.string.share_play_title);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -321,7 +279,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		if (event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) {
 			mSyncing = true;
 			updateRefreshStatus();
@@ -329,7 +288,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@DebugLog
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		mSyncing = false;
 		updateRefreshStatus();
 	}
@@ -347,12 +307,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@OnClick(R.id.header_container)
-	void viewGame(View v) {
+	void viewGame() {
 		ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
 	}
 
 	@OnClick(R.id.timer_end)
-	void onClick(View v) {
+	void onTimerClick() {
 		ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 	}
 
@@ -437,13 +397,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		mPlay = PlayBuilder.fromCursor(cursor);
 		mPlay.setPlayers(players);
 
-		mCallbacks.onNameChanged(mPlay.gameName);
-
 		mGameName.setText(mPlay.gameName);
 
 		mDate.setText(mPlay.getDateForDisplay(getActivity()));
 
-		mQuantity.setText(String.valueOf(mPlay.quantity) + " " + getString(R.string.times));
+		mQuantity.setText(getString(R.string.times_suffix, mPlay.quantity));
 		mQuantity.setVisibility((mPlay.quantity == 1) ? View.GONE : View.VISIBLE);
 
 		if (mPlay.length > 0) {
@@ -539,7 +497,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private void maybeShowNotification() {
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
-		} else if (mNotified) {
+		} else if (hasBeenNotified) {
 			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
 		}
 	}

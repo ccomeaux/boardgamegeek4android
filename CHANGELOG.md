@@ -1,7 +1,35 @@
 Release Notes
 =============
 
-Coming Soon
+Coming Soon...
+--------------
+ * Spiffy up the collection filter dialogs
+
+Version 5.2.5
+-------------
+ * Really fix the disappearing collection
+ * Bug fixes
+
+Version 5.2.4
+-------------
+ * Fix for disappearing collection
+ * Bug fixes
+
+Version 5.2.3
+-------------
+ * Bug fixes
+
+Version 5.2.2
+-------------
+ * Improve H-Index calculations
+ * Bug fixes
+
+Version 5.2.1
+-------------
+ * Fix play logging issues
+ * Fix crash when filtering by subtype
+
+Version 5.2
 -----------
  * Rate your games by clicking on the rating in the game's collection page
  * Pull to refresh pretty much everywhere there used to be a menu option

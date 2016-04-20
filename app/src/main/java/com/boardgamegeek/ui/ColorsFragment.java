@@ -12,10 +12,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ListView;
 
 import com.boardgamegeek.R;
@@ -30,8 +32,6 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -73,7 +73,10 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		gameId = Games.getGameId(uri);
 
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
-		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+
+		final ListView listView = getListView();
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		listView.setMultiChoiceModeListener(this);
 	}
 
 	@DebugLog

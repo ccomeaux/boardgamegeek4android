@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -23,30 +22,29 @@ import com.boardgamegeek.ui.loader.PaginatedData;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
+import icepick.Icepick;
+import icepick.State;
+
 public class CommentsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
-	private static final int COMMENTS_LOADER_ID = 0;
-	private static final String STATE_BY_RATING = "by_rating";
-
-	private CommentsAdapter mCommentsAdapter;
-	private int mGameId;
-	private boolean mByRating = false;
+	private static final int LOADER_ID = 0;
+	private CommentsAdapter adapter;
+	private int gameId;
+	@State boolean isSortedByRating = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = Games.getGameId(intent.getData());
-		mByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
-
-		if (savedInstanceState != null) {
-			mByRating = savedInstanceState.getBoolean(STATE_BY_RATING);
-		}
+		gameId = Games.getGameId(intent.getData());
+		isSortedByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
 	}
 
 	@Override
@@ -66,13 +64,13 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	@Override
 	public void onResume() {
 		super.onResume();
-		getLoaderManager().initLoader(COMMENTS_LOADER_ID, null, this);
+		getLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(STATE_BY_RATING, mByRating);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -87,7 +85,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	public void loadMoreResults() {
 		if (isAdded()) {
-			Loader<List<Comment>> loader = getLoaderManager().getLoader(COMMENTS_LOADER_ID);
+			Loader<List<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
 			if (loader != null) {
 				loader.forceLoad();
 			}
@@ -108,7 +106,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	@Override
 	public Loader<PaginatedData<Comment>> onCreateLoader(int id, Bundle data) {
-		return new CommentsLoader(getActivity(), mGameId, mByRating);
+		return new CommentsLoader(getActivity(), gameId, isSortedByRating);
 	}
 
 	@Override
@@ -117,12 +115,13 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 			return;
 		}
 
-		if (mCommentsAdapter == null) {
-			mCommentsAdapter = new CommentsAdapter(getActivity(), R.layout.row_comment, data);
-			setListAdapter(mCommentsAdapter);
+		if (adapter == null) {
+			adapter = new CommentsAdapter(getActivity(), data);
+			setListAdapter(adapter);
 		} else {
-			mCommentsAdapter.update(data);
+			adapter.update(data);
 		}
+		restoreScrollState();
 	}
 
 	@Override
@@ -141,22 +140,22 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	private CommentsLoader getLoader() {
 		if (isAdded()) {
-			Loader<PaginatedData<Comment>> loader = getLoaderManager().getLoader(COMMENTS_LOADER_ID);
+			Loader<PaginatedData<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
 			return (CommentsLoader) loader;
 		}
 		return null;
 	}
 
 	private static class CommentsLoader extends PaginatedLoader<Comment> {
-		BggService mService;
-		private int mGameId;
-		private boolean mByRating;
+		final BggService bggService;
+		private final int gameId;
+		private final boolean isSortedByRating;
 
-		public CommentsLoader(Context context, int gameId, boolean byRating) {
+		public CommentsLoader(Context context, int gameId, boolean isSortedByRating) {
 			super(context);
-			mService = Adapter.create();
-			mGameId = gameId;
-			mByRating = byRating;
+			bggService = Adapter.createForXml();
+			this.gameId = gameId;
+			this.isSortedByRating = isSortedByRating;
 		}
 
 		@Override
@@ -165,10 +164,10 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 			CommentData data;
 			try {
 				int page = getNextPage();
-				if (mByRating) {
-					data = new CommentData(mService.thingWithRatings(mGameId, page), page);
+				if (isSortedByRating) {
+					data = new CommentData(bggService.thingWithRatings(gameId, page).execute().body(), page);
 				} else {
-					data = new CommentData(mService.thingWithComments(mGameId, page), page);
+					data = new CommentData(bggService.thingWithComments(gameId, page).execute().body(), page);
 				}
 			} catch (Exception e) {
 				data = new CommentData(e);
@@ -189,8 +188,8 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	}
 
 	private class CommentsAdapter extends PaginatedArrayAdapter<Comment> {
-		public CommentsAdapter(Context context, int resource, PaginatedData<Comment> data) {
-			super(context, resource, data);
+		public CommentsAdapter(Context context, PaginatedData<Comment> data) {
+			super(context, R.layout.row_comment, data);
 		}
 
 		@Override
@@ -206,14 +205,14 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	private static class CommentRowViewBinder {
 		private static class ViewHolder {
-			TextView username;
-			TextView rating;
-			TextView comment;
+			final TextView usernameView;
+			final TextView ratingView;
+			final TextView commentView;
 
 			public ViewHolder(View view) {
-				username = (TextView) view.findViewById(R.id.username);
-				rating = (TextView) view.findViewById(R.id.rating);
-				comment = (TextView) view.findViewById(R.id.comment);
+				usernameView = (TextView) view.findViewById(R.id.username);
+				ratingView = (TextView) view.findViewById(R.id.rating);
+				commentView = (TextView) view.findViewById(R.id.comment);
 			}
 		}
 
@@ -227,15 +226,10 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 				rootView.setTag(holder);
 			}
 
-			holder.username.setText(comment.username);
-			holder.rating.setText(comment.getRatingText());
-			ColorUtils.setViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
-			if (TextUtils.isEmpty(comment.value)) {
-				holder.comment.setVisibility(View.GONE);
-			} else {
-				holder.comment.setVisibility(View.VISIBLE);
-				holder.comment.setText(comment.value);
-			}
+			holder.usernameView.setText(comment.username);
+			holder.ratingView.setText(comment.getRatingText());
+			ColorUtils.setViewBackground(holder.ratingView, ColorUtils.getRatingColor(comment.getRating()));
+			PresentationUtils.setTextOrHide(holder.commentView, comment.value);
 		}
 	}
 }

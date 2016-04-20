@@ -69,14 +69,17 @@ import com.boardgamegeek.util.UIUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -133,19 +136,19 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private final List<String> mUsernames = new ArrayList<>();
 	private final List<String> mNames = new ArrayList<>();
 
-	@InjectView(R.id.header) TextView mHeaderView;
-	@InjectView(R.id.log_play_date) TextView mDateButton;
-	@InjectView(R.id.log_play_quantity) EditText mQuantityView;
-	@InjectView(R.id.log_play_length) EditText mLengthView;
-	@InjectView(R.id.log_play_location) AutoCompleteTextView mLocationView;
-	@InjectView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
-	@InjectView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
-	@InjectView(R.id.timer) Chronometer mTimer;
-	@InjectView(R.id.timer_toggle) ImageView mTimerToggle;
-	@InjectView(R.id.log_play_comments) EditText mCommentsView;
-	@InjectView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
-	@InjectView(R.id.log_play_players_label) TextView mPlayerLabel;
-	@InjectView(R.id.fab) FloatingActionButton mFab;
+	@Bind(R.id.header) TextView mHeaderView;
+	@Bind(R.id.log_play_date) TextView mDateButton;
+	@Bind(R.id.log_play_quantity) EditText mQuantityView;
+	@Bind(R.id.log_play_length) EditText mLengthView;
+	@Bind(R.id.log_play_location) AutoCompleteTextView mLocationView;
+	@Bind(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
+	@Bind(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
+	@Bind(R.id.timer) Chronometer mTimer;
+	@Bind(R.id.timer_toggle) ImageView mTimerToggle;
+	@Bind(R.id.log_play_comments) EditText mCommentsView;
+	@Bind(R.id.log_play_players_header) LinearLayout mPlayerHeader;
+	@Bind(R.id.log_play_players_label) TextView mPlayerLabel;
+	@Bind(R.id.fab) FloatingActionButton mFab;
 	private DragSortListView mPlayerList;
 	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
@@ -348,7 +351,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@Override
 	protected void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@DebugLog
@@ -431,7 +434,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	}
 
 	@DebugLog
-	public void onEventMainThread(ColorAssignmentCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ColorAssignmentCompleteEvent event) {
 		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
 			bindUiPlayers();
@@ -447,7 +451,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
 		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
 
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
@@ -527,10 +531,10 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		if (mPlay.hasStarted()) {
 			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_action_timer_off);
+			mTimerToggle.setImageResource(R.drawable.ic_timer_off);
 		} else if (DateUtils.isToday(mPlay.getDateInMillis() + mPlay.length * 60 * 1000)) {
 			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_action_timer);
+			mTimerToggle.setImageResource(R.drawable.ic_timer);
 		} else {
 			mTimerToggle.setEnabled(false);
 		}
@@ -910,7 +914,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			cursor = getContentResolver().query(Plays.buildPlayersByUniqueNameUri(),
 				new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
 					PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				String username = cursor.getString(1);
 				String name = cursor.getString(2);
 				if (!containsPlayer(username, name)) {
