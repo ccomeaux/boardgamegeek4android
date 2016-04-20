@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 
+import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.crashlytics.android.Crashlytics;
@@ -42,6 +43,7 @@ public class BggApplication extends Application {
 		EventBus.builder()
 			.logNoSubscriberMessages(BuildConfig.DEBUG)
 			.throwSubscriberException(BuildConfig.DEBUG)
+			.addIndex(new BggEventBusIndex())
 			.installDefaultEventBus();
 
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
