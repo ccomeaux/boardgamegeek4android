@@ -16,6 +16,9 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hugo.weaving.DebugLog;
 
 public class PlaysActivity extends SimpleSinglePaneActivity {
@@ -50,12 +53,14 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysCountChangedEvent event) {
 		playCount = event.getCount();
 		supportInvalidateOptionsMenu();
@@ -63,6 +68,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(PlaysFilterChangedEvent event) {
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -76,6 +82,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysSortChangedEvent event) {
 		sortName = event.getDescription();
 		supportInvalidateOptionsMenu();

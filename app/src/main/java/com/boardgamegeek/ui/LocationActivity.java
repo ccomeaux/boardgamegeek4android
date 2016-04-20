@@ -22,7 +22,10 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hugo.weaving.DebugLog;
 
 public class LocationActivity extends SimpleSinglePaneActivity {
@@ -92,12 +95,14 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(@NonNull PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(@NonNull PlaysCountChangedEvent event) {
 		playCount = event.getCount();
 		supportInvalidateOptionsMenu();
@@ -105,6 +110,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(@NonNull RenameLocationTask.Event event) {
 		locationName = event.getLocationName();
 		getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, locationName);

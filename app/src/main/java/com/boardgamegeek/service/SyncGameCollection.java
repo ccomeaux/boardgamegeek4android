@@ -59,7 +59,7 @@ public class SyncGameCollection extends UpdateTask {
 
 	private List<CollectionItem> request(Context context, @NonNull Account account) {
 		// Only one of these requests will return results
-		BggService service = Adapter.createWithAuth(context);
+		BggService service = Adapter.createForXmlWithAuth(context);
 
 		ArrayMap<String, String> options = new ArrayMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");

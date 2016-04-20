@@ -180,7 +180,7 @@ public class GeekListFragment extends BggListFragment implements
 
 		public GeekListLoader(Context context, int geekListId) {
 			super(context);
-			service = Adapter.create();
+			service = Adapter.createForXml();
 			this.geekListId = geekListId;
 		}
 
@@ -188,7 +188,7 @@ public class GeekListFragment extends BggListFragment implements
 		public GeekListData loadInBackground() {
 			GeekListData geeklistData;
 			try {
-				geeklistData = new GeekListData(service.geekList(geekListId));
+				geeklistData = new GeekListData(service.geekList(geekListId).execute().body());
 			} catch (Exception e) {
 				geeklistData = new GeekListData(e);
 			}

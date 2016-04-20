@@ -18,11 +18,12 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.tasks.ColorAssignerTask.Results;
 import com.boardgamegeek.util.ResolverUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 

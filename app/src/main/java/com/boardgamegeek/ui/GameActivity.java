@@ -29,6 +29,9 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 
@@ -129,7 +132,8 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(GameInfoChangedEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
@@ -161,13 +165,15 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		updateRefreshStatus(event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION);
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
-	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		updateRefreshStatus(false);
 	}
 

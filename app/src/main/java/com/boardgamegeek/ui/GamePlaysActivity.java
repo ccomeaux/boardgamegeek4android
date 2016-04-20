@@ -15,6 +15,8 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -79,11 +81,13 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	}
 
 	@DebugLog
+	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysCountChangedEvent event) {
 		mCount = event.getCount();
 		supportInvalidateOptionsMenu();

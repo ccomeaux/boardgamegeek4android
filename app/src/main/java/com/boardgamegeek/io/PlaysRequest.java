@@ -2,6 +2,10 @@ package com.boardgamegeek.io;
 
 import com.boardgamegeek.model.PlaysResponse;
 
+import retrofit2.Call;
+import retrofit2.Response;
+import timber.log.Timber;
+
 public class PlaysRequest {
 	private static final int TYPE_ALL = 0;
 	public static final int TYPE_MIN = 1;
@@ -30,12 +34,24 @@ public class PlaysRequest {
 	}
 
 	public PlaysResponse execute() {
+		Call<PlaysResponse> call;
 		if (type == PlaysRequest.TYPE_MIN) {
-			return bggService.playsByMinDate(username, date, page);
+			call = bggService.playsByMinDate(username, date, page);
 		} else if (type == PlaysRequest.TYPE_MAX) {
-			return bggService.playsByMaxDate(username, date, page);
+			call = bggService.playsByMaxDate(username, date, page);
 		} else {
-			return bggService.plays(username, page);
+			call = bggService.plays(username, page);
 		}
+		try {
+			Response<PlaysResponse> response = call.execute();
+			if (response.isSuccessful()) {
+				return response.body();
+			} else {
+				Timber.w("Unsuccessful plays fetch with code: %s", response.code());
+			}
+		} catch (Exception e) {
+			Timber.w(e, "Unsuccessful plays fetch");
+		}
+		return null;
 	}
 }

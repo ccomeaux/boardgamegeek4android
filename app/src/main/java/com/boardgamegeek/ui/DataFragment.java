@@ -30,10 +30,13 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TaskUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
@@ -139,19 +142,22 @@ public class DataFragment extends Fragment {
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ExportFinishedEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ExportFinishedEvent event) {
 		notifyEnd(event.getMessageId());
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ImportFinishedEvent event) {
+	@Subscribe
+	public void onEvent(ImportFinishedEvent event) {
 		notifyEnd(event.getMessageId());
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ExportProgressEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ExportProgressEvent event) {
 		if (progressBar != null) {
 			progressBar.setMax(event.getTotalCount());
 			progressBar.setProgress(event.getCurrentCount());
@@ -164,7 +170,8 @@ public class DataFragment extends Fragment {
 
 	@DebugLog
 	@SuppressWarnings("unused")
-	public void onEventMainThread(ImportProgressEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(ImportProgressEvent event) {
 		if (progressBar != null) {
 			progressBar.setMax(event.getTotalCount());
 			progressBar.setProgress(event.getCurrentCount());

@@ -65,13 +65,14 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;

@@ -7,14 +7,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlayerSelectedEvent;
+import com.boardgamegeek.events.PlayersCountChangedEvent;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import icepick.Icepick;
 import icepick.State;
 
-public class PlayersActivity extends SimpleSinglePaneActivity implements PlayersFragment.Callbacks {
+public class PlayersActivity extends SimpleSinglePaneActivity {
 	@State int playerCount = -1;
 
 	@Override
@@ -73,15 +77,14 @@ public class PlayersActivity extends SimpleSinglePaneActivity implements Players
 		return R.string.title_players;
 	}
 
-	@Override
-	public boolean onPlayerSelected(String name, String username) {
-		ActivityUtils.startBuddyActivity(this, username, name);
-		return true;
+	@Subscribe
+	public void onEvent(PlayerSelectedEvent event) {
+		ActivityUtils.startBuddyActivity(this, event.getUsername(), event.getName());
 	}
 
-	@Override
-	public void onPlayerCountChanged(int count) {
-		playerCount = count;
+	@Subscribe(sticky = true)
+	public void onEvent(PlayersCountChangedEvent event) {
+		playerCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 }

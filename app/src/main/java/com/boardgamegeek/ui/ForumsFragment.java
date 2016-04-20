@@ -37,11 +37,11 @@ import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
-	private static final int FORUMS_LOADER_ID = 0;
+	private static final int LOADER_ID = 0;
 
-	private int mGameId;
-	private String mGameName;
-	private ForumsAdapter mForumsAdapter;
+	private int gameId;
+	private String gameName;
+	private ForumsAdapter adapter;
 
 	@Override
 	@DebugLog
@@ -50,8 +50,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		Uri uri = intent.getData();
-		mGameId = Games.getGameId(uri);
-		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = Games.getGameId(uri);
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 	}
 
 	@Override
@@ -65,19 +65,19 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(FORUMS_LOADER_ID, null, this);
+		getLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
 	@DebugLog
 	protected boolean padTop() {
-		return (mGameId != BggContract.INVALID_ID);
+		return (gameId != BggContract.INVALID_ID);
 	}
 
 	@Override
 	@DebugLog
 	public Loader<ForumsData> onCreateLoader(int id, Bundle data) {
-		return new ForumsLoader(getActivity(), mGameId);
+		return new ForumsLoader(getActivity(), gameId);
 	}
 
 	@Override
@@ -87,9 +87,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			return;
 		}
 
-		if (mForumsAdapter == null) {
-			mForumsAdapter = new ForumsAdapter(getActivity(), data.list());
-			setListAdapter(mForumsAdapter);
+		if (adapter == null) {
+			adapter = new ForumsAdapter(getActivity(), data.list());
+			setListAdapter(adapter);
 		}
 		initializeTimeBasedUi();
 
@@ -113,28 +113,28 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	@Override
 	@DebugLog
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		if (mForumsAdapter.getItemViewType(position) == ForumsAdapter.ITEM_VIEW_TYPE_FORUM) {
+		if (adapter.getItemViewType(position) == ForumsAdapter.ITEM_VIEW_TYPE_FORUM) {
 			ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
 			if (holder != null) {
 				Intent intent = new Intent(getActivity(), ForumActivity.class);
 				intent.putExtra(ActivityUtils.KEY_FORUM_ID, holder.forumId);
-				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, holder.forumTitle.getText());
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, holder.forumTitleView.getText());
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				startActivity(intent);
 			}
 		}
 	}
 
 	private static class ForumsLoader extends BggLoader<ForumsData> {
-		private final BggService mService;
-		private final int mGameId;
+		private final BggService bggService;
+		private final int gameId;
 
 		@DebugLog
 		public ForumsLoader(Context context, int gameId) {
 			super(context);
-			mService = Adapter.create();
-			mGameId = gameId;
+			bggService = Adapter.createForXml();
+			this.gameId = gameId;
 		}
 
 		@Override
@@ -142,10 +142,10 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public ForumsData loadInBackground() {
 			ForumsData forums;
 			try {
-				if (mGameId == BggContract.INVALID_ID) {
-					forums = new ForumsData(mService.forumList(BggService.FORUM_TYPE_REGION, BggService.FORUM_REGION_BOARDGAME));
+				if (gameId == BggContract.INVALID_ID) {
+					forums = new ForumsData(bggService.forumList(BggService.FORUM_TYPE_REGION, BggService.FORUM_REGION_BOARDGAME).execute().body());
 				} else {
-					forums = new ForumsData(mService.forumList(BggService.FORUM_TYPE_THING, mGameId));
+					forums = new ForumsData(bggService.forumList(BggService.FORUM_TYPE_THING, gameId).execute().body());
 				}
 			} catch (Exception e) {
 				forums = new ForumsData(e);
@@ -155,10 +155,10 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	static class ForumsData extends Data<Forum> {
-		private ForumListResponse mResponse;
+		private ForumListResponse response;
 
 		public ForumsData(ForumListResponse response) {
-			mResponse = response;
+			this.response = response;
 		}
 
 		public ForumsData(Exception e) {
@@ -168,34 +168,33 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		@Override
 		@DebugLog
 		public List<Forum> list() {
-			if (mResponse == null) {
+			if (response == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.getForums();
+			return response.getForums();
 		}
 	}
 
 	@Override
 	@DebugLog
 	protected void updateTimeBasedUi() {
-		if (mForumsAdapter != null) {
-			mForumsAdapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
 	public static class ForumsAdapter extends ArrayAdapter<Forum> {
 		public static final int ITEM_VIEW_TYPE_FORUM = 0;
 		public static final int ITEM_VIEW_TYPE_HEADER = 1;
-
-		private final LayoutInflater mInflater;
-		private final Resources mResources;
-		private final NumberFormat mFormat = NumberFormat.getInstance();
+		private static final NumberFormat FORMAT = NumberFormat.getInstance();
+		private final LayoutInflater inflater;
+		private final Resources resources;
 
 		@DebugLog
 		public ForumsAdapter(Activity activity, List<Forum> forums) {
 			super(activity, R.layout.row_forum, forums);
-			mInflater = activity.getLayoutInflater();
-			mResources = activity.getResources();
+			inflater = activity.getLayoutInflater();
+			resources = activity.getResources();
 		}
 
 		@Override
@@ -212,7 +211,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			if (type == ITEM_VIEW_TYPE_FORUM) {
 				ForumViewHolder holder;
 				if (convertView == null) {
-					convertView = mInflater.inflate(R.layout.row_forum, parent, false);
+					convertView = inflater.inflate(R.layout.row_forum, parent, false);
 					holder = new ForumViewHolder(convertView);
 					convertView.setTag(holder);
 				} else {
@@ -221,17 +220,17 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 				if (forum != null) {
 					holder.forumId = forum.id;
-					holder.forumTitle.setText(forum.title);
-					holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads,
-						forum.numberOfThreads, mFormat.format(forum.numberOfThreads)));
-					holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate()));
-					holder.lastPost.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
+					holder.forumTitleView.setText(forum.title);
+					holder.numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads,
+						forum.numberOfThreads, FORMAT.format(forum.numberOfThreads)));
+					holder.lastPostDateView.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate()));
+					holder.lastPostDateView.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
 				}
 				return convertView;
 			} else {
 				HeaderViewHolder holder;
 				if (convertView == null) {
-					convertView = mInflater.inflate(R.layout.row_header, parent, false);
+					convertView = inflater.inflate(R.layout.row_header, parent, false);
 					holder = new HeaderViewHolder(convertView);
 					convertView.setTag(holder);
 				} else {
@@ -268,9 +267,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	@SuppressWarnings("unused")
 	static class ForumViewHolder {
 		public int forumId;
-		@Bind(R.id.forum_title) TextView forumTitle;
-		@Bind(R.id.numthreads) TextView numThreads;
-		@Bind(R.id.lastpost) TextView lastPost;
+		@Bind(R.id.forum_title) TextView forumTitleView;
+		@Bind(R.id.number_of_threads) TextView numberOfThreadsView;
+		@Bind(R.id.last_post_date) TextView lastPostDateView;
 
 		public ForumViewHolder(View view) {
 			ButterKnife.bind(this, view);

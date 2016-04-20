@@ -358,6 +358,7 @@
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android:</string>
 	<string name="times">times</string>
+	<string name="times_suffix">%,d times</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
 	<string name="with">with</string>

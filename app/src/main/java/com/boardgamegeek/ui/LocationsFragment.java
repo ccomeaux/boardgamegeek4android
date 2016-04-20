@@ -23,9 +23,11 @@ import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
@@ -52,6 +54,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	}
 
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(LocationSelectedEvent event) {
 		mSelectedName = event.getLocationName();
 		if (mAdapter != null) {
@@ -60,6 +63,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	}
 
 	@DebugLog
+	@Subscribe
 	public void onEvent(LocationSortChangedEvent event) {
 		setSort(event.getSortType());
 	}

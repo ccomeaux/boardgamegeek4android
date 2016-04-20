@@ -13,9 +13,9 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class ForumActivity extends SimpleSinglePaneActivity {
-	private int mGameId;
-	private String mGameName;
-	private int mForumId;
+	private int gameId;
+	private String gameName;
+	private int forumId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -23,18 +23,18 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 
 		final Intent intent = getIntent();
 		String forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
-		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mForumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		forumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
 
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
-				if (TextUtils.isEmpty(mGameName)) {
+				if (TextUtils.isEmpty(gameName)) {
 					actionBar.setSubtitle(forumTitle);
 				} else {
 					actionBar.setTitle(forumTitle);
-					actionBar.setSubtitle(mGameName);
+					actionBar.setSubtitle(gameName);
 				}
 			}
 		}
@@ -55,19 +55,19 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				Intent intent;
-				if (mGameId == BggContract.INVALID_ID) {
+				if (gameId == BggContract.INVALID_ID) {
 					intent = new Intent(this, ForumsActivity.class);
 				} else {
 					intent = new Intent(this, GameForumsActivity.class);
-					intent.setData(Games.buildGameUri(mGameId));
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+					intent.setData(Games.buildGameUri(gameId));
+					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				}
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
 				return true;
 			case R.id.menu_view:
-				ActivityUtils.linkToBgg(this, "forum/" + mForumId);
+				ActivityUtils.linkToBgg(this, "forum/" + forumId);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

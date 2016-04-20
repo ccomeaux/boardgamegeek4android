@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract;
@@ -35,9 +35,8 @@ public class SyncGame extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		BggService service = Adapter.create();
+		ThingResponse response = new ThingRequest(Adapter.createForXml(), gameId).execute();
 		GamePersister gp = new GamePersister(context);
-		ThingResponse response = service.thing(gameId, 1);
 		gp.save(response.getGames(), "Game " + gameId);
 		Timber.i("Synced Game " + gameId);
 	}

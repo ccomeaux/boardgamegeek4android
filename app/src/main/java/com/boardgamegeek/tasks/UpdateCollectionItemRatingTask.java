@@ -12,7 +12,8 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 

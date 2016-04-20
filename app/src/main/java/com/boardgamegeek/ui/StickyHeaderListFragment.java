@@ -25,10 +25,13 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -154,7 +157,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -179,7 +182,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(@NonNull SyncEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(@NonNull SyncEvent event) {
 		if ((event.getType() & getSyncType()) == getSyncType()) {
 			isSyncing(true);
 		}
@@ -187,7 +191,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
-	public void onEventMainThread(SyncCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(SyncCompleteEvent event) {
 		isSyncing(false);
 	}
 

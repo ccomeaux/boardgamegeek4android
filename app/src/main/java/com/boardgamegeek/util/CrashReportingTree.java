@@ -18,7 +18,7 @@ public class CrashReportingTree extends Timber.Tree {
 
 		Crashlytics.getInstance().core.log(priority, tag, message);
 
-		if (t != null) {
+		if (t != null && priority == Log.ERROR) {
 			Crashlytics.getInstance().core.logException(t);
 		}
 	}
