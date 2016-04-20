@@ -26,9 +26,11 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
@@ -62,6 +64,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(BuddySelectedEvent event) {
 		selectedBuddyId = event.getBuddyId();
 		if (adapter != null) {

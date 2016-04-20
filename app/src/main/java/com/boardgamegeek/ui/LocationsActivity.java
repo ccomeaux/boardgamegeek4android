@@ -13,7 +13,9 @@ import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
 
 public class LocationsActivity extends SimpleSinglePaneActivity {
@@ -62,6 +64,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(LocationsCountChangedEvent event) {
 		locationCount = event.getCount();
 		supportInvalidateOptionsMenu();
@@ -69,6 +72,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(LocationSelectedEvent event) {
 		Intent intent = ActivityUtils.createLocationIntent(this, event.getLocationName());
 		startActivity(intent);
@@ -76,6 +80,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(LocationSortChangedEvent event) {
 		sortType = event.getSortType();
 	}

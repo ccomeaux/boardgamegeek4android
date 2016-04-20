@@ -11,13 +11,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class JsonImportTask extends ImporterExporterTask {

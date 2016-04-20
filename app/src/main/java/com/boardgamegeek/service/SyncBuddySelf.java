@@ -8,7 +8,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.PresentationUtils;
@@ -35,9 +35,7 @@ public class SyncBuddySelf extends UpdateTask {
 			return;
 		}
 
-		BggService service = Adapter.create();
-		User user = service.user(account.name);
-
+		User user = new UserRequest(Adapter.createForXml(), account.name).execute();
 		if (user == null || user.getId() == 0 || user.getId() == BggContract.INVALID_ID) {
 			Timber.i("Invalid user: " + account.name);
 			return;

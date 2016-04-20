@@ -26,10 +26,11 @@ import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -151,7 +152,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@DebugLog
 	@NonNull
 	private List<SyncTask> createTasks(Context context, final int type) {
-		BggService service = Adapter.createWithAuth(context);
+		BggService service = Adapter.createForXmlWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION_UPLOAD) == SyncService.FLAG_SYNC_COLLECTION_UPLOAD) {
 			tasks.add(new SyncCollectionUpload(context, service));
@@ -192,8 +193,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
 		PackageManager pm = context.getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ?
-			PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-			PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
 			PackageManager.DONT_KILL_APP);
 	}
 
@@ -211,15 +212,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
-		CharSequence text = context.getText(task.getNotification());
-		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_error)
-			.setContentText(text)
-			.setCategory(NotificationCompat.CATEGORY_ERROR);
-		if (!TextUtils.isEmpty(message)) {
-			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+		final int notification = task.getNotification();
+		if (notification != ServiceTask.NO_NOTIFICATION) {
+			CharSequence text = context.getText(notification);
+			NotificationCompat.Builder builder = NotificationUtils
+				.createNotificationBuilder(context, R.string.sync_notification_title_error)
+				.setContentText(text)
+				.setCategory(NotificationCompat.CATEGORY_ERROR);
+			if (!TextUtils.isEmpty(message)) {
+				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+			}
+			NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 		}
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 
 	@DebugLog

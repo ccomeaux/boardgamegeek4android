@@ -237,7 +237,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 		public SearchLoader(Context context, String searchText, boolean shouldSearchExact) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.createForXml();
 			this.searchText = searchText;
 			this.shouldSearchExact = shouldSearchExact;
 		}
@@ -250,14 +250,14 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			SearchData games = null;
 			if (shouldSearchExact) {
 				try {
-					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
+					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1).execute().body());
 				} catch (Exception e) {
 					// we'll try it again below
 				}
 			}
 			try {
 				if (games == null || games.count() == 0) {
-					games = new SearchData(searchText, false, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0));
+					games = new SearchData(searchText, false, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0).execute().body());
 				}
 			} catch (Exception e) {
 				games = new SearchData(searchText, e);

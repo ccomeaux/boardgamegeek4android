@@ -15,13 +15,13 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 public abstract class SyncTask extends ServiceTask {
 	protected final Context context;
-	protected final BggService bggService;
+	protected final BggService service;
 	private final boolean shouldShowNotifications;
 	private boolean isCancelled = false;
 
 	public SyncTask(Context context, BggService service) {
 		this.context = context;
-		bggService = service;
+		this.service = service;
 		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 	}
 

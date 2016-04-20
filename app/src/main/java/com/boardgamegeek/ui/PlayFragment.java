@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +28,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlayDeletedEvent;
+import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.model.Play;
@@ -50,12 +51,15 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -111,41 +115,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			}
 		}
 	};
-
-	public interface Callbacks {
-		void onNameChanged(String mGameName);
-
-		void onSent();
-
-		void onDeleted();
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onNameChanged(String gameName) {
-		}
-
-		@Override
-		public void onSent() {
-		}
-
-		@Override
-		public void onDeleted() {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -205,7 +174,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -242,12 +211,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.play, menu);
 	}
@@ -280,7 +243,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
-				mCallbacks.onSent();
+				EventBus.getDefault().post(new PlaySentEvent());
 				return true;
 			case R.id.menu_delete: {
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
@@ -291,7 +254,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 							}
 							mPlay.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
-							mCallbacks.onDeleted();
+							EventBus.getDefault().post(new PlayDeletedEvent());
 						}
 					}).show();
 				return true;
@@ -316,7 +279,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		if (event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) {
 			mSyncing = true;
 			updateRefreshStatus();
@@ -324,7 +288,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@DebugLog
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		mSyncing = false;
 		updateRefreshStatus();
 	}
@@ -342,12 +307,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@OnClick(R.id.header_container)
-	void viewGame(View v) {
+	void viewGame() {
 		ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
 	}
 
 	@OnClick(R.id.timer_end)
-	void onClick(View v) {
+	void onTimerClick() {
 		ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 	}
 
@@ -432,13 +397,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		mPlay = PlayBuilder.fromCursor(cursor);
 		mPlay.setPlayers(players);
 
-		mCallbacks.onNameChanged(mPlay.gameName);
-
 		mGameName.setText(mPlay.gameName);
 
 		mDate.setText(mPlay.getDateForDisplay(getActivity()));
 
-		mQuantity.setText(String.valueOf(mPlay.quantity) + " " + getString(R.string.times));
+		mQuantity.setText(getString(R.string.times_suffix, mPlay.quantity));
 		mQuantity.setVisibility((mPlay.quantity == 1) ? View.GONE : View.VISIBLE);
 
 		if (mPlay.length > 0) {

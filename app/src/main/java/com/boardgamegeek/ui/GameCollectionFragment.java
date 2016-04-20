@@ -43,6 +43,9 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +53,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -234,9 +236,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
-	public void onEvent(@SuppressWarnings("UnusedParameters") CollectionItemUpdatedEvent event) {
+	@Subscribe
+	public void onEvent(CollectionItemUpdatedEvent event) {
 		needsUploading = true;
 	}
 

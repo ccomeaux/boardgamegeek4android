@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Response;
+
 public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 1;
 
@@ -109,14 +112,16 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 
 		public HotnessLoader(Context context) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.createForXml();
 		}
 
 		@Override
 		public HotnessData loadInBackground() {
 			HotnessData games;
 			try {
-				games = new HotnessData(bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
+				Call<HotnessResponse> call = bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME);
+				Response<HotnessResponse> response = call.execute();
+				games = new HotnessData(response.body());
 			} catch (Exception e) {
 				games = new HotnessData(e);
 			}

@@ -19,8 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.AuthResponse;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
 
@@ -184,19 +184,19 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	/**
 	 * Represents an asynchronous login/registration task used to authenticate the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, AuthResponse> {
+	public class UserLoginTask extends AsyncTask<Void, Void, BggCookieJar> {
 		@Override
-		protected AuthResponse doInBackground(Void... params) {
+		protected BggCookieJar doInBackground(Void... params) {
 			return NetworkAuthenticator.authenticate(username, password);
 		}
 
 		@Override
-		protected void onPostExecute(AuthResponse authResponse) {
+		protected void onPostExecute(BggCookieJar bggCookieJar) {
 			userLoginTask = null;
 			showProgress(false);
 
-			if (authResponse != null) {
-				createAccount(authResponse);
+			if (bggCookieJar != null) {
+				createAccount(bggCookieJar);
 			} else {
 				passwordView.setError(getString(R.string.error_incorrect_password));
 				passwordView.requestFocus();
@@ -211,18 +211,18 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	}
 
 	@DebugLog
-	private void createAccount(AuthResponse authResponse) {
+	private void createAccount(BggCookieJar bggCookieJar) {
 		Timber.i("Creating account");
 		final Account account = new Account(username, Authenticator.ACCOUNT_TYPE);
 
 		try {
-			accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, authResponse.authToken);
+			accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, bggCookieJar.getAuthToken());
 		} catch (SecurityException e) {
 			showError("Uh-oh! This isn't an error we expect to see. If you have ScorePal installed, there's a known problem that one prevents the other from signing in. We're working to resolve the issue.");
 			return;
 		}
 		Bundle userData = new Bundle();
-		userData.putString(Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(authResponse.authTokenExpiry));
+		userData.putString(Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(bggCookieJar.getAuthTokenExpiry()));
 
 		if (isRequestingNewAccount) {
 			if (!accountManager.addAccountExplicitly(account, password, userData)) {

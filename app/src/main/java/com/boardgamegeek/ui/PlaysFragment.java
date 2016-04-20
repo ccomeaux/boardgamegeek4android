@@ -56,12 +56,15 @@ import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -250,6 +253,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
 		mSelectedPlayId = event.getPlayId();
 		if (mAdapter != null) {
@@ -258,12 +262,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	@SuppressWarnings("unused")
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		isSyncing((event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.getType() == UpdateService.SYNC_TYPE_PLAYS_DATE));
 	}
 
 	@SuppressWarnings({ "UnusedParameters", "unused" })
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		isSyncing(false);
 	}
 
@@ -282,11 +288,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	@SuppressWarnings("unused")
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysSortChangedEvent event) {
 		setSort(event.getType());
 	}
 
 	@SuppressWarnings("unused")
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysFilterChangedEvent event) {
 		filter(event.getType(), event.getDescription());
 	}

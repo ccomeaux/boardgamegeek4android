@@ -14,16 +14,13 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.PlayDeleteConverter;
-import com.boardgamegeek.io.PlaySaveConverter;
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.model.PlayPostResponse;
+import com.boardgamegeek.model.PlayDeleteResponse;
+import com.boardgamegeek.model.PlaySaveResponse;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
@@ -34,20 +31,24 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 
 import hugo.weaving.DebugLog;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Request.Builder;
 import timber.log.Timber;
 
 public class SyncPlaysUpload extends SyncUploadTask {
+	public static final String GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php";
+	private OkHttpClient httpClient;
 	private LocalBroadcastManager broadcastManager;
-	private BggService bggSaveService;
-	private BggService bggDeleteService;
 	private PlayPersister persister;
 	private int currentPlayIdForMessage;
 	private int currentGameIdForMessage;
@@ -98,8 +99,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
-		bggSaveService = Adapter.createForPost(context, new PlaySaveConverter());
-		bggDeleteService = Adapter.createForPost(context, new PlayDeleteConverter());
+		httpClient = HttpUtils.getHttpClientWithAuth(context);
 		broadcastManager = LocalBroadcastManager.getInstance(context);
 		persister = new PlayPersister(context);
 
@@ -133,7 +133,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				}
 				Play play = PlayBuilder.fromCursor(cursor, context, true);
 
-				PlayPostResponse response = postPlayUpdate(play);
+				PlaySaveResponse response = postPlayUpdate(play);
 				if (response == null) {
 					syncResult.stats.numIoExceptions++;
 					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
@@ -199,11 +199,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				}
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.hasBeenSynced()) {
-					PlayPostResponse response = postPlayDelete(play.playId);
+					PlayDeleteResponse response = postPlayDelete(play.playId);
 					if (response == null) {
 						syncResult.stats.numIoExceptions++;
 						notifyUploadError(context.getString(R.string.msg_play_update_null_response));
-					} else if (!response.hasError()) {
+					} else if (response.isSuccessful()) {
 						deletePlay(play);
 						updateGamePlayCount(play);
 						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
@@ -254,43 +254,44 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Nullable
-	private PlayPostResponse postPlayUpdate(@NonNull Play play) {
-		Map<String, String> form = new ArrayMap<>();
-		form.put("ajax", "1");
-		form.put("action", "save");
-		form.put("version", "2");
-		form.put("objecttype", "thing");
+	private PlaySaveResponse postPlayUpdate(@NonNull Play play) {
+		FormBody.Builder builder = new FormBody.Builder()
+			.add("ajax", "1")
+			.add("action", "save")
+			.add("version", "2")
+			.add("objecttype", "thing");
 		if (play.hasBeenSynced()) {
-			form.put("playid", String.valueOf(play.playId));
+			builder.add("playid", String.valueOf(play.playId));
 		}
-		form.put("objectid", String.valueOf(play.gameId));
-		form.put("playdate", play.getDate());
-		form.put("dateinput", play.getDate()); // TODO: ask Aldie what this is
-		form.put("length", String.valueOf(play.length));
-		form.put("location", play.location);
-		form.put("quantity", String.valueOf(play.quantity));
-		form.put("incomplete", play.Incomplete() ? "1" : "0");
-		form.put("nowinstats", play.NoWinStats() ? "1" : "0");
-		form.put("comments", play.comments);
+		builder.add("objectid", String.valueOf(play.gameId))
+			.add("playdate", play.getDate())
+			.add("dateinput", play.getDate())
+			.add("length", String.valueOf(play.length))
+			.add("location", play.location)
+			.add("quantity", String.valueOf(play.quantity))
+			.add("incomplete", play.Incomplete() ? "1" : "0")
+			.add("nowinstats", play.NoWinStats() ? "1" : "0")
+			.add("comments", play.comments);
 		List<Player> players = play.getPlayers();
 		for (int i = 0; i < players.size(); i++) {
 			Player player = players.get(i);
-			form.put(getMapKey(i, "playerid"), "player_" + i);
-			form.put(getMapKey(i, "name"), player.name);
-			form.put(getMapKey(i, "username"), player.username);
-			form.put(getMapKey(i, "color"), player.color);
-			form.put(getMapKey(i, "position"), player.startposition);
-			form.put(getMapKey(i, "score"), player.score);
-			form.put(getMapKey(i, "rating"), String.valueOf(player.rating));
-			form.put(getMapKey(i, "new"), String.valueOf(player.new_));
-			form.put(getMapKey(i, "win"), String.valueOf(player.win));
+			builder
+				.add(getMapKey(i, "playerid"), "player_" + i)
+				.add(getMapKey(i, "name"), player.name)
+				.add(getMapKey(i, "username"), player.username)
+				.add(getMapKey(i, "color"), player.color)
+				.add(getMapKey(i, "position"), player.startposition)
+				.add(getMapKey(i, "score"), player.score)
+				.add(getMapKey(i, "rating"), String.valueOf(player.rating))
+				.add(getMapKey(i, "new"), String.valueOf(player.new_))
+				.add(getMapKey(i, "win"), String.valueOf(player.win));
 		}
 
-		try {
-			return bggSaveService.geekPlay(form);
-		} catch (Exception e) {
-			return new PlayPostResponse(e);
-		}
+		Request request = new Builder()
+			.url(GEEK_PLAY_URL)
+			.post(builder.build())
+			.build();
+		return new PlaySaveResponse(httpClient, request);
 	}
 
 	@DebugLog
@@ -301,18 +302,18 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Nullable
-	private PlayPostResponse postPlayDelete(int playId) {
-		Map<String, String> form = new ArrayMap<>();
-		form.put("ajax", "1");
-		form.put("action", "delete");
-		form.put("playid", String.valueOf(playId));
-		form.put("finalize", "1");
+	private PlayDeleteResponse postPlayDelete(int playId) {
+		FormBody.Builder builder = new FormBody.Builder()
+			.add("ajax", "1")
+			.add("action", "delete")
+			.add("playid", String.valueOf(playId))
+			.add("finalize", "1");
 
-		try {
-			return bggDeleteService.geekPlay(form);
-		} catch (Exception e) {
-			return new PlayPostResponse(e);
-		}
+		Request request = new Builder()
+			.url(GEEK_PLAY_URL)
+			.post(builder.build())
+			.build();
+		return new PlayDeleteResponse(httpClient, request);
 	}
 
 	/**

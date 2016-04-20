@@ -45,10 +45,13 @@ import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -141,7 +144,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -170,13 +173,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@SuppressWarnings("unused")
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		isRefreshing = event.getType() == UpdateService.SYNC_TYPE_BUDDY;
 		updateRefreshStatus();
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		isRefreshing = false;
 		updateRefreshStatus();
 	}

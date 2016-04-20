@@ -45,7 +45,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						Timber.i("...canceled while syncing buddies");
 						break;
 					}
-					User user = new UserRequest(bggService, name).execute();
+					User user = new UserRequest(service, name).execute();
 					if (user != null) {
 						buddies.add(user);
 					}

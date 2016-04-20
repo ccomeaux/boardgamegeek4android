@@ -23,7 +23,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.BuddyCollectionRequest;
+import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -32,10 +32,11 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import icepick.Icepick;
 import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -224,7 +225,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.createForXml();
 			this.username = username;
 			options = new ArrayMap<>();
 			options.put(status, "1");
@@ -235,7 +236,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		public BuddyCollectionData loadInBackground() {
 			BuddyCollectionData collection;
 			try {
-				CollectionResponse response = new BuddyCollectionRequest(bggService, username, options).execute();
+				CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
 				collection = new BuddyCollectionData(response);
 			} catch (Exception e) {
 				collection = new BuddyCollectionData(e);
@@ -245,10 +246,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	static class BuddyCollectionData extends Data<CollectionItem> {
-		private CollectionResponse mResponse;
+		private CollectionResponse response;
 
 		public BuddyCollectionData(CollectionResponse response) {
-			mResponse = response;
+			this.response = response;
 		}
 
 		public BuddyCollectionData(Exception e) {
@@ -257,10 +258,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		@Override
 		public List<CollectionItem> list() {
-			if (mResponse == null || mResponse.items == null) {
+			if (response == null || response.items == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.items;
+			return response.items;
 		}
 	}
 

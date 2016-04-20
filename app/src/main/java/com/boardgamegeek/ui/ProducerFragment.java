@@ -27,9 +27,12 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
@@ -82,7 +85,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -194,12 +197,16 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		triggerRefresh();
 	}
 
-	public void onEventMainThread(UpdateEvent event) {
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		mSyncing = event.getType() == mToken;
 		updateRefreshStatus();
 	}
 
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		mSyncing = false;
 		updateRefreshStatus();
 	}
