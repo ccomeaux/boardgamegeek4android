@@ -61,37 +61,37 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
-	@SuppressWarnings("unused") @Bind(R.id.year) TextView year;
-	@SuppressWarnings("unused") @Bind(R.id.info_bar) View infoBar;
-	@SuppressWarnings("unused") @Bind(R.id.status) TextView status;
-	@SuppressWarnings("unused") @Bind(R.id.last_modified) TextView lastModified;
-	@SuppressWarnings("unused") @Bind(R.id.rating_container) View ratingContainer;
-	@SuppressWarnings("unused") @Bind(R.id.rating) TextView rating;
-	@SuppressWarnings("unused") @Bind(R.id.rating_timestamp) TextView ratingTimestampView;
-	@SuppressWarnings("unused") @Bind(R.id.comment_container) ViewGroup commentContainer;
-	@SuppressWarnings("unused") @Bind(R.id.add_comment) View addCommentView;
-	@SuppressWarnings("unused") @Bind(R.id.comment) TextView comment;
-	@SuppressWarnings("unused") @Bind(R.id.comment_timestamp) TextView commentTimestampView;
-	@SuppressWarnings("unused") @Bind(R.id.private_info_container) View privateInfoContainer;
-	@SuppressWarnings("unused") @Bind(R.id.private_info) TextView privateInfo;
-	@SuppressWarnings("unused") @Bind(R.id.private_info_comments) TextView privateInfoComments;
-	@SuppressWarnings("unused") @Bind(R.id.private_info_timestamp) TextView privateInfoTimestampView;
-	@SuppressWarnings("unused") @Bind(R.id.wishlist_container) View wishlistContainer;
-	@SuppressWarnings("unused") @Bind(R.id.wishlist_comment) TextView wishlistComment;
-	@SuppressWarnings("unused") @Bind(R.id.condition_container) View conditionContainer;
-	@SuppressWarnings("unused") @Bind(R.id.condition_comment) TextView conditionComment;
-	@SuppressWarnings("unused") @Bind(R.id.want_parts_container) View wantPartsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.want_parts_comment) TextView wantPartsComment;
-	@SuppressWarnings("unused") @Bind(R.id.has_parts_container) View hasPartsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.has_parts_comment) TextView hasPartsComment;
-	@SuppressWarnings("unused") @Bind(R.id.collection_id) TextView id;
-	@SuppressWarnings("unused") @Bind(R.id.updated) TextView updated;
-	@SuppressWarnings("unused") @Bind({
+	@Bind(R.id.year) TextView year;
+	@Bind(R.id.info_bar) View infoBar;
+	@Bind(R.id.status) TextView status;
+	@Bind(R.id.last_modified) TextView lastModified;
+	@Bind(R.id.rating_container) View ratingContainer;
+	@Bind(R.id.rating) TextView rating;
+	@Bind(R.id.rating_timestamp) TextView ratingTimestampView;
+	@Bind(R.id.comment_container) ViewGroup commentContainer;
+	@Bind(R.id.add_comment) View addCommentView;
+	@Bind(R.id.comment) TextView comment;
+	@Bind(R.id.comment_timestamp) TextView commentTimestampView;
+	@Bind(R.id.private_info_container) ViewGroup privateInfoContainer;
+	@Bind(R.id.private_info) TextView privateInfo;
+	@Bind(R.id.private_info_comments) TextView privateInfoComments;
+	@Bind(R.id.private_info_timestamp) TextView privateInfoTimestampView;
+	@Bind(R.id.wishlist_container) View wishlistContainer;
+	@Bind(R.id.wishlist_comment) TextView wishlistComment;
+	@Bind(R.id.condition_container) View conditionContainer;
+	@Bind(R.id.condition_comment) TextView conditionComment;
+	@Bind(R.id.want_parts_container) View wantPartsContainer;
+	@Bind(R.id.want_parts_comment) TextView wantPartsComment;
+	@Bind(R.id.has_parts_container) View hasPartsContainer;
+	@Bind(R.id.has_parts_comment) TextView hasPartsComment;
+	@Bind(R.id.collection_id) TextView id;
+	@Bind(R.id.updated) TextView updated;
+	@Bind({
 		R.id.status,
 		R.id.last_modified,
 		R.id.year
 	}) List<TextView> colorizedTextViews;
-	@SuppressWarnings("unused") @Bind({
+	@Bind({
 		R.id.add_comment,
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
@@ -165,8 +165,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
 		}
-		super.onStop();
 		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	@DebugLog
@@ -262,10 +262,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.comment_container)
-	public void onCommentClick(View v) {
+	public void onCommentClick() {
 		ensureCommentDialogFragment();
 		commentDialogFragment.setText(comment.getText().toString());
 		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
@@ -281,17 +280,15 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 					public void onFinishEditDialog(String inputText) {
 						UpdateCollectionItemCommentTask task = new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, inputText);
 						TaskUtils.executeAsyncTask(task);
-
 					}
 				}
 			);
 		}
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.rating_container)
-	public void onRatingClick(View v) {
+	public void onRatingClick() {
 		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
 		if ("0".equals(output)) {
 			output = "";
