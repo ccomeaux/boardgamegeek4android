@@ -6,18 +6,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.CollectionCommentPostResponse;
-import com.boardgamegeek.model.CollectionPostResponse;
-import com.boardgamegeek.model.CollectionRatingPostResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.service.model.CollectionItem;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
@@ -27,24 +24,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Request.Builder;
 import timber.log.Timber;
 
 public class SyncCollectionUpload extends SyncUploadTask {
-	public static final String GEEK_COLLECTION_URL = "https://www.boardgamegeek.com/geekcollection.php";
 	private ContentResolver resolver;
 	private SyncResult syncResult;
-	private ContentValues contentValues;
 	private final List<String> timestampColumns = new ArrayList<>();
+	private final OkHttpClient okHttpClient;
+	private List<CollectionUploadTask> tasks;
 
 	@DebugLog
 	public SyncCollectionUpload(Context context, BggService service) {
 		super(context, service);
+		okHttpClient = HttpUtils.getHttpClientWithAuth(context);
+		tasks = createTasks();
 		timestampColumns.add(Collection.RATING_DIRTY_TIMESTAMP);
 		timestampColumns.add(Collection.COMMENT_DIRTY_TIMESTAMP);
+		timestampColumns.add(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP);
+	}
+
+	private List<CollectionUploadTask> createTasks() {
+		List<CollectionUploadTask> tasks = new ArrayList<>();
+		tasks.add(new CollectionRatingUploadTask(okHttpClient));
+		tasks.add(new CollectionCommentUploadTask(okHttpClient));
+		tasks.add(new CollectionPrivateInfoUploadTask(okHttpClient));
+		return tasks;
 	}
 
 	@DebugLog
@@ -110,14 +115,14 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private Cursor fetchDirtyCollectionItems() {
 		String selection = "";
-		for (String timestamp : timestampColumns) {
+		for (CollectionUploadTask task : tasks) {
 			if (!TextUtils.isEmpty(selection)) {
 				selection += " OR ";
 			}
-			selection += timestamp + ">0";
+			selection += task.getTimestampColumn() + ">0";
 		}
 		Cursor cursor = context.getContentResolver().query(Collection.CONTENT_URI,
-			Query.PROJECTION,
+			CollectionItem.PROJECTION,
 			selection,
 			null,
 			null);
@@ -129,84 +134,26 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	}
 
 	private void processCollectionItem(Cursor cursor) {
-		int collectionId = cursor.getInt(Query.COLLECTION_ID);
-		int gameId = cursor.getInt(Query.GAME_ID);
-		double rating = cursor.getDouble(Query.RATING);
-		long ratingTimestamp = cursor.getLong(Query.RATING_DIRTY_TIMESTAMP);
-		String comment = cursor.getString(Query.COMMENT);
-		long commentTimestamp = cursor.getLong(Query.COMMENT_DIRTY_TIMESTAMP);
-		long internalId = cursor.getLong(Query._ID);
-		String collectionName = cursor.getString(Query.COLLECTION_NAME);
-
-		if (collectionId != BggContract.INVALID_ID) {
-			contentValues = new ContentValues();
-			if (ratingTimestamp > 0) {
-				FormBody form = createRatingForm(gameId, collectionId, rating);
-				CollectionRatingPostResponse response = postRatingForm(form);
-				if (processResponseForError(response)) {
-					return;
+		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
+		if (collectionItem.getCollectionId() != BggContract.INVALID_ID) {
+			ContentValues contentValues = new ContentValues();
+			for (CollectionUploadTask response : tasks) {
+				response.addCollectionItem(collectionItem);
+				if (response.isDirty()) {
+					response.post();
+					if (processResponseForError(response)) {
+						return;
+					}
+					response.appendContentValues(contentValues);
 				}
-				createRatingContentValues(response.getRating());
-			}
-			if (commentTimestamp > 0) {
-				FormBody form = createCommentForm(gameId, collectionId, comment);
-				CollectionCommentPostResponse response = postCommentForm(form);
-				if (processResponseForError(response)) {
-					return;
-				}
-				createCommentContentValues(response.getComment());
 			}
 			if (contentValues != null && contentValues.size() > 0) {
-				resolver.update(Collection.buildUri(internalId), contentValues, null, null);
-				notifySuccess(collectionName);
+				resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
+				notifySuccess(collectionItem.getCollectionName());
 			}
 		} else {
-			Timber.d("Invalid collection ID for internal ID %1$s; game ID %2$s", internalId, gameId);
+			Timber.d("Invalid collectionItem ID for internal ID %1$s; game ID %2$s", collectionItem.getInternalId(), collectionItem.getGameId());
 		}
-	}
-
-	private FormBody createRatingForm(int gameId, int collectionId, double rating) {
-		return createForm(gameId, collectionId)
-			.add("fieldname", "rating")
-			.add("rating", String.valueOf(rating))
-			.build();
-	}
-
-	private FormBody createCommentForm(int gameId, int collectionId, String comment) {
-		return createForm(gameId, collectionId)
-			.add("fieldname", "comment")
-			.add("value", comment)
-			.build();
-	}
-
-	@NonNull
-	private FormBody.Builder createForm(int gameId, int collectionId) {
-		return new FormBody.Builder()
-			.add("B1", "Cancel")
-			.add("ajax", "1")
-			.add("action", "savedata")
-			.add("objecttype", "thing")
-			.add("objectid", String.valueOf(gameId))
-			.add("collid", String.valueOf(collectionId));
-	}
-
-	private CollectionRatingPostResponse postRatingForm(FormBody form) {
-		OkHttpClient client = HttpUtils.getHttpClientWithAuth(context);
-		Request request = new Builder()
-			.url(GEEK_COLLECTION_URL)
-			.post(form)
-			.build();
-		return new CollectionRatingPostResponse(client, request);
-	}
-
-
-	private CollectionCommentPostResponse postCommentForm(FormBody form) {
-		OkHttpClient client = HttpUtils.getHttpClientWithAuth(context);
-		Request request = new Builder()
-			.url(GEEK_COLLECTION_URL)
-			.post(form)
-			.build();
-		return new CollectionCommentPostResponse(client, request);
 	}
 
 	private void notifySuccess(String collectionName) {
@@ -216,7 +163,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		notifyUser(message);
 	}
 
-	private boolean processResponseForError(CollectionPostResponse response) {
+	private boolean processResponseForError(CollectionUploadTask response) {
 		if (response.hasAuthError()) {
 			Timber.w("Auth error; clearing password");
 			syncResult.stats.numAuthExceptions++;
@@ -228,36 +175,5 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			return true;
 		}
 		return false;
-	}
-
-	private void createRatingContentValues(double rating) {
-		contentValues.put(Collection.RATING, rating);
-		contentValues.put(Collection.RATING_DIRTY_TIMESTAMP, 0);
-	}
-
-	private void createCommentContentValues(String comment) {
-		contentValues.put(Collection.COMMENT, comment);
-		contentValues.put(Collection.COMMENT_DIRTY_TIMESTAMP, 0);
-	}
-
-	private interface Query {
-		String[] PROJECTION = {
-			Collection._ID,
-			Collection.GAME_ID,
-			Collection.COLLECTION_ID,
-			Collection.COLLECTION_NAME,
-			Collection.RATING,
-			Collection.RATING_DIRTY_TIMESTAMP,
-			Collection.COMMENT,
-			Collection.COMMENT_DIRTY_TIMESTAMP
-		};
-		int _ID = 0;
-		int GAME_ID = 1;
-		int COLLECTION_ID = 2;
-		int COLLECTION_NAME = 3;
-		int RATING = 4;
-		int RATING_DIRTY_TIMESTAMP = 5;
-		int COMMENT = 6;
-		int COMMENT_DIRTY_TIMESTAMP = 7;
 	}
 }
