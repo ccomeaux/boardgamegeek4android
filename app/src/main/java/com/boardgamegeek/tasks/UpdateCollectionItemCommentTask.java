@@ -45,7 +45,7 @@ public class UpdateCollectionItemCommentTask extends UpdateCollectionItemTask {
 	@DebugLog
 	@Override
 	protected void onPostExecute(Void result) {
-		Timber.i("Updated game ID %1$s, collection ID %2$s with comment %3$s", gameId, collectionId, comment);
+		Timber.i("Updated game ID %1$s, collection ID %2$s with comment \"%3$s\"", gameId, collectionId, comment);
 		EventBus.getDefault().post(new CollectionItemUpdatedEvent());
 	}
 }
