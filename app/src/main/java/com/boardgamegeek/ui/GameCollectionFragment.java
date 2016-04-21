@@ -27,10 +27,13 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.UpdateCollectionItemCommentTask;
+import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
+import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
+import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -100,6 +103,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		R.id.card_header_has_parts
 	}) List<TextView> colorizedHeaders;
 	private EditTextDialogFragment commentDialogFragment;
+	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private Handler timeHintUpdateHandler = new Handler();
 	private Runnable timeHintUpdateRunnable = null;
@@ -309,6 +313,31 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	@DebugLog
+	@OnClick(R.id.private_info_container)
+	public void onPrivateInfoClick() {
+		ensurePrivateInfoDialogFragment();
+		privateInfoDialogFragment.setComment(privateInfoComments.getText().toString());
+		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
+	}
+
+	@DebugLog
+	private void ensurePrivateInfoDialogFragment() {
+		if (privateInfoDialogFragment == null) {
+			privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
+				privateInfoContainer,
+				new PrivateInfoDialogListener() {
+					@Override
+					public void onFinishEditDialog(String comment) {
+						UpdateCollectionItemPrivateInfoTask task = new UpdateCollectionItemPrivateInfoTask(getActivity(),
+							gameId, collectionId, comment);
+						TaskUtils.executeAsyncTask(task);
+					}
+				}
+			);
+		}
+	}
+
+	@DebugLog
 	public void triggerRefresh() {
 		mightNeedRefreshing = false;
 		if (gameId != BggContract.INVALID_ID) {
@@ -340,16 +369,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		PresentationUtils.setTextOrHide(comment, item.comment);
 		commentTimestampView.setTag(item.commentTimestamp);
 
-		// Private info
-		if (item.hasPrivateInfo() || !TextUtils.isEmpty(item.privateComment)) {
-			privateInfoContainer.setVisibility(View.VISIBLE);
-			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
-			privateInfo.setText(item.getPrivateInfo());
-			PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
-			privateInfoTimestampView.setTag(item.privateInfoTimestamp);
-		} else {
-			privateInfoContainer.setVisibility(View.GONE);
-		}
+		privateInfoContainer.setClickable(collectionId != 0);
+		privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
+		privateInfo.setText(item.getPrivateInfo());
+		PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
+		privateInfoTimestampView.setTag(item.privateInfoTimestamp);
 
 		showSection(item.wishlistComment, wishlistContainer, wishlistComment);
 		showSection(item.condition, conditionContainer, conditionComment);

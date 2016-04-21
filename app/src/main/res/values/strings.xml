@@ -142,6 +142,7 @@
 	<string name="title_log_player">Log Player</string>
 	<string name="title_add_players">Add Players</string>
 	<string name="title_comments">Comments</string>
+	<string name="title_private_info">Private Info</string>
 	<string name="title_ratings">Ratings</string>
 	<string name="title_colors">Colors</string>
 	<string name="title_favorite_colors">Favorite Colors</string>
