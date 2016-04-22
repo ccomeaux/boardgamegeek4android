@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager.LayoutParams;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.sorter.Sorter;
@@ -33,7 +36,7 @@ public class SaveView {
 	public static void createDialog(final Context context, final CollectionView view, String name, final Sorter sort, final List<CollectionFilterer> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater.inflate(R.layout.dialog_save_view, null);
+		@SuppressLint("InflateParams") View layout = inflater.inflate(R.layout.dialog_save_view, null);
 
 		final EditText nameView = (EditText) layout.findViewById(R.id.name);
 		final CheckBox defaultView = (CheckBox) layout.findViewById(R.id.default_view);
@@ -45,7 +48,7 @@ public class SaveView {
 		if (findViewId(context.getContentResolver(), name) == PreferencesUtils.getViewDefaultId(context)) {
 			defaultView.setChecked(true);
 		}
-		setDescription(context, layout, sort, filters);
+		setDescription(layout, sort, filters);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(R.string.title_save_view)
 			.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
@@ -105,6 +108,9 @@ public class SaveView {
 					int filterId = CollectionViews.getViewId(filterUri);
 					Uri uri = CollectionViews.buildViewFilterUri(filterId);
 					insertDetails(resolver, uri, filters);
+					if (filterUri == null) {
+						return BggContract.INVALID_ID;
+					}
 					return StringUtils.parseLong(filterUri.getLastPathSegment());
 				}
 
@@ -134,6 +140,7 @@ public class SaveView {
 				}
 			}).setNegativeButton(R.string.cancel, null).setCancelable(true);
 		final AlertDialog dialog = builder.create();
+		dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialogInterface) {
@@ -167,7 +174,7 @@ public class SaveView {
 		});
 	}
 
-	private static void setDescription(Context context, View layout, Sorter sort, List<CollectionFilterer> filters) {
+	private static void setDescription(View layout, Sorter sort, List<CollectionFilterer> filters) {
 		TextView description = (TextView) layout.findViewById(R.id.description);
 		StringBuilder text = new StringBuilder();
 		for (CollectionFilterer filter : filters) {
