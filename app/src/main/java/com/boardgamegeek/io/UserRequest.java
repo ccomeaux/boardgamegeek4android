@@ -40,8 +40,9 @@ public class UserRequest {
 				Timber.w("Unsuccessful user fetch with code: %s", response.code());
 			}
 		} catch (IOException e) {
+			// This is probably caused by a timeout, but for now treat it like an empty response
 			Timber.w(e, "Unsuccessful user fetch");
 		}
-		return null;
+		return new User();
 	}
 }

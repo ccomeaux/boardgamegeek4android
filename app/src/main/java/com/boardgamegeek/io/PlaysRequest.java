@@ -50,8 +50,9 @@ public class PlaysRequest {
 				Timber.w("Unsuccessful plays fetch with code: %s", response.code());
 			}
 		} catch (Exception e) {
+			// This is probably caused by a timeout, but for now treat it like an empty response
 			Timber.w(e, "Unsuccessful plays fetch");
 		}
-		return null;
+		return new PlaysResponse();
 	}
 }
