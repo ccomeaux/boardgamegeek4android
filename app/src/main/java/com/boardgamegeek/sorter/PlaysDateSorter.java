@@ -1,10 +1,5 @@
 package com.boardgamegeek.sorter;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -12,6 +7,13 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+
+import timber.log.Timber;
 
 public class PlaysDateSorter extends PlaysSorter {
 	private final SimpleDateFormat formatter = new SimpleDateFormat("MMMM", Locale.getDefault());
@@ -48,6 +50,7 @@ public class PlaysDateSorter extends PlaysSorter {
 
 	private String getYearAndMonth(@NonNull Cursor cursor) {
 		String date = getString(cursor, Plays.DATE);
+		Timber.w("Attempting to parse date %s", date);
 		if (TextUtils.isEmpty(date)) {
 			return "1969-01";
 		}
