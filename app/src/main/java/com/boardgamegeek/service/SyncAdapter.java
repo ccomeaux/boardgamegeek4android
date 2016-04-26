@@ -72,7 +72,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.setIsSyncable(account, authority, 1);
 			ContentResolver.setSyncAutomatically(account, authority, true);
 			Bundle b = new Bundle();
-			ContentResolver.addPeriodicSync(account, authority, b, 8 * 60 * 60); // 8 hours
+			ContentResolver.addPeriodicSync(account, authority, b, 24 * 60 * 60); // 24 hours
 		}
 
 		if (!shouldContinueSync(uploadOnly)) {
