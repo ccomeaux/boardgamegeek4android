@@ -16,9 +16,9 @@ public class RetryInterceptor implements Interceptor {
 	private static final int BACKOFF_TYPE_EXPONENTIAL = 0;
 	private static final int BACKOFF_TYPE_GEOMETRIC = 1;
 
-	private static final long MIN_WAIT_TIME = 100L;
+	private static final long MIN_WAIT_TIME = 1000L;
 	private static final long MAX_WAIT_TIME = 60000L;
-	private static final int MAX_RETRIES = 10;
+	private static final int MAX_RETRIES = 5;
 
 	@Override
 	public Response intercept(Chain chain) throws IOException {
