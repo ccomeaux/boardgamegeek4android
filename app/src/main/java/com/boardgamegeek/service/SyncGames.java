@@ -13,13 +13,12 @@ import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.util.StringUtils;
 
-import java.net.SocketTimeoutException;
 import java.util.List;
 
 import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
-	private static final int GAMES_PER_FETCH = 16;
+	private static final int GAMES_PER_FETCH = 10;
 	private int fetchSize;
 
 	public SyncGames(Context context, BggService service) {
@@ -72,24 +71,24 @@ public abstract class SyncGames extends SyncTask {
 	}
 
 	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
-		while (true) {
-			try {
+//		while (true) {
+//			try {
 				String ids = TextUtils.join(",", gameIds);
 				return new ThingRequest(service, ids).execute();
-			} catch (Exception e) {
-				if (e.getCause() instanceof SocketTimeoutException) {
-					if (fetchSize == 1) {
-						Timber.i("...timeout with only 1 game; aborting.");
-						break;
-					}
-					fetchSize = fetchSize / 2;
-					Timber.i("...timeout - reducing games per fetch to " + fetchSize);
-				} else {
-					throw e;
-				}
-			}
-		}
-		return new ThingResponse();
+//			} catch (Exception e) {
+//				if (e.getCause() instanceof SocketTimeoutException) {
+//					if (fetchSize == 1) {
+//						Timber.i("...timeout with only 1 game; aborting.");
+//						break;
+//					}
+//					fetchSize = fetchSize / 2;
+//					Timber.i("...timeout - reducing games per fetch to " + fetchSize);
+//				} else {
+//					throw e;
+//				}
+//			}
+//		}
+//		return new ThingResponse();
 	}
 
 	@NonNull

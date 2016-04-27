@@ -16,17 +16,18 @@ public class RetryInterceptor implements Interceptor {
 	private static final int BACKOFF_TYPE_EXPONENTIAL = 0;
 	private static final int BACKOFF_TYPE_GEOMETRIC = 1;
 
-	private static final long MIN_WAIT_TIME = 100L;
+	private static final long MIN_WAIT_TIME = 1000L;
 	private static final long MAX_WAIT_TIME = 60000L;
-	private static final int MAX_RETRIES = 10;
+	private static final int MAX_RETRIES = 4;
 
 	@Override
 	public Response intercept(Chain chain) throws IOException {
 		Request originalRequest = chain.request();
 		int numberOfRetries = 0;
+		int responseCode;
 		do {
 			Response response = chain.proceed(originalRequest);
-			final int responseCode = response.code();
+			responseCode = response.code();
 			if (responseCode == COLLECTION_REQUEST_PROCESSING ||
 				responseCode == API_RATE_EXCEEDED) {
 				Timber.i("Retry-able response code %s", responseCode);
@@ -36,8 +37,8 @@ public class RetryInterceptor implements Interceptor {
 			} else {
 				return response;
 			}
-		} while (numberOfRetries < getMaxRetries());
-		Timber.w("Exceeded maximum number of retries of %,d.", getMaxRetries());
+		} while (numberOfRetries < getMaxRetries(responseCode));
+		Timber.w("Exceeded maximum number of retries of %,d.", getMaxRetries(responseCode));
 		return chain.proceed(originalRequest);
 	}
 
@@ -47,7 +48,7 @@ public class RetryInterceptor implements Interceptor {
 		try {
 			Thread.sleep(waitTime);
 		} catch (InterruptedException e) {
-			Timber.e(e, "Interrupted while sleeping during retry.");
+			Timber.w(e, "Interrupted while sleeping during retry.");
 		}
 	}
 
@@ -77,7 +78,13 @@ public class RetryInterceptor implements Interceptor {
 		return MAX_WAIT_TIME;
 	}
 
-	protected int getMaxRetries() {
+	protected int getMaxRetries(int responseCode) {
+		if (responseCode == COLLECTION_REQUEST_PROCESSING) {
+			return 8;
+		}
+		if (responseCode == API_RATE_EXCEEDED) {
+			return 2;
+		}
 		return MAX_RETRIES;
 	}
 }

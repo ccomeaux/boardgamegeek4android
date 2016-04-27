@@ -200,6 +200,7 @@ public class CursorUtils {
 
 	@NonNull
 	private static Calendar getCalendar(String date) {
+		Timber.w("Getting date from string: %s", date);
 		int year = Integer.parseInt(date.substring(0, 4));
 		int month = Integer.parseInt(date.substring(5, 7)) - 1;
 		int day = Integer.parseInt(date.substring(8, 10));

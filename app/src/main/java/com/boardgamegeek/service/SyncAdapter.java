@@ -26,11 +26,13 @@ import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
+import retrofit.RetrofitError;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -72,7 +74,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.setIsSyncable(account, authority, 1);
 			ContentResolver.setSyncAutomatically(account, authority, true);
 			Bundle b = new Bundle();
-			ContentResolver.addPeriodicSync(account, authority, b, 8 * 60 * 60); // 8 hours
+			ContentResolver.addPeriodicSync(account, authority, b, 24 * 60 * 60); // 24 hours
 		}
 
 		if (!shouldContinueSync(uploadOnly)) {
@@ -97,10 +99,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				currentTask.execute(account, syncResult);
 				EventBus.getDefault().post(new SyncCompleteEvent());
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
+			} catch (RetrofitError re) {
+				Timber.e(re, "Syncing " + currentTask);
+				syncResult.stats.numIoExceptions += 10;
+				showError(currentTask, re);
+				break;
 			} catch (Exception e) {
 				Timber.e(e, "Syncing " + currentTask);
-				syncResult.stats.numIoExceptions++;
+				syncResult.stats.numIoExceptions += 10;
 				showError(currentTask, e);
+				if (e.getCause() instanceof SocketTimeoutException) {
+					break;
+				}
 			}
 		}
 		toggleReceiver(false);
@@ -192,8 +202,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
 		PackageManager pm = context.getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ?
-			PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-			PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
 			PackageManager.DONT_KILL_APP);
 	}
 

@@ -202,8 +202,22 @@ public class NumberPadDialogFragment extends DialogFragment {
 		if (TextUtils.isEmpty(text) || ".".equals(text)) {
 			return true;
 		}
+		if (hasTwoDecimalPoints(text)) {
+			return false;
+		}
 		double value = parseDouble(text);
 		return value >= minValue && value <= maxValue;
+	}
+
+	private boolean hasTwoDecimalPoints(String text) {
+		if (text == null) {
+			return false;
+		}
+		int decimalIndex = text.indexOf('.');
+		if (decimalIndex >= 0) {
+			return text.indexOf('.', decimalIndex + 1) >= 0;
+		}
+		return false;
 	}
 
 	private double parseDouble(String text) {
