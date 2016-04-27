@@ -838,6 +838,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onItemCheckedStateChanged(@NonNull ActionMode mode, int position, long id, boolean checked) {
+		if (!isAdded()) {
+			return;
+		}
+
 		if (checked) {
 			selectedPositions.add(position);
 		} else {
