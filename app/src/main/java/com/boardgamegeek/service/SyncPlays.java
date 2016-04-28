@@ -4,11 +4,11 @@ import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.PlaysRequest;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
@@ -16,11 +16,16 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Response;
 import timber.log.Timber;
 
 public class SyncPlays extends SyncTask {
-	private PlayPersister persister;
+	private SyncResult syncResult;
 	private long startTime;
+	private PlayPersister persister;
 
 	public SyncPlays(Context context, BggService service) {
 		super(context, service);
@@ -32,7 +37,7 @@ public class SyncPlays extends SyncTask {
 	}
 
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) throws IOException {
 		Timber.i("Syncing plays...");
 		try {
 			if (!PreferencesUtils.getSyncPlays(context)) {
@@ -40,64 +45,47 @@ public class SyncPlays extends SyncTask {
 				return;
 			}
 
+			this.syncResult = syncResult;
 			startTime = System.currentTimeMillis();
 			persister = new PlayPersister(context);
 			PlaysResponse response;
 			long newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
-			if (newestSyncDate > 0) {
-				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
-				Timber.i("...syncing plays since " + date);
+			if (newestSyncDate <= 0) {
 				int page = 1;
 				do {
-					Timber.i("......syncing page " + page);
-					showNotification(paginateDetail("Updating plays since " + date, page));
-
-					response = new PlaysRequest(service, PlaysRequest.TYPE_MIN, account.name, page, date).execute();
-					persist(response, syncResult);
-					updateTimeStamps(response);
+					response = executeCall(account.name, null, null, page);
 					if (isCancelled()) {
 						Timber.i("...cancelled early");
 						return;
 					}
 					page++;
-				} while (response.hasMorePages());
-				deleteUnupdatedPlaysSince(newestSyncDate, syncResult);
+				} while (response != null && response.hasMorePages());
 			} else {
-				Timber.i("...syncing all plays");
+				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
 				int page = 1;
 				do {
-					Timber.i("......syncing page " + page);
-					showNotification(paginateDetail("Updating all plays", page));
-
-					response = new PlaysRequest(service, account.name, page).execute();
-					persist(response, syncResult);
-					updateTimeStamps(response);
+					response = executeCall(account.name, date, null, page);
 					if (isCancelled()) {
 						Timber.i("...cancelled early");
 						return;
 					}
 					page++;
-				} while (response.hasMorePages());
+				} while (response != null && response.hasMorePages());
+				deleteUnupdatedPlaysSince(newestSyncDate, syncResult);
 			}
 
 			long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(oldestDate);
-				Timber.i("...syncing plays before " + date);
 				int page = 1;
 				do {
-					Timber.i("......syncing page " + page);
-					showNotification(paginateDetail("Updating plays before " + date, page));
-
-					response = new PlaysRequest(service, PlaysRequest.TYPE_MAX, account.name, page, date).execute();
-					persist(response, syncResult);
-					updateTimeStamps(response);
+					response = executeCall(account.name, null, date, page);
 					if (isCancelled()) {
 						Timber.i("...cancelled early");
 						return;
 					}
 					page++;
-				} while (response.hasMorePages());
+				} while (response != null && response.hasMorePages());
 				deleteUnupdatedPlaysBefore(oldestDate, syncResult);
 				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
@@ -107,11 +95,35 @@ public class SyncPlays extends SyncTask {
 		}
 	}
 
-	private String paginateDetail(String detail, int page) {
-		if (page > 1) {
-			return detail + " (page " + page + ")";
+	private PlaysResponse executeCall(String username, String minDate, String maxDate, int page) throws IOException {
+		showNotification(minDate, maxDate, page);
+		Call<PlaysResponse> call = service.plays(username, minDate, maxDate, null, page);
+		Response<PlaysResponse> response = call.execute();
+		if (response.isSuccessful()) {
+			persist(response.body(), syncResult);
+			updateTimeStamps(response.body());
+		} else {
+			Timber.w("Unsuccessful plays fetch with code: %s", response.code());
+			return null;
 		}
-		return detail;
+		return response.body();
+	}
+
+	private void showNotification(String minDate, String maxDate, int page) {
+		String message;
+		if (TextUtils.isEmpty(minDate) && TextUtils.isEmpty(maxDate)) {
+			message = "Syncing all plays";
+		} else if (TextUtils.isEmpty(minDate)) {
+			message = "Updating plays before " + maxDate;
+		} else if (TextUtils.isEmpty(maxDate)) {
+			message = "Updating plays since " + minDate;
+		} else {
+			message = "Updating plays between " + minDate + " and " + maxDate;
+		}
+		if (page > 1) {
+			message = String.format("%s (page %,d)", message, page);
+		}
+		showNotification(message);
 	}
 
 	private void persist(@NonNull PlaysResponse response, @NonNull SyncResult syncResult) {
