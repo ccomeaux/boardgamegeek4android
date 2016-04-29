@@ -60,6 +60,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -76,6 +77,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String mThumbnailUrl;
 	private String mImageUrl;
 
+	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
 	@BindView(R.id.progress) View mProgressContainer;
 	@BindView(R.id.list_container) View mListContainer;
@@ -149,7 +151,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		playersView.addHeaderView(View.inflate(getActivity(), R.layout.header_play, null), null, false);
 		playersView.addFooterView(View.inflate(getActivity(), R.layout.footer_play, null), null, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		if (mSwipeRefreshLayout != null) {
 			mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -202,6 +204,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

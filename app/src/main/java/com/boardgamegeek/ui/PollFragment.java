@@ -48,6 +48,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
@@ -69,6 +70,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	private int[] mColors;
 	private Snackbar mSnackbar;
 
+	private Unbinder unbinder;
 	@BindView((R.id.progress)) View mProgress;
 	@BindView(R.id.poll_scroll) ScrollView mScrollView;
 	@BindView(R.id.poll_vote_total) TextView mVoteTotalView;
@@ -92,7 +94,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		mPieChart.setDrawSliceText(false);
 		mPieChart.setRotationEnabled(false);
@@ -141,6 +143,12 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		}
 
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

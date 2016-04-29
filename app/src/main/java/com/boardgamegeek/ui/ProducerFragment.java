@@ -33,6 +33,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
@@ -46,6 +47,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	private int mId;
 	private boolean mSyncing;
 
+	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
 	@BindView(R.id.id) TextView mIdView;
 	@BindView(R.id.name) TextView mName;
@@ -73,7 +75,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_producer, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		mSwipeRefreshLayout.setOnRefreshListener(this);
 		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
@@ -109,6 +111,12 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

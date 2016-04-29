@@ -59,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -70,6 +71,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private double mRating;
 	private Stats mStats;
 
+	private Unbinder unbinder;
 	@BindView(R.id.progress) View mProgressView;
 	@BindView(R.id.empty) View mEmptyView;
 	@BindView(R.id.data) View mDataView;
@@ -98,7 +100,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		mPlayCountChart.setDrawGridBackground(false);
 		mPlayCountChart.getAxisRight().setValueFormatter(new IntegerYAxisValueFormatter());
@@ -113,6 +115,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().restartLoader(GameQuery._TOKEN, null, this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

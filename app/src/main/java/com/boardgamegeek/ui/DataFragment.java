@@ -37,10 +37,12 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
+	private Unbinder unbinder;
 	@BindView(R.id.backup_location) TextView fileLocationView;
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
 	@BindView(R.id.progress_container) View progressContainer;
@@ -54,7 +56,7 @@ public class DataFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_data, container, false);
 
-		ButterKnife.bind(this, root);
+		unbinder = ButterKnife.bind(this, root);
 
 		fileLocationView.setText(FileUtils.getExportPath(false).getPath());
 
@@ -80,6 +82,12 @@ public class DataFragment extends Fragment {
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@DebugLog

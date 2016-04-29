@@ -73,6 +73,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -82,6 +83,7 @@ import timber.log.Timber;
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	private Unbinder unbinder;
 	@BindView(R.id.frame_container) ViewGroup frameContainer;
 	@BindView(R.id.footer_container) ViewGroup footerContainer;
 	@BindView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
@@ -145,7 +147,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_collection, container, false);
-		ButterKnife.bind(this, view);
+		unbinder = ButterKnife.bind(this, view);
 		return view;
 	}
 
@@ -179,6 +181,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 			listView.setMultiChoiceModeListener(this);
 		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	private CollectionSorter getCollectionSorter(int sortType) {

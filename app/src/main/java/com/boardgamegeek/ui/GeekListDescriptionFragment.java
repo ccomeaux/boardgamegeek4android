@@ -19,6 +19,7 @@ import com.boardgamegeek.util.XmlConverter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class GeekListDescriptionFragment extends Fragment {
@@ -26,6 +27,7 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	private Handler mHandler = new Handler();
 	private Runnable mUpdaterRunnable = null;
+	private Unbinder unbinder;
 	@BindView(R.id.username) TextView mUsernameView;
 	@BindView(R.id.items) TextView mItemsView;
 	@BindView(R.id.thumbs) TextView mThumbsView;
@@ -47,7 +49,7 @@ public class GeekListDescriptionFragment extends Fragment {
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		mUsernameView.setText(mGeekList.getUsername());
 		mItemsView.setText(getString(R.string.items_suffix, mGeekList.getNumberOfItems()));
@@ -87,6 +89,12 @@ public class GeekListDescriptionFragment extends Fragment {
 		if (mUpdaterRunnable != null) {
 			mHandler.removeCallbacks(mUpdaterRunnable);
 		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@DebugLog

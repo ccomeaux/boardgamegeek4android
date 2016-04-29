@@ -30,10 +30,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int TOKEN = 0x01;
+	private Unbinder unbinder;
 	@BindView(R.id.progress) View progressView;
 	@BindView(R.id.empty) View emptyView;
 	@BindView(R.id.data) ViewGroup dataView;
@@ -44,7 +46,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		bindAccuracyMessage();
 		return rootView;
 	}
@@ -65,6 +67,12 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onPause() {
 		super.onPause();
 		PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

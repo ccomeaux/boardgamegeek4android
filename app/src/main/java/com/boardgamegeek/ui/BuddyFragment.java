@@ -52,6 +52,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -71,6 +72,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private boolean isRefreshing;
 	@State boolean hasBeenRefreshed;
 
+	private Unbinder unbinder;
 	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.buddy_info) View buddyInfoView;
@@ -106,7 +108,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);
@@ -170,6 +172,12 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@SuppressWarnings("unused")

@@ -40,6 +40,7 @@ import com.boardgamegeek.util.PresentationUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int PLAYS_TOKEN = 1;
@@ -48,6 +49,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int LOCATIONS_TOKEN = 4;
 	private static final int COLORS_TOKEN = 5;
 
+	private Unbinder unbinder;
 	@BindView(R.id.plays_container) LinearLayout playsContainer;
 	@BindView(R.id.card_footer_plays) TextView playsFooter;
 	@BindView(R.id.players_container) LinearLayout playersContainer;
@@ -63,7 +65,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		colorsCard.setVisibility(TextUtils.isEmpty(AccountUtils.getUsername(getActivity())) ? View.GONE : View.VISIBLE);
 		//TODO ensure this is bold
 		hIndexView.setText(getString(R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
@@ -80,6 +82,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
 		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import com.boardgamegeek.util.UIUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ArticleFragment extends Fragment {
@@ -30,6 +31,7 @@ public class ArticleFragment extends Fragment {
 	private int editCount;
 	private String body;
 
+	private Unbinder unbinder;
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.post_date) TextView postDateView;
 	@BindView(R.id.edit_date) TextView editDateView;
@@ -53,7 +55,7 @@ public class ArticleFragment extends Fragment {
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		updateTimeBasedUi();
 		if (timeHintUpdateRunnable != null) {
@@ -94,6 +96,12 @@ public class ArticleFragment extends Fragment {
 		if (timeHintUpdateRunnable != null) {
 			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@DebugLog
