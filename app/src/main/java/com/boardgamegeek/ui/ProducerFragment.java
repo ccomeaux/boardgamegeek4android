@@ -31,7 +31,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
@@ -46,11 +46,11 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	private int mId;
 	private boolean mSyncing;
 
-	@SuppressWarnings("unused") @Bind(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@SuppressWarnings("unused") @Bind(R.id.id) TextView mIdView;
-	@SuppressWarnings("unused") @Bind(R.id.name) TextView mName;
-	@SuppressWarnings("unused") @Bind(R.id.description) TextView mDescription;
-	@SuppressWarnings("unused") @Bind(R.id.updated) TextView mUpdated;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@BindView(R.id.id) TextView mIdView;
+	@BindView(R.id.name) TextView mName;
+	@BindView(R.id.description) TextView mDescription;
+	@BindView(R.id.updated) TextView mUpdated;
 
 	@Override
 	@DebugLog

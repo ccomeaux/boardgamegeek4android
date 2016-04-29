@@ -19,7 +19,7 @@ import android.widget.EditText;
 
 import com.boardgamegeek.R;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
@@ -32,8 +32,8 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 	private ViewGroup root;
 	private UpdateBuddyNicknameDialogListener listener;
 
-	@SuppressWarnings("unused") @Bind(R.id.edit_nickname) EditText editText;
-	@SuppressWarnings("unused") @Bind(R.id.change_plays) CheckBox changePlays;
+	@BindView(R.id.edit_nickname) EditText editText;
+	@BindView(R.id.change_plays) CheckBox changePlays;
 	private String nickname;
 
 	@NonNull

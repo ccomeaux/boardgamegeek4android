@@ -34,18 +34,18 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
-	@SuppressWarnings("unused") @Bind(R.id.backup_location) TextView fileLocationView;
-	@SuppressWarnings("unused") @Bind(R.id.backup_types) ViewGroup fileTypesView;
-	@SuppressWarnings("unused") @Bind(R.id.progress_container) View progressContainer;
-	@SuppressWarnings("unused") @Bind(R.id.progress) ProgressBar progressBar;
-	@SuppressWarnings("unused") @Bind(R.id.progress_detail) TextView progressDetailView;
+	@BindView(R.id.backup_location) TextView fileLocationView;
+	@BindView(R.id.backup_types) ViewGroup fileTypesView;
+	@BindView(R.id.progress_container) View progressContainer;
+	@BindView(R.id.progress) ProgressBar progressBar;
+	@BindView(R.id.progress_detail) TextView progressDetailView;
 	private ImporterExporterTask task;
 
 	@DebugLog

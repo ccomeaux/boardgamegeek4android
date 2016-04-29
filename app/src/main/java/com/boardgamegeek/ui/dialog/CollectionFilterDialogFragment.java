@@ -19,7 +19,8 @@ import com.boardgamegeek.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -33,8 +34,8 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 	private ViewGroup root;
 	private Listener listener;
 	private final List<Integer> enabledFilterTypes = new ArrayList<>();
-	@SuppressWarnings("unused") @Bind(R.id.scroll_container) ScrollView scrollContainer;
-	@SuppressWarnings("unused") @Bind({
+	@BindView(R.id.scroll_container) ScrollView scrollContainer;
+	@BindViews({
 		R.id.collection_status,
 		R.id.subtype,
 		R.id.geek_ranking,

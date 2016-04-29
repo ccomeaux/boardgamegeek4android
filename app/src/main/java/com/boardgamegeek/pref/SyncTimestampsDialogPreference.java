@@ -12,15 +12,15 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class SyncTimestampsDialogPreference extends DialogPreference {
-	@Bind(R.id.sync_timestamp_collection_full) TextView collectionFull;
-	@Bind(R.id.sync_timestamp_collection_partial) TextView collectionPartial;
-	@Bind(R.id.sync_timestamp_buddy) TextView buddies;
-	@Bind(R.id.sync_timestamp_plays_newest_date) TextView playsNewest;
-	@Bind(R.id.sync_timestamp_plays_oldest_date) TextView playsOldest;
+	@BindView(R.id.sync_timestamp_collection_full) TextView collectionFull;
+	@BindView(R.id.sync_timestamp_collection_partial) TextView collectionPartial;
+	@BindView(R.id.sync_timestamp_buddy) TextView buddies;
+	@BindView(R.id.sync_timestamp_plays_newest_date) TextView playsNewest;
+	@BindView(R.id.sync_timestamp_plays_oldest_date) TextView playsOldest;
 
 	@SuppressWarnings("unused")
 	public SyncTimestampsDialogPreference(Context context, AttributeSet attrs) {

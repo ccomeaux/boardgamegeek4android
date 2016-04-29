@@ -27,19 +27,19 @@ import com.boardgamegeek.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int TOKEN = 0x01;
-	@SuppressWarnings("unused") @Bind(R.id.progress) View progressView;
-	@SuppressWarnings("unused") @Bind(R.id.empty) View emptyView;
-	@SuppressWarnings("unused") @Bind(R.id.data) ViewGroup dataView;
-	@SuppressWarnings("unused") @Bind(R.id.table) TableLayout table;
-	@SuppressWarnings("unused") @Bind(R.id.table_hindex) TableLayout hIndexTable;
-	@SuppressWarnings("unused") @Bind(R.id.accuracy_message) TextView accuracyMessage;
+	@BindView(R.id.progress) View progressView;
+	@BindView(R.id.empty) View emptyView;
+	@BindView(R.id.data) ViewGroup dataView;
+	@BindView(R.id.table) TableLayout table;
+	@BindView(R.id.table_hindex) TableLayout hIndexTable;
+	@BindView(R.id.accuracy_message) TextView accuracyMessage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

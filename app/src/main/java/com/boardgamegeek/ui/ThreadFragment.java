@@ -28,7 +28,7 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
@@ -207,10 +207,10 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	@SuppressWarnings("unused")
 	public static class ViewHolder {
-		@Bind(R.id.username) TextView usernameView;
-		@Bind(R.id.edit_date) TextView editDateView;
-		@Bind(R.id.body) TextView bodyView;
-		@Bind(R.id.view_button) View viewButton;
+		@BindView(R.id.username) TextView usernameView;
+		@BindView(R.id.edit_date) TextView editDateView;
+		@BindView(R.id.body) TextView bodyView;
+		@BindView(R.id.view_button) View viewButton;
 
 		@DebugLog
 		public ViewHolder(View view) {

@@ -37,7 +37,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -48,16 +48,16 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int LOCATIONS_TOKEN = 4;
 	private static final int COLORS_TOKEN = 5;
 
-	@SuppressWarnings("unused") @Bind(R.id.plays_container) LinearLayout playsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.card_footer_plays) TextView playsFooter;
-	@SuppressWarnings("unused") @Bind(R.id.players_container) LinearLayout playersContainer;
-	@SuppressWarnings("unused") @Bind(R.id.card_footer_players) TextView playersFooter;
-	@SuppressWarnings("unused") @Bind(R.id.locations_container) LinearLayout locationsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.card_footer_locations) TextView locationsFooter;
-	@SuppressWarnings("unused") @Bind(R.id.card_colors) View colorsCard;
-	@SuppressWarnings("unused") @Bind(R.id.colors_hint) View colorsHint;
-	@SuppressWarnings("unused") @Bind(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @Bind(R.id.h_index) TextView hIndexView;
+	@BindView(R.id.plays_container) LinearLayout playsContainer;
+	@BindView(R.id.card_footer_plays) TextView playsFooter;
+	@BindView(R.id.players_container) LinearLayout playersContainer;
+	@BindView(R.id.card_footer_players) TextView playersFooter;
+	@BindView(R.id.locations_container) LinearLayout locationsContainer;
+	@BindView(R.id.card_footer_locations) TextView locationsFooter;
+	@BindView(R.id.card_colors) View colorsCard;
+	@BindView(R.id.colors_hint) View colorsHint;
+	@BindView(R.id.color_container) LinearLayout colorContainer;
+	@BindView(R.id.h_index) TextView hIndexView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

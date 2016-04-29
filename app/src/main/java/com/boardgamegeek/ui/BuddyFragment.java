@@ -49,7 +49,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -73,15 +73,15 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @Bind(R.id.buddy_info) View buddyInfoView;
-	@SuppressWarnings("unused") @Bind(R.id.full_name) TextView fullNameView;
-	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @Bind(R.id.avatar) ImageView avatarView;
-	@SuppressWarnings("unused") @Bind(R.id.nickname) TextView nicknameView;
-	@SuppressWarnings("unused") @Bind(R.id.collection_card) View collectionCard;
-	@SuppressWarnings("unused") @Bind(R.id.plays_label) TextView playsView;
-	@SuppressWarnings("unused") @Bind(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @Bind(R.id.updated) TextView updatedView;
+	@BindView(R.id.buddy_info) View buddyInfoView;
+	@BindView(R.id.full_name) TextView fullNameView;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.avatar) ImageView avatarView;
+	@BindView(R.id.nickname) TextView nicknameView;
+	@BindView(R.id.collection_card) View collectionCard;
+	@BindView(R.id.plays_label) TextView playsView;
+	@BindView(R.id.color_container) LinearLayout colorContainer;
+	@BindView(R.id.updated) TextView updatedView;
 	private int defaultTextColor;
 	private int lightTextColor;
 

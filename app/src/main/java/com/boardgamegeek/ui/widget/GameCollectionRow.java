@@ -25,15 +25,15 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class GameCollectionRow extends LinearLayout {
-	@SuppressWarnings("unused") @Bind(R.id.thumbnail) ImageView thumbnailView;
-	@SuppressWarnings("unused") @Bind(R.id.status) TextView statusView;
-	@SuppressWarnings("unused") @Bind(R.id.description) TextView descriptionView;
-	@SuppressWarnings("unused") @Bind(R.id.comment) TextView commentView;
-	@SuppressWarnings("unused") @Bind(R.id.rating) TextView ratingView;
+	@BindView(R.id.thumbnail) ImageView thumbnailView;
+	@BindView(R.id.status) TextView statusView;
+	@BindView(R.id.description) TextView descriptionView;
+	@BindView(R.id.comment) TextView commentView;
+	@BindView(R.id.rating) TextView ratingView;
 
 	private int gameId;
 	private String gameName;

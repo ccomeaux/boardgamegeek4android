@@ -15,7 +15,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
@@ -30,11 +30,11 @@ public class ArticleFragment extends Fragment {
 	private int editCount;
 	private String body;
 
-	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @Bind(R.id.post_date) TextView postDateView;
-	@SuppressWarnings("unused") @Bind(R.id.edit_date) TextView editDateView;
-	@SuppressWarnings("unused") @Bind(R.id.edit_count) TextView editCountView;
-	@SuppressWarnings("unused") @Bind(R.id.body) WebView bodyView;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.post_date) TextView postDateView;
+	@BindView(R.id.edit_date) TextView editDateView;
+	@BindView(R.id.edit_count) TextView editCountView;
+	@BindView(R.id.body) WebView bodyView;
 
 	@Override
 	@DebugLog

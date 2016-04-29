@@ -63,7 +63,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -626,10 +626,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 
 		class ViewHolder {
-			@SuppressWarnings("unused") @Bind(android.R.id.title) TextView title;
-			@SuppressWarnings("unused") @Bind(android.R.id.text1) TextView text1;
-			@SuppressWarnings("unused") @Bind(android.R.id.text2) TextView text2;
-			@SuppressWarnings("unused") @Bind(android.R.id.message) TextView status;
+			@BindView(android.R.id.title) TextView title;
+			@BindView(android.R.id.text1) TextView text1;
+			@BindView(android.R.id.text2) TextView text2;
+			@BindView(android.R.id.message) TextView status;
 
 			public ViewHolder(View view) {
 				ButterKnife.bind(this, view);

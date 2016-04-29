@@ -57,7 +57,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
@@ -70,22 +70,22 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private double mRating;
 	private Stats mStats;
 
-	@Bind(R.id.progress) View mProgressView;
-	@Bind(R.id.empty) View mEmptyView;
-	@Bind(R.id.data) View mDataView;
-	@Bind(R.id.table_play_count) TableLayout mPlayCountTable;
-	@Bind(R.id.chart_play_count) HorizontalBarChart mPlayCountChart;
-	@Bind(R.id.card_wins) View mWins;
-	@Bind(R.id.table_wins) TableLayout mWinTable;
-	@Bind(R.id.card_score) View mScores;
-	@Bind(R.id.table_score) TableLayout mScoreTable;
-	@Bind(R.id.card_opponents) View mOpponents;
-	@Bind(R.id.table_opponents) TableLayout mOpponentsTable;
-	@Bind(R.id.table_dates) TableLayout mDatesTable;
-	@Bind(R.id.table_play_time) TableLayout mPlayTimeTable;
-	@Bind(R.id.card_locations) View mLocations;
-	@Bind(R.id.table_locations) TableLayout mLocationsTable;
-	@Bind(R.id.table_advanced) TableLayout mAdvancedTable;
+	@BindView(R.id.progress) View mProgressView;
+	@BindView(R.id.empty) View mEmptyView;
+	@BindView(R.id.data) View mDataView;
+	@BindView(R.id.table_play_count) TableLayout mPlayCountTable;
+	@BindView(R.id.chart_play_count) HorizontalBarChart mPlayCountChart;
+	@BindView(R.id.card_wins) View mWins;
+	@BindView(R.id.table_wins) TableLayout mWinTable;
+	@BindView(R.id.card_score) View mScores;
+	@BindView(R.id.table_score) TableLayout mScoreTable;
+	@BindView(R.id.card_opponents) View mOpponents;
+	@BindView(R.id.table_opponents) TableLayout mOpponentsTable;
+	@BindView(R.id.table_dates) TableLayout mDatesTable;
+	@BindView(R.id.table_play_time) TableLayout mPlayTimeTable;
+	@BindView(R.id.card_locations) View mLocations;
+	@BindView(R.id.table_locations) TableLayout mLocationsTable;
+	@BindView(R.id.table_advanced) TableLayout mAdvancedTable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

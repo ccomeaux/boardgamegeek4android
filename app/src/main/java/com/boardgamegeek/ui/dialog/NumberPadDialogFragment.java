@@ -18,7 +18,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
@@ -29,9 +29,9 @@ public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_COLOR = "COLOR";
 	private static final int MAX_LENGTH = 10;
 
-	@Bind(R.id.title) TextView titleView;
-	@Bind(R.id.output) TextView outputView;
-	@Bind(R.id.num_delete) View deleteView;
+	@BindView(R.id.title) TextView titleView;
+	@BindView(R.id.output) TextView outputView;
+	@BindView(R.id.num_delete) View deleteView;
 	private OnClickListener clickListener;
 	private double minValue = 0.0;
 	private double maxValue = Double.MAX_VALUE;

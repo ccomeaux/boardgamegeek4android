@@ -10,13 +10,13 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ColorUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class PollKeyRow extends LinearLayout {
-	@Bind(R.id.row_poll_key_view) View mView;
-	@Bind(R.id.row_poll_key_text) TextView mTextView;
-	@Bind(R.id.row_poll_key_info) TextView mInfoView;
+	@BindView(R.id.row_poll_key_view) View mView;
+	@BindView(R.id.row_poll_key_text) TextView mTextView;
+	@BindView(R.id.row_poll_key_info) TextView mInfoView;
 
 	public PollKeyRow(Context context) {
 		this(context, null);

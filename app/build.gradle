@@ -79,7 +79,7 @@ dependencies {
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'se.emilsjolander:stickylistheaders:2.7.0'
-    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.jakewharton:butterknife:8.0.1'
     compile 'com.jakewharton.timber:timber:4.1.2'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {

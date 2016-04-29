@@ -71,7 +71,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
@@ -82,13 +82,13 @@ import timber.log.Timber;
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	@SuppressWarnings("unused") @Bind(R.id.frame_container) ViewGroup frameContainer;
-	@SuppressWarnings("unused") @Bind(R.id.footer_container) ViewGroup footerContainer;
-	@SuppressWarnings("unused") @Bind(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
-	@SuppressWarnings("unused") @Bind(R.id.filter_scroll_view) View filterButtonScroll;
-	@SuppressWarnings("unused") @Bind(R.id.toolbar_footer) Toolbar footerToolbar;
-	@SuppressWarnings("unused") @Bind(R.id.row_count) TextView rowCountView;
-	@SuppressWarnings("unused") @Bind(R.id.sort_description) TextView sortDescriptionView;
+	@BindView(R.id.frame_container) ViewGroup frameContainer;
+	@BindView(R.id.footer_container) ViewGroup footerContainer;
+	@BindView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
+	@BindView(R.id.filter_scroll_view) View filterButtonScroll;
+	@BindView(R.id.toolbar_footer) Toolbar footerToolbar;
+	@BindView(R.id.row_count) TextView rowCountView;
+	@BindView(R.id.sort_description) TextView sortDescriptionView;
 
 	@NonNull private Handler timeUpdateHandler = new Handler();
 	@Nullable private Runnable timeUpdateRunnable = null;
@@ -98,7 +98,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@State @Nullable String viewName = "";
 	@State int sortType;
 	@State ArrayList<Integer> types;
-	@State  ArrayList<String> data;
+	@State ArrayList<String> data;
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;

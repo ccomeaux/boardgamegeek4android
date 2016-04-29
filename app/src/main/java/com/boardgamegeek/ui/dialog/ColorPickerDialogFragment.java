@@ -22,7 +22,7 @@ import com.boardgamegeek.util.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
 import icepick.Icepick;
@@ -35,9 +35,9 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	private static final String KEY_COLORS = "colors";
 	private static final String KEY_COLUMNS = "columns";
 
-	@SuppressWarnings("unused") @Bind(R.id.color_grid) GridView colorGrid;
-	@SuppressWarnings("unused") @Bind(R.id.featured_color_grid) GridView featuredColorGrid;
-	@SuppressWarnings("unused") @Bind(R.id.hr) View divider;
+	@BindView(R.id.color_grid) GridView colorGrid;
+	@BindView(R.id.featured_color_grid) GridView featuredColorGrid;
+	@BindView(R.id.hr) View divider;
 
 	private ColorGridAdapter colorGridAdapter;
 	private ColorGridAdapter featuredColorGridAdapter;

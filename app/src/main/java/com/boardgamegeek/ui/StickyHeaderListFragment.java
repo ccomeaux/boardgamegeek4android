@@ -29,7 +29,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -95,13 +95,13 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	private static final int SCROLL_THRESHOLD = 20;
-	@SuppressWarnings("unused") @Bind(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@Nullable @SuppressWarnings("unused") @Bind(R.id.empty_container) ViewGroup emptyContainer;
-	@Nullable @SuppressWarnings("unused") @Bind(android.R.id.empty) TextView emptyTextView;
-	@Nullable @SuppressWarnings("unused") @Bind(R.id.empty_button) Button emptyButton;
-	@Nullable @SuppressWarnings("unused") @Bind(R.id.progressContainer) View progressContainer;
-	@Nullable @SuppressWarnings("unused") @Bind(R.id.listContainer) View listContainer;
-	@SuppressWarnings("unused") @Bind(R.id.fab) View fabView;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@Nullable @BindView(R.id.empty_container) ViewGroup emptyContainer;
+	@Nullable @BindView(android.R.id.empty) TextView emptyTextView;
+	@Nullable @BindView(R.id.empty_button) Button emptyButton;
+	@Nullable @BindView(R.id.progressContainer) View progressContainer;
+	@Nullable @BindView(R.id.listContainer) View listContainer;
+	@BindView(R.id.fab) View fabView;
 	@Nullable private StickyListHeadersListView listView;
 	@Nullable private StickyListHeadersAdapter adapter;
 	private CharSequence emptyText;

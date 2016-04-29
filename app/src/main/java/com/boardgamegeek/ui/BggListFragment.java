@@ -24,7 +24,7 @@ import com.squareup.picasso.Picasso;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
@@ -46,12 +46,12 @@ public abstract class BggListFragment extends Fragment {
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private ListAdapter mAdapter;
-	@Bind(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@Bind(android.R.id.empty) TextView mEmptyView;
-	@Bind(R.id.progress_container) View mProgressContainer;
-	@Bind(R.id.list_container) View mListContainer;
-	@Bind(android.R.id.list) ListView mList;
-	@Bind(R.id.fab) View mFab;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@BindView(android.R.id.empty) TextView mEmptyView;
+	@BindView(R.id.progress_container) View mProgressContainer;
+	@BindView(R.id.list_container) View mListContainer;
+	@BindView(android.R.id.list) ListView mList;
+	@BindView(R.id.fab) View mFab;
 
 	final private Runnable mRequestFocus = new Runnable() {
 		public void run() {

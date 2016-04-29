@@ -18,7 +18,7 @@ import android.widget.EditText;
 
 import com.boardgamegeek.R;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class EditTextDialogFragment extends DialogFragment {
@@ -33,7 +33,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	private boolean isUsername;
 	private boolean isLongForm;
 
-	@SuppressWarnings("unused") @Bind(R.id.edit_text) EditText editText;
+	@BindView(R.id.edit_text) EditText editText;
 	private String existingText;
 
 	@NonNull

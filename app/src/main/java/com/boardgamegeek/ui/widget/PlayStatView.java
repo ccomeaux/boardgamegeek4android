@@ -25,15 +25,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class PlayStatView extends TableRow {
-	@Bind(R.id.label) TextView labelView;
-	@Bind(R.id.value) TextView valueView;
-	@Bind(R.id.info) ImageView infoImageView;
-	@Bind(R.id.label_container) View container;
+	@BindView(R.id.label) TextView labelView;
+	@BindView(R.id.value) TextView valueView;
+	@BindView(R.id.info) ImageView infoImageView;
+	@BindView(R.id.label_container) View container;
 	private AlertDialog.Builder builder;
 
 	public PlayStatView(Context context) {

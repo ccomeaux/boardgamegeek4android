@@ -24,7 +24,7 @@ import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
@@ -38,11 +38,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private String username;
 	private String password;
 
-	@SuppressWarnings("unused") @Bind(R.id.username) EditText usernameView;
-	@SuppressWarnings("unused") @Bind(R.id.password) EditText passwordView;
-	@SuppressWarnings("unused") @Bind(R.id.login_form) View loginFormView;
-	@SuppressWarnings("unused") @Bind(R.id.login_status) View loginStatusView;
-	@SuppressWarnings("unused") @Bind(R.id.login_status_message) TextView loginStatusMessageView;
+	@BindView(R.id.username) EditText usernameView;
+	@BindView(R.id.password) EditText passwordView;
+	@BindView(R.id.login_form) View loginFormView;
+	@BindView(R.id.login_status) View loginStatusView;
+	@BindView(R.id.login_status_message) TextView loginStatusMessageView;
 
 	private UserLoginTask userLoginTask = null;
 	private AccountManager accountManager;
