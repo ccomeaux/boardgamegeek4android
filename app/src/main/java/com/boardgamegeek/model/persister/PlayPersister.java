@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.Play.Subtype;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -57,20 +58,20 @@ public class PlayPersister {
 	 */
 	private static final int STATUS_UNCHANGED = -2;
 
-	private Context mContext;
-	private ContentResolver mResolver;
-	private ArrayList<ContentProviderOperation> mBatch;
+	private final Context context;
+	private final ContentResolver resolver;
+	private ArrayList<ContentProviderOperation> batch;
 
 	public PlayPersister(Context context) {
-		mContext = context;
-		mResolver = context.getContentResolver();
+		this.context = context;
+		resolver = context.getContentResolver();
 	}
 
 	/*
 	 * Delete the play from the content provider.
 	 */
 	public boolean delete(Play play) {
-		return mResolver.delete(play.uri(), null, null) > 0;
+		return resolver.delete(play.uri(), null, null) > 0;
 	}
 
 	public void save(List<Play> plays, long startTime) {
@@ -120,7 +121,7 @@ public class PlayPersister {
 						break;
 				}
 			}
-			ResolverUtils.applyBatch(mContext, batch);
+			ResolverUtils.applyBatch(context, batch);
 		}
 		Timber.i(String.format(
 			"Updated %1$s, inserted %2$s, %8$s unchanged, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
@@ -140,18 +141,22 @@ public class PlayPersister {
 	}
 
 	private void save(Play play, int status) {
-		mBatch = new ArrayList<>();
+		batch = new ArrayList<>();
 		ContentValues values = createContentValues(play);
 		List<Integer> itemObjectIds = null;
 		List<Integer> playerUserIds = null;
+
+		if (!shouldSave(play)) {
+			return;
+		}
 
 		String debugMessage = null;
 		if (status == STATUS_UPDATE) {
 			debugMessage = "Updating play ID " + play.playId;
 			deletePlayerWithNullUserId(play);
 			playerUserIds = determineUniqueUserIds(play);
-			itemObjectIds = ResolverUtils.queryInts(mResolver, play.itemUri(), PlayItems.OBJECT_ID);
-			mBatch.add(ContentProviderOperation.newUpdate(play.uri()).withValues(values).build());
+			itemObjectIds = ResolverUtils.queryInts(resolver, play.itemUri(), PlayItems.OBJECT_ID);
+			batch.add(ContentProviderOperation.newUpdate(play.uri()).withValues(values).build());
 		} else if (status == STATUS_INSERT) {
 			if (!play.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as draft
@@ -173,7 +178,7 @@ public class PlayPersister {
 			if (!values.containsKey(Plays.UPDATED_LIST)) {
 				values.put(Plays.UPDATED_LIST, play.updated);
 			}
-			mBatch.add(ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build());
+			batch.add(ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build());
 		}
 
 		updateOrInsertItem(play, itemObjectIds);
@@ -186,16 +191,32 @@ public class PlayPersister {
 			updateBuddyNicknames(play);
 		}
 
-		ResolverUtils.applyBatch(mContext, mBatch, debugMessage);
+		ResolverUtils.applyBatch(context, batch, debugMessage);
 		Timber.i("Saved play ID=" + play.playId);
+	}
+
+	private boolean shouldSave(Play play) {
+		if (play == null) {
+			return false;
+		}
+		if (play.subtypes == null || play.subtypes.isEmpty()) {
+			return true;
+		}
+		for (Subtype subtype : play.subtypes) {
+			if (subtype.value.startsWith("boardgame")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/*
 	 * Gets an ID to use as a temporary placeholder until the game is synced with the 'Geek.
 	 */
+
 	private int getTemporaryId() {
 		int id = Play.UNSYNCED_PLAY_ID;
-		int lastId = ResolverUtils.queryInt(mResolver, Plays.CONTENT_SIMPLE_URI, "MAX(plays." + Plays.PLAY_ID + ")");
+		int lastId = ResolverUtils.queryInt(resolver, Plays.CONTENT_SIMPLE_URI, "MAX(plays." + Plays.PLAY_ID + ")");
 		if (lastId >= id) {
 			id = lastId + 1;
 		}
@@ -221,7 +242,7 @@ public class PlayPersister {
 				}
 				Timber.i("Not saving during the sync due to status=" + status);
 			} else {
-				int oldSyncHashCode = ResolverUtils.queryInt(mResolver, play.uri(), Plays.SYNC_HASH_CODE);
+				int oldSyncHashCode = ResolverUtils.queryInt(resolver, play.uri(), Plays.SYNC_HASH_CODE);
 				int newSyncHashCode = generateSyncHashCode(play);
 				if (oldSyncHashCode == newSyncHashCode) {
 					status = STATUS_UNCHANGED;
@@ -236,12 +257,12 @@ public class PlayPersister {
 	}
 
 	private void deletePlayerWithNullUserId(Play play) {
-		mBatch.add(ContentProviderOperation.newDelete(play.playerUri())
+		batch.add(ContentProviderOperation.newDelete(play.playerUri())
 			.withSelection(PlayPlayers.USER_ID + " IS NULL", null).build());
 	}
 
 	private boolean playExistsInDatabase(Play play) {
-		return play.playId != BggContract.INVALID_ID && ResolverUtils.rowExists(mResolver, play.uri());
+		return play.playId != BggContract.INVALID_ID && ResolverUtils.rowExists(resolver, play.uri());
 
 	}
 
@@ -249,7 +270,7 @@ public class PlayPersister {
 		if (play.playId == BggContract.INVALID_ID) {
 			return Play.SYNC_STATUS_NOT_STORED;
 		}
-		return ResolverUtils.queryInt(mResolver, play.uri(), Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
+		return ResolverUtils.queryInt(resolver, play.uri(), Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
 	}
 
 	private static int generateSyncHashCode(Play play) {
@@ -297,7 +318,7 @@ public class PlayPersister {
 	}
 
 	private List<Integer> determineUniqueUserIds(Play play) {
-		List<Integer> ids = ResolverUtils.queryInts(mResolver, play.playerUri(), PlayPlayers.USER_ID);
+		List<Integer> ids = ResolverUtils.queryInts(resolver, play.playerUri(), PlayPlayers.USER_ID);
 
 		if (ids == null || ids.size() == 0) {
 			return new ArrayList<>();
@@ -318,7 +339,7 @@ public class PlayPersister {
 		}
 
 		for (Integer id : idsToDelete) {
-			mBatch.add(ContentProviderOperation.newDelete(play.playerUri())
+			batch.add(ContentProviderOperation.newDelete(play.playerUri())
 				.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(id) }).build());
 			uniqueIds.remove(id);
 		}
@@ -332,10 +353,10 @@ public class PlayPersister {
 		values.put(PlayItems.NAME, play.gameName);
 
 		if (itemObjectIds != null && itemObjectIds.remove(Integer.valueOf(objectId))) {
-			mBatch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
+			batch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
 		} else {
 			values.put(PlayItems.OBJECT_ID, objectId);
-			mBatch.add(ContentProviderOperation.newInsert(play.itemUri()).withValues(values).build());
+			batch.add(ContentProviderOperation.newInsert(play.itemUri()).withValues(values).build());
 		}
 	}
 
@@ -356,12 +377,12 @@ public class PlayPersister {
 			values.put(PlayPlayers.WIN, player.Win());
 
 			if (playerUserIds != null && playerUserIds.remove(Integer.valueOf(userId))) {
-				mBatch.add(ContentProviderOperation.newUpdate(play.playerUri())
+				batch.add(ContentProviderOperation.newUpdate(play.playerUri())
 					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(userId) })
 					.withValues(values).build());
 			} else {
 				values.put(PlayPlayers.USER_ID, userId);
-				mBatch.add(ContentProviderOperation.newInsert(play.playerUri()).withValues(values).build());
+				batch.add(ContentProviderOperation.newInsert(play.playerUri()).withValues(values).build());
 			}
 		}
 	}
@@ -369,7 +390,7 @@ public class PlayPersister {
 	private void removeUnusedItems(Play play, List<Integer> itemObjectIds) {
 		if (itemObjectIds != null) {
 			for (Integer itemObjectId : itemObjectIds) {
-				mBatch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.playId, itemObjectId)).build());
+				batch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.playId, itemObjectId)).build());
 			}
 		}
 	}
@@ -377,7 +398,7 @@ public class PlayPersister {
 	private void removeUnusedPlayers(Play play, List<Integer> playerUserIds) {
 		if (playerUserIds != null) {
 			for (Integer playerUserId : playerUserIds) {
-				mBatch.add(ContentProviderOperation.newDelete(play.playerUri())
+				batch.add(ContentProviderOperation.newDelete(play.playerUri())
 					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(playerUserId) }).build());
 			}
 		}
@@ -389,13 +410,13 @@ public class PlayPersister {
 		}
 
 		Uri gameUri = Games.buildGameUri(play.gameId);
-		if (!ResolverUtils.rowExists(mResolver, gameUri)) {
+		if (!ResolverUtils.rowExists(resolver, gameUri)) {
 			return;
 		}
 
 		ContentValues values = new ContentValues(1);
 		values.put(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted());
-		mResolver.update(gameUri, values, null, null);
+		resolver.update(gameUri, values, null, null);
 	}
 
 	/**
@@ -405,7 +426,7 @@ public class PlayPersister {
 		if (play.getPlayerCount() == 0) {
 			return;
 		}
-		if (!ResolverUtils.rowExists(mResolver, Games.buildGameUri(play.gameId))) {
+		if (!ResolverUtils.rowExists(resolver, Games.buildGameUri(play.gameId))) {
 			return;
 		}
 
@@ -420,7 +441,7 @@ public class PlayPersister {
 		}
 		if (values.size() > 0) {
 			ContentValues[] array = {};
-			mResolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
+			resolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
 		}
 	}
 
@@ -433,7 +454,7 @@ public class PlayPersister {
 				if (!TextUtils.isEmpty(player.username) && !TextUtils.isEmpty(player.name)) {
 					ContentValues values = new ContentValues();
 					values.put(Buddies.PLAY_NICKNAME, player.name);
-					mResolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?", new String[] { player.username });
+					resolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?", new String[] { player.username });
 				}
 			}
 		}
