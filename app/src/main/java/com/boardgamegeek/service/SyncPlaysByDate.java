@@ -47,7 +47,7 @@ public class SyncPlaysByDate extends UpdateTask {
 		PlaysResponse response;
 		try {
 			long startTime = System.currentTimeMillis();
-			response = service.playsByDate(account.name, date, date, "").execute().body();
+			response = service.playsByDate(account.name, date, date).execute().body();
 			persister.save(response.plays, startTime);
 			SyncService.hIndex(context);
 			Timber.i("Synced plays for date " + date);

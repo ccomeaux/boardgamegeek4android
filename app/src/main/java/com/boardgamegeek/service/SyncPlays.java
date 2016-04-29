@@ -71,7 +71,7 @@ public class SyncPlays extends SyncTask {
 					}
 					page++;
 				} while (response != null && response.hasMorePages());
-				deleteUnupdatedPlaysSince(newestSyncDate, syncResult);
+				deleteUnupdatedPlaysSince(newestSyncDate);
 			}
 
 			long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
@@ -86,7 +86,7 @@ public class SyncPlays extends SyncTask {
 					}
 					page++;
 				} while (response != null && response.hasMorePages());
-				deleteUnupdatedPlaysBefore(oldestDate, syncResult);
+				deleteUnupdatedPlaysBefore(oldestDate);
 				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
 			SyncService.hIndex(context);
@@ -97,10 +97,10 @@ public class SyncPlays extends SyncTask {
 
 	private PlaysResponse executeCall(String username, String minDate, String maxDate, int page) throws IOException {
 		showNotification(minDate, maxDate, page);
-		Call<PlaysResponse> call = service.plays(username, minDate, maxDate, null, page);
+		Call<PlaysResponse> call = service.plays(username, minDate, maxDate, page);
 		Response<PlaysResponse> response = call.execute();
 		if (response.isSuccessful()) {
-			persist(response.body(), syncResult);
+			persist(response.body());
 			updateTimeStamps(response.body());
 		} else {
 			Timber.w("Unsuccessful plays fetch with code: %s", response.code());
@@ -126,7 +126,7 @@ public class SyncPlays extends SyncTask {
 		showNotification(message);
 	}
 
-	private void persist(@NonNull PlaysResponse response, @NonNull SyncResult syncResult) {
+	private void persist(@NonNull PlaysResponse response) {
 		if (response.plays != null && response.plays.size() > 0) {
 			if (persister == null) {
 				persister = new PlayPersister(context);
@@ -139,19 +139,17 @@ public class SyncPlays extends SyncTask {
 		}
 	}
 
-	private void deleteUnupdatedPlaysSince(long time, @NonNull SyncResult syncResult) {
-		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "="
-				+ Play.SYNC_STATUS_SYNCED,
-			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
+	private void deleteUnupdatedPlaysSince(long time) {
+		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED,
+			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) });
 	}
 
-	private void deleteUnupdatedPlaysBefore(long time, @NonNull SyncResult syncResult) {
-		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "="
-				+ Play.SYNC_STATUS_SYNCED,
-			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
+	private void deleteUnupdatedPlaysBefore(long time) {
+		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED,
+			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) });
 	}
 
-	private void deletePlays(String selection, String[] selectionArgs, @NonNull SyncResult syncResult) {
+	private void deletePlays(String selection, String[] selectionArgs) {
 		int count = context.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
 		// TODO: verify this number is correct
 		syncResult.stats.numDeletes += count;
