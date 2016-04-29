@@ -55,7 +55,7 @@
 	<string name="pref_sync_reset_buddies_info_message">This will delete all GeekBuddies, then force a complete sync. This may take a while, but it is recommended if all GeekBuddies aren\'t appearing.</string>
 	<string name="pref_sync_reset_success">Sync started</string>
 	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
-	<string name="pref_sync_timestamps">View sync timestamps</string>
+	<string name="pref_sync_timestamps">Timestamps</string>
 	<string name="pref_sync_timestamps_collection_full">Last Full Collection Sync</string>
 	<string name="pref_sync_timestamps_collection_partial">Last Partial Collection Sync</string>
 	<string name="pref_sync_timestamps_plays_newest_date">Newest Synced Play Date</string>

@@ -115,12 +115,12 @@ public class Play {
 
 	@Path("item")
 	@ElementList
-	List<Subtype> subtypes;
+	public List<Subtype> subtypes;
 
 	@Root(name = "subtype")
-	static class Subtype {
+	public static class Subtype {
 		@Attribute
-		String value;
+		public String value;
 	}
 
 	@Element(required = false)

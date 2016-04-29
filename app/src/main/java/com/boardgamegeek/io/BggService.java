@@ -66,25 +66,13 @@ public interface BggService {
 	Call<ThingResponse> thingWithRatings(@Query("id") int gameId, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> plays(@QueryMap Map<String, String> options);
-
-	@GET("/xmlapi2/plays")
 	Call<PlaysResponse> playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
 
 	@GET("/xmlapi2/plays")
 	Call<PlaysResponse> playsByGame(@Query("username") String username, @Query("id") int gameId);
 
 	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> plays(@Query("username") String username, @Query("id") int gameId, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
-
-	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> playsByMinDate(@Query("username") String username, @Query("mindate") String minDate, @Query("page") int page);
-
-	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> playsByMaxDate(@Query("username") String username, @Query("maxdate") String maxDate, @Query("page") int page);
-
-	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> plays(@Query("username") String username, @Query("page") int page);
+	Call<PlaysResponse> plays(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate, @Query("page") int page);
 
 	@GET("/xmlapi2/user")
 	Call<User> user(@Query("name") String name);
