@@ -32,6 +32,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -95,6 +96,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	private static final int SCROLL_THRESHOLD = 20;
+	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@Nullable @BindView(R.id.empty_container) ViewGroup emptyContainer;
 	@Nullable @BindView(android.R.id.empty) TextView emptyTextView;
@@ -145,6 +147,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		progressContainer = listContainer = null;
 		emptyTextView = null;
 		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -353,7 +356,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		ButterKnife.bind(this, root);
+		unbinder = ButterKnife.bind(this, root);
 
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.setEnabled(isRefreshable());

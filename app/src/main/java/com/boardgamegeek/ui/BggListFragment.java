@@ -27,6 +27,7 @@ import java.util.Queue;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
 
@@ -46,6 +47,7 @@ public abstract class BggListFragment extends Fragment {
 	private CharSequence mEmptyText;
 	private boolean mListShown;
 	private ListAdapter mAdapter;
+	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
 	@BindView(android.R.id.empty) TextView mEmptyView;
 	@BindView(R.id.progress_container) View mProgressContainer;
@@ -112,6 +114,7 @@ public abstract class BggListFragment extends Fragment {
 		mListContainer = null;
 		mEmptyView = null;
 		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -316,7 +319,7 @@ public abstract class BggListFragment extends Fragment {
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		ButterKnife.bind(this, root);
+		unbinder = ButterKnife.bind(this, root);
 
 		mSwipeRefreshLayout.setEnabled(false);
 
