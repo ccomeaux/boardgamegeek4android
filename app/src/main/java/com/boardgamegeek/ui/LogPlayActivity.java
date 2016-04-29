@@ -678,7 +678,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			captureForm();
 		}
 		mPlay.syncStatus = syncStatus;
-		new PlayPersister(this).save(this, mPlay);
+		new PlayPersister(this).save(mPlay);
 		return true;
 	}
 

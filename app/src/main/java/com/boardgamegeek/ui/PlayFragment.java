@@ -508,7 +508,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void save(int status) {
 		mPlay.syncStatus = status;
-		new PlayPersister(getActivity()).save(null, mPlay);
+		new PlayPersister(getActivity()).save(mPlay);
 		triggerRefresh();
 	}
 

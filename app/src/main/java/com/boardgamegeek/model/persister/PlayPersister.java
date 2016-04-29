@@ -131,7 +131,7 @@ public class PlayPersister {
 	/*
 	 * Save the play while not syncing.
 	 */
-	public void save(Context context, Play play) {
+	public void save(Play play) {
 		if (playExistsInDatabase(play)) {
 			save(play, STATUS_UPDATE);
 		} else {
