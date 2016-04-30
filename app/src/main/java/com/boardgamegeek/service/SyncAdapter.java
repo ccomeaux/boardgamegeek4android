@@ -47,7 +47,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		this.context = context;
 		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 
-		// // noinspection ConstantConditions,PointlessBooleanExpression
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 				@Override

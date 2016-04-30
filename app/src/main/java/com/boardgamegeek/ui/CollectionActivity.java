@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -33,7 +33,7 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
+public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor>, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
 	private CollectionViewAdapter adapter;
 	private long viewId;
