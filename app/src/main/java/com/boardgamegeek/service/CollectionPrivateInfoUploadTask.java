@@ -9,10 +9,10 @@ import java.text.DecimalFormat;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
+import timber.log.Timber;
 
 public class CollectionPrivateInfoUploadTask extends CollectionUploadTask {
-	private static final DecimalFormat CURRENCY_FORMAT = new DecimalFormat("#.00");
-	private String comment;
+	private static final DecimalFormat CURRENCY_FORMAT = new DecimalFormat("0.00");
 
 	public CollectionPrivateInfoUploadTask(OkHttpClient client) {
 		super(client);
@@ -33,19 +33,26 @@ public class CollectionPrivateInfoUploadTask extends CollectionUploadTask {
 		return createFormBuilder()
 			.add("fieldname", "ownership")
 			.add("pp_currency", collectionItem.getPricePaidCurrency())
-			.add("pricepaid", CURRENCY_FORMAT.format(collectionItem.getPricePaid()))
+			.add("pricepaid", formatCurrency(collectionItem.getPricePaid()))
 			.add("cv_currency", collectionItem.getCurrentValueCurrency())
-			.add("currvalue", CURRENCY_FORMAT.format(collectionItem.getCurrentValue())) // TODO handle empty string (not the same as 0)
+			.add("currvalue", formatCurrency(collectionItem.getCurrentValue()))
 			.add("quantity", String.valueOf(collectionItem.getQuantity()))
-			.add("acquisitiondate", collectionItem.getAcquisitionDate()) // TODO ensure YYYY-MM-DD
+			.add("acquisitiondate", collectionItem.getAcquisitionDate())
 			.add("acquiredfrom", collectionItem.getAcquiredFrom())
 			.add("privatecomment", collectionItem.getPrivateComment())
 			.build();
 	}
 
+	private String formatCurrency(double pricePaid) {
+		if (pricePaid == 0.0) {
+			return "";
+		}
+		return CURRENCY_FORMAT.format(pricePaid);
+	}
+
 	@Override
 	protected void saveContent(String content) {
-		comment = content;
+		Timber.d(content);
 	}
 
 //	<table cellspacing=1 cellpadding=1 width='100%' class='collectiontable_ownership'>
@@ -69,7 +76,6 @@ public class CollectionPrivateInfoUploadTask extends CollectionUploadTask {
 
 	@Override
 	public void appendContentValues(ContentValues contentValues) {
-		// TODO
 		contentValues.put(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, 0);
 	}
 }
