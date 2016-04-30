@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
 			  android:orientation="vertical"
@@ -8,10 +9,120 @@
 			  android:paddingRight="@dimen/material_margin_horizontal"
 			  android:paddingTop="@dimen/material_margin_vertical">
 
-	<EditText
-		android:id="@+id/comment"
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:imeOptions="actionDone"
-		android:inputType="text"/>
+		android:gravity="center_vertical"
+		android:orientation="horizontal">
+
+		<Spinner
+			android:id="@+id/price_currency"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/input_price"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/price"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/price"
+				android:inputType="numberDecimal"
+				android:maxLines="1"/>
+		</android.support.design.widget.TextInputLayout>
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:orientation="horizontal">
+
+		<Spinner
+			android:id="@+id/current_value_currency"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/input_current_value"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/current_value"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/current_value"
+				android:inputType="numberDecimal"
+				android:maxLines="1"/>
+		</android.support.design.widget.TextInputLayout>
+	</LinearLayout>
+
+	<android.support.design.widget.TextInputLayout
+		android:id="@+id/input_quantity"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<android.support.design.widget.TextInputEditText
+			android:id="@+id/quantity"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/quantity"
+			android:inputType="number"
+			android:maxLines="1"/>
+	</android.support.design.widget.TextInputLayout>
+
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:hint="@string/acquisition_date"
+		android:paddingLeft="4dp"
+		android:textColor="?attr/colorControlActivated"
+		android:textSize="12sp"/>
+
+	<TextView
+		android:id="@+id/acquisition_date"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackground"
+		android:clickable="true"
+		android:focusable="true"
+		android:gravity="left|center_vertical"
+		android:hint="@string/acquisition_date"
+		android:minHeight="48dp"
+		android:paddingLeft="4dp"
+		android:textAppearance="@style/Text.Big"
+		tools:text="January 1, 1970"/>
+
+	<android.support.design.widget.TextInputLayout
+		android:id="@+id/input_acquired_from"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<android.support.design.widget.TextInputEditText
+			android:id="@+id/acquired_from"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/acquired_from"
+			android:inputType="textCapWords"
+			android:maxLines="1"/>
+	</android.support.design.widget.TextInputLayout>
+
+	<android.support.design.widget.TextInputLayout
+		android:id="@+id/input_comment"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<android.support.design.widget.TextInputEditText
+			android:id="@+id/comment"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/private_comment"
+			android:imeOptions="actionDone"
+			android:inputType="textCapSentences|textMultiLine"/>
+	</android.support.design.widget.TextInputLayout>
 </LinearLayout>
