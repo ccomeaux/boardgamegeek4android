@@ -45,7 +45,7 @@ public class SyncGamesUnupdated extends SyncGames {
 
 	@Override
 	protected int getMaxFetchCount() {
-		return 100;
+		return 20;
 	}
 
 	@Override

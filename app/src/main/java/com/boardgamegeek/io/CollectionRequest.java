@@ -31,8 +31,9 @@ public class CollectionRequest {
 				Timber.w("Unsuccessful collection fetch with code: %s", response.code());
 			}
 		} catch (IOException e) {
+			// This is probably caused by a timeout, but for now treat it like an empty response
 			Timber.w(e, "Unsuccessful collection fetch");
 		}
-		return null;
+		return new CollectionResponse();
 	}
 }

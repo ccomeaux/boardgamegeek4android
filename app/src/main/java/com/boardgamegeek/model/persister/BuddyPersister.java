@@ -44,21 +44,23 @@ public class BuddyPersister {
 		StringBuilder debugMessage = new StringBuilder();
 		if (buddies != null) {
 			for (User buddy : buddies) {
-				Uri uri = Buddies.buildBuddyUri(buddy.name);
-				ContentValues values = new ContentValues();
-				values.put(Buddies.UPDATED, updateTime);
-				int oldSyncHashCode = ResolverUtils.queryInt(resolver, uri, Buddies.SYNC_HASH_CODE);
-				int newSyncHashCode = generateSyncHashCode(buddy);
-				if (oldSyncHashCode != newSyncHashCode) {
-					values.put(Buddies.BUDDY_ID, buddy.getId());
-					values.put(Buddies.BUDDY_NAME, buddy.name);
-					values.put(Buddies.BUDDY_FIRSTNAME, buddy.firstName);
-					values.put(Buddies.BUDDY_LASTNAME, buddy.lastName);
-					values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
-					values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
+				if (!TextUtils.isEmpty(buddy.name)) {
+					Uri uri = Buddies.buildBuddyUri(buddy.name);
+					ContentValues values = new ContentValues();
+					values.put(Buddies.UPDATED, updateTime);
+					int oldSyncHashCode = ResolverUtils.queryInt(resolver, uri, Buddies.SYNC_HASH_CODE);
+					int newSyncHashCode = generateSyncHashCode(buddy);
+					if (oldSyncHashCode != newSyncHashCode) {
+						values.put(Buddies.BUDDY_ID, buddy.getId());
+						values.put(Buddies.BUDDY_NAME, buddy.name);
+						values.put(Buddies.BUDDY_FIRSTNAME, buddy.firstName);
+						values.put(Buddies.BUDDY_LASTNAME, buddy.lastName);
+						values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
+						values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
+					}
+					debugMessage.append("Saving ").append(uri).append("; ");
+					addToBatch(resolver, values, batch, uri, debugMessage);
 				}
-				debugMessage.append("Updating ").append(uri).append("; ");
-				addToBatch(resolver, values, batch, uri, debugMessage);
 			}
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch, debugMessage.toString());

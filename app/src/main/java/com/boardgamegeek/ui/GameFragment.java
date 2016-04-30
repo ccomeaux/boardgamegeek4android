@@ -206,7 +206,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
-		lm.restartLoader(CollectionQuery._TOKEN, null, this);
 		if (shouldShowPlays()) {
 			lm.restartLoader(PlaysQuery._TOKEN, null, this);
 		}
@@ -310,6 +309,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case GameQuery._TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
+				lm.restartLoader(CollectionQuery._TOKEN, null, this);
 				lm.restartLoader(DesignerQuery._TOKEN, null, this);
 				lm.restartLoader(ArtistQuery._TOKEN, null, this);
 				lm.restartLoader(PublisherQuery._TOKEN, null, this);

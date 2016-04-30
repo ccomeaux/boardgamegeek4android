@@ -253,8 +253,10 @@ public class BuddyColorsActivity extends BaseActivity {
 		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
 			public void onColorSelected(String description, int color) {
-				colors.add(new BuddyColor(description, colors.size() + 1));
-				bindUi();
+				if (colors != null) {
+					colors.add(new BuddyColor(description, colors.size() + 1));
+					bindUi();
+				}
 			}
 		});
 
