@@ -264,10 +264,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.comment_container)
-	public void onCommentClick(View v) {
+	public void onCommentClick() {
 		ensureCommentDialogFragment();
 		commentDialogFragment.setText(comment.getText().toString());
 		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
@@ -290,10 +289,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		}
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.rating_container)
-	public void onRatingClick(View v) {
+	public void onRatingClick() {
 		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
 		if ("0".equals(output)) {
 			output = "";

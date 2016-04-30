@@ -609,26 +609,23 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.rank_root)
 	@DebugLog
-	public void onRankClick(View v) {
+	public void onRankClick() {
 		isRanksExpanded = !isRanksExpanded;
 		openOrCloseRanks();
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.game_description)
 	@DebugLog
-	public void onDescriptionClick(View v) {
+	public void onDescriptionClick() {
 		isDescriptionExpanded = !isDescriptionExpanded;
 		openOrCloseDescription();
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
 	@DebugLog
-	public void onPlaysClick(View v) {
+	public void onPlaysClick() {
 		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
@@ -638,59 +635,54 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.play_stats_root)
 	@DebugLog
-	public void onPlayStatsClick(View v) {
+	public void onPlayStatsClick() {
 		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.colors_root)
 	@DebugLog
-	public void onColorsClick(View v) {
+	public void onColorsClick() {
 		Intent intent = new Intent(getActivity(), ColorsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.forums_root)
 	@DebugLog
-	public void onForumsClick(View v) {
+	public void onForumsClick() {
 		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.language_dependence_root)
 	@DebugLog
-	public void onLanguageDependenceClick(View v) {
+	public void onLanguageDependenceClick() {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
 		arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.comments_root)
 	@DebugLog
-	public void onCommentsClick(@SuppressWarnings("UnusedParameters") View v) {
+	public void onCommentsClick() {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
+	@DebugLog
 	@OnClick(R.id.ratings_root)
-	public void onRatingsClick(@SuppressWarnings("UnusedParameters") View v) {
+	public void onRatingsClick() {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
@@ -714,8 +706,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@SuppressWarnings("unused")
 	@DebugLog
 	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_ebay })
-	void onLinkClick(View v) {
-		switch (v.getId()) {
+	void onLinkClick(View view) {
+		switch (view.getId()) {
 			case R.id.link_bgg:
 				ActivityUtils.linkBgg(getActivity(), Games.getGameId(gameUri));
 				break;
@@ -731,13 +723,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick({ R.id.number_of_players, R.id.player_age })
 	@DebugLog
-	public void onPollClick(View v) {
+	public void onPollClick(View view) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, (String) v.getTag());
+		arguments.putString(ActivityUtils.KEY_TYPE, (String) view.getTag());
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 

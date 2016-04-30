@@ -400,14 +400,13 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		fabView.setVisibility(show ? View.VISIBLE : View.GONE);
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@OnClick(R.id.fab)
 	protected void onFabClicked(View v) {
 		// convenience for overriding
 	}
 
 	@OnClick(R.id.empty_button)
-	void onSyncClick(View v) {
+	void onSyncClick() {
 		SyncService.clearCollection(getActivity());
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
 	}

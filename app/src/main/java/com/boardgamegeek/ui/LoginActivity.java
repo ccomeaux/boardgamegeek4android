@@ -105,9 +105,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	}
 
 	@DebugLog
-	@SuppressWarnings({ "UnusedParameters", "unused" })
 	@OnClick(R.id.sign_in_button)
-	public void onSignInClick(View view) {
+	public void onSignInClick() {
 		attemptLogin();
 	}
 

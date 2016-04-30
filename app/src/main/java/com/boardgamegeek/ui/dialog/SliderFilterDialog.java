@@ -83,7 +83,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	@OnClick(R.id.min_up)
-	public void onMinUpClick(View v) {
+	public void onMinUpClick() {
 		if (rangeBar.getLeftIndex() < rangeBar.getTickCount() - 1) {
 			if (rangeBar.getLeftIndex() == rangeBar.getRightIndex()) {
 				updateRange(rangeBar.getLeftIndex() + 1, rangeBar.getRightIndex() + 1);
@@ -94,21 +94,21 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	@OnClick(R.id.min_down)
-	public void onMinDownClick(View v) {
+	public void onMinDownClick() {
 		if (rangeBar.getLeftIndex() > 0) {
 			updateRange(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex());
 		}
 	}
 
 	@OnClick(R.id.max_up)
-	public void onMaxUpClick(View v) {
+	public void onMaxUpClick() {
 		if (rangeBar.getRightIndex() < rangeBar.getTickCount() - 1) {
 			updateRange(rangeBar.getLeftIndex(), rangeBar.getRightIndex() + 1);
 		}
 	}
 
 	@OnClick(R.id.max_down)
-	public void onMaxDownClick(View v) {
+	public void onMaxDownClick() {
 		if (rangeBar.getRightIndex() > 0) {
 			if (rangeBar.getLeftIndex() == rangeBar.getRightIndex()) {
 				updateRange(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex() - 1);

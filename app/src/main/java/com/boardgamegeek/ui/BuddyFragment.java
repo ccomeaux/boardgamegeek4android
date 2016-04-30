@@ -73,7 +73,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@State boolean hasBeenRefreshed;
 
 	private Unbinder unbinder;
-	private ViewGroup rootView;
 	private SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.buddy_info) View buddyInfoView;
 	@BindView(R.id.full_name) TextView fullNameView;
@@ -106,7 +105,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
 
@@ -271,9 +270,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.nickname)
-	public void onEditNicknameClick(View v) {
+	public void onEditNicknameClick() {
 		if (isUser()) {
 			showNicknameDialog(nicknameView.getText().toString(), buddyName);
 		} else {
@@ -282,18 +280,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.collection_root)
-	public void onCollectionClick(View v) {
+	public void onCollectionClick() {
 		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		startActivity(intent);
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
-	public void onPlaysClick(View v) {
+	public void onPlaysClick() {
 		if (isUser()) {
 			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
 			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
@@ -304,9 +300,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.colors_root)
-	public void onColorsClick(View v) {
+	public void onColorsClick() {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);

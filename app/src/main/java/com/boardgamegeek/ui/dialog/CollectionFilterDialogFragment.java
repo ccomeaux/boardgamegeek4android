@@ -119,7 +119,6 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick({
 		R.id.collection_status,
 		R.id.subtype,

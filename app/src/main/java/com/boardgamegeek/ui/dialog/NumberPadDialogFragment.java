@@ -131,7 +131,6 @@ public class NumberPadDialogFragment extends DialogFragment {
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick({
 		R.id.num_0,
 		R.id.num_1,
@@ -145,17 +144,17 @@ public class NumberPadDialogFragment extends DialogFragment {
 		R.id.num_9,
 		R.id.num_decimal
 	})
-	void onNumPadClick(View v) {
-		String output = outputView.getText().toString() + ((TextView) v).getText();
+	void onNumPadClick(TextView textView) {
+		String output = outputView.getText().toString() + textView.getText();
 		if (isWithinLength(output) && isWithinRange(output)) {
-			maybeBuzz(v);
+			maybeBuzz(textView);
 			outputView.setText(output);
 			enableDelete();
 		}
 	}
 
 	@OnClick(R.id.num_done)
-	void onDoneClick(@SuppressWarnings("UnusedParameters") View v) {
+	void onDoneClick() {
 		if (clickListener != null) {
 			clickListener.onDoneClick(outputView.getText().toString());
 		}
@@ -163,12 +162,12 @@ public class NumberPadDialogFragment extends DialogFragment {
 	}
 
 	@OnClick(R.id.num_delete)
-	void onDeleteClick(View v) {
+	void onDeleteClick(View view) {
 		final CharSequence text = outputView.getText();
 		if (text.length() > 0) {
 			String output = text.subSequence(0, text.length() - 1).toString();
 			if (isWithinLength(output) && isWithinRange(output)) {
-				maybeBuzz(v);
+				maybeBuzz(view);
 				outputView.setText(output);
 				enableDelete();
 			}

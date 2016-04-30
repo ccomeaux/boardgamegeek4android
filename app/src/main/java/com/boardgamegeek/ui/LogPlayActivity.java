@@ -720,7 +720,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void addField(View v) {
+	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
 			return;
@@ -971,7 +971,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.log_play_date)
-	public void onDateClick(View v) {
+	public void onDateClick() {
 		if (mDatePickerFragment == null) {
 			mDatePickerFragment = new DatePickerDialogFragment();
 			mDatePickerFragment.setOnDateSetListener(this);
@@ -999,7 +999,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.timer_toggle)
-	public void onTimer(View v) {
+	public void onTimer() {
 		if (mPlay.hasStarted()) {
 			mEndPlay = true;
 			mPlay.end();
@@ -1037,7 +1037,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.player_sort)
-	public void onPlayerSort(View v) {
+	public void onPlayerSort(View view) {
 		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
 			if (mFullPopupMenu == null) {
@@ -1053,7 +1053,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				mFullPopupMenu.setCallback(popupMenuCallback());
 			}
 			mFullPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
-			popup = new MenuPopupHelper(this, mFullPopupMenu, v);
+			popup = new MenuPopupHelper(this, mFullPopupMenu, view);
 		} else {
 			if (mShortPopupMenu == null) {
 				mShortPopupMenu = new MenuBuilder(this);
@@ -1063,7 +1063,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				mShortPopupMenu.setCallback(popupMenuCallback());
 			}
 			mShortPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
-			popup = new MenuPopupHelper(this, mShortPopupMenu, v);
+			popup = new MenuPopupHelper(this, mShortPopupMenu, view);
 		}
 		popup.show();
 	}
@@ -1186,7 +1186,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.clear_players)
-	public void onClearPlayers(View v) {
+	public void onClearPlayers() {
 		DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
 				@Override

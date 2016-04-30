@@ -91,9 +91,8 @@ public class DataFragment extends Fragment {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.export_button)
-	public void onExportClick(View view) {
+	public void onExportClick() {
 		DialogUtils.createConfirmationDialog(getActivity(), R.string.msg_export_confirmation, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -136,9 +135,8 @@ public class DataFragment extends Fragment {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.import_button)
-	public void onImportClick(View view) {
+	public void onImportClick() {
 		DialogUtils.createConfirmationDialog(getActivity(), R.string.msg_import_confirmation, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {

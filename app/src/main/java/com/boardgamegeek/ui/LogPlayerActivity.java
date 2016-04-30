@@ -244,11 +244,11 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	@OnClick(R.id.color_view)
-	public void onColorClick(View v) {
-		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
+	public void onColorClick() {
+		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
 			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, null, 4);
 
-		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
+		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
 			public void onColorSelected(String description, int color) {
 				mTeamColor.setText(description);
@@ -256,23 +256,23 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 		});
 
-		colordashfragment.show(getSupportFragmentManager(), "color_picker");
+		fragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
 	@DebugLog
 	@OnTextChanged(R.id.log_player_team_color)
-	public void afterTextChanged(Editable s) {
-		int color = ColorUtils.parseColor(s.toString());
+	public void afterTextChanged(Editable text) {
+		int color = ColorUtils.parseColor(text.toString());
 		ColorUtils.setColorViewValue(mColorView, color);
 	}
 
 	@DebugLog
 	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
-	public void onNumberToTextClick(View v) {
+	public void onNumberToTextClick(Button button) {
 		EditText editText = null;
-		if (v == mPositionButton) {
+		if (button == mPositionButton) {
 			editText = mPosition;
-		} else if (v == mScoreButton) {
+		} else if (button == mScoreButton) {
 			editText = mScore;
 		}
 		if (editText == null) {
@@ -282,11 +282,11 @@ public class LogPlayerActivity extends AppCompatActivity {
 		if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
 			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
 				| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-			((Button) v).setText(R.string.text_to_number);
+			button.setText(R.string.text_to_number);
 		} else {
 			editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
 				| InputType.TYPE_NUMBER_FLAG_SIGNED);
-			((Button) v).setText(R.string.number_to_text);
+			button.setText(R.string.number_to_text);
 		}
 		editText.requestFocus();
 	}
@@ -390,7 +390,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void addField(View v) {
+	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
 			return;

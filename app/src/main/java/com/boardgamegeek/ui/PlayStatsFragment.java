@@ -190,9 +190,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		container.addView(view);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.settings)
-	void onSettingsClick(@SuppressWarnings("UnusedParameters") View v) {
+	void onSettingsClick() {
 		PlayStatsSettingsDialogFragment df = PlayStatsSettingsDialogFragment.newInstance(dataView);
 		DialogUtils.showFragment(getActivity(), df, "play_stats_settings");
 	}

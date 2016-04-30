@@ -221,10 +221,9 @@ public class BuddyColorsActivity extends BaseActivity {
 		}
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.empty_button)
-	void onEmptyClick(View view) {
+	void onEmptyClick() {
 		List<Pair<String, Integer>> colors = ColorUtils.getLimitedColorList();
 		Random r = RandomUtils.getRandom();
 		int order = 1;
@@ -236,9 +235,8 @@ public class BuddyColorsActivity extends BaseActivity {
 		bindUi();
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@OnClick(R.id.fab)
-	void onFabClick(View view) {
+	void onFabClick() {
 		if (colors == null) {
 			return;
 		}
