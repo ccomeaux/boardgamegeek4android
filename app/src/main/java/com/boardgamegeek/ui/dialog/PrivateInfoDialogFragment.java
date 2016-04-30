@@ -34,6 +34,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class PrivateInfoDialogFragment extends DialogFragment {
 	private static final DecimalFormat CURRENCY_FORMAT = new DecimalFormat("0.00");
@@ -53,14 +55,14 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@Bind(R.id.acquisition_date) TextView acquisitionDateView;
 	@Bind(R.id.acquired_from) EditText acquiredFromView;
 	@Bind(R.id.comment) EditText commentView;
-	private String priceCurrency;
-	private double price;
-	private String currentValueCurrency;
-	private double currentValue;
-	private String quantity;
-	private String acquisitionDate;
-	private String acquiredFrom;
-	private String comment;
+	@State String priceCurrency;
+	@State double price;
+	@State String currentValueCurrency;
+	@State double currentValue;
+	@State String quantity;
+	@State String acquisitionDate;
+	@State String acquiredFrom;
+	@State String comment;
 
 	@NonNull
 	public static PrivateInfoDialogFragment newInstance(@Nullable ViewGroup root, PrivateInfoDialogListener listener) {
@@ -81,6 +83,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		View rootView = layoutInflater.inflate(R.layout.dialog_private_info, root, false);
 		ButterKnife.bind(this, rootView);
 
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		populateUi();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -108,6 +111,12 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		final AlertDialog dialog = builder.create();
 		requestFocus(dialog);
 		return dialog;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	private void populateUi() {
