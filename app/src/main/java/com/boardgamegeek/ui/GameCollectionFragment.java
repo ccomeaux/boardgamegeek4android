@@ -34,9 +34,9 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
+import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.MathUtils;
@@ -316,6 +316,13 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@OnClick(R.id.private_info_container)
 	public void onPrivateInfoClick() {
 		ensurePrivateInfoDialogFragment();
+		privateInfoDialogFragment.setPriceCurrency(String.valueOf(privateInfo.getTag(R.id.price_currency)));
+		privateInfoDialogFragment.setPrice((double) privateInfo.getTag(R.id.price));
+		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(privateInfo.getTag(R.id.current_value_currency)));
+		privateInfoDialogFragment.setCurrentValue((double) privateInfo.getTag(R.id.current_value));
+		privateInfoDialogFragment.setQuantity((int) privateInfo.getTag(R.id.quantity));
+		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(privateInfo.getTag(R.id.acquisition_date)));
+		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(privateInfo.getTag(R.id.acquired_from)));
 		privateInfoDialogFragment.setComment(privateInfoComments.getText().toString());
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
 	}
@@ -327,9 +334,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				privateInfoContainer,
 				new PrivateInfoDialogListener() {
 					@Override
-					public void onFinishEditDialog(String comment) {
+					public void onFinishEditDialog(PrivateInfo privateInfo) {
 						UpdateCollectionItemPrivateInfoTask task = new UpdateCollectionItemPrivateInfoTask(getActivity(),
-							gameId, collectionId, comment);
+							gameId, collectionId, privateInfo);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}
@@ -372,6 +379,13 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		privateInfoContainer.setClickable(collectionId != 0);
 		privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 		privateInfo.setText(item.getPrivateInfo());
+		privateInfo.setTag(R.id.price_currency, item.getPriceCurrency());
+		privateInfo.setTag(R.id.price, item.getPrice());
+		privateInfo.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
+		privateInfo.setTag(R.id.current_value, item.getCurrentValue());
+		privateInfo.setTag(R.id.quantity, item.getQuantity());
+		privateInfo.setTag(R.id.acquisition_date, item.getAcquisitionDate());
+		privateInfo.setTag(R.id.acquired_from, item.getAcquiredFrom());
 		PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
 		privateInfoTimestampView.setTag(item.privateInfoTimestamp);
 
@@ -554,7 +568,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
-			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
+			acquisitionDate = cursor.getString(PRIVATE_INFO_ACQUISITION_DATE);
 			privateInfoTimestamp = cursor.getLong(PRIVATE_INFO_DIRTY_TIMESTAMP);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
@@ -600,11 +614,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			return PresentationUtils.describeWishlist(getActivity(), wishlistPriority);
 		}
 
-		String getPrice() {
+		String getPriceDescription() {
 			return PresentationUtils.describeMoney(priceCurrency, price);
 		}
 
-		String getValue() {
+		String getCurrentValueDescription() {
 			return PresentationUtils.describeMoney(currentValueCurrency, currentValue);
 		}
 
@@ -612,20 +626,48 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			return hasQuantity() || hasAcquisitionDate() || hasAcquiredFrom() || hasPrice() || hasValue();
 		}
 
+		int getQuantity() {
+			return quantity;
+		}
+
 		boolean hasQuantity() {
 			return quantity > 1;
+		}
+
+		String getAcquisitionDate() {
+			return acquisitionDate;
 		}
 
 		boolean hasAcquisitionDate() {
 			return !TextUtils.isEmpty(acquisitionDate);
 		}
 
+		String getAcquiredFrom() {
+			return acquiredFrom;
+		}
+
 		boolean hasAcquiredFrom() {
 			return !TextUtils.isEmpty(acquiredFrom);
 		}
 
+		String getPriceCurrency() {
+			return priceCurrency;
+		}
+
+		double getPrice() {
+			return price;
+		}
+
 		boolean hasPrice() {
 			return price > 0.0;
+		}
+
+		String getCurrentValueCurrency() {
+			return currentValueCurrency;
+		}
+
+		double getCurrentValue() {
+			return currentValue;
 		}
 
 		boolean hasValue() {
@@ -641,8 +683,16 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				StringUtils.appendBold(sb, String.valueOf(quantity));
 			}
 			if (hasAcquisitionDate()) {
-				sb.append(" ").append(r.getString(R.string.on)).append(" ");
-				StringUtils.appendBold(sb, acquisitionDate);
+				String date = null;
+				try {
+					date = DateUtils.formatDateTime(getContext(), DateTimeUtils.getMillisFromApiDate(acquisitionDate, 0), DateUtils.FORMAT_SHOW_DATE);
+				} catch (Exception e) {
+					Timber.w(e, "Could find a date in here: " + acquisitionDate);
+				}
+				if (!TextUtils.isEmpty(date)) {
+					sb.append(" ").append(r.getString(R.string.on)).append(" ");
+					StringUtils.appendBold(sb, date);
+				}
 			}
 			if (hasAcquiredFrom()) {
 				sb.append(" ").append(r.getString(R.string.from)).append(" ");
@@ -650,11 +700,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			}
 			if (hasPrice()) {
 				sb.append(" ").append(r.getString(R.string.for_)).append(" ");
-				StringUtils.appendBold(sb, getPrice());
+				StringUtils.appendBold(sb, getPriceDescription());
 			}
 			if (hasValue()) {
 				sb.append(" (").append(r.getString(R.string.currently_worth)).append(" ");
-				StringUtils.appendBold(sb, getValue());
+				StringUtils.appendBold(sb, getCurrentValueDescription());
 				sb.append(")");
 			}
 
@@ -663,7 +713,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				return null;
 			}
 			return sb;
-
 		}
 	}
 }
