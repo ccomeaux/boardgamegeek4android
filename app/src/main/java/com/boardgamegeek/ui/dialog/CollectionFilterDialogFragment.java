@@ -23,6 +23,7 @@ import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -34,6 +35,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 	private ViewGroup root;
 	private Listener listener;
 	private final List<Integer> enabledFilterTypes = new ArrayList<>();
+	private Unbinder unbinder;
 	@BindView(R.id.scroll_container) ScrollView scrollContainer;
 	@BindViews({
 		R.id.collection_status,
@@ -74,12 +76,18 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_collection_filter, root, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		setEnabledFilterTypes();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
 		builder.setTitle(R.string.title_filter);
 		return builder.create();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@DebugLog

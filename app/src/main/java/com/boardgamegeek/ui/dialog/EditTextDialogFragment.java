@@ -20,6 +20,7 @@ import com.boardgamegeek.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class EditTextDialogFragment extends DialogFragment {
 	public interface EditTextDialogListener {
@@ -33,6 +34,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	private boolean isUsername;
 	private boolean isLongForm;
 
+	private Unbinder unbinder;
 	@BindView(R.id.edit_text) EditText editText;
 	private String existingText;
 
@@ -95,7 +97,7 @@ public class EditTextDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_edit_text, root, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		if (getArguments() != null) {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);
@@ -129,6 +131,12 @@ public class EditTextDialogFragment extends DialogFragment {
 		editText.setInputType(editText.getInputType() | inputType);
 		requestFocus(dialog);
 		return dialog;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	public void setText(String text) {

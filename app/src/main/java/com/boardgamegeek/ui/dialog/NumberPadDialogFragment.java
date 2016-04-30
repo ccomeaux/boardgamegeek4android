@@ -22,6 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import butterknife.Unbinder;
 
 public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_TITLE = "TITLE";
@@ -29,6 +30,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_COLOR = "COLOR";
 	private static final int MAX_LENGTH = 10;
 
+	private Unbinder unbinder;
 	@BindView(R.id.title) TextView titleView;
 	@BindView(R.id.output) TextView outputView;
 	@BindView(R.id.num_delete) View deleteView;
@@ -98,7 +100,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.dialog_number_pad, container, false);
-		ButterKnife.bind(this, view);
+		unbinder = ButterKnife.bind(this, view);
 
 		Bundle args = getArguments();
 		if (args != null) {
@@ -121,6 +123,12 @@ public class NumberPadDialogFragment extends DialogFragment {
 		}
 
 		return view;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@SuppressWarnings("unused")

@@ -25,6 +25,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -33,6 +34,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		void onSortSelected(int sortType);
 	}
 
+	private Unbinder unbinder;
 	private ViewGroup root;
 	private Listener listener;
 	private int selectedType;
@@ -86,7 +88,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_collection_sort, root, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		setChecked();
 		radioGroup.setOnCheckedChangeListener(this);
 		createNames();
@@ -94,6 +96,12 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
 		builder.setTitle(R.string.title_sort);
 		return builder.create();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@DebugLog

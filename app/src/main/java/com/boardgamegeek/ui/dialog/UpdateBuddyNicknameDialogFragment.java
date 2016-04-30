@@ -21,6 +21,7 @@ import com.boardgamegeek.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 	public interface UpdateBuddyNicknameDialogListener {
@@ -32,6 +33,7 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 	private ViewGroup root;
 	private UpdateBuddyNicknameDialogListener listener;
 
+	private Unbinder unbinder;
 	@BindView(R.id.edit_nickname) EditText editText;
 	@BindView(R.id.change_plays) CheckBox changePlays;
 	private String nickname;
@@ -69,7 +71,7 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_edit_nickname, root, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		if (getArguments() != null) {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);
@@ -97,6 +99,12 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 		editText.setInputType(editText.getInputType() | inputType);
 		requestFocus(dialog);
 		return dialog;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	public void setNickname(String nickname) {
