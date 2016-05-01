@@ -164,6 +164,13 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		datePicker.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
 	}
 
+	@DebugLog
+	@OnClick(R.id.clear_date)
+	public void onClearDateClick() {
+		acquisitionDate = "";
+		acquisitionDateView.setText("");
+	}
+
 	public void setPriceCurrency(String priceCurrency) {
 		this.priceCurrency = priceCurrency;
 	}
