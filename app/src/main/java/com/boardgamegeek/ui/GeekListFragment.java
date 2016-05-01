@@ -31,7 +31,7 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class GeekListFragment extends BggListFragment implements
@@ -44,12 +44,12 @@ public class GeekListFragment extends BggListFragment implements
 	private Header header;
 
 	public static class Header {
-		@SuppressWarnings("unused") @Bind(R.id.username) TextView username;
-		@SuppressWarnings("unused") @Bind(R.id.description) TextView description;
-		@SuppressWarnings("unused") @Bind(R.id.items) TextView items;
-		@SuppressWarnings("unused") @Bind(R.id.thumbs) TextView thumbs;
-		@SuppressWarnings("unused") @Bind(R.id.posted_date) TextView postDate;
-		@SuppressWarnings("unused") @Bind(R.id.edited_date) TextView editDate;
+		@BindView(R.id.username) TextView username;
+		@BindView(R.id.description) TextView description;
+		@BindView(R.id.items) TextView items;
+		@BindView(R.id.thumbs) TextView thumbs;
+		@BindView(R.id.posted_date) TextView postDate;
+		@BindView(R.id.edited_date) TextView editDate;
 
 		public Header(View view) {
 			ButterKnife.bind(this, view);
@@ -280,11 +280,11 @@ public class GeekListFragment extends BggListFragment implements
 		public long editedDate;
 		public String objectUrl;
 		public boolean isBoardGame;
-		@Bind(R.id.order) TextView order;
-		@Bind(R.id.thumbnail) ImageView thumbnail;
-		@Bind(R.id.game_name) TextView name;
-		@Bind(R.id.username) TextView username;
-		@Bind(R.id.type) TextView type;
+		@BindView(R.id.order) TextView order;
+		@BindView(R.id.thumbnail) ImageView thumbnail;
+		@BindView(R.id.game_name) TextView name;
+		@BindView(R.id.username) TextView username;
+		@BindView(R.id.type) TextView type;
 
 		public ViewHolder(View view) {
 			ButterKnife.bind(this, view);

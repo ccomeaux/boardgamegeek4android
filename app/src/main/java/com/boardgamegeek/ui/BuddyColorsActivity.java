@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -51,11 +51,11 @@ public class BuddyColorsActivity extends BaseActivity {
 	private List<BuddyColor> colors;
 	private Adapter adapter;
 
-	@SuppressWarnings("unused") @Bind(R.id.toolbar) Toolbar toolbar;
-	@SuppressWarnings("unused") @Bind(android.R.id.progress) View progressView;
-	@SuppressWarnings("unused") @Bind(android.R.id.empty) View emptyView;
-	@SuppressWarnings("unused") @Bind(android.R.id.list) DragSortListView list;
-	@SuppressWarnings("unused") @Bind(R.id.coordinator) CoordinatorLayout coordinator;
+	@BindView(R.id.toolbar) Toolbar toolbar;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) View emptyView;
+	@BindView(android.R.id.list) DragSortListView list;
+	@BindView(R.id.coordinator) CoordinatorLayout coordinator;
 
 	@SuppressLint("HandlerLeak")
 	private class QueryHandler extends AsyncQueryHandler {
@@ -221,10 +221,9 @@ public class BuddyColorsActivity extends BaseActivity {
 		}
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.empty_button)
-	void onEmptyClick(View view) {
+	void onEmptyClick() {
 		List<Pair<String, Integer>> colors = ColorUtils.getLimitedColorList();
 		Random r = RandomUtils.getRandom();
 		int order = 1;
@@ -236,9 +235,8 @@ public class BuddyColorsActivity extends BaseActivity {
 		bindUi();
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@OnClick(R.id.fab)
-	void onFabClick(View view) {
+	void onFabClick() {
 		if (colors == null) {
 			return;
 		}
@@ -253,8 +251,10 @@ public class BuddyColorsActivity extends BaseActivity {
 		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
 			public void onColorSelected(String description, int color) {
-				colors.add(new BuddyColor(description, colors.size() + 1));
-				bindUi();
+				if (colors != null) {
+					colors.add(new BuddyColor(description, colors.size() + 1));
+					bindUi();
+				}
 			}
 		});
 

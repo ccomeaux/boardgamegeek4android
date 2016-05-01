@@ -142,6 +142,7 @@
 	<string name="title_log_player">Log Player</string>
 	<string name="title_add_players">Add Players</string>
 	<string name="title_comments">Comments</string>
+	<string name="title_private_info">Private Info</string>
 	<string name="title_ratings">Ratings</string>
 	<string name="title_colors">Colors</string>
 	<string name="title_favorite_colors">Favorite Colors</string>
@@ -439,6 +440,11 @@
 	<string name="last_modified">Last modified</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="private_info">Private Info</string>
+	<string name="price">Price Paid</string>
+	<string name="current_value">Current Price</string>
+	<string name="acquisition_date">Acquisition Date</string>
+	<string name="acquired_from">Acquired From</string>
+	<string name="private_comment">Private Comment</string>
 	<string name="acquired">Acquired</string>
 	<string name="currently_worth">currently worth</string>
 	<string name="wishlist">Wishlist</string>

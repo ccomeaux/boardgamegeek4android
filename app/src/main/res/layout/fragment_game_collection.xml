@@ -128,13 +128,12 @@
 		android:id="@+id/private_info_container"
 		style="@style/Card"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:visibility="gone"
-		tools:visibility="visible">
+		android:layout_height="wrap_content">
 
-		<LinearLayout
+		<com.boardgamegeek.ui.widget.ForegroundLinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:foreground="?attr/selectableItemBackgroundBorderless"
 			android:orientation="vertical">
 
 			<TextView
@@ -162,8 +161,15 @@
 					android:layout_height="wrap_content"
 					tools:text="Don't tell anyone my true feelings about this game."/>
 			</LinearLayout>
-		</LinearLayout>
 
+			<TextView
+				android:id="@+id/private_info_timestamp"
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				tools:text="Yesterday"/>
+		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 	</android.support.v7.widget.CardView>
 
 	<android.support.v7.widget.CardView

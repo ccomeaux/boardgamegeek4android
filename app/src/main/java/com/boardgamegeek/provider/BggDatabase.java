@@ -69,7 +69,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAYER_COLORS = 25;
 	private static final int VER_RATING_DIRTY_TIMESTAMP = 27;
 	private static final int VER_COMMENT_DIRTY_TIMESTAMP = 28;
-	private static final int DATABASE_VERSION = VER_COMMENT_DIRTY_TIMESTAMP;
+	private static final int VER_PRIVATE_INFO_DIRTY_TIMESTAMP = 29;
+	private static final int DATABASE_VERSION = VER_PRIVATE_INFO_DIRTY_TIMESTAMP;
 
 	private final Context context;
 
@@ -376,6 +377,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -636,6 +638,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_RATING_DIRTY_TIMESTAMP:
 				addColumn(db, Tables.COLLECTION, Collection.COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
 				version = VER_COMMENT_DIRTY_TIMESTAMP;
+			case VER_COMMENT_DIRTY_TIMESTAMP:
+				addColumn(db, Tables.COLLECTION, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+				version = VER_PRIVATE_INFO_DIRTY_TIMESTAMP;
 		}
 
 		if (version != DATABASE_VERSION) {

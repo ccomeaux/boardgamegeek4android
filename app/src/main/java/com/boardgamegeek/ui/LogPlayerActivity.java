@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
@@ -71,24 +71,24 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@State Player mPlayer;
 	private Player mOriginalPlayer;
 
-	@Bind(R.id.scroll_container) ScrollView mScrollContainer;
-	@Bind(R.id.header) TextView mHeader;
-	@Bind(R.id.two_line_container) View mTwoLineContainer;
-	@Bind(R.id.header2) TextView mHeader2;
-	@Bind(R.id.subheader) TextView mSubheader;
-	@Bind(R.id.log_player_username) AutoCompleteTextView mUsername;
-	@Bind(R.id.log_player_name) AutoCompleteTextView mName;
-	@Bind(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
-	@Bind(R.id.color_view) ImageView mColorView;
-	@Bind(R.id.log_player_position) EditText mPosition;
-	@Bind(R.id.log_player_position_button) Button mPositionButton;
-	@Bind(R.id.log_player_score) EditText mScore;
-	@Bind(R.id.log_player_score_button) Button mScoreButton;
-	@Bind(R.id.log_player_rating) EditText mRating;
-	@Bind(R.id.log_player_new) SwitchCompat mNew;
-	@Bind(R.id.log_player_win) SwitchCompat mWin;
-	@Bind(R.id.fab) FloatingActionButton mFab;
-	@Bind(R.id.fab_buffer) View mFabBuffer;
+	@BindView(R.id.scroll_container) ScrollView mScrollContainer;
+	@BindView(R.id.header) TextView mHeader;
+	@BindView(R.id.two_line_container) View mTwoLineContainer;
+	@BindView(R.id.header2) TextView mHeader2;
+	@BindView(R.id.subheader) TextView mSubheader;
+	@BindView(R.id.log_player_username) AutoCompleteTextView mUsername;
+	@BindView(R.id.log_player_name) AutoCompleteTextView mName;
+	@BindView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
+	@BindView(R.id.color_view) ImageView mColorView;
+	@BindView(R.id.log_player_position) EditText mPosition;
+	@BindView(R.id.log_player_position_button) Button mPositionButton;
+	@BindView(R.id.log_player_score) EditText mScore;
+	@BindView(R.id.log_player_score_button) Button mScoreButton;
+	@BindView(R.id.log_player_rating) EditText mRating;
+	@BindView(R.id.log_player_new) SwitchCompat mNew;
+	@BindView(R.id.log_player_win) SwitchCompat mWin;
+	@BindView(R.id.fab) FloatingActionButton mFab;
+	@BindView(R.id.fab_buffer) View mFabBuffer;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -244,11 +244,11 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	@OnClick(R.id.color_view)
-	public void onColorClick(View v) {
-		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
+	public void onColorClick() {
+		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
 			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, null, 4);
 
-		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
+		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
 			public void onColorSelected(String description, int color) {
 				mTeamColor.setText(description);
@@ -256,23 +256,23 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 		});
 
-		colordashfragment.show(getSupportFragmentManager(), "color_picker");
+		fragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
 	@DebugLog
 	@OnTextChanged(R.id.log_player_team_color)
-	public void afterTextChanged(Editable s) {
-		int color = ColorUtils.parseColor(s.toString());
+	public void afterTextChanged(Editable text) {
+		int color = ColorUtils.parseColor(text.toString());
 		ColorUtils.setColorViewValue(mColorView, color);
 	}
 
 	@DebugLog
 	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
-	public void onNumberToTextClick(View v) {
+	public void onNumberToTextClick(Button button) {
 		EditText editText = null;
-		if (v == mPositionButton) {
+		if (button == mPositionButton) {
 			editText = mPosition;
-		} else if (v == mScoreButton) {
+		} else if (button == mScoreButton) {
 			editText = mScore;
 		}
 		if (editText == null) {
@@ -282,11 +282,11 @@ public class LogPlayerActivity extends AppCompatActivity {
 		if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
 			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
 				| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-			((Button) v).setText(R.string.text_to_number);
+			button.setText(R.string.text_to_number);
 		} else {
 			editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
 				| InputType.TYPE_NUMBER_FLAG_SIGNED);
-			((Button) v).setText(R.string.number_to_text);
+			button.setText(R.string.number_to_text);
 		}
 		editText.requestFocus();
 	}
@@ -390,7 +390,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void addField(View v) {
+	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
 			return;

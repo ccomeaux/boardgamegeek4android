@@ -273,8 +273,18 @@ public class CollectionPersister {
 
 		Builder operation;
 		if (internalId != BggContract.INVALID_ID) {
-			removeValueIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
-			removeValueIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
+			removeValuesIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
+			removeValuesIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
+			removeValuesIfDirty(values, internalId, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+				Collection.PRIVATE_INFO_ACQUIRED_FROM,
+				Collection.PRIVATE_INFO_ACQUISITION_DATE,
+				Collection.PRIVATE_INFO_COMMENT,
+				Collection.PRIVATE_INFO_CURRENT_VALUE,
+				Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+				Collection.PRIVATE_INFO_PRICE_PAID,
+				Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+				Collection.PRIVATE_INFO_QUANTITY);
+
 			Uri uri = Collection.buildUri(internalId);
 			operation = ContentProviderOperation.newUpdate(uri);
 			maybeDeleteThumbnail(values, uri, batch);
@@ -331,9 +341,11 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void removeValueIfDirty(ContentValues values, long internalId, String commentDirtyTimestamp, String comment) {
+	private void removeValuesIfDirty(ContentValues values, long internalId, String commentDirtyTimestamp, String... columns) {
 		if (getDirtyTimestamp(internalId, commentDirtyTimestamp) != NOT_DIRTY) {
-			values.remove(comment);
+			for (String column : columns) {
+				values.remove(column);
+			}
 		}
 	}
 

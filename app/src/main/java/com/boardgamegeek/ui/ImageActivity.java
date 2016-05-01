@@ -16,12 +16,12 @@ import com.boardgamegeek.util.PaletteTransformation;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ImageActivity extends AppCompatActivity {
-	@Bind(R.id.image) ImageView imageView;
-	@Bind(R.id.progress) View progressBar;
+	@BindView(R.id.image) ImageView imageView;
+	@BindView(R.id.progress) View progressBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

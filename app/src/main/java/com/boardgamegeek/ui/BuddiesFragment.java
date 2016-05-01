@@ -29,7 +29,7 @@ import com.boardgamegeek.util.UIUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -193,9 +193,9 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			@SuppressWarnings("unused") @Bind(R.id.list_fullname) TextView fullName;
-			@SuppressWarnings("unused") @Bind(R.id.list_name) TextView name;
-			@SuppressWarnings("unused") @Bind(R.id.list_avatar) ImageView avatar;
+			@BindView(R.id.list_fullname) TextView fullName;
+			@BindView(R.id.list_name) TextView name;
+			@BindView(R.id.list_avatar) ImageView avatar;
 
 			public ViewHolder(View view) {
 				ButterKnife.bind(this, view);

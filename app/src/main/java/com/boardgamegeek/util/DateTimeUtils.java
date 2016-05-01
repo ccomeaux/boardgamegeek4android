@@ -13,6 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import timber.log.Timber;
+
 public class DateTimeUtils {
 	public static final long UNPARSED_DATE = -2;
 	public static final long UNKNOWN_DATE = -1;
@@ -86,6 +88,31 @@ public class DateTimeUtils {
 	 */
 	public static String formatDateForApi(int year, int month, int day) {
 		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
+	}
+
+	public static String formatDateFromApi(Context context, String date) {
+		long millis = getMillisFromApiDate(date, Long.MAX_VALUE);
+		if (millis == Long.MAX_VALUE) {
+			return "";
+		}
+		return DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE);
+	}
+
+	public static long getMillisFromApiDate(String date, long defaultMillis) {
+		if (TextUtils.isEmpty(date)) {
+			return defaultMillis;
+		}
+		String[] parts = date.split("-");
+		if (parts.length != 3) {
+			return defaultMillis;
+		}
+		Calendar calendar = Calendar.getInstance();
+		try {
+			calendar.set(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(parts[2]));
+		} catch (Exception e) {
+			Timber.w(e, "Couldn't get a date from the API: " + date);
+		}
+		return calendar.getTimeInMillis();
 	}
 
 	/**

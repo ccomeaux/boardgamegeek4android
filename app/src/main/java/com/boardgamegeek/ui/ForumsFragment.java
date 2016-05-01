@@ -32,7 +32,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
@@ -267,9 +267,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	@SuppressWarnings("unused")
 	static class ForumViewHolder {
 		public int forumId;
-		@Bind(R.id.forum_title) TextView forumTitleView;
-		@Bind(R.id.number_of_threads) TextView numberOfThreadsView;
-		@Bind(R.id.last_post_date) TextView lastPostDateView;
+		@BindView(R.id.forum_title) TextView forumTitleView;
+		@BindView(R.id.number_of_threads) TextView numberOfThreadsView;
+		@BindView(R.id.last_post_date) TextView lastPostDateView;
 
 		public ForumViewHolder(View view) {
 			ButterKnife.bind(this, view);
@@ -278,7 +278,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 	@SuppressWarnings("unused")
 	static class HeaderViewHolder {
-		@Bind(android.R.id.title) TextView header;
+		@BindView(android.R.id.title) TextView header;
 
 		public HeaderViewHolder(View view) {
 			ButterKnife.bind(this, view);

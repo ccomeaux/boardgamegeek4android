@@ -29,7 +29,7 @@ import com.boardgamegeek.util.UIUtils;
 import java.text.NumberFormat;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
@@ -249,11 +249,11 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		@SuppressWarnings("unused")
 		public static class ViewHolder {
 			public int threadId;
-			@Bind(R.id.subject) TextView subjectView;
-			@Bind(R.id.author) TextView authorView;
-			@Bind(R.id.number_of_articles) TextView numberOfArticlesView;
-			@Bind(R.id.last_post_date) TextView lastPostDateView;
-			@Bind(R.id.post_date) TextView postDateView;
+			@BindView(R.id.subject) TextView subjectView;
+			@BindView(R.id.author) TextView authorView;
+			@BindView(R.id.number_of_articles) TextView numberOfArticlesView;
+			@BindView(R.id.last_post_date) TextView lastPostDateView;
+			@BindView(R.id.post_date) TextView postDateView;
 
 			@DebugLog
 			public ViewHolder(View view) {

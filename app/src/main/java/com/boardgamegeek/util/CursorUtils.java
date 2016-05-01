@@ -166,14 +166,6 @@ public class CursorUtils {
 	}
 
 	/**
-	 * Gets a date from the specified column on the current row of the cursor. The date is formatted according to the
-	 * local conventions. Returns an empty string if the date could not be determined.
-	 */
-	public static String getFormattedDate(Cursor cursor, Context context, int columnIndex) {
-		return getFormattedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE);
-	}
-
-	/**
 	 * Gets a date from the specified column on the current row of the cursor. The date is formatted as an abbreviated
 	 * form of the local conventions. Returns an empty string if the date could not be determined.
 	 */
@@ -200,6 +192,7 @@ public class CursorUtils {
 
 	@NonNull
 	private static Calendar getCalendar(String date) {
+		Timber.w("Getting date from string: %s", date);
 		int year = Integer.parseInt(date.substring(0, 4));
 		int month = Integer.parseInt(date.substring(5, 7)) - 1;
 		int day = Integer.parseInt(date.substring(8, 10));

@@ -5,6 +5,11 @@ Coming Soon...
 --------------
  * Spiffy up the collection filter dialogs
 
+Version 5.2.6
+-------------
+ * Improvements to syncing logic (it won't completely fix the syncing problems, but it's a start!
+ * Bug fixes
+
 Version 5.2.5
 -------------
  * Really fix the disappearing collection

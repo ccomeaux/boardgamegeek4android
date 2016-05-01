@@ -159,7 +159,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						play.playId = newPlayId;
 					}
 					play.syncStatus = Play.SYNC_STATUS_SYNCED;
-					persister.save(context, play);
+					persister.save(play);
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {

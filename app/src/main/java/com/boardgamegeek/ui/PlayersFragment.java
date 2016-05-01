@@ -25,7 +25,7 @@ import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -208,9 +208,9 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			@Bind(android.R.id.title) TextView name;
-			@Bind(android.R.id.text1) TextView username;
-			@Bind(android.R.id.text2) TextView quantity;
+			@BindView(android.R.id.title) TextView name;
+			@BindView(android.R.id.text1) TextView username;
+			@BindView(android.R.id.text2) TextView quantity;
 
 			public ViewHolder(View view) {
 				ButterKnife.bind(this, view);

@@ -17,16 +17,16 @@ import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.util.StringUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	private Integer low;
 	private Integer high;
-	@SuppressWarnings("unused") @Bind(R.id.explanation) TextView explanationView;
-	@SuppressWarnings("unused") @Bind(R.id.checkbox) CheckBox checkBox;
-	@SuppressWarnings("unused") @Bind(R.id.range_bar) RangeBar rangeBar;
+	@BindView(R.id.explanation) TextView explanationView;
+	@BindView(R.id.checkbox) CheckBox checkBox;
+	@BindView(R.id.range_bar) RangeBar rangeBar;
 
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -83,7 +83,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	@OnClick(R.id.min_up)
-	public void onMinUpClick(View v) {
+	public void onMinUpClick() {
 		if (rangeBar.getLeftIndex() < rangeBar.getTickCount() - 1) {
 			if (rangeBar.getLeftIndex() == rangeBar.getRightIndex()) {
 				updateRange(rangeBar.getLeftIndex() + 1, rangeBar.getRightIndex() + 1);
@@ -94,21 +94,21 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	@OnClick(R.id.min_down)
-	public void onMinDownClick(View v) {
+	public void onMinDownClick() {
 		if (rangeBar.getLeftIndex() > 0) {
 			updateRange(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex());
 		}
 	}
 
 	@OnClick(R.id.max_up)
-	public void onMaxUpClick(View v) {
+	public void onMaxUpClick() {
 		if (rangeBar.getRightIndex() < rangeBar.getTickCount() - 1) {
 			updateRange(rangeBar.getLeftIndex(), rangeBar.getRightIndex() + 1);
 		}
 	}
 
 	@OnClick(R.id.max_down)
-	public void onMaxDownClick(View v) {
+	public void onMaxDownClick() {
 		if (rangeBar.getRightIndex() > 0) {
 			if (rangeBar.getLeftIndex() == rangeBar.getRightIndex()) {
 				updateRange(rangeBar.getLeftIndex() - 1, rangeBar.getRightIndex() - 1);

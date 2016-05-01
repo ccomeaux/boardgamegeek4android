@@ -10,15 +10,15 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class PlayerNumberRow extends LinearLayout {
-	@Bind(R.id.poll_player_text) TextView mTextView;
-	@Bind(R.id.best) View mBest;
-	@Bind(R.id.recommended) View mRecommended;
-	@Bind(R.id.no_votes) View mNoVotes;
-	@Bind(R.id.not_recommended) View mNotRecommended;
+	@BindView(R.id.poll_player_text) TextView mTextView;
+	@BindView(R.id.best) View mBest;
+	@BindView(R.id.recommended) View mRecommended;
+	@BindView(R.id.no_votes) View mNoVotes;
+	@BindView(R.id.not_recommended) View mNotRecommended;
 
 	public PlayerNumberRow(Context context) {
 		super(context);

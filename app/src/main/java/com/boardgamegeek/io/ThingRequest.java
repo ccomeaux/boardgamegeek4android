@@ -41,8 +41,9 @@ public class ThingRequest {
 				Timber.w("Unsuccessful thing fetch with code: %s", response.code());
 			}
 		} catch (IOException e) {
+			// This is probably caused by a timeout, but for now treat it like an empty response
 			Timber.w(e, "Unsuccessful thing fetch");
 		}
-		return null;
+		return new ThingResponse();
 	}
 }

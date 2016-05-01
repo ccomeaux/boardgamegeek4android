@@ -27,13 +27,16 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.UpdateCollectionItemCommentTask;
+import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
+import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
+import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
+import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.MathUtils;
@@ -50,9 +53,11 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -61,36 +66,38 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
-	@SuppressWarnings("unused") @Bind(R.id.year) TextView year;
-	@SuppressWarnings("unused") @Bind(R.id.info_bar) View infoBar;
-	@SuppressWarnings("unused") @Bind(R.id.status) TextView status;
-	@SuppressWarnings("unused") @Bind(R.id.last_modified) TextView lastModified;
-	@SuppressWarnings("unused") @Bind(R.id.rating_container) View ratingContainer;
-	@SuppressWarnings("unused") @Bind(R.id.rating) TextView rating;
-	@SuppressWarnings("unused") @Bind(R.id.rating_timestamp) TextView ratingTimestampView;
-	@SuppressWarnings("unused") @Bind(R.id.comment_container) ViewGroup commentContainer;
-	@SuppressWarnings("unused") @Bind(R.id.add_comment) View addCommentView;
-	@SuppressWarnings("unused") @Bind(R.id.comment) TextView comment;
-	@SuppressWarnings("unused") @Bind(R.id.comment_timestamp) TextView commentTimestampView;
-	@SuppressWarnings("unused") @Bind(R.id.private_info_container) View privateInfoContainer;
-	@SuppressWarnings("unused") @Bind(R.id.private_info) TextView privateInfo;
-	@SuppressWarnings("unused") @Bind(R.id.private_info_comments) TextView privateInfoComments;
-	@SuppressWarnings("unused") @Bind(R.id.wishlist_container) View wishlistContainer;
-	@SuppressWarnings("unused") @Bind(R.id.wishlist_comment) TextView wishlistComment;
-	@SuppressWarnings("unused") @Bind(R.id.condition_container) View conditionContainer;
-	@SuppressWarnings("unused") @Bind(R.id.condition_comment) TextView conditionComment;
-	@SuppressWarnings("unused") @Bind(R.id.want_parts_container) View wantPartsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.want_parts_comment) TextView wantPartsComment;
-	@SuppressWarnings("unused") @Bind(R.id.has_parts_container) View hasPartsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.has_parts_comment) TextView hasPartsComment;
-	@SuppressWarnings("unused") @Bind(R.id.collection_id) TextView id;
-	@SuppressWarnings("unused") @Bind(R.id.updated) TextView updated;
-	@SuppressWarnings("unused") @Bind({
+	private Unbinder unbinder;
+	@BindView(R.id.year) TextView year;
+	@BindView(R.id.info_bar) View infoBar;
+	@BindView(R.id.status) TextView status;
+	@BindView(R.id.last_modified) TextView lastModified;
+	@BindView(R.id.rating_container) View ratingContainer;
+	@BindView(R.id.rating) TextView rating;
+	@BindView(R.id.rating_timestamp) TextView ratingTimestampView;
+	@BindView(R.id.comment_container) ViewGroup commentContainer;
+	@BindView(R.id.add_comment) View addCommentView;
+	@BindView(R.id.comment) TextView comment;
+	@BindView(R.id.comment_timestamp) TextView commentTimestampView;
+	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
+	@BindView(R.id.private_info) TextView privateInfo;
+	@BindView(R.id.private_info_comments) TextView privateInfoComments;
+	@BindView(R.id.private_info_timestamp) TextView privateInfoTimestampView;
+	@BindView(R.id.wishlist_container) View wishlistContainer;
+	@BindView(R.id.wishlist_comment) TextView wishlistComment;
+	@BindView(R.id.condition_container) View conditionContainer;
+	@BindView(R.id.condition_comment) TextView conditionComment;
+	@BindView(R.id.want_parts_container) View wantPartsContainer;
+	@BindView(R.id.want_parts_comment) TextView wantPartsComment;
+	@BindView(R.id.has_parts_container) View hasPartsContainer;
+	@BindView(R.id.has_parts_comment) TextView hasPartsComment;
+	@BindView(R.id.collection_id) TextView id;
+	@BindView(R.id.updated) TextView updated;
+	@BindViews({
 		R.id.status,
 		R.id.last_modified,
 		R.id.year
 	}) List<TextView> colorizedTextViews;
-	@SuppressWarnings("unused") @Bind({
+	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
@@ -99,6 +106,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		R.id.card_header_has_parts
 	}) List<TextView> colorizedHeaders;
 	private EditTextDialogFragment commentDialogFragment;
+	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private Handler timeHintUpdateHandler = new Handler();
 	private Runnable timeHintUpdateRunnable = null;
@@ -122,7 +130,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		colorize(palette);
 
@@ -164,15 +172,15 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
 		}
-		super.onStop();
 		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	@DebugLog
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.unbind(this);
+		unbinder.unbind();
 	}
 
 	@DebugLog
@@ -261,10 +269,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.comment_container)
-	public void onCommentClick(View v) {
+	public void onCommentClick() {
 		ensureCommentDialogFragment();
 		commentDialogFragment.setText(comment.getText().toString());
 		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
@@ -280,17 +287,15 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 					public void onFinishEditDialog(String inputText) {
 						UpdateCollectionItemCommentTask task = new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, inputText);
 						TaskUtils.executeAsyncTask(task);
-
 					}
 				}
 			);
 		}
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@OnClick(R.id.rating_container)
-	public void onRatingClick(View v) {
+	public void onRatingClick() {
 		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
 		if ("0".equals(output)) {
 			output = "";
@@ -308,6 +313,38 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			}
 		});
 		DialogUtils.showFragment(getActivity(), fragment, "rating_dialog");
+	}
+
+	@DebugLog
+	@OnClick(R.id.private_info_container)
+	public void onPrivateInfoClick() {
+		ensurePrivateInfoDialogFragment();
+		privateInfoDialogFragment.setPriceCurrency(String.valueOf(privateInfo.getTag(R.id.price_currency)));
+		privateInfoDialogFragment.setPrice((double) privateInfo.getTag(R.id.price));
+		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(privateInfo.getTag(R.id.current_value_currency)));
+		privateInfoDialogFragment.setCurrentValue((double) privateInfo.getTag(R.id.current_value));
+		privateInfoDialogFragment.setQuantity((int) privateInfo.getTag(R.id.quantity));
+		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(privateInfo.getTag(R.id.acquisition_date)));
+		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(privateInfo.getTag(R.id.acquired_from)));
+		privateInfoDialogFragment.setComment(privateInfoComments.getText().toString());
+		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
+	}
+
+	@DebugLog
+	private void ensurePrivateInfoDialogFragment() {
+		if (privateInfoDialogFragment == null) {
+			privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
+				privateInfoContainer,
+				new PrivateInfoDialogListener() {
+					@Override
+					public void onFinishEditDialog(PrivateInfo privateInfo) {
+						UpdateCollectionItemPrivateInfoTask task = new UpdateCollectionItemPrivateInfoTask(getActivity(),
+							gameId, collectionId, privateInfo);
+						TaskUtils.executeAsyncTask(task);
+					}
+				}
+			);
+		}
 	}
 
 	@DebugLog
@@ -342,15 +379,18 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		PresentationUtils.setTextOrHide(comment, item.comment);
 		commentTimestampView.setTag(item.commentTimestamp);
 
-		// Private info
-		if (item.hasPrivateInfo() || !TextUtils.isEmpty(item.privateComment)) {
-			privateInfoContainer.setVisibility(View.VISIBLE);
-			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
-			privateInfo.setText(item.getPrivateInfo());
-			PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
-		} else {
-			privateInfoContainer.setVisibility(View.GONE);
-		}
+		privateInfoContainer.setClickable(collectionId != 0);
+		privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
+		privateInfo.setText(item.getPrivateInfo());
+		privateInfo.setTag(R.id.price_currency, item.getPriceCurrency());
+		privateInfo.setTag(R.id.price, item.getPrice());
+		privateInfo.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
+		privateInfo.setTag(R.id.current_value, item.getCurrentValue());
+		privateInfo.setTag(R.id.quantity, item.getQuantity());
+		privateInfo.setTag(R.id.acquisition_date, item.getAcquisitionDate());
+		privateInfo.setTag(R.id.acquired_from, item.getAcquiredFrom());
+		PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
+		privateInfoTimestampView.setTag(item.privateInfoTimestamp);
 
 		showSection(item.wishlistComment, wishlistContainer, wishlistComment);
 		showSection(item.condition, conditionContainer, conditionComment);
@@ -409,6 +449,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		}
 		displayTimestamp(ratingTimestampView);
 		displayTimestamp(commentTimestampView);
+		displayTimestamp(privateInfoTimestampView);
 	}
 
 	private void displayTimestamp(TextView timestampView) {
@@ -440,7 +481,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE,
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
 			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
-			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP };
+			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP,
+			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP };
 
 		final int COLLECTION_ID = 1;
 		final int COLLECTION_NAME = 2;
@@ -476,6 +518,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final int NUM_PLAYS = 32;
 		final int RATING_DIRTY_TIMESTAMP = 33;
 		final int COMMENT_DIRTY_TIMESTAMP = 34;
+		final int PRIVATE_INFO_DIRTY_TIMESTAMP = 35;
 
 		Resources r;
 		int id;
@@ -495,6 +538,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		private String acquiredFrom;
 		private String acquisitionDate;
 		String privateComment;
+		private long privateInfoTimestamp;
 		String imageUrl;
 		private int year;
 		String condition;
@@ -527,7 +571,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
-			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
+			acquisitionDate = cursor.getString(PRIVATE_INFO_ACQUISITION_DATE);
+			privateInfoTimestamp = cursor.getLong(PRIVATE_INFO_DIRTY_TIMESTAMP);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
 			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
@@ -572,11 +617,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			return PresentationUtils.describeWishlist(getActivity(), wishlistPriority);
 		}
 
-		String getPrice() {
+		String getPriceDescription() {
 			return PresentationUtils.describeMoney(priceCurrency, price);
 		}
 
-		String getValue() {
+		String getCurrentValueDescription() {
 			return PresentationUtils.describeMoney(currentValueCurrency, currentValue);
 		}
 
@@ -584,20 +629,48 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			return hasQuantity() || hasAcquisitionDate() || hasAcquiredFrom() || hasPrice() || hasValue();
 		}
 
+		int getQuantity() {
+			return quantity;
+		}
+
 		boolean hasQuantity() {
 			return quantity > 1;
+		}
+
+		String getAcquisitionDate() {
+			return acquisitionDate;
 		}
 
 		boolean hasAcquisitionDate() {
 			return !TextUtils.isEmpty(acquisitionDate);
 		}
 
+		String getAcquiredFrom() {
+			return acquiredFrom;
+		}
+
 		boolean hasAcquiredFrom() {
 			return !TextUtils.isEmpty(acquiredFrom);
 		}
 
+		String getPriceCurrency() {
+			return priceCurrency;
+		}
+
+		double getPrice() {
+			return price;
+		}
+
 		boolean hasPrice() {
 			return price > 0.0;
+		}
+
+		String getCurrentValueCurrency() {
+			return currentValueCurrency;
+		}
+
+		double getCurrentValue() {
+			return currentValue;
 		}
 
 		boolean hasValue() {
@@ -613,8 +686,16 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				StringUtils.appendBold(sb, String.valueOf(quantity));
 			}
 			if (hasAcquisitionDate()) {
-				sb.append(" ").append(r.getString(R.string.on)).append(" ");
-				StringUtils.appendBold(sb, acquisitionDate);
+				String date = null;
+				try {
+					date = DateUtils.formatDateTime(getContext(), DateTimeUtils.getMillisFromApiDate(acquisitionDate, 0), DateUtils.FORMAT_SHOW_DATE);
+				} catch (Exception e) {
+					Timber.w(e, "Could find a date in here: " + acquisitionDate);
+				}
+				if (!TextUtils.isEmpty(date)) {
+					sb.append(" ").append(r.getString(R.string.on)).append(" ");
+					StringUtils.appendBold(sb, date);
+				}
 			}
 			if (hasAcquiredFrom()) {
 				sb.append(" ").append(r.getString(R.string.from)).append(" ");
@@ -622,11 +703,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			}
 			if (hasPrice()) {
 				sb.append(" ").append(r.getString(R.string.for_)).append(" ");
-				StringUtils.appendBold(sb, getPrice());
+				StringUtils.appendBold(sb, getPriceDescription());
 			}
 			if (hasValue()) {
 				sb.append(" (").append(r.getString(R.string.currently_worth)).append(" ");
-				StringUtils.appendBold(sb, getValue());
+				StringUtils.appendBold(sb, getCurrentValueDescription());
 				sb.append(")");
 			}
 
@@ -635,7 +716,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				return null;
 			}
 			return sb;
-
 		}
 	}
 }

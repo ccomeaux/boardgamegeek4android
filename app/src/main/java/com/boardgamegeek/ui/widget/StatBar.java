@@ -14,14 +14,14 @@ import com.boardgamegeek.R;
 
 import java.text.NumberFormat;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class StatBar extends FrameLayout {
 	private static final NumberFormat FORMAT = NumberFormat.getInstance();
-	@SuppressWarnings("unused") @Bind(R.id.value) View valueView;
-	@SuppressWarnings("unused") @Bind(R.id.no_value) View noValueView;
-	@SuppressWarnings("unused") @Bind(android.R.id.text1) TextView textView;
+	@BindView(R.id.value) View valueView;
+	@BindView(R.id.no_value) View noValueView;
+	@BindView(android.R.id.text1) TextView textView;
 
 	public StatBar(Context context) {
 		this(context, null);
