@@ -9,6 +9,7 @@ import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -304,10 +305,17 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static void setTextOrHide(@Nullable TextView textView, CharSequence text) {
-		if (textView != null) {
-			textView.setText(text);
-			textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+	public static void setTextOrHide(@Nullable TextView view, CharSequence text) {
+		if (view != null) {
+			view.setText(text);
+			view.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		}
+	}
+
+	public static void setAndSelectExistingText(@Nullable EditText view, @Nullable String existingText) {
+		if (view != null && !TextUtils.isEmpty(existingText)) {
+			view.setText(existingText);
+			view.setSelection(0, existingText.length());
 		}
 	}
 

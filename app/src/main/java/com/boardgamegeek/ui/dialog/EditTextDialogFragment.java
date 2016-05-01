@@ -9,7 +9,6 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.PresentationUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -103,7 +103,7 @@ public class EditTextDialogFragment extends DialogFragment {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);
 		}
 
-		setAndSelectExistingText();
+		PresentationUtils.setAndSelectExistingText(editText, existingText);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		if (titleResId > 0) {
@@ -141,13 +141,6 @@ public class EditTextDialogFragment extends DialogFragment {
 
 	public void setText(String text) {
 		this.existingText = text;
-	}
-
-	private void setAndSelectExistingText() {
-		if (editText != null && !TextUtils.isEmpty(existingText)) {
-			editText.setText(existingText);
-			editText.setSelection(0, existingText.length());
-		}
 	}
 
 	private void requestFocus(@NonNull AlertDialog dialog) {
