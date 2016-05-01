@@ -90,6 +90,14 @@ public class DateTimeUtils {
 		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
 	}
 
+	public static String formatDateFromApi(Context context, String date) {
+		long millis = getMillisFromApiDate(date, Long.MAX_VALUE);
+		if (millis == Long.MAX_VALUE) {
+			return "";
+		}
+		return DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE);
+	}
+
 	public static long getMillisFromApiDate(String date, long defaultMillis) {
 		if (TextUtils.isEmpty(date)) {
 			return defaultMillis;

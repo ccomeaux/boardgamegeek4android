@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +53,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@BindView(R.id.current_value_currency) Spinner currentValueCurrencyView;
 	@BindView(R.id.current_value) EditText currentValueView;
 	@BindView(R.id.quantity) EditText quantityView;
+	@BindView(R.id.acquisition_date_label) TextView acquisitionDateLabelView;
 	@BindView(R.id.acquisition_date) TextView acquisitionDateView;
 	@BindView(R.id.acquired_from) EditText acquiredFromView;
 	@BindView(R.id.comment) EditText commentView;
@@ -125,7 +127,8 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		setUpCurrencyView(currentValueCurrencyView, currentValueCurrency);
 		setUpValue(currentValueView, currentValue);
 		PresentationUtils.setAndSelectExistingText(quantityView, quantity);
-		acquisitionDateView.setText(DateUtils.formatDateTime(getContext(), DateTimeUtils.getMillisFromApiDate(acquisitionDate, 0), DateUtils.FORMAT_SHOW_DATE));
+		showOrHideAcquisitionDateLabel();
+		acquisitionDateView.setText(DateTimeUtils.formatDateFromApi(getContext(), acquisitionDate));
 		PresentationUtils.setAndSelectExistingText(acquiredFromView, acquiredFrom);
 		PresentationUtils.setAndSelectExistingText(commentView, comment);
 	}
@@ -145,6 +148,10 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		}
 	}
 
+	private void showOrHideAcquisitionDateLabel() {
+		acquisitionDateLabelView.setVisibility(TextUtils.isEmpty(acquisitionDate) ? View.INVISIBLE : View.VISIBLE);
+	}
+
 	@DebugLog
 	@OnClick(R.id.acquisition_date)
 	public void onDateClick() {
@@ -156,6 +163,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 				Calendar calendar = Calendar.getInstance();
 				calendar.set(year, monthOfYear, dayOfMonth);
 				acquisitionDateView.setText(DateUtils.formatDateTime(getContext(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE));
+				showOrHideAcquisitionDateLabel();
 			}
 		});
 		final FragmentManager fragmentManager = getFragmentManager();
@@ -169,6 +177,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	public void onClearDateClick() {
 		acquisitionDate = "";
 		acquisitionDateView.setText("");
+		showOrHideAcquisitionDateLabel();
 	}
 
 	public void setPriceCurrency(String priceCurrency) {
