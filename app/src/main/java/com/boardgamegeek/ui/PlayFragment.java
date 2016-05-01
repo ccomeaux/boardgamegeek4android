@@ -57,9 +57,10 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -76,29 +77,30 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String mThumbnailUrl;
 	private String mImageUrl;
 
-	@Bind(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@Bind(R.id.progress) View mProgressContainer;
-	@Bind(R.id.list_container) View mListContainer;
-	@Bind(R.id.empty) TextView mEmpty;
-	@Bind(R.id.thumbnail) ImageView mThumbnailView;
-	@Bind(R.id.header) TextView mGameName;
-	@Bind(R.id.play_date) TextView mDate;
-	@Bind(R.id.play_quantity) TextView mQuantity;
-	@Bind(R.id.length_root) View mLengthRoot;
-	@Bind(R.id.play_length) TextView mLength;
-	@Bind(R.id.timer_root) View mTimerRoot;
-	@Bind(R.id.timer) Chronometer mTimer;
-	@Bind(R.id.location_root) View mLocationRoot;
-	@Bind(R.id.play_location) TextView mLocation;
-	@Bind(R.id.play_incomplete) View mIncomplete;
-	@Bind(R.id.play_no_win_stats) View mNoWinStats;
-	@Bind(R.id.play_comments) TextView mComments;
-	@Bind(R.id.play_comments_label) View mCommentsLabel;
-	@Bind(R.id.play_players_label) View mPlayersLabel;
-	@Bind(R.id.updated) TextView mUpdated;
-	@Bind(R.id.play_id) TextView mPlayIdView;
-	@Bind(R.id.play_saved) TextView mSavedTimeStamp;
-	@Bind(R.id.play_unsynced_message) TextView mUnsyncedMessage;
+	private Unbinder unbinder;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@BindView(R.id.progress) View mProgressContainer;
+	@BindView(R.id.list_container) View mListContainer;
+	@BindView(R.id.empty) TextView mEmpty;
+	@BindView(R.id.thumbnail) ImageView mThumbnailView;
+	@BindView(R.id.header) TextView mGameName;
+	@BindView(R.id.play_date) TextView mDate;
+	@BindView(R.id.play_quantity) TextView mQuantity;
+	@BindView(R.id.length_root) View mLengthRoot;
+	@BindView(R.id.play_length) TextView mLength;
+	@BindView(R.id.timer_root) View mTimerRoot;
+	@BindView(R.id.timer) Chronometer mTimer;
+	@BindView(R.id.location_root) View mLocationRoot;
+	@BindView(R.id.play_location) TextView mLocation;
+	@BindView(R.id.play_incomplete) View mIncomplete;
+	@BindView(R.id.play_no_win_stats) View mNoWinStats;
+	@BindView(R.id.play_comments) TextView mComments;
+	@BindView(R.id.play_comments_label) View mCommentsLabel;
+	@BindView(R.id.play_players_label) View mPlayersLabel;
+	@BindView(R.id.updated) TextView mUpdated;
+	@BindView(R.id.play_id) TextView mPlayIdView;
+	@BindView(R.id.play_saved) TextView mSavedTimeStamp;
+	@BindView(R.id.play_unsynced_message) TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
 	@State boolean hasBeenNotified;
 
@@ -149,7 +151,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		playersView.addHeaderView(View.inflate(getActivity(), R.layout.header_play, null), null, false);
 		playersView.addFooterView(View.inflate(getActivity(), R.layout.footer_play, null), null, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		if (mSwipeRefreshLayout != null) {
 			mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -202,6 +204,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override
@@ -508,7 +516,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void save(int status) {
 		mPlay.syncStatus = status;
-		new PlayPersister(getActivity()).save(null, mPlay);
+		new PlayPersister(getActivity()).save(mPlay);
 		triggerRefresh();
 	}
 

@@ -177,10 +177,9 @@ public class GameActivity extends HeroActivity implements Callback {
 		updateRefreshStatus(false);
 	}
 
-	@SuppressWarnings("unused")
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void onFabClicked(View v) {
+	public void onFabClicked() {
 		Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		startActivityForResult(intent, REQUEST_EDIT_PLAY);

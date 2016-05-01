@@ -27,8 +27,10 @@ import com.boardgamegeek.util.XmlConverter;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
@@ -45,21 +47,22 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	private long editedDate;
 	private String body;
 	private Palette.Swatch swatch;
+	private Unbinder unbinder;
 
 	private ViewGroup rootView;
-	@SuppressWarnings("unused") @Bind(R.id.hero_container) View heroContainer;
-	@SuppressWarnings("unused") @Bind(R.id.header_container) View headerContainer;
-	@SuppressWarnings("unused") @Bind(R.id.order) TextView orderView;
-	@SuppressWarnings("unused") @Bind(R.id.title) TextView titleView;
-	@SuppressWarnings("unused") @Bind(R.id.type) TextView typeView;
-	@SuppressWarnings("unused") @Bind(R.id.image) ImageView imageView;
-	@SuppressWarnings("unused") @Bind(R.id.author_container) View authorContainer;
-	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @Bind(R.id.thumbs) TextView thumbsView;
-	@SuppressWarnings("unused") @Bind(R.id.posted_date) TextView postedDateView;
-	@SuppressWarnings("unused") @Bind(R.id.edited_date) TextView editedDateView;
-	@SuppressWarnings("unused") @Bind(R.id.body) WebView bodyView;
-	@SuppressWarnings("unused") @Bind({
+	@BindView(R.id.hero_container) View heroContainer;
+	@BindView(R.id.header_container) View headerContainer;
+	@BindView(R.id.order) TextView orderView;
+	@BindView(R.id.title) TextView titleView;
+	@BindView(R.id.type) TextView typeView;
+	@BindView(R.id.image) ImageView imageView;
+	@BindView(R.id.author_container) View authorContainer;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.thumbs) TextView thumbsView;
+	@BindView(R.id.posted_date) TextView postedDateView;
+	@BindView(R.id.edited_date) TextView editedDateView;
+	@BindView(R.id.body) WebView bodyView;
+	@BindViews({
 		R.id.username,
 		R.id.thumbs,
 		R.id.posted_date,
@@ -93,7 +96,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		applySwatch();
 		ScrimUtils.applyDefaultScrim(headerContainer);
@@ -160,7 +163,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.unbind(this);
+		unbinder.unbind();
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)

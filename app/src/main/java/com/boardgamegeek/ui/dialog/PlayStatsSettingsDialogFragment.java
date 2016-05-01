@@ -16,16 +16,18 @@ import android.widget.ScrollView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.Bind;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class PlayStatsSettingsDialogFragment extends DialogFragment {
 	private ViewGroup root;
-	@SuppressWarnings("unused") @Bind(R.id.scroll_container) ScrollView scrollContainer;
-	@SuppressWarnings("unused") @Bind(R.id.incomplete) CheckBox includeIncompleteGamesView;
-	@SuppressWarnings("unused") @Bind(R.id.expansions) CheckBox includeExpansionsView;
-	@SuppressWarnings("unused") @Bind(R.id.accessories) CheckBox includeAccessoriesView;
+	private Unbinder unbinder;
+	@BindView(R.id.scroll_container) ScrollView scrollContainer;
+	@BindView(R.id.incomplete) CheckBox includeIncompleteGamesView;
+	@BindView(R.id.expansions) CheckBox includeExpansionsView;
+	@BindView(R.id.accessories) CheckBox includeAccessoriesView;
 
 	@DebugLog
 	public PlayStatsSettingsDialogFragment() {
@@ -45,7 +47,7 @@ public class PlayStatsSettingsDialogFragment extends DialogFragment {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_play_stats_settings, root, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		bindUi();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -59,6 +61,12 @@ public class PlayStatsSettingsDialogFragment extends DialogFragment {
 			});
 		builder.setTitle(R.string.title_settings);
 		return builder.create();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private void bindUi() {

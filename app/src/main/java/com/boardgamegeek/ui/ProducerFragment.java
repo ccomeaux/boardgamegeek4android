@@ -31,8 +31,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
@@ -46,11 +47,12 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	private int mId;
 	private boolean mSyncing;
 
-	@SuppressWarnings("unused") @Bind(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@SuppressWarnings("unused") @Bind(R.id.id) TextView mIdView;
-	@SuppressWarnings("unused") @Bind(R.id.name) TextView mName;
-	@SuppressWarnings("unused") @Bind(R.id.description) TextView mDescription;
-	@SuppressWarnings("unused") @Bind(R.id.updated) TextView mUpdated;
+	private Unbinder unbinder;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
+	@BindView(R.id.id) TextView mIdView;
+	@BindView(R.id.name) TextView mName;
+	@BindView(R.id.description) TextView mDescription;
+	@BindView(R.id.updated) TextView mUpdated;
 
 	@Override
 	@DebugLog
@@ -73,7 +75,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_producer, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		mSwipeRefreshLayout.setOnRefreshListener(this);
 		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
@@ -109,6 +111,12 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

@@ -53,9 +53,11 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -64,37 +66,38 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
-	@Bind(R.id.year) TextView year;
-	@Bind(R.id.info_bar) View infoBar;
-	@Bind(R.id.status) TextView status;
-	@Bind(R.id.last_modified) TextView lastModified;
-	@Bind(R.id.rating_container) View ratingContainer;
-	@Bind(R.id.rating) TextView rating;
-	@Bind(R.id.rating_timestamp) TextView ratingTimestampView;
-	@Bind(R.id.comment_container) ViewGroup commentContainer;
-	@Bind(R.id.add_comment) View addCommentView;
-	@Bind(R.id.comment) TextView comment;
-	@Bind(R.id.comment_timestamp) TextView commentTimestampView;
-	@Bind(R.id.private_info_container) ViewGroup privateInfoContainer;
-	@Bind(R.id.private_info) TextView privateInfo;
-	@Bind(R.id.private_info_comments) TextView privateInfoComments;
-	@Bind(R.id.private_info_timestamp) TextView privateInfoTimestampView;
-	@Bind(R.id.wishlist_container) View wishlistContainer;
-	@Bind(R.id.wishlist_comment) TextView wishlistComment;
-	@Bind(R.id.condition_container) View conditionContainer;
-	@Bind(R.id.condition_comment) TextView conditionComment;
-	@Bind(R.id.want_parts_container) View wantPartsContainer;
-	@Bind(R.id.want_parts_comment) TextView wantPartsComment;
-	@Bind(R.id.has_parts_container) View hasPartsContainer;
-	@Bind(R.id.has_parts_comment) TextView hasPartsComment;
-	@Bind(R.id.collection_id) TextView id;
-	@Bind(R.id.updated) TextView updated;
-	@Bind({
+	private Unbinder unbinder;
+	@BindView(R.id.year) TextView year;
+	@BindView(R.id.info_bar) View infoBar;
+	@BindView(R.id.status) TextView status;
+	@BindView(R.id.last_modified) TextView lastModified;
+	@BindView(R.id.rating_container) View ratingContainer;
+	@BindView(R.id.rating) TextView rating;
+	@BindView(R.id.rating_timestamp) TextView ratingTimestampView;
+	@BindView(R.id.comment_container) ViewGroup commentContainer;
+	@BindView(R.id.add_comment) View addCommentView;
+	@BindView(R.id.comment) TextView comment;
+	@BindView(R.id.comment_timestamp) TextView commentTimestampView;
+	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
+	@BindView(R.id.private_info) TextView privateInfo;
+	@BindView(R.id.private_info_comments) TextView privateInfoComments;
+	@BindView(R.id.private_info_timestamp) TextView privateInfoTimestampView;
+	@BindView(R.id.wishlist_container) View wishlistContainer;
+	@BindView(R.id.wishlist_comment) TextView wishlistComment;
+	@BindView(R.id.condition_container) View conditionContainer;
+	@BindView(R.id.condition_comment) TextView conditionComment;
+	@BindView(R.id.want_parts_container) View wantPartsContainer;
+	@BindView(R.id.want_parts_comment) TextView wantPartsComment;
+	@BindView(R.id.has_parts_container) View hasPartsContainer;
+	@BindView(R.id.has_parts_comment) TextView hasPartsComment;
+	@BindView(R.id.collection_id) TextView id;
+	@BindView(R.id.updated) TextView updated;
+	@BindViews({
 		R.id.status,
 		R.id.last_modified,
 		R.id.year
 	}) List<TextView> colorizedTextViews;
-	@Bind({
+	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
@@ -127,7 +130,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		colorize(palette);
 
@@ -177,7 +180,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.unbind(this);
+		unbinder.unbind();
 	}
 
 	@DebugLog

@@ -27,14 +27,14 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
 
 public class GameDetailRow extends LinearLayout {
-	@SuppressWarnings("unused") @Bind(android.R.id.icon) ImageView iconView;
-	@SuppressWarnings("unused") @Bind(R.id.data) TextView dataView;
+	@BindView(android.R.id.icon) ImageView iconView;
+	@BindView(R.id.data) TextView dataView;
 	private int queryToken;
 	private String oneMore;
 	private String someMore;

@@ -77,7 +77,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -136,19 +136,19 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private final List<String> mUsernames = new ArrayList<>();
 	private final List<String> mNames = new ArrayList<>();
 
-	@Bind(R.id.header) TextView mHeaderView;
-	@Bind(R.id.log_play_date) TextView mDateButton;
-	@Bind(R.id.log_play_quantity) EditText mQuantityView;
-	@Bind(R.id.log_play_length) EditText mLengthView;
-	@Bind(R.id.log_play_location) AutoCompleteTextView mLocationView;
-	@Bind(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
-	@Bind(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
-	@Bind(R.id.timer) Chronometer mTimer;
-	@Bind(R.id.timer_toggle) ImageView mTimerToggle;
-	@Bind(R.id.log_play_comments) EditText mCommentsView;
-	@Bind(R.id.log_play_players_header) LinearLayout mPlayerHeader;
-	@Bind(R.id.log_play_players_label) TextView mPlayerLabel;
-	@Bind(R.id.fab) FloatingActionButton mFab;
+	@BindView(R.id.header) TextView mHeaderView;
+	@BindView(R.id.log_play_date) TextView mDateButton;
+	@BindView(R.id.log_play_quantity) EditText mQuantityView;
+	@BindView(R.id.log_play_length) EditText mLengthView;
+	@BindView(R.id.log_play_location) AutoCompleteTextView mLocationView;
+	@BindView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
+	@BindView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
+	@BindView(R.id.timer) Chronometer mTimer;
+	@BindView(R.id.timer_toggle) ImageView mTimerToggle;
+	@BindView(R.id.log_play_comments) EditText mCommentsView;
+	@BindView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
+	@BindView(R.id.log_play_players_label) TextView mPlayerLabel;
+	@BindView(R.id.fab) FloatingActionButton mFab;
 	private DragSortListView mPlayerList;
 	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
@@ -678,7 +678,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			captureForm();
 		}
 		mPlay.syncStatus = syncStatus;
-		new PlayPersister(this).save(this, mPlay);
+		new PlayPersister(this).save(mPlay);
 		return true;
 	}
 
@@ -720,7 +720,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void addField(View v) {
+	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
 			return;
@@ -971,7 +971,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.log_play_date)
-	public void onDateClick(View v) {
+	public void onDateClick() {
 		if (mDatePickerFragment == null) {
 			mDatePickerFragment = new DatePickerDialogFragment();
 			mDatePickerFragment.setOnDateSetListener(this);
@@ -999,7 +999,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.timer_toggle)
-	public void onTimer(View v) {
+	public void onTimer() {
 		if (mPlay.hasStarted()) {
 			mEndPlay = true;
 			mPlay.end();
@@ -1037,7 +1037,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.player_sort)
-	public void onPlayerSort(View v) {
+	public void onPlayerSort(View view) {
 		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
 			if (mFullPopupMenu == null) {
@@ -1053,7 +1053,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				mFullPopupMenu.setCallback(popupMenuCallback());
 			}
 			mFullPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
-			popup = new MenuPopupHelper(this, mFullPopupMenu, v);
+			popup = new MenuPopupHelper(this, mFullPopupMenu, view);
 		} else {
 			if (mShortPopupMenu == null) {
 				mShortPopupMenu = new MenuBuilder(this);
@@ -1063,7 +1063,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				mShortPopupMenu.setCallback(popupMenuCallback());
 			}
 			mShortPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
-			popup = new MenuPopupHelper(this, mShortPopupMenu, v);
+			popup = new MenuPopupHelper(this, mShortPopupMenu, view);
 		}
 		popup.show();
 	}
@@ -1186,7 +1186,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.clear_players)
-	public void onClearPlayers(View v) {
+	public void onClearPlayers() {
 		DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
 				@Override

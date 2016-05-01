@@ -34,18 +34,20 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
-	@SuppressWarnings("unused") @Bind(R.id.backup_location) TextView fileLocationView;
-	@SuppressWarnings("unused") @Bind(R.id.backup_types) ViewGroup fileTypesView;
-	@SuppressWarnings("unused") @Bind(R.id.progress_container) View progressContainer;
-	@SuppressWarnings("unused") @Bind(R.id.progress) ProgressBar progressBar;
-	@SuppressWarnings("unused") @Bind(R.id.progress_detail) TextView progressDetailView;
+	private Unbinder unbinder;
+	@BindView(R.id.backup_location) TextView fileLocationView;
+	@BindView(R.id.backup_types) ViewGroup fileTypesView;
+	@BindView(R.id.progress_container) View progressContainer;
+	@BindView(R.id.progress) ProgressBar progressBar;
+	@BindView(R.id.progress_detail) TextView progressDetailView;
 	private ImporterExporterTask task;
 
 	@DebugLog
@@ -54,7 +56,7 @@ public class DataFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_data, container, false);
 
-		ButterKnife.bind(this, root);
+		unbinder = ButterKnife.bind(this, root);
 
 		fileLocationView.setText(FileUtils.getExportPath(false).getPath());
 
@@ -82,10 +84,15 @@ public class DataFragment extends Fragment {
 		super.onStop();
 	}
 
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
+	}
+
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.export_button)
-	public void onExportClick(View view) {
+	public void onExportClick() {
 		DialogUtils.createConfirmationDialog(getActivity(), R.string.msg_export_confirmation, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -128,9 +135,8 @@ public class DataFragment extends Fragment {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.import_button)
-	public void onImportClick(View view) {
+	public void onImportClick() {
 		DialogUtils.createConfirmationDialog(getActivity(), R.string.msg_import_confirmation, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {

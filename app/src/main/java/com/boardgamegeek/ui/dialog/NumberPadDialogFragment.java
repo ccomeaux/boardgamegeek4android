@@ -18,10 +18,11 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import butterknife.Unbinder;
 
 public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_TITLE = "TITLE";
@@ -29,9 +30,10 @@ public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_COLOR = "COLOR";
 	private static final int MAX_LENGTH = 10;
 
-	@Bind(R.id.title) TextView titleView;
-	@Bind(R.id.output) TextView outputView;
-	@Bind(R.id.num_delete) View deleteView;
+	private Unbinder unbinder;
+	@BindView(R.id.title) TextView titleView;
+	@BindView(R.id.output) TextView outputView;
+	@BindView(R.id.num_delete) View deleteView;
 	private OnClickListener clickListener;
 	private double minValue = 0.0;
 	private double maxValue = Double.MAX_VALUE;
@@ -98,7 +100,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.dialog_number_pad, container, false);
-		ButterKnife.bind(this, view);
+		unbinder = ButterKnife.bind(this, view);
 
 		Bundle args = getArguments();
 		if (args != null) {
@@ -123,7 +125,12 @@ public class NumberPadDialogFragment extends DialogFragment {
 		return view;
 	}
 
-	@SuppressWarnings("unused")
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
+	}
+
 	@OnClick({
 		R.id.num_0,
 		R.id.num_1,
@@ -137,17 +144,17 @@ public class NumberPadDialogFragment extends DialogFragment {
 		R.id.num_9,
 		R.id.num_decimal
 	})
-	void onNumPadClick(View v) {
-		String output = outputView.getText().toString() + ((TextView) v).getText();
+	void onNumPadClick(TextView textView) {
+		String output = outputView.getText().toString() + textView.getText();
 		if (isWithinLength(output) && isWithinRange(output)) {
-			maybeBuzz(v);
+			maybeBuzz(textView);
 			outputView.setText(output);
 			enableDelete();
 		}
 	}
 
 	@OnClick(R.id.num_done)
-	void onDoneClick(@SuppressWarnings("UnusedParameters") View v) {
+	void onDoneClick() {
 		if (clickListener != null) {
 			clickListener.onDoneClick(outputView.getText().toString());
 		}
@@ -155,12 +162,12 @@ public class NumberPadDialogFragment extends DialogFragment {
 	}
 
 	@OnClick(R.id.num_delete)
-	void onDeleteClick(View v) {
+	void onDeleteClick(View view) {
 		final CharSequence text = outputView.getText();
 		if (text.length() > 0) {
 			String output = text.subSequence(0, text.length() - 1).toString();
 			if (isWithinLength(output) && isWithinRange(output)) {
-				maybeBuzz(v);
+				maybeBuzz(view);
 				outputView.setText(output);
 				enableDelete();
 			}

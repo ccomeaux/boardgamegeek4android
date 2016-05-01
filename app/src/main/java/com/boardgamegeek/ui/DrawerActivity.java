@@ -22,7 +22,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.squareup.picasso.Picasso;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -31,11 +31,11 @@ import butterknife.ButterKnife;
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGN_IN = 1;
 
-	@SuppressWarnings("unused") @Bind(R.id.drawer_layout) DrawerLayout drawerLayout;
-	@SuppressWarnings("unused") @Bind(R.id.drawer_container) View drawerListContainer;
-	@SuppressWarnings("unused") @Bind(R.id.left_drawer) LinearLayout drawerList;
-	@SuppressWarnings("unused") @Bind(R.id.toolbar) Toolbar toolbar;
-	@SuppressWarnings("unused") @Bind(R.id.root_container) ViewGroup rootContainer;
+	@BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
+	@BindView(R.id.drawer_container) View drawerListContainer;
+	@BindView(R.id.left_drawer) LinearLayout drawerList;
+	@BindView(R.id.toolbar) Toolbar toolbar;
+	@BindView(R.id.root_container) ViewGroup rootContainer;
 
 	protected int getDrawerResId() {
 		return 0;

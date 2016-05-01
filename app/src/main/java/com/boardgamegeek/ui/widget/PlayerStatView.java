@@ -9,16 +9,16 @@ import com.boardgamegeek.R;
 
 import java.text.DecimalFormat;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class PlayerStatView extends TableRow {
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.0");
 
-	@Bind(R.id.name) TextView mName;
-	@Bind(R.id.play_count) TextView mPlayCount;
-	@Bind(R.id.wins) TextView mWins;
-	@Bind(R.id.score) TextView mScore;
+	@BindView(R.id.name) TextView mName;
+	@BindView(R.id.play_count) TextView mPlayCount;
+	@BindView(R.id.wins) TextView mWins;
+	@BindView(R.id.score) TextView mScore;
 
 	public PlayerStatView(Context context) {
 		super(context);

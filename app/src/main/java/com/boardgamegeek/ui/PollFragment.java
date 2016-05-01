@@ -46,8 +46,9 @@ import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
@@ -69,15 +70,16 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	private int[] mColors;
 	private Snackbar mSnackbar;
 
-	@Bind((R.id.progress)) View mProgress;
-	@Bind(R.id.poll_scroll) ScrollView mScrollView;
-	@Bind(R.id.poll_vote_total) TextView mVoteTotalView;
-	@Bind(R.id.pie_chart) PieChart mPieChart;
-	@Bind(R.id.poll_list) LinearLayout mPollList;
-	@Bind(R.id.poll_key) LinearLayout mKeyList;
-	@Bind(R.id.poll_key2) LinearLayout mKeyList2;
-	@Bind(R.id.poll_key_container) View mKeyContainer;
-	@Bind(R.id.poll_key_divider) View mKeyDivider;
+	private Unbinder unbinder;
+	@BindView((R.id.progress)) View mProgress;
+	@BindView(R.id.poll_scroll) ScrollView mScrollView;
+	@BindView(R.id.poll_vote_total) TextView mVoteTotalView;
+	@BindView(R.id.pie_chart) PieChart mPieChart;
+	@BindView(R.id.poll_list) LinearLayout mPollList;
+	@BindView(R.id.poll_key) LinearLayout mKeyList;
+	@BindView(R.id.poll_key2) LinearLayout mKeyList2;
+	@BindView(R.id.poll_key_container) View mKeyContainer;
+	@BindView(R.id.poll_key_divider) View mKeyDivider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -92,7 +94,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		mPieChart.setDrawSliceText(false);
 		mPieChart.setRotationEnabled(false);
@@ -141,6 +143,12 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		}
 
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override

@@ -49,9 +49,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -71,17 +72,17 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private boolean isRefreshing;
 	@State boolean hasBeenRefreshed;
 
-	private ViewGroup rootView;
+	private Unbinder unbinder;
 	private SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @Bind(R.id.buddy_info) View buddyInfoView;
-	@SuppressWarnings("unused") @Bind(R.id.full_name) TextView fullNameView;
-	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @Bind(R.id.avatar) ImageView avatarView;
-	@SuppressWarnings("unused") @Bind(R.id.nickname) TextView nicknameView;
-	@SuppressWarnings("unused") @Bind(R.id.collection_card) View collectionCard;
-	@SuppressWarnings("unused") @Bind(R.id.plays_label) TextView playsView;
-	@SuppressWarnings("unused") @Bind(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @Bind(R.id.updated) TextView updatedView;
+	@BindView(R.id.buddy_info) View buddyInfoView;
+	@BindView(R.id.full_name) TextView fullNameView;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.avatar) ImageView avatarView;
+	@BindView(R.id.nickname) TextView nicknameView;
+	@BindView(R.id.collection_card) View collectionCard;
+	@BindView(R.id.plays_label) TextView playsView;
+	@BindView(R.id.color_container) LinearLayout colorContainer;
+	@BindView(R.id.updated) TextView updatedView;
 	private int defaultTextColor;
 	private int lightTextColor;
 
@@ -104,9 +105,9 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);
@@ -170,6 +171,12 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@SuppressWarnings("unused")
@@ -263,9 +270,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.nickname)
-	public void onEditNicknameClick(View v) {
+	public void onEditNicknameClick() {
 		if (isUser()) {
 			showNicknameDialog(nicknameView.getText().toString(), buddyName);
 		} else {
@@ -274,18 +280,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.collection_root)
-	public void onCollectionClick(View v) {
+	public void onCollectionClick() {
 		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		startActivity(intent);
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
-	public void onPlaysClick(View v) {
+	public void onPlaysClick() {
 		if (isUser()) {
 			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
 			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
@@ -296,9 +300,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.colors_root)
-	public void onColorsClick(View v) {
+	public void onColorsClick() {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);

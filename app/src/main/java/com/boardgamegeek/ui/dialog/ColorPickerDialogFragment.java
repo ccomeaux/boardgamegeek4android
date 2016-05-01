@@ -22,9 +22,10 @@ import com.boardgamegeek.util.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
+import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
 
@@ -35,9 +36,10 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	private static final String KEY_COLORS = "colors";
 	private static final String KEY_COLUMNS = "columns";
 
-	@SuppressWarnings("unused") @Bind(R.id.color_grid) GridView colorGrid;
-	@SuppressWarnings("unused") @Bind(R.id.featured_color_grid) GridView featuredColorGrid;
-	@SuppressWarnings("unused") @Bind(R.id.hr) View divider;
+	private Unbinder unbinder;
+	@BindView(R.id.color_grid) GridView colorGrid;
+	@BindView(R.id.featured_color_grid) GridView featuredColorGrid;
+	@BindView(R.id.hr) View divider;
 
 	private ColorGridAdapter colorGridAdapter;
 	private ColorGridAdapter featuredColorGridAdapter;
@@ -153,7 +155,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		}
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		colorGrid.setNumColumns(numberOfColumns);
 		featuredColorGrid.setNumColumns(numberOfColumns);
 
@@ -165,6 +167,12 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			builder.setTitle(titleResId);
 		}
 		return builder.create();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@SuppressWarnings("unused")

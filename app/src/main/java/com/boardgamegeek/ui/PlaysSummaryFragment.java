@@ -37,9 +37,10 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int PLAYS_TOKEN = 1;
@@ -48,22 +49,23 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int LOCATIONS_TOKEN = 4;
 	private static final int COLORS_TOKEN = 5;
 
-	@SuppressWarnings("unused") @Bind(R.id.plays_container) LinearLayout playsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.card_footer_plays) TextView playsFooter;
-	@SuppressWarnings("unused") @Bind(R.id.players_container) LinearLayout playersContainer;
-	@SuppressWarnings("unused") @Bind(R.id.card_footer_players) TextView playersFooter;
-	@SuppressWarnings("unused") @Bind(R.id.locations_container) LinearLayout locationsContainer;
-	@SuppressWarnings("unused") @Bind(R.id.card_footer_locations) TextView locationsFooter;
-	@SuppressWarnings("unused") @Bind(R.id.card_colors) View colorsCard;
-	@SuppressWarnings("unused") @Bind(R.id.colors_hint) View colorsHint;
-	@SuppressWarnings("unused") @Bind(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @Bind(R.id.h_index) TextView hIndexView;
+	private Unbinder unbinder;
+	@BindView(R.id.plays_container) LinearLayout playsContainer;
+	@BindView(R.id.card_footer_plays) TextView playsFooter;
+	@BindView(R.id.players_container) LinearLayout playersContainer;
+	@BindView(R.id.card_footer_players) TextView playersFooter;
+	@BindView(R.id.locations_container) LinearLayout locationsContainer;
+	@BindView(R.id.card_footer_locations) TextView locationsFooter;
+	@BindView(R.id.card_colors) View colorsCard;
+	@BindView(R.id.colors_hint) View colorsHint;
+	@BindView(R.id.color_container) LinearLayout colorContainer;
+	@BindView(R.id.h_index) TextView hIndexView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
 
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		colorsCard.setVisibility(TextUtils.isEmpty(AccountUtils.getUsername(getActivity())) ? View.GONE : View.VISIBLE);
 		//TODO ensure this is bold
 		hIndexView.setText(getString(R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
@@ -80,6 +82,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
 		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override
@@ -320,25 +328,25 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.card_footer_plays)
-	public void onPlaysClick(View v) {
+	public void onPlaysClick() {
 		startActivity(new Intent(getActivity(), PlaysActivity.class));
 	}
 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.card_footer_players)
-	public void onPlayersClick(View v) {
+	public void onPlayersClick() {
 		startActivity(new Intent(getActivity(), PlayersActivity.class));
 	}
 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.card_footer_locations)
-	public void onLocationsClick(View v) {
+	public void onLocationsClick() {
 		startActivity(new Intent(getActivity(), LocationsActivity.class));
 	}
 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.card_footer_colors)
-	public void onColorsClick(View v) {
+	public void onColorsClick() {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(getActivity()));
 		startActivity(intent);
@@ -346,7 +354,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	@SuppressWarnings("unused")
 	@OnClick(R.id.card_footer_stats)
-	public void onStatsClick(View v) {
+	public void onStatsClick() {
 		startActivity(new Intent(getActivity(), PlayStatsActivity.class));
 	}
 }

@@ -30,7 +30,7 @@ import com.boardgamegeek.util.StringUtils;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -47,14 +47,14 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 
 	private ViewGroup root;
 	private PrivateInfoDialogListener listener;
-	@Bind(R.id.price_currency) Spinner priceCurrencyView;
-	@Bind(R.id.price) EditText priceView;
-	@Bind(R.id.current_value_currency) Spinner currentValueCurrencyView;
-	@Bind(R.id.current_value) EditText currentValueView;
-	@Bind(R.id.quantity) EditText quantityView;
-	@Bind(R.id.acquisition_date) TextView acquisitionDateView;
-	@Bind(R.id.acquired_from) EditText acquiredFromView;
-	@Bind(R.id.comment) EditText commentView;
+	@BindView(R.id.price_currency) Spinner priceCurrencyView;
+	@BindView(R.id.price) EditText priceView;
+	@BindView(R.id.current_value_currency) Spinner currentValueCurrencyView;
+	@BindView(R.id.current_value) EditText currentValueView;
+	@BindView(R.id.quantity) EditText quantityView;
+	@BindView(R.id.acquisition_date) TextView acquisitionDateView;
+	@BindView(R.id.acquired_from) EditText acquiredFromView;
+	@BindView(R.id.comment) EditText commentView;
 	@State String priceCurrency;
 	@State double price;
 	@State String currentValueCurrency;

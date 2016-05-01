@@ -15,8 +15,9 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ArticleFragment extends Fragment {
@@ -30,11 +31,12 @@ public class ArticleFragment extends Fragment {
 	private int editCount;
 	private String body;
 
-	@SuppressWarnings("unused") @Bind(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @Bind(R.id.post_date) TextView postDateView;
-	@SuppressWarnings("unused") @Bind(R.id.edit_date) TextView editDateView;
-	@SuppressWarnings("unused") @Bind(R.id.edit_count) TextView editCountView;
-	@SuppressWarnings("unused") @Bind(R.id.body) WebView bodyView;
+	private Unbinder unbinder;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.post_date) TextView postDateView;
+	@BindView(R.id.edit_date) TextView editDateView;
+	@BindView(R.id.edit_count) TextView editCountView;
+	@BindView(R.id.body) WebView bodyView;
 
 	@Override
 	@DebugLog
@@ -53,7 +55,7 @@ public class ArticleFragment extends Fragment {
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, container, false);
-		ButterKnife.bind(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		updateTimeBasedUi();
 		if (timeHintUpdateRunnable != null) {
@@ -94,6 +96,12 @@ public class ArticleFragment extends Fragment {
 		if (timeHintUpdateRunnable != null) {
 			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
 		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@DebugLog
