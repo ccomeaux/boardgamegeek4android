@@ -7,6 +7,7 @@
 	<color name="accent">#ff2a2c70</color>
 	<color name="info_background">@color/primary</color>
 	<color name="info_background_dark">@color/primary_dark</color>
+	<color name="primary_dark_transparent">#cc4c6099</color>
 
 	<color name="light_text">#6000</color>
 	<color name="dialog_text">#000</color>
