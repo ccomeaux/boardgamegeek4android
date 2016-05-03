@@ -75,7 +75,7 @@ public class Adapter {
 		AccountManager accountManager = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(accountManager);
 		try {
-			final String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
+			final String authToken = (account != null) ? "" : accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
 			requestInterceptor = new RequestInterceptor() {
 				@Override
 				public void intercept(RequestFacade request) {
