@@ -3,30 +3,23 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.util.DateTimeUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import timber.log.Timber;
 
 public class PlaysDateSorter extends PlaysSorter {
-	private final SimpleDateFormat formatter = new SimpleDateFormat("MMMM", Locale.getDefault());
-	private final GregorianCalendar calendar = new GregorianCalendar();
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
 
 	public PlaysDateSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = Plays.DEFAULT_SORT;
 		descriptionId = R.string.menu_plays_sort_date;
-
-		// account for leap years
-		calendar.set(Calendar.YEAR, 2012);
-		calendar.set(Calendar.DAY_OF_MONTH, 1);
 	}
 
 	@Override
@@ -42,18 +35,12 @@ public class PlaysDateSorter extends PlaysSorter {
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
-		String date = getYearAndMonth(cursor);
-		int month = Integer.parseInt(date.substring(5, 7));
-		calendar.set(Calendar.MONTH, month - 1);
-		return formatter.format(calendar.getTime()) + " " + date.substring(0, 4);
-	}
-
-	private String getYearAndMonth(@NonNull Cursor cursor) {
 		String date = getString(cursor, Plays.DATE);
-		Timber.w("Attempting to parse date %s", date);
-		if (TextUtils.isEmpty(date)) {
-			return "1969-01";
+		long millis = DateTimeUtils.getMillisFromApiDate(date, 0);
+		if (millis == 0) {
+			Timber.w("This isn't a date in the expected format: " + date);
+			return date;
 		}
-		return date.substring(0, 7);
+		return DATE_FORMAT.format(millis);
 	}
 }
