@@ -23,11 +23,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -42,8 +41,7 @@ import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class BuddyCollectionFragment extends StickyHeaderListFragment implements
-	LoaderManager.LoaderCallbacks<BuddyCollectionFragment.BuddyCollectionData> {
+public class BuddyCollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<CollectionResponse>> {
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 
 	private BuddyCollectionAdapter adapter;
@@ -176,20 +174,19 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public Loader<BuddyCollectionData> onCreateLoader(int id, Bundle data) {
+	public Loader<SafeResponse<CollectionResponse>> onCreateLoader(int id, Bundle data) {
 		return new BuddyGamesLoader(getActivity(), buddyName, statusValue);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<BuddyCollectionData> loader, BuddyCollectionData data) {
+	public void onLoadFinished(Loader<SafeResponse<CollectionResponse>> loader, SafeResponse<CollectionResponse> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		List<CollectionItem> list = new ArrayList<>();
-		if (data != null) {
-			list = data.list();
-		}
+		List<CollectionItem> list = (data == null || data.getBody() == null) ?
+			new ArrayList<CollectionItem>() :
+			data.getBody().items;
 
 		if (adapter == null) {
 			adapter = new BuddyCollectionAdapter(getActivity(), list);
@@ -215,10 +212,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public void onLoaderReset(Loader<BuddyCollectionData> loader) {
+	public void onLoaderReset(Loader<SafeResponse<CollectionResponse>> loader) {
 	}
 
-	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
+	private static class BuddyGamesLoader extends BggLoader<SafeResponse<CollectionResponse>> {
 		private final BggService bggService;
 		private final String username;
 		private final ArrayMap<String, String> options;
@@ -233,35 +230,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		@Override
-		public BuddyCollectionData loadInBackground() {
-			BuddyCollectionData collection;
-			try {
-				CollectionResponse response = new CollectionRequest(bggService, username, options).execute();
-				collection = new BuddyCollectionData(response);
-			} catch (Exception e) {
-				collection = new BuddyCollectionData(e);
-			}
-			return collection;
-		}
-	}
-
-	static class BuddyCollectionData extends Data<CollectionItem> {
-		private CollectionResponse response;
-
-		public BuddyCollectionData(CollectionResponse response) {
-			this.response = response;
-		}
-
-		public BuddyCollectionData(Exception e) {
-			super(e);
-		}
-
-		@Override
-		public List<CollectionItem> list() {
-			if (response == null || response.items == null) {
-				return new ArrayList<>();
-			}
-			return response.items;
+		public SafeResponse<CollectionResponse> loadInBackground() {
+			return new SafeResponse<>(bggService.collection(username, options));
 		}
 	}
 
