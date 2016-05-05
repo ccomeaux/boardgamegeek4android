@@ -435,6 +435,7 @@
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
 	<string name="forum_last_post">Last post: %s</string>
+	<string name="forum_last_post_in">Last post <b>%1$s</b> in <b>%2$s</b></string>
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
 	<string name="last_modified">Last modified</string>

@@ -22,6 +22,10 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.Forum;
+import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -63,6 +67,9 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import timber.log.Timber;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
@@ -113,11 +120,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.colors_root) View colorsRoot;
 	@BindView(R.id.game_colors_label) TextView colorsLabel;
 
-	@BindView(R.id.game_comments_label) TextView commentsLabel;
-
 	@BindView(R.id.game_ratings_label) TextView ratingsLabel;
 	@BindView(R.id.game_ratings_votes) TextView ratingsVotes;
 	@BindView(R.id.game_ratings_standard_deviation) TextView ratingsStandardDeviation;
+
+	@BindView(R.id.game_comments_label) TextView commentsLabel;
+
+	@BindView(R.id.forums_last_post_date) TextView forumsLastPostDateView;
 
 	@BindView(R.id.game_weight) TextView weightView;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
@@ -321,6 +330,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				lm.restartLoader(MechanicQuery._TOKEN, null, this);
 				lm.restartLoader(ExpansionQuery._TOKEN, null, this);
 				lm.restartLoader(BaseGameQuery._TOKEN, null, this);
+				fetchForumInfo();
 				break;
 			case DesignerQuery._TOKEN:
 				onListQueryComplete(cursor, designersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID);
@@ -362,6 +372,38 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				cursor.close();
 				break;
 		}
+	}
+
+	private void fetchForumInfo() {
+		if (forumsLastPostDateView.getTag() != null) {
+			return;
+		}
+		BggService bggService = Adapter.createForXml();
+		Call<ForumListResponse> call = bggService.forumList(BggService.FORUM_TYPE_THING, Games.getGameId(gameUri));
+		call.enqueue(new Callback<ForumListResponse>() {
+			@Override
+			public void onResponse(Call<ForumListResponse> call, Response<ForumListResponse> response) {
+				if (response.isSuccessful()) {
+					long lastPostDate = 0;
+					String title = "";
+					for (Forum forum : response.body().getForums()) {
+						if (forum.lastPostDate() > lastPostDate) {
+							lastPostDate = forum.lastPostDate();
+							title = forum.title;
+						}
+					}
+					forumsLastPostDateView.setTag(lastPostDate);
+					forumsLastPostDateView.setTag(R.id.title, title);
+					forumsLastPostDateView.setVisibility(View.VISIBLE);
+					updateTimeBasedUi();
+				}
+			}
+
+			@Override
+			public void onFailure(Call<ForumListResponse> call, Throwable t) {
+				Timber.w("Failed fetching forum for game %s: %s", Games.getGameId(gameUri), t.getMessage());
+			}
+		});
 	}
 
 	@Override
@@ -479,6 +521,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			if (tag != null) {
 				long lastPlayedTime = (long) tag;
 				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(lastPlayedTime)));
+			}
+		}
+		if (forumsLastPostDateView != null) {
+			final Object tag = forumsLastPostDateView.getTag();
+			if (tag != null) {
+				long lastPostDate = (long) tag;
+				String title = (String) forumsLastPostDateView.getTag(R.id.title);
+				CharSequence date = DateTimeUtils.formatForumDate(GameFragment.this.getContext(), lastPostDate);
+				forumsLastPostDateView.setText(PresentationUtils.getText(getContext(), R.string.forum_last_post_in, date, title));
 			}
 		}
 	}

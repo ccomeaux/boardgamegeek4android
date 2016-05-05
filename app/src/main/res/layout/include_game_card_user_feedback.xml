@@ -99,14 +99,33 @@
 				style="@style/Icon"
 				android:src="@drawable/ic_forums"/>
 
-			<TextView
+			<LinearLayout
+				android:id="@+id/weight_container"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:maxLines="1"
-				android:text="@string/title_forums"
-				android:textAppearance="@style/Text"/>
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/forums"
+					style="@style/Text"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					android:text="@string/title_forums"
+					android:textAppearance="@style/Text"/>
+
+				<TextView
+					android:id="@+id/forums_last_post_date"
+					style="@style/Text.Secondary"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					android:visibility="invisible"
+					tools:text="Last post 1 hour ago"
+					tools:visibility="visible"/>
+			</LinearLayout>
 		</LinearLayout>
 
 		<LinearLayout
