@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -23,7 +23,7 @@ import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -34,8 +34,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GeekListFragment extends BggListFragment implements
-	LoaderManager.LoaderCallbacks<GeekListFragment.GeekListData> {
+public class GeekListFragment extends BggListFragment implements LoaderCallbacks<SafeResponse<GeekList>> {
 	private static final int LOADER_ID = 99103;
 	private int geekListId;
 	private String geekListTitle;
@@ -118,24 +117,29 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	@Override
-	public Loader<GeekListData> onCreateLoader(int id, Bundle data) {
+	public Loader<SafeResponse<GeekList>> onCreateLoader(int id, Bundle data) {
 		return new GeekListLoader(getActivity(), geekListId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<GeekListData> loader, GeekListData data) {
+	public void onLoadFinished(Loader<SafeResponse<GeekList>> loader, SafeResponse<GeekList> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
-			adapter = new GeekListAdapter(getActivity(), data.list());
+			adapter = new GeekListAdapter(getActivity(),
+				(data == null || data.getBody() == null) ?
+					new ArrayList<GeekListItem>() :
+					data.getBody().getItems());
 			setListAdapter(adapter);
-			bindHeader(data);
+			bindHeader(data == null ? null : data.getBody());
 		}
 		initializeTimeBasedUi();
 
-		if (data.hasError()) {
+		if (data == null) {
+			setEmptyText(getString(R.string.empty_geeklist));
+		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
@@ -147,8 +151,7 @@ public class GeekListFragment extends BggListFragment implements
 		}
 	}
 
-	private void bindHeader(GeekListData data) {
-		GeekList geekList = data.getGeekList();
+	private void bindHeader(GeekList geekList) {
 		if (geekList != null) {
 			headerView.setTag(geekList);
 			header.username.setText(getString(R.string.by_prefix, geekList.getUsername()));
@@ -164,7 +167,7 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	@Override
-	public void onLoaderReset(Loader<GeekListData> loader) {
+	public void onLoaderReset(Loader<SafeResponse<GeekList>> loader) {
 	}
 
 	@Override
@@ -174,7 +177,7 @@ public class GeekListFragment extends BggListFragment implements
 		}
 	}
 
-	private static class GeekListLoader extends BggLoader<GeekListData> {
+	private static class GeekListLoader extends BggLoader<SafeResponse<GeekList>> {
 		private final BggService service;
 		private final int geekListId;
 
@@ -185,39 +188,8 @@ public class GeekListFragment extends BggListFragment implements
 		}
 
 		@Override
-		public GeekListData loadInBackground() {
-			GeekListData geeklistData;
-			try {
-				geeklistData = new GeekListData(service.geekList(geekListId).execute().body());
-			} catch (Exception e) {
-				geeklistData = new GeekListData(e);
-			}
-			return geeklistData;
-		}
-	}
-
-	static class GeekListData extends Data<GeekListItem> {
-		private GeekList geekList;
-
-		public GeekListData(GeekList geeklist) {
-			super();
-			geekList = geeklist;
-		}
-
-		public GeekListData(Exception e) {
-			super(e);
-		}
-
-		@Override
-		protected List<GeekListItem> list() {
-			if (geekList == null || geekList.getItems() == null) {
-				return new ArrayList<>();
-			}
-			return geekList.getItems();
-		}
-
-		public GeekList getGeekList() {
-			return geekList;
+		public SafeResponse<GeekList> loadInBackground() {
+			return new SafeResponse<>(service.geekList(geekListId));
 		}
 	}
 
