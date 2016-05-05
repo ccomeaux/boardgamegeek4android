@@ -37,7 +37,7 @@ import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -46,6 +46,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+
+import retrofit2.Call;
 
 public class SearchResultsFragment extends BggListFragment implements LoaderCallbacks<SearchData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 0;
@@ -122,12 +124,12 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			return;
 		}
 
-		int count = data == null ? 0 : data.count();
+		int count = data == null ? 0 : data.getCount();
 		final String searchText = data == null ? "" : data.getSearchText();
-		boolean isExactMatch = data != null && data.isExactMatch;
+		boolean isExactMatch = data != null && data.isExactMatch();
 
 		if (data != null) {
-			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.list());
+			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.getList());
 			setListAdapter(searchResultsAdapter);
 		} else if (searchResultsAdapter != null) {
 			searchResultsAdapter.clear();
@@ -247,59 +249,49 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			if (TextUtils.isEmpty(searchText)) {
 				return null;
 			}
-			SearchData games = null;
+			SearchData response = null;
 			if (shouldSearchExact) {
-				try {
-					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1).execute().body());
-				} catch (Exception e) {
-					// we'll try it again below
-				}
+				response = new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1), searchText, true);
 			}
-			try {
-				if (games == null || games.count() == 0) {
-					games = new SearchData(searchText, false, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0).execute().body());
-				}
-			} catch (Exception e) {
-				games = new SearchData(searchText, e);
+			if (response == null || response.getBody() == null || response.getBody().games == null || response.getBody().games.isEmpty()) {
+				return new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0), searchText, false);
+			} else {
+				return response;
 			}
-			return games;
 		}
 	}
 
-	static class SearchData extends Data<SearchResult> {
+	static class SearchData extends SafeResponse<SearchResponse> {
 		private final String searchText;
 		private final boolean isExactMatch;
-		private SearchResponse response;
 
-		public SearchData(String searchText, boolean isExactMatch, SearchResponse response) {
+		public SearchData(Call<SearchResponse> call, String searchText, boolean isExactMatch) {
+			super(call);
 			this.searchText = searchText;
 			this.isExactMatch = isExactMatch;
-			this.response = response;
-		}
-
-		public SearchData(String searchText, Exception e) {
-			super(e);
-			this.searchText = searchText;
-			this.isExactMatch = false;
 		}
 
 		public String getSearchText() {
 			return searchText;
 		}
 
-		public int count() {
-			if (response == null) {
-				return 0;
-			}
-			return response.total;
+
+		public boolean isExactMatch() {
+			return isExactMatch;
 		}
 
-		@Override
-		public List<SearchResult> list() {
-			if (response == null || response.games == null) {
+		public int getCount() {
+			if (getBody() == null || getBody().games == null) {
+				return 0;
+			}
+			return getBody().games.size();
+		}
+
+		public List<SearchResult> getList() {
+			if (getBody() == null || getBody().games == null) {
 				return new ArrayList<>();
 			}
-			return response.games;
+			return getBody().games;
 		}
 	}
 
