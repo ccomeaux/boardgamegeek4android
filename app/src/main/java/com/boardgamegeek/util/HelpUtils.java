@@ -55,13 +55,13 @@ public class HelpUtils {
 	/**
 	 * Determines if this version of the help key should be shown.
 	 */
-	private static boolean shouldShowHelp(Context context, String key, int version) {
+	public static boolean shouldShowHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		final int shownVersion = preferences.getInt(key, 0);
 		return version > shownVersion;
 	}
 
-	private static void updateHelp(Context context, String key, int version) {
+	public static void updateHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		preferences.edit().putInt(key, version).apply();
 	}
@@ -82,6 +82,7 @@ public class HelpUtils {
 	public static ShowcaseView.Builder getShowcaseBuilder(Activity activity) {
 		return new ShowcaseView.Builder(activity)
 			.withMaterialShowcase()
+			.hideOnTouchOutside()
 			.setStyle(R.style.BggShowcaseTheme)
 			.setContentTitle(R.string.help_title);
 	}
