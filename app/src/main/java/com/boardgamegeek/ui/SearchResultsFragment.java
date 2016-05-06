@@ -39,17 +39,25 @@ import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import retrofit2.Call;
+import timber.log.Timber;
 
 public class SearchResultsFragment extends BggListFragment implements LoaderCallbacks<SearchData>, MultiChoiceModeListener {
+	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 0;
 	private static final int MESSAGE_QUERY_UPDATE = 1;
 	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
@@ -64,6 +72,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	private MenuItem logPlayQuickMenuItem;
 	private MenuItem bggLinkMenuItem;
 	private Snackbar snackbar;
+	private ShowcaseView showcaseView;
 
 	private final Handler requeryHandler = new Handler() {
 		@Override
@@ -74,6 +83,12 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			}
 		}
 	};
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -92,6 +107,64 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		restartLoader(intent.getStringExtra(SearchManager.QUERY), true);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_help) {
+			showHelp();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@DebugLog
+	private void showHelp() {
+		Builder builder = HelpUtils.getShowcaseBuilder(getActivity())
+			.setContentText(R.string.help_searchresults)
+			.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showcaseView.hide();
+					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION);
+				}
+			});
+		Target viewTarget = getViewTarget();
+		builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
+		showcaseView = builder.build();
+		showcaseView.show();
+	}
+
+	@DebugLog
+	private ViewTarget getViewTarget() {
+		final ListView listView = getListView();
+		if (listView == null) return null;
+
+		int position = (listView.getFirstVisiblePosition() + listView.getLastVisiblePosition()) / 2 - listView.getFirstVisiblePosition();
+		final View child = listView.getChildAt(position);
+		if (child == null) {
+			Timber.w("No child available at position " + position);
+			return null;
+		}
+		return new ViewTarget(child);
+	}
+
+	@DebugLog
+	private void maybeShowHelp() {
+		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					showHelp();
+				}
+			}, 100);
+		}
 	}
 
 	@Override
@@ -116,6 +189,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			data.getBoolean(KEY_SEARCH_EXACT, true));
 	}
 
+	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<SearchData> loader, SearchData data) {
 		setProgressShown(false);
@@ -150,7 +224,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		} else {
 			setListShownNoAnimation(true);
 		}
-
+		maybeShowHelp();
 		restoreScrollState();
 
 		if (TextUtils.isEmpty(searchText)) {
