@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,7 +26,11 @@ import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +38,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<ThreadResponse>> {
 	private static final int LOADER_ID = 103;
@@ -41,7 +49,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		setHasOptionsMenu(true);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 	}
@@ -68,6 +76,47 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(LOADER_ID, null, this);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_help:
+				showHelp();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@DebugLog
+	private void showHelp() {
+		Target viewTarget = getViewTarget();
+		Builder builder = HelpUtils.getShowcaseBuilder(getActivity())
+			.setContentText(R.string.help_thread);
+		if (viewTarget != null) {
+			builder.setTarget(viewTarget);
+		}
+		builder.build().show();
+	}
+
+	@DebugLog
+	private ViewTarget getViewTarget() {
+		final ListView listView = getListView();
+		if (listView == null) return null;
+
+		int position = (listView.getFirstVisiblePosition() + listView.getLastVisiblePosition()) / 2 - listView.getFirstVisiblePosition();
+		final View child = listView.getChildAt(position);
+		if (child == null) {
+			Timber.w("No child available at position " + position);
+			return null;
+		}
+		return new ViewTarget(child.findViewById(R.id.view_button));
 	}
 
 	@Override

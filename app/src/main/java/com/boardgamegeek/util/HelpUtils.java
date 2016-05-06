@@ -1,5 +1,6 @@
 package com.boardgamegeek.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
+import com.github.amlcurran.showcaseview.ShowcaseView;
 
 /**
  * Methods to display help text.
@@ -75,5 +77,12 @@ public class HelpUtils {
 		} catch (NameNotFoundException e) {
 			return "?.?";
 		}
+	}
+
+	public static ShowcaseView.Builder getShowcaseBuilder(Activity activity) {
+		return new ShowcaseView.Builder(activity)
+			.withMaterialShowcase()
+			.setStyle(R.style.BggShowcaseTheme)
+			.setContentTitle(R.string.help_title);
 	}
 }
