@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -23,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.DatePicker;
@@ -51,10 +53,13 @@ import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -81,6 +86,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public static final int MODE_PLAYER = 3;
 	public static final int MODE_LOCATION = 4;
 	private static final int PLAY_QUERY_TOKEN = 0x21;
+	private static final int HELP_VERSION = 2;
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
@@ -99,6 +105,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private final LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem mSendMenuItem;
 	private MenuItem mEditMenuItem;
+	private ShowcaseView showcaseView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -160,6 +167,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 			listView.setMultiChoiceModeListener(this);
 		}
+
+		maybeShowHelp();
 	}
 
 	@Override
@@ -242,6 +251,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
 				return true;
+			case R.id.menu_help:
+				showHelp();
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -276,6 +288,34 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@Override
 	protected boolean isRefreshable() {
 		return super.isRefreshable() || (mMode == MODE_GAME);
+	}
+
+	@DebugLog
+	private void showHelp() {
+		showcaseView = HelpUtils.getShowcaseBuilder(getActivity())
+			.setContentText(R.string.help_plays)
+			.setTarget(Target.NONE)
+			.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showcaseView.hide();
+					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION);
+				}
+			})
+			.build();
+		showcaseView.show();
+	}
+
+	@DebugLog
+	private void maybeShowHelp() {
+		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					showHelp();
+				}
+			}, 100);
+		}
 	}
 
 	private void requery() {

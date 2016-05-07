@@ -53,5 +53,8 @@
 		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/menu_refresh_on"
 		app:showAsAction="ifRoom"/>
-
+	<item
+		android:id="@+id/menu_help"
+		android:title="@string/help_title"
+		app:showAsAction="never"/>
 </menu>
