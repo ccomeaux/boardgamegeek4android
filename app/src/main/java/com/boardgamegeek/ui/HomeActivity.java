@@ -3,6 +3,8 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -10,11 +12,16 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.Target;
+
+import hugo.weaving.DebugLog;
 
 public class HomeActivity extends TopLevelActivity {
-	private static final int HELP_VERSION = 2;
+	private static final int HELP_VERSION = 3;
 	private static final String TAG_SINGLE_PANE = "single_pane";
 	private Fragment fragment;
+	private ShowcaseView showcaseView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -39,13 +46,36 @@ public class HomeActivity extends TopLevelActivity {
 		}
 
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_HOME_KEY, HELP_VERSION, R.string.help_home);
+		maybeShowHelp();
 	}
 
 	@Override
 	protected void onSignInSuccess() {
 		super.onSignInSuccess();
 		startUserActivity();
+	}
+
+	@DebugLog
+	private void showHelp() {
+		showcaseView = HelpUtils.getShowcaseBuilder(this)
+			.setContentText(R.string.help_home)
+			.setTarget(Target.NONE)
+			.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showcaseView.hide();
+					HelpUtils.updateHelp(HomeActivity.this, HelpUtils.HELP_HOME_KEY, HELP_VERSION);
+				}
+			})
+			.build();
+		showcaseView.show();
+	}
+
+	@DebugLog
+	private void maybeShowHelp() {
+		if (HelpUtils.shouldShowHelp(this, HelpUtils.HELP_HOME_KEY, HELP_VERSION)) {
+			showHelp();
+		}
 	}
 
 	private boolean startUserActivity() {
