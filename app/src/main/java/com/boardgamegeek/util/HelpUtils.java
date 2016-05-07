@@ -9,9 +9,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.widget.ListView;
 
 import com.boardgamegeek.R;
 import com.github.amlcurran.showcaseview.ShowcaseView;
+
+import timber.log.Timber;
 
 /**
  * Methods to display help text.
@@ -85,5 +89,21 @@ public class HelpUtils {
 			.hideOnTouchOutside()
 			.setStyle(R.style.BggShowcaseTheme)
 			.setContentTitle(R.string.help_title);
+	}
+
+	public static View getListViewVisibleChild(ListView listView) {
+		if (listView == null) return null;
+
+		final int first = listView.getFirstVisiblePosition();
+		final int last = listView.getLastVisiblePosition();
+		int position = (first + last) / 2 - first;
+		if (position == 0 && (last - first) > 0) {
+			position = 1;
+		}
+		final View child = listView.getChildAt(position);
+		if (child == null) {
+			Timber.w("No child available at position " + position);
+		}
+		return child;
 	}
 }

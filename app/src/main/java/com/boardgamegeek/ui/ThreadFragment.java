@@ -41,7 +41,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
-import timber.log.Timber;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<ThreadResponse>> {
 	private static final int HELP_VERSION = 2;
@@ -118,16 +117,8 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	@DebugLog
 	private ViewTarget getViewTarget() {
-		final ListView listView = getListView();
-		if (listView == null) return null;
-
-		int position = (listView.getFirstVisiblePosition() + listView.getLastVisiblePosition()) / 2 - listView.getFirstVisiblePosition();
-		final View child = listView.getChildAt(position);
-		if (child == null) {
-			Timber.w("No child available at position " + position);
-			return null;
-		}
-		return new ViewTarget(child.findViewById(R.id.view_button));
+		final View child = HelpUtils.getListViewVisibleChild(getListView());
+		return child == null ? null : new ViewTarget(child.findViewById(R.id.view_button));
 	}
 
 	@Override

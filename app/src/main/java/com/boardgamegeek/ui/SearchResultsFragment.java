@@ -54,7 +54,6 @@ import java.util.List;
 
 import hugo.weaving.DebugLog;
 import retrofit2.Call;
-import timber.log.Timber;
 
 public class SearchResultsFragment extends BggListFragment implements LoaderCallbacks<SearchData>, MultiChoiceModeListener {
 	private static final int HELP_VERSION = 2;
@@ -143,16 +142,8 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 	@DebugLog
 	private ViewTarget getViewTarget() {
-		final ListView listView = getListView();
-		if (listView == null) return null;
-
-		int position = (listView.getFirstVisiblePosition() + listView.getLastVisiblePosition()) / 2 - listView.getFirstVisiblePosition();
-		final View child = listView.getChildAt(position);
-		if (child == null) {
-			Timber.w("No child available at position " + position);
-			return null;
-		}
-		return new ViewTarget(child);
+		final View child = HelpUtils.getListViewVisibleChild(getListView());
+		return child == null ? null : new ViewTarget(child);
 	}
 
 	@DebugLog
