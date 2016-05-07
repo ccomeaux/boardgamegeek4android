@@ -434,9 +434,9 @@
 	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
-	<string name="forum_last_post">Last post: %s</string>
+	<string name="forum_last_post">Last post %s</string>
 	<string name="forum_last_post_in">Last post <b>%1$s</b> in <b>%2$s</b></string>
-	<string name="forum_thread_created">Created: %s</string>
+	<string name="forum_thread_created">Created %s</string>
 	<string name="forum_thread_author">by %s</string>
 	<string name="last_modified">Last modified</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
@@ -528,12 +528,12 @@
 		<item quantity="other">Are you sure you want to send these plays?</item>
 	</plurals>
 	<plurals name="forum_threads">
-		<item quantity="one">%s thread</item>
-		<item quantity="other">%s threads</item>
+		<item quantity="one">%,d thread</item>
+		<item quantity="other">%,d threads</item>
 	</plurals>
 	<plurals name="forum_thread_replies">
-		<item quantity="one">%s reply</item>
-		<item quantity="other">%s replies</item>
+		<item quantity="one">%,d reply</item>
+		<item quantity="other">%,d replies</item>
 	</plurals>
 	<plurals name="plays_prefix">
 		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>

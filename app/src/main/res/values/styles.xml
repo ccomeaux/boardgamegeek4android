@@ -266,7 +266,7 @@
 
 	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
 		<item name="android:textAllCaps">true</item>
-		<item name="android:textColor">@color/light_text</item>
+		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
 	<style name="Text.Footer.Card">

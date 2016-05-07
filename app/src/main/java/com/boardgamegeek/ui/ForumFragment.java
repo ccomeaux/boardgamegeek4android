@@ -2,9 +2,10 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -26,7 +27,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
-import java.text.NumberFormat;
 import java.util.List;
 
 import butterknife.BindView;
@@ -241,11 +241,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	static class ThreadRowViewBinder {
-		private static final NumberFormat FORMAT = NumberFormat.getInstance();
-		private static String author;
-		private static String lastPostDate;
-		private static String createdDate;
-
 		@SuppressWarnings("unused")
 		public static class ViewHolder {
 			public int threadId;
@@ -258,33 +253,38 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			@DebugLog
 			public ViewHolder(View view) {
 				ButterKnife.bind(this, view);
-				Resources r = view.getResources();
-				author = r.getString(R.string.forum_thread_author);
-				lastPostDate = r.getString(R.string.forum_last_post);
-				createdDate = r.getString(R.string.forum_thread_created);
 			}
 		}
 
 		@DebugLog
 		public static void bindActivityView(View rootView, Thread thread) {
-			ViewHolder tag = (ViewHolder) rootView.getTag();
-			final ViewHolder holder;
-			if (tag != null) {
-				holder = tag;
-			} else {
-				holder = new ViewHolder(rootView);
-				rootView.setTag(holder);
-			}
-
-			Resources r = rootView.getResources();
+			final ViewHolder holder = getViewHolder(rootView);
+			final Context context = rootView.getContext();
 
 			holder.threadId = thread.id;
 			holder.subjectView.setText(thread.subject);
-			holder.authorView.setText(String.format(author, thread.author));
+			holder.authorView.setText(context.getString(R.string.forum_thread_author, thread.author));
 			int replies = thread.numberOfArticles - 1;
-			holder.numberOfArticlesView.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies, FORMAT.format(replies)));
-			holder.lastPostDateView.setText(String.format(lastPostDate, DateTimeUtils.formatForumDate(rootView.getContext(), thread.lastPostDate())));
-			holder.postDateView.setText(String.format(createdDate, DateTimeUtils.formatForumDate(rootView.getContext(), thread.postDate())));
+			holder.numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
+			formatDate(context, holder.lastPostDateView, thread.lastPostDate(), R.string.forum_last_post);
+			formatDate(context, holder.postDateView, thread.postDate(), R.string.forum_thread_created);
+		}
+
+		@NonNull
+		private static ViewHolder getViewHolder(View rootView) {
+			ViewHolder tag = (ViewHolder) rootView.getTag();
+			if (tag != null) {
+				return tag;
+			} else {
+				final ViewHolder holder = new ViewHolder(rootView);
+				rootView.setTag(holder);
+				return holder;
+			}
+		}
+
+		private static void formatDate(Context context, TextView textView, long date, @StringRes int stringResId) {
+			CharSequence formattedDate = DateTimeUtils.formatForumDate(context, date);
+			textView.setText(context.getString(stringResId, formattedDate));
 		}
 	}
 }
