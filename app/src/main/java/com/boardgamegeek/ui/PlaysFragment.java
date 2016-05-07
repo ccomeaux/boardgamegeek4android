@@ -308,7 +308,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@DebugLog
 	private void maybeShowHelp() {
-		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
+		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION)) {
 			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {

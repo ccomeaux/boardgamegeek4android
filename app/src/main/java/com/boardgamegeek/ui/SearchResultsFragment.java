@@ -148,7 +148,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 	@DebugLog
 	private void maybeShowHelp() {
-		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
+		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)) {
 			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
