@@ -8,7 +8,6 @@
 	<color name="info_background">@color/primary</color>
 	<color name="info_background_dark">@color/primary_dark</color>
 
-	<color name="light_text">#6000</color>
 	<color name="dialog_text">#000</color>
 	<color name="secondary_text">#8a000000</color>
 	<color name="inverse_text_title">#deffffff</color>

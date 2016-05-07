@@ -123,7 +123,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 
 		defaultTextColor = nicknameView.getTextColors().getDefaultColor();
-		lightTextColor = getResources().getColor(R.color.light_text);
+		lightTextColor = getResources().getColor(R.color.secondary_text);
 
 		if (isUser()) {
 			getLoaderManager().restartLoader(TOKEN, null, this);
