@@ -28,7 +28,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +72,12 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	@DebugLog
 	protected boolean padTop() {
 		return (gameId != BggContract.INVALID_ID);
+	}
+
+	@Override
+	@DebugLog
+	protected boolean dividerShown() {
+		return true;
 	}
 
 	@Override
@@ -165,7 +170,6 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	public static class ForumsAdapter extends ArrayAdapter<Forum> {
 		public static final int ITEM_VIEW_TYPE_FORUM = 0;
 		public static final int ITEM_VIEW_TYPE_HEADER = 1;
-		private static final NumberFormat FORMAT = NumberFormat.getInstance();
 		private final LayoutInflater inflater;
 		private final Resources resources;
 
@@ -200,9 +204,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 				if (forum != null) {
 					holder.forumId = forum.id;
 					holder.forumTitleView.setText(forum.title);
-					holder.numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads,
-						forum.numberOfThreads, FORMAT.format(forum.numberOfThreads)));
-					holder.lastPostDateView.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate()));
+					holder.numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads, forum.numberOfThreads));
+					holder.lastPostDateView.setText(getContext().getString(R.string.forum_last_post, DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate())));
 					holder.lastPostDateView.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
 				}
 				return convertView;

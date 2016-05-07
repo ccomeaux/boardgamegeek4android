@@ -7,10 +7,9 @@
 
 	<TextView
 		android:id="@+id/subject"
-		style="@style/Text.Primary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/padding_small"/>
+		android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -19,20 +18,20 @@
 
 		<TextView
 			android:id="@+id/author"
-			style="@style/Text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="1"/>
+			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
 		<TextView
 			android:id="@+id/post_date"
-			style="@style/Text.Footnote2"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:ellipsize="none"
 			android:gravity="end"
-			android:maxLines="1"/>
+			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+			android:textColor="@color/secondary_text"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -42,20 +41,20 @@
 
 		<TextView
 			android:id="@+id/number_of_articles"
-			style="@style/Text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="1"/>
+			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
 		<TextView
 			android:id="@+id/last_post_date"
-			style="@style/Text.Footnote2"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:ellipsize="none"
 			android:gravity="end"
-			android:maxLines="1"/>
+			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+			android:textColor="@color/secondary_text"/>
 	</LinearLayout>
 
 </LinearLayout>

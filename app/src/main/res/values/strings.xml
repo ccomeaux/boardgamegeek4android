@@ -528,8 +528,8 @@
 		<item quantity="other">Are you sure you want to send these plays?</item>
 	</plurals>
 	<plurals name="forum_threads">
-		<item quantity="one">%s thread</item>
-		<item quantity="other">%s threads</item>
+		<item quantity="one">%,d thread</item>
+		<item quantity="other">%,d threads</item>
 	</plurals>
 	<plurals name="forum_thread_replies">
 		<item quantity="one">%,d reply</item>
