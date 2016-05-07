@@ -193,9 +193,9 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			@BindView(R.id.list_fullname) TextView fullName;
-			@BindView(R.id.list_name) TextView name;
-			@BindView(R.id.list_avatar) ImageView avatar;
+			@BindView(R.id.full_name) TextView fullName;
+			@BindView(R.id.name) TextView name;
+			@BindView(R.id.avatar) ImageView avatar;
 
 			public ViewHolder(View view) {
 				ButterKnife.bind(this, view);
