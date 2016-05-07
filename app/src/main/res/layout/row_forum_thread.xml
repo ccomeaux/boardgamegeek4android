@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/RowContainer.VeryTall"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical" >
+<LinearLayout style="@style/RowContainer.VeryTall"
+			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="wrap_content"
+			  android:orientation="vertical">
 
 	<TextView
 		android:id="@+id/subject"
 		style="@style/Text.Primary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/padding_small" />
+		android:paddingBottom="@dimen/padding_small"/>
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal" >
+		android:orientation="horizontal">
 
 		<TextView
 			android:id="@+id/author"
 			style="@style/Text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="1" />
+			android:maxLines="1"/>
 
 		<TextView
 			android:id="@+id/post_date"
@@ -30,21 +30,22 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:ellipsize="end"
+			android:ellipsize="none"
 			android:gravity="end"
-			android:maxLines="1" />
+			android:maxLines="1"/>
 	</LinearLayout>
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal" >
+		android:orientation="horizontal">
 
 		<TextView
 			android:id="@+id/number_of_articles"
 			style="@style/Text"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_height="wrap_content"
+			android:maxLines="1"/>
 
 		<TextView
 			android:id="@+id/last_post_date"
@@ -52,9 +53,9 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:ellipsize="end"
+			android:ellipsize="none"
 			android:gravity="end"
-			android:maxLines="1" />
+			android:maxLines="1"/>
 	</LinearLayout>
 
 </LinearLayout>
