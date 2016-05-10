@@ -5,18 +5,26 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -53,6 +61,10 @@ import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -73,7 +85,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
-	private static final int HELP_VERSION = 1;
+	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
@@ -187,12 +199,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@State boolean isDescriptionExpanded;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
+	private ShowcaseView showcaseView;
+	private int helpIndex;
+	final List<Pair<Integer, Target>> helpTargets = new ArrayList<>();
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
+		setHasOptionsMenu(true);
 
 		timeHintUpdateHandler = new Handler();
 
@@ -202,8 +218,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (gameUri == null) {
 			return;
 		}
-
-		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
 	@Override
@@ -225,6 +239,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (PreferencesUtils.showLogPlay(getActivity())) {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
+		maybeShowHelp();
 		return rootView;
 	}
 
@@ -258,6 +273,90 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_help) {
+			showHelp();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@DebugLog
+	private void showHelp() {
+		initializeHelpTargets();
+		Builder builder = HelpUtils.getShowcaseBuilder(getActivity())
+			.setContentText(R.string.help_game_menu)
+			.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showNextHelp();
+				}
+			});
+		showcaseView = builder.build();
+		showcaseView.setButtonPosition(getLowerLeftLayoutParams());
+		showNextHelp();
+	}
+
+	@DebugLog
+	private void initializeHelpTargets() {
+		helpIndex = 0;
+		helpTargets.clear();
+		helpTargets.add(new Pair(R.string.help_game_menu, Target.NONE));
+		helpTargets.add(new Pair(R.string.help_game_log_play, new ViewTarget(R.id.fab, getActivity())));
+		helpTargets.add(new Pair(R.string.help_game_poll, new ViewTarget(R.id.number_of_players, getActivity())));
+		helpTargets.add(new Pair(-1, new ViewTarget(R.id.player_age, getActivity())));
+	}
+
+	@DebugLog
+	@NonNull
+	private LayoutParams getLowerLeftLayoutParams() {
+		LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
+		layoutParams.setMargins(margin, margin, margin, margin);
+		return layoutParams;
+	}
+
+	@DebugLog
+	private void showNextHelp() {
+		if (helpIndex < helpTargets.size()) {
+			Pair<Integer, Target> helpTarget = helpTargets.get(helpIndex);
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i <= helpIndex; i++) {
+				int resId = helpTargets.get(i).first;
+				if (resId > 0) {
+					sb.append("\n").append(getString(resId));
+				}
+			}
+			showcaseView.setContentText(sb.toString());
+			showcaseView.setShowcase(helpTarget.second, true);
+		} else {
+			showcaseView.hide();
+			HelpUtils.updateHelp(getContext(), HelpUtils.HELP_GAME_KEY, HELP_VERSION);
+		}
+		helpIndex++;
+	}
+
+	@DebugLog
+	private void maybeShowHelp() {
+		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_GAME_KEY, HELP_VERSION)) {
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					showHelp();
+				}
+			}, 100);
+		}
 	}
 
 	@Override
