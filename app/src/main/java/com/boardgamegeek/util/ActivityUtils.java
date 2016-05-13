@@ -266,7 +266,7 @@ public class ActivityUtils {
 
 	public static void link(Context context, Uri link) {
 		final Intent intent = new Intent(Intent.ACTION_VIEW, link);
-		if (!isAvailable(context, intent)) {
+		if (isAvailable(context, intent)) {
 			context.startActivity(intent);
 		} else {
 			String message = "Can't figure out how to launch " + link;
