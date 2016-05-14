@@ -8,13 +8,18 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
 import com.boardgamegeek.R;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
@@ -37,6 +42,7 @@ public class HelpUtils {
 	/**
 	 * Display this key's help text in a dialog.
 	 */
+	@DebugLog
 	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {
 		if (HelpUtils.shouldShowHelp(context, key, version)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -59,12 +65,14 @@ public class HelpUtils {
 	/**
 	 * Determines if this version of the help key should be shown.
 	 */
+	@DebugLog
 	public static boolean shouldShowHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		final int shownVersion = preferences.getInt(key, 0);
 		return version > shownVersion;
 	}
 
+	@DebugLog
 	public static void updateHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		preferences.edit().putInt(key, version).apply();
@@ -73,6 +81,7 @@ public class HelpUtils {
 	/**
 	 * Get the version name of the package, or "?.?" if not found.
 	 */
+	@DebugLog
 	public static String getVersionName(Context context) {
 		try {
 			PackageManager pm = context.getPackageManager();
@@ -83,6 +92,7 @@ public class HelpUtils {
 		}
 	}
 
+	@DebugLog
 	public static ShowcaseView.Builder getShowcaseBuilder(Activity activity) {
 		return new ShowcaseView.Builder(activity)
 			.withMaterialShowcase()
@@ -91,6 +101,7 @@ public class HelpUtils {
 			.setContentTitle(R.string.help_title);
 	}
 
+	@DebugLog
 	public static View getListViewVisibleChild(ListView listView) {
 		if (listView == null) return null;
 
@@ -105,5 +116,16 @@ public class HelpUtils {
 			Timber.w("No child available at position " + position);
 		}
 		return child;
+	}
+
+	@DebugLog
+	@NonNull
+	public static LayoutParams getLowerLeftLayoutParams(Context context) {
+		LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		int margin = ((Number) (context.getResources().getDisplayMetrics().density * 12)).intValue();
+		layoutParams.setMargins(margin, margin, margin, margin);
+		return layoutParams;
 	}
 }
