@@ -26,7 +26,6 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
@@ -37,7 +36,6 @@ import icepick.Icepick;
 import icepick.State;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor> {
-	private static final int HELP_VERSION = 1;
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	@State int viewIndex;
@@ -67,8 +65,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		if (!isCreatingShortcut) {
 			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
 		}
-
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
 	}
 
 	@Override

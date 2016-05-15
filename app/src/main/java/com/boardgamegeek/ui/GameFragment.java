@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -13,6 +14,9 @@ import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -52,7 +56,10 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -73,7 +80,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
-	private static final int HELP_VERSION = 1;
+	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
@@ -187,12 +194,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@State boolean isDescriptionExpanded;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
+	private ShowcaseViewWizard showcaseViewWizard;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
+		setHasOptionsMenu(true);
 
 		timeHintUpdateHandler = new Handler();
 
@@ -202,8 +211,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (gameUri == null) {
 			return;
 		}
-
-		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
 	@Override
@@ -225,6 +232,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (PreferencesUtils.showLogPlay(getActivity())) {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
+		showcaseViewWizard = setUpShowcaseViewWizard();
+		showcaseViewWizard.maybeShowHelp();
 		return rootView;
 	}
 
@@ -258,6 +267,31 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_help) {
+			showcaseViewWizard.showHelp();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@NonNull
+	private ShowcaseViewWizard setUpShowcaseViewWizard() {
+		ShowcaseViewWizard wizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION);
+		wizard.addTarget(R.string.help_game_menu, Target.NONE);
+		wizard.addTarget(R.string.help_game_log_play, new ViewTarget(R.id.fab, getActivity()));
+		wizard.addTarget(R.string.help_game_poll, new ViewTarget(R.id.number_of_players, getActivity()));
+		wizard.addTarget(-1, new ViewTarget(R.id.player_age, getActivity()));
+		return wizard;
 	}
 
 	@Override

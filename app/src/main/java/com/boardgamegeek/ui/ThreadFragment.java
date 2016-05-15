@@ -4,10 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -23,7 +28,12 @@ import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,15 +43,17 @@ import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<ThreadResponse>> {
+	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 103;
 	private ThreadAdapter adapter;
 	private int threadId;
+	private ShowcaseView showcaseView;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		setHasOptionsMenu(true);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 	}
@@ -68,6 +80,45 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(LOADER_ID, null, this);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_help:
+				showHelp();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@DebugLog
+	private void showHelp() {
+		Builder builder = HelpUtils.getShowcaseBuilder(getActivity())
+			.setContentText(R.string.help_thread)
+			.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showcaseView.hide();
+					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION);
+				}
+			});
+		Target viewTarget = getViewTarget();
+		builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
+		showcaseView = builder.build();
+		showcaseView.show();
+	}
+
+	@DebugLog
+	private ViewTarget getViewTarget() {
+		final View child = HelpUtils.getListViewVisibleChild(getListView());
+		return child == null ? null : new ViewTarget(child.findViewById(R.id.view_button));
 	}
 
 	@Override
@@ -103,6 +154,19 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				setListShownNoAnimation(true);
 			}
 			restoreScrollState();
+			maybeShowHelp();
+		}
+	}
+
+	@DebugLog
+	private void maybeShowHelp() {
+		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					showHelp();
+				}
+			}, 100);
 		}
 	}
 
