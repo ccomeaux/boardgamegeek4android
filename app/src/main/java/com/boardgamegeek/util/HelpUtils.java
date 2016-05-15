@@ -2,14 +2,12 @@ package com.boardgamegeek.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -37,29 +35,6 @@ public class HelpUtils {
 	public static final String HELP_THREAD_KEY = "help.thread";
 
 	private HelpUtils() {
-	}
-
-	/**
-	 * Display this key's help text in a dialog.
-	 */
-	@DebugLog
-	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {
-		if (HelpUtils.shouldShowHelp(context, key, version)) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder
-				.setTitle(R.string.help_title)
-				.setCancelable(false)
-				.setMessage(messageId)
-				.setPositiveButton(R.string.help_button_close, null)
-				.setNegativeButton(R.string.help_button_hide, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						HelpUtils.updateHelp(context, key, version);
-					}
-				});
-			builder = DialogUtils.addAlertIcon(builder);
-			builder.create().show();
-		}
 	}
 
 	/**
