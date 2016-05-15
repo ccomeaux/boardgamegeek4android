@@ -429,7 +429,12 @@
 	<string name="help_game_menu">From here you can...\n- Share\n- Create a shortcut on the home screen\n- View a larger version of the game image</string>
 	<string name="help_game_log_play">- Log plays</string>
 	<string name="help_game_poll">- View polls</string>
-	<string name="help_collection">Got lots of games? You can filter and sort your collection, save it as a view, and even choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
+	<string name="help_collection">Got lots of games? Why don\'t you...</string>
+	<string name="help_collection_sort">- Sort</string>
+	<string name="help_collection_filter">- Filter</string>
+	<string name="help_collection_save">- Save the applied sort and filter settings as a view</string>
+	<string name="help_collection_random">- Choose a random game from the currently-applied filter</string>
+	<string name="help_collection_long_click">- You can also long-click on a game for more options</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>

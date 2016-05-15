@@ -2,6 +2,7 @@ package com.boardgamegeek.util;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.support.annotation.StringRes;
 import android.support.v4.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,18 +18,20 @@ import hugo.weaving.DebugLog;
 
 public class ShowcaseViewWizard {
 	private final Activity activity;
+	private final String helpKey;
 	private final int helpVersion;
 	private ShowcaseView showcaseView;
 	private int helpIndex;
 	final List<Pair<Integer, Target>> helpTargets = new ArrayList<>();
 
-	public ShowcaseViewWizard(Activity activity, int helpVersion) {
+	public ShowcaseViewWizard(Activity activity, String helpKey, int helpVersion) {
 		this.activity = activity;
+		this.helpKey = helpKey;
 		this.helpVersion = helpVersion;
 		helpTargets.clear();
 	}
 
-	public void addTarget(int contextResId, Target target) {
+	public void addTarget(@StringRes int contextResId, Target target) {
 		helpTargets.add(new Pair<>(contextResId, target));
 	}
 
@@ -62,14 +65,14 @@ public class ShowcaseViewWizard {
 			showcaseView.setShowcase(helpTarget.second, true);
 		} else {
 			showcaseView.hide();
-			HelpUtils.updateHelp(activity, HelpUtils.HELP_GAME_KEY, helpVersion);
+			HelpUtils.updateHelp(activity, helpKey, helpVersion);
 		}
 		helpIndex++;
 	}
 
 	@DebugLog
 	public void maybeShowHelp() {
-		if (HelpUtils.shouldShowHelp(activity, HelpUtils.HELP_GAME_KEY, helpVersion)) {
+		if (HelpUtils.shouldShowHelp(activity, helpKey, helpVersion)) {
 			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {

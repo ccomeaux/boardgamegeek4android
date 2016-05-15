@@ -52,6 +52,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -285,7 +286,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@NonNull
 	private ShowcaseViewWizard setUpShowcaseViewWizard() {
-		ShowcaseViewWizard wizard = new ShowcaseViewWizard(getActivity(), HELP_VERSION);
+		ShowcaseViewWizard wizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION);
 		wizard.addTarget(R.string.help_game_menu, Target.NONE);
 		wizard.addTarget(R.string.help_game_log_play, new ViewTarget(R.id.fab, getActivity()));
 		wizard.addTarget(R.string.help_game_poll, new ViewTarget(R.id.number_of_players, getActivity()));

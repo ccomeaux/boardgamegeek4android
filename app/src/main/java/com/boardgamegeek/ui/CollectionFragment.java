@@ -22,6 +22,7 @@ import android.util.Pair;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,13 +58,17 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.SaveView;
+import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -82,6 +87,7 @@ import timber.log.Timber;
 
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
 	@BindView(R.id.frame_container) ViewGroup frameContainer;
@@ -110,11 +116,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private android.view.MenuItem logPlayQuickMenuItem;
 	private android.view.MenuItem bggLinkMenuItem;
 	private CollectionSorterFactory collectionSorterFactory;
+	private ShowcaseViewWizard showcaseViewWizard;
 
 	@Override
 	@DebugLog
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		timeUpdateHandler = new Handler();
 		if (savedInstanceState != null) {
 			Icepick.restoreInstanceState(this, savedInstanceState);
@@ -164,6 +172,19 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		invalidateMenu();
 
 		setEmptyText();
+
+		createShowcaseViewWizard();
+		showcaseViewWizard.maybeShowHelp();
+	}
+
+	private void createShowcaseViewWizard() {
+		showcaseViewWizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION);
+		showcaseViewWizard.addTarget(R.string.help_collection, Target.NONE);
+		showcaseViewWizard.addTarget(R.string.help_collection_sort, new ToolbarActionItemTarget(R.id.menu_collection_sort, footerToolbar));
+		showcaseViewWizard.addTarget(R.string.help_collection_filter, new ToolbarActionItemTarget(R.id.menu_collection_filter, footerToolbar));
+		showcaseViewWizard.addTarget(R.string.help_collection_save, new ToolbarActionItemTarget(R.id.menu_collection_view_save, footerToolbar));
+		showcaseViewWizard.addTarget(R.string.help_collection_random, new ToolbarActionItemTarget(R.id.menu_collection_random_game, footerToolbar));
+		showcaseViewWizard.addTarget(R.string.help_collection_long_click, Target.NONE);
 	}
 
 	@Override
@@ -231,6 +252,21 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			data.add(filterer.flatten());
 		}
 		Icepick.saveInstanceState(this, outState);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_help) {
+			showcaseViewWizard.showHelp();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
