@@ -62,10 +62,12 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.targets.Target;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 
@@ -84,7 +86,7 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity implements OnDateSetListener {
-	private static final int HELP_VERSION = 2;
+	private static final int HELP_VERSION = 3;
 	private static final int REQUEST_ADD_PLAYER = 999;
 
 	public static final String KEY_PLAY_ID = "PLAY_ID";
@@ -153,6 +155,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
 	private MenuBuilder mShortPopupMenu;
+	private ShowcaseViewWizard showcaseWizard;
 
 	private boolean mPrefShowLocation;
 	private boolean mPrefShowLength;
@@ -344,7 +347,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		startQuery();
 
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
+		setUpShowcaseViewWizard();
+		showcaseWizard.maybeShowHelp();
 	}
 
 	@DebugLog
@@ -443,6 +447,12 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		if (event.getMessageId() != 0) {
 			Snackbar.make(mPlayerList, event.getMessageId(), Snackbar.LENGTH_LONG).show();
 		}
+	}
+
+	@DebugLog
+	private void setUpShowcaseViewWizard() {
+		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION);
+		showcaseWizard.addTarget(R.string.help_logplay, Target.NONE);
 	}
 
 	@DebugLog

@@ -39,8 +39,10 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.github.amlcurran.showcaseview.targets.Target;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +65,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
 
-	private static final int HELP_VERSION = 1;
+	private static final int HELP_VERSION = 2;
 	private static final int TOKEN_COLORS = 1;
 
 	private String mGameName;
@@ -89,6 +91,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@BindView(R.id.log_player_win) SwitchCompat mWin;
 	@BindView(R.id.fab) FloatingActionButton mFab;
 	@BindView(R.id.fab_buffer) View mFabBuffer;
+	private ShowcaseViewWizard showcaseWizard;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -203,7 +206,8 @@ public class LogPlayerActivity extends AppCompatActivity {
 		mUsername.setAdapter(new BuddyNameAdapter(this));
 		mTeamColor.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
 
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
+		setUpShowcaseViewWizard();
+		showcaseWizard.maybeShowHelp();
 	}
 
 	@DebugLog
@@ -289,6 +293,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 			button.setText(R.string.number_to_text);
 		}
 		editText.requestFocus();
+	}
+
+	@DebugLog
+	private void setUpShowcaseViewWizard() {
+		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION);
+		showcaseWizard.addTarget(R.string.help_logplayer, Target.NONE);
 	}
 
 	@DebugLog
