@@ -11,11 +11,8 @@ import android.view.View;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HelpUtils;
 
 public class ThreadActivity extends SimpleSinglePaneActivity {
-	private static final int HELP_VERSION = 1;
-
 	private int threadId;
 	private String threadSubject;
 	private int forumId;
@@ -45,8 +42,6 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				actionBar.setSubtitle(gameName);
 			}
 		}
-
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_THREAD_KEY, HELP_VERSION, R.string.help_thread);
 	}
 
 	@Override

@@ -18,14 +18,12 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HelpUtils;
 
 import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
 
 public class SearchResultsActivity extends SimpleSinglePaneActivity {
-	private static final int HELP_VERSION = 1;
 	@State @Nullable String searchText;
 	private SearchView searchView;
 
@@ -34,8 +32,6 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		setTitle(null);
-
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
 	}
 
 	@Override
