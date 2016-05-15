@@ -26,7 +26,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -36,13 +36,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Response;
 
-public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
+public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 1;
 
 	private BoardGameAdapter adapter;
-	private LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
+	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
 	private MenuItem logPlayMenuItem;
 	private MenuItem logPlayQuickMenuItem;
 	private MenuItem bggLinkMenuItem;
@@ -69,23 +68,28 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	@Override
-	public Loader<HotnessData> onCreateLoader(int id, Bundle data) {
+	public Loader<SafeResponse<HotnessResponse>> onCreateLoader(int id, Bundle data) {
 		return new HotnessLoader(getActivity());
 	}
 
 	@Override
-	public void onLoadFinished(Loader<HotnessData> loader, HotnessData data) {
+	public void onLoadFinished(Loader<SafeResponse<HotnessResponse>> loader, SafeResponse<HotnessResponse> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
-			adapter = new BoardGameAdapter(getActivity(), data.list());
+			adapter = new BoardGameAdapter(getActivity(),
+				data == null || data.getBody() == null ?
+					new ArrayList<HotGame>() :
+					data.getBody().games);
 			setListAdapter(adapter);
 		}
 		adapter.notifyDataSetChanged();
 
-		if (data.hasError()) {
+		if (data == null) {
+			setEmptyText(getString(R.string.empty_hotness));
+		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
@@ -98,7 +102,7 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	@Override
-	public void onLoaderReset(Loader<HotnessData> loader) {
+	public void onLoaderReset(Loader<SafeResponse<HotnessResponse>> loader) {
 	}
 
 	@Override
@@ -107,8 +111,8 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
-	private static class HotnessLoader extends BggLoader<HotnessData> {
-		private BggService bggService;
+	private static class HotnessLoader extends BggLoader<SafeResponse<HotnessResponse>> {
+		private final BggService bggService;
 
 		public HotnessLoader(Context context) {
 			super(context);
@@ -116,41 +120,14 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 		}
 
 		@Override
-		public HotnessData loadInBackground() {
-			HotnessData games;
-			try {
-				Call<HotnessResponse> call = bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME);
-				Response<HotnessResponse> response = call.execute();
-				games = new HotnessData(response.body());
-			} catch (Exception e) {
-				games = new HotnessData(e);
-			}
-			return games;
-		}
-	}
-
-	static class HotnessData extends Data<HotGame> {
-		private HotnessResponse response;
-
-		public HotnessData(HotnessResponse response) {
-			this.response = response;
-		}
-
-		public HotnessData(Exception e) {
-			super(e);
-		}
-
-		@Override
-		public List<HotGame> list() {
-			if (response == null || response.games == null) {
-				return new ArrayList<>();
-			}
-			return response.games;
+		public SafeResponse<HotnessResponse> loadInBackground() {
+			Call<HotnessResponse> call = bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME);
+			return new SafeResponse<>(call);
 		}
 	}
 
 	private class BoardGameAdapter extends ArrayAdapter<HotGame> {
-		private LayoutInflater inflater;
+		private final LayoutInflater inflater;
 
 		public BoardGameAdapter(Activity activity, List<HotGame> games) {
 			super(activity, R.layout.row_hotness, games);
@@ -181,10 +158,10 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	private static class ViewHolder {
-		TextView name;
-		TextView year;
-		TextView rank;
-		ImageView thumbnail;
+		final TextView name;
+		final TextView year;
+		final TextView rank;
+		final ImageView thumbnail;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
@@ -232,7 +209,7 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (selectedPositions == null || !selectedPositions.iterator().hasNext()) {
+		if (!selectedPositions.iterator().hasNext()) {
 			return false;
 		}
 		HotGame game = adapter.getItem(selectedPositions.iterator().next());

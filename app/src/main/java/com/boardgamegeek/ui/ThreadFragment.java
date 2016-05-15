@@ -20,7 +20,7 @@ import com.boardgamegeek.model.Article;
 import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -32,7 +32,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
-public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ThreadFragment.ThreadData> {
+public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<ThreadResponse>> {
 	private static final int LOADER_ID = 103;
 	private ThreadAdapter adapter;
 	private int threadId;
@@ -72,24 +72,29 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	@DebugLog
-	public Loader<ThreadData> onCreateLoader(int id, Bundle data) {
+	public Loader<SafeResponse<ThreadResponse>> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), threadId);
 	}
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<ThreadData> loader, ThreadData data) {
+	public void onLoadFinished(Loader<SafeResponse<ThreadResponse>> loader, SafeResponse<ThreadResponse> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
-			adapter = new ThreadAdapter(getActivity(), data.list());
+			adapter = new ThreadAdapter(getActivity(),
+				(data == null || data.getBody() == null) ?
+					new ArrayList<Article>(0) :
+					data.getBody().getArticles());
 			setListAdapter(adapter);
 		}
 		initializeTimeBasedUi();
 
-		if (data.hasError()) {
+		if (data == null) {
+			setEmptyText(getString(R.string.empty_thread));
+		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
@@ -103,7 +108,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<ThreadData> loader) {
+	public void onLoaderReset(Loader<SafeResponse<ThreadResponse>> loader) {
 	}
 
 	@Override
@@ -114,7 +119,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
-	private static class ThreadLoader extends BggLoader<ThreadData> {
+	private static class ThreadLoader extends BggLoader<SafeResponse<ThreadResponse>> {
 		private final BggService bggService;
 		private final int threadId;
 
@@ -125,35 +130,8 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
-		public ThreadData loadInBackground() {
-			ThreadData forums;
-			try {
-				forums = new ThreadData(bggService.thread(threadId).execute().body());
-			} catch (Exception e) {
-				forums = new ThreadData(e);
-			}
-			return forums;
-		}
-	}
-
-	static class ThreadData extends Data<Article> {
-		private ThreadResponse response;
-
-		public ThreadData(ThreadResponse response) {
-			super();
-			this.response = response;
-		}
-
-		public ThreadData(Exception e) {
-			super(e);
-		}
-
-		@Override
-		protected List<Article> list() {
-			if (response == null) {
-				return new ArrayList<>();
-			}
-			return response.getArticles();
+		public SafeResponse<ThreadResponse> loadInBackground() {
+			return new SafeResponse<>(bggService.thread(threadId));
 		}
 	}
 

@@ -3,7 +3,9 @@ Release Notes
 
 Coming Soon...
 --------------
+ * Modify your collection item's private information
  * Spiffy up the collection filter dialogs
+ * Lots of under-the-hood improvements
 
 Version 5.2.6
 -------------

@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -10,6 +12,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -253,16 +256,23 @@ public class ActivityUtils {
 		link(context, "http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName));
 	}
 
-	public static void link(Context context, Uri link) {
-		context.startActivity(new Intent(Intent.ACTION_VIEW, link));
+	public static void linkToBgg(Context context, String path) {
+		link(context, createBggUri(path));
 	}
 
 	public static void link(Context context, String link) {
-		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+		link(context, Uri.parse(link));
 	}
 
-	public static void linkToBgg(Context context, String path) {
-		context.startActivity(new Intent(Intent.ACTION_VIEW, createBggUri(path)));
+	public static void link(Context context, Uri link) {
+		final Intent intent = new Intent(Intent.ACTION_VIEW, link);
+		if (isAvailable(context, intent)) {
+			context.startActivity(intent);
+		} else {
+			String message = "Can't figure out how to launch " + link;
+			Timber.w(message);
+			Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public static Uri createBggUri(String path) {
@@ -271,5 +281,11 @@ public class ActivityUtils {
 
 	public static Uri createBggUri(String path, int id) {
 		return BGG_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
+	}
+
+	private static boolean isAvailable(Context context, Intent intent) {
+		final PackageManager packageManager = context.getPackageManager();
+		List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		return list.size() > 0;
 	}
 }

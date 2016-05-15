@@ -23,20 +23,20 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
+import retrofit2.Call;
 
-public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
+public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<ForumListResponse>> {
 	private static final int LOADER_ID = 0;
 
 	private int gameId;
@@ -76,19 +76,28 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	@DebugLog
-	public Loader<ForumsData> onCreateLoader(int id, Bundle data) {
+	protected boolean dividerShown() {
+		return true;
+	}
+
+	@Override
+	@DebugLog
+	public Loader<SafeResponse<ForumListResponse>> onCreateLoader(int id, Bundle data) {
 		return new ForumsLoader(getActivity(), gameId);
 	}
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<ForumsData> loader, ForumsData data) {
+	public void onLoadFinished(Loader<SafeResponse<ForumListResponse>> loader, SafeResponse<ForumListResponse> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
-			adapter = new ForumsAdapter(getActivity(), data.list());
+			adapter = new ForumsAdapter(getActivity(),
+				data.getBody() == null ?
+					new ArrayList<Forum>() :
+					data.getBody().getForums());
 			setListAdapter(adapter);
 		}
 		initializeTimeBasedUi();
@@ -107,7 +116,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<ForumsData> loader) {
+	public void onLoaderReset(Loader<SafeResponse<ForumListResponse>> loader) {
 	}
 
 	@Override
@@ -126,7 +135,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
-	private static class ForumsLoader extends BggLoader<ForumsData> {
+	private static class ForumsLoader extends BggLoader<SafeResponse<ForumListResponse>> {
 		private final BggService bggService;
 		private final int gameId;
 
@@ -139,39 +148,14 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 		@Override
 		@DebugLog
-		public ForumsData loadInBackground() {
-			ForumsData forums;
-			try {
-				if (gameId == BggContract.INVALID_ID) {
-					forums = new ForumsData(bggService.forumList(BggService.FORUM_TYPE_REGION, BggService.FORUM_REGION_BOARDGAME).execute().body());
-				} else {
-					forums = new ForumsData(bggService.forumList(BggService.FORUM_TYPE_THING, gameId).execute().body());
-				}
-			} catch (Exception e) {
-				forums = new ForumsData(e);
+		public SafeResponse<ForumListResponse> loadInBackground() {
+			Call<ForumListResponse> call;
+			if (gameId == BggContract.INVALID_ID) {
+				call = bggService.forumList(BggService.FORUM_TYPE_REGION, BggService.FORUM_REGION_BOARDGAME);
+			} else {
+				call = bggService.forumList(BggService.FORUM_TYPE_THING, gameId);
 			}
-			return forums;
-		}
-	}
-
-	static class ForumsData extends Data<Forum> {
-		private ForumListResponse response;
-
-		public ForumsData(ForumListResponse response) {
-			this.response = response;
-		}
-
-		public ForumsData(Exception e) {
-			super(e);
-		}
-
-		@Override
-		@DebugLog
-		public List<Forum> list() {
-			if (response == null) {
-				return new ArrayList<>();
-			}
-			return response.getForums();
+			return new SafeResponse<>(call);
 		}
 	}
 
@@ -186,7 +170,6 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	public static class ForumsAdapter extends ArrayAdapter<Forum> {
 		public static final int ITEM_VIEW_TYPE_FORUM = 0;
 		public static final int ITEM_VIEW_TYPE_HEADER = 1;
-		private static final NumberFormat FORMAT = NumberFormat.getInstance();
 		private final LayoutInflater inflater;
 		private final Resources resources;
 
@@ -221,9 +204,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 				if (forum != null) {
 					holder.forumId = forum.id;
 					holder.forumTitleView.setText(forum.title);
-					holder.numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads,
-						forum.numberOfThreads, FORMAT.format(forum.numberOfThreads)));
-					holder.lastPostDateView.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate()));
+					holder.numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads, forum.numberOfThreads));
+					holder.lastPostDateView.setText(getContext().getString(R.string.forum_last_post, DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate())));
 					holder.lastPostDateView.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
 				}
 				return convertView;

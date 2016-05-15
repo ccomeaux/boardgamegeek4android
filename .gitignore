@@ -34,9 +34,19 @@ local.properties
 .metadata
 .settings
 
-# IntelliJ files
-.idea
+# IDEA/Android Studio ignores
 *.iml
+*.ipr
+*.iws
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/datasources.xml
+**/.idea/dataSources.ids
+**/.idea/gradle.xml
+**/.idea/misc.xml
+**/.idea/modules.xml
+**/.idea/libraries
+**/.idea/dictionaries
 
 # OSX files
 .DS_Store

@@ -3,6 +3,7 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
 import android.text.Html;
 import android.text.SpannedString;
@@ -320,7 +321,7 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static CharSequence getText(Context context, int id, Object... args) {
+	public static CharSequence getText(Context context, @StringRes int id, Object... args) {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
@@ -328,7 +329,7 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static CharSequence getQuantityText(Context context, int id, int quantity, Object... args) {
+	public static CharSequence getQuantityText(Context context, @PluralsRes int id, int quantity, Object... args) {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
