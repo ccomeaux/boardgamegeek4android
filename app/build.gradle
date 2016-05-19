@@ -86,7 +86,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
-    compile('com.mikepenz:aboutlibraries:5.6.5@aar') {
+    compile('com.mikepenz:aboutlibraries:5.6.6@aar') {
         transitive = true
     }
     compile 'org.greenrobot:eventbus:3.0.0'
