@@ -38,6 +38,7 @@ import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -46,7 +47,6 @@ import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -134,16 +134,16 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION);
 				}
 			});
-		Target viewTarget = getViewTarget();
+		Target viewTarget = getTarget();
 		builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
 		showcaseView = builder.build();
 		showcaseView.show();
 	}
 
 	@DebugLog
-	private ViewTarget getViewTarget() {
+	private Target getTarget() {
 		final View child = HelpUtils.getListViewVisibleChild(getListView());
-		return child == null ? null : new ViewTarget(child);
+		return child == null ? null : new SafeViewTarget(child);
 	}
 
 	@DebugLog

@@ -46,6 +46,7 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
+import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -59,7 +60,6 @@ import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -288,9 +288,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private ShowcaseViewWizard setUpShowcaseViewWizard() {
 		ShowcaseViewWizard wizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION);
 		wizard.addTarget(R.string.help_game_menu, Target.NONE);
-		wizard.addTarget(R.string.help_game_log_play, new ViewTarget(R.id.fab, getActivity()));
-		wizard.addTarget(R.string.help_game_poll, new ViewTarget(R.id.number_of_players, getActivity()));
-		wizard.addTarget(-1, new ViewTarget(R.id.player_age, getActivity()));
+		wizard.addTarget(R.string.help_game_log_play, new SafeViewTarget(R.id.fab, getActivity()));
+		wizard.addTarget(R.string.help_game_poll, new SafeViewTarget(R.id.number_of_players, getActivity()));
+		wizard.addTarget(-1, new SafeViewTarget(R.id.player_age, getActivity()));
 		return wizard;
 	}
 
