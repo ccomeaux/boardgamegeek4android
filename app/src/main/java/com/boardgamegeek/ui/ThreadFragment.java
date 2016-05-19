@@ -26,6 +26,7 @@ import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -33,7 +34,6 @@ import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,16 +109,16 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION);
 				}
 			});
-		Target viewTarget = getViewTarget();
+		Target viewTarget = getTarget();
 		builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
 		showcaseView = builder.build();
 		showcaseView.show();
 	}
 
 	@DebugLog
-	private ViewTarget getViewTarget() {
+	private Target getTarget() {
 		final View child = HelpUtils.getListViewVisibleChild(getListView());
-		return child == null ? null : new ViewTarget(child.findViewById(R.id.view_button));
+		return child == null ? null : new SafeViewTarget(child.findViewById(R.id.view_button));
 	}
 
 	@Override
