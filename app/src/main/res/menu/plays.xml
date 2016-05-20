@@ -9,7 +9,7 @@
 		app:showAsAction="always"/>
 	<item
 		android:id="@+id/menu_filter"
-		android:icon="@drawable/ic_action_filter_on_light"
+		android:icon="@drawable/menu_filter"
 		android:title="@string/menu_plays_filter"
 		app:showAsAction="ifRoom">
 		<menu>
@@ -28,7 +28,7 @@
 	</item>
 	<item
 		android:id="@+id/menu_sort"
-		android:icon="@drawable/ic_action_sort_light"
+		android:icon="@drawable/menu_sort"
 		android:title="@string/menu_sort"
 		app:showAsAction="ifRoom">
 		<menu>
@@ -50,7 +50,7 @@
 	</item>
 	<item
 		android:id="@+id/menu_refresh_on"
-		android:icon="@drawable/ic_action_refresh_light"
+		android:icon="@drawable/menu_refresh"
 		android:title="@string/menu_refresh_on"
 		app:showAsAction="ifRoom"/>
 	<item

@@ -4,13 +4,13 @@
 
 	<item
 		android:id="@+id/menu_view"
-		android:icon="@drawable/ic_action_web_site_light"
+		android:icon="@drawable/menu_view"
 		android:orderInCategory="1"
 		android:title="@string/menu_view_in_browser"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_share"
-		android:icon="@drawable/ic_action_share_light"
+		android:icon="@drawable/menu_share"
 		android:orderInCategory="2"
 		android:title="@string/menu_share"
 		app:showAsAction="ifRoom"/>

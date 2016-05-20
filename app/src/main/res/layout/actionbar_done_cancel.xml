@@ -18,7 +18,7 @@
 
 			<ImageView
 				style="@style/ActionBarButtonImage"
-				android:src="@drawable/ic_action_cancel_light"/>
+				android:src="@drawable/menu_cancel"/>
 
 			<TextView
 				style="@style/ActionBarButtonText"
@@ -32,7 +32,7 @@
 
 			<ImageView
 				style="@style/ActionBarButtonImage"
-				android:src="@drawable/ic_done"/>
+				android:src="@drawable/menu_done"/>
 
 			<TextView
 				style="@style/ActionBarButtonText"
