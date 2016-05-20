@@ -14,13 +14,13 @@
 	<style name="Text.Primary.DrawerHeader">
 		<item name="android:fontFamily">sans-serif-medium</item>
 		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">#000</item>
+		<item name="android:textColor">#fff</item>
 	</style>
 
 	<style name="Text.Secondary.DrawerHeader">
 		<item name="android:fontFamily">sans-serif</item>
 		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">#000</item>
+		<item name="android:textColor">#fff</item>
 	</style>
 
 	<style name="DrawerItem" parent="TextAppearance.AppCompat">
