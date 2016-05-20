@@ -220,13 +220,12 @@
 	</style>
 
 	<style name="RowSeparator" parent="@style/TextAppearance.AppCompat.Menu">
-		<item name="android:background">@color/primary_dark</item>
+		<item name="android:background">@color/light_blue</item>
 		<item name="android:gravity">center</item>
 		<item name="android:minHeight">32dp</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 		<item name="android:textAllCaps">true</item>
-		<item name="android:textColor">@color/inverse_text_title</item>
 		<item name="android:textIsSelectable">false</item>
 	</style>
 
@@ -343,6 +342,9 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:background">?attr/colorPrimary</item>
 		<item name="android:minHeight">?attr/actionBarSize</item>
+		<item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
 	</style>
 
 	<style name="ActionBarButtonContainer">
@@ -510,10 +512,7 @@
 		<item name="android:gravity">center</item>
 	</style>
 
-	<style name="ActionBarSpinner" parent="@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar">
-		<item name="background">@drawable/spinner_background_ab_bgglight</item>
-		<item name="android:background">@drawable/spinner_background_ab_bgglight</item>
-		<item name="android:dropDownSelector">@drawable/selectable_background_bgglight</item>
+	<style name="ActionBarSpinner" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
 		<item name="android:minHeight">48dp</item>
 		<item name="android:minWidth">132dp</item>
 	</style>
