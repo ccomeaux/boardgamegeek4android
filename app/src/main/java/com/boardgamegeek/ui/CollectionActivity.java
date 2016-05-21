@@ -218,8 +218,12 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		private final LayoutInflater inflater;
 
 		public CollectionViewAdapter(Context context, Cursor cursor) {
-			super(context, android.R.layout.simple_spinner_item, cursor, new String[] { CollectionViews._ID,
-				CollectionViews.NAME }, new int[] { 0, android.R.id.text1 }, 0);
+			super(context,
+				R.layout.actionbar_spinner_item,
+				cursor,
+				new String[] { CollectionViews._ID, CollectionViews.NAME },
+				new int[] { 0, android.R.id.text1 },
+				0);
 			setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 			inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
