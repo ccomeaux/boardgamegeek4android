@@ -151,7 +151,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		for (Pair<String, Integer> game : stats.getHIndexGames()) {
 			final Builder builder = new Builder().labelText(game.first).value(game.second);
 			if (game.second == stats.getHIndex()) {
-				builder.backgroundResource(R.color.primary);
+				builder.backgroundResource(R.color.light_blue_transparent);
 				addDivider = false;
 			} else if (game.second < stats.getHIndex() && addDivider) {
 				addDivider(hIndexTable);
