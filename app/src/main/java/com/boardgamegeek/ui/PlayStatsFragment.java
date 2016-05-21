@@ -186,7 +186,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	private void addDivider(ViewGroup container) {
 		View view = new View(getActivity());
 		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
-		view.setBackgroundResource(R.color.primary_dark);
+		view.setBackgroundResource(R.color.dark_blue);
 		container.addView(view);
 	}
 

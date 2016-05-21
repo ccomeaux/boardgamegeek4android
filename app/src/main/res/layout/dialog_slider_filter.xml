@@ -42,7 +42,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_remove_circle_outline"
-				android:tint="@color/primary_dark"/>
+				android:tint="@color/dark_blue"/>
 
 			<ImageView
 				android:id="@+id/min_up"
@@ -51,7 +51,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_add_circle_outline"
-				android:tint="@color/primary_dark"/>
+				android:tint="@color/dark_blue"/>
 
 			<Space
 				android:layout_width="0dp"
@@ -65,7 +65,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_remove_circle_outline"
-				android:tint="@color/primary_dark"/>
+				android:tint="@color/dark_blue"/>
 
 			<ImageView
 				android:id="@+id/max_up"
@@ -74,7 +74,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_add_circle_outline"
-				android:tint="@color/primary_dark"/>
+				android:tint="@color/dark_blue"/>
 		</LinearLayout>
 	</LinearLayout>
 

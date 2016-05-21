@@ -92,7 +92,7 @@
 			android:visibility="visible"
 			app:elevation="@dimen/fab_elevation"
 			app:pressedTranslationZ="@dimen/fab_translation"
-			app:rippleColor="@color/primary_dark"
+			app:rippleColor="@color/medium_blue"
 			tools:visibility="visible"/>
 	</android.support.design.widget.CoordinatorLayout>
 </LinearLayout>

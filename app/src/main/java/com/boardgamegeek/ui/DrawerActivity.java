@@ -240,8 +240,8 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 		if (titleId == getDrawerResId()) {
 			view.setBackgroundResource(R.color.navdrawer_selected_row);
-			titleView.setTextColor(getResources().getColor(R.color.primary_dark));
-			iconView.setColorFilter(getResources().getColor(R.color.primary_dark));
+			titleView.setTextColor(getResources().getColor(R.color.primary));
+			iconView.setColorFilter(getResources().getColor(R.color.primary));
 		} else {
 			iconView.setColorFilter(getResources().getColor(R.color.navdrawer_icon_tint));
 		}
