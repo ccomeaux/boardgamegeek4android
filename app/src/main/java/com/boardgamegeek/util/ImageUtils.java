@@ -98,7 +98,7 @@ public class ImageUtils {
 					Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 					Palette palette = PaletteTransformation.getPalette(bitmap);
 					if (callback != null) {
-						callback.onPaletteGenerated(palette);
+						callback.onSuccessfulLoad(palette);
 					}
 				}
 
@@ -146,6 +146,6 @@ public class ImageUtils {
 	 * Call back from loading an image.
 	 */
 	public interface Callback {
-		void onPaletteGenerated(Palette palette);
+		void onSuccessfulLoad(Palette palette);
 	}
 }

@@ -23,7 +23,6 @@
 			style="@style/Text.Title.Overlay"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="#6000"
 			android:ellipsize="end"
 			android:gravity="left|center_vertical"
 			android:maxLines="2"

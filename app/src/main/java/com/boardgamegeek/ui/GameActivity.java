@@ -153,7 +153,7 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@DebugLog
 	@Override
-	public void onPaletteGenerated(Palette palette) {
+	public void onSuccessfulLoad(Palette palette) {
 		((GameFragment) getFragment()).onPaletteGenerated(palette);
 	}
 

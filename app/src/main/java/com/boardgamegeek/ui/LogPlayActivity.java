@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuBuilder.Callback;
 import android.support.v7.view.menu.MenuPopupHelper;
@@ -330,7 +331,12 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		mHeaderView.setText(mGameName);
 
-		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
+		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl, new ImageUtils.Callback() {
+			@Override
+			public void onSuccessfulLoad(Palette palette) {
+				mHeaderView.setBackgroundResource(R.color.black_overlay_light);
+			}
+		});
 
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");

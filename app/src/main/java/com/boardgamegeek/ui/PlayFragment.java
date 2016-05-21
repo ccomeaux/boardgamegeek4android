@@ -11,6 +11,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,6 +47,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -399,7 +401,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 		mEmpty.setVisibility(View.GONE);
 
-		ImageUtils.safelyLoadImage(mThumbnailView, mImageUrl);
+		ImageUtils.safelyLoadImage(mThumbnailView, mImageUrl, new Callback() {
+			@Override
+			public void onSuccessfulLoad(Palette palette) {
+				mGameName.setBackgroundResource(R.color.black_overlay_light);
+			}
+		});
 
 		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);
