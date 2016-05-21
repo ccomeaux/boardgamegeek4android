@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -25,6 +26,7 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
@@ -155,6 +157,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	@Override
 	public void onSuccessfulLoad(Palette palette) {
 		((GameFragment) getFragment()).onPaletteGenerated(palette);
+		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
 	}
 
 	@DebugLog

@@ -5,6 +5,7 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_USED_COLORS = "USED_COLORS";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
+	public static final String KEY_FAB_COLOR = "FAB_COLOR";
 
 	private static final int HELP_VERSION = 2;
 	private static final int TOKEN_COLORS = 1;
@@ -179,6 +181,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			mUserShowScore = true;
 			mScore.requestFocus();
 		}
+		mFab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, getColor(R.color.accent))));
 
 		if (savedInstanceState == null) {
 			mPlayer = intent.getParcelableExtra(KEY_PLAYER);

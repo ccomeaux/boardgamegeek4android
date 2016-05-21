@@ -10,9 +10,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.ColorRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -62,6 +64,7 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
@@ -177,6 +180,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private boolean mDeleteOnCancel;
 	private boolean mSaveOnPause = true;
 	private boolean mCustomPlayerSort;
+	@ColorRes private int mFabColor;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
 		@Override
@@ -331,10 +335,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		mHeaderView.setText(mGameName);
 
+		mFabColor = getColor(R.color.accent);
 		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl, new ImageUtils.Callback() {
 			@Override
 			public void onSuccessfulLoad(Palette palette) {
 				mHeaderView.setBackgroundResource(R.color.black_overlay_light);
+				mFabColor = PaletteUtils.getIconSwatch(palette).getRgb();
+				mFab.setBackgroundTintList(ColorStateList.valueOf(mFabColor));
 			}
 		});
 
@@ -487,6 +494,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				Intent intent = new Intent();
 				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
 				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
+				intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, mFabColor);
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 				}
