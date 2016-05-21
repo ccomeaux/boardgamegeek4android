@@ -23,6 +23,7 @@ import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -361,7 +362,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.setEnabled(isRefreshable());
 			swipeRefreshLayout.setOnRefreshListener(this);
-			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 		}
 		emptyContainer.setVisibility(View.GONE);
 		View rawListView = root.findViewById(android.R.id.list);

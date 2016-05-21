@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import butterknife.BindView;
@@ -52,7 +53,7 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	@Override
 	protected void onPostInject() {
 		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 	}
 
 	protected void createFragment() {

@@ -116,7 +116,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		swipeRefreshLayout = (SwipeRefreshLayout) rootView;
 		if (isUser()) {
 			swipeRefreshLayout.setOnRefreshListener(this);
-			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 			swipeRefreshLayout.setEnabled(true);
 		} else {
 			swipeRefreshLayout.setEnabled(false);

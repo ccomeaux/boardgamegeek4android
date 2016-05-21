@@ -155,7 +155,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		if (mSwipeRefreshLayout != null) {
 			mSwipeRefreshLayout.setOnRefreshListener(this);
-			mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+			mSwipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 		}
 
 		mAdapter = new PlayerAdapter();
