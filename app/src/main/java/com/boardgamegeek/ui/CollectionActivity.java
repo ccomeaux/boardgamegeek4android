@@ -236,7 +236,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (position == 0) {
-				return createDefaultItem(convertView, parent, android.R.layout.simple_spinner_item);
+				return createDefaultItem(convertView, parent, R.layout.actionbar_spinner_item);
 			} else {
 				return super.getView(position - 1, convertView, parent);
 			}
