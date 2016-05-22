@@ -196,7 +196,9 @@ public class LogPlayerActivity extends AppCompatActivity {
 			Icepick.restoreInstanceState(this, savedInstanceState);
 		}
 
-		mUsedColors = new ArrayList<>(Arrays.asList(usedColors));
+		mUsedColors = (usedColors == null) ?
+			new ArrayList<String>() :
+			new ArrayList<>(Arrays.asList(usedColors));
 		mUsedColors.remove(mPlayer.color);
 
 		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
