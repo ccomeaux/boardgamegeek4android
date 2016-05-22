@@ -14,7 +14,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.ColorRes;
+import android.support.annotation.ColorInt;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -180,7 +180,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private boolean mDeleteOnCancel;
 	private boolean mSaveOnPause = true;
 	private boolean mCustomPlayerSort;
-	@ColorRes private int mFabColor;
+	@ColorInt private int mFabColor;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
 		@Override
@@ -335,7 +335,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		mHeaderView.setText(mGameName);
 
-		mFabColor = getColor(R.color.accent);
+		mFabColor = getResources().getColor(R.color.accent);
 		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl, new ImageUtils.Callback() {
 			@Override
 			public void onSuccessfulLoad(Palette palette) {

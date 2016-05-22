@@ -181,7 +181,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			mUserShowScore = true;
 			mScore.requestFocus();
 		}
-		mFab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, getColor(R.color.accent))));
+		mFab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, getResources().getColor(R.color.accent))));
 
 		if (savedInstanceState == null) {
 			mPlayer = intent.getParcelableExtra(KEY_PLAYER);
