@@ -63,11 +63,10 @@ public class HttpUtils {
 
 	@NonNull
 	private static Builder getBuilder() {
-		Builder builder = new Builder()
+		return new Builder()
 			.connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
 			.readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
 			.writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS);
-		return builder;
 	}
 
 	private static void addLoggingInterceptor(Builder builder) {

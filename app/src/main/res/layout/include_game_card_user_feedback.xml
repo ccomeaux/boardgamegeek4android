@@ -100,7 +100,7 @@
 				android:src="@drawable/ic_forums"/>
 
 			<LinearLayout
-				android:id="@+id/weight_container"
+				android:id="@+id/forums_container"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"

@@ -207,10 +207,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
-
-		if (gameUri == null) {
-			return;
-		}
 	}
 
 	@Override
