@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_colors_generate"
-		android:icon="@drawable/ic_action_colors_light"
+		android:icon="@drawable/menu_colors"
 		android:title="@string/menu_colors_generate"
 		app:showAsAction="ifRoom"/>
 

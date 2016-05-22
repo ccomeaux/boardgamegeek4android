@@ -26,7 +26,7 @@
 	<dimen name="thumbnail_size">72dp</dimen>
 	<dimen name="actionbar_view">32dp</dimen>
 	<dimen name="actionbar_text">24sp</dimen>
-	<dimen name="icon_width">48dp</dimen>
+	<dimen name="icon_width">32dp</dimen>
 	<dimen name="dropdownitem_min_height">48dp</dimen>
 	<dimen name="color_circle_diameter">32dp</dimen>
 	<dimen name="color_circle_diameter_small">24dp</dimen>

@@ -254,13 +254,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
 		playCountDataSet.setDrawValues(false);
 		playCountDataSet.setHighlightEnabled(false);
-		playCountDataSet.setColor(getResources().getColor(R.color.primary));
+		playCountDataSet.setColor(getResources().getColor(R.color.dark_blue));
 		dataSets.add(playCountDataSet);
 
 		BarDataSet winsDataSet = new BarDataSet(winValues, getString(R.string.title_wins));
 		winsDataSet.setDrawValues(false);
 		winsDataSet.setHighlightEnabled(false);
-		winsDataSet.setColor(getResources().getColor(R.color.primary_dark));
+		winsDataSet.setColor(getResources().getColor(R.color.orange));
 		dataSets.add(winsDataSet);
 
 		BarData data = new BarData(playersLabels, dataSets);
@@ -323,7 +323,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			psv.setWins(ps.wins);
 			psv.setAverageScore(ps.getAverageScore());
 			if (row % 2 == 1) {
-				psv.setBackgroundResource(R.color.primary_transparent);
+				psv.setBackgroundResource(R.color.light_blue_transparent);
 			}
 			mOpponentsTable.addView(psv);
 			row++;
@@ -368,13 +368,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private void addStatRow(ViewGroup container, Builder builder) {
 		PlayStatView view = builder.build(getActivity());
-		container.addView(view);
-	}
-
-	private void addDivider(ViewGroup container) {
-		View view = new View(getActivity());
-		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
-		view.setBackgroundResource(R.color.primary_dark);
 		container.addView(view);
 	}
 

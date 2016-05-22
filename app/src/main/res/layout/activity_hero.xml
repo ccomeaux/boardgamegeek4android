@@ -26,10 +26,12 @@
 				android:layout_width="match_parent"
 				android:layout_height="196dp"
 				android:fitsSystemWindows="true"
+				android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
 				app:contentScrim="?attr/colorPrimary"
 				app:expandedTitleMarginEnd="@dimen/material_margin_horizontal"
 				app:expandedTitleMarginStart="@dimen/material_margin_horizontal"
-				app:layout_scrollFlags="scroll|exitUntilCollapsed">
+				app:layout_scrollFlags="scroll|exitUntilCollapsed"
+				app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
 				<ImageView
 					android:id="@+id/toolbar_image"
@@ -52,8 +54,9 @@
 					android:id="@+id/toolbar"
 					android:layout_width="match_parent"
 					android:layout_height="?attr/actionBarSize"
+					android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
 					app:layout_collapseMode="pin"
-					app:popupTheme="@style/ThemeOverlay.AppCompat"/>
+					app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 			</android.support.design.widget.CollapsingToolbarLayout>
 
 		</android.support.design.widget.AppBarLayout>
@@ -79,7 +82,7 @@
 			android:visibility="gone"
 			app:elevation="@dimen/fab_elevation"
 			app:pressedTranslationZ="@dimen/fab_translation"
-			app:rippleColor="@color/primary_dark"
+			app:rippleColor="@color/medium_blue"
 			tools:visibility="visible"/>
 	</android.support.design.widget.CoordinatorLayout>
 

@@ -22,7 +22,7 @@
 		android:label="@string/app_name"
 		android:logo="@drawable/title_logo"
 		android:supportsRtl="false"
-		android:theme="@style/Theme.bgglight">
+		android:theme="@style/Theme.bgglight.NavDrawer">
 		<activity
 			android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
@@ -129,7 +129,7 @@
 		<activity
 			android:name=".ui.BuddyColorsActivity"
 			android:label="@string/title_favorite_colors"
-			android:theme="@style/Theme.bgglight.NoActionBar"/>
+			android:theme="@style/Theme.bgglight"/>
 		<activity
 			android:name=".ui.PlaysSummaryActivity"
 			android:exported="false"
@@ -222,11 +222,11 @@
 			android:name=".ui.LogPlayActivity"
 			android:label="@string/title_log_play"
 			android:launchMode="singleTop"
-			android:theme="@style/Theme.bgglight.NoActionBar"/>
+			android:theme="@style/Theme.bgglight"/>
 		<activity
 			android:name=".ui.LogPlayerActivity"
 			android:label="@string/title_log_player"
-			android:theme="@style/Theme.bgglight.NoActionBar"/>
+			android:theme="@style/Theme.bgglight"/>
 		<activity
 			android:name=".ui.GameCollectionActivity"
 			android:label="@string/title_collection"/>

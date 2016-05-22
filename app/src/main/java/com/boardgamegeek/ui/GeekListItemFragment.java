@@ -186,7 +186,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	}
 
 	@Override
-	public void onPaletteGenerated(Palette palette) {
+	public void onSuccessfulLoad(Palette palette) {
 		if (!isAdded()) {
 			return;
 		}

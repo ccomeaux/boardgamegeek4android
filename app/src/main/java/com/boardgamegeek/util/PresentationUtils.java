@@ -335,4 +335,9 @@ public class PresentationUtils {
 		}
 		return Html.fromHtml(String.format(Html.toHtml(new SpannedString(context.getResources().getQuantityText(id, quantity))), args));
 	}
+
+	@DebugLog
+	public static int[] getColorSchemeResources() {
+		return new int[] { R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue };
+	}
 }

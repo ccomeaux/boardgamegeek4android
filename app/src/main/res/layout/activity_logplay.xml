@@ -53,7 +53,7 @@
 				android:src="@drawable/ic_action_add"
 				app:elevation="@dimen/fab_elevation"
 				app:pressedTranslationZ="@dimen/fab_translation"
-				app:rippleColor="@color/primary_dark"/>
+				app:rippleColor="@color/medium_blue"/>
 		</FrameLayout>
 	</FrameLayout>
 

@@ -78,7 +78,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		unbinder = ButterKnife.bind(this, rootView);
 
 		mSwipeRefreshLayout.setOnRefreshListener(this);
-		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		mSwipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
 		getLoaderManager().restartLoader(mToken, null, this);
 		return rootView;

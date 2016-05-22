@@ -1,0 +1,9 @@
+<TextView android:id="@android:id/text1"
+		  style="?android:attr/spinnerItemStyle"
+		  xmlns:android="http://schemas.android.com/apk/res/android"
+		  android:layout_width="match_parent"
+		  android:layout_height="wrap_content"
+		  android:ellipsize="marquee"
+		  android:singleLine="true"
+		  android:textAlignment="inherit"
+		  android:textColor="@color/actionbar_text"/>

@@ -63,7 +63,7 @@ public class NotificationUtils {
 		@SuppressWarnings("deprecation")
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setSmallIcon(R.drawable.ic_stat_bgg)
-			.setColor(context.getResources().getColor(R.color.primary_dark))
+			.setColor(context.getResources().getColor(R.color.primary))
 			.setContentTitle(title)
 			.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		Intent intent = new Intent(context, cls);

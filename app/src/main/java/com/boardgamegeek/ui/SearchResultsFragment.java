@@ -228,7 +228,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 				snackbar = Snackbar.make(getListContainer(),
 					getResources().getQuantityString(messageId, count, count, searchText),
 					Snackbar.LENGTH_INDEFINITE);
-				snackbar.getView().setBackgroundResource(R.color.primary_dark);
+				snackbar.getView().setBackgroundResource(R.color.dark_blue);
 				snackbar.setActionTextColor(getResources().getColor(R.color.inverse_text));
 			} else {
 				snackbar.setText(getResources().getQuantityString(messageId, count, count, searchText));
