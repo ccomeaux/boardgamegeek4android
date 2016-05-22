@@ -417,7 +417,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		call.enqueue(new Callback<ForumListResponse>() {
 			@Override
 			public void onResponse(Call<ForumListResponse> call, Response<ForumListResponse> response) {
-				if (response.isSuccessful()) {
+				if (response.isSuccessful() && forumsLastPostDateView != null) {
 					long lastPostDate = 0;
 					String title = "";
 					for (Forum forum : response.body().getForums()) {
