@@ -11,13 +11,14 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
 
 public class ShowcaseViewWizard {
-	private final Activity activity;
+	private final WeakReference<Activity> activityWeakReference;
 	private final String helpKey;
 	private final int helpVersion;
 	private ShowcaseView showcaseView;
@@ -25,7 +26,7 @@ public class ShowcaseViewWizard {
 	final List<Pair<Integer, Target>> helpTargets = new ArrayList<>();
 
 	public ShowcaseViewWizard(Activity activity, String helpKey, int helpVersion) {
-		this.activity = activity;
+		this.activityWeakReference = new WeakReference<>(activity);
 		this.helpKey = helpKey;
 		this.helpVersion = helpVersion;
 		helpTargets.clear();
@@ -37,6 +38,8 @@ public class ShowcaseViewWizard {
 
 	@DebugLog
 	public void showHelp() {
+		Activity activity = activityWeakReference.get();
+		if (activity == null) return;
 		helpIndex = 0;
 		Builder builder = HelpUtils.getShowcaseBuilder(activity)
 			.setOnClickListener(new OnClickListener() {
@@ -52,6 +55,8 @@ public class ShowcaseViewWizard {
 
 	@DebugLog
 	private void showNextHelp() {
+		Activity activity = activityWeakReference.get();
+		if (activity == null) return;
 		if (helpIndex < helpTargets.size()) {
 			Pair<Integer, Target> helpTarget = helpTargets.get(helpIndex);
 			StringBuilder sb = new StringBuilder();
@@ -72,6 +77,8 @@ public class ShowcaseViewWizard {
 
 	@DebugLog
 	public void maybeShowHelp() {
+		Activity activity = activityWeakReference.get();
+		if (activity == null) return;
 		if (HelpUtils.shouldShowHelp(activity, helpKey, helpVersion)) {
 			new Handler().postDelayed(new Runnable() {
 				@Override
