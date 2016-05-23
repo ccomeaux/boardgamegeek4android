@@ -134,6 +134,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					"collection." + Collection.GAME_ID + "=?",
 					new String[] { String.valueOf(gameId) },
 					null);
+				loader.setUpdateThrottle(5000);
 				break;
 			case PlayQuery._TOKEN:
 				loader = new CursorLoader(getActivity(),
@@ -142,6 +143,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 					Plays.DATE + " ASC");
+				loader.setUpdateThrottle(5000);
 				break;
 			case PlayerQuery._TOKEN:
 				loader = new CursorLoader(getActivity(),
@@ -150,6 +152,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 					null);
+				loader.setUpdateThrottle(5000);
 				break;
 		}
 		return loader;
@@ -307,11 +310,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(playTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_per_player).valueInMinutes(averagePerPlayer));
 		}
 
+		locationsTable.removeAllViews();
 		for (Entry<String, Integer> location : stats.getPlaysPerLocation()) {
 			locationsCard.setVisibility(View.VISIBLE);
 			addStatRow(locationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
 		}
 
+		opponentsTable.removeAllViews();
 		int row = 0;
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
 			opponentsCard.setVisibility(View.VISIBLE);
