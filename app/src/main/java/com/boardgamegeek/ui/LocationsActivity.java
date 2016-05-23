@@ -43,7 +43,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 		} else {
 			menu.findItem(R.id.menu_sort_name).setChecked(true);
 		}
-		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, locationCount <= 0 ? "" : String.valueOf(locationCount));
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, locationCount <= 0 ? "" : String.format("%,d", locationCount));
 		return super.onPrepareOptionsMenu(menu);
 	}
 

@@ -37,7 +37,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		boolean hide = playCount <= 0;
 		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
-			hide ? "" : String.valueOf(playCount),
+			hide ? "" : String.format("%,d", playCount),
 			hide ? "" : sortName);
 		return super.onPrepareOptionsMenu(menu);
 	}
