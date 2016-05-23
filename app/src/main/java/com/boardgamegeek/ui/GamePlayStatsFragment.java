@@ -933,7 +933,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final boolean noWinStats;
 		final String location;
 		final int syncStatus;
-		final List<PlayerModel> mPlayers = new ArrayList<>();
+		final List<PlayerModel> players = new ArrayList<>();
 
 		PlayModel(Cursor cursor) {
 			playId = cursor.getInt(PlayQuery.PLAY_ID);
@@ -945,11 +945,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
 			location = cursor.getString(PlayQuery.LOCATION);
 			syncStatus = cursor.getInt(PlayQuery.SYNC_STATUS);
-			mPlayers.clear();
+			players.clear();
 		}
 
 		public List<PlayerModel> getPlayers() {
-			return mPlayers;
+			return players;
 		}
 
 		public String getYear() {
@@ -961,7 +961,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public void addPlayer(PlayerModel player) {
-			mPlayers.add(player);
+			players.add(player);
 		}
 
 		public boolean isWinnable() {
@@ -981,7 +981,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (noWinStats) {
 				return false;
 			}
-			for (PlayerModel player : mPlayers) {
+			for (PlayerModel player : players) {
 				if (username.equals(player.username)) {
 					return player.win;
 				}
