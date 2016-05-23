@@ -5,7 +5,7 @@
 		android:id="@+id/name"
 		style="@style/Text"
 		android:gravity="center_vertical"
-		android:minHeight="@dimen/card_row_height"/>
+		android:minHeight="@dimen/view_row_height"/>
 
 	<TextView
 		android:id="@+id/play_count"

@@ -20,8 +20,8 @@
 
 		<ImageView
 			android:id="@+id/info"
-			android:layout_width="@dimen/image_button_size"
-			android:layout_height="@dimen/image_button_size"
+			android:layout_width="@dimen/icon_width"
+			android:layout_height="@dimen/icon_width"
 			android:scaleType="center"
 			android:src="@drawable/ic_action_info_light"
 			android:visibility="invisible"/>

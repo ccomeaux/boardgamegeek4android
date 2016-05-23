@@ -619,7 +619,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			do {
 				PlayerModel pm = new PlayerModel(cursor);
 				if (!mPlays.containsKey(pm.playId)) {
-					Timber.e("Play " + pm.playId + " not found in the play map!");
+					Timber.e("Play %s not found in the play map!", pm.playId);
 					return;
 				}
 				mPlays.get(pm.playId).addPlayer(pm);
