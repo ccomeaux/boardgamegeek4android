@@ -932,6 +932,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final int playerCount;
 		final boolean noWinStats;
 		final String location;
+		final int syncStatus;
 		final List<PlayerModel> mPlayers = new ArrayList<>();
 
 		PlayModel(Cursor cursor) {
@@ -943,6 +944,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
 			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
 			location = cursor.getString(PlayQuery.LOCATION);
+			syncStatus = cursor.getInt(PlayQuery.SYNC_STATUS);
 			mPlayers.clear();
 		}
 
@@ -966,11 +968,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (noWinStats) {
 				return false;
 			}
-			for (PlayerModel player : mPlayers) {
-				if (player.win) {
+			if (syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
+				return true;
+			}
+			if (playId > 0 && playId < Play.UNSYNCED_PLAY_ID && syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 					return true;
 				}
-			}
 			return false;
 		}
 
@@ -1014,7 +1017,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
 			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
-			Plays.INCOMPLETE, Plays.NO_WIN_STATS };
+			Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.SYNC_STATUS };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int LOCATION = 5;
@@ -1023,6 +1026,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int PLAYER_COUNT = 9;
 		int INCOMPLETE = 11;
 		int NO_WIN_STATS = 12;
+		int SYNC_STATUS = 13;
 	}
 
 	private interface PlayerQuery {
