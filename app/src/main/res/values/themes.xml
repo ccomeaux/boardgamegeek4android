@@ -5,6 +5,7 @@
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
 		<item name="windowActionModeOverlay">true</item>
 		<item name="actionModeBackground">@color/primary</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
