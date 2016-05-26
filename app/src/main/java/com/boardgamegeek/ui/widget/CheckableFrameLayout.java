@@ -6,7 +6,8 @@ import android.widget.Checkable;
 import android.widget.FrameLayout;
 
 public class CheckableFrameLayout extends FrameLayout implements Checkable {
-	private boolean mChecked;
+	private static final int[] CHECKED_STATE_SET = { android.R.attr.state_checked };
+	private boolean isChecked;
 
 	public CheckableFrameLayout(Context context) {
 		super(context);
@@ -20,31 +21,29 @@ public class CheckableFrameLayout extends FrameLayout implements Checkable {
 		super(context, attrs, defStyle);
 	}
 
-	private static final int[] CheckedStateSet = { android.R.attr.state_checked };
-
 	@Override
 	public boolean isChecked() {
-		return mChecked;
+		return isChecked;
 	}
 
 	@Override
 	public void setChecked(boolean checked) {
-		if (mChecked != checked) {
-			mChecked = checked;
+		if (isChecked != checked) {
+			isChecked = checked;
 			refreshDrawableState();
 		}
 	}
 
 	@Override
 	public void toggle() {
-		setChecked(!mChecked);
+		setChecked(!isChecked);
 	}
 
 	@Override
 	protected int[] onCreateDrawableState(int extraSpace) {
 		final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
 		if (isChecked()) {
-			mergeDrawableStates(drawableState, CheckedStateSet);
+			mergeDrawableStates(drawableState, CHECKED_STATE_SET);
 		}
 		return drawableState;
 	}
