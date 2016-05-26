@@ -1,19 +1,25 @@
 package com.boardgamegeek.pref;
 
+import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
 import android.support.v4.util.ArrayMap;
+import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.DrawerActivity;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
-import java.util.List;
+public class SettingsActivity extends DrawerActivity {
+	private static final String TAG_SINGLE_PANE = "single_pane";
+	private static final String KEY_SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT";
 
-public class SettingsActivity extends AppCompatPreferenceActivity {
 	private final static String ACTION_LOG = "com.boardgamegeek.prefs.LOG";
 	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
 	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
@@ -30,14 +36,40 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 	}
 
 	@Override
-	public void onBuildHeaders(List<Header> target) {
-		super.onBuildHeaders(target);
-		loadHeadersFromResource(R.xml.preference_headers, target);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction().add(R.id.root_container, new PrefFragment(), TAG_SINGLE_PANE).commit();
+		}
 	}
 
 	@Override
-	protected boolean isValidFragment(String fragmentName) {
-		return fragmentName.equals(PrefFragment.class.getName());
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (!getFragmentManager().popBackStackImmediate()) {
+			super.onBackPressed();
+		}
+	}
+
+	void replaceFragment(String key) {
+		Bundle args = new Bundle();
+		args.putString(KEY_SETTINGS_FRAGMENT, key);
+		Fragment fragment = new PrefFragment();
+		fragment.setArguments(args);
+		getFragmentManager().beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commit();
 	}
 
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
@@ -46,8 +78,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			String fragment = getArguments().getString("fragment");
-			if (fragment != null) {
+
+			String fragment = getArguments() == null ? null : getArguments().getString(KEY_SETTINGS_FRAGMENT);
+			if (fragment == null) {
+				addPreferencesFromResource(R.xml.preference_headers);
+			} else {
 				Integer fragmentId = FRAGMENT_MAP.get(fragment);
 				if (fragmentId != null) {
 					addPreferencesFromResource(fragmentId);
@@ -101,6 +136,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 			super.onStop();
 			if (syncType > 0) {
 				SyncService.sync(getActivity(), syncType);
+				syncType = 0;
 			}
 		}
 
@@ -120,6 +156,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 					syncType |= SyncService.FLAG_SYNC_BUDDIES;
 					break;
 			}
+		}
+
+		@Override
+		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+			String key = preference.getKey();
+			if (key != null && key.startsWith("com.boardgamegeek.prefs.")) {
+				((SettingsActivity) getActivity()).replaceFragment(key);
+				return true;
+			}
+			return super.onPreferenceTreeClick(preferenceScreen, preference);
 		}
 	}
 }
