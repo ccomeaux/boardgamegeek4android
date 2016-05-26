@@ -103,7 +103,7 @@
 					android:id="@+id/timer"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:background="@color/primary"
+					android:background="@color/light_blue_transparent"
 					android:gravity="center"
 					android:maxLines="1"
 					android:textAppearance="@style/Text.Big"/>
