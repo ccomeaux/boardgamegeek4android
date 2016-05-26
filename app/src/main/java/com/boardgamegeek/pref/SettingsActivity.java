@@ -20,10 +20,12 @@ public class SettingsActivity extends DrawerActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
 	private static final String KEY_SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT";
 
-	private final static String ACTION_LOG = "com.boardgamegeek.prefs.LOG";
-	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
-	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
-	private final static String ACTION_ABOUT = "com.boardgamegeek.prefs.ABOUT";
+	private static final String ACTION_PREFIX = "com.boardgamegeek.prefs.";
+	private static final String ACTION_LOG = ACTION_PREFIX + "LOG";
+	private static final String ACTION_SYNC = ACTION_PREFIX + "SYNC";
+	private static final String ACTION_ADVANCED = ACTION_PREFIX + "ADVANCED";
+	private static final String ACTION_ABOUT = ACTION_PREFIX + "ABOUT";
+	private static final String ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS";
 	private static final ArrayMap<String, Integer> FRAGMENT_MAP = buildFragmentMap();
 
 	private static ArrayMap<String, Integer> buildFragmentMap() {
@@ -32,6 +34,7 @@ public class SettingsActivity extends DrawerActivity {
 		map.put(ACTION_SYNC, R.xml.preference_sync);
 		map.put(ACTION_ADVANCED, R.xml.preference_advanced);
 		map.put(ACTION_ABOUT, R.xml.preference_about);
+		map.put(ACTION_AUTHORS, R.xml.preference_authors);
 		return map;
 	}
 
@@ -161,7 +164,7 @@ public class SettingsActivity extends DrawerActivity {
 		@Override
 		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 			String key = preference.getKey();
-			if (key != null && key.startsWith("com.boardgamegeek.prefs.")) {
+			if (key != null && key.startsWith(ACTION_PREFIX)) {
 				((SettingsActivity) getActivity()).replaceFragment(key);
 				return true;
 			}
