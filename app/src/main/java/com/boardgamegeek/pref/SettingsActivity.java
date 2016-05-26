@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.DrawerActivity;
+import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
 public class SettingsActivity extends DrawerActivity {
@@ -82,7 +83,7 @@ public class SettingsActivity extends DrawerActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 
-			String fragment = getArguments() == null ? null : getArguments().getString(KEY_SETTINGS_FRAGMENT);
+			final String fragment = getArguments() == null ? null : getArguments().getString(KEY_SETTINGS_FRAGMENT);
 			if (fragment == null) {
 				addPreferencesFromResource(R.xml.preference_headers);
 			} else {
@@ -111,11 +112,12 @@ public class SettingsActivity extends DrawerActivity {
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))
-							.withActivityTheme(R.style.Theme_bgglight)
+							.withActivityTheme(R.style.Theme_bgglight_About)
+							.withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
 							.withAboutIconShown(true)
 							.withAboutAppName(getString(R.string.app_name))
 							.withAboutVersionShown(true)
-							.start(PrefFragment.this.getActivity());
+							.start(getActivity());
 						return true;
 					}
 				});
