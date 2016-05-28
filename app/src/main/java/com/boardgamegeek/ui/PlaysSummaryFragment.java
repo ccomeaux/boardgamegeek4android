@@ -50,10 +50,13 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int COLORS_TOKEN = 5;
 
 	private Unbinder unbinder;
+	@BindView(R.id.card_plays) View playsCard;
 	@BindView(R.id.plays_container) LinearLayout playsContainer;
 	@BindView(R.id.card_footer_plays) TextView playsFooter;
+	@BindView(R.id.card_players) View playersCard;
 	@BindView(R.id.players_container) LinearLayout playersContainer;
 	@BindView(R.id.card_footer_players) TextView playersFooter;
+	@BindView(R.id.card_locations) View locationsCard;
 	@BindView(R.id.locations_container) LinearLayout locationsContainer;
 	@BindView(R.id.card_footer_locations) TextView locationsFooter;
 	@BindView(R.id.card_colors) View colorsCard;
@@ -66,9 +69,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
-		colorsCard.setVisibility(TextUtils.isEmpty(AccountUtils.getUsername(getActivity())) ? View.GONE : View.VISIBLE);
-		//TODO ensure this is bold
-		hIndexView.setText(getString(R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
+		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
 
 		return rootView;
 	}
@@ -81,7 +82,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		getLoaderManager().restartLoader(PLAY_COUNT_TOKEN, null, this);
 		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
 		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
-		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+		if (!TextUtils.isEmpty(AccountUtils.getUsername(getActivity()))) {
+			getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+		}
 	}
 
 	@Override
@@ -168,6 +171,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		playsContainer.removeAllViews();
 		while (cursor.moveToNext()) {
+			playsCard.setVisibility(View.VISIBLE);
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 			View view = createRow(playsContainer, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
@@ -217,6 +221,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				continue;
 			}
 
+			playersCard.setVisibility(View.VISIBLE);
 			View view = createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
 
 			view.setTag(R.id.name, player.getName());
@@ -254,6 +259,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				continue;
 			}
 
+			locationsCard.setVisibility(View.VISIBLE);
 			View view = createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
 
 			view.setTag(R.id.name, location.getName());
@@ -310,6 +316,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			}
 		}
 		colorsHint.setVisibility(cursor.getCount() == 0 ? View.VISIBLE : View.GONE);
+		colorsCard.setVisibility(View.VISIBLE);
 	}
 
 	private ImageView createViewToBeColored() {
