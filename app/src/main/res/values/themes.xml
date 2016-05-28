@@ -5,6 +5,7 @@
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
 		<item name="windowActionModeOverlay">true</item>
 		<item name="actionModeBackground">@color/primary</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
@@ -14,72 +15,16 @@
 
 	<style name="Theme.bgglight.NavDrawer"/>
 
-	<style name="Theme.bgglight.Settings" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-		<item name="colorPrimary">@color/primary</item>
-		<item name="colorPrimaryDark">@color/primary_dark</item>
-		<item name="colorAccent">@color/accent</item>
-		<item name="actionBarItemBackground">@drawable/selectable_background_bgglight</item>
-		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
-		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-		<item name="actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
-		<item name="actionDropDownStyle">@style/bgglight_DropDownNav</item>
-		<item name="actionBarStyle">@style/bgglight_solid_ActionBar</item>
-		<item name="android:actionBarItemBackground">@drawable/selectable_background_bgglight</item>
-		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>
-		<item name="android:dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-		<item name="android:actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
-		<item name="android:actionDropDownStyle">@style/bgglight_DropDownNav</item>
-		<item name="android:actionBarStyle">@style/bgglight_solid_ActionBar</item>
-		<item name="android:panelBackground">@drawable/menu_hardkey_panel_bgglight</item>
+	<style name="Theme.bgglight.About">
+		<item name="drawerArrowStyle">@style/MyDrawerArrowStyle</item>
+		<item name="colorControlNormal">@android:color/white</item>
 	</style>
 
-	<style name="bgglight_solid_ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
-		<item name="background">@drawable/ab_solid_bgglight</item>
-		<item name="backgroundStacked">@drawable/ab_stacked_solid_bgglight</item>
-		<item name="backgroundSplit">@drawable/ab_bottom_solid_bgglight</item>
-		<item name="progressBarStyle">@style/bgglight_ProgressBar</item>
-		<item name="android:background">@drawable/ab_solid_bgglight</item>
-		<item name="android:progressBarStyle">@style/bgglight_ProgressBar</item>
+	<style name="MyDrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+		<item name="spinBars">false</item>
+		<item name="color">@android:color/white</item>
 	</style>
 
-	<style name="bgglight_transparent_ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar">
-		<item name="background">@drawable/ab_transparent_bgglight</item>
-		<item name="progressBarStyle">@style/bgglight_ProgressBar</item>
-		<item name="android:background">@drawable/ab_transparent_bgglight</item>
-		<item name="android:progressBarStyle">@style/bgglight_ProgressBar</item>
-	</style>
-
-	<style name="bgglight_PopupMenu" parent="@style/Widget.AppCompat.Light.ListPopupWindow">
-		<item name="android:popupBackground">@drawable/menu_dropdown_panel_bgglight</item>
-	</style>
-
-	<style name="bgglight_DropDownListView" parent="@style/Widget.AppCompat.Light.ListView.DropDown">
-		<item name="android:listSelector">@drawable/selectable_background_bgglight</item>
-	</style>
-
-	<style name="bgglight_ActionBarTabStyle" parent="@style/Widget.AppCompat.Light.ActionBar.TabView">
-		<item name="background">@drawable/tab_indicator_ab_bgglight</item>
-		<item name="android:background">@drawable/tab_indicator_ab_bgglight</item>
-	</style>
-
-	<style name="bgglight_DropDownNav" parent="@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar">
-		<item name="background">@drawable/spinner_background_ab_bgglight</item>
-		<item name="android:background">@drawable/spinner_background_ab_bgglight</item>
-		<item name="android:popupBackground">@drawable/menu_dropdown_panel_bgglight</item>
-		<item name="android:dropDownSelector">@drawable/selectable_background_bgglight</item>
-	</style>
-
-	<style name="bgglight_ProgressBar" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
-		<item name="android:progressDrawable">@drawable/progress_horizontal_bgglight</item>
-	</style>
-
-	<!-- this style is only referenced in a Light.DarkActionBar based theme -->
-	<style name="Theme.bgglight.widget" parent="@style/Theme.AppCompat">
-		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
-		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>
-		<item name="android:dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-	</style>
 
 	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
 		<item name="android:windowNoTitle">false</item>

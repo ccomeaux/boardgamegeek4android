@@ -12,20 +12,22 @@ public class BuddyPreference extends Preference {
 
 	public BuddyPreference(Context context) {
 		super(context);
+		init();
 	}
 
 	public BuddyPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		init();
 	}
 
 	public BuddyPreference(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		init();
 	}
 
-	@Override
-	protected void onClick() {
+	private void init() {
 		Intent intent = new Intent(getContext(), BuddyActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, getSummary());
-		getContext().startActivity(intent);
+		setIntent(intent);
 	}
 }

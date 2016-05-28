@@ -266,7 +266,7 @@ public class ActivityUtils {
 
 	public static void link(Context context, Uri link) {
 		final Intent intent = new Intent(Intent.ACTION_VIEW, link);
-		if (isAvailable(context, intent)) {
+		if (isIntentAvailable(context, intent)) {
 			context.startActivity(intent);
 		} else {
 			String message = "Can't figure out how to launch " + link;
@@ -283,7 +283,7 @@ public class ActivityUtils {
 		return BGG_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
 
-	private static boolean isAvailable(Context context, Intent intent) {
+	public static boolean isIntentAvailable(Context context, Intent intent) {
 		final PackageManager packageManager = context.getPackageManager();
 		List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;

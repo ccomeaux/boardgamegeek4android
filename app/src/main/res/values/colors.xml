@@ -15,7 +15,6 @@
 
 	<color name="dialog_text">#000</color>
 	<color name="secondary_text">#8a000000</color>
-	<color name="inverse_text_title">#deffffff</color>
 	<color name="inverse_text">#ffffff</color>
 	<color name="inverse_text_body">#deffffff</color>
 	<color name="actionbar_text">@color/primary_text_default_material_dark</color>

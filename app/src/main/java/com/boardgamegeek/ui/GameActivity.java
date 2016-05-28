@@ -65,21 +65,16 @@ public class GameActivity extends HeroActivity implements Callback {
 				getContentResolver().update(getIntent().getData(), values, null, null);
 			}
 		});
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.setImageResource(R.drawable.fab_log_play);
+			fab.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return new GameFragment();
-	}
-
-	@Override
-	protected void onPostInject() {
-		super.onPostInject();
-		if (PreferencesUtils.showLogPlay(this)) {
-			fab.setImageResource(R.drawable.fab_log_play);
-			fab.setVisibility(View.VISIBLE);
-		}
 	}
 
 	@DebugLog

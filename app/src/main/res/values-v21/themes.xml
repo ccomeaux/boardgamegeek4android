@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="Theme.bgglight.Base" parent="@style/Theme.AppCompat.Light.NoActionBar">
-	</style>
-
 	<style name="Theme.bgglight.NavDrawer">
 		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
 		<item name="android:statusBarColor">@android:color/transparent</item>
 		<item name="android:windowTranslucentStatus">true</item>
-	</style>
-
-	<style name="Theme.bgglight.Settings" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-		<item name="colorPrimary">@color/primary</item>
-		<item name="colorPrimaryDark">@color/primary_dark</item>
-		<item name="colorAccent">@color/accent</item>
 	</style>
 </resources>
