@@ -406,6 +406,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double getAverageScore() {
+			if (totalScoreCount ==0) return 0.0;
 			return totalScore / totalScoreCount;
 		}
 	}

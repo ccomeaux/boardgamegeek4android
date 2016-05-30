@@ -48,10 +48,6 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 		} else {
 			fragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
-	}
-
-	@Override
-	protected void onPostInject() {
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 	}

@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon...
 --------------
+ * Darker (and more mysterious!) look
  * Modify your collection item's private information
  * Spiffy up the collection filter dialogs
  * Better looking help screens

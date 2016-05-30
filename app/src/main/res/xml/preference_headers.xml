@@ -1,37 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
-
-	<header
-		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<Preference
 		android:icon="@drawable/ic_action_refresh_light"
-		android:title="@string/pref_sync" >
-		<extra
-			android:name="fragment"
-			android:value="com.boardgamegeek.prefs.SYNC" />
-	</header>
-	<header
-		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
+		android:key="com.boardgamegeek.prefs.SYNC"
+		android:title="@string/pref_sync"/>
+	<Preference
 		android:icon="@drawable/ic_log_play"
-		android:title="@string/pref_log" >
-		<extra
-			android:name="fragment"
-			android:value="com.boardgamegeek.prefs.LOG" />
-	</header>
-	<header
-		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
+		android:key="com.boardgamegeek.prefs.LOG"
+		android:title="@string/pref_log"/>
+	<Preference
 		android:icon="@drawable/ic_action_alert_light"
-		android:title="@string/pref_advanced" >
-		<extra
-			android:name="fragment"
-			android:value="com.boardgamegeek.prefs.ADVANCED" />
-	</header>
-	<header
-		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
+		android:key="com.boardgamegeek.prefs.ADVANCED"
+		android:title="@string/pref_advanced"/>
+	<Preference
 		android:icon="@drawable/ic_action_info_light"
-		android:title="@string/pref_about" >
-		<extra
-			android:name="fragment"
-			android:value="com.boardgamegeek.prefs.ABOUT" />
-	</header>
+		android:key="com.boardgamegeek.prefs.ABOUT"
+		android:title="@string/pref_about"/>
 
-</preference-headers>
+</PreferenceScreen>

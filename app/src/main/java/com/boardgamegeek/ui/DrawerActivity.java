@@ -53,10 +53,6 @@ public abstract class DrawerActivity extends BaseActivity {
 			drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			drawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
 		}
-		onPostInject();
-	}
-
-	protected void onPostInject() {
 	}
 
 	@LayoutRes

@@ -1,187 +1,219 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			 xmlns:tools="http://schemas.android.com/tools"
-			 android:layout_width="match_parent"
-			 android:layout_height="match_parent"
-			 tools:context=".ui.PlaysSummaryFragment">
+<ScrollView android:id="@+id/data"
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			xmlns:tools="http://schemas.android.com/tools"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			tools:context=".ui.PlaysSummaryFragment">
 
-	<ScrollView
-		android:id="@+id/data"
+	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:visibility="visible"
-		tools:visibility="visible">
+		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_standard">
 
-		<LinearLayout
+		<android.support.v7.widget.CardView
+			android:id="@+id/card_plays"
+			style="@style/Card"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			android:paddingBottom="@dimen/padding_standard"
-			android:paddingTop="@dimen/padding_standard">
+			android:visibility="gone"
+			tools:visibility="visible">
 
-			<android.support.v7.widget.CardView
-				style="@style/Card"
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/card_header_plays"
+					style="@style/Text.Header.Card"
+					android:layout_width="wrap_content"
+					android:text="@string/title_plays"/>
+
+				<TextView
+					android:id="@+id/plays_subtitle_in_progress"
+					style="@style/Text.Subtitle.Card"
+					android:layout_width="wrap_content"
+					android:text="In Progress"
+					android:visibility="gone"
+					tools:visibility="visible"/>
 
 				<LinearLayout
-					android:id="@+id/container_plays"
+					android:id="@+id/plays_in_progress_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:orientation="vertical">
+					android:orientation="vertical"
+					android:visibility="gone"
+					tools:visibility="visible"/>
 
-					<TextView
-						android:id="@+id/card_header_plays"
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_plays"/>
 
-					<LinearLayout
-						android:id="@+id/plays_container"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical"/>
-
-					<TextView
-						android:id="@+id/card_footer_plays"
-						style="@style/Text.Footer.Card"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				<TextView
+					android:id="@+id/plays_subtitle_recent"
+					style="@style/Text.Subtitle.Card"
+					android:layout_width="wrap_content"
+					android:text="Recent"
+					android:visibility="gone"
+					tools:visibility="visible"/>
 
 				<LinearLayout
-					android:id="@+id/container_players"
+					android:id="@+id/plays_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:orientation="vertical">
+					android:orientation="vertical"
+					android:visibility="gone"
+					tools:visibility="visible"/>
 
-					<TextView
-						android:id="@+id/card_header_players"
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_players"/>
+				<TextView
+					android:id="@+id/card_footer_plays"
+					style="@style/Text.Footer.Card"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
 
-					<LinearLayout
-						android:id="@+id/players_container"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical"/>
+		<android.support.v7.widget.CardView
+			android:id="@+id/card_players"
+			style="@style/Card"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			tools:visibility="visible">
 
-					<TextView
-						android:id="@+id/card_footer_players"
-						style="@style/Text.Footer.Card"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				style="@style/Card"
+			<LinearLayout
+				android:id="@+id/container_players"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/card_header_players"
+					style="@style/Text.Header.Card"
+					android:layout_width="wrap_content"
+					android:text="@string/title_players"/>
 
 				<LinearLayout
-					android:id="@+id/container_locations"
+					android:id="@+id/players_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:orientation="vertical">
+					android:orientation="vertical"/>
 
-					<TextView
-						android:id="@+id/card_header_locations"
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_locations"/>
+				<TextView
+					android:id="@+id/card_footer_players"
+					style="@style/Text.Footer.Card"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
 
-					<LinearLayout
-						android:id="@+id/locations_container"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical"/>
+		<android.support.v7.widget.CardView
+			android:id="@+id/card_locations"
+			style="@style/Card"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			tools:visibility="visible">
 
-					<TextView
-						android:id="@+id/card_footer_locations"
-						style="@style/Text.Footer.Card"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				android:id="@+id/card_colors"
-				style="@style/Card"
+			<LinearLayout
+				android:id="@+id/container_locations"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/card_header_locations"
+					style="@style/Text.Header.Card"
+					android:layout_width="wrap_content"
+					android:text="@string/title_locations"/>
 
 				<LinearLayout
-					android:id="@+id/container_colors"
+					android:id="@+id/locations_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:orientation="vertical">
+					android:orientation="vertical"/>
 
-					<TextView
-						android:id="@+id/card_header_colors"
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_favorite_colors"/>
+				<TextView
+					android:id="@+id/card_footer_locations"
+					style="@style/Text.Footer.Card"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
 
-					<TextView
-						android:id="@+id/colors_hint"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/favorite_colors_hint"/>
+		<android.support.v7.widget.CardView
+			android:id="@+id/card_colors"
+			style="@style/Card"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			tools:visibility="visible">
 
-					<LinearLayout
-						android:id="@+id/color_container"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="horizontal"/>
-
-					<TextView
-						android:id="@+id/card_footer_colors"
-						style="@style/Text.Footer.Card"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/card_footer_colors"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				style="@style/Card"
+			<LinearLayout
+				android:id="@+id/container_colors"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/card_header_colors"
+					style="@style/Text.Header.Card"
+					android:layout_width="wrap_content"
+					android:text="@string/title_favorite_colors"/>
+
+				<TextView
+					android:id="@+id/colors_hint"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="@string/favorite_colors_hint"/>
 
 				<LinearLayout
-					android:id="@+id/container_stats"
+					android:id="@+id/color_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:orientation="vertical">
+					android:orientation="horizontal"/>
 
-					<TextView
-						android:id="@+id/card_header_stats"
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_play_stats"/>
+				<TextView
+					android:id="@+id/card_footer_colors"
+					style="@style/Text.Footer.Card"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/card_footer_colors"/>
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
 
-					<TextView
-						android:id="@+id/h_index"
-						style="@style/Text"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						tools:text="H-Index 17"/>
+		<android.support.v7.widget.CardView
+			style="@style/Card"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
 
-					<TextView
-						android:id="@+id/card_footer_stats"
-						style="@style/Text.Footer.Card"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/card_footer_stats"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-		</LinearLayout>
-	</ScrollView>
-</FrameLayout>
+			<LinearLayout
+				android:id="@+id/container_stats"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/card_header_stats"
+					style="@style/Text.Header.Card"
+					android:layout_width="wrap_content"
+					android:text="@string/title_play_stats"/>
+
+				<TextView
+					android:id="@+id/h_index"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					tools:text="H-Index 17"/>
+
+				<TextView
+					android:id="@+id/card_footer_stats"
+					style="@style/Text.Footer.Card"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/card_footer_stats"/>
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
+	</LinearLayout>
+</ScrollView>
