@@ -152,6 +152,8 @@
 	<string name="title_thread">Thread</string>
 	<string name="title_plays">Plays</string>
 	<string name="title_play_stats">Play Stats</string>
+	<string name="title_in_progress">In Progress</string>
+	<string name="title_recent">Recent</string>
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
 	<string name="title_artist">Artist</string>

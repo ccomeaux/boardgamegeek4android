@@ -36,7 +36,7 @@
 					android:id="@+id/plays_subtitle_in_progress"
 					style="@style/Text.Subtitle.Card"
 					android:layout_width="wrap_content"
-					android:text="In Progress"
+					android:text="@string/title_in_progress"
 					android:visibility="gone"
 					tools:visibility="visible"/>
 
@@ -53,7 +53,7 @@
 					android:id="@+id/plays_subtitle_recent"
 					style="@style/Text.Subtitle.Card"
 					android:layout_width="wrap_content"
-					android:text="Recent"
+					android:text="@string/title_recent"
 					android:visibility="gone"
 					tools:visibility="visible"/>
 
