@@ -969,6 +969,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (noWinStats) {
 				return false;
 			}
+			if (players == null || players.isEmpty()) {
+				return false;
+			}
 			if (syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 				return true;
 			}
