@@ -235,7 +235,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		if (stats.hasWins()) {
-			addStatRow(winsTable, new Builder().labelId(R.string.play_stat_win_percentage).valueAsPercentage(stats.getWinPercentage()));
+			String label = getString(R.string.play_stat_win_percentage, stats.getWins(), stats.getWinnableGames());
+			addStatRow(winsTable, new Builder().labelText(label).valueAsPercentage(stats.getWinPercentage()));
 			addStatRow(winsTable, new Builder().labelId(R.string.play_stat_win_skill).value(stats.getWinSkill()).infoId(R.string.play_stat_win_skill_info));
 			winsCard.setVisibility(View.VISIBLE);
 		} else {
@@ -406,7 +407,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double getAverageScore() {
-			if (totalScoreCount ==0) return 0.0;
+			if (totalScoreCount == 0) return 0.0;
 			return totalScore / totalScoreCount;
 		}
 	}
@@ -730,6 +731,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return 0;
 		}
 
+		public int getWins() {
+			return mWonGames;
+		}
+
 		public int getWins(int playerCount) {
 			if (mWinsPerPlayerCount.containsKey(playerCount)) {
 				return mWinsPerPlayerCount.get(playerCount);
@@ -739,6 +744,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		public boolean hasWins() {
 			return mWinnableGames > 0;
+		}
+
+		public int getWinnableGames() {
+			return mWinnableGames;
 		}
 
 		public double getWinPercentage() {
@@ -976,8 +985,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				return true;
 			}
 			if (playId > 0 && playId < Play.UNSYNCED_PLAY_ID && syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
-					return true;
-				}
+				return true;
+			}
 			return false;
 		}
 

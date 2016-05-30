@@ -471,7 +471,7 @@
 	<string name="play_stat_dollar">Dollar</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
-	<string name="play_stat_win_percentage">Win percentage</string>
+	<string name="play_stat_win_percentage">Win percentage (%1$d/%2$d)</string>
 	<string name="play_stat_win_skill">Win skill</string>
 	<string name="play_stat_win_skill_info">How skilled are you at winning this game?\n\n0 = you never win\n100 = you win as much as you should\nEverything else scales from these numbers</string>
 	<string name="play_stat_average_play_time">Average play time</string>
