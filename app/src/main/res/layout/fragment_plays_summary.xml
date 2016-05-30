@@ -32,11 +32,38 @@
 					android:layout_width="wrap_content"
 					android:text="@string/title_plays"/>
 
+				<TextView
+					android:id="@+id/plays_subtitle_in_progress"
+					style="@style/Text.Subtitle.Card"
+					android:layout_width="wrap_content"
+					android:text="In Progress"
+					android:visibility="gone"
+					tools:visibility="visible"/>
+
+				<LinearLayout
+					android:id="@+id/plays_in_progress_container"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					android:visibility="gone"
+					tools:visibility="visible"/>
+
+
+				<TextView
+					android:id="@+id/plays_subtitle_recent"
+					style="@style/Text.Subtitle.Card"
+					android:layout_width="wrap_content"
+					android:text="Recent"
+					android:visibility="gone"
+					tools:visibility="visible"/>
+
 				<LinearLayout
 					android:id="@+id/plays_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:orientation="vertical"/>
+					android:orientation="vertical"
+					android:visibility="gone"
+					tools:visibility="visible"/>
 
 				<TextView
 					android:id="@+id/card_footer_plays"

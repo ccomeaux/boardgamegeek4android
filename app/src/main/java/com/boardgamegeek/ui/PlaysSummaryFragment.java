@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -48,10 +49,14 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int PLAYERS_TOKEN = 3;
 	private static final int LOCATIONS_TOKEN = 4;
 	private static final int COLORS_TOKEN = 5;
+	private static final int PLAYS_IN_PROGRESS_TOKEN = 6;
 
 	private Unbinder unbinder;
 	@BindView(R.id.card_plays) View playsCard;
-	@BindView(R.id.plays_container) LinearLayout playsContainer;
+	@BindView(R.id.plays_subtitle_in_progress) TextView playsInProgressSubtitle;
+	@BindView(R.id.plays_in_progress_container) LinearLayout playsInProgressContainer;
+	@BindView(R.id.plays_subtitle_recent) TextView recentPlaysSubtitle;
+	@BindView(R.id.plays_container) LinearLayout recentPlaysContainer;
 	@BindView(R.id.card_footer_plays) TextView playsFooter;
 	@BindView(R.id.card_players) View playersCard;
 	@BindView(R.id.players_container) LinearLayout playersContainer;
@@ -85,6 +90,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		if (!TextUtils.isEmpty(AccountUtils.getUsername(getActivity()))) {
 			getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 		}
+		getLoaderManager().restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
 	}
 
 	@Override
@@ -97,12 +103,23 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		CursorLoader loader = null;
 		switch (id) {
-			case PLAYS_TOKEN:
+			case PLAYS_IN_PROGRESS_TOKEN:
 				PlaysSorter playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
+				loader = new CursorLoader(getActivity(),
+					Plays.CONTENT_URI,
+					PlayModel.PROJECTION,
+					Plays.SYNC_STATUS + "=?",
+					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) },
+					playsSorter.getOrderByClause());
+				break;
+			case PLAYS_TOKEN:
+				playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.PARAM_LIMIT, "3").build(),
 					PlayModel.PROJECTION,
-					null, null, playsSorter.getOrderByClause());
+					Plays.SYNC_STATUS + "!=?",
+					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) },
+					playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:
 				loader = new CursorLoader(getActivity(),
@@ -143,6 +160,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 
 		switch (loader.getId()) {
+			case PLAYS_IN_PROGRESS_TOKEN:
+				onPlaysInProgressQueryComplete(cursor);
+				break;
 			case PLAYS_TOKEN:
 				onPlaysQueryComplete(cursor);
 				break;
@@ -164,35 +184,57 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 	}
 
+	private void onPlaysInProgressQueryComplete(Cursor cursor) {
+		if (cursor == null) {
+			return;
+		}
+
+		final int visibility = cursor.getCount() == 0 ? View.GONE : View.VISIBLE;
+		playsInProgressSubtitle.setVisibility(visibility);
+		playsInProgressContainer.setVisibility(visibility);
+		recentPlaysSubtitle.setVisibility(visibility);
+
+		playsInProgressContainer.removeAllViews();
+		while (cursor.moveToNext()) {
+			playsCard.setVisibility(View.VISIBLE);
+			addPlayToContainer(cursor, playsInProgressContainer);
+		}
+	}
+
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor == null) {
 			return;
 		}
 
-		playsContainer.removeAllViews();
+		recentPlaysContainer.removeAllViews();
 		while (cursor.moveToNext()) {
 			playsCard.setVisibility(View.VISIBLE);
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			View view = createRow(playsContainer, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
-
-			view.setTag(R.id.play_id, play.getPlayId());
-			view.setTag(R.id.game_info_id, play.getGameId());
-			view.setTag(R.id.game_name, play.getName());
-			view.setTag(R.id.thumbnail, play.getThumbnailUrl());
-			view.setTag(R.id.account_image, play.getImageUrl());
-
-			view.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					ActivityUtils.startPlayActivity(getActivity(),
-						(int) v.getTag(R.id.play_id),
-						(int) v.getTag(R.id.game_info_id),
-						(String) v.getTag(R.id.game_name),
-						(String) v.getTag(R.id.thumbnail),
-						(String) v.getTag(R.id.account_image));
-				}
-			});
+			recentPlaysContainer.setVisibility(View.VISIBLE);
+			addPlayToContainer(cursor, recentPlaysContainer);
 		}
+	}
+
+	private void addPlayToContainer(Cursor cursor, LinearLayout container) {
+		PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
+
+		view.setTag(R.id.play_id, play.getPlayId());
+		view.setTag(R.id.game_info_id, play.getGameId());
+		view.setTag(R.id.game_name, play.getName());
+		view.setTag(R.id.thumbnail, play.getThumbnailUrl());
+		view.setTag(R.id.account_image, play.getImageUrl());
+
+		view.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ActivityUtils.startPlayActivity(getActivity(),
+					(int) v.getTag(R.id.play_id),
+					(int) v.getTag(R.id.game_info_id),
+					(String) v.getTag(R.id.game_name),
+					(String) v.getTag(R.id.thumbnail),
+					(String) v.getTag(R.id.account_image));
+			}
+		});
 	}
 
 	private void onPlayCountQueryComplete(Cursor cursor) {

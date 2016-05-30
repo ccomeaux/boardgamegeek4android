@@ -263,6 +263,13 @@
 		<item name="android:gravity">center_vertical</item>
 	</style>
 
+	<style name="Text.Subtitle.Card">
+		<item name="android:textStyle">bold</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:gravity">bottom</item>
+		<item name="android:layout_height">40dp</item>
+	</style>
+
 	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
 		<item name="android:textAllCaps">true</item>
 		<item name="android:textColor">@color/secondary_text</item>
