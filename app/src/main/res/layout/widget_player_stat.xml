@@ -10,15 +10,18 @@
 	<TextView
 		android:id="@+id/play_count"
 		style="@style/Text"
-		android:layout_gravity="center"/>
+		android:layout_gravity="center"
+		android:paddingLeft="@dimen/padding_small"/>
 
 	<TextView
 		android:id="@+id/wins"
 		style="@style/Text"
-		android:layout_gravity="center"/>
+		android:layout_gravity="center"
+		android:paddingLeft="@dimen/padding_small"/>
 
 	<TextView
 		android:id="@+id/score"
 		style="@style/Text"
-		android:layout_gravity="center"/>
+		android:layout_gravity="center"
+		android:paddingLeft="@dimen/padding_small"/>
 </merge>

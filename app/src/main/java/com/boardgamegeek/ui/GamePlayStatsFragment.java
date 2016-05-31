@@ -317,7 +317,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(locationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
 		}
 
-		opponentsTable.removeAllViews();
+		while (opponentsTable.getChildCount() > 1) {
+			opponentsTable.removeViewAt(1);
+		}
 		int row = 0;
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
 			opponentsCard.setVisibility(View.VISIBLE);

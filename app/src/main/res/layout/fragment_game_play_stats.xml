@@ -157,32 +157,28 @@
 						android:stretchColumns="0">
 
 						<TableRow
-							android:layout_gravity="center_vertical"
-							android:minHeight="@dimen/card_row_height">
+							android:gravity="bottom"
+							android:minHeight="@dimen/view_row_height">
 
 							<TextView
 								style="@style/Text"
-								android:layout_gravity="center_vertical"
 								android:text="@string/title_player"
 								android:textStyle="bold"/>
 
 							<TextView
 								style="@style/Text"
-								android:layout_gravity="center_vertical"
 								android:paddingLeft="@dimen/padding_half"
 								android:text="@string/title_plays"
 								android:textStyle="bold"/>
 
 							<TextView
 								style="@style/Text"
-								android:layout_gravity="center_vertical"
 								android:paddingLeft="@dimen/padding_half"
 								android:text="@string/title_wins"
 								android:textStyle="bold"/>
 
 							<TextView
 								style="@style/Text"
-								android:layout_gravity="center_vertical"
 								android:paddingLeft="@dimen/padding_half"
 								android:text="@string/score"
 								android:textStyle="bold"/>
