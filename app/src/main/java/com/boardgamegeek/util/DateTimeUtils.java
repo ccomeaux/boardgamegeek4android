@@ -110,7 +110,7 @@ public class DateTimeUtils {
 		try {
 			calendar.set(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(parts[2]));
 		} catch (Exception e) {
-			Timber.w(e, "Couldn't get a date from the API: " + date);
+			Timber.w(e, "Couldn't get a date from the API: %s", date);
 		}
 		return calendar.getTimeInMillis();
 	}
