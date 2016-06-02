@@ -723,6 +723,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+		if (!isAdded()) {
+			return;
+		}
+
 		if (checked) {
 			mSelectedPlaysPositions.add(position);
 		} else {
