@@ -62,9 +62,7 @@ public class Adapter {
 			.setEndpoint("https://www.boardgamegeek.com/")
 			.setRequestInterceptor(requestInterceptor)
 			.setClient(new OkClient(client));
-		if (DEBUG) {
-			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
-		}
+		builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(DEBUG ? LogLevel.HEADERS : LogLevel.FULL);
 
 		return builder;
 	}
@@ -75,7 +73,7 @@ public class Adapter {
 		AccountManager accountManager = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(accountManager);
 		try {
-			final String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
+			final String authToken = (account == null) ? "" : accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
 			requestInterceptor = new RequestInterceptor() {
 				@Override
 				public void intercept(RequestFacade request) {

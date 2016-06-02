@@ -221,7 +221,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	}
 
 	private double parseDouble(String text) {
-		if (TextUtils.isEmpty(text) || ".".equals(text)) {
+		if (TextUtils.isEmpty(text) || ".".equals(text) || "-".equals(text)) {
 			return 0.0;
 		}
 		if (text.endsWith(".")) {
