@@ -62,9 +62,7 @@ public class Adapter {
 			.setEndpoint("https://www.boardgamegeek.com/")
 			.setRequestInterceptor(requestInterceptor)
 			.setClient(new OkClient(client));
-		if (DEBUG) {
-			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
-		}
+		builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(DEBUG ? LogLevel.HEADERS : LogLevel.FULL);
 
 		return builder;
 	}

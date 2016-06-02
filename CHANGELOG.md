@@ -3,6 +3,7 @@ Release Notes
 
 Version 5.2.7
 -------------
+ * No more RetrofitError when modifying your collection (we hope!)
  * Bug fixes
 
 Version 5.2.6
