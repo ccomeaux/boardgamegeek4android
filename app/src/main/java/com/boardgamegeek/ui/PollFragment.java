@@ -252,11 +252,8 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 			if (row != null) {
 				String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
-				if (value == null) {
-					Timber.w("Missing key");
-				}
 				int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-				switch (value) {
+				switch (value != null ? value : null) {
 					case BEST:
 						row.setBest(votes);
 						break;
