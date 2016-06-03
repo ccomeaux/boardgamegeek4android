@@ -48,7 +48,7 @@ public class SaveView {
 		if (findViewId(context.getContentResolver(), name) == PreferencesUtils.getViewDefaultId(context)) {
 			defaultView.setChecked(true);
 		}
-		setDescription(layout, sort, filters);
+		setDescription(context, layout, sort, filters);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(R.string.title_save_view)
 			.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
@@ -174,7 +174,7 @@ public class SaveView {
 		});
 	}
 
-	private static void setDescription(View layout, Sorter sort, List<CollectionFilterer> filters) {
+	private static void setDescription(Context context, View layout, Sorter sort, List<CollectionFilterer> filters) {
 		TextView description = (TextView) layout.findViewById(R.id.description);
 		StringBuilder text = new StringBuilder();
 		for (CollectionFilterer filter : filters) {
@@ -188,7 +188,7 @@ public class SaveView {
 		if (text.length() > 0) {
 			text.append("\n");
 		}
-		text.append(sort.getDescription());
+		text.append(context.getString(R.string.by_prefix, sort.getDescription()));
 		description.setText(text.toString());
 	}
 }
