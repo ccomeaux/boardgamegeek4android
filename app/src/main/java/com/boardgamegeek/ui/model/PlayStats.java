@@ -116,10 +116,12 @@ public class PlayStats {
 
 	@NonNull
 	public static String getSelection(Context context) {
-		String selection = Plays.SYNC_STATUS + "=?";
+		String selection = Plays.SYNC_STATUS + "!=?";
+
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
 			selection += " AND " + Plays.INCOMPLETE + "!=?";
 		}
+		
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
 			selection += " AND (" + Games.SUBTYPE + "=? OR " + Games.SUBTYPE + " IS NULL)";
@@ -127,13 +129,16 @@ public class PlayStats {
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
 			selection += " AND (" + Games.SUBTYPE + "!=? OR " + Games.SUBTYPE + " IS NULL)";
 		}
+		
 		return selection;
 	}
 
 	@NonNull
 	public static String[] getSelectionArgs(Context context) {
 		List<String> args = new ArrayList<>();
-		args.add(String.valueOf(Play.SYNC_STATUS_SYNCED));
+
+		args.add(String.valueOf(Play.SYNC_STATUS_PENDING_DELETE));
+
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
 			args.add("1");
 		}
@@ -146,6 +151,7 @@ public class PlayStats {
 		} else if (!PreferencesUtils.logPlayStatsAccessories(context)) {
 			args.add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 		}
+
 		return args.toArray(new String[args.size()]);
 	}
 
