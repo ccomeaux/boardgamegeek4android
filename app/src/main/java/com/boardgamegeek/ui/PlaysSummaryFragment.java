@@ -117,8 +117,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.PARAM_LIMIT, "3").build(),
 					PlayModel.PROJECTION,
-					Plays.SYNC_STATUS + "!=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) },
+					Plays.SYNC_STATUS + "!=? AND " + Plays.SYNC_STATUS + "!=?",
+					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
 					playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:
