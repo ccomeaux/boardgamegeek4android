@@ -20,11 +20,13 @@ import java.util.Stack;
 public class PlayStats {
 	public static String[] PROJECTION = {
 		Plays.SUM_QUANTITY,
-		Games.GAME_NAME
+		Games.GAME_NAME,
+		Games.GAME_RANK
 	};
 
 	private static final int SUM_QUANTITY = 0;
 	private static final int GAME_NAME = 1;
+	private static final int RANK = 2;
 
 	private static final int MIN_H_INDEX_GAMES = 2;
 	private static final int MAX_H_INDEX_GAMES = 6;
@@ -39,6 +41,7 @@ public class PlayStats {
 	private final Stack<Pair<String, Integer>> hIndexGamesStack = new Stack<>();
 	private int postIndexCount = 0;
 	private int priorPlayCount;
+	private int top100count = 0;
 
 	public static PlayStats fromCursor(Cursor cursor) {
 		return new PlayStats(cursor);
@@ -56,6 +59,7 @@ public class PlayStats {
 		do {
 			int playCount = cursor.getInt(SUM_QUANTITY);
 			String gameName = cursor.getString(GAME_NAME);
+			int rank = cursor.getInt(RANK);
 
 			numberOfPlays += playCount;
 			numberOfGames++;
@@ -66,6 +70,10 @@ public class PlayStats {
 				numberOfDimes++;
 			} else if (playCount > 5) {
 				numberOfNickels++;
+			}
+
+			if (rank >= 1 && rank <= 100) {
+				top100count++;
 			}
 
 			if (hIndex == 0) {
@@ -121,7 +129,7 @@ public class PlayStats {
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
 			selection += " AND " + Plays.INCOMPLETE + "!=?";
 		}
-		
+
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
 			selection += " AND (" + Games.SUBTYPE + "=? OR " + Games.SUBTYPE + " IS NULL)";
@@ -182,6 +190,10 @@ public class PlayStats {
 
 	public int getHIndex() {
 		return hIndex;
+	}
+
+	public int getTop100Count() {
+		return top100count;
 	}
 
 	public List<Pair<String, Integer>> getHIndexGames() {

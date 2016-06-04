@@ -482,6 +482,7 @@
 	<string name="play_stat_nickel">Nickel</string>
 	<string name="play_stat_first_play">First play</string>
 	<string name="play_stat_last_play">Last play</string>
+	<string name="play_stat_top_100">Top 100 games played</string>
 	<string name="play_stat_h_index">H-index</string>
 	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
 	<string name="play_stat_h_index_offset_in">This game contributes to your H-index.</string>
