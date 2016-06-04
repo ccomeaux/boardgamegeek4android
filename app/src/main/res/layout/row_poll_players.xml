@@ -7,7 +7,7 @@
 			  android:orientation="horizontal">
 
 	<TextView
-		android:id="@+id/poll_player_text"
+		android:id="@+id/label"
 		style="@style/Text"
 		android:layout_width="28dp"
 		android:layout_height="wrap_content"
