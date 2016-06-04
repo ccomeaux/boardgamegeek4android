@@ -225,6 +225,9 @@ public class BuddyColorsActivity extends BaseActivity {
 	@OnClick(R.id.empty_button)
 	void onEmptyClick() {
 		List<Pair<String, Integer>> colors = ColorUtils.getLimitedColorList();
+		if (this.colors == null) {
+			this.colors = new ArrayList<>(colors.size());
+		}
 		Random r = RandomUtils.getRandom();
 		int order = 1;
 		while (colors.size() > 0) {

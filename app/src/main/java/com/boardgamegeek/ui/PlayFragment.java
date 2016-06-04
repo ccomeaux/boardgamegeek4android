@@ -337,6 +337,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayerQuery.PROJECTION, null, null, null);
 				break;
 		}
+		if (loader != null) {
+			loader.setUpdateThrottle(1000);
+		}
 		return loader;
 	}
 

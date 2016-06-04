@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -48,6 +49,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import timber.log.Timber;
 
@@ -80,6 +82,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@BindView(R.id.poll_key2) LinearLayout mKeyList2;
 	@BindView(R.id.poll_key_container) View mKeyContainer;
 	@BindView(R.id.poll_key_divider) View mKeyDivider;
+	@BindView(R.id.no_votes_switch) Switch noVotesSwitch;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -220,6 +223,14 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		}
 	}
 
+	@OnClick(R.id.no_votes_switch)
+	public void onNoVotesClick() {
+		for (int i = 0; i < mPollList.getChildCount(); i++) {
+			PlayerNumberRow row = (PlayerNumberRow) mPollList.getChildAt(i);
+			row.showNoVotes(noVotesSwitch.isChecked());
+		}
+	}
+
 	private void createBarChart(Cursor cursor) {
 		mPollList.removeAllViews();
 		PlayerNumberRow row = null;
@@ -252,11 +263,8 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 			if (row != null) {
 				String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
-				if (value == null) {
-					Timber.w("Missing key");
-				}
 				int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-				switch (value) {
+				switch (value != null ? value : null) {
 					case BEST:
 						row.setBest(votes);
 						break;

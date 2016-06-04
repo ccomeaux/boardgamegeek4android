@@ -509,6 +509,7 @@
 	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
 	<string name="incomplete_games">incomplete games</string>
 	<string name="accessories">accessories</string>
+	<string name="show_missing_votes">Show missing votes</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>

@@ -9,6 +9,11 @@ Coming Soon...
  * Better looking help screens
  * Lots of under-the-hood improvements
 
+Version 5.2.7
+-------------
+ * No more RetrofitError when modifying your collection (we hope!)
+ * Bug fixes
+
 Version 5.2.6
 -------------
  * Improvements to syncing logic (it won't completely fix the syncing problems, but it's a start!
