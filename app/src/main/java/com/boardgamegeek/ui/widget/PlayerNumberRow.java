@@ -19,6 +19,7 @@ public class PlayerNumberRow extends LinearLayout {
 	@BindView(R.id.recommended) View mRecommended;
 	@BindView(R.id.no_votes) View mNoVotes;
 	@BindView(R.id.not_recommended) View mNotRecommended;
+	@BindView(R.id.votes) TextView votesView;
 
 	public PlayerNumberRow(Context context) {
 		super(context);
@@ -52,6 +53,7 @@ public class PlayerNumberRow extends LinearLayout {
 		int noVotes = getVotes(mNoVotes);
 		int votes = best + getVotes(mRecommended) + getVotes(mNotRecommended);
 		mNoVotes.setLayoutParams(new LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, noVotes - votes));
+		setVotes();
 	}
 
 	public void setRecommended(int recommended) {
@@ -60,6 +62,7 @@ public class PlayerNumberRow extends LinearLayout {
 		int noVotes = getVotes(mNoVotes);
 		int votes = getVotes(mBest) + recommended + getVotes(mNotRecommended);
 		mNoVotes.setLayoutParams(new LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, noVotes - votes));
+		setVotes();
 	}
 
 	public void setNotRecommended(int notRecommended) {
@@ -68,6 +71,17 @@ public class PlayerNumberRow extends LinearLayout {
 		int noVotes = getVotes(mNoVotes);
 		int votes = getVotes(mBest) + getVotes(mRecommended) + notRecommended;
 		mNoVotes.setLayoutParams(new LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, noVotes - votes));
+		setVotes();
+	}
+
+	private void setVotes() {
+		int votes = getVotes(mBest) + getVotes(mRecommended) + getVotes(mNotRecommended);
+		votesView.setText(String.valueOf(votes));
+	}
+
+	public void showNoVotes(boolean show) {
+		mNoVotes.setVisibility(show ? View.VISIBLE : View.GONE);
+		votesView.setVisibility(show ? View.GONE : View.VISIBLE);
 	}
 
 	public int[] getVotes() {
