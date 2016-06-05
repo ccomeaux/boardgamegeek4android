@@ -415,300 +415,302 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private class Stats {
-		private double mLambda;
-		private String mCurrentYear;
+		private final double lambda = Math.log(0.1) / -10;
+		private final String currentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
-		private final Map<Integer, PlayModel> mPlays = new LinkedHashMap<>();
-		private final Map<String, PlayerStats> mPlayerStats = new HashMap<>();
+		private final Map<Integer, PlayModel> plays = new LinkedHashMap<>();
+		private final Map<String, PlayerStats> playerStats = new HashMap<>();
 
-		private String mFirstPlayDate;
-		private String mLastPlayDate;
-		private String mNickelDate;
-		private String mDimeDate;
-		private String mQuarterDate;
-		private String mHalfDollarDate;
-		private String mDollarDate;
-		private int mPlayCount;
-		private int mPlayCountIncomplete;
-		private int mPlayCountWithLength;
-		private int mPlayCountThisYear;
-		private int mPlayerCountSumWithLength;
-		private Map<Integer, Integer> mPlayCountPerPlayerCount;
-		private int mRealMinutesPlayed;
-		private int mEstimatedMinutesPlayed;
-		private int mWinnableGames;
-		private double mTotalScore;
-		private int mTotalScoreCount;
-		private double mHighScore;
-		private double mLowScore;
-		private int mTotalWinningScoreCount;
-		private double mTotalWinningScore;
-		private double mPersonalTotalScore;
-		private int mPersonalTotalScoreCount;
-		private double mPersonalHighScore;
-		private double mPersonalLowScore;
-		private final Set<String> mHighScorers = new HashSet<>();
-		private final Set<String> mLowScorers = new HashSet<>();
-		private int mWonGames;
-		private int mWonPlayerCount;
-		private Map<Integer, Integer> mWinsPerPlayerCount;
-		private Map<String, Integer> mPlaysPerLocation;
-		private final Set<String> mMonths = new HashSet<>();
+		private String firstPlayDate;
+		private String lastPlayDate;
+		private String nickelDate;
+		private String dimeDate;
+		private String quarterDate;
+		private String halfDollarDate;
+		private String dollarDate;
+		private int playCount;
+		private int playCountIncomplete;
+		private int playCountWithLength;
+		private int playCountThisYear;
+		private int playerCountSumWithLength;
+		private Map<Integer, Integer> playCountPerPlayerCount;
+		private int realMinutesPlayed;
+		private int estimatedMinutesPlayed;
+		private int numberOfWinnableGames;
+		private double scoreSum;
+		private int scoreCount;
+		private double highScore;
+		private double lowScore;
+		private int winningScoreCount;
+		private double winningScoreSum;
+		private double personalScoreSum;
+		private int personalScoreCount;
+		private double personalHighScore;
+		private double personalLowScore;
+		private final Set<String> highScorers = new HashSet<>();
+		private final Set<String> lowScorers = new HashSet<>();
+		private int personalWonGamesCount;
+		private int personalPlayerCountInWin;
+		private Map<Integer, Integer> personalWinsByPlayerCount;
+		private Map<String, Integer> playCountByLocation;
+		private final Set<String> monthsPlayed = new HashSet<>();
 
 		public Stats(Cursor cursor) {
 			init();
 			do {
-				PlayModel pm = new PlayModel(cursor);
-				mPlays.put(pm.playId, pm);
+				PlayModel model = new PlayModel(cursor);
+				plays.put(model.playId, model);
 			} while (cursor.moveToNext());
 		}
 
 		private void init() {
-			mLambda = Math.log(0.1) / -10;
-			mCurrentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+			plays.clear();
 
-			mPlays.clear();
+			// dates
+			firstPlayDate = null;
+			lastPlayDate = null;
+			nickelDate = null;
+			dimeDate = null;
+			quarterDate = null;
+			halfDollarDate = null;
+			dollarDate = null;
+			monthsPlayed.clear();
 
-			mFirstPlayDate = null;
-			mLastPlayDate = null;
-			mNickelDate = null;
-			mDimeDate = null;
-			mQuarterDate = null;
-			mHalfDollarDate = null;
-			mDollarDate = null;
-			mPlayCount = 0;
-			mPlayCountIncomplete = 0;
-			mPlayCountWithLength = 0;
-			mPlayCountThisYear = 0;
-			mPlayerCountSumWithLength = 0;
-			mPlayCountPerPlayerCount = new ArrayMap<>();
-			mRealMinutesPlayed = 0;
-			mEstimatedMinutesPlayed = 0;
-			mWinnableGames = 0;
-			mTotalScore = 0;
-			mTotalScoreCount = 0;
-			mHighScore = Integer.MIN_VALUE;
-			mLowScore = Integer.MAX_VALUE;
-			mTotalWinningScoreCount = 0;
-			mTotalWinningScore = 0;
-			mPersonalTotalScore = 0;
-			mPersonalTotalScoreCount = 0;
-			mPersonalHighScore = Integer.MIN_VALUE;
-			mPersonalLowScore = Integer.MAX_VALUE;
-			mHighScorers.clear();
-			mLowScorers.clear();
-			mWonGames = 0;
-			mWonPlayerCount = 0;
-			mWinsPerPlayerCount = new ArrayMap<>();
-			mPlaysPerLocation = new HashMap<>();
-			mMonths.clear();
+			playCount = 0;
+			playCountIncomplete = 0;
+			playCountWithLength = 0;
+			playCountThisYear = 0;
+			playerCountSumWithLength = 0;
+			playCountPerPlayerCount = new ArrayMap<>();
+			playCountByLocation = new HashMap<>();
+			numberOfWinnableGames = 0;
+
+			realMinutesPlayed = 0;
+			estimatedMinutesPlayed = 0;
+
+			scoreSum = 0;
+			scoreCount = 0;
+			highScore = Integer.MIN_VALUE;
+			lowScore = Integer.MAX_VALUE;
+			highScorers.clear();
+			lowScorers.clear();
+			winningScoreCount = 0;
+			winningScoreSum = 0;
+
+			personalScoreSum = 0;
+			personalScoreCount = 0;
+			personalHighScore = Integer.MIN_VALUE;
+			personalLowScore = Integer.MAX_VALUE;
+			personalWonGamesCount = 0;
+			personalPlayerCountInWin = 0;
+			personalWinsByPlayerCount = new ArrayMap<>();
 		}
 
 		public void calculate() {
 			boolean includeIncomplete = PreferencesUtils.logPlayStatsIncomplete(getActivity());
-			for (PlayModel pm : mPlays.values()) {
-				if (!includeIncomplete && pm.incomplete) {
-					mPlayCountIncomplete += pm.quantity;
+			for (PlayModel play : plays.values()) {
+				if (!includeIncomplete && play.incomplete) {
+					playCountIncomplete += play.quantity;
 					continue;
 				}
 
-				if (mFirstPlayDate == null) {
-					mFirstPlayDate = pm.date;
+				if (firstPlayDate == null) {
+					firstPlayDate = play.date;
 				}
-				mLastPlayDate = pm.date;
+				lastPlayDate = play.date;
 
-				if (mPlayCount < 5 && (mPlayCount + pm.quantity) >= 5) {
-					mNickelDate = pm.date;
+				if (playCount < 5 && (playCount + play.quantity) >= 5) {
+					nickelDate = play.date;
 				}
-				if (mPlayCount < 10 && (mPlayCount + pm.quantity) >= 10) {
-					mDimeDate = pm.date;
+				if (playCount < 10 && (playCount + play.quantity) >= 10) {
+					dimeDate = play.date;
 				}
-				if (mPlayCount < 25 && (mPlayCount + pm.quantity) >= 25) {
-					mQuarterDate = pm.date;
+				if (playCount < 25 && (playCount + play.quantity) >= 25) {
+					quarterDate = play.date;
 				}
-				if (mPlayCount < 50 && (mPlayCount + pm.quantity) >= 50) {
-					mHalfDollarDate = pm.date;
+				if (playCount < 50 && (playCount + play.quantity) >= 50) {
+					halfDollarDate = play.date;
 				}
-				if (mPlayCount < 100 && (mPlayCount + pm.quantity) >= 100) {
-					mDollarDate = pm.date;
+				if (playCount < 100 && (playCount + play.quantity) >= 100) {
+					dollarDate = play.date;
 				}
-				mPlayCount += pm.quantity;
-				if (pm.getYear().equals(mCurrentYear)) {
-					mPlayCountThisYear += pm.quantity;
+				playCount += play.quantity;
+				if (play.getYear().equals(currentYear)) {
+					playCountThisYear += play.quantity;
 				}
 
-				if (pm.length == 0) {
-					mEstimatedMinutesPlayed += playingTime * pm.quantity;
+				if (play.length == 0) {
+					estimatedMinutesPlayed += playingTime * play.quantity;
 				} else {
-					mRealMinutesPlayed += pm.length;
-					mPlayCountWithLength += pm.quantity;
-					mPlayerCountSumWithLength += pm.playerCount * pm.quantity;
+					realMinutesPlayed += play.length;
+					playCountWithLength += play.quantity;
+					playerCountSumWithLength += play.playerCount * play.quantity;
 				}
 
-				if (pm.playerCount > 0) {
+				if (play.playerCount > 0) {
 					int previousQuantity = 0;
-					if (mPlayCountPerPlayerCount.containsKey(pm.playerCount)) {
-						previousQuantity = mPlayCountPerPlayerCount.get(pm.playerCount);
+					if (playCountPerPlayerCount.containsKey(play.playerCount)) {
+						previousQuantity = playCountPerPlayerCount.get(play.playerCount);
 					}
-					mPlayCountPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
+					playCountPerPlayerCount.put(play.playerCount, previousQuantity + play.quantity);
 				}
 
-				if (pm.isWinnable()) {
-					mWinnableGames += pm.quantity;
-					if (pm.didWin(AccountUtils.getUsername(getActivity()))) {
-						mWonGames += pm.quantity;
-						mWonPlayerCount += pm.quantity * pm.playerCount;
+				if (play.isWinnable()) {
+					numberOfWinnableGames += play.quantity;
+					if (play.didWin(AccountUtils.getUsername(getActivity()))) {
+						personalWonGamesCount += play.quantity;
+						personalPlayerCountInWin += play.quantity * play.playerCount;
 						int previousQuantity = 0;
-						if (mWinsPerPlayerCount.containsKey(pm.playerCount)) {
-							previousQuantity = mWinsPerPlayerCount.get(pm.playerCount);
+						if (personalWinsByPlayerCount.containsKey(play.playerCount)) {
+							previousQuantity = personalWinsByPlayerCount.get(play.playerCount);
 						}
-						mWinsPerPlayerCount.put(pm.playerCount, previousQuantity + pm.quantity);
+						personalWinsByPlayerCount.put(play.playerCount, previousQuantity + play.quantity);
 					}
 				}
 
-				if (!TextUtils.isEmpty(pm.location)) {
+				if (!TextUtils.isEmpty(play.location)) {
 					int previousPlays = 0;
-					if (mPlaysPerLocation.containsKey(pm.location)) {
-						previousPlays = mPlaysPerLocation.get(pm.location);
+					if (playCountByLocation.containsKey(play.location)) {
+						previousPlays = playCountByLocation.get(play.location);
 					}
-					mPlaysPerLocation.put(pm.location, previousPlays + pm.quantity);
+					playCountByLocation.put(play.location, previousPlays + play.quantity);
 				}
 
-				for (PlayerModel player : pm.getPlayers()) {
+				for (PlayerModel player : play.getPlayers()) {
 					if (!TextUtils.isEmpty(player.getUniqueName()) &&
 						!AccountUtils.getUsername(getActivity()).equals(player.username)) {
-						PlayerStats ps = mPlayerStats.get(player.getUniqueName());
+						PlayerStats ps = playerStats.get(player.getUniqueName());
 						if (ps == null) {
 							ps = new PlayerStats();
 						}
-						ps.add(pm, player);
-						mPlayerStats.put(player.getUniqueName(), ps);
+						ps.add(play, player);
+						playerStats.put(player.getUniqueName(), ps);
 					}
 
 					if (StringUtils.isNumeric(player.score)) {
-						double i = StringUtils.parseDouble(player.score);
-						mTotalScoreCount++;
-						mTotalScore += i;
-						if (i > mHighScore) {
-							mHighScore = i;
-							mHighScorers.clear();
-							mHighScorers.add(player.getUniqueName());
-						} else if (i == mHighScore) {
-							mHighScorers.add(player.getUniqueName());
+						double score = StringUtils.parseDouble(player.score);
+						scoreCount++;
+						scoreSum += score;
+						if (score > highScore) {
+							highScore = score;
+							highScorers.clear();
+							highScorers.add(player.getUniqueName());
+						} else if (score == highScore) {
+							highScorers.add(player.getUniqueName());
 						}
-						if (i < mLowScore) {
-							mLowScore = i;
-							mLowScorers.clear();
-							mLowScorers.add(player.getUniqueName());
-						} else if (i == mLowScore) {
-							mLowScorers.add(player.getUniqueName());
+						if (score < lowScore) {
+							lowScore = score;
+							lowScorers.clear();
+							lowScorers.add(player.getUniqueName());
+						} else if (score == lowScore) {
+							lowScorers.add(player.getUniqueName());
 						}
 						if (player.win) {
-							mTotalWinningScoreCount++;
-							mTotalWinningScore += i;
+							winningScoreCount++;
+							winningScoreSum += score;
 						}
 						if (AccountUtils.getUsername(getActivity()).equals(player.username)) {
-							mPersonalTotalScoreCount++;
-							mPersonalTotalScore += i;
-							if (i > mPersonalHighScore) {
-								mPersonalHighScore = i;
+							personalScoreCount++;
+							personalScoreSum += score;
+							if (score > personalHighScore) {
+								personalHighScore = score;
 							}
-							if (i < mPersonalLowScore) {
-								mPersonalLowScore = i;
+							if (score < personalLowScore) {
+								personalLowScore = score;
 							}
 						}
 					}
 				}
 
-				mMonths.add(pm.getYearAndMonth());
+				monthsPlayed.add(play.getYearAndMonth());
 			}
 		}
 
 		public void addPlayerData(Cursor cursor) {
 			do {
-				PlayerModel pm = new PlayerModel(cursor);
-				if (!mPlays.containsKey(pm.playId)) {
-					Timber.e("Play %s not found in the play map!", pm.playId);
+				PlayerModel playerModel = new PlayerModel(cursor);
+				if (!plays.containsKey(playerModel.playId)) {
+					Timber.e("Play %s not found in the play map!", playerModel.playId);
 					return;
 				}
-				mPlays.get(pm.playId).addPlayer(pm);
+				plays.get(playerModel.playId).addPlayer(playerModel);
 			} while (cursor.moveToNext());
 		}
 
 		public int getPlayCount() {
-			return mPlayCount;
+			return playCount;
 		}
 
 		public int getPlayCountIncomplete() {
-			return mPlayCountIncomplete;
+			return playCountIncomplete;
 		}
 
 		public String getFirstPlayDate() {
-			return mFirstPlayDate;
+			return firstPlayDate;
 		}
 
 		private String getNickelDate() {
-			return mNickelDate;
+			return nickelDate;
 		}
 
 		private String getDimeDate() {
-			return mDimeDate;
+			return dimeDate;
 		}
 
 		private String getQuarterDate() {
-			return mQuarterDate;
+			return quarterDate;
 		}
 
 		private String getHalfDollarDate() {
-			return mHalfDollarDate;
+			return halfDollarDate;
 		}
 
 		private String getDollarDate() {
-			return mDollarDate;
+			return dollarDate;
 		}
 
 		public String getLastPlayDate() {
-			if (mPlayCount > 0) {
-				return mLastPlayDate;
+			if (playCount > 0) {
+				return lastPlayDate;
 			}
 			return null;
 		}
 
 		public double getHoursPlayed() {
-			return (mRealMinutesPlayed + mEstimatedMinutesPlayed) / 60;
+			return (realMinutesPlayed + estimatedMinutesPlayed) / 60;
 		}
 
 		/* plays per month, only counting the active period) */
 		public double getPlayRate() {
 			long flash = calculateFlash();
 			if (flash > 0) {
-				double rate = ((double) (mPlayCount * 365) / flash) / 12;
-				return Math.min(rate, mPlayCount);
+				double rate = ((double) (playCount * 365) / flash) / 12;
+				return Math.min(rate, playCount);
 			}
 			return 0;
 		}
 
 		public int getAveragePlayTime() {
-			if (mPlayCountWithLength > 0) {
-				return mRealMinutesPlayed / mPlayCountWithLength;
+			if (playCountWithLength > 0) {
+				return realMinutesPlayed / playCountWithLength;
 			}
 			return 0;
 		}
 
 		public int getAveragePlayTimePerPlayer() {
-			if (mPlayerCountSumWithLength > 0) {
-				return mRealMinutesPlayed / mPlayerCountSumWithLength;
+			if (playerCountSumWithLength > 0) {
+				return realMinutesPlayed / playerCountSumWithLength;
 			}
 			return 0;
 		}
 
 		public int getMonthsPlayed() {
-			return mMonths.size();
+			return monthsPlayed.size();
 		}
 
 		public int getMinPlayerCount() {
 			int min = Integer.MAX_VALUE;
-			for (Integer playerCount : mPlayCountPerPlayerCount.keySet()) {
+			for (Integer playerCount : playCountPerPlayerCount.keySet()) {
 				if (playerCount < min) {
 					min = playerCount;
 				}
@@ -718,7 +720,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		public int getMaxPlayerCount() {
 			int max = 0;
-			for (Integer playerCount : mPlayCountPerPlayerCount.keySet()) {
+			for (Integer playerCount : playCountPerPlayerCount.keySet()) {
 				if (playerCount > max) {
 					max = playerCount;
 				}
@@ -727,81 +729,81 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getPlayCount(int playerCount) {
-			if (mPlayCountPerPlayerCount.containsKey(playerCount)) {
-				return mPlayCountPerPlayerCount.get(playerCount);
+			if (playCountPerPlayerCount.containsKey(playerCount)) {
+				return playCountPerPlayerCount.get(playerCount);
 			}
 			return 0;
 		}
 
 		public int getWins() {
-			return mWonGames;
+			return personalWonGamesCount;
 		}
 
 		public int getWins(int playerCount) {
-			if (mWinsPerPlayerCount.containsKey(playerCount)) {
-				return mWinsPerPlayerCount.get(playerCount);
+			if (personalWinsByPlayerCount.containsKey(playerCount)) {
+				return personalWinsByPlayerCount.get(playerCount);
 			}
 			return 0;
 		}
 
 		public boolean hasWins() {
-			return mWinnableGames > 0;
+			return numberOfWinnableGames > 0;
 		}
 
 		public int getWinnableGames() {
-			return mWinnableGames;
+			return numberOfWinnableGames;
 		}
 
 		public double getWinPercentage() {
-			return (double) mWonGames / (double) mWinnableGames;
+			return (double) personalWonGamesCount / (double) numberOfWinnableGames;
 		}
 
 		public int getWinSkill() {
-			return (int) (((double) mWonPlayerCount / (double) mWinnableGames) * 100);
+			return (int) (((double) personalPlayerCountInWin / (double) numberOfWinnableGames) * 100);
 		}
 
 		public boolean hasScores() {
-			return mTotalScoreCount > 0;
+			return scoreCount > 0;
 		}
 
 		public double getAverageScore() {
-			return mTotalScore / mTotalScoreCount;
+			return scoreSum / scoreCount;
 		}
 
 		public double getHighScore() {
-			return mHighScore;
+			return highScore;
 		}
 
 		public String getHighScorers() {
-			return StringUtils.formatList(new ArrayList(mHighScorers));
+			return StringUtils.formatList(new ArrayList(highScorers));
 		}
 
 		public double getLowScore() {
-			return mLowScore;
+			return lowScore;
 		}
 
 		public String getLowScorers() {
-			return StringUtils.formatList(new ArrayList(mLowScorers));
+			return StringUtils.formatList(new ArrayList(lowScorers));
 		}
 
 		public double getAverageWinningScore() {
-			return mTotalWinningScore / mTotalWinningScoreCount;
+			return winningScoreSum / winningScoreCount;
 		}
 
 		public double getPersonalAverageScore() {
-			return mPersonalTotalScore / mPersonalTotalScoreCount;
+			return personalScoreSum / personalScoreCount;
 		}
 
 		public double getPersonalHighScore() {
-			return mPersonalHighScore;
+			return personalHighScore;
 		}
 
 		public double getPersonalLowScore() {
-			return mPersonalLowScore;
+			return personalLowScore;
 		}
 
 		public List<Entry<String, PlayerStats>> getPlayerStats() {
-			Set<Entry<String, PlayerStats>> set = mPlayerStats.entrySet();
+			Set<Entry<String, PlayerStats>> set = playerStats.entrySet();
 			List<Entry<String, PlayerStats>> list = new ArrayList(set);
 			Collections.sort(list, new Comparator<Entry<String, PlayerStats>>() {
 				@Override
@@ -819,7 +821,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public List<Entry<String, Integer>> getPlaysPerLocation() {
-			Set<Entry<String, Integer>> set = mPlaysPerLocation.entrySet();
+			Set<Entry<String, Integer>> set = playCountByLocation.entrySet();
 			List<Entry<String, Integer>> list = new ArrayList(set);
 			Collections.sort(list, new Comparator<Entry<String, Integer>>() {
 				@Override
@@ -837,11 +839,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double calculateUtilization() {
-			return 1 - Math.exp(-mLambda * mPlayCount);
+			return 1 - Math.exp(-lambda * playCount);
 		}
 
 		public int calculateFhm() {
-			return (int) ((personalRating * 5) + mPlayCount + (4 * getMonthsPlayed()) + getHoursPlayed());
+			return (int) ((personalRating * 5) + playCount + (4 * getMonthsPlayed()) + getHoursPlayed());
 		}
 
 		public int calculateHhm() {
@@ -858,22 +860,22 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		public int getHIndexOffset() {
 			int hIndex = PreferencesUtils.getHIndex(getActivity());
-			if (mPlayCount >= hIndex) {
+			if (playCount >= hIndex) {
 				return -1;
 			} else {
-				return hIndex - mPlayCount + 1;
+				return hIndex - playCount + 1;
 			}
 		}
 
 		// public int getMonthsPerPlay() {
 		// long days = calculateSpan();
 		// int months = (int) (days / 365.25 * 12);
-		// return months / mPlayCount;
+		// return months / playCount;
 		// }
 
 		public double calculateGrayHotness(int intervalPlayCount) {
 			// http://matthew.gray.org/2005/10/games_16.html
-			double S = 1 + (intervalPlayCount / mPlayCount);
+			double S = 1 + (intervalPlayCount / playCount);
 			// TODO: need to get HHM for the interval _only_
 			return S * S * Math.sqrt(intervalPlayCount) * calculateHhm();
 		}
@@ -903,15 +905,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		private long calculateFlash() {
-			return daysBetweenDates(mFirstPlayDate, mLastPlayDate);
+			return daysBetweenDates(firstPlayDate, lastPlayDate);
 		}
 
 		private long calculateLag() {
-			return daysBetweenDates(mLastPlayDate, null);
+			return daysBetweenDates(lastPlayDate, null);
 		}
 
 		private long calculateSpan() {
-			return daysBetweenDates(mFirstPlayDate, null);
+			return daysBetweenDates(firstPlayDate, null);
 		}
 
 		private long daysBetweenDates(String first, String second) {
