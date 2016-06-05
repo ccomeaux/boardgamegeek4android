@@ -190,7 +190,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				break;
 			case PlayQuery._TOKEN:
-				stats = new Stats(cursor);
+				stats = new Stats(cursor, personalRating);
 				getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 				break;
 			case PlayerQuery._TOKEN:
@@ -421,6 +421,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private final Map<Integer, PlayModel> plays = new LinkedHashMap<>();
 		private final Map<String, PlayerStats> playerStats = new HashMap<>();
 
+		private final double personalRating;
+
 		private String firstPlayDate;
 		private String lastPlayDate;
 		private String nickelDate;
@@ -455,8 +457,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private Map<String, Integer> playCountByLocation;
 		private final Set<String> monthsPlayed = new HashSet<>();
 
-		public Stats(Cursor cursor) {
+		public Stats(Cursor cursor, double personalRating) {
 			init();
+			this.personalRating = personalRating;
 			do {
 				PlayModel model = new PlayModel(cursor);
 				plays.put(model.playId, model);
