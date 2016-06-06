@@ -203,6 +203,21 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
+	public static CharSequence describeLanguageDependence(Context context, double value) {
+		@StringRes int resId = R.string.language_1_text;
+		if (value >= 4.2) {
+			resId = R.string.language_5_text;
+		} else if (value >= 3.4) {
+			resId = R.string.language_4_text;
+		} else if (value >= 2.6) {
+			resId = R.string.language_3_text;
+		} else if (value >= 1.8) {
+			resId = R.string.language_2_text;
+		}
+		return getText(context, resId, value);
+	}
+
+	@DebugLog
 	public static String describePlayCount(Context context, int playCount) {
 		@StringRes int resId = 0;
 		if (playCount >= 100) {

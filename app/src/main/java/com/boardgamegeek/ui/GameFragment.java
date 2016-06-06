@@ -35,6 +35,8 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
+import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
@@ -83,6 +85,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+	private static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
 
 	private Handler timeHintUpdateHandler = new Handler();
 	private Runnable timeHintUpdateRunnable = null;
@@ -137,6 +140,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.game_weight) TextView weightView;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
+
+	@BindView(R.id.language_dependence_details) TextView languageDependenceDetails;
 
 	@BindView(R.id.users_count) TextView userCountView;
 	@BindView(R.id.users_owning_bar) StatBar numberOwningBar;
@@ -228,6 +233,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (PreferencesUtils.showLogPlay(getActivity())) {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
+		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
+
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
 		return rootView;
@@ -334,6 +341,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case ColorQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId), GameColorAdapter.PROJECTION, null, null, null);
 				break;
+			case LanguagePollQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Games.buildPollResultsResultUri(gameId, POLL_TYPE_LANGUAGE_DEPENDENCE),
+					LanguagePollQuery.PROJECTION,
+					null,
+					null,
+					LanguagePollQuery.SORT);
+				break;
 			default:
 				Timber.w("Invalid query token=" + id);
 				break;
@@ -397,6 +412,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				colorsRoot.setVisibility(View.VISIBLE);
 				int count = cursor.getCount();
 				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
+				break;
+			case LanguagePollQuery._TOKEN:
+				onLanguagePollQueryComplete(cursor);
 				break;
 			default:
 				cursor.close();
@@ -690,6 +708,22 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 	}
 
+	@DebugLog
+	private void onLanguagePollQueryComplete(Cursor cursor) {
+		int totalLevel = 0;
+		int totalVotes = 0;
+		if (cursor != null) {
+			while (cursor.moveToNext()) {
+				totalVotes = cursor.getInt(LanguagePollQuery.POLL_TOTAL_VOTES);
+				int level = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_LEVEL) % 5;
+				int votes = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_VOTES);
+				totalLevel += votes * level;
+			}
+		}
+		languageDependenceDetails.setText(PresentationUtils.describeLanguageDependence(getActivity(), (double) totalLevel / totalVotes));
+		languageDependenceDetails.setVisibility(View.VISIBLE);
+	}
+
 	@OnClick(R.id.rank_root)
 	@DebugLog
 	public void onRankClick() {
@@ -748,7 +782,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onLanguageDependenceClick() {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
+		arguments.putString(ActivityUtils.KEY_TYPE, POLL_TYPE_LANGUAGE_DEPENDENCE);
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
@@ -952,6 +986,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	private interface ColorQuery {
 		int _TOKEN = 0x22;
+	}
+
+	private interface LanguagePollQuery {
+		String[] PROJECTION = {
+			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
+			GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL,
+			GamePolls.POLL_TOTAL_VOTES
+		};
+		int _TOKEN = 0x23;
+		int POLL_RESULTS_RESULT_VOTES = 0;
+		int POLL_RESULTS_RESULT_LEVEL = 1;
+		int POLL_TOTAL_VOTES = 2;
+		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
 	}
 
 	private class Game {
