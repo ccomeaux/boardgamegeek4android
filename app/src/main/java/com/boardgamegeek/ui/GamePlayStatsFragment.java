@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -276,10 +275,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(scoreTable, new Builder().labelId(R.string.average_win).value(stats.getAverageWinningScore()));
 			addStatRow(scoreTable, new Builder().labelId(R.string.high).value(stats.getHighScore(), SCORE_FORMAT).infoText(stats.getHighScorers()));
 			addStatRow(scoreTable, new Builder().labelId(R.string.low).value(stats.getLowScore(), SCORE_FORMAT).infoText(stats.getLowScorers()));
-			addStatRow(scoreTable, new Builder().value(getString(R.string.title_personal)));
-			addStatRow(scoreTable, new Builder().labelId(R.string.average).value(stats.getPersonalAverageScore()));
-			addStatRow(scoreTable, new Builder().labelId(R.string.high).value(stats.getPersonalHighScore(), SCORE_FORMAT));
-			addStatRow(scoreTable, new Builder().labelId(R.string.low).value(stats.getPersonalLowScore(), SCORE_FORMAT));
+			PlayerStats ps = stats.getPersonalStats();
+			if (ps != null) {
+				addStatRow(scoreTable, new Builder().value(getString(R.string.title_personal)));
+				addStatRow(scoreTable, new Builder().labelId(R.string.average).value(ps.getAverageScore()));
+				addStatRow(scoreTable, new Builder().labelId(R.string.high).value(ps.getHighScore()));
+				addStatRow(scoreTable, new Builder().labelId(R.string.low).value(ps.getLowScore()));
+			}
 			scoresCard.setVisibility(View.VISIBLE);
 		} else {
 			scoresCard.setVisibility(View.GONE);
@@ -384,33 +386,89 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private class PlayerStats {
-		private String key;
+		private String username;
 		private int playCount;
-		public int wins;
+		private int wins;
+		private int winnableGames;
+		private int winsTimesPlayers;
+		private final Map<Integer, Integer> winsByPlayerCount = new HashMap<>();
 		private double totalScore;
 		private int totalScoreCount;
+		private double highScore;
+		private double lowScore;
 
 		public PlayerStats() {
+			username = "";
 			playCount = 0;
 			wins = 0;
+			winnableGames = 0;
+			winsTimesPlayers = 0;
+			winsByPlayerCount.clear();
 			totalScore = 0.0;
 			totalScoreCount = 0;
+			highScore = Integer.MIN_VALUE;
+			lowScore = Integer.MAX_VALUE;
 		}
 
 		public void add(PlayModel play, PlayerModel player) {
+			username = player.username;
 			playCount += play.quantity;
-			if (player.win) {
-				wins += play.quantity;
+			if (play.isWinnable()) {
+				winnableGames += play.quantity;
+				if (player.win) {
+					wins += play.quantity;
+					winsTimesPlayers += play.quantity * play.playerCount;
+
+					int previousQuantity = 0;
+					if (winsByPlayerCount.containsKey(play.playerCount)) {
+						previousQuantity = winsByPlayerCount.get(play.playerCount);
+					}
+					winsByPlayerCount.put(play.playerCount, previousQuantity + play.quantity);
+				}
 			}
 			if (StringUtils.isNumeric(player.score)) {
-				totalScore += StringUtils.parseDouble(player.score) * play.quantity;
+				final double score = StringUtils.parseDouble(player.score);
+				totalScore += score * play.quantity;
 				totalScoreCount += play.quantity;
+				if (score < lowScore) lowScore = score;
+				if (score > highScore) highScore = score;
 			}
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public int getWins() {
+			return wins;
+		}
+
+		public int getWinsByPlayerCount(int playerCount) {
+			if (winsByPlayerCount.containsKey(playerCount)) {
+				return winsByPlayerCount.get(playerCount);
+			}
+			return 0;
+		}
+
+		public double getWinPercentage() {
+			return (double) wins / (double) winnableGames;
+		}
+
+		public int getWinSkill() {
+			return (int) (((double) winsTimesPlayers / (double) winnableGames) * 100);
 		}
 
 		public double getAverageScore() {
 			if (totalScoreCount == 0) return 0.0;
 			return totalScore / totalScoreCount;
+		}
+
+		public double getHighScore() {
+			return highScore;
+		}
+
+		public double getLowScore() {
+			return lowScore;
 		}
 	}
 
@@ -445,15 +503,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private double lowScore;
 		private int winningScoreCount;
 		private double winningScoreSum;
-		private double personalScoreSum;
-		private int personalScoreCount;
-		private double personalHighScore;
-		private double personalLowScore;
-		private final Set<String> highScorers = new HashSet<>();
-		private final Set<String> lowScorers = new HashSet<>();
-		private int personalWonGamesCount;
-		private int personalPlayerCountInWin;
-		private Map<Integer, Integer> personalWinsByPlayerCount;
 		private Map<String, Integer> playCountByLocation;
 		private final Set<String> monthsPlayed = new HashSet<>();
 
@@ -495,18 +544,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			scoreCount = 0;
 			highScore = Integer.MIN_VALUE;
 			lowScore = Integer.MAX_VALUE;
-			highScorers.clear();
-			lowScorers.clear();
 			winningScoreCount = 0;
 			winningScoreSum = 0;
-
-			personalScoreSum = 0;
-			personalScoreCount = 0;
-			personalHighScore = Integer.MIN_VALUE;
-			personalLowScore = Integer.MAX_VALUE;
-			personalWonGamesCount = 0;
-			personalPlayerCountInWin = 0;
-			personalWinsByPlayerCount = new ArrayMap<>();
 		}
 
 		public void calculate() {
@@ -560,15 +599,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 				if (play.isWinnable()) {
 					numberOfWinnableGames += play.quantity;
-					if (play.didWin(AccountUtils.getUsername(getActivity()))) {
-						personalWonGamesCount += play.quantity;
-						personalPlayerCountInWin += play.quantity * play.playerCount;
-						int previousQuantity = 0;
-						if (personalWinsByPlayerCount.containsKey(play.playerCount)) {
-							previousQuantity = personalWinsByPlayerCount.get(play.playerCount);
-						}
-						personalWinsByPlayerCount.put(play.playerCount, previousQuantity + play.quantity);
-					}
 				}
 
 				if (!TextUtils.isEmpty(play.location)) {
@@ -580,48 +610,28 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				}
 
 				for (PlayerModel player : play.getPlayers()) {
-					if (!TextUtils.isEmpty(player.getUniqueName()) &&
-						!AccountUtils.getUsername(getActivity()).equals(player.username)) {
-						PlayerStats ps = playerStats.get(player.getUniqueName());
-						if (ps == null) {
-							ps = new PlayerStats();
+					if (!TextUtils.isEmpty(player.getUniqueName())) {
+						PlayerStats playerStats = this.playerStats.get(player.getUniqueName());
+						if (playerStats == null) {
+							playerStats = new PlayerStats();
 						}
-						ps.add(play, player);
-						playerStats.put(player.getUniqueName(), ps);
+						playerStats.add(play, player);
+						this.playerStats.put(player.getUniqueName(), playerStats);
 					}
 
 					if (StringUtils.isNumeric(player.score)) {
 						double score = StringUtils.parseDouble(player.score);
-						scoreCount++;
-						scoreSum += score;
-						if (score > highScore) {
-							highScore = score;
-							highScorers.clear();
-							highScorers.add(player.getUniqueName());
-						} else if (score == highScore) {
-							highScorers.add(player.getUniqueName());
-						}
-						if (score < lowScore) {
-							lowScore = score;
-							lowScorers.clear();
-							lowScorers.add(player.getUniqueName());
-						} else if (score == lowScore) {
-							lowScorers.add(player.getUniqueName());
-						}
+
+						scoreCount += play.quantity;
+						scoreSum += score * play.quantity;
+
 						if (player.win) {
-							winningScoreCount++;
-							winningScoreSum += score;
+							winningScoreCount += play.quantity;
+							winningScoreSum += score * play.quantity;
 						}
-						if (AccountUtils.getUsername(getActivity()).equals(player.username)) {
-							personalScoreCount++;
-							personalScoreSum += score;
-							if (score > personalHighScore) {
-								personalHighScore = score;
-							}
-							if (score < personalLowScore) {
-								personalLowScore = score;
-							}
-						}
+
+						if (score > highScore) highScore = score;
+						if (score < lowScore) lowScore = score;
 					}
 				}
 
@@ -739,14 +749,29 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getWins() {
-			return personalWonGamesCount;
+			PlayerStats ps = getPersonalStats();
+			if (ps != null) {
+				return ps.getWins();
+			}
+			return 0;
 		}
 
 		public int getWins(int playerCount) {
-			if (personalWinsByPlayerCount.containsKey(playerCount)) {
-				return personalWinsByPlayerCount.get(playerCount);
+			PlayerStats ps = getPersonalStats();
+			if (ps != null) {
+				return ps.getWinsByPlayerCount(playerCount);
 			}
 			return 0;
+		}
+
+		private PlayerStats getPersonalStats() {
+			String username = AccountUtils.getUsername(getActivity());
+			for (Entry<String, PlayerStats> ps : stats.getPlayerStats()) {
+				if (username != null && username.equals(ps.getValue().getUsername())) {
+					return ps.getValue();
+				}
+			}
+			return null;
 		}
 
 		public boolean hasWins() {
@@ -758,11 +783,19 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double getWinPercentage() {
-			return (double) personalWonGamesCount / (double) numberOfWinnableGames;
+			PlayerStats ps = getPersonalStats();
+			if (ps != null) {
+				return ps.getWinPercentage();
+			}
+			return 0.0;
 		}
 
 		public int getWinSkill() {
-			return (int) (((double) personalPlayerCountInWin / (double) numberOfWinnableGames) * 100);
+			PlayerStats ps = getPersonalStats();
+			if (ps != null) {
+				return ps.getWinSkill();
+			}
+			return 0;
 		}
 
 		public boolean hasScores() {
@@ -778,7 +811,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public String getHighScorers() {
-			return StringUtils.formatList(new ArrayList(highScorers));
+			if (highScore == Integer.MIN_VALUE) return "";
+			List<String> players = new ArrayList<>();
+			for (Entry<String, PlayerStats> ps : playerStats.entrySet()) {
+				if (ps.getValue().highScore == highScore) {
+					players.add(ps.getKey());
+				}
+			}
+			return StringUtils.formatList(players);
 		}
 
 		public double getLowScore() {
@@ -786,23 +826,18 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public String getLowScorers() {
-			return StringUtils.formatList(new ArrayList(lowScorers));
+			if (lowScore == Integer.MAX_VALUE) return "";
+			List<String> players = new ArrayList<>();
+			for (Entry<String, PlayerStats> ps : playerStats.entrySet()) {
+				if (ps.getValue().lowScore == lowScore) {
+					players.add(ps.getKey());
+				}
+			}
+			return StringUtils.formatList(players);
 		}
 
 		public double getAverageWinningScore() {
 			return winningScoreSum / winningScoreCount;
-		}
-
-		public double getPersonalAverageScore() {
-			return personalScoreSum / personalScoreCount;
-		}
-
-		public double getPersonalHighScore() {
-			return personalHighScore;
-		}
-
-		public double getPersonalLowScore() {
-			return personalLowScore;
 		}
 
 		public List<Entry<String, PlayerStats>> getPlayerStats() {
@@ -993,18 +1028,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			}
 			if (playId > 0 && playId < Play.UNSYNCED_PLAY_ID && syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 				return true;
-			}
-			return false;
-		}
-
-		public boolean didWin(@NonNull String username) {
-			if (noWinStats) {
-				return false;
-			}
-			for (PlayerModel player : players) {
-				if (username.equals(player.username)) {
-					return player.win;
-				}
 			}
 			return false;
 		}
