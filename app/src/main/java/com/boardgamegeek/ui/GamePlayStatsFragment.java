@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 
 import com.boardgamegeek.R;
@@ -81,7 +82,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@BindView(R.id.card_score) View scoresCard;
 	@BindView(R.id.table_score) TableLayout scoreTable;
 	@BindView(R.id.card_opponents) View opponentsCard;
-	@BindView(R.id.table_opponents) TableLayout opponentsTable;
+	@BindView(R.id.table_opponents) LinearLayout opponentsTable;
 	@BindView(R.id.table_dates) TableLayout datesTable;
 	@BindView(R.id.table_play_time) TableLayout playTimeTable;
 	@BindView(R.id.card_locations) View locationsCard;
@@ -319,9 +320,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(locationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
 		}
 
-		while (opponentsTable.getChildCount() > 1) {
-			opponentsTable.removeViewAt(1);
-		}
+		opponentsTable.removeAllViews();
 		int row = 0;
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
 			opponentsCard.setVisibility(View.VISIBLE);

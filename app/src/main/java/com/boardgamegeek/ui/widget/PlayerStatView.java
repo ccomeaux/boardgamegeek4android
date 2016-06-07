@@ -2,7 +2,7 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.widget.TableRow;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -12,34 +12,35 @@ import java.text.DecimalFormat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PlayerStatView extends TableRow {
+public class PlayerStatView extends LinearLayout {
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.0");
 
-	@BindView(R.id.name) TextView mName;
-	@BindView(R.id.play_count) TextView mPlayCount;
-	@BindView(R.id.wins) TextView mWins;
-	@BindView(R.id.score) TextView mScore;
+	@BindView(R.id.name) TextView nameView;
+	@BindView(R.id.play_count) TextView playCountView;
+	@BindView(R.id.wins) TextView winCountView;
+	@BindView(R.id.score) TextView averageScoreView;
 
 	public PlayerStatView(Context context) {
 		super(context);
+		setOrientation(LinearLayout.HORIZONTAL);
 		LayoutInflater inflater = LayoutInflater.from(context);
-		inflater.inflate(R.layout.widget_player_stat, this);
+		inflater.inflate(R.layout.widget_player_stat, this, true);
 		ButterKnife.bind(this);
 	}
 
 	public void setName(CharSequence text) {
-		mName.setText(text);
+		nameView.setText(text);
 	}
 
 	public void setPlayCount(int playCount) {
-		mPlayCount.setText(String.valueOf(playCount));
+		playCountView.setText(String.valueOf(playCount));
 	}
 
 	public void setWins(int wins) {
-		mWins.setText(String.valueOf(wins));
+		winCountView.setText(String.valueOf(wins));
 	}
 
 	public void setAverageScore(double score) {
-		mScore.setText(DOUBLE_FORMAT.format(score));
+		averageScoreView.setText(DOUBLE_FORMAT.format(score));
 	}
 }

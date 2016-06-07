@@ -1,27 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	   xmlns:tools="http://schemas.android.com/tools">
 
 	<TextView
 		android:id="@+id/name"
 		style="@style/Text"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="3"
 		android:gravity="center_vertical"
-		android:minHeight="@dimen/view_row_height"/>
+		android:minHeight="@dimen/view_row_height"
+		tools:text="Chris (ccomeaux)"/>
 
 	<TextView
 		android:id="@+id/play_count"
 		style="@style/Text"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
 		android:layout_gravity="center"
+		android:layout_weight="1"
+		android:gravity="center"
 		android:paddingLeft="@dimen/padding_small"/>
 
 	<TextView
 		android:id="@+id/wins"
 		style="@style/Text"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
 		android:layout_gravity="center"
+		android:layout_weight="1"
+		android:gravity="center"
 		android:paddingLeft="@dimen/padding_small"/>
 
 	<TextView
 		android:id="@+id/score"
 		style="@style/Text"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
 		android:layout_gravity="center"
+		android:layout_weight="1"
+		android:gravity="center"
 		android:paddingLeft="@dimen/padding_small"/>
 </merge>
