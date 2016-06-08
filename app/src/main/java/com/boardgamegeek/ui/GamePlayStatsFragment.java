@@ -331,7 +331,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			view.setName(playerStats.getKey());
 			view.setPlayCount(ps.playCount);
 			view.setWins(ps.wins);
+			view.setLowScore(ps.getLowScore());
 			view.setAverageScore(ps.getAverageScore());
+			view.setAverageWinScore(ps.getAverageWinScore());
+			view.setHighScore(ps.getHighScore());
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -410,6 +413,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private int winsTimesPlayers;
 		private final Map<Integer, Integer> winsByPlayerCount = new HashMap<>();
 		private double totalScore;
+		private double winningScore;
 		private int totalScoreCount;
 		private double highScore;
 		private double lowScore;
@@ -422,6 +426,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			winsTimesPlayers = 0;
 			winsByPlayerCount.clear();
 			totalScore = 0.0;
+			winningScore = 0.0;
 			totalScoreCount = 0;
 			highScore = Integer.MIN_VALUE;
 			lowScore = Integer.MAX_VALUE;
@@ -449,6 +454,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				totalScoreCount += play.quantity;
 				if (score < lowScore) lowScore = score;
 				if (score > highScore) highScore = score;
+				if (play.isWinnable() && player.win) {
+					winningScore += score * play.quantity;
+				}
 			}
 		}
 
@@ -478,6 +486,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public double getAverageScore() {
 			if (totalScoreCount == 0) return 0.0;
 			return totalScore / totalScoreCount;
+		}
+
+		public double getAverageWinScore() {
+			if (wins == 0) return 0.0;
+			return winningScore / wins;
 		}
 
 		public double getHighScore() {
