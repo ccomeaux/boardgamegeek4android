@@ -81,8 +81,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@BindView(R.id.table_wins) TableLayout winsTable;
 	@BindView(R.id.card_score) View scoresCard;
 	@BindView(R.id.table_score) TableLayout scoreTable;
-	@BindView(R.id.card_opponents) View opponentsCard;
-	@BindView(R.id.table_opponents) LinearLayout opponentsTable;
+	@BindView(R.id.card_players) View playersCard;
+	@BindView(R.id.list_players) LinearLayout playersList;
 	@BindView(R.id.table_dates) TableLayout datesTable;
 	@BindView(R.id.table_play_time) TableLayout playTimeTable;
 	@BindView(R.id.card_locations) View locationsCard;
@@ -320,17 +320,17 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(locationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
 		}
 
-		opponentsTable.removeAllViews();
+		playersList.removeAllViews();
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
-			opponentsCard.setVisibility(View.VISIBLE);
+			playersCard.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
 
-			PlayerStatView psv = new PlayerStatView(getActivity());
-			psv.setName(playerStats.getKey());
-			psv.setPlayCount(ps.playCount);
-			psv.setWins(ps.wins);
-			psv.setAverageScore(ps.getAverageScore());
-			opponentsTable.addView(psv);
+			PlayerStatView view = new PlayerStatView(getActivity());
+			view.setName(playerStats.getKey());
+			view.setPlayCount(ps.playCount);
+			view.setWins(ps.wins);
+			view.setAverageScore(ps.getAverageScore());
+			playersList.addView(view);
 		}
 
 		if (personalRating > 0) {
