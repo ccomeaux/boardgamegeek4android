@@ -321,7 +321,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		opponentsTable.removeAllViews();
-		int row = 0;
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
 			opponentsCard.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
@@ -331,11 +330,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			psv.setPlayCount(ps.playCount);
 			psv.setWins(ps.wins);
 			psv.setAverageScore(ps.getAverageScore());
-			if (row % 2 == 1) {
-				psv.setBackgroundResource(R.color.light_blue_transparent);
-			}
 			opponentsTable.addView(psv);
-			row++;
 		}
 
 		if (personalRating > 0) {
