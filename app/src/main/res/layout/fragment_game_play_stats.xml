@@ -171,16 +171,6 @@
 							android:layout_weight="1"
 							android:gravity="center"
 							android:paddingLeft="@dimen/padding_half"
-							android:text="@string/title_plays"
-							android:textStyle="bold"/>
-
-						<TextView
-							style="@style/Text"
-							android:layout_width="0dp"
-							android:layout_height="wrap_content"
-							android:layout_weight="1"
-							android:gravity="center"
-							android:paddingLeft="@dimen/padding_half"
 							android:text="@string/title_wins"
 							android:textStyle="bold"/>
 
@@ -191,7 +181,7 @@
 							android:layout_weight="1"
 							android:gravity="center"
 							android:paddingLeft="@dimen/padding_half"
-							android:text="@string/score"
+							android:text="@string/title_plays"
 							android:textStyle="bold"/>
 					</LinearLayout>
 

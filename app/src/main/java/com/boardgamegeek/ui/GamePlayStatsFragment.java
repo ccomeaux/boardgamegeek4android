@@ -11,6 +11,7 @@ import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
@@ -70,6 +71,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private int playingTime;
 	private double personalRating;
 	private Stats stats;
+	private String selectedPlayerKey;
 
 	private Unbinder unbinder;
 	@BindView(R.id.progress) View progressView;
@@ -325,11 +327,32 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			playersCard.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
 
-			PlayerStatView view = new PlayerStatView(getActivity());
+			final PlayerStatView view = new PlayerStatView(getActivity());
 			view.setName(playerStats.getKey());
 			view.setPlayCount(ps.playCount);
 			view.setWins(ps.wins);
 			view.setAverageScore(ps.getAverageScore());
+			view.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (selectedPlayerKey != null && selectedPlayerKey.equals(view.getKey())) {
+						view.showScores(false);
+						selectedPlayerKey = null;
+					} else {
+						if (selectedPlayerKey != null) {
+							for (int i = 0; i < playersList.getChildCount(); i++) {
+								PlayerStatView psv = (PlayerStatView) playersList.getChildAt(i);
+								if (selectedPlayerKey.equals(psv.getKey())) {
+									psv.showScores(false);
+									break;
+								}
+							}
+						}
+						selectedPlayerKey = view.getKey();
+						view.showScores(true);
+					}
+				}
+			});
 			playersList.addView(view);
 		}
 

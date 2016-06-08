@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,13 +20,26 @@ public class PlayerStatView extends LinearLayout {
 	@BindView(R.id.play_count) TextView playCountView;
 	@BindView(R.id.wins) TextView winCountView;
 	@BindView(R.id.score) TextView averageScoreView;
+	@BindView(R.id.scores) View scoresView;
 
 	public PlayerStatView(Context context) {
 		super(context);
-		setOrientation(LinearLayout.HORIZONTAL);
+		setOrientation(LinearLayout.VERTICAL);
+		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		setPadding(0, padding, 0, padding);
+		int height = getResources().getDimensionPixelSize(R.dimen.view_row_height);
+		setMinimumHeight(height);
 		LayoutInflater inflater = LayoutInflater.from(context);
 		inflater.inflate(R.layout.widget_player_stat, this, true);
 		ButterKnife.bind(this);
+	}
+
+	public void showScores(boolean show) {
+		scoresView.setVisibility(show ? View.VISIBLE : View.GONE);
+	}
+
+	public String getKey() {
+		return nameView.getText().toString();
 	}
 
 	public void setName(CharSequence text) {
