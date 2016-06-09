@@ -136,7 +136,6 @@
 			android:layout_height="@dimen/edit_row_height"
 			android:checked="false"
 			android:paddingLeft="@dimen/edit_label_width"
-			android:paddingRight="@dimen/edit_label_width"
 			android:text="@string/incomplete"/>
 
 		<android.support.v7.widget.SwitchCompat
@@ -146,7 +145,6 @@
 			android:layout_height="@dimen/edit_row_height"
 			android:checked="false"
 			android:paddingLeft="@dimen/edit_label_width"
-			android:paddingRight="@dimen/edit_label_width"
 			android:text="@string/noWinStats"/>
 
 		<LinearLayout
