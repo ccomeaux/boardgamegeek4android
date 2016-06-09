@@ -79,8 +79,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@BindView(R.id.data) View dataView;
 	@BindView(R.id.table_play_count) TableLayout playCountTable;
 	@BindView(R.id.chart_play_count) HorizontalBarChart playCountChart;
-	@BindView(R.id.card_wins) View winsCard;
-	@BindView(R.id.table_wins) TableLayout winsTable;
 	@BindView(R.id.card_score) View scoresCard;
 	@BindView(R.id.table_score) TableLayout scoreTable;
 	@BindView(R.id.card_players) View playersCard;
@@ -209,7 +207,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private void bindUi(Stats stats) {
 		playCountTable.removeAllViews();
-		winsTable.removeAllViews();
 		scoreTable.removeAllViews();
 		datesTable.removeAllViews();
 		playTimeTable.removeAllViews();
@@ -234,15 +231,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_months_played).value(stats.getMonthsPlayed()));
 		if (stats.getPlayRate() > 0) {
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_rate).value(stats.getPlayRate()));
-		}
-
-		if (stats.hasWins()) {
-			String label = getString(R.string.play_stat_win_percentage, stats.getWins(), stats.getWinnableGames());
-			addStatRow(winsTable, new Builder().labelText(label).valueAsPercentage(stats.getWinPercentage()));
-			addStatRow(winsTable, new Builder().labelId(R.string.play_stat_win_skill).value(stats.getWinSkill()).infoId(R.string.play_stat_win_skill_info));
-			winsCard.setVisibility(View.VISIBLE);
-		} else {
-			winsCard.setVisibility(View.GONE);
 		}
 
 		ArrayList<String> playersLabels = new ArrayList<>();
@@ -278,13 +266,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(scoreTable, new Builder().labelId(R.string.average_win).value(stats.getAverageWinningScore()));
 			addStatRow(scoreTable, new Builder().labelId(R.string.high).value(stats.getHighScore(), SCORE_FORMAT).infoText(stats.getHighScorers()));
 			addStatRow(scoreTable, new Builder().labelId(R.string.low).value(stats.getLowScore(), SCORE_FORMAT).infoText(stats.getLowScorers()));
-			PlayerStats ps = stats.getPersonalStats();
-			if (ps != null) {
-				addStatRow(scoreTable, new Builder().value(getString(R.string.title_personal)));
-				addStatRow(scoreTable, new Builder().labelId(R.string.average).value(ps.getAverageScore()));
-				addStatRow(scoreTable, new Builder().labelId(R.string.high).value(ps.getHighScore()));
-				addStatRow(scoreTable, new Builder().labelId(R.string.low).value(ps.getLowScore()));
-			}
 			scoresCard.setVisibility(View.VISIBLE);
 		} else {
 			scoresCard.setVisibility(View.GONE);
@@ -329,8 +310,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 			final PlayerStatView view = new PlayerStatView(getActivity());
 			view.setName(playerStats.getKey());
-			view.setPlayCount(ps.playCount);
-			view.setWins(ps.wins);
+			view.setWinInfo(ps.wins, ps.winnableGames);
+			view.setWinSkill(ps.getWinSkill());
 			view.setLowScore(ps.getLowScore());
 			view.setAverageScore(ps.getAverageScore());
 			view.setAverageWinScore(ps.getAverageWinScore());
@@ -464,19 +445,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return username;
 		}
 
-		public int getWins() {
-			return wins;
-		}
-
 		public int getWinsByPlayerCount(int playerCount) {
 			if (winsByPlayerCount.containsKey(playerCount)) {
 				return winsByPlayerCount.get(playerCount);
 			}
 			return 0;
-		}
-
-		public double getWinPercentage() {
-			return (double) wins / (double) winnableGames;
 		}
 
 		public int getWinSkill() {
@@ -778,14 +751,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return 0;
 		}
 
-		public int getWins() {
-			PlayerStats ps = getPersonalStats();
-			if (ps != null) {
-				return ps.getWins();
-			}
-			return 0;
-		}
-
 		public int getWins(int playerCount) {
 			PlayerStats ps = getPersonalStats();
 			if (ps != null) {
@@ -802,30 +767,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				}
 			}
 			return null;
-		}
-
-		public boolean hasWins() {
-			return numberOfWinnableGames > 0;
-		}
-
-		public int getWinnableGames() {
-			return numberOfWinnableGames;
-		}
-
-		public double getWinPercentage() {
-			PlayerStats ps = getPersonalStats();
-			if (ps != null) {
-				return ps.getWinPercentage();
-			}
-			return 0.0;
-		}
-
-		public int getWinSkill() {
-			PlayerStats ps = getPersonalStats();
-			if (ps != null) {
-				return ps.getWinSkill();
-			}
-			return 0;
 		}
 
 		public boolean hasScores() {

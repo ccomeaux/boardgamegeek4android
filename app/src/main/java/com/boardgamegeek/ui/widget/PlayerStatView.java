@@ -55,12 +55,15 @@ public class PlayerStatView extends LinearLayout {
 		nameView.setText(text);
 	}
 
-	public void setPlayCount(int playCount) {
-		playCountView.setText(String.valueOf(playCount));
+	public void setWinInfo(int wins, int winnableGames) {
+		if (wins > winnableGames) winnableGames = wins;
+		int winPercentage = 0;
+		if (winnableGames > 0) winPercentage = (int) ((double) wins / winnableGames * 100);
+		winCountView.setText(getContext().getString(R.string.play_stat_win_percentage, wins, winnableGames, winPercentage));
 	}
 
-	public void setWins(int wins) {
-		winCountView.setText(String.valueOf(wins));
+	public void setWinSkill(int skill) {
+		playCountView.setText(String.valueOf(skill));
 	}
 
 	public void setLowScore(double score) {
