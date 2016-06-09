@@ -239,8 +239,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int index = 0;
 		for (int i = stats.getMinPlayerCount(); i <= stats.getMaxPlayerCount(); i++) {
 			playersLabels.add(String.valueOf(i));
-			playCountValues.add(new BarEntry(stats.getPlayCount(i), index));
-			winValues.add(new BarEntry(stats.getWins(i), index));
+			playCountValues.add(new BarEntry(new float[] { stats.getWinnablePlayCount(i), stats.getPlayCount(i) - stats.getWinnablePlayCount(i) }, index));
+			winValues.add(new BarEntry(stats.getWinCount(i), index));
 			index++;
 		}
 		ArrayList<IBarDataSet> dataSets = new ArrayList<>();
@@ -248,7 +248,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
 		playCountDataSet.setDrawValues(false);
 		playCountDataSet.setHighlightEnabled(false);
-		playCountDataSet.setColor(getResources().getColor(R.color.dark_blue));
+		playCountDataSet.setColors(new int[] { getResources().getColor(R.color.dark_blue), getResources().getColor(R.color.light_blue) });
+		playCountDataSet.setStackLabels(new String[] { getString(R.string.winnable), getString(R.string.all) });
 		dataSets.add(playCountDataSet);
 
 		BarDataSet winsDataSet = new BarDataSet(winValues, getString(R.string.title_wins));
@@ -393,6 +394,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private int winnableGames;
 		private int winsTimesPlayers;
 		private final Map<Integer, Integer> winsByPlayerCount = new HashMap<>();
+		private final Map<Integer, Integer> playsByPlayerCount = new HashMap<>();
+		private final Map<Integer, Integer> winnablePlaysByPlayerCount = new HashMap<>();
 		private double totalScore;
 		private double winningScore;
 		private int totalScoreCount;
@@ -416,17 +419,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public void add(PlayModel play, PlayerModel player) {
 			username = player.username;
 			playCount += play.quantity;
+			addByPlayerCount(playsByPlayerCount, play.playerCount, play.quantity);
+
 			if (play.isWinnable()) {
 				winnableGames += play.quantity;
+				addByPlayerCount(winnablePlaysByPlayerCount, play.playerCount, play.quantity);
 				if (player.win) {
 					wins += play.quantity;
 					winsTimesPlayers += play.quantity * play.playerCount;
 
-					int previousQuantity = 0;
-					if (winsByPlayerCount.containsKey(play.playerCount)) {
-						previousQuantity = winsByPlayerCount.get(play.playerCount);
-					}
-					winsByPlayerCount.put(play.playerCount, previousQuantity + play.quantity);
+					addByPlayerCount(winsByPlayerCount, play.playerCount, play.quantity);
 				}
 			}
 			if (StringUtils.isNumeric(player.score)) {
@@ -441,13 +443,35 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			}
 		}
 
+		private void addByPlayerCount(Map<Integer, Integer> playerCountMap, int playerCount, int quantity) {
+			int previousByCount = 0;
+			if (playerCountMap.containsKey(playerCount)) {
+				previousByCount = playerCountMap.get(playerCount);
+			}
+			playerCountMap.put(playerCount, previousByCount + quantity);
+		}
+
 		public String getUsername() {
 			return username;
 		}
 
-		public int getWinsByPlayerCount(int playerCount) {
+		public int getWinCountByPlayerCount(int playerCount) {
 			if (winsByPlayerCount.containsKey(playerCount)) {
 				return winsByPlayerCount.get(playerCount);
+			}
+			return 0;
+		}
+
+		public int getWinnablePlayCountByPlayerCount(int playerCount) {
+			if (winnablePlaysByPlayerCount.containsKey(playerCount)) {
+				return winnablePlaysByPlayerCount.get(playerCount);
+			}
+			return 0;
+		}
+
+		public int getPlayCountByPlayerCount(int playerCount) {
+			if (playsByPlayerCount.containsKey(playerCount)) {
+				return playsByPlayerCount.get(playerCount);
 			}
 			return 0;
 		}
@@ -744,17 +768,26 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return max;
 		}
 
-		public int getPlayCount(int playerCount) {
-			if (playCountPerPlayerCount.containsKey(playerCount)) {
-				return playCountPerPlayerCount.get(playerCount);
+		public int getWinCount(int playerCount) {
+			PlayerStats ps = getPersonalStats();
+			if (ps != null) {
+				return ps.getWinCountByPlayerCount(playerCount);
 			}
 			return 0;
 		}
 
-		public int getWins(int playerCount) {
+		public int getWinnablePlayCount(int playerCount) {
 			PlayerStats ps = getPersonalStats();
 			if (ps != null) {
-				return ps.getWinsByPlayerCount(playerCount);
+				return ps.getWinnablePlayCountByPlayerCount(playerCount);
+			}
+			return 0;
+		}
+
+		public int getPlayCount(int playerCount) {
+			PlayerStats ps = getPersonalStats();
+			if (ps != null) {
+				return ps.getPlayCountByPlayerCount(playerCount);
 			}
 			return 0;
 		}
