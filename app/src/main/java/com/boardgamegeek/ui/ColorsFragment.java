@@ -17,14 +17,12 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView.MultiChoiceModeListener;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
@@ -41,7 +39,6 @@ import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import butterknife.BindView;
@@ -51,11 +48,10 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class ColorsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
+public class ColorsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int TOKEN = 0x20;
 	private int gameId;
 	private GameColorRecyclerViewAdapter adapter;
-	private final LinkedHashSet<Integer> selectedColorPositions = new LinkedHashSet<>();
 	private EditTextDialogFragment editTextDialogFragment;
 
 	private Unbinder unbinder;
@@ -101,10 +97,6 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 		gameId = Games.getGameId(uri);
 
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
-
-//		final ListView listView = getListView();
-//		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-//		listView.setMultiChoiceModeListener(this);
 	}
 
 	@DebugLog
@@ -169,56 +161,6 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 		if (adapter != null) {
 			adapter.changeCursor(null);
 		}
-	}
-
-	@DebugLog
-	@Override
-	public boolean onCreateActionMode(@NonNull ActionMode mode, Menu menu) {
-		MenuInflater inflater = mode.getMenuInflater();
-		inflater.inflate(R.menu.colors_context, menu);
-		selectedColorPositions.clear();
-		return true;
-	}
-
-	@DebugLog
-	@Override
-	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
-	}
-
-	@DebugLog
-	@Override
-	public void onDestroyActionMode(ActionMode mode) {
-	}
-
-	@DebugLog
-	@Override
-	public void onItemCheckedStateChanged(@NonNull ActionMode mode, int position, long id, boolean checked) {
-		if (checked) {
-			selectedColorPositions.add(position);
-		} else {
-			selectedColorPositions.remove(position);
-		}
-
-		int count = selectedColorPositions.size();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_colors_selected, count, count));
-	}
-
-	@DebugLog
-	@Override
-	public boolean onActionItemClicked(@NonNull ActionMode mode, @NonNull MenuItem item) {
-		mode.finish();
-		switch (item.getItemId()) {
-			case R.id.menu_delete:
-				int count = 0;
-				for (int position : selectedColorPositions) {
-					String color = adapter.getColorName(position);
-					count += getActivity().getContentResolver().delete(Games.buildColorsUri(gameId, color), null, null);
-				}
-				Snackbar.make(container, getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Snackbar.LENGTH_SHORT).show();
-				return true;
-		}
-		return false;
 	}
 
 	@OnClick(R.id.fab)
