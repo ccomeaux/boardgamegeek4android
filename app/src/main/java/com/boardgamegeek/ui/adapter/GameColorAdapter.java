@@ -94,8 +94,4 @@ public class GameColorAdapter extends CursorAdapter {
 		}
 		return cursor.getString(1);
 	}
-
-	public String getColorName(int position) {
-		return getColorName((Cursor) getItem(position));
-	}
 }
