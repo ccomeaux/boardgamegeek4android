@@ -2,6 +2,12 @@ package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +22,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,11 +63,14 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 	private EditTextDialogFragment editTextDialogFragment;
 
 	private Unbinder unbinder;
-	@BindView(R.id.root_container) CoordinatorLayout container;
+	@BindView(R.id.root_container) CoordinatorLayout containerView;
 	@BindView(android.R.id.progress) View progressView;
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView listView;
 	@BindView(R.id.fab) FloatingActionButton fab;
+	private final Paint swipePaint = new Paint();
+	private Bitmap deleteIcon;
+	private float horizontalPadding;
 
 	@DebugLog
 	@Override
@@ -74,12 +85,58 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
+	}
 
+	private void setUpRecyclerView() {
 		LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		listView.setLayoutManager(layoutManager);
 
-		return rootView;
+		swipePaint.setColor(getResources().getColor(R.color.medium_blue));
+		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
+		horizontalPadding = getResources().getDimension(R.dimen.material_margin_horizontal);
+
+		ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+			@Override
+			public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
+				return false;
+			}
+
+			@Override
+			public void onSwiped(ViewHolder viewHolder, int swipeDir) {
+				String color = adapter.getColorName(viewHolder.getAdapterPosition());
+				int count = getActivity().getContentResolver().delete(Games.buildColorsUri(gameId, color), null, null);
+				Snackbar.make(containerView, getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Snackbar.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onChildDraw(Canvas c, RecyclerView recyclerView, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+				if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+					View itemView = viewHolder.itemView;
+
+					float verticalPadding = (itemView.getHeight() - deleteIcon.getHeight()) / 2;
+					RectF background;
+					Rect iconSrc;
+					RectF iconDst;
+
+					if (dX > 0) {
+						background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+						iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getHeight());
+						iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+					} else {
+						background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
+						iconSrc = new Rect(Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, deleteIcon.getWidth(), deleteIcon.getHeight());
+						iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+					}
+					c.drawRect(background, swipePaint);
+					c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint);
+				}
+				super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+			}
+		});
+		itemTouchHelper.attachToRecyclerView(listView);
 	}
 
 	@Override
@@ -217,7 +274,7 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 		@Override
 		protected void onPostExecute(Integer result) {
 			if (result > 0) {
-				Snackbar.make(container, R.string.msg_colors_generated, Snackbar.LENGTH_SHORT).show();
+				Snackbar.make(containerView, R.string.msg_colors_generated, Snackbar.LENGTH_SHORT).show();
 			}
 		}
 	}
