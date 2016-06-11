@@ -30,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
@@ -49,6 +50,7 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -70,7 +72,7 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 	@BindView(R.id.fab) FloatingActionButton fab;
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
-	private float horizontalPadding;
+	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
 
 	@DebugLog
 	@Override
@@ -96,7 +98,6 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 
 		swipePaint.setColor(getResources().getColor(R.color.medium_blue));
 		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
-		horizontalPadding = getResources().getDimension(R.dimen.material_margin_horizontal);
 
 		ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 			@Override
@@ -106,9 +107,18 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 
 			@Override
 			public void onSwiped(ViewHolder viewHolder, int swipeDir) {
-				String color = adapter.getColorName(viewHolder.getAdapterPosition());
+				final String color = adapter.getColorName(viewHolder.getAdapterPosition());
 				int count = getActivity().getContentResolver().delete(Games.buildColorsUri(gameId, color), null, null);
-				Snackbar.make(containerView, getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Snackbar.LENGTH_SHORT).show();
+				if (count > 0) {
+					Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
+						.setAction(R.string.undo, new OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								addColor(color);
+							}
+						})
+						.show();
+				}
 			}
 
 			@Override
@@ -227,14 +237,18 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 				@Override
 				public void onFinishEditDialog(String inputText) {
 					if (!TextUtils.isEmpty(inputText)) {
-						ContentValues values = new ContentValues();
-						values.put(GameColors.COLOR, inputText);
-						getActivity().getContentResolver().insert(Games.buildColorsUri(gameId), values);
+						addColor(inputText);
 					}
 				}
 			});
 		}
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
+	}
+
+	private void addColor(String color) {
+		ContentValues values = new ContentValues();
+		values.put(GameColors.COLOR, color);
+		getActivity().getContentResolver().insert(Games.buildColorsUri(gameId), values);
 	}
 
 	private class Task extends AsyncTask<Void, Void, Integer> {
