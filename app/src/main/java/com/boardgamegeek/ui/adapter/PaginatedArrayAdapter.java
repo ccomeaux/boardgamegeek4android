@@ -61,11 +61,8 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 
 	@Override
 	public int getCount() {
-		return super.getCount()
-			+ (((isLoaderLoading() && super.getCount() == 0) || hasMoreResults() || hasError()) ? 1 : 0);
+		return super.getCount() + ((hasMoreResults() || hasError()) ? 1 : 0);
 	}
-
-	protected abstract boolean isLoaderLoading();
 
 	@Override
 	public int getItemViewType(int position) {
@@ -111,10 +108,6 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	}
 
 	protected abstract void bind(View view, T item);
-
-	public void setCurrentPage(int page) {
-		currentPage = page;
-	}
 
 	private boolean hasMoreResults() {
 		return currentPage * pageSize < totalCount;

@@ -38,6 +38,7 @@ import retrofit2.Call;
 public class CommentsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final int LOADER_ID = 0;
+	private static final int VISIBLE_THRESHOLD = 1;
 	private CommentsAdapter adapter;
 	private int gameId;
 	@State boolean isSortedByRating = false;
@@ -103,10 +104,20 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	@Override
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
-			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
+		final CommentsLoader loader = getLoader();
+		final boolean isNearEnd = firstVisibleItem + visibleItemCount + VISIBLE_THRESHOLD >= totalItemCount;
+		if (loader != null && !loader.isLoading() && loader.hasMoreResults() && visibleItemCount != 0 && isNearEnd) {
+			saveScrollState();
 			loadMoreResults();
 		}
+	}
+
+	private CommentsLoader getLoader() {
+		if (isAdded()) {
+			Loader<PaginatedData<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
+			return (CommentsLoader) loader;
+		}
+		return null;
 	}
 
 	@Override
@@ -131,24 +142,6 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	@Override
 	public void onLoaderReset(Loader<PaginatedData<Comment>> loader) {
-	}
-
-	private boolean isLoading() {
-		final CommentsLoader loader = getLoader();
-		return (loader == null) || loader.isLoading();
-	}
-
-	private boolean loaderHasMoreResults() {
-		final CommentsLoader loader = getLoader();
-		return (loader != null) && loader.hasMoreResults();
-	}
-
-	private CommentsLoader getLoader() {
-		if (isAdded()) {
-			Loader<PaginatedData<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
-			return (CommentsLoader) loader;
-		}
-		return null;
 	}
 
 	private static class CommentsLoader extends PaginatedLoader<Comment> {
@@ -196,11 +189,6 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	private class CommentsAdapter extends PaginatedArrayAdapter<Comment> {
 		public CommentsAdapter(Context context, PaginatedData<Comment> data) {
 			super(context, R.layout.row_comment, data);
-		}
-
-		@Override
-		protected boolean isLoaderLoading() {
-			return isLoading();
 		}
 
 		@Override

@@ -3,16 +3,20 @@ package com.boardgamegeek.ui.loader;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
+import hugo.weaving.DebugLog;
+
 public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T>> {
 	private PaginatedData<T> data;
 	private boolean isLoading;
 
+	@DebugLog
 	public PaginatedLoader(Context context) {
 		super(context);
 		isLoading = true;
 		data = null;
 	}
 
+	@DebugLog
 	@Override
 	protected void onStartLoading() {
 		if (data != null) {
@@ -23,16 +27,19 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 		}
 	}
 
+	@DebugLog
 	@Override
 	public PaginatedData<T> loadInBackground() {
 		isLoading = true;
 		return null;
 	}
 
+	@DebugLog
 	protected int getNextPage() {
 		return (data == null ? 1 : data.getNextPageNumber());
 	}
 
+	@DebugLog
 	@Override
 	public void deliverResult(PaginatedData<T> data) {
 		isLoading = false;
@@ -48,12 +55,14 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 		}
 	}
 
+	@DebugLog
 	@Override
 	protected void onStopLoading() {
 		isLoading = false;
 		cancelLoad();
 	}
 
+	@DebugLog
 	@Override
 	protected void onReset() {
 		super.onReset();
@@ -61,10 +70,12 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 		data = null;
 	}
 
+	@DebugLog
 	public boolean isLoading() {
 		return isLoading;
 	}
 
+	@DebugLog
 	public boolean hasMoreResults() {
 		return data != null && data.hasMoreResults();
 	}

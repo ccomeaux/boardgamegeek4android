@@ -256,11 +256,6 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		}
 
 		@Override
-		protected boolean isLoaderLoading() {
-			return isLoading();
-		}
-
-		@Override
 		protected void bind(View view, GeekListEntry item) {
 			GeekListRowViewBinder.bindActivityView(view, item);
 		}

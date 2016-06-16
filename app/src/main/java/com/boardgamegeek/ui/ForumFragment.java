@@ -229,12 +229,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 		@Override
 		@DebugLog
-		protected boolean isLoaderLoading() {
-			return isLoading();
-		}
-
-		@Override
-		@DebugLog
 		protected void bind(View view, Thread item) {
 			ThreadRowViewBinder.bindActivityView(view, item);
 		}
