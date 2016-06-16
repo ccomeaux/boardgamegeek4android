@@ -160,7 +160,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 		public PaginatedData<Comment> loadInBackground() {
 			super.loadInBackground();
 			CommentData data;
-			int page = getNextPage();
+			int page = getNextPageNumber();
 			Call<ThingResponse> call;
 			if (isSortedByRating) {
 				call = bggService.thingWithRatings(gameId, page);

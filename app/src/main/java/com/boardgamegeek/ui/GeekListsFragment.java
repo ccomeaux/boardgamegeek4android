@@ -222,7 +222,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			super.loadInBackground();
 			GeekListsData data;
 			try {
-				int page = getNextPage();
+				int page = getNextPageNumber();
 				String sort = BggService.GEEK_LIST_SORT_HOT;
 				switch (sortType) {
 					case SORT_TYPE_RECENT:

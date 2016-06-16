@@ -35,8 +35,8 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 	}
 
 	@DebugLog
-	protected int getNextPage() {
-		return (data == null ? 1 : data.getNextPageNumber());
+	protected int getNextPageNumber() {
+		return data == null ? 1 : data.getNextPageNumber();
 	}
 
 	@DebugLog

@@ -24,7 +24,7 @@ public class PaginatedData<T> {
 	}
 
 	public PaginatedData(Exception e) {
-		updateErrorMessage(e.getMessage());
+		errorMessage = e.getLocalizedMessage();
 	}
 
 	public PaginatedData(PaginatedData<T> data) {
@@ -37,12 +37,6 @@ public class PaginatedData<T> {
 		this.currentPageNumber = data.currentPageNumber;
 		this.pageSize = data.pageSize;
 		this.errorMessage = data.errorMessage;
-	}
-
-	protected void updateErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-		totalItemCount = 0;
-		currentPageNumber = 0;
 	}
 
 	public void addPage(List<T> items) {
@@ -68,12 +62,8 @@ public class PaginatedData<T> {
 		return currentPageNumber + 1;
 	}
 
-	public int getPageSize() {
-		return pageSize;
-	}
-
 	public boolean hasMoreResults() {
-		return currentPageNumber * getPageSize() < totalItemCount;
+		return currentPageNumber * pageSize < totalItemCount;
 	}
 
 	public boolean hasError() {
