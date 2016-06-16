@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.Menu;
@@ -143,7 +144,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 	@Override
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		GeekListRowViewBinder.ViewHolder holder = (GeekListRowViewBinder.ViewHolder) convertView.getTag();
+		ViewHolder holder = (ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent intent = new Intent(getActivity(), GeekListActivity.class);
 			intent.putExtra(ActivityUtils.KEY_ID, holder.id);
@@ -255,39 +256,40 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 		@Override
 		protected void bind(View view, GeekListEntry item) {
-			GeekListRowViewBinder.bindActivityView(view, item);
+			final ViewHolder holder = getViewHolder(view);
+			holder.bind(view.getContext(), item);
 		}
 	}
 
-	public static class GeekListRowViewBinder {
-		public static class ViewHolder {
-			public int id;
-			@BindView(R.id.geeklist_title) TextView title;
-			@BindView(R.id.geeklist_creator) TextView creator;
-			@BindView(R.id.geeklist_items) TextView numItems;
-			@BindView(R.id.geeklist_thumbs) TextView numThumbs;
+	public static class ViewHolder {
+		public int id;
+		@BindView(R.id.geeklist_title) TextView title;
+		@BindView(R.id.geeklist_creator) TextView creator;
+		@BindView(R.id.geeklist_items) TextView numItems;
+		@BindView(R.id.geeklist_thumbs) TextView numThumbs;
 
-			public ViewHolder(View view) {
-				ButterKnife.bind(this, view);
-			}
+		public ViewHolder(View view) {
+			ButterKnife.bind(this, view);
 		}
 
-		public static void bindActivityView(View rootView, GeekListEntry geekListEntry) {
-			ViewHolder tag = (ViewHolder) rootView.getTag();
-			final ViewHolder holder;
-			if (tag != null) {
-				holder = tag;
-			} else {
-				holder = new ViewHolder(rootView);
-				rootView.setTag(holder);
-			}
+		public void bind(Context context, GeekListEntry geekListEntry) {
+			id = geekListEntry.getId();
+			title.setText(geekListEntry.getTitle());
+			creator.setText(context.getString(R.string.by_prefix, geekListEntry.getAuthor()));
+			numItems.setText(context.getString(R.string.items_suffix, geekListEntry.getNumberOfItems()));
+			numThumbs.setText(context.getString(R.string.thumbs_suffix, geekListEntry.getNumberOfThumbs()));
+		}
+	}
 
-			Context context = rootView.getContext();
-			holder.id = geekListEntry.getId();
-			holder.title.setText(geekListEntry.getTitle());
-			holder.creator.setText(context.getString(R.string.by_prefix, geekListEntry.getAuthor()));
-			holder.numItems.setText(context.getString(R.string.items_suffix, geekListEntry.getNumberOfItems()));
-			holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geekListEntry.getNumberOfThumbs()));
+	@NonNull
+	private static ViewHolder getViewHolder(View rootView) {
+		ViewHolder tag = (ViewHolder) rootView.getTag();
+		if (tag != null) {
+			return tag;
+		} else {
+			final ViewHolder holder = new ViewHolder(rootView);
+			rootView.setTag(holder);
+			return holder;
 		}
 	}
 }
