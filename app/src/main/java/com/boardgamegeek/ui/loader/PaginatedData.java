@@ -6,26 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaginatedData<T> {
-	private List<T> data;
-	private String errorMessage;
-	private int totalCount;
-	private int currentPage;
+	private List<T> items;
+	private int totalItemCount;
+	private int currentPageNumber;
 	private int pageSize;
+	private String errorMessage;
 
-	public PaginatedData(List<T> data, int totalCount, int page, int pageSize) {
-		this.data = data;
-		if (this.data == null) {
-			this.data = new ArrayList<>();
+	public PaginatedData(List<T> items, int totalItemCount, int currentPageNumber, int pageSize) {
+		this.items = items;
+		if (this.items == null) {
+			this.items = new ArrayList<>();
 		}
-		errorMessage = "";
-		this.totalCount = totalCount;
-		currentPage = page;
+		this.totalItemCount = totalItemCount;
+		this.currentPageNumber = currentPageNumber;
 		this.pageSize = pageSize;
-	}
-
-	public PaginatedData(String errorMessage) {
-		data = new ArrayList<>();
-		updateErrorMessage(errorMessage);
+		errorMessage = "";
 	}
 
 	public PaginatedData(Exception e) {
@@ -33,42 +28,42 @@ public class PaginatedData<T> {
 	}
 
 	public PaginatedData(PaginatedData<T> data) {
-		if (data.data == null) {
-			this.data = new ArrayList<>();
+		if (data.items == null) {
+			this.items = new ArrayList<>();
 		} else {
-			this.data = new ArrayList<>(data.data);
+			this.items = new ArrayList<>(data.items);
 		}
-		this.errorMessage = data.errorMessage;
-		this.totalCount = data.totalCount;
-		this.currentPage = data.currentPage;
+		this.totalItemCount = data.totalItemCount;
+		this.currentPageNumber = data.currentPageNumber;
 		this.pageSize = data.pageSize;
+		this.errorMessage = data.errorMessage;
 	}
 
 	protected void updateErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
-		totalCount = 0;
-		currentPage = 0;
+		totalItemCount = 0;
+		currentPageNumber = 0;
 	}
 
-	public void addAll(List<T> threads) {
-		data.addAll(threads);
-		currentPage++;
+	public void addPage(List<T> items) {
+		this.items.addAll(items);
+		currentPageNumber++;
 	}
 
-	public List<T> getData() {
-		return data;
+	public List<T> getItems() {
+		return items;
 	}
 
-	public int getTotalCount() {
-		return totalCount;
+	public int getTotalItemCount() {
+		return totalItemCount;
 	}
 
-	public int getCurrentPage() {
-		return currentPage;
+	public int getCurrentPageNumber() {
+		return currentPageNumber;
 	}
 
-	public int getNextPage() {
-		return currentPage + 1;
+	public int getNextPageNumber() {
+		return currentPageNumber + 1;
 	}
 
 	public int getPageSize() {
@@ -76,7 +71,7 @@ public class PaginatedData<T> {
 	}
 
 	public boolean hasMoreResults() {
-		return currentPage * getPageSize() < totalCount;
+		return currentPageNumber * getPageSize() < totalItemCount;
 	}
 
 	public boolean hasError() {

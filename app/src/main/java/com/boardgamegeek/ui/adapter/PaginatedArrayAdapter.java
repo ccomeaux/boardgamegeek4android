@@ -23,18 +23,18 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	private final int pageSize;
 
 	public PaginatedArrayAdapter(Context context, @LayoutRes int layoutResourceId, PaginatedData<T> data) {
-		super(context, layoutResourceId, data.getData());
+		super(context, layoutResourceId, data.getItems());
 		this.layoutResourceId = layoutResourceId;
 		errorMessage = data.getErrorMessage();
-		totalCount = data.getTotalCount();
-		currentPage = data.getCurrentPage();
+		totalCount = data.getTotalItemCount();
+		currentPage = data.getCurrentPageNumber();
 		pageSize = data.getPageSize();
 	}
 
 	public void update(PaginatedData<T> data) {
 		clear();
-		currentPage = data.getCurrentPage();
-		for (T datum : data.getData()) {
+		currentPage = data.getCurrentPageNumber();
+		for (T datum : data.getItems()) {
 			add(datum);
 		}
 	}
