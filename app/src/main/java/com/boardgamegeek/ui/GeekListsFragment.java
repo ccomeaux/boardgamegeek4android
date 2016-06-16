@@ -218,11 +218,9 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		}
 
 		@Override
-		public PaginatedData<GeekListEntry> loadInBackground() {
-			super.loadInBackground();
+		protected PaginatedData<GeekListEntry> fetchPage(int pageNumber) {
 			GeekListsData data;
 			try {
-				int page = getNextPageNumber();
 				String sort = BggService.GEEK_LIST_SORT_HOT;
 				switch (sortType) {
 					case SORT_TYPE_RECENT:
@@ -232,7 +230,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 						sort = BggService.GEEK_LIST_SORT_ACTIVE;
 						break;
 				}
-				data = new GeekListsData(bggService.geekLists(page, sort).execute().body(), page);
+				data = new GeekListsData(bggService.geekLists(pageNumber, sort).execute().body(), pageNumber);
 			} catch (Exception e) {
 				data = new GeekListsData(e);
 			}

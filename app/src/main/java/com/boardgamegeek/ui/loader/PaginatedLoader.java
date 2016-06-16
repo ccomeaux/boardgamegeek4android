@@ -31,7 +31,7 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 	@Override
 	public PaginatedData<T> loadInBackground() {
 		isLoading = true;
-		return null;
+		return fetchPage(getNextPageNumber());
 	}
 
 	@DebugLog
@@ -79,4 +79,6 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 	public boolean hasMoreResults() {
 		return data != null && data.hasMoreResults();
 	}
+
+	protected abstract PaginatedData<T> fetchPage(int pageNumber);
 }

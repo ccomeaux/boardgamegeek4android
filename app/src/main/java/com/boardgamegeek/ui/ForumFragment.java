@@ -188,14 +188,12 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			this.forumId = forumId;
 		}
 
-		@Override
 		@DebugLog
-		public PaginatedData<Thread> loadInBackground() {
-			super.loadInBackground();
+		@Override
+		protected PaginatedData<Thread> fetchPage(int pageNumber) {
 			ForumData data;
 			try {
-				int page = getNextPageNumber();
-				data = new ForumData(bggService.forum(forumId, page).execute().body(), page);
+				data = new ForumData(bggService.forum(forumId, pageNumber).execute().body(), pageNumber);
 			} catch (Exception e) {
 				data = new ForumData(e);
 			}
