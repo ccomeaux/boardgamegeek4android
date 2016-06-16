@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Game.Comment;
+import com.boardgamegeek.model.Game.Comments;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
@@ -27,8 +29,11 @@ import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
+import retrofit2.Call;
 
 public class CommentsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
@@ -162,13 +167,15 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 		public PaginatedData<Comment> loadInBackground() {
 			super.loadInBackground();
 			CommentData data;
+			int page = getNextPage();
+			Call<ThingResponse> call;
+			if (isSortedByRating) {
+				call = bggService.thingWithRatings(gameId, page);
+			} else {
+				call = bggService.thingWithComments(gameId, page);
+			}
 			try {
-				int page = getNextPage();
-				if (isSortedByRating) {
-					data = new CommentData(bggService.thingWithRatings(gameId, page).execute().body(), page);
-				} else {
-					data = new CommentData(bggService.thingWithComments(gameId, page).execute().body(), page);
-				}
+				data = new CommentData(call.execute().body().getGames().get(0).comments, page);
 			} catch (Exception e) {
 				data = new CommentData(e);
 			}
@@ -177,9 +184,8 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	}
 
 	static class CommentData extends PaginatedData<Comment> {
-		public CommentData(ThingResponse response, int page) {
-			super(response.getGames().get(0).comments.comments, response.getGames().get(0).comments.totalitems, page,
-				ThingResponse.PAGE_SIZE);
+		public CommentData(Comments comments, int page) {
+			super(comments.comments, comments.totalitems, page, ThingResponse.PAGE_SIZE);
 		}
 
 		public CommentData(Exception e) {
@@ -199,37 +205,37 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 		@Override
 		protected void bind(View view, Comment item) {
-			CommentRowViewBinder.bindActivityView(view, item);
+			final ViewHolder holder = getViewHolder(view);
+			holder.bind(item);
 		}
 	}
 
-	private static class CommentRowViewBinder {
-		private static class ViewHolder {
-			final TextView usernameView;
-			final TextView ratingView;
-			final TextView commentView;
+	static class ViewHolder {
+		@BindView(R.id.username) TextView usernameView;
+		@BindView(R.id.rating) TextView ratingView;
+		@BindView(R.id.comment) TextView commentView;
 
-			public ViewHolder(View view) {
-				usernameView = (TextView) view.findViewById(R.id.username);
-				ratingView = (TextView) view.findViewById(R.id.rating);
-				commentView = (TextView) view.findViewById(R.id.comment);
-			}
+		public ViewHolder(View view) {
+			ButterKnife.bind(this, view);
 		}
 
-		private static void bindActivityView(final View rootView, Comment comment) {
-			ViewHolder temp = (ViewHolder) rootView.getTag();
-			final ViewHolder holder;
-			if (temp != null) {
-				holder = temp;
-			} else {
-				holder = new ViewHolder(rootView);
-				rootView.setTag(holder);
-			}
+		private void bind(Comment comment) {
+			usernameView.setText(comment.username);
+			ratingView.setText(comment.getRatingText());
+			ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(comment.getRating()));
+			PresentationUtils.setTextOrHide(commentView, comment.value);
+		}
+	}
 
-			holder.usernameView.setText(comment.username);
-			holder.ratingView.setText(comment.getRatingText());
-			ColorUtils.setViewBackground(holder.ratingView, ColorUtils.getRatingColor(comment.getRating()));
-			PresentationUtils.setTextOrHide(holder.commentView, comment.value);
+	@NonNull
+	private static ViewHolder getViewHolder(View rootView) {
+		ViewHolder tag = (ViewHolder) rootView.getTag();
+		if (tag != null) {
+			return tag;
+		} else {
+			final ViewHolder holder = new ViewHolder(rootView);
+			rootView.setTag(holder);
+			return holder;
 		}
 	}
 }
