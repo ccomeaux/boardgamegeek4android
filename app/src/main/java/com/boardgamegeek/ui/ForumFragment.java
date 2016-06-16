@@ -5,13 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -24,7 +23,7 @@ import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
 import com.boardgamegeek.ui.loader.PaginatedData;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
@@ -93,22 +92,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			if (loader != null) {
 				loader.forceLoad();
 			}
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		ThreadRowViewBinder.ViewHolder holder = (ThreadRowViewBinder.ViewHolder) convertView.getTag();
-		if (holder != null) {
-			Intent intent = new Intent(getActivity(), ThreadActivity.class);
-			intent.putExtra(ActivityUtils.KEY_THREAD_ID, holder.threadId);
-			intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, holder.subjectView.getText());
-			intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
-			intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
-			intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-			intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-			startActivity(intent);
 		}
 	}
 
@@ -219,7 +202,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		}
 	}
 
-	private class ForumAdapter extends PaginatedArrayAdapter<Thread> {
+	class ForumAdapter extends PaginatedArrayAdapter<Thread> {
 		@DebugLog
 		public ForumAdapter(Context context, PaginatedData<Thread> data) {
 			super(context, R.layout.row_forum_thread, data);
@@ -228,14 +211,17 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		@Override
 		@DebugLog
 		protected void bind(View view, Thread item) {
-			ThreadRowViewBinder.bindActivityView(view, item);
+			final ViewHolder holder = getViewHolder(view, forumId, forumTitle, gameId, gameName);
+			holder.bind(item);
 		}
-	}
 
-	static class ThreadRowViewBinder {
-		@SuppressWarnings("unused")
-		public static class ViewHolder {
-			public int threadId;
+		class ViewHolder {
+			private final View rootView;
+			private final int forumId;
+			private final String forumTitle;
+			private final int gameId;
+			private final String gameName;
+			private int threadId;
 			@BindView(R.id.subject) TextView subjectView;
 			@BindView(R.id.author) TextView authorView;
 			@BindView(R.id.number_of_articles) TextView numberOfArticlesView;
@@ -243,40 +229,50 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			@BindView(R.id.post_date) TextView postDateView;
 
 			@DebugLog
-			public ViewHolder(View view) {
+			public ViewHolder(View view, int forumId, String forumTitle, int gameId, String gameName) {
+				rootView = view;
+				this.forumId = forumId;
+				this.forumTitle = forumTitle;
+				this.gameId = gameId;
+				this.gameName = gameName;
 				ButterKnife.bind(this, view);
+			}
+
+			public void bind(Thread thread) {
+				final Context context = rootView.getContext();
+				threadId = thread.id;
+				subjectView.setText(thread.subject);
+				authorView.setText(context.getString(R.string.forum_thread_author, thread.author));
+				int replies = thread.numberOfArticles - 1;
+				numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
+				PresentationUtils.formatDate(context, lastPostDateView, thread.lastPostDate(), R.string.forum_last_post);
+				PresentationUtils.formatDate(context, postDateView, thread.postDate(), R.string.forum_thread_created);
+				rootView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(context, ThreadActivity.class);
+						intent.putExtra(ActivityUtils.KEY_THREAD_ID, threadId);
+						intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, subjectView.getText());
+						intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
+						intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
+						intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
+						intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+						context.startActivity(intent);
+					}
+				});
 			}
 		}
 
-		@DebugLog
-		public static void bindActivityView(View rootView, Thread thread) {
-			final ViewHolder holder = getViewHolder(rootView);
-			final Context context = rootView.getContext();
-
-			holder.threadId = thread.id;
-			holder.subjectView.setText(thread.subject);
-			holder.authorView.setText(context.getString(R.string.forum_thread_author, thread.author));
-			int replies = thread.numberOfArticles - 1;
-			holder.numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
-			formatDate(context, holder.lastPostDateView, thread.lastPostDate(), R.string.forum_last_post);
-			formatDate(context, holder.postDateView, thread.postDate(), R.string.forum_thread_created);
-		}
-
 		@NonNull
-		private static ViewHolder getViewHolder(View rootView) {
+		private ViewHolder getViewHolder(View rootView, int forumId, String forumTitle, int gameId, String gameName) {
 			ViewHolder tag = (ViewHolder) rootView.getTag();
 			if (tag != null) {
 				return tag;
 			} else {
-				final ViewHolder holder = new ViewHolder(rootView);
+				final ViewHolder holder = new ViewHolder(rootView, forumId, forumTitle, gameId, gameName);
 				rootView.setTag(holder);
 				return holder;
 			}
-		}
-
-		private static void formatDate(Context context, TextView textView, long date, @StringRes int stringResId) {
-			CharSequence formattedDate = DateTimeUtils.formatForumDate(context, date);
-			textView.setText(context.getString(stringResId, formattedDate));
 		}
 	}
 }

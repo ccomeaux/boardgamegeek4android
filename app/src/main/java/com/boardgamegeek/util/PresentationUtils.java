@@ -355,4 +355,11 @@ public class PresentationUtils {
 	public static int[] getColorSchemeResources() {
 		return new int[] { R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue };
 	}
+
+	@DebugLog
+	public static void formatDate(Context context, TextView textView, long date, @StringRes int stringResId) {
+		CharSequence formattedDate = DateTimeUtils.formatForumDate(context, date);
+		textView.setText(context.getString(stringResId, formattedDate));
+	}
+
 }

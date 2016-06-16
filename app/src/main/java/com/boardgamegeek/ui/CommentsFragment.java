@@ -184,7 +184,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 		}
 	}
 
-	private class CommentsAdapter extends PaginatedArrayAdapter<Comment> {
+	class CommentsAdapter extends PaginatedArrayAdapter<Comment> {
 		public CommentsAdapter(Context context, PaginatedData<Comment> data) {
 			super(context, R.layout.row_comment, data);
 		}
@@ -194,34 +194,34 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 			final ViewHolder holder = getViewHolder(view);
 			holder.bind(item);
 		}
-	}
 
-	static class ViewHolder {
-		@BindView(R.id.username) TextView usernameView;
-		@BindView(R.id.rating) TextView ratingView;
-		@BindView(R.id.comment) TextView commentView;
+		class ViewHolder {
+			@BindView(R.id.username) TextView usernameView;
+			@BindView(R.id.rating) TextView ratingView;
+			@BindView(R.id.comment) TextView commentView;
 
-		public ViewHolder(View view) {
-			ButterKnife.bind(this, view);
+			public ViewHolder(View view) {
+				ButterKnife.bind(this, view);
+			}
+
+			private void bind(Comment comment) {
+				usernameView.setText(comment.username);
+				ratingView.setText(comment.getRatingText());
+				ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(comment.getRating()));
+				PresentationUtils.setTextOrHide(commentView, comment.value);
+			}
 		}
 
-		private void bind(Comment comment) {
-			usernameView.setText(comment.username);
-			ratingView.setText(comment.getRatingText());
-			ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(comment.getRating()));
-			PresentationUtils.setTextOrHide(commentView, comment.value);
-		}
-	}
-
-	@NonNull
-	private static ViewHolder getViewHolder(View rootView) {
-		ViewHolder tag = (ViewHolder) rootView.getTag();
-		if (tag != null) {
-			return tag;
-		} else {
-			final ViewHolder holder = new ViewHolder(rootView);
-			rootView.setTag(holder);
-			return holder;
+		@NonNull
+		private ViewHolder getViewHolder(View rootView) {
+			ViewHolder tag = (ViewHolder) rootView.getTag();
+			if (tag != null) {
+				return tag;
+			} else {
+				final ViewHolder holder = new ViewHolder(rootView);
+				rootView.setTag(holder);
+				return holder;
+			}
 		}
 	}
 }

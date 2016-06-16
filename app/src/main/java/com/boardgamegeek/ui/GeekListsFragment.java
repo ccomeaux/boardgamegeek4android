@@ -10,9 +10,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -143,17 +143,6 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	}
 
 	@Override
-	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		ViewHolder holder = (ViewHolder) convertView.getTag();
-		if (holder != null) {
-			Intent intent = new Intent(getActivity(), GeekListActivity.class);
-			intent.putExtra(ActivityUtils.KEY_ID, holder.id);
-			intent.putExtra(ActivityUtils.KEY_TITLE, holder.title.getText());
-			startActivity(intent);
-		}
-	}
-
-	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
 
@@ -249,7 +238,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		}
 	}
 
-	private class GeekListsAdapter extends PaginatedArrayAdapter<GeekListEntry> {
+	class GeekListsAdapter extends PaginatedArrayAdapter<GeekListEntry> {
 		public GeekListsAdapter(Context context, PaginatedData<GeekListEntry> data) {
 			super(context, R.layout.row_geeklist, data);
 		}
@@ -257,39 +246,52 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		@Override
 		protected void bind(View view, GeekListEntry item) {
 			final ViewHolder holder = getViewHolder(view);
-			holder.bind(view.getContext(), item);
-		}
-	}
-
-	public static class ViewHolder {
-		public int id;
-		@BindView(R.id.geeklist_title) TextView title;
-		@BindView(R.id.geeklist_creator) TextView creator;
-		@BindView(R.id.geeklist_items) TextView numItems;
-		@BindView(R.id.geeklist_thumbs) TextView numThumbs;
-
-		public ViewHolder(View view) {
-			ButterKnife.bind(this, view);
+			holder.bind(item);
 		}
 
-		public void bind(Context context, GeekListEntry geekListEntry) {
-			id = geekListEntry.getId();
-			title.setText(geekListEntry.getTitle());
-			creator.setText(context.getString(R.string.by_prefix, geekListEntry.getAuthor()));
-			numItems.setText(context.getString(R.string.items_suffix, geekListEntry.getNumberOfItems()));
-			numThumbs.setText(context.getString(R.string.thumbs_suffix, geekListEntry.getNumberOfThumbs()));
-		}
-	}
+		class ViewHolder {
+			private final View rootView;
+			private int id;
+			@BindView(R.id.geeklist_title) TextView title;
+			@BindView(R.id.geeklist_creator) TextView creator;
+			@BindView(R.id.geeklist_items) TextView numItems;
+			@BindView(R.id.geeklist_thumbs) TextView numThumbs;
 
-	@NonNull
-	private static ViewHolder getViewHolder(View rootView) {
-		ViewHolder tag = (ViewHolder) rootView.getTag();
-		if (tag != null) {
-			return tag;
-		} else {
-			final ViewHolder holder = new ViewHolder(rootView);
-			rootView.setTag(holder);
-			return holder;
+			public ViewHolder(View view) {
+				rootView = view;
+				ButterKnife.bind(this, view);
+			}
+
+			public void bind(GeekListEntry geekListEntry) {
+				Context context = rootView.getContext();
+				id = geekListEntry.getId();
+				title.setText(geekListEntry.getTitle());
+				creator.setText(context.getString(R.string.by_prefix, geekListEntry.getAuthor()));
+				numItems.setText(context.getString(R.string.items_suffix, geekListEntry.getNumberOfItems()));
+				numThumbs.setText(context.getString(R.string.thumbs_suffix, geekListEntry.getNumberOfThumbs()));
+				rootView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Context context = v.getContext();
+						Intent intent = new Intent(context, GeekListActivity.class);
+						intent.putExtra(ActivityUtils.KEY_ID, id);
+						intent.putExtra(ActivityUtils.KEY_TITLE, title.getText());
+						context.startActivity(intent);
+					}
+				});
+			}
+		}
+
+		@NonNull
+		private ViewHolder getViewHolder(View rootView) {
+			ViewHolder tag = (ViewHolder) rootView.getTag();
+			if (tag != null) {
+				return tag;
+			} else {
+				final ViewHolder holder = new ViewHolder(rootView);
+				rootView.setTag(holder);
+				return holder;
+			}
 		}
 	}
 }
