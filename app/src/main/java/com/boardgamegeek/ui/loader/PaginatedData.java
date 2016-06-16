@@ -50,12 +50,14 @@ public class PaginatedData<T> {
 		currentPageNumber++;
 	}
 
-	public List<T> getItems() {
-		return items;
+	public void clear() {
+		items.clear();
+		currentPageNumber = 0;
+		totalItemCount = 0;
 	}
 
-	public int getTotalItemCount() {
-		return totalItemCount;
+	public List<T> getItems() {
+		return items;
 	}
 
 	public int getCurrentPageNumber() {
