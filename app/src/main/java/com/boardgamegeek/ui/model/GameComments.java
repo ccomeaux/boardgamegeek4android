@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.model;
 import com.boardgamegeek.model.Game.Comment;
 import com.boardgamegeek.model.Game.Comments;
 import com.boardgamegeek.model.ThingResponse;
-import com.boardgamegeek.ui.loader.PaginatedData;
 
 public class GameComments extends PaginatedData<Comment> {
 	public GameComments(Comments comments, int page) {

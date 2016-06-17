@@ -21,8 +21,8 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
-import com.boardgamegeek.ui.loader.PaginatedData;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
+import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.util.ActivityUtils;
 
 import java.util.List;

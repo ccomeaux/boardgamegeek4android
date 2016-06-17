@@ -3,6 +3,8 @@ package com.boardgamegeek.ui.loader;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
+import com.boardgamegeek.ui.model.PaginatedData;
+
 import hugo.weaving.DebugLog;
 
 public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T>> {

@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Game.Comment;
-import com.boardgamegeek.ui.loader.PaginatedData;
+import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PresentationUtils;
 

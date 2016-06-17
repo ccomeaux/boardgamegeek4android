@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.ui.loader.PaginatedData;
+import com.boardgamegeek.ui.model.PaginatedData;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
