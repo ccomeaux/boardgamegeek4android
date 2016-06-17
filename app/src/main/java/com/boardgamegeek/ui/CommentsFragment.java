@@ -93,7 +93,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
 
-		// TODO - show divider
+		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
