@@ -534,4 +534,13 @@
 	<style name="BggShowcaseText" parent="TextAppearance.ShowcaseView.Detail">
 		<item name="android:textSize">14sp</item>
 	</style>
+
+	<style name="EmptyMessage">
+		<item name="android:gravity">center</item>
+		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
+		<item name="android:textAppearance">@style/Text</item>
+	</style>
 </resources>

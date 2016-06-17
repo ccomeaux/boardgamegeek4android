@@ -21,15 +21,10 @@
 
 	<TextView
 		android:id="@android:id/empty"
+		style="@style/EmptyMessage"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:gravity="center"
-		android:paddingBottom="@dimen/material_margin_vertical"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/material_margin_vertical"
 		android:text="@string/empty_colors"
-		android:textAppearance="@style/Text"
 		android:visibility="gone"/>
 
 	<android.support.v7.widget.RecyclerView
