@@ -112,7 +112,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		});
 	}
 
-
 	@DebugLog
 	private void loadMoreResults() {
 		if (isAdded()) {
@@ -150,7 +149,11 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 			adapter.update(data);
 		}
 
-		AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+		if (adapter.getItemCount() == 0) {
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+		} else {
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+		}
 		AnimationUtils.fadeOut(progressView);
 	}
 
