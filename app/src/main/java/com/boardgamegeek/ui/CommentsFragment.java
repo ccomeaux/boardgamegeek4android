@@ -3,45 +3,53 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Game.Comment;
-import com.boardgamegeek.model.Game.Comments;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
+import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedData;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
+import com.boardgamegeek.ui.model.GameComments;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 import retrofit2.Call;
 
-public class CommentsFragment extends BggListFragment implements OnScrollListener,
-	LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
+public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 1;
-	private CommentsAdapter adapter;
+	private GameCommentsRecyclerViewAdapter adapter;
 	private int gameId;
 	@State boolean isSortedByRating = false;
+
+	private Unbinder unbinder;
+	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) View emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,18 +61,13 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 		isSortedByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
 	}
 
+	@DebugLog
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
-		listView.setOnScrollListener(this);
-		listView.setSelector(android.R.color.transparent);
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_comments));
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
 	}
 
 	@Override
@@ -80,16 +83,38 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	}
 
 	@Override
-	protected boolean padTop() {
-		return true;
+	public void onDestroyView() {
+		unbinder.unbind();
+		super.onDestroyView();
 	}
 
-	@Override
-	protected boolean dividerShown() {
-		return true;
+	private void setUpRecyclerView() {
+		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+		recyclerView.setLayoutManager(layoutManager);
+
+		// TODO - show divider
+
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+
+				final CommentsLoader loader = getLoader();
+				if (loader != null && !loader.isLoading() && loader.hasMoreResults()) {
+					int totalItemCount = layoutManager.getItemCount();
+					int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+					if (lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
+						loadMoreResults();
+					}
+				}
+			}
+		});
 	}
 
-	public void loadMoreResults() {
+
+	@DebugLog
+	private void loadMoreResults() {
 		if (isAdded()) {
 			Loader<List<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
 			if (loader != null) {
@@ -98,20 +123,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 		}
 	}
 
-	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-	}
-
-	@Override
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		final CommentsLoader loader = getLoader();
-		final boolean isNearEnd = firstVisibleItem + visibleItemCount + VISIBLE_THRESHOLD >= totalItemCount;
-		if (loader != null && !loader.isLoading() && loader.hasMoreResults() && visibleItemCount != 0 && isNearEnd) {
-			saveScrollState();
-			loadMoreResults();
-		}
-	}
-
+	@DebugLog
 	private CommentsLoader getLoader() {
 		if (isAdded()) {
 			Loader<PaginatedData<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
@@ -132,12 +144,14 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 		}
 
 		if (adapter == null) {
-			adapter = new CommentsAdapter(getActivity(), data);
-			setListAdapter(adapter);
+			adapter = new GameCommentsRecyclerViewAdapter(getActivity(), data);
+			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.update(data);
 		}
-		restoreScrollState();
+
+		AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override
@@ -158,7 +172,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 		@Override
 		protected PaginatedData<Comment> fetchPage(int pageNumber) {
-			CommentData data;
+			GameComments data;
 			Call<ThingResponse> call;
 			if (isSortedByRating) {
 				call = bggService.thingWithRatings(gameId, pageNumber);
@@ -166,62 +180,11 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 				call = bggService.thingWithComments(gameId, pageNumber);
 			}
 			try {
-				data = new CommentData(call.execute().body().getGames().get(0).comments, pageNumber);
+				data = new GameComments(call.execute().body().getGames().get(0).comments, pageNumber);
 			} catch (Exception e) {
-				data = new CommentData(e);
+				data = new GameComments(e);
 			}
 			return data;
-		}
-	}
-
-	static class CommentData extends PaginatedData<Comment> {
-		public CommentData(Comments comments, int page) {
-			super(comments.comments, comments.totalitems, page, ThingResponse.PAGE_SIZE);
-		}
-
-		public CommentData(Exception e) {
-			super(e);
-		}
-	}
-
-	class CommentsAdapter extends PaginatedArrayAdapter<Comment> {
-		public CommentsAdapter(Context context, PaginatedData<Comment> data) {
-			super(context, R.layout.row_comment, data);
-		}
-
-		@Override
-		protected void bind(View view, Comment item) {
-			final ViewHolder holder = getViewHolder(view);
-			holder.bind(item);
-		}
-
-		class ViewHolder {
-			@BindView(R.id.username) TextView usernameView;
-			@BindView(R.id.rating) TextView ratingView;
-			@BindView(R.id.comment) TextView commentView;
-
-			public ViewHolder(View view) {
-				ButterKnife.bind(this, view);
-			}
-
-			private void bind(Comment comment) {
-				usernameView.setText(comment.username);
-				ratingView.setText(comment.getRatingText());
-				ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(comment.getRating()));
-				PresentationUtils.setTextOrHide(commentView, comment.value);
-			}
-		}
-
-		@NonNull
-		private ViewHolder getViewHolder(View rootView) {
-			ViewHolder tag = (ViewHolder) rootView.getTag();
-			if (tag != null) {
-				return tag;
-			} else {
-				final ViewHolder holder = new ViewHolder(rootView);
-				rootView.setTag(holder);
-				return holder;
-			}
 		}
 	}
 }
