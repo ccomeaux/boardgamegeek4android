@@ -3,44 +3,58 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.TextView;
+import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.Thread;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
+import com.boardgamegeek.ui.adapter.ForumRecyclerViewAdapter;
+import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
+import com.boardgamegeek.ui.model.ForumThreads;
 import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
-public class ForumFragment extends BggListFragment implements OnScrollListener,
-	LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
+public class ForumFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
 	private static final int LOADER_ID = 0;
+	private static final int VISIBLE_THRESHOLD = 3;
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	private ForumAdapter adapter;
+	private Handler timeHintUpdateHandler = new Handler();
+	private Runnable timeHintUpdateRunnable = null;
+
+	private ForumRecyclerViewAdapter adapter;
 	private int forumId;
 	private String forumTitle;
 	private int gameId;
 	private String gameName;
+
+	Unbinder unbinder;
+	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) View emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
 	@DebugLog
@@ -54,18 +68,13 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 	}
 
+	@Nullable
 	@Override
-	@DebugLog
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getListView().setOnScrollListener(this);
-	}
-
-	@Override
-	@DebugLog
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_forum));
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
 	}
 
 	@Override
@@ -76,13 +85,44 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
-	protected boolean padTop() {
-		return true;
+	public void onDestroyView() {
+		unbinder.unbind();
+		super.onDestroyView();
 	}
 
-	@Override
-	protected boolean dividerShown() {
-		return true;
+	private void setUpRecyclerView() {
+		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+		recyclerView.setLayoutManager(layoutManager);
+
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
+
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+
+				final ForumLoader loader = getLoader();
+				if (loader != null && !loader.isLoading() && loader.hasMoreResults()) {
+					int totalItemCount = layoutManager.getItemCount();
+					int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+					if (lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
+						loadMoreResults();
+					}
+				}
+			}
+		});
+	}
+
+	@DebugLog
+	@Nullable
+	private ForumLoader getLoader() {
+		if (isAdded()) {
+			Loader<PaginatedData<Thread>> loader = getLoaderManager().getLoader(LOADER_ID);
+			return (ForumLoader) loader;
+		}
+		return null;
 	}
 
 	@DebugLog
@@ -92,21 +132,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			if (loader != null) {
 				loader.forceLoad();
 			}
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-	}
-
-	@Override
-	@DebugLog
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
-			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
-			saveScrollState();
-			loadMoreResults();
 		}
 	}
 
@@ -124,40 +149,24 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		}
 
 		if (adapter == null) {
-			adapter = new ForumAdapter(getActivity(), data);
-			setListAdapter(adapter);
+			adapter = new ForumRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, gameId, gameName);
+			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.update(data);
 		}
 		initializeTimeBasedUi();
-		restoreScrollState();
+
+		if (adapter.getItemCount() == 0) {
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+		} else {
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+		}
+		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<PaginatedData<Thread>> loader) {
-	}
-
-	@DebugLog
-	private boolean isLoading() {
-		final ForumLoader loader = getLoader();
-		return (loader == null) || loader.isLoading();
-	}
-
-	@DebugLog
-	private boolean loaderHasMoreResults() {
-		final ForumLoader loader = getLoader();
-		return (loader != null) && loader.hasMoreResults();
-	}
-
-	@DebugLog
-	@Nullable
-	private ForumLoader getLoader() {
-		if (isAdded()) {
-			Loader<PaginatedData<Thread>> loader = getLoaderManager().getLoader(LOADER_ID);
-			return (ForumLoader) loader;
-		}
-		return null;
 	}
 
 	@DebugLog
@@ -174,105 +183,36 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		@DebugLog
 		@Override
 		protected PaginatedData<Thread> fetchPage(int pageNumber) {
-			ForumData data;
+			ForumThreads data;
 			try {
-				data = new ForumData(bggService.forum(forumId, pageNumber).execute().body(), pageNumber);
+				data = new ForumThreads(bggService.forum(forumId, pageNumber).execute().body(), pageNumber);
 			} catch (Exception e) {
-				data = new ForumData(e);
+				data = new ForumThreads(e);
 			}
 			return data;
 		}
 	}
 
-	@Override
 	@DebugLog
-	protected void updateTimeBasedUi() {
+	private void initializeTimeBasedUi() {
+		updateTimeBasedUi();
+		if (timeHintUpdateRunnable != null) {
+			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
+		}
+		timeHintUpdateRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
+	}
+
+	@DebugLog
+	private void updateTimeBasedUi() {
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
-		}
-	}
-
-	static class ForumData extends PaginatedData<Thread> {
-		public ForumData(ForumResponse response, int page) {
-			super(response.getThreads(), response.numberOfThreads(), page, ForumResponse.PAGE_SIZE);
-		}
-
-		public ForumData(Exception e) {
-			super(e);
-		}
-	}
-
-	class ForumAdapter extends PaginatedArrayAdapter<Thread> {
-		@DebugLog
-		public ForumAdapter(Context context, PaginatedData<Thread> data) {
-			super(context, R.layout.row_forum_thread, data);
-		}
-
-		@Override
-		@DebugLog
-		protected void bind(View view, Thread item) {
-			final ViewHolder holder = getViewHolder(view, forumId, forumTitle, gameId, gameName);
-			holder.bind(item);
-		}
-
-		class ViewHolder {
-			private final View rootView;
-			private final int forumId;
-			private final String forumTitle;
-			private final int gameId;
-			private final String gameName;
-			private int threadId;
-			@BindView(R.id.subject) TextView subjectView;
-			@BindView(R.id.author) TextView authorView;
-			@BindView(R.id.number_of_articles) TextView numberOfArticlesView;
-			@BindView(R.id.last_post_date) TextView lastPostDateView;
-			@BindView(R.id.post_date) TextView postDateView;
-
-			@DebugLog
-			public ViewHolder(View view, int forumId, String forumTitle, int gameId, String gameName) {
-				rootView = view;
-				this.forumId = forumId;
-				this.forumTitle = forumTitle;
-				this.gameId = gameId;
-				this.gameName = gameName;
-				ButterKnife.bind(this, view);
-			}
-
-			public void bind(Thread thread) {
-				final Context context = rootView.getContext();
-				threadId = thread.id;
-				subjectView.setText(thread.subject);
-				authorView.setText(context.getString(R.string.forum_thread_author, thread.author));
-				int replies = thread.numberOfArticles - 1;
-				numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
-				PresentationUtils.formatDate(context, lastPostDateView, thread.lastPostDate(), R.string.forum_last_post);
-				PresentationUtils.formatDate(context, postDateView, thread.postDate(), R.string.forum_thread_created);
-				rootView.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent intent = new Intent(context, ThreadActivity.class);
-						intent.putExtra(ActivityUtils.KEY_THREAD_ID, threadId);
-						intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, subjectView.getText());
-						intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
-						intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
-						intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-						intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-						context.startActivity(intent);
-					}
-				});
-			}
-		}
-
-		@NonNull
-		private ViewHolder getViewHolder(View rootView, int forumId, String forumTitle, int gameId, String gameName) {
-			ViewHolder tag = (ViewHolder) rootView.getTag();
-			if (tag != null) {
-				return tag;
-			} else {
-				final ViewHolder holder = new ViewHolder(rootView, forumId, forumTitle, gameId, gameName);
-				rootView.setTag(holder);
-				return holder;
-			}
 		}
 	}
 }
