@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -48,7 +47,6 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	private String gameName;
 
 	Unbinder unbinder;
-	@BindView(R.id.root_container) CoordinatorLayout containerView;
 	@BindView(android.R.id.progress) View progressView;
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;

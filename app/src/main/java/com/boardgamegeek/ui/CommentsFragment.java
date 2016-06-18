@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -41,13 +40,12 @@ import retrofit2.Call;
 
 public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final int LOADER_ID = 0;
-	private static final int VISIBLE_THRESHOLD = 1;
+	private static final int VISIBLE_THRESHOLD = 5;
 	private GameCommentsRecyclerViewAdapter adapter;
 	private int gameId;
 	@State boolean isSortedByRating = false;
 
 	private Unbinder unbinder;
-	@BindView(R.id.root_container) CoordinatorLayout containerView;
 	@BindView(android.R.id.progress) View progressView;
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;

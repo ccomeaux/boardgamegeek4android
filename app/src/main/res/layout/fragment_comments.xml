@@ -28,8 +28,8 @@
 
 	<android.support.v7.widget.RecyclerView
 		android:id="@android:id/list"
+		style="@style/RecyclerViewVerticalList"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone"
-		style="@style/RecyclerViewVerticalList"/>
+		android:visibility="gone"/>
 </android.support.design.widget.CoordinatorLayout>

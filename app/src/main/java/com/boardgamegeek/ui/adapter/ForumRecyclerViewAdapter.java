@@ -35,10 +35,10 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 	@NonNull
 	@Override
 	protected PaginatedItemViewHolder getViewHolder(View itemView) {
-		return new ForumViewHolder(itemView);
+		return new ThreadViewHolder(itemView);
 	}
 
-	public class ForumViewHolder extends PaginatedItemViewHolder {
+	public class ThreadViewHolder extends PaginatedItemViewHolder {
 		private int threadId;
 		@BindView(R.id.subject) TextView subjectView;
 		@BindView(R.id.author) TextView authorView;
@@ -46,7 +46,7 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 		@BindView(R.id.last_post_date) TextView lastPostDateView;
 		@BindView(R.id.post_date) TextView postDateView;
 
-		public ForumViewHolder(View view) {
+		public ThreadViewHolder(View view) {
 			super(view);
 			ButterKnife.bind(this, view);
 		}
