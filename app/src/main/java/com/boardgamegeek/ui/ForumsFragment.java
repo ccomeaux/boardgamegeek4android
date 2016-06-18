@@ -1,18 +1,18 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -22,26 +22,35 @@ import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter;
+import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.widget.MinuteUpdater;
+import com.boardgamegeek.ui.widget.MinuteUpdater.Callback;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import retrofit2.Call;
 
-public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<ForumListResponse>> {
+public class ForumsFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<ForumListResponse>> {
 	private static final int LOADER_ID = 0;
 
 	private int gameId;
 	private String gameName;
-	private ForumsAdapter adapter;
+	private ForumsRecyclerViewAdapter adapter;
+
+	Unbinder unbinder;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
 	@DebugLog
@@ -54,11 +63,13 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 	}
 
+	@Nullable
 	@Override
-	@DebugLog
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		setEmptyText(getString(R.string.empty_forums));
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
 	}
 
 	@Override
@@ -69,15 +80,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	@DebugLog
-	protected boolean padTop() {
-		return (gameId != BggContract.INVALID_ID);
-	}
-
-	@Override
-	@DebugLog
-	protected boolean dividerShown() {
-		return true;
+	public void onDestroyView() {
+		unbinder.unbind();
+		super.onDestroyView();
 	}
 
 	@Override
@@ -94,24 +99,26 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		if (adapter == null) {
-			adapter = new ForumsAdapter(getActivity(),
-				data.getBody() == null ?
-					new ArrayList<Forum>() :
-					data.getBody().getForums());
-			setListAdapter(adapter);
+			adapter = new ForumsRecyclerViewAdapter(getActivity(),
+				data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(),
+				gameId, gameName);
+			recyclerView.setAdapter(adapter);
 		}
+
 		initializeTimeBasedUi();
 
 		if (data.hasError()) {
-			setEmptyText(data.getErrorMessage());
+			emptyView.setText(data.getErrorMessage());
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else {
-			if (isResumed()) {
-				setListShown(true);
+			if (adapter.getItemCount() == 0) {
+				AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 			} else {
-				setListShownNoAnimation(true);
+				AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 			}
-			restoreScrollState();
 		}
+		AnimationUtils.fadeOut(progressView);
+
 	}
 
 	@Override
@@ -119,19 +126,17 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	public void onLoaderReset(Loader<SafeResponse<ForumListResponse>> loader) {
 	}
 
-	@Override
 	@DebugLog
-	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		if (adapter.getItemViewType(position) == ForumsAdapter.ITEM_VIEW_TYPE_FORUM) {
-			ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
-			if (holder != null) {
-				Intent intent = new Intent(getActivity(), ForumActivity.class);
-				intent.putExtra(ActivityUtils.KEY_FORUM_ID, holder.forumId);
-				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, holder.forumTitleView.getText());
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-				startActivity(intent);
-			}
+	private void setUpRecyclerView() {
+		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+		recyclerView.setLayoutManager(layoutManager);
+
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
+
+		if (gameId == BggContract.INVALID_ID) {
+			recyclerView.setPadding(recyclerView.getPaddingLeft(), 0, recyclerView.getRight(), recyclerView.getBottom());
 		}
 	}
 
@@ -159,111 +164,15 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
-	@Override
 	@DebugLog
-	protected void updateTimeBasedUi() {
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
-	}
-
-	public static class ForumsAdapter extends ArrayAdapter<Forum> {
-		public static final int ITEM_VIEW_TYPE_FORUM = 0;
-		public static final int ITEM_VIEW_TYPE_HEADER = 1;
-		private final LayoutInflater inflater;
-		private final Resources resources;
-
-		@DebugLog
-		public ForumsAdapter(Activity activity, List<Forum> forums) {
-			super(activity, R.layout.row_forum, forums);
-			inflater = activity.getLayoutInflater();
-			resources = activity.getResources();
-		}
-
-		@Override
-		@DebugLog
-		public View getView(int position, View convertView, ViewGroup parent) {
-			Forum forum;
-			try {
-				forum = getItem(position);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return convertView;
+	private void initializeTimeBasedUi() {
+		new MinuteUpdater(new Callback() {
+			@Override
+			public void updateTimeBasedUi() {
+				if (adapter != null) {
+					adapter.notifyDataSetChanged();
+				}
 			}
-
-			int type = getItemViewType(position);
-			if (type == ITEM_VIEW_TYPE_FORUM) {
-				ForumViewHolder holder;
-				if (convertView == null) {
-					convertView = inflater.inflate(R.layout.row_forum, parent, false);
-					holder = new ForumViewHolder(convertView);
-					convertView.setTag(holder);
-				} else {
-					holder = (ForumViewHolder) convertView.getTag();
-				}
-
-				if (forum != null) {
-					holder.forumId = forum.id;
-					holder.forumTitleView.setText(forum.title);
-					holder.numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads, forum.numberOfThreads));
-					holder.lastPostDateView.setText(getContext().getString(R.string.forum_last_post, DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate())));
-					holder.lastPostDateView.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
-				}
-				return convertView;
-			} else {
-				HeaderViewHolder holder;
-				if (convertView == null) {
-					convertView = inflater.inflate(R.layout.row_header, parent, false);
-					holder = new HeaderViewHolder(convertView);
-					convertView.setTag(holder);
-				} else {
-					holder = (HeaderViewHolder) convertView.getTag();
-				}
-				if (forum != null) {
-					holder.header.setText(forum.title);
-				}
-				return convertView;
-			}
-		}
-
-		@Override
-		@DebugLog
-		public int getViewTypeCount() {
-			return 2;
-		}
-
-		@Override
-		@DebugLog
-		public int getItemViewType(int position) {
-			try {
-				Forum forum = getItem(position);
-				if (forum != null && forum.isHeader()) {
-					return ITEM_VIEW_TYPE_HEADER;
-				}
-				return ITEM_VIEW_TYPE_FORUM;
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return ITEM_VIEW_TYPE_FORUM;
-			}
-		}
-	}
-
-	@SuppressWarnings("unused")
-	static class ForumViewHolder {
-		public int forumId;
-		@BindView(R.id.forum_title) TextView forumTitleView;
-		@BindView(R.id.number_of_threads) TextView numberOfThreadsView;
-		@BindView(R.id.last_post_date) TextView lastPostDateView;
-
-		public ForumViewHolder(View view) {
-			ButterKnife.bind(this, view);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	static class HeaderViewHolder {
-		@BindView(android.R.id.title) TextView header;
-
-		public HeaderViewHolder(View view) {
-			ButterKnife.bind(this, view);
-		}
+		});
 	}
 }
