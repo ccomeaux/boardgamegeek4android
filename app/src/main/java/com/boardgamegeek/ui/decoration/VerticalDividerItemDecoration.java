@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui;
+package com.boardgamegeek.ui.decoration;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -10,10 +10,10 @@ import android.view.View;
 
 import com.boardgamegeek.R;
 
-public class DividerItemDecoration extends RecyclerView.ItemDecoration {
-	private Drawable dividerDrawable;
+public class VerticalDividerItemDecoration extends RecyclerView.ItemDecoration {
+	private final Drawable dividerDrawable;
 
-	public DividerItemDecoration(Context context) {
+	public VerticalDividerItemDecoration(Context context) {
 		dividerDrawable = ContextCompat.getDrawable(context, R.drawable.vertical_divider);
 	}
 

@@ -543,4 +543,11 @@
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 		<item name="android:textAppearance">@style/Text</item>
 	</style>
+
+	<style name="RecyclerViewVerticalList">
+		<item name="android:clipToPadding">false</item>
+		<item name="android:paddingBottom">@dimen/padding_standard</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
+		<item name="android:scrollbars">vertical</item>
+	</style>
 </resources>

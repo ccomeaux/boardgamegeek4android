@@ -30,9 +30,6 @@
 		android:id="@android:id/list"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:clipToPadding="false"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_standard"
-		android:scrollbars="vertical"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		style="@style/RecyclerViewVerticalList"/>
 </android.support.design.widget.CoordinatorLayout>

@@ -21,6 +21,7 @@ import com.boardgamegeek.model.Game.Comment;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
+import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GameComments;
 import com.boardgamegeek.ui.model.PaginatedData;
@@ -93,7 +94,8 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
 
-		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
