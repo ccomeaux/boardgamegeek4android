@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
@@ -25,6 +24,8 @@ import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.ForumThreads;
 import com.boardgamegeek.ui.model.PaginatedData;
+import com.boardgamegeek.ui.widget.MinuteUpdater;
+import com.boardgamegeek.ui.widget.MinuteUpdater.Callback;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -39,10 +40,6 @@ import hugo.weaving.DebugLog;
 public class ForumFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 3;
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
-
-	private Handler timeHintUpdateHandler = new Handler();
-	private Runnable timeHintUpdateRunnable = null;
 
 	private ForumRecyclerViewAdapter adapter;
 	private int forumId;
@@ -195,24 +192,13 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	@DebugLog
 	private void initializeTimeBasedUi() {
-		updateTimeBasedUi();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-		timeHintUpdateRunnable = new Runnable() {
+		new MinuteUpdater(new Callback() {
 			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
+			public void updateTimeBasedUi() {
+				if (adapter != null) {
+					adapter.notifyDataSetChanged();
+				}
 			}
-		};
-		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
+		});
 	}
 }
