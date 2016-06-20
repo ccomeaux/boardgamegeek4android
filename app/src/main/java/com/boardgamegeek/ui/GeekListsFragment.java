@@ -60,7 +60,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_geeklists, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
 		return rootView;
