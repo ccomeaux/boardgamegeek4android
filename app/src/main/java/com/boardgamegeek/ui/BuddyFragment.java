@@ -34,7 +34,7 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.ui.model.Buddy;
-import com.boardgamegeek.ui.model.BuddyColor;
+import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -234,7 +234,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			case COLORS_TOKEN:
 				loader = new CursorLoader(getActivity(),
 					isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName),
-					BuddyColor.PROJECTION,
+					PlayerColor.PROJECTION,
 					null, null, null);
 				break;
 		}
@@ -380,7 +380,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			if (cursor.moveToNext()) {
 				colorContainer.setVisibility(View.VISIBLE);
 				ImageView view = createViewToBeColored();
-				BuddyColor color = BuddyColor.fromCursor(cursor);
+				PlayerColor color = PlayerColor.fromCursor(cursor);
 				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
 				colorContainer.addView(view);
 			} else {

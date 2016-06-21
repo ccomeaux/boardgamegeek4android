@@ -111,7 +111,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
-		//recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
 	}
 
 	@DebugLog

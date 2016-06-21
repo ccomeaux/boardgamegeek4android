@@ -5,39 +5,55 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
+import com.boardgamegeek.ui.BuddyColorsActivity.RecyclerViewAdapter.ColorViewHolder;
 import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
-import com.boardgamegeek.ui.model.BuddyColor;
+import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
-import com.mobeta.android.dslv.DragSortListView;
-import com.mobeta.android.dslv.DragSortListView.DropListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -48,14 +64,19 @@ public class BuddyColorsActivity extends BaseActivity {
 	private QueryHandler queryHandler;
 	private String buddyName;
 	private String playerName;
-	private List<BuddyColor> colors;
-	private Adapter adapter;
+	private List<PlayerColor> colors;
+	private RecyclerViewAdapter adapter;
 
 	@BindView(R.id.toolbar) Toolbar toolbar;
 	@BindView(android.R.id.progress) View progressView;
 	@BindView(android.R.id.empty) View emptyView;
-	@BindView(android.R.id.list) DragSortListView list;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 	@BindView(R.id.coordinator) CoordinatorLayout coordinator;
+
+	private final Paint swipePaint = new Paint();
+	private Bitmap deleteIcon;
+	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
+	private ItemTouchHelper itemTouchHelper;
 
 	@SuppressLint("HandlerLeak")
 	private class QueryHandler extends AsyncQueryHandler {
@@ -80,15 +101,16 @@ public class BuddyColorsActivity extends BaseActivity {
 			colors = new ArrayList<>(cursor.getCount());
 			try {
 				while (cursor.moveToNext()) {
-					colors.add(BuddyColor.fromCursor(cursor));
+					colors.add(PlayerColor.fromCursor(cursor));
 				}
-				adapter = new Adapter();
-				list.setAdapter(adapter);
+				adapter = new RecyclerViewAdapter(BuddyColorsActivity.this);
+				recyclerView.setAdapter(adapter);
 			} finally {
 				cursor.close();
 			}
 
-			bindUi();
+			showData();
+			adapter.notifyDataSetChanged();
 		}
 	}
 
@@ -108,8 +130,7 @@ public class BuddyColorsActivity extends BaseActivity {
 		}
 		setSubtitle(TextUtils.isEmpty(buddyName) ? playerName : buddyName);
 
-		list.setSelector(android.R.color.transparent);
-		list.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
+		setUpRecyclerView();
 
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
@@ -121,6 +142,123 @@ public class BuddyColorsActivity extends BaseActivity {
 
 		queryHandler = new QueryHandler(getContentResolver());
 		startQuery();
+	}
+
+	private void setUpRecyclerView() {
+		recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+		recyclerView.setHasFixedSize(true);
+
+		swipePaint.setColor(ContextCompat.getColor(this, R.color.medium_blue));
+		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
+
+		itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+			@Override
+			public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
+				if (colors == null) return false;
+
+				int fromPosition = viewHolder.getAdapterPosition();
+				int toPosition = target.getAdapterPosition();
+
+				PlayerColor colorMoving = adapter.getItem(fromPosition);
+				if (colorMoving == null) return false;
+
+				if (fromPosition < toPosition) {
+					// dragging down
+					for (PlayerColor color : colors) {
+						if (color.getSortOrder() > fromPosition + 1 &&
+							color.getSortOrder() <= toPosition + 1) {
+							Timber.d("Moving %s up!", color.getColor());
+							color.setSortOrder(color.getSortOrder() - 1);
+						}
+					}
+				} else {
+					// dragging up
+					for (PlayerColor color : colors) {
+						if (color.getSortOrder() >= toPosition + 1 &&
+							color.getSortOrder() < fromPosition + 1) {
+							Timber.d("Moving %s down!", color.getColor());
+							color.setSortOrder(color.getSortOrder() + 1);
+						}
+					}
+				}
+
+				for (PlayerColor color : colors) {
+					if (color.getColor().equals(colorMoving.getColor())) {
+						Timber.d("Moving %s to %d!", color.getColor(), toPosition + 1);
+						color.setSortOrder(toPosition + 1);
+						break;
+					}
+				}
+				adapter.notifyItemMoved(fromPosition, toPosition);
+				return true;
+			}
+
+			@Override
+			public void onSelectedChanged(ViewHolder viewHolder, int actionState) {
+				ColorViewHolder colorViewHolder = (ColorViewHolder) viewHolder;
+				if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+					colorViewHolder.onItemDragging();
+				} else if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+					colorViewHolder.onItemSwiping();
+				}
+				super.onSelectedChanged(viewHolder, actionState);
+			}
+
+			@Override
+			public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
+				ColorViewHolder colorViewHolder = (ColorViewHolder) viewHolder;
+				colorViewHolder.onItemClear();
+				super.clearView(recyclerView, viewHolder);
+			}
+
+			@Override
+			public void onSwiped(ViewHolder viewHolder, int swipeDir) {
+				final PlayerColor color = adapter.getItem(viewHolder.getAdapterPosition());
+				Snackbar.make(coordinator, getString(R.string.removed_suffix, color.getColor()), Snackbar.LENGTH_LONG)
+					.setAction(R.string.undo, new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							adapter.add(color);
+						}
+					})
+					.setActionTextColor(ContextCompat.getColor(BuddyColorsActivity.this, R.color.light_blue))
+					.show();
+				adapter.remove(color);
+			}
+
+			@Override
+			public void onChildDraw(Canvas c, RecyclerView recyclerView, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+				if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+					View itemView = viewHolder.itemView;
+
+					// fade and slide item
+					float width = (float) itemView.getWidth();
+					float alpha = 1.0f - Math.abs(dX) / width;
+					itemView.setAlpha(alpha);
+					itemView.setTranslationX(dX);
+
+					// show background with delete icon
+					float verticalPadding = (itemView.getHeight() - deleteIcon.getHeight()) / 2;
+					RectF background;
+					Rect iconSrc;
+					RectF iconDst;
+
+					if (dX > 0) {
+						background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+						iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getHeight());
+						iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+					} else {
+						background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
+						iconSrc = new Rect(Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, deleteIcon.getWidth(), deleteIcon.getHeight());
+						iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+					}
+					c.drawRect(background, swipePaint);
+					c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint);
+				}
+				super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+			}
+		});
+		itemTouchHelper.attachToRecyclerView(recyclerView);
 	}
 
 	@DebugLog
@@ -197,7 +335,7 @@ public class BuddyColorsActivity extends BaseActivity {
 						if (adapter != null) {
 							adapter.notifyDataSetChanged();
 						}
-						bindUi();
+						showData();
 					}
 				}).show();
 				break;
@@ -213,11 +351,23 @@ public class BuddyColorsActivity extends BaseActivity {
 	private void startQuery() {
 		if (colors != null) {
 			// we already have the play from the saved instance
-			bindUi();
+			showData();
+			adapter.notifyDataSetChanged();
 		} else {
 			queryHandler.startQuery(0, null,
 				TextUtils.isEmpty(buddyName) ? PlayerColors.buildPlayerUri(playerName) : PlayerColors.buildUserUri(buddyName),
-				BuddyColor.PROJECTION, null, null, null);
+				PlayerColor.PROJECTION, null, null, null);
+		}
+	}
+
+	private void showData() {
+		AnimationUtils.fadeOut(progressView);
+		if (colors.size() == 0) {
+			AnimationUtils.fadeIn(emptyView);
+			AnimationUtils.fadeOut(recyclerView);
+		} else {
+			AnimationUtils.fadeOut(emptyView);
+			AnimationUtils.fadeIn(recyclerView);
 		}
 	}
 
@@ -232,10 +382,12 @@ public class BuddyColorsActivity extends BaseActivity {
 		int order = 1;
 		while (colors.size() > 0) {
 			int i = r.nextInt(colors.size());
-			BuddyColor color = new BuddyColor(colors.remove(i).first, order++);
+			PlayerColor color = new PlayerColor(colors.remove(i).first, order++);
 			this.colors.add(color);
 		}
-		bindUi();
+
+		showData();
+		adapter.notifyItemRangeInserted(0, colors.size());
 	}
 
 	@OnClick(R.id.fab)
@@ -245,7 +397,7 @@ public class BuddyColorsActivity extends BaseActivity {
 		}
 
 		ArrayList<String> usedColors = new ArrayList<>(colors.size());
-		for (BuddyColor color : colors) {
+		for (PlayerColor color : colors) {
 			usedColors.add(color.getColor());
 		}
 
@@ -255,8 +407,9 @@ public class BuddyColorsActivity extends BaseActivity {
 			@Override
 			public void onColorSelected(String description, int color) {
 				if (colors != null) {
-					colors.add(new BuddyColor(description, colors.size() + 1));
-					bindUi();
+					colors.add(new PlayerColor(description, colors.size() + 1));
+					showData();
+					adapter.notifyItemInserted(colors.size());
 				}
 			}
 		});
@@ -264,106 +417,115 @@ public class BuddyColorsActivity extends BaseActivity {
 		fragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
-	@DebugLog
-	private void bindUi() {
-		if (colors == null) {
-			progressView.setVisibility(View.VISIBLE);
-			emptyView.setVisibility(View.GONE);
-			list.setVisibility(View.GONE);
-		} else if (colors.size() == 0) {
-			progressView.setVisibility(View.GONE);
-			emptyView.setVisibility(View.VISIBLE);
-			list.setVisibility(View.GONE);
-		} else {
-			progressView.setVisibility(View.GONE);
-			emptyView.setVisibility(View.GONE);
-			list.setVisibility(View.VISIBLE);
-			adapter.notifyDataSetChanged();
-		}
-	}
+	public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ColorViewHolder> {
+		private final LayoutInflater inflater;
 
-	private class Adapter extends BaseAdapter implements DropListener {
-		@DebugLog
+		public RecyclerViewAdapter(Context context) {
+			inflater = LayoutInflater.from(context);
+		}
+
 		@Override
-		public int getCount() {
+		public ColorViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			return new ColorViewHolder(inflater.inflate(R.layout.row_player_color, parent, false));
+		}
+
+		@Override
+		public void onBindViewHolder(ColorViewHolder holder, int position) {
+			PlayerColor color = getItem(position);
+			if (color == null) return;
+			holder.bind(color);
+		}
+
+		@Override
+		public int getItemCount() {
 			return colors == null ? 0 : colors.size();
 		}
 
-		@DebugLog
 		@Override
-		public Object getItem(int position) {
-			if (colors == null) {
-				return null;
-			}
-			for (BuddyColor color : colors) {
-				if (color.getSortOrder() == (position + 1)) {
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public PlayerColor getColor(int position) {
+			return colors.get(position);
+		}
+
+		public PlayerColor getItem(int position) {
+			if (colors == null) return null;
+			for (PlayerColor color : colors) {
+				if (color.getSortOrder() == position + 1) {
 					return color;
 				}
 			}
 			return null;
 		}
 
-		@DebugLog
-		@Override
-		public long getItemId(int position) {
-			return position;
+		public void add(PlayerColor color) {
+			if (colors == null) return;
+			for (PlayerColor c : colors) {
+				if (c.getSortOrder() >= color.getSortOrder()) {
+					Timber.d("Moving %s down!", c.getColor());
+					c.setSortOrder(c.getSortOrder() + 1);
+				}
+			}
+			Timber.d("Re-adding %s!", color);
+			colors.add(color);
+			notifyItemInserted(color.getSortOrder() - 1);
+
 		}
 
-		@DebugLog
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null) {
-				convertView = LayoutInflater.from(BuddyColorsActivity.this).inflate(R.layout.row_player_color, parent, false);
+		public void remove(PlayerColor color) {
+			if (colors == null) return;
+			Timber.d("Removing %s!", color);
+			colors.remove(color);
+			for (PlayerColor c : colors) {
+				if (c.getSortOrder() >= color.getSortOrder()) {
+					Timber.d("Moving %s up!", c.getColor());
+					c.setSortOrder(c.getSortOrder() - 1);
+				}
 			}
-			final BuddyColor color = (BuddyColor) getItem(position);
-			if (color != null) {
-				final TextView titleView = (TextView) convertView.findViewById(android.R.id.title);
-				final View colorView = convertView.findViewById(R.id.color_view);
-				final View deleteView = convertView.findViewById(R.id.delete);
+			notifyItemRemoved(color.getSortOrder() - 1);
+		}
+
+		public class ColorViewHolder extends RecyclerView.ViewHolder {
+			@BindView(android.R.id.title) TextView titleView;
+			@BindView(R.id.color_view) View colorView;
+			@BindView(R.id.drag_handle) View dragHandle;
+
+			public ColorViewHolder(View itemView) {
+				super(itemView);
+				ButterKnife.bind(this, itemView);
+			}
+
+			public void bind(final PlayerColor color) {
+				if (color == null) return;
 
 				titleView.setText(color.getColor());
 				ColorUtils.setColorViewValue(colorView, ColorUtils.parseColor(color.getColor()));
-				deleteView.setOnClickListener(new View.OnClickListener() {
+
+				dragHandle.setOnTouchListener(new OnTouchListener() {
 					@Override
-					public void onClick(View v) {
-						Snackbar.make(coordinator, getString(R.string.removed_suffix, color.getColor()), Snackbar.LENGTH_LONG)
-							.setAction(R.string.undo, new View.OnClickListener() {
-								@Override
-								public void onClick(View v) {
-									final BuddyColor newColor = new BuddyColor(color.getColor(), colors.size() + 1);
-									colors.add(newColor);
-									notifyDataSetChanged();
-								}
-							})
-							.setActionTextColor(getResources().getColor(R.color.primary))
-							.show();
-						colors.remove(color);
-						for (BuddyColor c : colors) {
-							if (c.getSortOrder() >= color.getSortOrder()) {
-								c.setSortOrder(c.getSortOrder() - 1);
-							}
+					public boolean onTouch(View v, MotionEvent event) {
+						if (itemTouchHelper != null &&
+							MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+							itemTouchHelper.startDrag(ColorViewHolder.this);
 						}
-						notifyDataSetChanged();
+						return false;
 					}
 				});
 			}
-			return convertView;
-		}
 
-		@DebugLog
-		@Override
-		public void drop(int from, int to) {
-			if (colors == null) {
-				return;
-			}
-			final BuddyColor remove = colors.remove(from);
-			colors.add(to, remove);
-			for (int i = 0; i < colors.size(); i++) {
-				final BuddyColor color = colors.get(i);
-				color.setSortOrder(i + 1);
+			public void onItemDragging() {
+				itemView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.light_blue_transparent));
 			}
 
-			notifyDataSetChanged();
+			public void onItemSwiping() {
+				itemView.setBackgroundColor(Color.WHITE);
+			}
+
+			public void onItemClear() {
+				itemView.setBackgroundColor(Color.TRANSPARENT);
+			}
 		}
 	}
 }
