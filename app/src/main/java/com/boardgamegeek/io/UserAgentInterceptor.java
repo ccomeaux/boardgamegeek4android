@@ -6,6 +6,7 @@ import com.boardgamegeek.util.HelpUtils;
 
 import java.io.IOException;
 
+import hugo.weaving.DebugLog;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -17,6 +18,7 @@ public class UserAgentInterceptor implements Interceptor {
 		this.context = context;
 	}
 
+	@DebugLog
 	@Override
 	public Response intercept(Chain chain) throws IOException {
 		Request originalRequest = chain.request();
@@ -26,6 +28,7 @@ public class UserAgentInterceptor implements Interceptor {
 		return chain.proceed(request);
 	}
 
+	@DebugLog
 	private String constructUserAgent() {
 		String userAgent = "BGG4Android";
 		if (context != null) {
