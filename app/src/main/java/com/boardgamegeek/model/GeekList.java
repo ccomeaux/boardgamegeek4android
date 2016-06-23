@@ -26,6 +26,10 @@ public class GeekList implements Parcelable {
 
 	@Attribute private int id;
 
+	public int getId() {
+		return id;
+	}
+
 	@Element private String postdate;
 
 	@Element(name = "postdate_timestamp") private String postdateTimestamp;
@@ -63,6 +67,10 @@ public class GeekList implements Parcelable {
 	}
 
 	@Element private String title;
+
+	public String getTitle() {
+		return title;
+	}
 
 	@Element private String description;
 

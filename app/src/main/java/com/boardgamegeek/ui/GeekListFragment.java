@@ -1,19 +1,19 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -24,36 +24,31 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.widget.MinuteUpdater;
+import com.boardgamegeek.ui.widget.MinuteUpdater.Callback;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
-public class GeekListFragment extends BggListFragment implements LoaderCallbacks<SafeResponse<GeekList>> {
+public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeResponse<GeekList>> {
 	private static final int LOADER_ID = 99103;
 	private int geekListId;
 	private String geekListTitle;
-	private GeekListAdapter adapter;
-	private View headerView;
-	private Header header;
+	private GeekListRecyclerViewAdapter adapter;
 
-	public static class Header {
-		@BindView(R.id.username) TextView username;
-		@BindView(R.id.description) TextView description;
-		@BindView(R.id.items) TextView items;
-		@BindView(R.id.thumbs) TextView thumbs;
-		@BindView(R.id.posted_date) TextView postDate;
-		@BindView(R.id.edited_date) TextView editDate;
-
-		public Header(View view) {
-			ButterKnife.bind(this, view);
-		}
-	}
+	Unbinder unbinder;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,17 +60,11 @@ public class GeekListFragment extends BggListFragment implements LoaderCallbacks
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_geeklist));
-	}
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		headerView = View.inflate(getActivity(), R.layout.header_geeklist, null);
-		getListView().addHeaderView(headerView);
-		header = new Header(headerView);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
 	}
 
 	@Override
@@ -86,34 +75,15 @@ public class GeekListFragment extends BggListFragment implements LoaderCallbacks
 	}
 
 	@Override
-	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		if (position == 0) {
-			Intent intent = new Intent(getActivity(), GeekListDescriptionActivity.class);
-			intent.putExtra(ActivityUtils.KEY_ID, geekListId);
-			intent.putExtra(ActivityUtils.KEY_TITLE, geekListTitle);
-			intent.putExtra(ActivityUtils.KEY_GEEKLIST, (Parcelable) headerView.getTag());
-			startActivity(intent);
-		} else {
-			ViewHolder holder = (ViewHolder) convertView.getTag();
-			if (holder != null && holder.objectId != BggContract.INVALID_ID) {
-				Intent intent = new Intent(getActivity(), GeekListItemActivity.class);
-				intent.putExtra(ActivityUtils.KEY_ID, geekListId);
-				intent.putExtra(ActivityUtils.KEY_TITLE, geekListTitle);
-				intent.putExtra(ActivityUtils.KEY_ORDER, holder.order.getText().toString());
-				intent.putExtra(ActivityUtils.KEY_NAME, holder.name.getText().toString());
-				intent.putExtra(ActivityUtils.KEY_TYPE, holder.type.getText().toString());
-				intent.putExtra(ActivityUtils.KEY_IMAGE_ID, holder.imageId);
-				intent.putExtra(ActivityUtils.KEY_USERNAME, holder.username.getText().toString());
-				intent.putExtra(ActivityUtils.KEY_THUMBS, holder.thumbs);
-				intent.putExtra(ActivityUtils.KEY_POSTED_DATE, holder.postedDate);
-				intent.putExtra(ActivityUtils.KEY_EDITED_DATE, holder.editedDate);
-				intent.putExtra(ActivityUtils.KEY_BODY, holder.body);
-				intent.putExtra(ActivityUtils.KEY_OBJECT_URL, holder.objectUrl);
-				intent.putExtra(ActivityUtils.KEY_OBJECT_ID, holder.objectId);
-				intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, holder.isBoardGame);
-				startActivity(intent);
-			}
-		}
+	public void onDestroy() {
+		if (unbinder != null) unbinder.unbind();
+		super.onDestroy();
+	}
+
+	@DebugLog
+	private void setUpRecyclerView() {
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setHasFixedSize(true);
 	}
 
 	@Override
@@ -128,53 +98,36 @@ public class GeekListFragment extends BggListFragment implements LoaderCallbacks
 		}
 
 		if (adapter == null) {
-			adapter = new GeekListAdapter(getActivity(),
-				(data == null || data.getBody() == null) ?
-					new ArrayList<GeekListItem>() :
-					data.getBody().getItems());
-			setListAdapter(adapter);
-			bindHeader(data == null ? null : data.getBody());
+			adapter = new GeekListRecyclerViewAdapter(getActivity(), data == null ? null : data.getBody());
+			recyclerView.setAdapter(adapter);
 		}
 		initializeTimeBasedUi();
 
-		if (data == null) {
-			setEmptyText(getString(R.string.empty_geeklist));
+		if (adapter.getItemCount() == 0 || data == null) {
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else if (data.hasError()) {
-			setEmptyText(data.getErrorMessage());
+			emptyView.setText(data.getErrorMessage());
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else {
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
-			}
-			restoreScrollState();
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		}
-	}
-
-	private void bindHeader(GeekList geekList) {
-		if (geekList != null) {
-			headerView.setTag(geekList);
-			header.username.setText(getString(R.string.by_prefix, geekList.getUsername()));
-			if (!TextUtils.isEmpty(geekList.getDescription())) {
-				header.description.setVisibility(View.VISIBLE);
-				header.description.setText(geekList.getDescription());
-			}
-			header.items.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
-			header.thumbs.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
-			header.postDate.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getPostDate())));
-			header.editDate.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getEditDate())));
-		}
+		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<SafeResponse<GeekList>> loader) {
 	}
 
-	@Override
-	protected void updateTimeBasedUi() {
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
+	@DebugLog
+	private void initializeTimeBasedUi() {
+		new MinuteUpdater(new Callback() {
+			@Override
+			public void updateTimeBasedUi() {
+				if (adapter != null) {
+					adapter.notifyDataSetChanged();
+				}
+			}
+		});
 	}
 
 	private static class GeekListLoader extends BggLoader<SafeResponse<GeekList>> {
@@ -193,73 +146,173 @@ public class GeekListFragment extends BggListFragment implements LoaderCallbacks
 		}
 	}
 
-	public class GeekListAdapter extends ArrayAdapter<GeekListItem> {
+	public static class GeekListRecyclerViewAdapter extends RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListViewHolder> {
+		private static final int VIEW_TYPE_HEADER = R.layout.header_geeklist;
+		private static final int VIEW_TYPE_ITEM = R.layout.row_geeklist_item;
 		private final LayoutInflater inflater;
+		private final GeekList geekList;
 
-		public GeekListAdapter(Activity activity, List<GeekListItem> items) {
-			super(activity, R.layout.row_geeklist_item, items);
-			inflater = activity.getLayoutInflater();
+		public GeekListRecyclerViewAdapter(Context context, GeekList geekList) {
+			inflater = LayoutInflater.from(context);
+			this.geekList = geekList;
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.row_geeklist_item, parent, false);
-				holder = new ViewHolder(convertView);
-				convertView.setTag(holder);
+		public int getItemCount() {
+			return (geekList == null || geekList.getItems() == null) ? 0 : geekList.getItems().size();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			if (position == 0) {
+				return VIEW_TYPE_HEADER;
 			} else {
-				holder = (ViewHolder) convertView.getTag();
+				return VIEW_TYPE_ITEM;
+			}
+		}
+
+		@Override
+		public GeekListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View itemView = inflater.inflate(viewType, parent, false);
+			if (viewType == VIEW_TYPE_HEADER) {
+				return new GeekListHeaderViewHolder(itemView);
+			} else if (viewType == VIEW_TYPE_ITEM) {
+				return new GeekListItemViewHolder(itemView);
+			}
+			return null;
+		}
+
+		@Override
+		public void onBindViewHolder(GeekListViewHolder holder, int position) {
+			if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
+				((GeekListHeaderViewHolder) holder).bind(geekList);
+			} else if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+				try {
+					GeekListItem item = geekList.getItems().get(position);
+					((GeekListItemViewHolder) holder).bind(item, position);
+				} catch (ArrayIndexOutOfBoundsException e) {
+					Timber.w("Didn't find a GeekList item as expected", e);
+				}
+			}
+		}
+
+		public abstract class GeekListViewHolder extends RecyclerView.ViewHolder {
+			public GeekListViewHolder(View itemView) {
+				super(itemView);
+			}
+		}
+
+		public class GeekListHeaderViewHolder extends GeekListViewHolder {
+			@BindView(R.id.username) TextView username;
+			@BindView(R.id.description) TextView description;
+			@BindView(R.id.items) TextView items;
+			@BindView(R.id.thumbs) TextView thumbs;
+			@BindView(R.id.posted_date) TextView postDate;
+			@BindView(R.id.edited_date) TextView editDate;
+
+			public GeekListHeaderViewHolder(View itemView) {
+				super(itemView);
+				ButterKnife.bind(this, itemView);
 			}
 
-			GeekListItem item;
-			try {
-				item = getItem(position);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return convertView;
-			}
-			if (item != null) {
-				Context context = convertView.getContext();
-				holder.imageId = item.imageId();
-				holder.objectId = item.getObjectId();
-				holder.body = item.body;
-				holder.thumbs = item.getThumbCount();
-				holder.postedDate = item.getPostDate();
-				holder.editedDate = item.getEditDate();
-				holder.objectUrl = item.getObejctUrl();
-				holder.isBoardGame = item.isBoardGame();
+			public void bind(final GeekList geekList) {
+				if (geekList != null) {
+					final Context context = itemView.getContext();
 
-				holder.order.setText(String.valueOf(position + 1));
-				loadThumbnail(holder.imageId, holder.thumbnail);
-				holder.name.setText(item.getObjectName());
+					itemView.setTag(geekList);
+					username.setText(context.getString(R.string.by_prefix, geekList.getUsername()));
+					PresentationUtils.setTextOrHide(description, geekList.getDescription());
+					items.setText(context.getString(R.string.items_suffix, geekList.getNumberOfItems()));
+					thumbs.setText(context.getString(R.string.thumbs_suffix, geekList.getThumbs()));
+					postDate.setText(context.getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(context, geekList.getPostDate())));
+					editDate.setText(context.getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(context, geekList.getEditDate())));
+
+					itemView.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Intent intent = new Intent(context, GeekListDescriptionActivity.class);
+							intent.putExtra(ActivityUtils.KEY_ID, geekList.getId());
+							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.getTitle());
+							intent.putExtra(ActivityUtils.KEY_GEEKLIST, (Parcelable) itemView.getTag());
+							context.startActivity(intent);
+						}
+					});
+				}
+			}
+		}
+
+		public class GeekListItemViewHolder extends GeekListViewHolder {
+			public int imageId;
+			public int objectId;
+			public String body;
+			public int thumbs;
+			public long postedDate;
+			public long editedDate;
+			public String objectUrl;
+			public boolean isBoardGame;
+			@BindView(R.id.order) TextView orderView;
+			@BindView(R.id.thumbnail) ImageView thumbnail;
+			@BindView(R.id.game_name) TextView name;
+			@BindView(R.id.username) TextView username;
+			@BindView(R.id.type) TextView type;
+
+			public GeekListItemViewHolder(View itemView) {
+				super(itemView);
+				ButterKnife.bind(this, itemView);
+			}
+
+			public void bind(GeekListItem item, int order) {
+				if (item == null) return;
+
+				final Context context = itemView.getContext();
+
+				imageId = item.imageId();
+				objectId = item.getObjectId();
+				body = item.body;
+				thumbs = item.getThumbCount();
+				postedDate = item.getPostDate();
+				editedDate = item.getEditDate();
+				objectUrl = item.getObejctUrl();
+				isBoardGame = item.isBoardGame();
+
+				orderView.setText(String.valueOf(order));
+				ImageUtils.loadThumbnail(imageId, thumbnail);
+				name.setText(item.getObjectName());
 				int objectTypeId = item.getObjectTypeId();
 				if (objectTypeId != 0) {
-					holder.type.setText(objectTypeId);
+					type.setText(objectTypeId);
 				}
-				holder.username.setText(context.getString(R.string.by_prefix, item.username));
+				username.setText(username.getContext().getString(R.string.by_prefix, item.username));
+
+				itemView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if (objectId != BggContract.INVALID_ID) {
+							Intent intent = new Intent(context, GeekListItemActivity.class);
+							intent.putExtra(ActivityUtils.KEY_ID, geekList.getId());
+							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.getTitle());
+							intent.putExtra(ActivityUtils.KEY_ORDER, orderView.getText().toString());
+							intent.putExtra(ActivityUtils.KEY_NAME, name.getText().toString());
+							intent.putExtra(ActivityUtils.KEY_TYPE, type.getText().toString());
+							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, imageId);
+							intent.putExtra(ActivityUtils.KEY_USERNAME, username.getText().toString());
+							intent.putExtra(ActivityUtils.KEY_THUMBS, thumbs);
+							intent.putExtra(ActivityUtils.KEY_POSTED_DATE, postedDate);
+							intent.putExtra(ActivityUtils.KEY_EDITED_DATE, editedDate);
+							intent.putExtra(ActivityUtils.KEY_BODY, body);
+							intent.putExtra(ActivityUtils.KEY_OBJECT_URL, objectUrl);
+							intent.putExtra(ActivityUtils.KEY_OBJECT_ID, objectId);
+							intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, isBoardGame);
+							context.startActivity(intent);
+						}
+					}
+				});
 			}
-			return convertView;
-		}
-	}
-
-	@SuppressWarnings("unused")
-	public static class ViewHolder {
-		public int imageId;
-		public int objectId;
-		public String body;
-		public int thumbs;
-		public long postedDate;
-		public long editedDate;
-		public String objectUrl;
-		public boolean isBoardGame;
-		@BindView(R.id.order) TextView order;
-		@BindView(R.id.thumbnail) ImageView thumbnail;
-		@BindView(R.id.game_name) TextView name;
-		@BindView(R.id.username) TextView username;
-		@BindView(R.id.type) TextView type;
-
-		public ViewHolder(View view) {
-			ButterKnife.bind(this, view);
 		}
 	}
 }
