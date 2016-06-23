@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,8 +10,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Article;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
@@ -24,12 +23,10 @@ import hugo.weaving.DebugLog;
 public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecyclerViewAdapter.ArticleViewHolder> {
 	private final List<Article> articles;
 	private final LayoutInflater inflater;
-	private final Resources resources;
 
 	public ThreadRecyclerViewAdapter(Context context, List<Article> articles) {
 		this.articles = articles;
 		inflater = LayoutInflater.from(context);
-		resources = context.getResources();
 		setHasStableIds(true);
 	}
 
@@ -55,7 +52,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 
 	public class ArticleViewHolder extends RecyclerView.ViewHolder {
 		@BindView(R.id.username) TextView usernameView;
-		@BindView(R.id.edit_date) TextView editDateView;
+		@BindView(R.id.edit_date) TimestampView editDateView;
 		@BindView(R.id.body) TextView bodyView;
 		@BindView(R.id.view_button) View viewButton;
 
@@ -68,13 +65,8 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 		public void bind(Article article) {
 			if (article == null) return;
 
-			Context context = itemView.getContext();
 			usernameView.setText(article.username);
-			int dateRes = R.string.posted_prefix;
-			if (article.getNumberOfEdits() > 0) {
-				dateRes = R.string.edited_prefix;
-			}
-			editDateView.setText(context.getString(dateRes, DateTimeUtils.formatForumDate(context, article.editDate())));
+			editDateView.setTimestamp(article.editDate(), article.getNumberOfEdits() > 0 ? R.string.edited_prefix : R.string.posted_prefix);
 			UIUtils.setTextMaybeHtml(bodyView, article.body);
 			Bundle bundle = new Bundle();
 			bundle.putString(ActivityUtils.KEY_USER, article.username);

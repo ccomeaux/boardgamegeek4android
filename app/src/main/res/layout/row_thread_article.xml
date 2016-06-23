@@ -22,7 +22,7 @@
 			android:textColor="@color/inverse_text"
 			tools:text="ccomeaux"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/edit_date"
 			style="@style/Text.Footnote2.Inverse"
 			android:layout_width="wrap_content"

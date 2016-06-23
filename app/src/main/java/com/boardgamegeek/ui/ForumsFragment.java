@@ -26,8 +26,6 @@ import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter;
 import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.ui.widget.MinuteUpdater;
-import com.boardgamegeek.ui.widget.MinuteUpdater.Callback;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -105,8 +103,6 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 			recyclerView.setAdapter(adapter);
 		}
 
-		initializeTimeBasedUi();
-
 		if (data.hasError()) {
 			emptyView.setText(data.getErrorMessage());
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
@@ -162,17 +158,5 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 			}
 			return new SafeResponse<>(call);
 		}
-	}
-
-	@DebugLog
-	private void initializeTimeBasedUi() {
-		new MinuteUpdater(new Callback() {
-			@Override
-			public void updateTimeBasedUi() {
-				if (adapter != null) {
-					adapter.notifyDataSetChanged();
-				}
-			}
-		});
 	}
 }

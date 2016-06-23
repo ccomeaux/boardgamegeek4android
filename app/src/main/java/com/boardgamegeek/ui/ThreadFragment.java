@@ -27,8 +27,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.ui.widget.MinuteUpdater;
-import com.boardgamegeek.ui.widget.MinuteUpdater.Callback;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
@@ -156,7 +154,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 					data.getBody().getArticles());
 			recyclerView.setAdapter(adapter);
 		}
-		initializeTimeBasedUi();
 
 		if (adapter.getItemCount() == 0 || data == null) {
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
@@ -185,18 +182,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<SafeResponse<ThreadResponse>> loader) {
-	}
-
-	@DebugLog
-	private void initializeTimeBasedUi() {
-		new MinuteUpdater(new Callback() {
-			@Override
-			public void updateTimeBasedUi() {
-				if (adapter != null) {
-					adapter.notifyDataSetChanged();
-				}
-			}
-		});
 	}
 
 	private static class ThreadLoader extends BggLoader<SafeResponse<ThreadResponse>> {

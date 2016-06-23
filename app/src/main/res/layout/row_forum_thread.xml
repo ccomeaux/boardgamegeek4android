@@ -24,7 +24,7 @@
 			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/post_date"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
 			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/last_post_date"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"

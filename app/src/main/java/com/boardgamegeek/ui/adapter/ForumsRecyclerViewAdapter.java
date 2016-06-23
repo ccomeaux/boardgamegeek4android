@@ -13,8 +13,8 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.ui.ForumActivity;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 
 import java.util.List;
 
@@ -96,7 +96,7 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 		public int forumId;
 		@BindView(R.id.forum_title) TextView forumTitleView;
 		@BindView(R.id.number_of_threads) TextView numberOfThreadsView;
-		@BindView(R.id.last_post_date) TextView lastPostDateView;
+		@BindView(R.id.last_post_date) TimestampView lastPostDateView;
 
 		public ForumItemViewHolder(View itemView) {
 			super(itemView);
@@ -110,7 +110,7 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 			forumId = forum.id;
 			forumTitleView.setText(forum.title);
 			numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads, forum.numberOfThreads));
-			lastPostDateView.setText(context.getString(R.string.forum_last_post, DateTimeUtils.formatForumDate(context, forum.lastPostDate())));
+			lastPostDateView.setTimestamp(forum.lastPostDate(), R.string.forum_last_post);
 			lastPostDateView.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
 
 			itemView.setOnClickListener(new OnClickListener() {

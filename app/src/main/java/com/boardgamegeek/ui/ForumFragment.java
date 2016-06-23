@@ -23,8 +23,6 @@ import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.ForumThreads;
 import com.boardgamegeek.ui.model.PaginatedData;
-import com.boardgamegeek.ui.widget.MinuteUpdater;
-import com.boardgamegeek.ui.widget.MinuteUpdater.Callback;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -149,7 +147,6 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 		} else {
 			adapter.update(data);
 		}
-		initializeTimeBasedUi();
 
 		if (adapter.getItemCount() == 0) {
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
@@ -186,17 +183,5 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 			}
 			return data;
 		}
-	}
-
-	@DebugLog
-	private void initializeTimeBasedUi() {
-		new MinuteUpdater(new Callback() {
-			@Override
-			public void updateTimeBasedUi() {
-				if (adapter != null) {
-					adapter.notifyDataSetChanged();
-				}
-			}
-		});
 	}
 }

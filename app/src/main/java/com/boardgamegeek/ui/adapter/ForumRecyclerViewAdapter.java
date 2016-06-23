@@ -12,8 +12,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Thread;
 import com.boardgamegeek.ui.ThreadActivity;
 import com.boardgamegeek.ui.model.PaginatedData;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.PresentationUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,8 +43,8 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 		@BindView(R.id.subject) TextView subjectView;
 		@BindView(R.id.author) TextView authorView;
 		@BindView(R.id.number_of_articles) TextView numberOfArticlesView;
-		@BindView(R.id.last_post_date) TextView lastPostDateView;
-		@BindView(R.id.post_date) TextView postDateView;
+		@BindView(R.id.last_post_date) TimestampView lastPostDateView;
+		@BindView(R.id.post_date) TimestampView postDateView;
 
 		public ThreadViewHolder(View view) {
 			super(view);
@@ -59,8 +59,8 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 			authorView.setText(context.getString(R.string.forum_thread_author, item.author));
 			int replies = item.numberOfArticles - 1;
 			numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
-			PresentationUtils.formatDate(context, lastPostDateView, item.lastPostDate(), R.string.forum_last_post);
-			PresentationUtils.formatDate(context, postDateView, item.postDate(), R.string.forum_thread_created);
+			lastPostDateView.setTimestamp(item.lastPostDate(), R.string.forum_last_post);
+			postDateView.setTimestamp(item.lastPostDate(), R.string.forum_thread_created);
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
