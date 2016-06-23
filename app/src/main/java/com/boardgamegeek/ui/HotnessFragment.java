@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ArrayAdapter;
@@ -108,12 +109,6 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 	public void onLoaderReset(Loader<SafeResponse<HotnessResponse>> loader) {
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		HotGame game = adapter.getItem(position);
-		ActivityUtils.launchGame(getActivity(), game.id, game.name);
-	}
-
 	private static class HotnessLoader extends BggLoader<SafeResponse<HotnessResponse>> {
 		private final BggService bggService;
 
@@ -155,22 +150,33 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	public static class ViewHolder {
+		private View view;
+		private int gameId;
+		private String gameName;
 		@BindView(R.id.name) TextView name;
 		@BindView(R.id.year) TextView year;
 		@BindView(R.id.rank) TextView rank;
 		@BindView(R.id.thumbnail) ImageView thumbnail;
 
 		public ViewHolder(View view) {
+			this.view = view;
 			ButterKnife.bind(this, view);
 		}
 
 		public void bind(HotGame game) {
-			if (game != null) {
-				name.setText(game.name);
-				year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
-				rank.setText(String.valueOf(game.rank));
-				ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
-			}
+			if (game == null) return;
+			gameId = game.id;
+			gameName = game.name;
+			name.setText(game.name);
+			year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
+			rank.setText(String.valueOf(game.rank));
+			ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+			view.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					ActivityUtils.launchGame(view.getContext(), gameId, gameName);
+				}
+			});
 		}
 	}
 
