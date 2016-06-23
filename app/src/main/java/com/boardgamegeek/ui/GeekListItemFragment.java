@@ -105,12 +105,10 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		ImageUtils.safelyLoadImage(imageView, imageId, this);
 		usernameView.setText(username);
 		thumbsView.setText(getString(R.string.thumbs_suffix, numberOfThumbs));
-		postedDateView.setTag(postedDate);
-		editedDateView.setTag(editedDate);
 		String content = new XmlConverter().toHtml(body);
 		UIUtils.setWebViewText(bodyView, content);
-		postedDateView.setTimestamp(postedDate, R.string.posted_prefix);
-		editedDateView.setTimestamp(editedDate, R.string.edited_prefix);
+		postedDateView.setTimestamp(postedDate);
+		editedDateView.setTimestamp(editedDate);
 
 		return rootView;
 	}

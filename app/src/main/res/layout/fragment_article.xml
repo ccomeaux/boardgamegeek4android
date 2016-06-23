@@ -32,6 +32,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:isForumTimestamp="true"
+			app:prefix="@string/posted_prefix"
 			tools:text="Posted Yesterday"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
@@ -40,6 +41,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:isForumTimestamp="true"
+			app:prefix="@string/last_edited_prefix"
 			tools:text="Edited Today"/>
 
 		<TextView

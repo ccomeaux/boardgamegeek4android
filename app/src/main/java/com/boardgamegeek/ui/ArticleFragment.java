@@ -57,9 +57,9 @@ public class ArticleFragment extends Fragment {
 		} else {
 			editCountView.setVisibility(View.GONE);
 		}
-		postDateView.setTimestamp(postDate, R.string.posted_prefix);
+		postDateView.setTimestamp(postDate);
 		if (editDate != postDate) {
-			editDateView.setTimestamp(editDate, R.string.last_edited_prefix);
+			editDateView.setTimestamp(editDate);
 			editDateView.setVisibility(View.VISIBLE);
 		} else {
 			editDateView.setVisibility(View.GONE);

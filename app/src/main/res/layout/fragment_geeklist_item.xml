@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:app="http://schemas.android.com/apk/res-auto"
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
@@ -98,6 +99,7 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:maxLines="1"
+				app:prefix="@string/posted_prefix"
 				tools:text="Posted Yesterday"/>
 		</LinearLayout>
 
@@ -126,6 +128,7 @@
 				android:layout_gravity="right"
 				android:ellipsize="end"
 				android:maxLines="1"
+				app:prefix="@string/edited_prefix"
 				tools:text="Edited Today"/>
 		</LinearLayout>
 	</LinearLayout>

@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.StringRes;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -11,8 +12,11 @@ import com.boardgamegeek.util.PresentationUtils;
 
 public class TimestampView extends TextView {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
-	private boolean isForumTimeStamp;
+	private static final int NO_PREFIX_OVERRIDE = 0;
 	private Runnable timeHintUpdateRunnable = null;
+
+	private boolean isForumTimeStamp;
+	private String prefix;
 
 	public TimestampView(Context context) {
 		super(context);
@@ -33,19 +37,35 @@ public class TimestampView extends TextView {
 		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, 0);
 		try {
 			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
+			prefix = a.getString(R.styleable.TimestampView_prefix);
 		} finally {
 			a.recycle();
 		}
 	}
 
+	public void setTimestamp(final long timestamp) {
+		setTimestampText(timestamp, NO_PREFIX_OVERRIDE);
+	}
+
 	public void setTimestamp(final long timestamp, @StringRes final int prefix) {
+		setTimestampText(timestamp, prefix);
+	}
+
+	private void setTimestampText(final long timestamp, @StringRes final int prefix) {
 		if (timestamp == 0) {
 			setText(R.string.text_not_available);
 		} else {
 			timeHintUpdateRunnable = new Runnable() {
 				@Override
 				public void run() {
-					setText(getContext().getString(prefix, PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp)));
+					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp);
+					if (prefix != NO_PREFIX_OVERRIDE) {
+						setText(getContext().getString(prefix, formattedTimestamp));
+					} else if (!TextUtils.isEmpty(TimestampView.this.prefix)) {
+						setText(String.format(TimestampView.this.prefix, formattedTimestamp));
+					} else {
+						setText(formattedTimestamp);
+					}
 					postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
 				}
 			};

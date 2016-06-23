@@ -208,13 +208,12 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				if (geekList != null) {
 					final Context context = itemView.getContext();
 
-					itemView.setTag(geekList);
 					username.setText(context.getString(R.string.by_prefix, geekList.getUsername()));
 					PresentationUtils.setTextOrHide(description, geekList.getDescription());
 					items.setText(context.getString(R.string.items_suffix, geekList.getNumberOfItems()));
 					thumbs.setText(context.getString(R.string.thumbs_suffix, geekList.getThumbs()));
-					postDate.setTimestamp(geekList.getPostDate(), R.string.posted_prefix);
-					editDate.setTimestamp(geekList.getEditDate(), R.string.edited_prefix);
+					postDate.setTimestamp(geekList.getPostDate());
+					editDate.setTimestamp(geekList.getEditDate());
 
 					itemView.setOnClickListener(new OnClickListener() {
 						@Override

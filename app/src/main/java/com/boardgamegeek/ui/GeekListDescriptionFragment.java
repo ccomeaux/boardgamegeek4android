@@ -50,8 +50,8 @@ public class GeekListDescriptionFragment extends Fragment {
 		thumbCountView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
 		String content = new XmlConverter().toHtml(geekList.getDescription());
 		UIUtils.setWebViewText(bodyView, content);
-		postedDateView.setTimestamp(geekList.getPostDate(), R.string.posted_prefix);
-		editedDateView.setTimestamp(geekList.getEditDate(), R.string.edited_prefix);
+		postedDateView.setTimestamp(geekList.getPostDate());
+		editedDateView.setTimestamp(geekList.getEditDate());
 
 		return rootView;
 	}

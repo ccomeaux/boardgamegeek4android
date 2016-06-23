@@ -31,5 +31,6 @@
 		android:textAppearance="@style/TextAppearance.AppCompat.Body1"
 		android:textColor="@color/secondary_text"
 		app:isForumTimestamp="true"
+		app:prefix="@string/forum_last_post"
 		tools:text="3 days ago"/>
 </LinearLayout>
