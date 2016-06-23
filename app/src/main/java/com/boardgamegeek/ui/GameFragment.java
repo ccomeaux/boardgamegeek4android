@@ -576,7 +576,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			if (tag != null) {
 				long lastPostDate = (long) tag;
 				String title = (String) forumsLastPostDateView.getTag(R.id.title);
-				CharSequence date = DateTimeUtils.formatForumDate(GameFragment.this.getContext(), lastPostDate);
+				CharSequence date = PresentationUtils.formatTimestamp(GameFragment.this.getContext(), lastPostDate);
 				forumsLastPostDateView.setText(PresentationUtils.getText(getContext(), R.string.forum_last_post_in, date, title));
 			}
 		}

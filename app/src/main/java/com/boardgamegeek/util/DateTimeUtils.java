@@ -125,21 +125,6 @@ public class DateTimeUtils {
 	}
 
 	/**
-	 * Formats the date for display in the forums (based on the users selected preference.
-	 */
-	public static CharSequence formatForumDate(Context context, long date) {
-		if (PreferencesUtils.getForumDates(context)) {
-			return DateUtils.formatDateTime(context, date,
-				DateUtils.FORMAT_SHOW_DATE |
-					DateUtils.FORMAT_SHOW_YEAR |
-					DateUtils.FORMAT_ABBREV_MONTH |
-					DateUtils.FORMAT_SHOW_TIME);
-		} else {
-			return PresentationUtils.describePastTimeSpan(date, context.getString(R.string.text_unknown));
-		}
-	}
-
-	/**
 	 * Attempt to parse the string date according to the given format. Will use the time parameter if it was already
 	 * parsed.
 	 */

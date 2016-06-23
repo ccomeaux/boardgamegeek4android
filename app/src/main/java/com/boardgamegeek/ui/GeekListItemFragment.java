@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
@@ -17,8 +16,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtils;
@@ -33,10 +32,6 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
-
-	private Handler timeHintUpdateHandler = new Handler();
-	private Runnable timeHintUpdateRunnable = null;
 	private String order;
 	private String title;
 	private String type;
@@ -59,8 +54,8 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@BindView(R.id.author_container) View authorContainer;
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.thumbs) TextView thumbsView;
-	@BindView(R.id.posted_date) TextView postedDateView;
-	@BindView(R.id.edited_date) TextView editedDateView;
+	@BindView(R.id.posted_date) TimestampView postedDateView;
+	@BindView(R.id.edited_date) TimestampView editedDateView;
 	@BindView(R.id.body) WebView bodyView;
 	@BindViews({
 		R.id.username,
@@ -80,7 +75,6 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		timeHintUpdateHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		order = intent.getStringExtra(ActivityUtils.KEY_ORDER);
 		title = intent.getStringExtra(ActivityUtils.KEY_NAME);
@@ -115,55 +109,16 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		editedDateView.setTag(editedDate);
 		String content = new XmlConverter().toHtml(body);
 		UIUtils.setWebViewText(bodyView, content);
-
-		updateTimeBasedUi();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-		timeHintUpdateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
+		postedDateView.setTimestamp(postedDate, R.string.posted_prefix);
+		editedDateView.setTimestamp(editedDate, R.string.edited_prefix);
 
 		return rootView;
 	}
 
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (postedDateView != null) {
-			postedDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), postedDate)));
-		}
-		if (editedDateView != null) {
-			editedDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), editedDate)));
-		}
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-	}
-
 	@Override
 	public void onDestroyView() {
+		if (unbinder != null) unbinder.unbind();
 		super.onDestroyView();
-		unbinder.unbind();
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)

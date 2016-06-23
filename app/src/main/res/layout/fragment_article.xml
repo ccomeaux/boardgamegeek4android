@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:app="http://schemas.android.com/apk/res-auto"
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
@@ -8,9 +9,9 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:minHeight="@dimen/view_row_height"
 		android:background="@color/info_background_dark"
 		android:elevation="@dimen/material_elevation_subtle"
+		android:minHeight="@dimen/view_row_height"
 		android:orientation="vertical"
 		android:paddingBottom="@dimen/material_margin_vertical"
 		android:paddingLeft="@dimen/material_margin_horizontal"
@@ -25,18 +26,20 @@
 			android:ellipsize="end"
 			tools:text="ccomeaux"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/post_date"
 			style="@style/Text.Secondary.Inverse"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			app:isForumTimestamp="true"
 			tools:text="Posted Yesterday"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/edit_date"
 			style="@style/Text.Secondary.Inverse"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			app:isForumTimestamp="true"
 			tools:text="Edited Today"/>
 
 		<TextView

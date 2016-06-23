@@ -45,6 +45,25 @@ public class PresentationUtils {
 		return format;
 	}
 
+	public static CharSequence formatTimestamp(Context context, long date) {
+		return formatTimestamp(context, date, false);
+	}
+
+	/**
+	 * Formats the date for display in the forums (based on the users selected preference.
+	 */
+	public static CharSequence formatTimestamp(Context context, long date, boolean isForumTimestamp) {
+		if (isForumTimestamp && PreferencesUtils.getForumDates(context)) {
+			return DateUtils.formatDateTime(context, date,
+				DateUtils.FORMAT_SHOW_DATE |
+					DateUtils.FORMAT_SHOW_YEAR |
+					DateUtils.FORMAT_ABBREV_MONTH |
+					DateUtils.FORMAT_SHOW_TIME);
+		} else {
+			return PresentationUtils.describePastTimeSpan(date, context.getString(R.string.text_unknown));
+		}
+	}
+
 	public static CharSequence describePastTimeSpan(long time) {
 		return describePastTimeSpan(time, "");
 	}

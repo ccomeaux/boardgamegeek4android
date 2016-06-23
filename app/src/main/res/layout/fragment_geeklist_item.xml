@@ -91,7 +91,7 @@
 				android:maxLines="1"
 				tools:text="by ccomeaux"/>
 
-			<TextView
+			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/posted_date"
 				style="@style/Text.Footnote"
 				android:layout_width="wrap_content"
@@ -118,7 +118,7 @@
 				android:maxLines="1"
 				tools:text="3 thumbs"/>
 
-			<TextView
+			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/edited_date"
 				style="@style/Text.Footnote"
 				android:layout_width="wrap_content"

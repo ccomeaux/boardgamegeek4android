@@ -23,5 +23,7 @@
 		<attr name="android:foregroundInsidePadding"/>
 		<attr name="android:foregroundGravity"/>
 	</declare-styleable>
-
+	<declare-styleable name="TimestampView">
+		<attr name="isForumTimestamp" format="boolean"/>
+	</declare-styleable>
 </resources>
