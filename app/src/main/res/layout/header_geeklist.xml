@@ -41,7 +41,7 @@
 			android:maxLines="1"
 			tools:text="42 items"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/posted_date"
 			style="@style/Text.Secondary"
 			android:layout_width="0dp"
@@ -66,7 +66,7 @@
 			android:maxLines="1"
 			tools:text="42 thumbs"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/edited_date"
 			style="@style/Text.Secondary"
 			android:layout_width="0dp"

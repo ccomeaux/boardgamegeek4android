@@ -24,11 +24,9 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.ui.widget.MinuteUpdater;
-import com.boardgamegeek.ui.widget.MinuteUpdater.Callback;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -42,7 +40,6 @@ import timber.log.Timber;
 public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeResponse<GeekList>> {
 	private static final int LOADER_ID = 99103;
 	private int geekListId;
-	private String geekListTitle;
 	private GeekListRecyclerViewAdapter adapter;
 
 	Unbinder unbinder;
@@ -56,7 +53,6 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
 	}
 
 	@Override
@@ -101,7 +97,6 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 			adapter = new GeekListRecyclerViewAdapter(getActivity(), data == null ? null : data.getBody());
 			recyclerView.setAdapter(adapter);
 		}
-		initializeTimeBasedUi();
 
 		if (adapter.getItemCount() == 0 || data == null) {
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
@@ -116,18 +111,6 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 	@Override
 	public void onLoaderReset(Loader<SafeResponse<GeekList>> loader) {
-	}
-
-	@DebugLog
-	private void initializeTimeBasedUi() {
-		new MinuteUpdater(new Callback() {
-			@Override
-			public void updateTimeBasedUi() {
-				if (adapter != null) {
-					adapter.notifyDataSetChanged();
-				}
-			}
-		});
 	}
 
 	private static class GeekListLoader extends BggLoader<SafeResponse<GeekList>> {
@@ -155,6 +138,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 		public GeekListRecyclerViewAdapter(Context context, GeekList geekList) {
 			inflater = LayoutInflater.from(context);
 			this.geekList = geekList;
+			setHasStableIds(true);
 		}
 
 		@Override
@@ -212,8 +196,8 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 			@BindView(R.id.description) TextView description;
 			@BindView(R.id.items) TextView items;
 			@BindView(R.id.thumbs) TextView thumbs;
-			@BindView(R.id.posted_date) TextView postDate;
-			@BindView(R.id.edited_date) TextView editDate;
+			@BindView(R.id.posted_date) TimestampView postDate;
+			@BindView(R.id.edited_date) TimestampView editDate;
 
 			public GeekListHeaderViewHolder(View itemView) {
 				super(itemView);
@@ -229,8 +213,8 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 					PresentationUtils.setTextOrHide(description, geekList.getDescription());
 					items.setText(context.getString(R.string.items_suffix, geekList.getNumberOfItems()));
 					thumbs.setText(context.getString(R.string.thumbs_suffix, geekList.getThumbs()));
-					postDate.setText(context.getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(context, geekList.getPostDate())));
-					editDate.setText(context.getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(context, geekList.getEditDate())));
+					postDate.setTimestamp(geekList.getPostDate(), R.string.posted_prefix);
+					editDate.setTimestamp(geekList.getEditDate(), R.string.edited_prefix);
 
 					itemView.setOnClickListener(new OnClickListener() {
 						@Override
