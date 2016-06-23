@@ -28,6 +28,7 @@ import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
@@ -35,6 +36,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 
 public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, MultiChoiceModeListener {
@@ -146,28 +149,28 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 			}
 
 			HotGame game = getItem(position);
-			if (game != null) {
-				holder.name.setText(game.name);
-				holder.year.setText(PresentationUtils.describeYear(getActivity(), game.yearPublished));
-				holder.rank.setText(String.valueOf(game.rank));
-				loadThumbnail(game.thumbnailUrl, holder.thumbnail);
-			}
-
+			holder.bind(game);
 			return convertView;
 		}
 	}
 
-	private static class ViewHolder {
-		final TextView name;
-		final TextView year;
-		final TextView rank;
-		final ImageView thumbnail;
+	public static class ViewHolder {
+		@BindView(R.id.name) TextView name;
+		@BindView(R.id.year) TextView year;
+		@BindView(R.id.rank) TextView rank;
+		@BindView(R.id.thumbnail) ImageView thumbnail;
 
 		public ViewHolder(View view) {
-			name = (TextView) view.findViewById(R.id.name);
-			year = (TextView) view.findViewById(R.id.year);
-			rank = (TextView) view.findViewById(R.id.rank);
-			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+			ButterKnife.bind(this, view);
+		}
+
+		public void bind(HotGame game) {
+			if (game != null) {
+				name.setText(game.name);
+				year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
+				rank.setText(String.valueOf(game.rank));
+				ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+			}
 		}
 	}
 

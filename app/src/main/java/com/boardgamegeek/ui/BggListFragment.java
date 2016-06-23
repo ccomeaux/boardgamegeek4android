@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ImageUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -272,17 +271,6 @@ public abstract class BggListFragment extends Fragment {
 		if (listViewStatePosition >= 0 && isAdded()) {
 			mList.setSelectionFromTop(listViewStatePosition, listViewStateTop);
 		}
-	}
-
-	protected void loadThumbnail(int imageId, ImageView target) {
-		Queue<String> queue = new LinkedList<>();
-		queue.add(ImageUtils.createThumbnailJpgUrl(imageId));
-		queue.add(ImageUtils.createThumbnailPngUrl(imageId));
-		safelyLoadThumbnail(target, queue, R.drawable.thumbnail_image_empty);
-	}
-
-	protected void loadThumbnail(String path, ImageView target) {
-		loadThumbnail(path, target, R.drawable.thumbnail_image_empty);
 	}
 
 	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
