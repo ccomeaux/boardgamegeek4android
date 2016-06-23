@@ -230,14 +230,6 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 		}
 
 		public class GeekListItemViewHolder extends GeekListViewHolder {
-			public int imageId;
-			public int objectId;
-			public String body;
-			public int thumbs;
-			public long postedDate;
-			public long editedDate;
-			public String objectUrl;
-			public boolean isBoardGame;
 			@BindView(R.id.order) TextView orderView;
 			@BindView(R.id.thumbnail) ImageView thumbnail;
 			@BindView(R.id.game_name) TextView name;
@@ -249,22 +241,13 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(GeekListItem item, int order) {
+			public void bind(final GeekListItem item, int order) {
 				if (item == null) return;
 
 				final Context context = itemView.getContext();
 
-				imageId = item.imageId();
-				objectId = item.getObjectId();
-				body = item.body;
-				thumbs = item.getThumbCount();
-				postedDate = item.getPostDate();
-				editedDate = item.getEditDate();
-				objectUrl = item.getObejctUrl();
-				isBoardGame = item.isBoardGame();
-
 				orderView.setText(String.valueOf(order));
-				ImageUtils.loadThumbnail(imageId, thumbnail);
+				ImageUtils.loadThumbnail(item.imageId(), thumbnail);
 				name.setText(item.getObjectName());
 				int objectTypeId = item.getObjectTypeId();
 				if (objectTypeId != 0) {
@@ -275,22 +258,22 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				itemView.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						if (objectId != BggContract.INVALID_ID) {
+						if (item.getObjectId() != BggContract.INVALID_ID) {
 							Intent intent = new Intent(context, GeekListItemActivity.class);
 							intent.putExtra(ActivityUtils.KEY_ID, geekList.getId());
 							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.getTitle());
 							intent.putExtra(ActivityUtils.KEY_ORDER, orderView.getText().toString());
 							intent.putExtra(ActivityUtils.KEY_NAME, name.getText().toString());
 							intent.putExtra(ActivityUtils.KEY_TYPE, type.getText().toString());
-							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, imageId);
+							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, item.imageId());
 							intent.putExtra(ActivityUtils.KEY_USERNAME, username.getText().toString());
-							intent.putExtra(ActivityUtils.KEY_THUMBS, thumbs);
-							intent.putExtra(ActivityUtils.KEY_POSTED_DATE, postedDate);
-							intent.putExtra(ActivityUtils.KEY_EDITED_DATE, editedDate);
-							intent.putExtra(ActivityUtils.KEY_BODY, body);
-							intent.putExtra(ActivityUtils.KEY_OBJECT_URL, objectUrl);
-							intent.putExtra(ActivityUtils.KEY_OBJECT_ID, objectId);
-							intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, isBoardGame);
+							intent.putExtra(ActivityUtils.KEY_THUMBS, item.getThumbCount());
+							intent.putExtra(ActivityUtils.KEY_POSTED_DATE, item.getPostDate());
+							intent.putExtra(ActivityUtils.KEY_EDITED_DATE, item.getEditDate());
+							intent.putExtra(ActivityUtils.KEY_BODY, item.body);
+							intent.putExtra(ActivityUtils.KEY_OBJECT_URL, item.getObjectUrl());
+							intent.putExtra(ActivityUtils.KEY_OBJECT_ID, item.getObjectId());
+							intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, item.isBoardGame());
 							context.startActivity(intent);
 						}
 					}

@@ -93,7 +93,6 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 	}
 
 	public class ForumItemViewHolder extends ForumViewHolder {
-		public int forumId;
 		@BindView(R.id.forum_title) TextView forumTitleView;
 		@BindView(R.id.number_of_threads) TextView numberOfThreadsView;
 		@BindView(R.id.last_post_date) TimestampView lastPostDateView;
@@ -103,11 +102,10 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 			ButterKnife.bind(this, itemView);
 		}
 
-		public void bind(Forum forum) {
+		public void bind(final Forum forum) {
 			if (forum == null) return;
 
 			final Context context = itemView.getContext();
-			forumId = forum.id;
 			forumTitleView.setText(forum.title);
 			numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads, forum.numberOfThreads));
 			lastPostDateView.setTimestamp(forum.lastPostDate());
@@ -117,8 +115,8 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent(context, ForumActivity.class);
-					intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
-					intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitleView.getText());
+					intent.putExtra(ActivityUtils.KEY_FORUM_ID, forum.id);
+					intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forum.title);
 					intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
 					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 					context.startActivity(intent);

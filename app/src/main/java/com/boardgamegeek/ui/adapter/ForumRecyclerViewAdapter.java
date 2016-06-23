@@ -39,7 +39,6 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 	}
 
 	public class ThreadViewHolder extends PaginatedItemViewHolder {
-		private int threadId;
 		@BindView(R.id.subject) TextView subjectView;
 		@BindView(R.id.author) TextView authorView;
 		@BindView(R.id.number_of_articles) TextView numberOfArticlesView;
@@ -52,21 +51,20 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 		}
 
 		@Override
-		protected void bind(Thread item) {
+		protected void bind(final Thread thread) {
 			final Context context = itemView.getContext();
-			threadId = item.id;
-			subjectView.setText(item.subject);
-			authorView.setText(context.getString(R.string.forum_thread_author, item.author));
-			int replies = item.numberOfArticles - 1;
+			subjectView.setText(thread.subject);
+			authorView.setText(context.getString(R.string.forum_thread_author, thread.author));
+			int replies = thread.numberOfArticles - 1;
 			numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
-			lastPostDateView.setTimestamp(item.lastPostDate());
-			postDateView.setTimestamp(item.lastPostDate());
+			lastPostDateView.setTimestamp(thread.lastPostDate());
+			postDateView.setTimestamp(thread.lastPostDate());
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent(context, ThreadActivity.class);
-					intent.putExtra(ActivityUtils.KEY_THREAD_ID, threadId);
-					intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, subjectView.getText());
+					intent.putExtra(ActivityUtils.KEY_THREAD_ID, thread.id);
+					intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, thread.subject);
 					intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
 					intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
 					intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
