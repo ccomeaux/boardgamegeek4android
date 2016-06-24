@@ -374,6 +374,7 @@
 	<string name="ages">Ages</string>
 	<string name="play_description_game_segment">Played %s</string>
 	<string name="play_description_quantity_segment">\u0020%,d times</string>
+	<string name="play_description_length_segment">\u0020for %s</string>
 	<string name="play_description_date_segment">\u0020on %s</string>
 	<string name="play_description_location_segment">\u0020at %s</string>
 	<string name="play_description_players_segment">\u0020with %,d players</string>
