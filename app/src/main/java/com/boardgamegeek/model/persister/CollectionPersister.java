@@ -341,8 +341,8 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void removeValuesIfDirty(ContentValues values, long internalId, String commentDirtyTimestamp, String... columns) {
-		if (getDirtyTimestamp(internalId, commentDirtyTimestamp) != NOT_DIRTY) {
+	private void removeValuesIfDirty(ContentValues values, long internalId, String columnName, String... columns) {
+		if (getDirtyTimestamp(internalId, columnName) != NOT_DIRTY) {
 			for (String column : columns) {
 				values.remove(column);
 			}
