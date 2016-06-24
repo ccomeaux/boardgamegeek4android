@@ -451,6 +451,7 @@
 	<string name="forum_thread_created">Created %s</string>
 	<string name="forum_thread_author">by %s</string>
 	<string name="last_modified">Last modified</string>
+	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="private_info">Private Info</string>
 	<string name="price">Price Paid</string>

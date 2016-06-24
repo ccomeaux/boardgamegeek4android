@@ -57,7 +57,7 @@
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					app:defaultMessage="@string/text_unknown"
+					app:emptyMessage="@string/text_unknown"
 					tools:text="Yesterday"/>
 			</LinearLayout>
 		</LinearLayout>

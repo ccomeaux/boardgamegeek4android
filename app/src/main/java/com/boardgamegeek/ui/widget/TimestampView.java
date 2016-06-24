@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -18,6 +19,7 @@ public class TimestampView extends TextView {
 	private boolean isForumTimeStamp;
 	private String prefix;
 	private String defaultMessage;
+	private boolean hideWhenEmpty;
 
 	public TimestampView(Context context) {
 		super(context);
@@ -39,7 +41,8 @@ public class TimestampView extends TextView {
 		try {
 			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
 			prefix = a.getString(R.styleable.TimestampView_prefix);
-			defaultMessage = a.getString(R.styleable.TimestampView_defaultMessage);
+			defaultMessage = a.getString(R.styleable.TimestampView_emptyMessage);
+			hideWhenEmpty = a.getBoolean(R.styleable.TimestampView_hideWhenEmpty, false);
 		} finally {
 			a.recycle();
 		}
@@ -55,8 +58,10 @@ public class TimestampView extends TextView {
 
 	private void setTimestampText(final long timestamp, @StringRes final int prefix) {
 		if (timestamp == 0) {
+			if (hideWhenEmpty) setVisibility(View.GONE);
 			setText(defaultMessage);
 		} else {
+			if (hideWhenEmpty) setVisibility(View.VISIBLE);
 			timeHintUpdateRunnable = new Runnable() {
 				@Override
 				public void run() {

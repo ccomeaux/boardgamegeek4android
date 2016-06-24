@@ -207,7 +207,7 @@
 				android:gravity="center_vertical|right"
 				android:paddingLeft="@dimen/material_margin_horizontal"
 				android:paddingRight="@dimen/material_margin_horizontal"
-				app:defaultMessage="@string/needs_updating"
+				app:emptyMessage="@string/needs_updating"
 				app:prefix="@string/updated_prefix"
 				tools:text="Yesterday"/>
 		</LinearLayout>
