@@ -398,7 +398,7 @@
 	<string name="unranked">Unranked</string>
 	<string name="updated">Updated</string>
 	<string name="updated_prefix">Updated %s</string>
-	<string name="saved">Saved</string>
+	<string name="saved_prefix">Saved %s</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
