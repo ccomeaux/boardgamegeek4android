@@ -397,6 +397,7 @@
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
 	<string name="updated">Updated</string>
+	<string name="updated_prefix">Updated %s</string>
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>

@@ -26,5 +26,6 @@
 	<declare-styleable name="TimestampView">
 		<attr name="isForumTimestamp" format="boolean"/>
 		<attr name="prefix" format="string"/>
+		<attr name="defaultMessage" format="string"/>
 	</declare-styleable>
 </resources>

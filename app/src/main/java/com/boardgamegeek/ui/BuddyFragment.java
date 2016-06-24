@@ -3,9 +3,9 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -34,8 +34,9 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.ui.model.Buddy;
-import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.model.Player;
+import com.boardgamegeek.ui.model.PlayerColor;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -61,11 +62,7 @@ import timber.log.Timber;
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final int TOKEN = 0;
-
-	private Handler timeHintUpdateHandler = new Handler();
-	private Runnable timeHintUpdateRunnable = null;
 
 	private String buddyName;
 	private String playerName;
@@ -82,7 +79,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@BindView(R.id.collection_card) View collectionCard;
 	@BindView(R.id.plays_label) TextView playsView;
 	@BindView(R.id.color_container) LinearLayout colorContainer;
-	@BindView(R.id.updated) TextView updatedView;
+	@BindView(R.id.updated) TimestampView updatedView;
 	private int defaultTextColor;
 	private int lightTextColor;
 
@@ -91,7 +88,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
-		timeHintUpdateHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
@@ -123,7 +119,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 
 		defaultTextColor = nicknameView.getTextColors().getDefaultColor();
-		lightTextColor = getResources().getColor(R.color.secondary_text);
+		lightTextColor = ContextCompat.getColor(getContext(), R.color.secondary_text);
 
 		if (isUser()) {
 			getLoaderManager().restartLoader(TOKEN, null, this);
@@ -148,24 +144,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		EventBus.getDefault().register(this);
 	}
 
-	@Override
-	@DebugLog
-	public void onResume() {
-		super.onResume();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onPause() {
-		super.onPause();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-	}
-
 	@DebugLog
 	@Override
 	public void onStop() {
@@ -175,8 +153,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	public void onDestroyView() {
+		if (unbinder != null) unbinder.unbind();
 		super.onDestroyView();
-		unbinder.unbind();
 	}
 
 	@SuppressWarnings("unused")
@@ -330,31 +308,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			nicknameView.setTextColor(defaultTextColor);
 			nicknameView.setText(buddy.getNickName());
 		}
-		updatedView.setTag(buddy.getUpdated());
-
-		updateTimeBasedUi();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-		timeHintUpdateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (updatedView != null) {
-			long updated = (long) updatedView.getTag();
-			updatedView.setText(PresentationUtils.describePastTimeSpan(updated, getString(R.string.needs_updating), getString(R.string.updated)));
-		}
+		updatedView.setTimestamp(buddy.getUpdated());
 	}
 
 	@DebugLog

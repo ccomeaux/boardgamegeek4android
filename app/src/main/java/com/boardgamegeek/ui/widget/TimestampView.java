@@ -17,6 +17,7 @@ public class TimestampView extends TextView {
 
 	private boolean isForumTimeStamp;
 	private String prefix;
+	private String defaultMessage;
 
 	public TimestampView(Context context) {
 		super(context);
@@ -38,6 +39,7 @@ public class TimestampView extends TextView {
 		try {
 			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
 			prefix = a.getString(R.styleable.TimestampView_prefix);
+			defaultMessage = a.getString(R.styleable.TimestampView_defaultMessage);
 		} finally {
 			a.recycle();
 		}
@@ -53,7 +55,7 @@ public class TimestampView extends TextView {
 
 	private void setTimestampText(final long timestamp, @StringRes final int prefix) {
 		if (timestamp == 0) {
-			setText(R.string.text_not_available);
+			setText(defaultMessage);
 		} else {
 			timeHintUpdateRunnable = new Runnable() {
 				@Override
