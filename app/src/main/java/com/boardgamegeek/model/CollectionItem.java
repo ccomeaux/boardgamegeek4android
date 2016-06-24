@@ -188,10 +188,4 @@ public class CollectionItem {
 		lastModifiedDate = DateTimeUtils.tryParseDate(lastModifiedDate, lastmodified, FORMAT);
 		return lastModifiedDate;
 	}
-
-	private long ratingDirtyTimestamp;
-
-	public long getRatingDirtyTimestamp() {
-		return ratingDirtyTimestamp;
-	}
 }
