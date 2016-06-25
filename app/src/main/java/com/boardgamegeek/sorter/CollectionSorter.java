@@ -46,4 +46,8 @@ public abstract class CollectionSorter extends Sorter {
 	public String getDisplayInfo(Cursor cursor) {
 		return getHeaderText(cursor);
 	}
+
+	public long getTimestamp(Cursor cursor) {
+		return 0;
+	}
 }

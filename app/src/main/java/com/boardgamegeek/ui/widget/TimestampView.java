@@ -60,6 +60,7 @@ public class TimestampView extends TextView {
 		if (timestamp == 0) {
 			if (hideWhenEmpty) setVisibility(View.GONE);
 			setText(defaultMessage);
+			removeCallbacks(timeHintUpdateRunnable);
 		} else {
 			if (hideWhenEmpty) setVisibility(View.VISIBLE);
 			timeHintUpdateRunnable = new Runnable() {

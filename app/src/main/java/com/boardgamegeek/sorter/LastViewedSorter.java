@@ -43,10 +43,11 @@ public class LastViewedSorter extends CollectionSorter {
 	@NonNull
 	@Override
 	public String getDisplayInfo(@NonNull Cursor cursor) {
-		long time = getLong(cursor, Games.LAST_VIEWED);
-		if (time == 0) {
-			return never;
-		}
-		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
+		return "";
+	}
+
+	@Override
+	public long getTimestamp(Cursor cursor) {
+		return getLong(cursor, Games.LAST_VIEWED);
 	}
 }

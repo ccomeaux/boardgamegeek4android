@@ -85,14 +85,6 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static CharSequence describePastTimeSpan(long time, String defaultValue, String prefix) {
-		if (time == 0) {
-			return defaultValue;
-		}
-		return prefix + " " + DateUtils.getRelativeTimeSpanString(time);
-	}
-
-	@DebugLog
 	public static String describeYear(@Nullable Context context, int year) {
 		if (context == null) {
 			return "";
