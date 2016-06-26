@@ -45,10 +45,6 @@ public class PresentationUtils {
 		return format;
 	}
 
-	public static CharSequence formatTimestamp(Context context, long date) {
-		return formatTimestamp(context, date, false);
-	}
-
 	/**
 	 * Formats the date for display in the forums (based on the users selected preference.
 	 */
@@ -60,12 +56,11 @@ public class PresentationUtils {
 					DateUtils.FORMAT_ABBREV_MONTH |
 					DateUtils.FORMAT_SHOW_TIME);
 		} else {
-			return PresentationUtils.describePastTimeSpan(date, context.getString(R.string.text_unknown));
+			if (date == 0) {
+				return context.getString(R.string.text_unknown);
+			}
+			return DateUtils.getRelativeTimeSpanString(date);
 		}
-	}
-
-	public static CharSequence describePastTimeSpan(long time) {
-		return describePastTimeSpan(time, "");
 	}
 
 	@DebugLog
@@ -74,14 +69,6 @@ public class PresentationUtils {
 			return "";
 		}
 		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS);
-	}
-
-	@DebugLog
-	public static CharSequence describePastTimeSpan(long time, String defaultValue) {
-		if (time == 0) {
-			return defaultValue;
-		}
-		return DateUtils.getRelativeTimeSpanString(time);
 	}
 
 	@DebugLog

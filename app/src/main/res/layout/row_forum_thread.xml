@@ -34,8 +34,8 @@
 			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
 			android:textColor="@color/secondary_text"
-			app:isForumTimestamp="true"
-			app:prefix="@string/forum_thread_created"/>
+			app:format="@string/forum_thread_created"
+			app:isForumTimestamp="true"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -59,8 +59,8 @@
 			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
 			android:textColor="@color/secondary_text"
-			app:isForumTimestamp="true"
-			app:prefix="@string/forum_last_post"/>
+			app:format="@string/forum_last_post"
+			app:isForumTimestamp="true"/>
 	</LinearLayout>
 
 </LinearLayout>

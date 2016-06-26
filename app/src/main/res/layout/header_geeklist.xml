@@ -51,7 +51,7 @@
 			android:ellipsize="end"
 			android:gravity="right"
 			android:maxLines="1"
-			app:prefix="@string/posted_prefix"
+			app:format="@string/posted_prefix"
 			tools:text="Posted yesterday"/>
 	</LinearLayout>
 
@@ -77,7 +77,7 @@
 			android:ellipsize="end"
 			android:gravity="right"
 			android:maxLines="1"
-			app:prefix="@string/edited_prefix"
+			app:format="@string/edited_prefix"
 			tools:text="Edited yesterday"/>
 	</LinearLayout>
 

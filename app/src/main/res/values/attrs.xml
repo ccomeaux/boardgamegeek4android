@@ -25,7 +25,7 @@
 	</declare-styleable>
 	<declare-styleable name="TimestampView">
 		<attr name="isForumTimestamp" format="boolean"/>
-		<attr name="prefix" format="string"/>
+		<attr name="format" format="string"/>
 		<attr name="emptyMessage" format="string"/>
 		<attr name="hideWhenEmpty" format="boolean"/>
 	</declare-styleable>

@@ -22,7 +22,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentLeft="true"
 		android:layout_below="@+id/play_unsynced_message"
-		app:prefix="@string/saved_prefix"
+		app:format="@string/saved_prefix"
 		tools:text="1 hour ago"/>
 
 	<TextView
@@ -40,7 +40,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentRight="true"
 		android:layout_below="@+id/play_id"
-		app:prefix="@string/updated_prefix"
+		app:format="@string/updated_prefix"
 		tools:text="Yesterday"/>
 
 </RelativeLayout>

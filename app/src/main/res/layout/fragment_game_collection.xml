@@ -37,7 +37,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:emptyMessage="@string/text_unknown"
-				app:prefix="@string/last_modified_prefix"
+				app:format="@string/last_modified_prefix"
 				tools:text="Last modified Yesterday"/>
 		</LinearLayout>
 
@@ -313,7 +313,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="right"
 			app:emptyMessage="@string/needs_updating"
-			app:prefix="@string/updated_prefix"
+			app:format="@string/updated_prefix"
 			tools:text="Updated: 3 days ago"/>
 	</LinearLayout>
 </LinearLayout>

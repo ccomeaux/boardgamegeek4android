@@ -30,7 +30,7 @@
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.AppCompat.Body1"
 		android:textColor="@color/secondary_text"
+		app:format="@string/forum_last_post"
 		app:isForumTimestamp="true"
-		app:prefix="@string/forum_last_post"
 		tools:text="3 days ago"/>
 </LinearLayout>
