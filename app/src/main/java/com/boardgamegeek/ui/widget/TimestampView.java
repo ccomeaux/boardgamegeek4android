@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
+import android.text.Html;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -22,7 +24,7 @@ public class TimestampView extends TextView {
 	private boolean isForumTimeStamp;
 	private String defaultMessage;
 	private boolean hideWhenEmpty;
-	@State String format;
+	@State CharSequence format;
 	@State long timestamp;
 	@State String formatArg;
 
@@ -55,7 +57,7 @@ public class TimestampView extends TextView {
 		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, 0);
 		try {
 			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
-			format = a.getString(R.styleable.TimestampView_format);
+			format = a.getText(R.styleable.TimestampView_format);
 			defaultMessage = a.getString(R.styleable.TimestampView_emptyMessage);
 			hideWhenEmpty = a.getBoolean(R.styleable.TimestampView_hideWhenEmpty, false);
 		} finally {
@@ -64,7 +66,7 @@ public class TimestampView extends TextView {
 	}
 
 	public void setFormat(@StringRes final int formatResId) {
-		format = getContext().getString(formatResId);
+		format = getContext().getText(formatResId);
 		setTimestampText();
 	}
 
@@ -73,7 +75,7 @@ public class TimestampView extends TextView {
 		setTimestampText();
 	}
 
-	public void setFormatArg(String formatArg){
+	public void setFormatArg(String formatArg) {
 		this.formatArg = formatArg;
 		setTimestampText();
 	}
@@ -90,7 +92,7 @@ public class TimestampView extends TextView {
 				public void run() {
 					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp);
 					if (!TextUtils.isEmpty(format)) {
-						setText(String.format(format, formattedTimestamp, formatArg));
+						setText(Html.fromHtml(String.format(Html.toHtml(new SpannedString(format)), formattedTimestamp, formatArg)));
 					} else {
 						setText(formattedTimestamp);
 					}
