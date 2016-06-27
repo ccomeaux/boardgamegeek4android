@@ -124,6 +124,14 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			}
 
 			@Override
+			public int getSwipeDirs(RecyclerView recyclerView, ViewHolder viewHolder) {
+				if (actionMode != null) {
+					return 0;
+				}
+				return super.getSwipeDirs(recyclerView, viewHolder);
+			}
+
+			@Override
 			public void onChildDraw(Canvas c, RecyclerView recyclerView, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 				if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
 					View itemView = viewHolder.itemView;
@@ -261,7 +269,11 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 				private void toggleSelection(int position) {
 					adapter.toggleSelection(position);
 					int count = adapter.getSelectedItemCount();
-					actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_colors_selected, count, count));
+					if (count == 0) {
+						actionMode.finish();
+					} else {
+						actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_colors_selected, count, count));
+					}
 				}
 			});
 			recyclerView.setAdapter(adapter);
