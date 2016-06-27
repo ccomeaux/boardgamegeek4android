@@ -433,10 +433,10 @@
 	<string name="help_title">Help</string>
 	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
 	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
-	<string name="help_game_menu">From here you can...\n- Share\n- Create a shortcut on the home screen\n- View a larger version of the game image</string>
+	<string name="help_game_menu">From here you can…\n- Share\n- Create a shortcut on the home screen\n- View a larger version of the game image</string>
 	<string name="help_game_log_play">- Log plays</string>
 	<string name="help_game_poll">- View polls</string>
-	<string name="help_collection">Got lots of games? Why don\'t you...</string>
+	<string name="help_collection">Got lots of games? Why don\'t you…</string>
 	<string name="help_collection_sort">- Sort</string>
 	<string name="help_collection_filter">- Filter</string>
 	<string name="help_collection_save">- Save the applied sort and filter settings as a view</string>
@@ -521,6 +521,10 @@
 	<plurals name="msg_colors_selected">
 		<item quantity="one">Selected %s color</item>
 		<item quantity="other">Selected %s colors</item>
+	</plurals>
+	<plurals name="msg_colors_deleted">
+		<item quantity="one">Deleted %s color</item>
+		<item quantity="other">Deleted %s colors</item>
 	</plurals>
 	<plurals name="msg_plays_selected">
 		<item quantity="one">Selected %s play</item>

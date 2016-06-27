@@ -17,7 +17,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +42,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter;
+import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter.Callback;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.AnimationUtils;
@@ -58,17 +61,18 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class ColorsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int TOKEN = 0x20;
 	private int gameId;
 	private GameColorRecyclerViewAdapter adapter;
 	private EditTextDialogFragment editTextDialogFragment;
+	private ActionMode actionMode;
 
 	private Unbinder unbinder;
 	@BindView(R.id.root_container) CoordinatorLayout containerView;
 	@BindView(android.R.id.progress) View progressView;
 	@BindView(android.R.id.empty) View emptyView;
-	@BindView(android.R.id.list) RecyclerView listView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 	@BindView(R.id.fab) FloatingActionButton fab;
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
@@ -92,11 +96,9 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	private void setUpRecyclerView() {
-		LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-		listView.setLayoutManager(layoutManager);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
-		swipePaint.setColor(getResources().getColor(R.color.medium_blue));
+		swipePaint.setColor(ContextCompat.getColor(getContext(), R.color.medium_blue));
 		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
 
 		ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -146,7 +148,7 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 				super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 			}
 		});
-		itemTouchHelper.attachToRecyclerView(listView);
+		itemTouchHelper.attachToRecyclerView(recyclerView);
 	}
 
 	@Override
@@ -199,8 +201,70 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		if (adapter == null) {
-			adapter = new GameColorRecyclerViewAdapter(cursor, R.layout.row_color);
-			listView.setAdapter(adapter);
+			adapter = new GameColorRecyclerViewAdapter(cursor, R.layout.row_color, new Callback() {
+				@Override
+				public void onItemClick(int position) {
+					if (actionMode != null) {
+						toggleSelection(position);
+					}
+				}
+
+				@Override
+				public boolean onItemLongPress(int position) {
+					if (actionMode != null) {
+						return false;
+					}
+					actionMode = getActivity().startActionMode(new ActionMode.Callback() {
+						@Override
+						public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+							MenuInflater inflater = mode.getMenuInflater();
+							inflater.inflate(R.menu.colors_context, menu);
+							fab.setVisibility(View.GONE);
+							return true;
+						}
+
+						@Override
+						public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+							return false;
+						}
+
+						@Override
+						public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+							switch (item.getItemId()) {
+								case R.id.menu_delete:
+									List<Integer> selectedItemPositions = adapter.getSelectedItems();
+									int count = 0;
+									for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+										int position = selectedItemPositions.get(i);
+										String color = adapter.getColorName(position);
+										count += getActivity().getContentResolver().delete(Games.buildColorsUri(gameId, color), null, null);
+									}
+									Snackbar.make(containerView, getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Snackbar.LENGTH_SHORT).show();
+									mode.finish();
+									return true;
+							}
+							mode.finish();
+							return false;
+						}
+
+						@Override
+						public void onDestroyActionMode(ActionMode mode) {
+							actionMode = null;
+							adapter.clearSelections();
+							fab.setVisibility(View.VISIBLE);
+						}
+					});
+					toggleSelection(position);
+					return true;
+				}
+
+				private void toggleSelection(int position) {
+					adapter.toggleSelection(position);
+					int count = adapter.getSelectedItemCount();
+					actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_colors_selected, count, count));
+				}
+			});
+			recyclerView.setAdapter(adapter);
 		}
 
 		int token = loader.getId();
@@ -217,7 +281,7 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 			cursor.close();
 		}
 
-		AnimationUtils.fadeIn(getActivity(), listView, isResumed());
+		AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		AnimationUtils.fadeIn(getActivity(), fab, isResumed());
 		AnimationUtils.fadeOut(progressView);
 	}
@@ -245,6 +309,7 @@ public class ColorsFragment extends Fragment implements LoaderManager.LoaderCall
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
 	}
 
+	@DebugLog
 	private void addColor(String color) {
 		ContentValues values = new ContentValues();
 		values.put(GameColors.COLOR, color);

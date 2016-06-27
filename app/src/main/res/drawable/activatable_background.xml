@@ -1,0 +1,7 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:exitFadeDuration="@android:integer/config_mediumAnimTime">
+
+	<item android:drawable="@drawable/pressed_background" android:state_pressed="true"/>
+	<item android:drawable="@drawable/checked_background" android:state_activated="true"/>
+	<item android:drawable="@android:color/transparent"/>
+
+</selector>
