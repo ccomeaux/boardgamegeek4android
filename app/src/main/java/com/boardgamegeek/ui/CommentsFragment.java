@@ -83,8 +83,8 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public void onDestroyView() {
-		unbinder.unbind();
 		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private void setUpRecyclerView() {
