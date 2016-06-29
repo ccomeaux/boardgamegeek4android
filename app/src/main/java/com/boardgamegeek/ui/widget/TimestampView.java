@@ -63,6 +63,7 @@ public class TimestampView extends TextView {
 		} finally {
 			a.recycle();
 		}
+		setMaxLines(1);
 	}
 
 	public void setFormat(@StringRes final int formatResId) {

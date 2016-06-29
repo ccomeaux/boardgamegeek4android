@@ -98,7 +98,6 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
-				android:maxLines="1"
 				app:format="@string/posted_prefix"
 				tools:text="Posted Yesterday"/>
 		</LinearLayout>
@@ -127,7 +126,6 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="right"
 				android:ellipsize="end"
-				android:maxLines="1"
 				app:format="@string/edited_prefix"
 				tools:text="Edited Today"/>
 		</LinearLayout>

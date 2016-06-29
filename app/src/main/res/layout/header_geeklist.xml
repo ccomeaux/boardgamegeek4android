@@ -48,9 +48,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:ellipsize="end"
 			android:gravity="right"
-			android:maxLines="1"
 			app:format="@string/posted_prefix"
 			tools:text="Posted yesterday"/>
 	</LinearLayout>
@@ -74,9 +72,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:ellipsize="end"
 			android:gravity="right"
-			android:maxLines="1"
 			app:format="@string/edited_prefix"
 			tools:text="Edited yesterday"/>
 	</LinearLayout>
