@@ -517,6 +517,7 @@
 	<string name="incomplete_games">incomplete games</string>
 	<string name="accessories">accessories</string>
 	<string name="show_missing_votes">Show missing votes</string>
+	<string name="msg_invalid_token">Attempting to use an unrecognized query token: %s</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
