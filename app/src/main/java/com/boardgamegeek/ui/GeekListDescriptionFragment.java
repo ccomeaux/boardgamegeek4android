@@ -58,7 +58,7 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	@Override
 	public void onDestroyView() {
-		if (unbinder != null) unbinder.unbind();
 		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 }

@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -221,7 +220,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 							Intent intent = new Intent(context, GeekListDescriptionActivity.class);
 							intent.putExtra(ActivityUtils.KEY_ID, geekList.getId());
 							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.getTitle());
-							intent.putExtra(ActivityUtils.KEY_GEEKLIST, (Parcelable) itemView.getTag());
+							intent.putExtra(ActivityUtils.KEY_GEEKLIST, geekList);
 							context.startActivity(intent);
 						}
 					});
