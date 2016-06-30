@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<integer name="game_info_weight_sum">8</integer>
+	<integer name="geek_list_header_lines">8</integer>
 </resources>
