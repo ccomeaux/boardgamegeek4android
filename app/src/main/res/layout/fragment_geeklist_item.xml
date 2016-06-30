@@ -82,7 +82,6 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:ellipsize="end"
 				android:maxLines="1"
 				tools:text="by ccomeaux"/>
 
@@ -91,7 +90,6 @@
 				style="@style/Text.Footnote"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:ellipsize="end"
 				app:format="@string/posted_prefix"
 				tools:text="Posted Yesterday"/>
 		</LinearLayout>
@@ -109,7 +107,6 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:ellipsize="end"
 				android:maxLines="1"
 				tools:text="3 thumbs"/>
 
@@ -119,7 +116,6 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="right"
-				android:ellipsize="end"
 				app:format="@string/edited_prefix"
 				tools:text="Edited Today"/>
 		</LinearLayout>
