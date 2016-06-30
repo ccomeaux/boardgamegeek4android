@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,8 +43,9 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	private long editedDate;
 	private String body;
 	private Palette.Swatch swatch;
-	private Unbinder unbinder;
+	private XmlConverter xmlConverter;
 
+	private Unbinder unbinder;
 	private ViewGroup rootView;
 	@BindView(R.id.hero_container) View heroContainer;
 	@BindView(R.id.header_container) View headerContainer;
@@ -85,6 +87,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		postedDate = intent.getLongExtra(ActivityUtils.KEY_POSTED_DATE, 0);
 		editedDate = intent.getLongExtra(ActivityUtils.KEY_EDITED_DATE, 0);
 		body = intent.getStringExtra(ActivityUtils.KEY_BODY);
+		xmlConverter = new XmlConverter();
 	}
 
 	@Override
@@ -105,7 +108,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		ImageUtils.safelyLoadImage(imageView, imageId, this);
 		usernameView.setText(username);
 		thumbsView.setText(getString(R.string.thumbs_suffix, numberOfThumbs));
-		String content = new XmlConverter().toHtml(body);
+		String content = xmlConverter.toHtml(body);
 		UIUtils.setWebViewText(bodyView, content);
 		postedDateView.setTimestamp(postedDate);
 		editedDateView.setTimestamp(editedDate);
@@ -143,7 +146,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		if (!isAdded()) {
 			return;
 		}
-		swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
+		swatch = PaletteUtils.getInverseSwatch(palette, ContextCompat.getColor(getActivity(), R.color.info_background));
 		applySwatch();
 	}
 

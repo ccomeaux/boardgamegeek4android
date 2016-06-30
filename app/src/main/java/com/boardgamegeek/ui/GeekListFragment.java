@@ -29,6 +29,7 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.XmlConverter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -133,11 +134,13 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 		private static final int VIEW_TYPE_ITEM = R.layout.row_geeklist_item;
 		private final LayoutInflater inflater;
 		private final GeekList geekList;
+		private final XmlConverter xmlConverter;
 
 		public GeekListRecyclerViewAdapter(Context context, GeekList geekList) {
 			inflater = LayoutInflater.from(context);
 			this.geekList = geekList;
 			setHasStableIds(true);
+			xmlConverter = new XmlConverter();
 		}
 
 		@Override
@@ -173,7 +176,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 		@Override
 		public void onBindViewHolder(GeekListViewHolder holder, int position) {
 			if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
-				((GeekListHeaderViewHolder) holder).bind(geekList);
+				((GeekListHeaderViewHolder) holder).bind(geekList, xmlConverter);
 			} else if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
 				try {
 					GeekListItem item = geekList.getItems().get(position);
@@ -203,12 +206,12 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(final GeekList geekList) {
+			public void bind(final GeekList geekList, XmlConverter xmlConverter) {
 				if (geekList != null) {
 					final Context context = itemView.getContext();
 
 					username.setText(context.getString(R.string.by_prefix, geekList.getUsername()));
-					PresentationUtils.setTextOrHide(description, geekList.getDescription());
+					PresentationUtils.setTextOrHide(description, xmlConverter.strip(geekList.getDescription()));
 					items.setText(context.getString(R.string.items_suffix, geekList.getNumberOfItems()));
 					thumbs.setText(context.getString(R.string.thumbs_suffix, geekList.getThumbs()));
 					postDate.setTimestamp(geekList.getPostDate());

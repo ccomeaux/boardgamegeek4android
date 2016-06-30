@@ -30,6 +30,7 @@ public class GeekListDescriptionFragment extends Fragment {
 	@BindView(R.id.edited_date) TimestampView editedDateView;
 	@BindView(R.id.body) WebView bodyView;
 	private GeekList geekList;
+	private XmlConverter xmlConverter;
 
 	@Override
 	@DebugLog
@@ -37,6 +38,7 @@ public class GeekListDescriptionFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		geekList = intent.getParcelableExtra(ActivityUtils.KEY_GEEKLIST);
+		xmlConverter = new XmlConverter();
 	}
 
 	@Override
@@ -48,7 +50,7 @@ public class GeekListDescriptionFragment extends Fragment {
 		usernameView.setText(geekList.getUsername());
 		itemCountView.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
 		thumbCountView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
-		String content = new XmlConverter().toHtml(geekList.getDescription());
+		String content = xmlConverter.toHtml(geekList.getDescription());
 		UIUtils.setWebViewText(bodyView, content);
 		postedDateView.setTimestamp(geekList.getPostDate());
 		editedDateView.setTimestamp(geekList.getEditDate());
