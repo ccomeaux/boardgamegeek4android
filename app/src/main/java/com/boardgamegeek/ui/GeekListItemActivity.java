@@ -12,29 +12,29 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class GeekListItemActivity extends SimpleSinglePaneActivity {
-	private int mId;
-	private String mTitle;
-	private int mObjectId;
-	private String mObjectName;
-	private String mUrl;
-	private boolean mIsBoardGame;
+	private int geekListId;
+	private String geekListTitle;
+	private int objectId;
+	private String objectName;
+	private String url;
+	private boolean isBoardGame;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
-		mId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		mObjectId = intent.getIntExtra(ActivityUtils.KEY_OBJECT_ID, BggContract.INVALID_ID);
-		mObjectName = intent.getStringExtra(ActivityUtils.KEY_NAME);
-		mUrl = intent.getStringExtra(ActivityUtils.KEY_OBJECT_URL);
-		mIsBoardGame = intent.getBooleanExtra(ActivityUtils.KEY_IS_BOARD_GAME, false);
+		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
+		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		objectId = intent.getIntExtra(ActivityUtils.KEY_OBJECT_ID, BggContract.INVALID_ID);
+		objectName = intent.getStringExtra(ActivityUtils.KEY_NAME);
+		url = intent.getStringExtra(ActivityUtils.KEY_OBJECT_URL);
+		isBoardGame = intent.getBooleanExtra(ActivityUtils.KEY_IS_BOARD_GAME, false);
 
-		if (!TextUtils.isEmpty(mTitle)) {
+		if (!TextUtils.isEmpty(geekListTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
-				actionBar.setTitle(mTitle);
+				actionBar.setTitle(geekListTitle);
 			}
 		}
 	}
@@ -53,10 +53,10 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				if (mId != BggContract.INVALID_ID) {
+				if (geekListId != BggContract.INVALID_ID) {
 					Intent intent = new Intent(this, GeekListActivity.class);
-					intent.putExtra(ActivityUtils.KEY_ID, mId);
-					intent.putExtra(ActivityUtils.KEY_TITLE, mTitle);
+					intent.putExtra(ActivityUtils.KEY_ID, geekListId);
+					intent.putExtra(ActivityUtils.KEY_TITLE, geekListTitle);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
@@ -65,10 +65,10 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 				}
 				return true;
 			case R.id.menu_view:
-				if (mIsBoardGame) {
-					ActivityUtils.launchGame(this, mObjectId, mObjectName);
+				if (isBoardGame) {
+					ActivityUtils.launchGame(this, objectId, objectName);
 				} else {
-					ActivityUtils.link(this, mUrl);
+					ActivityUtils.link(this, url);
 				}
 				return true;
 		}

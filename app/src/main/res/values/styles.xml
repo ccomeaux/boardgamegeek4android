@@ -534,4 +534,31 @@
 	<style name="BggShowcaseText" parent="TextAppearance.ShowcaseView.Detail">
 		<item name="android:textSize">14sp</item>
 	</style>
+
+	<style name="EmptyMessage">
+		<item name="android:gravity">center</item>
+		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
+		<item name="android:textAppearance">@style/Text</item>
+	</style>
+
+	<style name="RecyclerViewVerticalList">
+		<item name="android:clipToPadding">false</item>
+		<item name="android:paddingBottom">@dimen/padding_standard</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
+		<item name="android:scrollbars">vertical</item>
+	</style>
+
+	<style name="GeekListInfoBar">
+		<item name="android:background">@color/info_background</item>
+		<item name="android:elevation">@dimen/material_elevation_subtle</item>
+		<item name="android:minHeight">48dp</item>
+		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
+		<item name="android:gravity">center</item>
+	</style>
 </resources>

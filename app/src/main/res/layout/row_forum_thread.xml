@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout style="@style/RowContainer.VeryTall"
 			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:app="http://schemas.android.com/apk/res-auto"
 			  android:layout_width="match_parent"
 			  android:layout_height="wrap_content"
+			  android:background="?android:attr/selectableItemBackground"
 			  android:orientation="vertical">
 
 	<TextView
@@ -23,15 +25,16 @@
 			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/post_date"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:gravity="end"
-			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-			android:textColor="@color/secondary_text"/>
+			android:textColor="@color/secondary_text"
+			app:format="@string/forum_thread_created"
+			app:isForumTimestamp="true"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -46,15 +49,16 @@
 			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/last_post_date"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:gravity="end"
-			android:maxLines="1"
 			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-			android:textColor="@color/secondary_text"/>
+			android:textColor="@color/secondary_text"
+			app:format="@string/forum_last_post"
+			app:isForumTimestamp="true"/>
 	</LinearLayout>
 
 </LinearLayout>

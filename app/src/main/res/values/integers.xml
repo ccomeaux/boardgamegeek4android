@@ -8,4 +8,5 @@
 	<integer name="query_token_mechanics">5</integer>
 	<integer name="query_token_expansions">6</integer>
 	<integer name="query_token_base_games">7</integer>
+	<integer name="geek_list_header_lines">5</integer>
 </resources>

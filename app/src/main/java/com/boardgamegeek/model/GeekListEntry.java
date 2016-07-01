@@ -15,11 +15,12 @@ public class GeekListEntry {
 	private String pagination; // not useful
 
 	public String getTitle() {
-		return title;
+		if (TextUtils.isEmpty(title)) return "";
+		return title.trim();
 	}
 
 	public int getId() {
-		if (TextUtils.isEmpty(href)){
+		if (TextUtils.isEmpty(href)) {
 			return BggContract.INVALID_ID;
 		}
 		int start = href.indexOf("/geeklist/");

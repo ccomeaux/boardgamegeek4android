@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -35,6 +34,7 @@ import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.ui.model.PrivateInfo;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -63,25 +63,24 @@ import timber.log.Timber;
 
 public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
 	private Unbinder unbinder;
 	@BindView(R.id.year) TextView year;
 	@BindView(R.id.info_bar) View infoBar;
 	@BindView(R.id.status) TextView status;
-	@BindView(R.id.last_modified) TextView lastModified;
+	@BindView(R.id.last_modified) TimestampView lastModified;
 	@BindView(R.id.rating_container) View ratingContainer;
 	@BindView(R.id.rating) TextView rating;
-	@BindView(R.id.rating_timestamp) TextView ratingTimestampView;
+	@BindView(R.id.rating_timestamp) TimestampView ratingTimestampView;
 	@BindView(R.id.comment_container) ViewGroup commentContainer;
 	@BindView(R.id.add_comment) View addCommentView;
 	@BindView(R.id.comment) TextView comment;
-	@BindView(R.id.comment_timestamp) TextView commentTimestampView;
+	@BindView(R.id.comment_timestamp) TimestampView commentTimestampView;
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
 	@BindView(R.id.private_info) TextView privateInfo;
 	@BindView(R.id.private_info_comments) TextView privateInfoComments;
-	@BindView(R.id.private_info_timestamp) TextView privateInfoTimestampView;
+	@BindView(R.id.private_info_timestamp) TimestampView privateInfoTimestampView;
 	@BindView(R.id.wishlist_container) View wishlistContainer;
 	@BindView(R.id.wishlist_comment) TextView wishlistComment;
 	@BindView(R.id.condition_container) View conditionContainer;
@@ -91,7 +90,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@BindView(R.id.has_parts_container) View hasPartsContainer;
 	@BindView(R.id.has_parts_comment) TextView hasPartsComment;
 	@BindView(R.id.collection_id) TextView id;
-	@BindView(R.id.updated) TextView updated;
+	@BindView(R.id.updated) TimestampView updated;
 	@BindViews({
 		R.id.status,
 		R.id.last_modified,
@@ -108,8 +107,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private EditTextDialogFragment commentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
-	private Handler timeHintUpdateHandler = new Handler();
-	private Runnable timeHintUpdateRunnable = null;
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
 	private boolean mightNeedRefreshing;
@@ -120,7 +117,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		timeHintUpdateHandler = new Handler();
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		collectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
@@ -145,24 +141,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	@DebugLog
-	public void onResume() {
-		super.onResume();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onPause() {
-		super.onPause();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
 	}
 
 	@DebugLog
@@ -366,18 +344,18 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		notifyChange(item);
 
 		year.setText(item.getYearDescription());
-		lastModified.setTag(item.lastModifiedDateTime);
+		lastModified.setTimestamp(item.lastModifiedDateTime);
 		ratingContainer.setClickable(collectionId != 0);
 		rating.setText(item.getRatingDescription());
 		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
-		ratingTimestampView.setTag(item.ratingTimestamp);
+		ratingTimestampView.setTimestamp(item.ratingTimestamp);
 
 		status.setText(item.getStatus());
 		commentContainer.setClickable(collectionId != 0);
 		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
 		PresentationUtils.setTextOrHide(comment, item.comment);
-		commentTimestampView.setTag(item.commentTimestamp);
+		commentTimestampView.setTimestamp(item.commentTimestamp);
 
 		privateInfoContainer.setClickable(collectionId != 0);
 		privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
@@ -390,7 +368,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		privateInfo.setTag(R.id.acquisition_date, item.getAcquisitionDate());
 		privateInfo.setTag(R.id.acquired_from, item.getAcquiredFrom());
 		PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
-		privateInfoTimestampView.setTag(item.privateInfoTimestamp);
+		privateInfoTimestampView.setTimestamp(item.privateInfoTimestamp);
 
 		showSection(item.wishlistComment, wishlistContainer, wishlistComment);
 		showSection(item.condition, conditionContainer, conditionComment);
@@ -399,66 +377,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-		updated.setTag(item.updated);
-
-		updateTimeBasedUi();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-		timeHintUpdateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (lastModified != null) {
-			String lastModifiedDateTime = (String) lastModified.getTag();
-			String s = getString(R.string.last_modified) + " ";
-			if (!TextUtils.isEmpty(lastModifiedDateTime)) {
-				if (String.valueOf(DateTimeUtils.UNKNOWN_DATE).equals(lastModifiedDateTime)) {
-					s = ""; // probably not in the collection at all
-				} else if (TextUtils.isDigitsOnly(lastModifiedDateTime)) {
-					try {
-						long lastModified = Long.parseLong(lastModifiedDateTime);
-						s += DateUtils.getRelativeTimeSpanString(lastModified);
-					} catch (NumberFormatException e) {
-						s += lastModifiedDateTime;
-					}
-				} else {
-					s += lastModifiedDateTime;
-				}
-			} else {
-				s += getString(R.string.text_unknown);
-			}
-			lastModified.setText(s);
-		}
-		if (updated != null) {
-			long u = (long) updated.getTag();
-			updated.setText(PresentationUtils.describePastTimeSpan(u,
-				getResources().getString(R.string.needs_updating),
-				getResources().getString(R.string.updated)));
-		}
-		displayTimestamp(ratingTimestampView);
-		displayTimestamp(commentTimestampView);
-		displayTimestamp(privateInfoTimestampView);
-	}
-
-	private void displayTimestamp(TextView timestampView) {
-		if (timestampView != null) {
-			long timestamp = (long) timestampView.getTag();
-			final CharSequence text = PresentationUtils.describePastTimeSpan(timestamp);
-			timestampView.setText(text);
-			timestampView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-		}
+		updated.setTimestamp(item.updated);
 	}
 
 	@DebugLog
@@ -526,7 +445,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		// String sortName;
 		private String comment;
 		private long commentTimestamp;
-		private String lastModifiedDateTime;
+		private long lastModifiedDateTime;
 		private double rating;
 		private long ratingTimestamp;
 		private long updated;
@@ -562,7 +481,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			commentTimestamp = cursor.getLong(COMMENT_DIRTY_TIMESTAMP);
 			rating = cursor.getDouble(RATING);
 			ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
-			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);
+			lastModifiedDateTime = cursor.getLong(LAST_MODIFIED);
 			updated = cursor.getLong(UPDATED);
 			priceCurrency = cursor.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY);
 			price = cursor.getDouble(PRIVATE_INFO_PRICE_PAID);

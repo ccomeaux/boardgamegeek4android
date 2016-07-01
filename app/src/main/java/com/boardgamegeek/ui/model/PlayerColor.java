@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 
-public class BuddyColor {
+public class PlayerColor {
 	public static String[] PROJECTION = {
 		PlayerColors._ID,
 		PlayerColors.PLAYER_COLOR,
@@ -19,14 +19,14 @@ public class BuddyColor {
 
 	private int sortOrder;
 
-	public BuddyColor(String color, int order) {
+	public PlayerColor(String color, int order) {
 		this.color = color;
 		this.sortOrder = order;
 	}
 
 	@NonNull
-	public static BuddyColor fromCursor(Cursor cursor) {
-		return new BuddyColor(cursor.getString(PLAYER_COLOR), cursor.getInt(SORT_ORDER));
+	public static PlayerColor fromCursor(Cursor cursor) {
+		return new PlayerColor(cursor.getString(PLAYER_COLOR), cursor.getInt(SORT_ORDER));
 	}
 
 	public String getColor() {

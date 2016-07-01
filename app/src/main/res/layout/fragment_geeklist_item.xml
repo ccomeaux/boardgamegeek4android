@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:app="http://schemas.android.com/apk/res-auto"
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
@@ -64,16 +65,10 @@
 
 	<LinearLayout
 		android:id="@+id/author_container"
+		style="@style/GeekListInfoBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/info_background"
-		android:elevation="@dimen/material_elevation_subtle"
-		android:minHeight="@dimen/view_row_height"
-		android:orientation="vertical"
-		android:paddingBottom="@dimen/material_margin_vertical"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/material_margin_vertical">
+		android:orientation="vertical">
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -87,17 +82,15 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:ellipsize="end"
 				android:maxLines="1"
 				tools:text="by ccomeaux"/>
 
-			<TextView
+			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/posted_date"
 				style="@style/Text.Footnote"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:ellipsize="end"
-				android:maxLines="1"
+				app:format="@string/posted_prefix"
 				tools:text="Posted Yesterday"/>
 		</LinearLayout>
 
@@ -114,18 +107,16 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:ellipsize="end"
 				android:maxLines="1"
 				tools:text="3 thumbs"/>
 
-			<TextView
+			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/edited_date"
 				style="@style/Text.Footnote"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="right"
-				android:ellipsize="end"
-				android:maxLines="1"
+				app:format="@string/edited_prefix"
 				tools:text="Edited Today"/>
 		</LinearLayout>
 	</LinearLayout>

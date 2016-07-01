@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/RowContainer.WithThumbnail"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="horizontal" >
+<LinearLayout style="@style/RowContainer.WithThumbnail"
+			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="wrap_content"
+			  android:background="?android:attr/selectableItemBackground"
+			  android:orientation="horizontal">
 
 	<TextView
 		android:id="@+id/order"
@@ -14,7 +15,7 @@
 		android:minWidth="32dp"
 		android:paddingLeft="0dp"
 		android:paddingRight="@dimen/padding_standard"
-		android:textSize="22sp" />
+		android:textSize="22sp"/>
 
 	<ImageView
 		android:id="@+id/thumbnail"
@@ -22,13 +23,13 @@
 		android:layout_width="@dimen/thumbnail_size"
 		android:layout_height="@dimen/thumbnail_size"
 		android:contentDescription="@string/thumbnail"
-		android:src="@drawable/thumbnail_image_empty" />
+		android:src="@drawable/thumbnail_image_empty"/>
 
 	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/game_name"
@@ -36,7 +37,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:maxLines="2" />
+			android:maxLines="2"/>
 
 		<TextView
 			android:id="@+id/type"
@@ -44,7 +45,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:maxLines="1" />
+			android:maxLines="1"/>
 
 		<TextView
 			android:id="@+id/username"
@@ -52,7 +53,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:maxLines="1" />
+			android:maxLines="1"/>
 	</LinearLayout>
 
 </LinearLayout>

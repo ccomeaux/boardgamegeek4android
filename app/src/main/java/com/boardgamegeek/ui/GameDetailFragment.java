@@ -1,17 +1,22 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -23,62 +28,69 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
-public class GameDetailFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private CursorAdapter mAdapter;
-	private int mGameId;
-	private int mQueryToken;
-	private BaseQuery mQuery;
+public class GameDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private GameDetailAdapter adapter;
+	private int gameId;
+	private int queryToken;
+	private Query query;
+
+	Unbinder unbinder;
+	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_game_details, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
+	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mQueryToken = intent.getIntExtra(ActivityUtils.KEY_QUERY_TOKEN, BggContract.INVALID_ID);
+		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		queryToken = intent.getIntExtra(ActivityUtils.KEY_QUERY_TOKEN, BggContract.INVALID_ID);
 
-		determineQuery();
+		makeQuery();
 
-		if (!mQuery.isClickable()) {
-			getListView().setSelector(android.R.color.transparent);
-		}
-
-		if (mQuery != null) {
-			getLoaderManager().restartLoader(mQueryToken, getArguments(), this);
+		if (query != null) {
+			getLoaderManager().restartLoader(queryToken, getArguments(), this);
 		} else {
-			Toast.makeText(getActivity(), "Oops! " + mQueryToken, Toast.LENGTH_SHORT).show();
+			final String message = getString(R.string.msg_invalid_token, queryToken);
+			Timber.w(message);
+			emptyView.setText(message);
+			AnimationUtils.fadeIn(emptyView);
+			AnimationUtils.fadeOut(recyclerView);
+			AnimationUtils.fadeOut(progressView);
 		}
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		int p = getResources().getDimensionPixelSize(R.dimen.padding_standard);
-		getListView().setPadding(0, p, 0, p);
-		getListView().setClipToPadding(false);
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
-	@Override
-	protected boolean padTop() {
-		return true;
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		Uri uri = mQuery.getUri(cursor);
-		if (uri != null) {
-			getActivity().startActivity(new Intent(Intent.ACTION_VIEW, uri));
-		}
+	private void setUpRecyclerView() {
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), mQuery.getUri(), mQuery.getProjection(), mQuery.getSelection(), mQuery.getSelectionArgs(), null);
+		return new CursorLoader(getActivity(), query.getUri(), query.getProjection(), query.getSelection(), query.getSelectionArgs(), null);
 	}
 
 	@Override
@@ -87,99 +99,178 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 			return;
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_text, null, mQuery.getFrom(),
-				new int[] { android.R.id.title }, 0);
-			setListAdapter(mAdapter);
+		if (adapter == null) {
+			adapter = new GameDetailAdapter(getActivity(), cursor, query);
+			recyclerView.setAdapter(adapter);
 		}
 
 		int token = loader.getId();
-		if (token == mQueryToken) {
-			mAdapter.changeCursor(cursor);
+		if (token == queryToken) {
+			adapter.changeCursor(cursor);
 		} else {
 			Timber.d("Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
+		AnimationUtils.fadeOut(progressView);
+		AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+	}
+
+	public class GameDetailAdapter extends RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder> {
+		private final LayoutInflater inflater;
+		private Cursor cursor;
+		private final Query query;
+
+		public GameDetailAdapter(Context context, Cursor cursor, Query query) {
+			this.cursor = cursor;
+			this.query = query;
+			inflater = LayoutInflater.from(context);
+			setHasStableIds(true);
+		}
+
+		@Override
+		public DetailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View view = inflater.inflate(R.layout.row_text, parent, false);
+			return new DetailViewHolder(view);
+		}
+
+		@Override
+		public void onBindViewHolder(DetailViewHolder holder, int position) {
+			if (cursor.moveToPosition(position)) {
+				holder.bind(cursor);
+			}
+		}
+
+		@Override
+		public int getItemCount() {
+			return cursor.getCount();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			if (cursor.moveToPosition(position)) {
+				return cursor.getInt(cursor.getColumnIndex(query.getIdColumnName()));
+			}
+			return RecyclerView.NO_ID;
+		}
+
+		public class DetailViewHolder extends RecyclerView.ViewHolder {
+			@BindView(android.R.id.title) TextView titleView;
+
+			public DetailViewHolder(View itemView) {
+				super(itemView);
+				ButterKnife.bind(this, itemView);
+			}
+
+			public void bind(final Cursor cursor) {
+				titleView.setText(cursor.getString(cursor.getColumnIndex(query.getTitleColumnName())));
+
+				if (query.isClickable()) {
+					itemView.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Uri uri = query.getUri(cursor);
+							if (uri != null) {
+								getActivity().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+							}
+						}
+					});
+				} else {
+					itemView.setBackgroundDrawable(null);
+				}
+			}
+		}
+
+		public void changeCursor(Cursor cursor) {
+			Cursor old = swapCursor(cursor);
+			if (old != null) {
+				old.close();
+			}
+		}
+
+		public Cursor swapCursor(Cursor newCursor) {
+			if (newCursor == cursor) {
+				return null;
+			}
+			Cursor oldCursor = cursor;
+			cursor = newCursor;
+			if (newCursor != null) {
+				notifyDataSetChanged();
+			} else {
+				notifyItemRangeRemoved(0, oldCursor.getCount());
+			}
+			return oldCursor;
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-		mAdapter.changeCursor(null);
+		adapter.changeCursor(null);
 	}
 
-	private void determineQuery() {
-		if (mQueryToken == getResources().getInteger(R.integer.query_token_designers)) {
-			mQuery = new DesignerQuery();
-		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_artists)) {
-			mQuery = new ArtistQuery();
-		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_publishers)) {
-			mQuery = new PublisherQuery();
-		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_categories)) {
-			mQuery = new CategoryQuery();
-		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_mechanics)) {
-			mQuery = new MechanicQuery();
-		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_expansions)) {
-			mQuery = new ExpansionQuery();
-		} else if (mQueryToken == getResources().getInteger(R.integer.query_token_base_games)) {
-			mQuery = new BaseGameQuery();
+	private void makeQuery() {
+		if (queryToken == getResources().getInteger(R.integer.query_token_designers)) {
+			query = new DesignerQuery();
+		} else if (queryToken == getResources().getInteger(R.integer.query_token_artists)) {
+			query = new ArtistQuery();
+		} else if (queryToken == getResources().getInteger(R.integer.query_token_publishers)) {
+			query = new PublisherQuery();
+		} else if (queryToken == getResources().getInteger(R.integer.query_token_categories)) {
+			query = new CategoryQuery();
+		} else if (queryToken == getResources().getInteger(R.integer.query_token_mechanics)) {
+			query = new MechanicQuery();
+		} else if (queryToken == getResources().getInteger(R.integer.query_token_expansions)) {
+			query = new ExpansionQuery();
+		} else if (queryToken == getResources().getInteger(R.integer.query_token_base_games)) {
+			query = new BaseGameQuery();
 		}
 	}
 
-	interface Query {
-		String[] getProjection();
+	abstract class Query {
+		public abstract String[] getProjection();
 
-		String[] getFrom();
+		public abstract String getIdColumnName();
 
-		Uri getUri();
+		public abstract String getTitleColumnName();
 
-		String getSelection();
+		public abstract Uri getUri();
 
-		String[] getSelectionArgs();
-
-		Uri getUri(Cursor cursor);
-	}
-
-	abstract class BaseQuery implements Query {
-		@Override
 		public String getSelection() {
 			return null;
 		}
 
-		@Override
 		public String[] getSelectionArgs() {
 			return null;
 		}
 
-		@Override
 		public Uri getUri(Cursor cursor) {
 			return null;
 		}
 
-		protected boolean isClickable() {
+		public boolean isClickable() {
 			return true;
 		}
 	}
 
-	private class DesignerQuery extends BaseQuery {
+	private class DesignerQuery extends Query {
 		@Override
 		public String[] getProjection() {
 			return new String[] { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
 		}
 
 		@Override
-		public String[] getFrom() {
-			return new String[] { Designers.DESIGNER_NAME };
+		public String getIdColumnName() {
+			return Designers._ID;
+		}
+
+		@Override
+		public String getTitleColumnName() {
+			return Designers.DESIGNER_NAME;
 		}
 
 		@Override
 		public Uri getUri() {
-			return Games.buildDesignersUri(mGameId);
+			return Games.buildDesignersUri(gameId);
 		}
 
 		@Override
@@ -188,20 +279,25 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		}
 	}
 
-	private class ArtistQuery extends BaseQuery {
+	private class ArtistQuery extends Query {
 		@Override
 		public String[] getProjection() {
 			return new String[] { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
 		}
 
 		@Override
-		public String[] getFrom() {
-			return new String[] { Artists.ARTIST_NAME };
+		public String getIdColumnName() {
+			return Artists._ID;
+		}
+
+		@Override
+		public String getTitleColumnName() {
+			return Artists.ARTIST_NAME;
 		}
 
 		@Override
 		public Uri getUri() {
-			return Games.buildArtistsUri(mGameId);
+			return Games.buildArtistsUri(gameId);
 		}
 
 		@Override
@@ -210,20 +306,25 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		}
 	}
 
-	private class PublisherQuery extends BaseQuery {
+	private class PublisherQuery extends Query {
 		@Override
 		public String[] getProjection() {
 			return new String[] { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
 		}
 
 		@Override
-		public String[] getFrom() {
-			return new String[] { Publishers.PUBLISHER_NAME };
+		public String getIdColumnName() {
+			return Publishers._ID;
+		}
+
+		@Override
+		public String getTitleColumnName() {
+			return Publishers.PUBLISHER_NAME;
 		}
 
 		@Override
 		public Uri getUri() {
-			return Games.buildPublishersUri(mGameId);
+			return Games.buildPublishersUri(gameId);
 		}
 
 		@Override
@@ -232,64 +333,79 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		}
 	}
 
-	private class CategoryQuery extends BaseQuery {
+	private class CategoryQuery extends Query {
 		@Override
 		public String[] getProjection() {
 			return new String[] { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
 		}
 
 		@Override
-		public String[] getFrom() {
-			return new String[] { Categories.CATEGORY_NAME };
+		public String getIdColumnName() {
+			return Categories._ID;
+		}
+
+		@Override
+		public String getTitleColumnName() {
+			return Categories.CATEGORY_NAME;
 		}
 
 		@Override
 		public Uri getUri() {
-			return Games.buildCategoriesUri(mGameId);
+			return Games.buildCategoriesUri(gameId);
 		}
 
 		@Override
-		protected boolean isClickable() {
+		public boolean isClickable() {
 			return false;
 		}
 	}
 
-	private class MechanicQuery extends BaseQuery {
+	private class MechanicQuery extends Query {
 		@Override
 		public String[] getProjection() {
 			return new String[] { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
 		}
 
 		@Override
-		public String[] getFrom() {
-			return new String[] { Mechanics.MECHANIC_NAME };
+		public String getIdColumnName() {
+			return Mechanics._ID;
+		}
+
+		@Override
+		public String getTitleColumnName() {
+			return Mechanics.MECHANIC_NAME;
 		}
 
 		@Override
 		public Uri getUri() {
-			return Games.buildMechanicsUri(mGameId);
+			return Games.buildMechanicsUri(gameId);
 		}
 
 		@Override
-		protected boolean isClickable() {
+		public boolean isClickable() {
 			return false;
 		}
 	}
 
-	private class ExpansionBaseQuery extends BaseQuery {
+	private class ExpansionBaseQuery extends Query {
 		@Override
 		public String[] getProjection() {
 			return new String[] { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
 		}
 
 		@Override
-		public String[] getFrom() {
-			return new String[] { GamesExpansions.EXPANSION_NAME };
+		public String getIdColumnName() {
+			return GamesExpansions._ID;
+		}
+
+		@Override
+		public String getTitleColumnName() {
+			return GamesExpansions.EXPANSION_NAME;
 		}
 
 		@Override
 		public Uri getUri() {
-			return Games.buildExpansionsUri(mGameId);
+			return Games.buildExpansionsUri(gameId);
 		}
 
 		public String getSelection() {

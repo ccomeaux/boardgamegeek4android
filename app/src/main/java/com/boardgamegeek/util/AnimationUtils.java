@@ -2,6 +2,8 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 
 /**
  * Helper class for animations.
@@ -10,27 +12,51 @@ public class AnimationUtils {
 	private AnimationUtils() {
 	}
 
-	public static void fadeIn(Context context, View view, boolean animate) {
+	public static void fadeIn(final View view) {
+		fadeIn(view.getContext(), view, true);
+	}
+
+	public static void fadeIn(Context context, final View view, boolean animate) {
 		if (view == null || view.getVisibility() == View.VISIBLE) {
 			return;
 		}
 		if (animate) {
-			view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+			final Animation animation = android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+			view.startAnimation(animation);
 		} else {
 			view.clearAnimation();
 		}
 		view.setVisibility(View.VISIBLE);
 	}
 
-	public static void fadeOut(Context context, View view, boolean animate) {
+	public static void fadeOut(final View view) {
+		fadeOut(view.getContext(), view, true);
+	}
+
+	public static void fadeOut(Context context, final View view, boolean animate) {
 		if (view == null || view.getVisibility() != View.VISIBLE) {
 			return;
 		}
 		if (animate) {
-			view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_out));
+			final Animation animation = android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
+			animation.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					view.setVisibility(View.GONE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+				}
+			});
+			view.startAnimation(animation);
 		} else {
 			view.clearAnimation();
+			view.setVisibility(View.GONE);
 		}
-		view.setVisibility(View.GONE);
 	}
 }

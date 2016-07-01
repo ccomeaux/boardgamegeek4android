@@ -82,7 +82,7 @@ public class GeekListItem {
 		return "thing".equals(objecttype);
 	}
 
-	public String getObejctUrl() {
+	public String getObjectUrl() {
 		return "https://www.boardgamegeek.com/" + (TextUtils.isEmpty(subtype) ? objecttype : subtype) + "/" + objectid;
 	}
 

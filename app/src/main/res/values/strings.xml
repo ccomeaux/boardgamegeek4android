@@ -398,7 +398,8 @@
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
 	<string name="updated">Updated</string>
-	<string name="saved">Saved</string>
+	<string name="updated_prefix">Updated %s</string>
+	<string name="saved_prefix">Saved %s</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
@@ -432,10 +433,10 @@
 	<string name="help_title">Help</string>
 	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
 	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
-	<string name="help_game_menu">From here you can...\n- Share\n- Create a shortcut on the home screen\n- View a larger version of the game image</string>
+	<string name="help_game_menu">From here you can…\n- Share\n- Create a shortcut on the home screen\n- View a larger version of the game image</string>
 	<string name="help_game_log_play">- Log plays</string>
 	<string name="help_game_poll">- View polls</string>
-	<string name="help_collection">Got lots of games? Why don\'t you...</string>
+	<string name="help_collection">Got lots of games? Why don\'t you…</string>
 	<string name="help_collection_sort">- Sort</string>
 	<string name="help_collection_filter">- Filter</string>
 	<string name="help_collection_save">- Save the applied sort and filter settings as a view</string>
@@ -450,6 +451,7 @@
 	<string name="forum_thread_created">Created %s</string>
 	<string name="forum_thread_author">by %s</string>
 	<string name="last_modified">Last modified</string>
+	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="private_info">Private Info</string>
 	<string name="price">Price Paid</string>
@@ -511,25 +513,27 @@
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
 	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
+	<string name="msg_color_deleted">Deleted \"%s\"</string>
 	<string name="incomplete_games">incomplete games</string>
 	<string name="accessories">accessories</string>
 	<string name="show_missing_votes">Show missing votes</string>
+	<string name="msg_invalid_token">Attempting to use an unrecognized query token: %s</string>
 
+	<plurals name="msg_colors_selected">
+		<item quantity="one">%s color</item>
+		<item quantity="other">%s colors</item>
+	</plurals>
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
 		<item quantity="other">Deleted %s colors</item>
 	</plurals>
-	<plurals name="msg_colors_selected">
-		<item quantity="one">Selected %s color</item>
-		<item quantity="other">Selected %s colors</item>
-	</plurals>
 	<plurals name="msg_plays_selected">
-		<item quantity="one">Selected %s play</item>
-		<item quantity="other">Selected %s plays</item>
+		<item quantity="one">%s play</item>
+		<item quantity="other">%s plays</item>
 	</plurals>
 	<plurals name="msg_games_selected">
-		<item quantity="one">Selected %s game</item>
-		<item quantity="other">Selected %s games</item>
+		<item quantity="one">%s game</item>
+		<item quantity="other">%s games</item>
 	</plurals>
 	<plurals name="are_you_sure_delete_play">
 		<item quantity="one">Are you sure you want to delete this play?</item>
