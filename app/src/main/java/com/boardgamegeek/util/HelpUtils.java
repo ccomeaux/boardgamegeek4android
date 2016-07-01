@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -87,6 +89,20 @@ public class HelpUtils {
 			position = 1;
 		}
 		final View child = listView.getChildAt(position);
+		if (child == null) {
+			Timber.w("No child available at position " + position);
+		}
+		return child;
+	}
+
+	public static View getRecyclerViewVisibleChild(RecyclerView view) {
+		View child = null;
+		int position = 1;
+		LinearLayoutManager layoutManager = (LinearLayoutManager) view.getLayoutManager();
+		if (layoutManager != null) {
+			position = layoutManager.findFirstCompletelyVisibleItemPosition();
+			child = layoutManager.findViewByPosition(position);
+		}
 		if (child == null) {
 			Timber.w("No child available at position " + position);
 		}

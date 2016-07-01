@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -50,6 +49,7 @@ import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.StatBar;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -84,11 +84,8 @@ import timber.log.Timber;
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
 
-	private Handler timeHintUpdateHandler = new Handler();
-	private Runnable timeHintUpdateRunnable = null;
 	private Uri gameUri;
 	private String gameName;
 	private String imageUrl;
@@ -136,7 +133,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.game_comments_label) TextView commentsLabel;
 
-	@BindView(R.id.forums_last_post_date) TextView forumsLastPostDateView;
+	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
 	@BindView(R.id.game_weight) TextView weightView;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
@@ -150,7 +147,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.users_wishing_bar) StatBar numberWishingBar;
 
 	@BindView(R.id.game_info_id) TextView idView;
-	@BindView(R.id.game_info_last_updated) TextView updatedView;
+	@BindView(R.id.game_info_last_updated) TimestampView updatedView;
 
 	@BindViews({
 		R.id.number_of_players,
@@ -208,8 +205,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		setHasOptionsMenu(true);
 
-		timeHintUpdateHandler = new Handler();
-
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
 	}
@@ -238,24 +233,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
 		return rootView;
-	}
-
-	@Override
-	@DebugLog
-	public void onResume() {
-		super.onResume();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onPause() {
-		super.onPause();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
 	}
 
 	@Override
@@ -423,7 +400,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	private void fetchForumInfo() {
-		if (forumsLastPostDateView.getTag() != null) {
+		if (forumsLastPostDateView.getVisibility() == View.VISIBLE) {
 			return;
 		}
 		BggService bggService = Adapter.createForXml();
@@ -440,10 +417,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 							title = forum.title;
 						}
 					}
-					forumsLastPostDateView.setTag(lastPostDate);
-					forumsLastPostDateView.setTag(R.id.title, title);
-					forumsLastPostDateView.setVisibility(View.VISIBLE);
-					updateTimeBasedUi();
+					forumsLastPostDateView.setFormatArg(title);
+					forumsLastPostDateView.setTimestamp(lastPostDate);
 				}
 			}
 
@@ -505,7 +480,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		ratingView.setText(game.getRatingDescription());
 		ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
 		idView.setText(String.valueOf(game.Id));
-		updatedView.setTag(game.Updated);
+		updatedView.setTimestamp(game.Updated);
 		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
 		numberOfPlayersView.setText(game.getPlayerRangeDescription());
 		playTimeView.setText(game.getPlayingTimeDescription());
@@ -532,54 +507,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			playStatsRoot.setVisibility(View.VISIBLE);
 		}
 
-		updateTimeBasedUi();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-		timeHintUpdateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-
 		if (mightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 		mightNeedRefreshing = false;
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (updatedView != null) {
-			final Object tag = updatedView.getTag();
-			if (tag != null) {
-				long updatedTime = (long) tag;
-				updatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
-			}
-		}
-		if (lastPlayView != null) {
-			final Object tag = lastPlayView.getTag();
-			if (tag != null) {
-				long lastPlayedTime = (long) tag;
-				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(lastPlayedTime)));
-			}
-		}
-		if (forumsLastPostDateView != null) {
-			final Object tag = forumsLastPostDateView.getTag();
-			if (tag != null) {
-				long lastPostDate = (long) tag;
-				String title = (String) forumsLastPostDateView.getTag(R.id.title);
-				CharSequence date = DateTimeUtils.formatForumDate(GameFragment.this.getContext(), lastPostDate);
-				forumsLastPostDateView.setText(PresentationUtils.getText(getContext(), R.string.forum_last_post_in, date, title));
-			}
-		}
 	}
 
 	@DebugLog
@@ -699,9 +631,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			}
 
 			if (date > 0) {
-				lastPlayView.setTag(date);
+				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(date)));
 				lastPlayView.setVisibility(View.VISIBLE);
-				updateTimeBasedUi();
 			} else {
 				lastPlayView.setVisibility(View.GONE);
 			}

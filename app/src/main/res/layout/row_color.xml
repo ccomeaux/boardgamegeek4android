@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.boardgamegeek.ui.widget.CheckableFrameLayout
+<com.boardgamegeek.ui.widget.ForegroundLinearLayout
 	style="@style/RowContainer.Medium"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@drawable/checkable_background">
+	android:background="@drawable/activatable_background"
+	android:foreground="?android:attr/selectableItemBackground">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -37,4 +38,4 @@
 			tools:text="Orange"/>
 	</LinearLayout>
 
-</com.boardgamegeek.ui.widget.CheckableFrameLayout>
+</com.boardgamegeek.ui.widget.ForegroundLinearLayout>

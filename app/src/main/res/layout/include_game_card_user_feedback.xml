@@ -2,6 +2,7 @@
 <android.support.v7.widget.CardView
 	style="@style/Card"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -116,13 +117,15 @@
 					android:text="@string/title_forums"
 					android:textAppearance="@style/Text"/>
 
-				<TextView
+				<com.boardgamegeek.ui.widget.TimestampView
 					android:id="@+id/forums_last_post_date"
 					style="@style/Text.Secondary"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:maxLines="1"
 					android:visibility="invisible"
+					app:format="@string/forum_last_post_in"
+					app:hideWhenEmpty="true"
+					app:isForumTimestamp="true"
 					tools:text="Last post 1 hour ago"
 					tools:visibility="visible"/>
 			</LinearLayout>

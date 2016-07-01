@@ -2,6 +2,7 @@ package com.boardgamegeek.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -25,6 +26,10 @@ public class GeekList implements Parcelable {
 	}
 
 	@Attribute private int id;
+
+	public int getId() {
+		return id;
+	}
 
 	@Element private String postdate;
 
@@ -63,6 +68,11 @@ public class GeekList implements Parcelable {
 	}
 
 	@Element private String title;
+
+	public String getTitle() {
+		if (TextUtils.isEmpty(title)) return "";
+		return title.trim();
+	}
 
 	@Element private String description;
 

@@ -37,10 +37,8 @@ public class XmlConverter {
 		replacers.add(new Replacer("\\[BGCOLOR=#(.*?)\\]", "<span style=\"background-color#:", "\">"));
 		replacers.add(new SimpleReplacer("\\[/BGCOLOR\\]", "</span>"));
 		// TODO: determine when image is a PNG
-		replacers.add(new Replacer("\\[ImageID=(\\d+).*?\\]", "<div style=\"display:inline\"><img src=\"" + IMAGES_URL
-			+ "pic", "_t.jpg\"/></div>"));
-		replacers.add(new Replacer("\\[IMG\\](.*?)\\[/IMG\\]", "<div style=\"display:inline\"><img src=\"",
-			"\"/></div>"));
+		replacers.add(new Replacer("\\[ImageID=(\\d+).*?\\]", "<div style=\"display:inline\"><img src=\"" + IMAGES_URL + "pic", "_t.jpg\"/></div>"));
+		replacers.add(new Replacer("\\[IMG\\](.*?)\\[/IMG\\]", "<div style=\"display:inline\"><img src=\"", "\"/></div>"));
 		// TODO: YouTube, Vimeo, tweet, mp3
 		replacers.add(new GeekUrlReplacer());
 		replacers.add(GeekLinkReplacer.createNumeric("thing"));
@@ -198,8 +196,7 @@ public class XmlConverter {
 		replacers.add(SimpleReplacer.createImage("!block", "bang_block.png"));
 		replacers.add(SimpleReplacer.createImage("\\?block", "question_block.png"));
 		replacers.add(SimpleReplacer.createImage("blank", "tiles/BLANK.gif"));
-		replacers.add(new UpperCaseReplacer("\\:([A-Za-z])\\:", "<img src=\"" + STATIC_IMAGES_URL + "tiles/",
-			".gif\"/>"));
+		replacers.add(new UpperCaseReplacer("\\:([A-Za-z])\\:", "<img src=\"" + STATIC_IMAGES_URL + "tiles/", ".gif\"/>"));
 		replacers.add(new Replacer("\\:k([A-Za-z])\\:", "<img src=\"" + STATIC_IMAGES_URL + "k", ".png\"/>"));
 	}
 
@@ -238,17 +235,31 @@ public class XmlConverter {
 		return text;
 	}
 
+	public String strip(String text) {
+		if (TextUtils.isEmpty(text)) {
+			return "";
+		}
+
+		for (Replaceable replacer : replacers) {
+			text = replacer.strip(text);
+		}
+
+		return text;
+	}
+
 	interface Replaceable {
 		String replace(String text);
+
+		String strip(String text);
 	}
 
 	private static class SimpleReplacer implements Replaceable {
-		final Pattern mPattern;
-		final String mReplacement;
+		final Pattern pattern;
+		final String replacement;
 
 		public SimpleReplacer(String pattern, String replacement) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mReplacement = replacement;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.replacement = replacement;
 		}
 
 		public static SimpleReplacer createStart(String tag) {
@@ -285,31 +296,47 @@ public class XmlConverter {
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			if (matcher.find()) {
-				return matcher.replaceAll(mReplacement);
+				return matcher.replaceAll(replacement);
 			}
 			return text;
+		}
+
+		@Override
+		public String strip(String text) {
+			return pattern.matcher(text).replaceAll("");
 		}
 	}
 
 	private static class Replacer implements Replaceable {
-		private final Pattern mPattern;
-		private final String mPrefix;
-		private final String mSuffix;
+		private final Pattern pattern;
+		private final String prefix;
+		private final String suffix;
 
 		public Replacer(String pattern, String prefix, String suffix) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mPrefix = prefix;
-			mSuffix = suffix;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.prefix = prefix;
+			this.suffix = suffix;
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer buffer = new StringBuffer();
 			while (matcher.find()) {
-				matcher.appendReplacement(buffer, mPrefix + matcher.group(1) + mSuffix);
+				matcher.appendReplacement(buffer, prefix + matcher.group(1) + suffix);
+			}
+			matcher.appendTail(buffer);
+			return buffer.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer buffer = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(buffer, matcher.group(1));
 			}
 			matcher.appendTail(buffer);
 			return buffer.toString();
@@ -317,23 +344,34 @@ public class XmlConverter {
 	}
 
 	private static class UpperCaseReplacer implements Replaceable {
-		private final Pattern mPattern;
-		private final String mPrefix;
-		private final String mSuffix;
+		private final Pattern pattern;
+		private final String prefix;
+		private final String suffix;
 
 		public UpperCaseReplacer(String pattern, String prefix, String suffix) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mPrefix = prefix;
-			mSuffix = suffix;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.prefix = prefix;
+			this.suffix = suffix;
 		}
 
 		@SuppressLint("DefaultLocale")
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer buffer = new StringBuffer();
 			while (matcher.find()) {
-				matcher.appendReplacement(buffer, mPrefix + matcher.group(1).toUpperCase() + mSuffix);
+				matcher.appendReplacement(buffer, prefix + matcher.group(1).toUpperCase() + suffix);
+			}
+			matcher.appendTail(buffer);
+			return buffer.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer buffer = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(buffer, matcher.group(1).toUpperCase());
 			}
 			matcher.appendTail(buffer);
 			return buffer.toString();
@@ -341,15 +379,15 @@ public class XmlConverter {
 	}
 
 	public static class UrlReplacer implements Replaceable {
-		private final Pattern mPattern;
+		private final Pattern pattern;
 
 		public UrlReplacer() {
-			mPattern = Pattern.compile("\\[url\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile("\\[url\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String url = HttpUtils.ensureScheme(matcher.group(1));
@@ -358,18 +396,29 @@ public class XmlConverter {
 			matcher.appendTail(result);
 			return result.toString();
 		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(result, HttpUtils.ensureScheme(matcher.group(1)));
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
 	}
 
 	public static class UrlReplacer2 implements Replaceable {
-		private final Pattern mPattern;
+		private final Pattern pattern;
 
 		public UrlReplacer2() {
-			mPattern = Pattern.compile("\\[url=(.*?)\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile("\\[url=(.*?)\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String url = HttpUtils.ensureScheme(matcher.group(1));
@@ -383,27 +432,17 @@ public class XmlConverter {
 			matcher.appendTail(result);
 			return result.toString();
 		}
-	}
-
-	public static class GeekUrlReplacer implements Replaceable {
-		private final Pattern mPattern;
-
-		public GeekUrlReplacer() {
-			mPattern = Pattern.compile("\\[geekurl=(.*?)\\](.*?)\\[/geekurl\\]", Pattern.CASE_INSENSITIVE);
-		}
 
 		@Override
-		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String displayText = matcher.group(2);
 				if (TextUtils.isEmpty(displayText)) {
-					matcher.appendReplacement(result,
-						"<a href=\"" + BASE_URL + matcher.group(1) + "\">" + matcher.group(1) + "</a>");
+					matcher.appendReplacement(result, HttpUtils.ensureScheme(matcher.group(1)));
 				} else {
-					matcher.appendReplacement(result, "<a href=\"" + BASE_URL + matcher.group(1) + "\">" + displayText
-						+ "</a>");
+					matcher.appendReplacement(result, displayText);
 				}
 			}
 			matcher.appendTail(result);
@@ -411,20 +450,64 @@ public class XmlConverter {
 		}
 	}
 
+	public static class GeekUrlReplacer implements Replaceable {
+		private final Pattern pattern;
+
+		public GeekUrlReplacer() {
+			pattern = Pattern.compile("\\[geekurl=(.*?)\\](.*?)\\[/geekurl\\]", Pattern.CASE_INSENSITIVE);
+		}
+
+		@Override
+		public String replace(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				String displayText = matcher.group(2);
+				if (TextUtils.isEmpty(displayText)) {
+					matcher.appendReplacement(result, "<a href=\"" + BASE_URL + matcher.group(1) + "\">" + matcher.group(1) + "</a>");
+				} else {
+					matcher.appendReplacement(result, "<a href=\"" + BASE_URL + matcher.group(1) + "\">" + displayText + "</a>");
+				}
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				String displayText = matcher.group(2);
+				if (TextUtils.isEmpty(displayText)) {
+					matcher.appendReplacement(result, matcher.group(1));
+				} else {
+					matcher.appendReplacement(result, displayText);
+				}
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
+	}
+
+	/***
+	 * Replaces a GeekLink with an HREF tag.
+	 * [thing=13]Catan[/thing] becomes <a href="https://boardgamegeek.com/thing/13">Catan</a>
+	 * [thing=13][/thing] becomes <a href="https://boardgamegeek.com/thing/13">thing 13</a>
+	 */
 	public static class GeekLinkReplacer implements Replaceable {
-		private final Pattern mPattern;
-		private final String mUrl;
-		private final String mDisplayPrefix;
+		private final Pattern pattern;
+		private final String url;
+		private final String displayPrefix;
 
 		private GeekLinkReplacer(String pattern, String url, String displayPrefix) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mUrl = url;
-			mDisplayPrefix = displayPrefix;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.url = url;
+			this.displayPrefix = displayPrefix;
 		}
 
 		static GeekLinkReplacer createAlpha(String path) {
-			return new GeekLinkReplacer("\\[" + path + "=(.*?)\\](.*?)\\[/" + path + "\\]",
-				BASE_URL + "/" + path + "/", path);
+			return new GeekLinkReplacer("\\[" + path + "=(.*?)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path + "/", path);
 		}
 
 		static GeekLinkReplacer createNumeric(String path) {
@@ -432,22 +515,35 @@ public class XmlConverter {
 		}
 
 		static GeekLinkReplacer createNumeric(String path, String display) {
-			return new GeekLinkReplacer("\\[" + path + "=(\\d+)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path
-				+ "/", display);
+			return new GeekLinkReplacer("\\[" + path + "=(\\d+)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path + "/", display);
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String displayText = matcher.group(2);
 				if (TextUtils.isEmpty(displayText)) {
-					matcher.appendReplacement(result, "<a href=\"" + mUrl + matcher.group(1) + "\">" + mDisplayPrefix
-						+ " " + matcher.group(1) + "</a>");
+					matcher.appendReplacement(result, "<a href=\"" + url + matcher.group(1) + "\">" + displayPrefix + " " + matcher.group(1) + "</a>");
 				} else {
-					matcher.appendReplacement(result, "<a href=\"" + mUrl + matcher.group(1) + "\">" + displayText
-						+ "</a>");
+					matcher.appendReplacement(result, "<a href=\"" + url + matcher.group(1) + "\">" + displayText + "</a>");
+				}
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				String displayText = matcher.group(2);
+				if (TextUtils.isEmpty(displayText)) {
+					matcher.appendReplacement(result, displayPrefix + " " + matcher.group(1));
+				} else {
+					matcher.appendReplacement(result, displayText);
 				}
 			}
 			matcher.appendTail(result);

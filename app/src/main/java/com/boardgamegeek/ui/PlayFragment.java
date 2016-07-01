@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -43,6 +42,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -69,10 +69,7 @@ import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	private Handler mHandler = new Handler();
-	private Runnable mUpdaterRunnable = null;
 	private boolean mSyncing;
 	private int mPlayId = BggContract.INVALID_ID;
 	private Play mPlay = new Play();
@@ -99,9 +96,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.play_comments) TextView mComments;
 	@BindView(R.id.play_comments_label) View mCommentsLabel;
 	@BindView(R.id.play_players_label) View mPlayersLabel;
-	@BindView(R.id.updated) TextView mUpdated;
+	@BindView(R.id.updated) TimestampView mUpdated;
 	@BindView(R.id.play_id) TextView mPlayIdView;
-	@BindView(R.id.play_saved) TextView mSavedTimeStamp;
+	@BindView(R.id.play_saved) TimestampView mSavedTimeStamp;
 	@BindView(R.id.play_unsynced_message) TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
 	@State boolean hasBeenNotified;
@@ -124,7 +121,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-		mHandler = new Handler();
 
 		setHasOptionsMenu(true);
 
@@ -188,17 +184,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 			hasBeenNotified = true;
 		}
-		if (mUpdaterRunnable != null) {
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
-		}
 	}
 
 	@DebugLog
@@ -211,7 +196,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -297,6 +282,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	}
 
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateCompleteEvent event) {
@@ -304,6 +290,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		updateRefreshStatus();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	private void updateRefreshStatus() {
 		if (mSwipeRefreshLayout != null) {
@@ -448,7 +435,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		mCommentsLabel.setVisibility(TextUtils.isEmpty(mPlay.comments) ? View.GONE : View.VISIBLE);
 
 		mUpdated.setVisibility((mPlay.updated == 0) ? View.GONE : View.VISIBLE);
-		mUpdated.setTag(mPlay.updated);
+		mUpdated.setTimestamp(mPlay.updated);
 
 		if (mPlay.hasBeenSynced()) {
 			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.playId));
@@ -457,7 +444,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
 			mUnsyncedMessage.setVisibility(View.VISIBLE);
 			mSavedTimeStamp.setVisibility(View.VISIBLE);
-			mSavedTimeStamp.setTag(mPlay.saved);
+			mSavedTimeStamp.setTimestamp(mPlay.saved);
+
 			if (mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 				if (mPlay.hasBeenSynced()) {
 					mUnsyncedMessage.setText(R.string.sync_editing);
@@ -474,19 +462,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			mSavedTimeStamp.setVisibility(View.GONE);
 		}
 
-		updateTimeBasedUi();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
-		}
-		mUpdaterRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-
 		getActivity().supportInvalidateOptionsMenu();
 		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 
@@ -496,20 +471,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		return false;
-	}
-
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (mUpdated != null && mUpdated.getVisibility() == View.VISIBLE) {
-			long updated = (long) mUpdated.getTag();
-			mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, "", getResources().getString(R.string.updated)));
-		}
-		if (mSavedTimeStamp != null && mSavedTimeStamp.getVisibility() == View.VISIBLE) {
-			long saved = (long) mSavedTimeStamp.getTag();
-			mSavedTimeStamp.setText(PresentationUtils.describePastTimeSpan(saved, "", getResources().getString(R.string.saved)));
-		}
 	}
 
 	private void maybeShowNotification() {

@@ -37,11 +37,11 @@ public class BggApplication extends Application {
 					.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
 					.build());
 		} else {
+			Fabric.with(this, new Crashlytics());
 			String username = AccountUtils.getUsername(this);
 			if (!TextUtils.isEmpty(username)) {
 				Crashlytics.setUserIdentifier(username);
 			}
-			Fabric.with(this, new Crashlytics());
 			Timber.plant(new CrashReportingTree());
 		}
 		LeakCanary.install(this);

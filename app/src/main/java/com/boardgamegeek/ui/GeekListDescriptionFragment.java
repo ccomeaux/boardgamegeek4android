@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +11,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekList;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
@@ -23,26 +22,23 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class GeekListDescriptionFragment extends Fragment {
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
-
-	private Handler mHandler = new Handler();
-	private Runnable mUpdaterRunnable = null;
 	private Unbinder unbinder;
-	@BindView(R.id.username) TextView mUsernameView;
-	@BindView(R.id.items) TextView mItemsView;
-	@BindView(R.id.thumbs) TextView mThumbsView;
-	@BindView(R.id.posted_date) TextView mPostedDateView;
-	@BindView(R.id.edited_date) TextView mEditedDateView;
-	@BindView(R.id.body) WebView mBodyView;
-	private GeekList mGeekList;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.items) TextView itemCountView;
+	@BindView(R.id.thumbs) TextView thumbCountView;
+	@BindView(R.id.posted_date) TimestampView postedDateView;
+	@BindView(R.id.edited_date) TimestampView editedDateView;
+	@BindView(R.id.body) WebView bodyView;
+	private GeekList geekList;
+	private XmlConverter xmlConverter;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mHandler = new Handler();
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGeekList = intent.getParcelableExtra(ActivityUtils.KEY_GEEKLIST);
+		geekList = intent.getParcelableExtra(ActivityUtils.KEY_GEEKLIST);
+		xmlConverter = new XmlConverter();
 	}
 
 	@Override
@@ -51,62 +47,21 @@ public class GeekListDescriptionFragment extends Fragment {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
-		mUsernameView.setText(mGeekList.getUsername());
-		mItemsView.setText(getString(R.string.items_suffix, mGeekList.getNumberOfItems()));
-		mThumbsView.setText(getString(R.string.thumbs_suffix, mGeekList.getThumbs()));
-		String content = new XmlConverter().toHtml(mGeekList.getDescription());
-		UIUtils.setWebViewText(mBodyView, content);
-
-		updateTimeBasedUi();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
-		}
-		mUpdaterRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		//noinspection deprecation
+		rootView.setBackgroundDrawable(null);
+		usernameView.setText(getString(R.string.by_prefix, geekList.getUsername()));
+		itemCountView.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
+		thumbCountView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
+		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.getDescription()));
+		postedDateView.setTimestamp(geekList.getPostDate());
+		editedDateView.setTimestamp(geekList.getEditDate());
 
 		return rootView;
 	}
 
 	@Override
-	@DebugLog
-	public void onResume() {
-		super.onResume();
-		if (mUpdaterRunnable != null) {
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onPause() {
-		super.onPause();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
-		}
-	}
-
-	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (mPostedDateView != null) {
-			mPostedDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), mGeekList.getPostDate())));
-		}
-		if (mEditedDateView != null) {
-			mEditedDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), mGeekList.getEditDate())));
-		}
+		if (unbinder != null) unbinder.unbind();
 	}
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -30,11 +31,13 @@
 				android:textStyle="bold"
 				tools:text="Own"/>
 
-			<TextView
+			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/last_modified"
 				style="@style/Text.Footnote"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				app:emptyMessage="@string/text_unknown"
+				app:format="@string/last_modified_prefix"
 				tools:text="Last modified Yesterday"/>
 		</LinearLayout>
 
@@ -84,11 +87,12 @@
 					android:layout_height="wrap_content"
 					tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
 
-				<TextView
+				<com.boardgamegeek.ui.widget.TimestampView
 					android:id="@+id/comment_timestamp"
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					app:hideWhenEmpty="true"
 					tools:text="Yesterday"/>
 			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 
@@ -112,12 +116,13 @@
 					tools:background="#0f0"
 					tools:text="9.5"/>
 
-				<TextView
+				<com.boardgamegeek.ui.widget.TimestampView
 					android:id="@+id/rating_timestamp"
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="right"
+					app:hideWhenEmpty="true"
 					tools:text="Yesterday"/>
 			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 
@@ -162,12 +167,13 @@
 					tools:text="Don't tell anyone my true feelings about this game."/>
 			</LinearLayout>
 
-			<TextView
+			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/private_info_timestamp"
 				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="right"
+				app:hideWhenEmpty="true"
 				tools:text="Yesterday"/>
 		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 	</android.support.v7.widget.CardView>
@@ -300,12 +306,14 @@
 			android:layout_weight="1"
 			tools:text="123456"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/updated"
 			style="@style/Text.Footnote2"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:gravity="right"
+			app:emptyMessage="@string/needs_updating"
+			app:format="@string/updated_prefix"
 			tools:text="Updated: 3 days ago"/>
 	</LinearLayout>
 </LinearLayout>

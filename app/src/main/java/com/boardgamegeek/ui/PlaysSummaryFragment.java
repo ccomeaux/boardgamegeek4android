@@ -29,7 +29,7 @@ import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.sorter.PlaysSorter;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
-import com.boardgamegeek.ui.model.BuddyColor;
+import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.ui.model.Player;
@@ -146,7 +146,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case COLORS_TOKEN:
 				loader = new CursorLoader(getActivity(),
 					PlayerColors.buildUserUri(AccountUtils.getUsername(getActivity())),
-					BuddyColor.PROJECTION,
+					PlayerColor.PROJECTION,
 					null, null, null);
 				break;
 		}
@@ -349,7 +349,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			for (int i = 0; i < 5; i++) {
 				if (cursor.moveToNext()) {
 					ImageView view = createViewToBeColored();
-					BuddyColor color = BuddyColor.fromCursor(cursor);
+					PlayerColor color = PlayerColor.fromCursor(cursor);
 					ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
 					colorContainer.addView(view);
 				} else {

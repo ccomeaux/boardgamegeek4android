@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -58,6 +57,7 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.SaveView;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -86,7 +86,6 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -98,8 +97,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@BindView(R.id.row_count) TextView rowCountView;
 	@BindView(R.id.sort_description) TextView sortDescriptionView;
 
-	@NonNull private Handler timeUpdateHandler = new Handler();
-	@Nullable private Runnable timeUpdateRunnable = null;
 	private CollectionAdapter adapter;
 	@State int selectedCollectionId;
 	@State long viewId;
@@ -123,7 +120,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		timeUpdateHandler = new Handler();
 		if (savedInstanceState != null) {
 			Icepick.restoreInstanceState(this, savedInstanceState);
 
@@ -207,7 +203,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private CollectionSorter getCollectionSorter(int sortType) {
@@ -220,24 +216,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void requery() {
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
-	}
-
-	@Override
-	@DebugLog
-	public void onResume() {
-		super.onResume();
-		if (timeUpdateRunnable != null) {
-			timeUpdateHandler.postDelayed(timeUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onPause() {
-		super.onPause();
-		if (timeUpdateRunnable != null) {
-			timeUpdateHandler.removeCallbacks(timeUpdateRunnable);
-		}
 	}
 
 	@Override
@@ -479,7 +457,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setProgressShown(false);
 			}
 			adapter.changeCursor(cursor);
-			initializeTimeBasedUi();
 			restoreScrollState();
 
 			final int rowCount = cursor.getCount();
@@ -539,28 +516,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-	private void initializeTimeBasedUi() {
-		updateTimeBasedUi();
-		if (timeUpdateRunnable != null) {
-			timeUpdateHandler.removeCallbacks(timeUpdateRunnable);
-		}
-		timeUpdateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeUpdateHandler.postDelayed(timeUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		timeUpdateHandler.postDelayed(timeUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
-	}
-
 	@DebugLog
 	private void setSelectedGameId(int id) {
 		selectedCollectionId = id;
@@ -597,6 +552,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	private void setEmptyText() {
+		if (emptyButton == null) return;
 		@StringRes int resId = R.string.empty_collection;
 		if (!hasEverSynced()) {
 			resId = R.string.empty_collection_sync_never;
@@ -741,7 +697,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		requery();
 	}
 
-	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
+	public class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		@NonNull private final LayoutInflater inflater;
 
 		@DebugLog
@@ -771,14 +727,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+			final long timestamp = sorter.getTimestamp(cursor);
 
 			UIUtils.setActivatedCompat(view, collectionId == selectedCollectionId);
-
-			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
-			holder.year.setText(PresentationUtils.describeYear(getActivity(), year));
-			holder.info.setText(sorter == null ? "" : sorter.getDisplayInfo(cursor));
-			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
-				holder.thumbnail);
+			holder.nameView.setText(cursor.getString(Query.COLLECTION_NAME));
+			holder.yearView.setText(PresentationUtils.describeYear(getActivity(), year));
+			holder.timestampView.setTimestamp(timestamp);
+			PresentationUtils.setTextOrHide(holder.infoView, sorter == null ? "" : sorter.getDisplayInfo(cursor));
+			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl, holder.thumbnailView);
 		}
 
 		@Override
@@ -805,17 +761,15 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			return convertView;
 		}
 
-		class ViewHolder {
-			@NonNull final TextView name;
-			@NonNull final TextView year;
-			@NonNull final TextView info;
-			@NonNull final ImageView thumbnail;
+		public class ViewHolder {
+			@BindView(R.id.name) TextView nameView;
+			@BindView(R.id.year) TextView yearView;
+			@BindView(R.id.info) TextView infoView;
+			@BindView(R.id.timestamp) TimestampView timestampView;
+			@BindView(R.id.thumbnail) ImageView thumbnailView;
 
 			public ViewHolder(@NonNull View view) {
-				name = (TextView) view.findViewById(R.id.name);
-				year = (TextView) view.findViewById(R.id.year);
-				info = (TextView) view.findViewById(R.id.info);
-				thumbnail = (ImageView) view.findViewById(R.id.list_thumbnail);
+				ButterKnife.bind(this, view);
 			}
 		}
 

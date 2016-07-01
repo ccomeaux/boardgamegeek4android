@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:app="http://schemas.android.com/apk/res-auto"
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="wrap_content"
@@ -22,12 +23,13 @@
 			android:textColor="@color/inverse_text"
 			tools:text="ccomeaux"/>
 
-		<TextView
+		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/edit_date"
 			style="@style/Text.Footnote2.Inverse"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/username"
+			app:isForumTimestamp="true"
 			tools:text="Yesterday"/>
 
 		<ImageView

@@ -1,24 +1,27 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
@@ -28,43 +31,55 @@ import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
 import retrofit2.Call;
 
-public class HotnessFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, MultiChoiceModeListener {
+public class HotnessFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, ActionMode.Callback {
 	private static final int LOADER_ID = 1;
 
-	private BoardGameAdapter adapter;
-	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
-	private MenuItem logPlayMenuItem;
-	private MenuItem logPlayQuickMenuItem;
-	private MenuItem bggLinkMenuItem;
+	private HotGamesAdapter adapter;
+	private ActionMode actionMode;
+	private Unbinder unbinder;
+	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
+	@DebugLog
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		setEmptyText(getString(R.string.empty_hotness));
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_hotness, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(LOADER_ID, null, this);
-
-		final ListView listView = getListView();
-		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		listView.setMultiChoiceModeListener(this);
 	}
 
 	@Override
-	protected boolean padTop() {
-		return true;
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
+	}
+
+	private void setUpRecyclerView() {
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setHasFixedSize(true);
 	}
 
 	@Override
@@ -79,36 +94,60 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 		}
 
 		if (adapter == null) {
-			adapter = new BoardGameAdapter(getActivity(),
-				data == null || data.getBody() == null ?
-					new ArrayList<HotGame>() :
-					data.getBody().games);
-			setListAdapter(adapter);
+			adapter = new HotGamesAdapter(getActivity(),
+				data == null || data.getBody() == null ? new ArrayList<HotGame>() : data.getBody().games,
+				new Callback() {
+					@Override
+					public boolean onItemClick(int position) {
+						if (actionMode == null) {
+							return false;
+						}
+						toggleSelection(position);
+						return true;
+					}
+
+					@Override
+					public boolean onItemLongClick(int position) {
+						if (actionMode != null) {
+							return false;
+						}
+						actionMode = getActivity().startActionMode(HotnessFragment.this);
+						toggleSelection(position);
+						return true;
+					}
+
+					private void toggleSelection(int position) {
+						adapter.toggleSelection(position);
+						int count = adapter.getSelectedItemCount();
+						if (count == 0) {
+							actionMode.finish();
+						} else {
+							actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+							actionMode.invalidate();
+						}
+					}
+				});
+			recyclerView.setAdapter(adapter);
+		} else {
+			adapter.notifyDataSetChanged();
 		}
-		adapter.notifyDataSetChanged();
 
 		if (data == null) {
-			setEmptyText(getString(R.string.empty_hotness));
+			AnimationUtils.fadeOut(recyclerView);
+			AnimationUtils.fadeIn(emptyView);
 		} else if (data.hasError()) {
-			setEmptyText(data.getErrorMessage());
+			emptyView.setText(data.getErrorMessage());
+			AnimationUtils.fadeOut(recyclerView);
+			AnimationUtils.fadeIn(emptyView);
 		} else {
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
-			}
-			restoreScrollState();
+			AnimationUtils.fadeOut(emptyView);
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		}
+		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<SafeResponse<HotnessResponse>> loader) {
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		HotGame game = adapter.getItem(position);
-		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
 	private static class HotnessLoader extends BggLoader<SafeResponse<HotnessResponse>> {
@@ -126,93 +165,150 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 		}
 	}
 
-	private class BoardGameAdapter extends ArrayAdapter<HotGame> {
-		private final LayoutInflater inflater;
+	public interface Callback {
+		boolean onItemClick(int position);
 
-		public BoardGameAdapter(Activity activity, List<HotGame> games) {
-			super(activity, R.layout.row_hotness, games);
-			inflater = activity.getLayoutInflater();
+		boolean onItemLongClick(int position);
+	}
+
+	public class HotGamesAdapter extends RecyclerView.Adapter<HotGamesAdapter.ViewHolder> {
+		private final LayoutInflater inflater;
+		private final List<HotGame> games;
+		private final Callback callback;
+		private final SparseBooleanArray selectedItems;
+
+		public HotGamesAdapter(Context context, List<HotGame> games, Callback callback) {
+			this.games = games;
+			this.callback = callback;
+			inflater = LayoutInflater.from(context);
+			selectedItems = new SparseBooleanArray();
+			setHasStableIds(true);
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.row_hotness, parent, false);
-				holder = new ViewHolder(convertView);
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-
-			HotGame game = getItem(position);
-			if (game != null) {
-				holder.name.setText(game.name);
-				holder.year.setText(PresentationUtils.describeYear(getActivity(), game.yearPublished));
-				holder.rank.setText(String.valueOf(game.rank));
-				loadThumbnail(game.thumbnailUrl, holder.thumbnail);
-			}
-
-			return convertView;
+		public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View view = inflater.inflate(R.layout.row_hotness, parent, false);
+			return new ViewHolder(view);
 		}
-	}
 
-	private static class ViewHolder {
-		final TextView name;
-		final TextView year;
-		final TextView rank;
-		final ImageView thumbnail;
+		@Override
+		public void onBindViewHolder(ViewHolder holder, int position) {
+			holder.bind(getItem(position), position);
+		}
 
-		public ViewHolder(View view) {
-			name = (TextView) view.findViewById(R.id.name);
-			year = (TextView) view.findViewById(R.id.year);
-			rank = (TextView) view.findViewById(R.id.rank);
-			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+		@Override
+		public int getItemCount() {
+			return games == null ? 0 : games.size();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public HotGame getItem(int position) {
+			return games.get(position);
+		}
+
+		public class ViewHolder extends RecyclerView.ViewHolder {
+			private int gameId;
+			private String gameName;
+			@BindView(R.id.name) TextView name;
+			@BindView(R.id.year) TextView year;
+			@BindView(R.id.rank) TextView rank;
+			@BindView(R.id.thumbnail) ImageView thumbnail;
+
+			public ViewHolder(View itemView) {
+				super(itemView);
+				ButterKnife.bind(this, itemView);
+			}
+
+			public void bind(HotGame game, final int position) {
+				if (game == null) return;
+				gameId = game.id;
+				gameName = game.name;
+				name.setText(game.name);
+				year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
+				rank.setText(String.valueOf(game.rank));
+				ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+
+				itemView.setActivated(selectedItems.get(position, false));
+
+				itemView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						boolean handled = false;
+						if (callback != null) {
+							handled = callback.onItemClick(position);
+						}
+						if (!handled) {
+							ActivityUtils.launchGame(itemView.getContext(), gameId, gameName);
+						}
+					}
+				});
+
+				itemView.setOnLongClickListener(new OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View v) {
+						return callback != null && callback.onItemLongClick(position);
+					}
+				});
+			}
+		}
+
+		public void toggleSelection(int position) {
+			if (selectedItems.get(position, false)) {
+				selectedItems.delete(position);
+			} else {
+				selectedItems.put(position, true);
+			}
+			notifyItemChanged(position);
+		}
+
+		public void clearSelections() {
+			selectedItems.clear();
+			notifyDataSetChanged();
+		}
+
+		public int getSelectedItemCount() {
+			return selectedItems.size();
+		}
+
+		public List<Integer> getSelectedItems() {
+			List<Integer> items = new ArrayList<>(selectedItems.size());
+			for (int i = 0; i < selectedItems.size(); i++) {
+				items.add(selectedItems.keyAt(i));
+			}
+			return items;
 		}
 	}
 
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		adapter.clearSelections();
 		MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
-		logPlayMenuItem = menu.findItem(R.id.menu_log_play);
-		logPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
-		bggLinkMenuItem = menu.findItem(R.id.menu_link);
-		selectedPositions.clear();
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
+		int count = adapter.getSelectedItemCount();
+		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_link).setVisible(count == 1);
+		return true;
 	}
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
-	}
-
-	@Override
-	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-		if (checked) {
-			selectedPositions.add(position);
-		} else {
-			selectedPositions.remove(position);
-		}
-
-		int count = selectedPositions.size();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-
-		logPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		logPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
-		bggLinkMenuItem.setVisible(count == 1);
+		actionMode = null;
+		adapter.clearSelections();
 	}
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (!selectedPositions.iterator().hasNext()) {
-			return false;
-		}
-		HotGame game = adapter.getItem(selectedPositions.iterator().next());
+		HotGame game = adapter.getItem(adapter.getSelectedItems().get(0));
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -220,22 +316,22 @@ public class HotnessFragment extends BggListFragment implements LoaderManager.Lo
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, selectedPositions.size());
-				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-				for (int position : selectedPositions) {
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, adapter.getSelectedItemCount());
+				Snackbar.make(containerView, text, Snackbar.LENGTH_SHORT).show();
+				for (int position : adapter.getSelectedItems()) {
 					HotGame g = adapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
-				if (selectedPositions.size() == 1) {
+				if (adapter.getSelectedItemCount() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<>(selectedPositions.size());
-					for (int position : selectedPositions) {
+					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
+					for (int position : adapter.getSelectedItems()) {
 						HotGame g = adapter.getItem(position);
-						games.add(new Pair<>(g.id, g.name));
+						games.add(Pair.create(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

@@ -56,6 +56,7 @@ public class HttpUtils {
 		OkHttpClient.Builder builder = getBuilder();
 		final List<Interceptor> interceptors = builder.interceptors();
 		interceptors.add(new UserAgentInterceptor(context));
+		addLoggingInterceptor(builder);
 		File cacheDir = new File(context.getCacheDir(), "http");
 		Cache cache = new Cache(cacheDir, 10 * 1024 * 1024);
 		return builder.cache(cache).build();
