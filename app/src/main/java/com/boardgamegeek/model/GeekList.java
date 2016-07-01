@@ -2,6 +2,7 @@ package com.boardgamegeek.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -69,7 +70,8 @@ public class GeekList implements Parcelable {
 	@Element private String title;
 
 	public String getTitle() {
-		return title;
+		if (TextUtils.isEmpty(title)) return "";
+		return title.trim();
 	}
 
 	@Element private String description;

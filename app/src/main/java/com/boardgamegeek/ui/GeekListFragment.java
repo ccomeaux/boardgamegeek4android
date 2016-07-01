@@ -38,7 +38,7 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeResponse<GeekList>> {
-	private static final int LOADER_ID = 99103;
+	private static final int LOADER_ID = 1;
 	private int geekListId;
 	private GeekListRecyclerViewAdapter adapter;
 
@@ -72,8 +72,8 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 	@Override
 	public void onDestroy() {
-		if (unbinder != null) unbinder.unbind();
 		super.onDestroy();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@DebugLog
@@ -194,12 +194,12 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 		}
 
 		public class GeekListHeaderViewHolder extends GeekListViewHolder {
-			@BindView(R.id.username) TextView username;
-			@BindView(R.id.description) TextView description;
-			@BindView(R.id.items) TextView items;
-			@BindView(R.id.thumbs) TextView thumbs;
-			@BindView(R.id.posted_date) TimestampView postDate;
-			@BindView(R.id.edited_date) TimestampView editDate;
+			@BindView(R.id.username) TextView usernameView;
+			@BindView(R.id.description) TextView descriptionView;
+			@BindView(R.id.items) TextView numberOfItemsView;
+			@BindView(R.id.thumbs) TextView numberOfThumbsView;
+			@BindView(R.id.posted_date) TimestampView postDateView;
+			@BindView(R.id.edited_date) TimestampView editDateView;
 
 			public GeekListHeaderViewHolder(View itemView) {
 				super(itemView);
@@ -210,12 +210,12 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				if (geekList != null) {
 					final Context context = itemView.getContext();
 
-					username.setText(context.getString(R.string.by_prefix, geekList.getUsername()));
-					PresentationUtils.setTextOrHide(description, xmlConverter.strip(geekList.getDescription()));
-					items.setText(context.getString(R.string.items_suffix, geekList.getNumberOfItems()));
-					thumbs.setText(context.getString(R.string.thumbs_suffix, geekList.getThumbs()));
-					postDate.setTimestamp(geekList.getPostDate());
-					editDate.setTimestamp(geekList.getEditDate());
+					usernameView.setText(context.getString(R.string.by_prefix, geekList.getUsername()));
+					PresentationUtils.setTextOrHide(descriptionView, xmlConverter.strip(geekList.getDescription()));
+					numberOfItemsView.setText(context.getString(R.string.items_suffix, geekList.getNumberOfItems()));
+					numberOfThumbsView.setText(context.getString(R.string.thumbs_suffix, geekList.getThumbs()));
+					postDateView.setTimestamp(geekList.getPostDate());
+					editDateView.setTimestamp(geekList.getEditDate());
 
 					itemView.setOnClickListener(new OnClickListener() {
 						@Override
@@ -233,29 +233,29 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 		public class GeekListItemViewHolder extends GeekListViewHolder {
 			@BindView(R.id.order) TextView orderView;
-			@BindView(R.id.thumbnail) ImageView thumbnail;
-			@BindView(R.id.game_name) TextView name;
-			@BindView(R.id.username) TextView username;
-			@BindView(R.id.type) TextView type;
+			@BindView(R.id.thumbnail) ImageView thumbnailView;
+			@BindView(R.id.game_name) TextView itemNameView;
+			@BindView(R.id.username) TextView usernameView;
+			@BindView(R.id.type) TextView typeView;
 
 			public GeekListItemViewHolder(View itemView) {
 				super(itemView);
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(final GeekListItem item, int order) {
+			public void bind(final GeekListItem item, final int order) {
 				if (item == null) return;
 
 				final Context context = itemView.getContext();
 
 				orderView.setText(String.valueOf(order));
-				ImageUtils.loadThumbnail(item.imageId(), thumbnail);
-				name.setText(item.getObjectName());
+				ImageUtils.loadThumbnail(item.imageId(), thumbnailView);
+				itemNameView.setText(item.getObjectName());
 				int objectTypeId = item.getObjectTypeId();
 				if (objectTypeId != 0) {
-					type.setText(objectTypeId);
+					typeView.setText(objectTypeId);
 				}
-				username.setText(username.getContext().getString(R.string.by_prefix, item.username));
+				usernameView.setText(context.getString(R.string.by_prefix, item.username));
 
 				itemView.setOnClickListener(new OnClickListener() {
 					@Override
@@ -264,11 +264,11 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 							Intent intent = new Intent(context, GeekListItemActivity.class);
 							intent.putExtra(ActivityUtils.KEY_ID, geekList.getId());
 							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.getTitle());
-							intent.putExtra(ActivityUtils.KEY_ORDER, orderView.getText().toString());
-							intent.putExtra(ActivityUtils.KEY_NAME, name.getText().toString());
-							intent.putExtra(ActivityUtils.KEY_TYPE, type.getText().toString());
+							intent.putExtra(ActivityUtils.KEY_ORDER, order);
+							intent.putExtra(ActivityUtils.KEY_NAME, item.getObjectName());
+							intent.putExtra(ActivityUtils.KEY_TYPE, item.getObjectTypeId());
 							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, item.imageId());
-							intent.putExtra(ActivityUtils.KEY_USERNAME, username.getText().toString());
+							intent.putExtra(ActivityUtils.KEY_USERNAME, item.username);
 							intent.putExtra(ActivityUtils.KEY_THUMBS, item.getThumbCount());
 							intent.putExtra(ActivityUtils.KEY_POSTED_DATE, item.getPostDate());
 							intent.putExtra(ActivityUtils.KEY_EDITED_DATE, item.getEditDate());

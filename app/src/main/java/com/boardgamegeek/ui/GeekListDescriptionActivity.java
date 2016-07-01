@@ -58,8 +58,7 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 				return true;
 			case R.id.menu_share:
 				String description = String.format(getString(R.string.share_geeklist_text), geekListTitle);
-				ActivityUtils.share(this, getString(R.string.share_geeklist_subject), description + "\n\n" + uri,
-					R.string.title_share);
+				ActivityUtils.share(this, getString(R.string.share_geeklist_subject), description + "\n\n" + uri, R.string.title_share);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

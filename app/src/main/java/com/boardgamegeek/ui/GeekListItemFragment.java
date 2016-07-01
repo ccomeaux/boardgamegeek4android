@@ -118,8 +118,8 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 
 	@Override
 	public void onDestroyView() {
-		if (unbinder != null) unbinder.unbind();
 		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
