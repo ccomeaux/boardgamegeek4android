@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
+import android.support.v4.view.ViewCompat;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
@@ -91,6 +92,9 @@ public class TimestampView extends TextView {
 			timeHintUpdateRunnable = new Runnable() {
 				@Override
 				public void run() {
+					if (!ViewCompat.isAttachedToWindow(TimestampView.this)) {
+						return;
+					}
 					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp);
 					if (!TextUtils.isEmpty(format)) {
 						setText(Html.fromHtml(String.format(Html.toHtml(new SpannedString(format)), formattedTimestamp, formatArg)));
