@@ -23,7 +23,7 @@ public class PlayerStatView extends LinearLayout {
 	@BindView(R.id.average_score) TextView averageScoreView;
 	@BindView(R.id.average_win_score) TextView averageWinScoreView;
 	@BindView(R.id.high_score) TextView highScoreView;
-	@BindView(R.id.score_labels) View scoreLabelsView;
+	@BindView(R.id.scores_header) TextView scoresHeader;
 	@BindView(R.id.scores) View scoresView;
 
 	public PlayerStatView(Context context) {
@@ -43,7 +43,7 @@ public class PlayerStatView extends LinearLayout {
 	}
 
 	public void showScores(boolean show) {
-		scoreLabelsView.setVisibility(show ? View.VISIBLE : View.GONE);
+		scoresHeader.setVisibility(show ? View.VISIBLE : View.GONE);
 		scoresView.setVisibility(show ? View.VISIBLE : View.GONE);
 	}
 
@@ -67,18 +67,28 @@ public class PlayerStatView extends LinearLayout {
 	}
 
 	public void setLowScore(double score) {
-		lowScoreView.setText(DOUBLE_FORMAT.format(score));
+		setScore(lowScoreView, score, Integer.MAX_VALUE);
 	}
 
 	public void setAverageScore(double score) {
-		averageScoreView.setText(DOUBLE_FORMAT.format(score));
+		setScore(averageScoreView, score, Integer.MIN_VALUE);
 	}
 
 	public void setAverageWinScore(double score) {
-		averageWinScoreView.setText(DOUBLE_FORMAT.format(score));
+		setScore(averageWinScoreView, score, Integer.MIN_VALUE);
 	}
 
 	public void setHighScore(double score) {
-		highScoreView.setText(DOUBLE_FORMAT.format(score));
+		setScore(highScoreView, score, Integer.MIN_VALUE);
+	}
+
+	private static void setScore(TextView textView, double score, int invalidScore) {
+		String text;
+		if (score == invalidScore) {
+			text = "-";
+		} else {
+			text = DOUBLE_FORMAT.format(score);
+		}
+		textView.setText(text);
 	}
 }

@@ -481,12 +481,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double getAverageScore() {
-			if (totalScoreCount == 0) return 0.0;
+			if (totalScoreCount == 0) return Integer.MIN_VALUE;
 			return totalScore / totalScoreCount;
 		}
 
 		public double getAverageWinScore() {
-			if (wins == 0) return 0.0;
+			if (totalScoreCount == 0) return Integer.MIN_VALUE;
+			if (wins == 0) return Integer.MIN_VALUE;
 			return winningScore / wins;
 		}
 
