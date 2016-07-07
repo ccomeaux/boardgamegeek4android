@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			 xmlns:tools="http://schemas.android.com/tools"
+			 android:layout_width="match_parent"
+			 android:layout_height="match_parent">
+
+	<ProgressBar
+		android:id="@+id/progress"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		tools:visibility="gone"/>
+
+	<TextView
+		android:id="@+id/empty"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:text="@string/empty_play_stats"
+		android:visibility="gone"/>
+
+	<ScrollView
+		android:id="@+id/data"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:visibility="gone"
+		tools:visibility="visible">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:animateLayoutChanges="true"
+				android:orientation="vertical"
+				android:paddingBottom="@dimen/padding_standard"
+				android:paddingTop="@dimen/padding_standard">
+
+				<include layout="@layout/include_game_play_stats_counts"/>
+
+				<include layout="@layout/include_game_play_stats_charts"/>
+
+				<include layout="@layout/include_game_play_stats_scores"/>
+
+				<include layout="@layout/include_game_play_stats_dates"/>
+
+				<include layout="@layout/include_game_play_stats_time"/>
+
+				<include layout="@layout/include_game_play_stats_locations"/>
+
+				<include layout="@layout/include_game_play_stats_advanced"/>
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:animateLayoutChanges="true"
+				android:orientation="vertical"
+				android:paddingBottom="@dimen/padding_standard"
+				android:paddingTop="@dimen/padding_standard">
+
+				<include layout="@layout/include_game_play_stats_players"/>
+			</LinearLayout>
+		</LinearLayout>
+	</ScrollView>
+</FrameLayout>

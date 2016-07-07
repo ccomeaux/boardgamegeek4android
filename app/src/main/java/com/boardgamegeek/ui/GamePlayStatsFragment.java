@@ -5,9 +5,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.util.ArrayMap;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
@@ -29,6 +32,7 @@ import com.boardgamegeek.ui.widget.IntegerYAxisValueFormatter;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
+import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -60,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import timber.log.Timber;
 
@@ -80,7 +85,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@BindView(R.id.table_play_count) TableLayout playCountTable;
 	@BindView(R.id.chart_play_count) HorizontalBarChart playCountChart;
 	@BindView(R.id.card_score) View scoresCard;
-	@BindView(R.id.table_score) TableLayout scoreTable;
+	@BindView(R.id.low_score) TextView lowScoreView;
+	@BindView(R.id.average_score) TextView averageScoreView;
+	@BindView(R.id.average_win_score) TextView averageWinScoreView;
+	@BindView(R.id.score_graph) ScoreGraphView scoreGraphView;
+	@BindView(R.id.high_score) TextView highScoreView;
 	@BindView(R.id.card_players) View playersCard;
 	@BindView(R.id.list_players) LinearLayout playersList;
 	@BindView(R.id.table_dates) TableLayout datesTable;
@@ -207,7 +216,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private void bindUi(Stats stats) {
 		playCountTable.removeAllViews();
-		scoreTable.removeAllViews();
 		datesTable.removeAllViews();
 		playTimeTable.removeAllViews();
 		advancedTable.removeAllViews();
@@ -248,14 +256,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
 		playCountDataSet.setDrawValues(false);
 		playCountDataSet.setHighlightEnabled(false);
-		playCountDataSet.setColors(new int[] { getResources().getColor(R.color.dark_blue), getResources().getColor(R.color.light_blue) });
+		playCountDataSet.setColors(new int[] { ContextCompat.getColor(getContext(), R.color.dark_blue), ContextCompat.getColor(getContext(), R.color.light_blue) });
 		playCountDataSet.setStackLabels(new String[] { getString(R.string.winnable), getString(R.string.all) });
 		dataSets.add(playCountDataSet);
 
 		BarDataSet winsDataSet = new BarDataSet(winValues, getString(R.string.title_wins));
 		winsDataSet.setDrawValues(false);
 		winsDataSet.setHighlightEnabled(false);
-		winsDataSet.setColor(getResources().getColor(R.color.orange));
+		winsDataSet.setColor(ContextCompat.getColor(getContext(), R.color.orange));
 		dataSets.add(winsDataSet);
 
 		BarData data = new BarData(playersLabels, dataSets);
@@ -263,10 +271,17 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		playCountChart.animateY(1000, EasingOption.EaseInOutBack);
 
 		if (stats.hasScores()) {
-			addStatRow(scoreTable, new Builder().labelId(R.string.average).value(stats.getAverageScore()));
-			addStatRow(scoreTable, new Builder().labelId(R.string.average_win).value(stats.getAverageWinningScore()));
-			addStatRow(scoreTable, new Builder().labelId(R.string.high).value(stats.getHighScore(), SCORE_FORMAT).infoText(stats.getHighScorers()));
-			addStatRow(scoreTable, new Builder().labelId(R.string.low).value(stats.getLowScore(), SCORE_FORMAT).infoText(stats.getLowScorers()));
+			lowScoreView.setText(SCORE_FORMAT.format(stats.getLowScore()));
+			averageScoreView.setText(SCORE_FORMAT.format(stats.getAverageScore()));
+			averageWinScoreView.setText(SCORE_FORMAT.format(stats.getAverageWinningScore()));
+			highScoreView.setText(SCORE_FORMAT.format(stats.getHighScore()));
+			if (stats.getHighScore() > stats.getLowScore()) {
+				scoreGraphView.setLowScore(stats.getLowScore());
+				scoreGraphView.setAverageScore(stats.getAverageScore());
+				scoreGraphView.setAverageWinScore(stats.getAverageWinningScore());
+				scoreGraphView.setHighScore(stats.getHighScore());
+				scoreGraphView.setVisibility(View.VISIBLE);
+			}
 			scoresCard.setVisibility(View.VISIBLE);
 		} else {
 			scoresCard.setVisibility(View.GONE);
@@ -387,6 +402,20 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@OnClick(R.id.low_score)
+	public void onLowScoreClick() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+		builder.setTitle(R.string.title_low_scorers).setMessage(stats.getLowScorers());
+		builder.show();
+	}
+
+	@OnClick(R.id.high_score)
+	public void onHighScoreClick() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+		builder.setTitle(R.string.title_high_scorers).setMessage(stats.getHighScorers());
+		builder.show();
+	}
+
 	private class PlayerStats {
 		private String username;
 		private int playCount;
@@ -481,12 +510,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double getAverageScore() {
-			if (totalScoreCount == 0) return 0.0;
+			if (totalScoreCount == 0) return Integer.MIN_VALUE;
 			return totalScore / totalScoreCount;
 		}
 
 		public double getAverageWinScore() {
-			if (wins == 0) return 0.0;
+			if (totalScoreCount == 0) return Integer.MIN_VALUE;
+			if (wins == 0) return Integer.MIN_VALUE;
 			return winningScore / wins;
 		}
 
