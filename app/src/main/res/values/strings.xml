@@ -235,6 +235,8 @@
 	<string name="title_advanced">Advanced</string>
 	<string name="title_wins">Wins</string>
 	<string name="title_scores">Scores</string>
+	<string name="title_low_scorers">Low Scorers</string>
+	<string name="title_high_scorers">High Scorers</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search…</string>
 	<string name="search_voice_prompt">Name a game…</string>
