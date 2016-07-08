@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -11,6 +12,9 @@ import android.support.v4.content.Loader;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.transition.AutoTransition;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -98,6 +102,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@BindView(R.id.table_locations) TableLayout locationsTable;
 	@BindView(R.id.table_advanced) TableLayout advancedTable;
 
+	private Transition playerTransition;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -116,6 +122,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		playCountChart.getAxisLeft().setEnabled(false);
 		playCountChart.getXAxis().setDrawGridLines(false);
 		playCountChart.setDescription(null);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			playerTransition = new AutoTransition();
+			playerTransition.setDuration(150);
+			playerTransition.setInterpolator(AnimationUtils.loadInterpolator(getActivity(), android.R.interpolator.fast_out_slow_in));
+		}
 
 		return rootView;
 	}
@@ -335,6 +347,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+						TransitionManager.beginDelayedTransition(playersList, playerTransition);
+					}
 					if (selectedPlayerKey != null && selectedPlayerKey.equals(view.getKey())) {
 						view.showScores(false);
 						selectedPlayerKey = null;

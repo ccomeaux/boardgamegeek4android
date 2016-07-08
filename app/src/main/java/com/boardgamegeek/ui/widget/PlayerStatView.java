@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -10,6 +11,7 @@ import com.boardgamegeek.R;
 
 import java.text.DecimalFormat;
 
+import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -26,20 +28,21 @@ public class PlayerStatView extends LinearLayout {
 	@BindView(R.id.scores_header) TextView scoresHeader;
 	@BindView(R.id.scores) View scoresView;
 
+	@BindDimen(R.dimen.padding_standard) int standardPadding;
+
 	public PlayerStatView(Context context) {
 		super(context);
-
-		setOrientation(LinearLayout.VERTICAL);
-
-		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
-		setPadding(0, padding, 0, padding);
-
-		int height = getResources().getDimensionPixelSize(R.dimen.view_row_height);
-		setMinimumHeight(height);
 
 		LayoutInflater inflater = LayoutInflater.from(context);
 		inflater.inflate(R.layout.widget_player_stat, this, true);
 		ButterKnife.bind(this);
+
+		setOrientation(LinearLayout.VERTICAL);
+		setPadding(0, standardPadding, 0, standardPadding);
+
+		TypedValue background = new TypedValue();
+		getContext().getTheme().resolveAttribute(R.attr.selectableItemBackground, background, true);
+		setBackgroundResource(background.resourceId);
 	}
 
 	public void showScores(boolean show) {

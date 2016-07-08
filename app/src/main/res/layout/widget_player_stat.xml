@@ -5,41 +5,40 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:minHeight="40dp"
 		android:orientation="horizontal">
 
 		<TextView
 			android:id="@+id/name"
-			style="@style/Text"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="3"
-			android:gravity="center_vertical"
+			android:textAppearance="@style/Text"
 			tools:text="Chris (ccomeaux)"/>
 
 		<TextView
 			android:id="@+id/wins"
-			style="@style/Text"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center"
 			android:layout_weight="2"
-			android:gravity="center"/>
+			android:gravity="center_horizontal"
+			android:textAppearance="@style/Text"/>
 
 		<TextView
 			android:id="@+id/play_count"
-			style="@style/Text"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center"
 			android:layout_weight="1"
-			android:gravity="center"/>
+			android:gravity="right"
+			android:textAppearance="@style/Text"/>
 	</LinearLayout>
 
 	<TextView
 		android:id="@+id/scores_header"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingTop="@dimen/padding_extra"
+		android:paddingTop="@dimen/padding_standard"
 		android:text="@string/title_scores"
 		android:textAppearance="@style/Text"
 		android:textColor="@color/secondary_text"
