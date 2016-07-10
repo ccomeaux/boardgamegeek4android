@@ -39,6 +39,7 @@
 	<dimen name="material_margin_horizontal_webview_container">8dp</dimen>
 	<dimen name="material_margin_horizontal_card">8dp</dimen>
 	<dimen name="material_margin_horizontal_card_contents">8dp</dimen>
+	<dimen name="material_margin_horizontal_dialog">24dp</dimen>
 	<dimen name="material_margin_vertical">8dp</dimen>
 	<dimen name="material_margin_vertical_card">4dp</dimen>
 	<dimen name="material_margin_vertical_card_contents">4dp</dimen>
