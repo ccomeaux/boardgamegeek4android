@@ -23,5 +23,11 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:stretchColumns="0,1"/>
+
+		<com.github.mikephil.charting.charts.HorizontalBarChart
+			android:id="@+id/chart_play_count"
+			android:layout_width="match_parent"
+			android:layout_height="200dp"
+			android:padding="@dimen/padding_extra"/>
 	</LinearLayout>
 </android.support.v7.widget.CardView>

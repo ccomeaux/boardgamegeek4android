@@ -37,8 +37,6 @@
 
 			<include layout="@layout/include_game_play_stats_counts"/>
 
-			<include layout="@layout/include_game_play_stats_charts"/>
-
 			<include layout="@layout/include_game_play_stats_scores"/>
 
 			<include layout="@layout/include_game_play_stats_players"/>
