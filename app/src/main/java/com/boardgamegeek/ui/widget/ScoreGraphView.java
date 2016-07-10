@@ -11,10 +11,16 @@ import android.util.TypedValue;
 import android.view.View;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.MathUtils;
+
+import java.text.DecimalFormat;
 
 public class ScoreGraphView extends View {
+	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0");
+
 	private Paint barPaint;
 	private Paint scorePaint;
+	private Paint textPaint;
 	private float scoreRadius;
 	private float smallTickHeight;
 	private float largeTickHeight;
@@ -45,6 +51,10 @@ public class ScoreGraphView extends View {
 
 		scorePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		scorePaint.setStrokeWidth(1);
+
+		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		textPaint.setColor(ContextCompat.getColor(getContext(), R.color.secondary_text));
+		textPaint.setTextSize(8f * getContext().getResources().getDisplayMetrics().scaledDensity);
 
 		scoreRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, context.getResources().getDisplayMetrics());
 		smallTickHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, context.getResources().getDisplayMetrics());
@@ -83,12 +93,27 @@ public class ScoreGraphView extends View {
 		canvas.drawLine(left, y, right, y, barPaint);
 
 		// ticks
-		double tickScore = Math.ceil(lowScore / 10) * 10;
+		int tickSpacing = 10;
+		if (highScore - lowScore <= 20) {
+			tickSpacing = 1;
+		} else if (highScore - lowScore <= 50) {
+			tickSpacing = 5;
+		}
+		double tickScore = Math.ceil(lowScore / tickSpacing) * tickSpacing;
 		while (tickScore <= highScore) {
 			float x = (float) ((tickScore - lowScore) / (highScore - lowScore) * (right - left) + left);
-			final float tickHeight = (tickScore % 50) == 0 ? largeTickHeight : smallTickHeight;
+			final float tickHeight;
+			if ((tickScore % (5 * tickSpacing)) == 0) {
+				tickHeight = largeTickHeight;
+				final String label = SCORE_FORMAT.format(tickScore);
+				float labelWidth = textPaint.measureText(label);
+				float labelLeft = MathUtils.constrain(x - labelWidth / 2, 0, canvas.getWidth() - labelWidth);
+				canvas.drawText(label, labelLeft, canvas.getHeight(), textPaint);
+			} else {
+				tickHeight = smallTickHeight;
+			}
 			canvas.drawLine(x, y - tickHeight, x, y + tickHeight, barPaint);
-			tickScore += 10;
+			tickScore += tickSpacing;
 		}
 
 		// score dots
