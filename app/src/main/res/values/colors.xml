@@ -35,7 +35,7 @@
 	<color name="button_under_text">#2000</color>
 
 	<color name="score_low">#f00</color>
-	<color name="score_average">#8f0</color>
+	<color name="score_average">#cc0</color>
 	<color name="score_average_win">#00f</color>
 	<color name="score_high">#080</color>
 </resources>
