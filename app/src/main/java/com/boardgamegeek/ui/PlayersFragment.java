@@ -21,6 +21,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.ui.model.Player;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -113,7 +114,8 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
-			Player.PROJECTION, null, null, sorter.getOrderByClause());
+			StringUtils.unionArrays(Player.PROJECTION, sorter.getColumns()),
+			null, null, sorter.getOrderByClause());
 	}
 
 	@Override
@@ -173,7 +175,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			holder.name.setText(player.getName());
 			holder.username.setText(player.getUsername());
 			holder.username.setVisibility(TextUtils.isEmpty(player.getUsername()) ? View.GONE : View.VISIBLE);
-			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays_suffix, player.getPlayCount(), player.getPlayCount()));
+			holder.quantity.setText(sorter.getDisplayInfo(cursor));
 
 			view.setTag(R.id.name, player.getName());
 			view.setTag(R.id.username, player.getUsername());

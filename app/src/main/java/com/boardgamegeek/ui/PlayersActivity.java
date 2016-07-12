@@ -48,10 +48,17 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 		menu.findItem(R.id.menu_sort).setVisible(true);
 		PlayersFragment fragment = (PlayersFragment) getFragment();
 		if (fragment != null) {
-			if (fragment.getSort() == PlayersSorterFactory.TYPE_QUANTITY) {
-				menu.findItem(R.id.menu_sort_quantity).setChecked(true);
-			} else {
-				menu.findItem(R.id.menu_sort_name).setChecked(true);
+			switch (fragment.getSort()) {
+				case PlayersSorterFactory.TYPE_QUANTITY:
+					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
+					break;
+				case PlayersSorterFactory.TYPE_WINS:
+					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
+					break;
+				case PlayersSorterFactory.TYPE_NAME:
+				default:
+					menu.findItem(R.id.menu_sort_name).setChecked(true);
+					break;
 			}
 		}
 		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playerCount <= 0 ? "" : String.valueOf(playerCount));
@@ -67,6 +74,9 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 				return true;
 			case R.id.menu_sort_quantity:
 				((PlayersFragment) getFragment()).setSort(PlayersSorterFactory.TYPE_QUANTITY);
+				return true;
+			case R.id.menu_sort_wins:
+				((PlayersFragment) getFragment()).setSort(PlayersSorterFactory.TYPE_WINS);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

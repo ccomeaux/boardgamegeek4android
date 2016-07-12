@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 public class PlayersSorterFactory {
 	public static final int TYPE_NAME = 1;
 	public static final int TYPE_QUANTITY = 2;
+	public static final int TYPE_WINS = 3;
 	public static final int TYPE_DEFAULT = TYPE_NAME;
 
 	@NonNull
@@ -13,6 +14,8 @@ public class PlayersSorterFactory {
 		switch (type) {
 			case TYPE_QUANTITY:
 				return new PlayersQuantitySorter(context);
+			case TYPE_WINS:
+				return new PlayersWinSorter(context);
 			case TYPE_NAME:
 			default:
 				return new PlayersNameSorter(context);

@@ -298,6 +298,7 @@
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
 	<string name="menu_sort_quantity">Play count</string>
+	<string name="menu_sort_wins">Wins</string>
 	<string name="undo">Undo</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
@@ -606,5 +607,9 @@
 	<plurals name="locations_suffix">
 		<item quantity="one">%1$s location</item>
 		<item quantity="other">%1$s locations</item>
+	</plurals>
+	<plurals name="wins_suffix">
+		<item quantity="one"><b>%,d</b> win</item>
+		<item quantity="other"><b>%,d</b> wins</item>
 	</plurals>
 </resources>

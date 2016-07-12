@@ -7,27 +7,27 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
-public class PlayersQuantitySorter extends PlayersSorter {
-	public PlayersQuantitySorter(@NonNull Context context) {
+public class PlayersWinSorter extends PlayersSorter {
+	public PlayersWinSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Plays.SUM_QUANTITY, true);
-		descriptionId = R.string.menu_sort_quantity;
+		orderByClause = getClause(Plays.SUM_WINS, true);
+		descriptionId = R.string.menu_sort_wins;
 	}
 
 	@Override
 	public int getType() {
-		return PlayersSorterFactory.TYPE_QUANTITY;
+		return PlayersSorterFactory.TYPE_WINS;
 	}
 
 	@Override
 	public String[] getColumns() {
-		return new String[] { Plays.SUM_QUANTITY };
+		return new String[] { Plays.SUM_WINS };
 	}
 
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
-		int q = getInt(cursor, Plays.SUM_QUANTITY);
+		int q = getInt(cursor, Plays.SUM_WINS);
 		String prefix = String.valueOf(q).substring(0, 1);
 		String suffix = "";
 		if (q >= 10000) {
@@ -44,7 +44,7 @@ public class PlayersQuantitySorter extends PlayersSorter {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		int playCount = getInt(cursor, Plays.SUM_QUANTITY);
-		return context.getResources().getQuantityString(R.plurals.plays_suffix, playCount, playCount);
+		int winCount = getInt(cursor, Plays.SUM_WINS);
+		return context.getResources().getQuantityString(R.plurals.wins_suffix, winCount, winCount);
 	}
 }
