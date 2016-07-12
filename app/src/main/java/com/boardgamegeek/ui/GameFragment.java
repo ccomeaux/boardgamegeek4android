@@ -150,6 +150,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.game_info_last_updated) TimestampView updatedView;
 
 	@BindViews({
+		R.id.game_year_published,
 		R.id.number_of_players,
 		R.id.play_time,
 		R.id.player_age
