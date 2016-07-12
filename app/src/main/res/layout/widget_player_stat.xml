@@ -58,6 +58,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_score_low"
+			android:drawablePadding="@dimen/padding_standard"
 			android:drawableTint="@color/score_low"
 			android:gravity="center_vertical"
 			android:textAppearance="@style/Text"/>
@@ -72,6 +73,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_score_average"
+			android:drawablePadding="@dimen/padding_standard"
 			android:drawableTint="@color/score_average"
 			android:gravity="center_vertical"
 			android:textAppearance="@style/Text"/>
@@ -86,6 +88,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_score_average_win"
+			android:drawablePadding="@dimen/padding_standard"
 			android:drawableTint="@color/score_average_win"
 			android:gravity="center_vertical"
 			android:textAppearance="@style/Text"/>
@@ -100,6 +103,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_score_high"
+			android:drawablePadding="@dimen/padding_standard"
 			android:drawableTint="@color/score_high"
 			android:gravity="center_vertical"
 			android:textAppearance="@style/Text"/>
