@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -37,7 +39,9 @@ import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.ui.widget.ScoreGraphView;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -67,6 +71,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
@@ -101,21 +106,39 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@BindView(R.id.card_locations) View locationsCard;
 	@BindView(R.id.table_locations) TableLayout locationsTable;
 	@BindView(R.id.table_advanced) TableLayout advancedTable;
+	@BindViews({
+		R.id.header_play_count,
+		R.id.header_scores,
+		R.id.header_players,
+		R.id.header_dates,
+		R.id.header_play_time,
+		R.id.header_locations,
+		R.id.header_advanced
+	}) List<TextView> colorizedHeaders;
+	@BindViews({
+		R.id.score_help
+	}) List<ImageView> colorizedIcons;
 
 	private Transition playerTransition;
+	private int headerColor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
+		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		Uri uri = intent.getData();
 		gameId = Games.getGameId(uri);
+		headerColor = intent.getIntExtra(ActivityUtils.KEY_HEADER_COLOR, R.color.accent);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
+
+		ButterKnife.apply(colorizedHeaders, PaletteUtils.rgbTextViewSetter, headerColor);
+		ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, headerColor);
 
 		playCountChart.setDrawGridBackground(false);
 		playCountChart.getAxisRight().setValueFormatter(new IntegerYAxisValueFormatter());

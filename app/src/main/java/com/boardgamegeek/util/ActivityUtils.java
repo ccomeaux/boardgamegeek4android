@@ -69,6 +69,7 @@ public class ActivityUtils {
 	public static final String KEY_OBJECT_ID = "GEEKLIST_OBJECT_ID";
 	public static final String KEY_OBJECT_URL = "GEEKLIST_OBJECT_URL";
 	public static final String KEY_IS_BOARD_GAME = "GEEKLIST_IS_BOARD_GAME";
+	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
 	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";

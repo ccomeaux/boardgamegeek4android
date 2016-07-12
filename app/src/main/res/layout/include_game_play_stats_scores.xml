@@ -19,6 +19,7 @@
 			android:orientation="horizontal">
 
 			<TextView
+				android:id="@+id/header_scores"
 				style="@style/Text.Header.Card"
 				android:layout_width="0dp"
 				android:layout_weight="1"
@@ -39,7 +40,8 @@
 			android:id="@+id/scores"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal">
+			android:orientation="horizontal"
+			android:paddingTop="@dimen/padding_extra">
 
 			<TextView
 				android:id="@+id/low_score"

@@ -16,6 +16,7 @@
 		android:orientation="vertical">
 
 		<TextView
+			android:id="@+id/header_locations"
 			style="@style/Text.Header.Card"
 			android:layout_width="wrap_content"
 			android:text="@string/title_locations"/>
