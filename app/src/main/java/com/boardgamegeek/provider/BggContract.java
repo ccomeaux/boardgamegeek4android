@@ -193,6 +193,7 @@ public class BggContract {
 		String PLAYER_COUNT = "player_count";
 		String SYNC_HASH_CODE = "sync_hash_code";
 		String SUM_QUANTITY = "sum_quantity";
+		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";
 	}
 
