@@ -363,10 +363,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			view.setName(playerStats.getKey());
 			view.setWinInfo(ps.wins, ps.winnableGames);
 			view.setWinSkill(ps.getWinSkill());
+
+			view.setOverallLowScore(stats.getLowScore());
+			view.setOverallAverageScore(stats.getAverageScore());
+			view.setOverallAverageWinScore(stats.getAverageWinningScore());
+			view.setOverallHighScore(stats.getHighScore());
 			view.setLowScore(ps.getLowScore());
 			view.setAverageScore(ps.getAverageScore());
 			view.setAverageWinScore(ps.getAverageWinScore());
 			view.setHighScore(ps.getHighScore());
+
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

@@ -25,8 +25,8 @@ public class PlayerStatView extends LinearLayout {
 	@BindView(R.id.average_score) TextView averageScoreView;
 	@BindView(R.id.average_win_score) TextView averageWinScoreView;
 	@BindView(R.id.high_score) TextView highScoreView;
-	@BindView(R.id.scores_header) TextView scoresHeader;
 	@BindView(R.id.scores) View scoresView;
+	@BindView(R.id.score_graph) ScoreGraphView graphView;
 
 	@BindDimen(R.dimen.padding_standard) int standardPadding;
 
@@ -46,7 +46,6 @@ public class PlayerStatView extends LinearLayout {
 	}
 
 	public void showScores(boolean show) {
-		scoresHeader.setVisibility(show ? View.VISIBLE : View.GONE);
 		scoresView.setVisibility(show ? View.VISIBLE : View.GONE);
 	}
 
@@ -69,20 +68,40 @@ public class PlayerStatView extends LinearLayout {
 		playCountView.setText(String.valueOf(skill));
 	}
 
+	public void setOverallLowScore(double score) {
+		graphView.setLowScore(score);
+	}
+
+	public void setOverallAverageScore(double score) {
+		graphView.setAverageScore(score);
+	}
+
+	public void setOverallAverageWinScore(double score) {
+		graphView.setAverageWinScore(score);
+	}
+
+	public void setOverallHighScore(double score) {
+		graphView.setHighScore(score);
+	}
+
 	public void setLowScore(double score) {
 		setScore(lowScoreView, score, Integer.MAX_VALUE);
+		graphView.setPersonalLowScore(score);
 	}
 
 	public void setAverageScore(double score) {
 		setScore(averageScoreView, score, Integer.MIN_VALUE);
+		graphView.setPersonalAverageScore(score);
 	}
 
 	public void setAverageWinScore(double score) {
 		setScore(averageWinScoreView, score, Integer.MIN_VALUE);
+		graphView.setPersonalAverageWinScore(score);
 	}
 
 	public void setHighScore(double score) {
 		setScore(highScoreView, score, Integer.MIN_VALUE);
+		graphView.setPersonalHighScore(score);
 	}
 
 	private static void setScore(TextView textView, double score, int invalidScore) {

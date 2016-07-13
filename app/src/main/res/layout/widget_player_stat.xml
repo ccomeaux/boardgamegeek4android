@@ -34,78 +34,88 @@
 			android:textAppearance="@style/Text"/>
 	</LinearLayout>
 
-	<TextView
-		android:id="@+id/scores_header"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="@dimen/padding_standard"
-		android:text="@string/title_scores"
-		android:textAppearance="@style/Text"
-		android:textColor="@color/secondary_text"
-		android:visibility="gone"
-		tools:visibility="visible"/>
-
 	<LinearLayout
 		android:id="@+id/scores"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal"
+		android:orientation="vertical"
 		android:visibility="gone"
 		tools:visibility="visible">
 
 		<TextView
-			android:id="@+id/low_score"
-			android:layout_width="wrap_content"
+			android:id="@+id/scores_header"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_score_low"
-			android:drawablePadding="@dimen/padding_standard"
-			android:drawableTint="@color/score_low"
-			android:gravity="center_vertical"
-			android:textAppearance="@style/Text"/>
+			android:paddingTop="@dimen/padding_standard"
+			android:text="@string/title_scores"
+			android:textAppearance="@style/Text"
+			android:textColor="@color/secondary_text"/>
 
-		<android.support.v4.widget.Space
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="1"/>
-
-		<TextView
-			android:id="@+id/average_score"
-			android:layout_width="wrap_content"
+		<LinearLayout
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_score_average"
-			android:drawablePadding="@dimen/padding_standard"
-			android:drawableTint="@color/score_average"
-			android:gravity="center_vertical"
-			android:textAppearance="@style/Text"/>
+			android:orientation="horizontal">
 
-		<android.support.v4.widget.Space
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="1"/>
+			<TextView
+				android:id="@+id/low_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_low"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_low"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
 
-		<TextView
-			android:id="@+id/average_win_score"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_score_average_win"
-			android:drawablePadding="@dimen/padding_standard"
-			android:drawableTint="@color/score_average_win"
-			android:gravity="center_vertical"
-			android:textAppearance="@style/Text"/>
+			<android.support.v4.widget.Space
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"/>
 
-		<android.support.v4.widget.Space
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="1"/>
+			<TextView
+				android:id="@+id/average_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_average"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_average"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
 
-		<TextView
-			android:id="@+id/high_score"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_score_high"
-			android:drawablePadding="@dimen/padding_standard"
-			android:drawableTint="@color/score_high"
-			android:gravity="center_vertical"
-			android:textAppearance="@style/Text"/>
+			<android.support.v4.widget.Space
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"/>
+
+			<TextView
+				android:id="@+id/average_win_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_average_win"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_average_win"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
+
+			<android.support.v4.widget.Space
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"/>
+
+			<TextView
+				android:id="@+id/high_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_high"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_high"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
+		</LinearLayout>
+
+		<com.boardgamegeek.ui.widget.ScoreGraphView
+			android:id="@+id/score_graph"
+			android:layout_width="match_parent"
+			android:layout_height="40dp"/>
+
 	</LinearLayout>
 </merge>

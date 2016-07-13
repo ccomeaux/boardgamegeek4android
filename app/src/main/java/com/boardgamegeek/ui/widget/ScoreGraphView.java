@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -17,6 +18,7 @@ import java.text.DecimalFormat;
 
 public class ScoreGraphView extends View {
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0");
+	private static final int SCORE_STROKE_WIDTH = 2;
 
 	private Paint barPaint;
 	private Paint scorePaint;
@@ -33,6 +35,11 @@ public class ScoreGraphView extends View {
 	private double averageScore;
 	private double averageWinScore;
 	private double highScore;
+	private double personalLowScore;
+	private double personalAverageScore;
+	private double personalAverageWinScore;
+	private double personalHighScore;
+	private boolean hasPersonalScores;
 
 	public ScoreGraphView(Context context) {
 		super(context);
@@ -50,7 +57,7 @@ public class ScoreGraphView extends View {
 		barPaint.setStrokeWidth(1);
 
 		scorePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		scorePaint.setStrokeWidth(1);
+		scorePaint.setStrokeWidth(SCORE_STROKE_WIDTH);
 
 		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		textPaint.setColor(ContextCompat.getColor(getContext(), R.color.secondary_text));
@@ -82,13 +89,33 @@ public class ScoreGraphView extends View {
 		this.highScore = highScore;
 	}
 
+	public void setPersonalLowScore(double lowScore) {
+		this.personalLowScore = lowScore;
+		this.hasPersonalScores = true;
+	}
+
+	public void setPersonalAverageScore(double averageScore) {
+		this.personalAverageScore = averageScore;
+		this.hasPersonalScores = true;
+	}
+
+	public void setPersonalAverageWinScore(double averageWinScore) {
+		this.personalAverageWinScore = averageWinScore;
+		this.hasPersonalScores = true;
+	}
+
+	public void setPersonalHighScore(double highScore) {
+		this.personalHighScore = highScore;
+		this.hasPersonalScores = true;
+	}
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
 		final float y = canvas.getHeight() / 2;
-		final float left = scoreRadius;
-		final float right = canvas.getWidth() - scoreRadius;
+		final float left = scoreRadius + SCORE_STROKE_WIDTH;
+		final float right = canvas.getWidth() - scoreRadius - SCORE_STROKE_WIDTH;
 
 		canvas.drawLine(left, y, right, y, barPaint);
 
@@ -117,15 +144,28 @@ public class ScoreGraphView extends View {
 		}
 
 		// score dots
+		scorePaint.setStyle(hasPersonalScores() ? Style.STROKE : Style.FILL);
 		drawScore(canvas, y, left, right, lowScore, lowScoreColor);
+		drawScore(canvas, y, left, right, highScore, highScoreColor);
 		drawScore(canvas, y, left, right, averageScore, averageScoreColor);
 		drawScore(canvas, y, left, right, averageWinScore, averageWinScoreColor);
-		drawScore(canvas, y, left, right, highScore, highScoreColor);
+
+		if (hasPersonalScores()) {
+			scorePaint.setStyle(Style.FILL);
+			drawScore(canvas, y, left, right, personalLowScore, lowScoreColor);
+			drawScore(canvas, y, left, right, personalHighScore, highScoreColor);
+			drawScore(canvas, y, left, right, personalAverageScore, averageScoreColor);
+			drawScore(canvas, y, left, right, personalAverageWinScore, averageWinScoreColor);
+		}
 	}
 
 	private void drawScore(Canvas canvas, float y, float left, float right, double score, @ColorInt int color) {
 		scorePaint.setColor(color);
 		float x = (float) ((score - lowScore) / (highScore - lowScore) * (right - left) + left);
 		canvas.drawCircle(x, y, scoreRadius, scorePaint);
+	}
+
+	private boolean hasPersonalScores() {
+		return hasPersonalScores;
 	}
 }
