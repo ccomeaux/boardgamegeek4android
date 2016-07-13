@@ -45,6 +45,18 @@ public class TimestampView extends TextView {
 	}
 
 	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		removeCallbacks(timeHintUpdateRunnable);
+	}
+
+	@Override
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		removeCallbacks(timeHintUpdateRunnable);
+	}
+
+	@Override
 	public Parcelable onSaveInstanceState() {
 		return Icepick.saveInstanceState(this, super.onSaveInstanceState());
 	}
