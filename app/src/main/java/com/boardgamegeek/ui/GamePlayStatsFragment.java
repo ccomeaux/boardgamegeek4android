@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.transition.AutoTransition;
 import android.transition.Transition;
 import android.transition.TransitionManager;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -88,7 +89,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private int playingTime;
 	private double personalRating;
 	private Stats stats;
-	private String selectedPlayerKey;
+	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
 	private Unbinder unbinder;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
@@ -167,7 +168,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -358,7 +359,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		playersList.removeAllViews();
+		int position = 0;
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
+			position++;
 			playersCard.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
 
@@ -376,28 +379,21 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			view.setAverageWinScore(ps.getAverageWinScore());
 			view.setHighScore(ps.getHighScore());
 
-			view.showScores(view.getKey().equals(selectedPlayerKey));
+			view.showScores(selectedItems.get(position, false));
 			if (stats.hasScores()) {
+				final int finalPosition = position;
 				view.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 							TransitionManager.beginDelayedTransition(playersList, playerTransition);
 						}
-						if (selectedPlayerKey != null && selectedPlayerKey.equals(view.getKey())) {
+
+						if (selectedItems.get(finalPosition, false)) {
+							selectedItems.delete(finalPosition);
 							view.showScores(false);
-							selectedPlayerKey = null;
 						} else {
-							if (selectedPlayerKey != null) {
-								for (int i = 0; i < playersList.getChildCount(); i++) {
-									PlayerStatView psv = (PlayerStatView) playersList.getChildAt(i);
-									if (selectedPlayerKey.equals(psv.getKey())) {
-										psv.showScores(false);
-										break;
-									}
-								}
-							}
-							selectedPlayerKey = view.getKey();
+							selectedItems.put(finalPosition, true);
 							view.showScores(true);
 						}
 					}
