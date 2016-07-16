@@ -143,6 +143,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		addStatRow(table, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
 		hIndexTable.removeAllViews();
 		addStatRow(hIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.getHIndex()).infoId(R.string.play_stat_h_index_info));

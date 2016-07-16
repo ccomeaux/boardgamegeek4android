@@ -61,7 +61,7 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 					break;
 			}
 		}
-		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playerCount <= 0 ? "" : String.valueOf(playerCount));
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playerCount <= 0 ? "" : String.format("%,d", playerCount));
 		return super.onPrepareOptionsMenu(menu);
 	}
 

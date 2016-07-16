@@ -11,20 +11,20 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
-	private int mGameId;
-	private String mGameName;
+	private int gameId;
+	private String gameName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mGameId = BggContract.Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = BggContract.Games.getGameId(getIntent().getData());
+		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
-		if (!TextUtils.isEmpty(mGameName)) {
+		if (!TextUtils.isEmpty(gameName)) {
 			ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
-				actionBar.setSubtitle(mGameName);
+				actionBar.setSubtitle(gameName);
 			}
 		}
 	}
@@ -38,7 +38,7 @@ public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+				ActivityUtils.navigateUpToGame(this, gameId, gameName);
 				finish();
 				return true;
 		}

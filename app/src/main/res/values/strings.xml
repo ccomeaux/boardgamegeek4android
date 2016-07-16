@@ -152,6 +152,8 @@
 	<string name="title_thread">Thread</string>
 	<string name="title_plays">Plays</string>
 	<string name="title_play_stats">Play Stats</string>
+	<string name="title_in_progress">In Progress</string>
+	<string name="title_recent">Recent</string>
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
 	<string name="title_artist">Artist</string>
@@ -167,7 +169,6 @@
 	<string name="title_add_color">Add Color</string>
 	<string name="title_personal">Personal</string>
 	<string name="title_charts">Charts</string>
-	<string name="title_opponents">Opponents</string>
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
@@ -217,7 +218,7 @@
 	<string name="empty_plays_update">No plays are waiting to be updated.</string>
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
-	<string name="empty_play_stats">You have no plays to analyze.</string>
+	<string name="empty_play_stats">You have no plays that can be analyzed.</string>
 	<string name="empty_play">No play ID %s."</string>
 	<string name="empty_geeklists">Error loading GeekLists.</string>
 	<string name="empty_forums">No forums.</string>
@@ -234,6 +235,8 @@
 	<string name="title_advanced">Advanced</string>
 	<string name="title_wins">Wins</string>
 	<string name="title_scores">Scores</string>
+	<string name="title_low_scorers">Low Scorers</string>
+	<string name="title_high_scorers">High Scorers</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search…</string>
 	<string name="search_voice_prompt">Name a game…</string>
@@ -478,8 +481,10 @@
 	<string name="play_stat_dollar">Dollar</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
-	<string name="play_stat_win_percentage">Win percentage</string>
-	<string name="play_stat_win_skill">Win skill</string>
+	<string name="play_stat_win_percentage">%1$,d/%2$,d (%3$,d%%)</string>
+	<string name="title_win_skill">Skill</string>
+	<string name="winnable">Winnable</string>
+	<string name="all">All</string>
 	<string name="play_stat_win_skill_info">How skilled are you at winning this game?\n\n0 = you never win\n100 = you win as much as you should\nEverything else scales from these numbers</string>
 	<string name="play_stat_average_play_time">Average play time</string>
 	<string name="play_stat_average_play_time_faster">Faster than advertised</string>
@@ -489,6 +494,7 @@
 	<string name="play_stat_nickel">Nickel</string>
 	<string name="play_stat_first_play">First play</string>
 	<string name="play_stat_last_play">Last play</string>
+	<string name="play_stat_top_100">Top 100 games played</string>
 	<string name="play_stat_h_index">H-index</string>
 	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
 	<string name="play_stat_h_index_offset_in">This game contributes to your H-index.</string>

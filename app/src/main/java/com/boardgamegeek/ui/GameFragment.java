@@ -11,6 +11,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
+import android.support.v7.graphics.Palette.Swatch;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -688,6 +689,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		if (palette != null) {
+			final Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
+			intent.putExtra(ActivityUtils.KEY_HEADER_COLOR, swatch.getRgb());
+		}
 		startActivity(intent);
 	}
 

@@ -4,14 +4,6 @@
 			 android:layout_width="match_parent"
 			 android:layout_height="match_parent">
 
-	<ProgressBar
-		android:id="@+id/progress"
-		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		tools:visibility="gone"/>
-
 	<TextView
 		android:id="@+id/empty"
 		android:layout_width="wrap_content"
@@ -30,267 +22,33 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:animateLayoutChanges="true"
 			android:orientation="vertical"
 			android:paddingBottom="@dimen/padding_standard"
 			android:paddingTop="@dimen/padding_standard">
 
-			<android.support.v7.widget.CardView
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+			<include layout="@layout/include_game_play_stats_counts"/>
 
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
+			<include layout="@layout/include_game_play_stats_scores"/>
 
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_play_count"/>
+			<include layout="@layout/include_game_play_stats_players"/>
 
-					<TableLayout
-						android:id="@+id/table_play_count"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
+			<include layout="@layout/include_game_play_stats_dates"/>
 
-			<android.support.v7.widget.CardView
-				android:id="@+id/card_wins"
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+			<include layout="@layout/include_game_play_stats_time"/>
 
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
+			<include layout="@layout/include_game_play_stats_locations"/>
 
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_wins"/>
-
-					<TableLayout
-						android:id="@+id/table_wins"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				android:id="@+id/card_charts"
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_charts"/>
-
-					<com.github.mikephil.charting.charts.HorizontalBarChart
-						android:id="@+id/chart_play_count"
-						android:layout_width="match_parent"
-						android:layout_height="200dp"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				android:id="@+id/card_score"
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_scores"/>
-
-					<TableLayout
-						android:id="@+id/table_score"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				android:id="@+id/card_opponents"
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:visibility="gone"
-				tools:visibility="visible">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_opponents"/>
-
-					<TableLayout
-						android:id="@+id/table_opponents"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0">
-
-						<TableRow
-							android:layout_gravity="center_vertical"
-							android:minHeight="@dimen/card_row_height">
-
-							<TextView
-								style="@style/Text"
-								android:layout_gravity="center_vertical"
-								android:text="@string/title_player"
-								android:textStyle="bold"/>
-
-							<TextView
-								style="@style/Text"
-								android:layout_gravity="center_vertical"
-								android:paddingLeft="@dimen/padding_half"
-								android:text="@string/title_plays"
-								android:textStyle="bold"/>
-
-							<TextView
-								style="@style/Text"
-								android:layout_gravity="center_vertical"
-								android:paddingLeft="@dimen/padding_half"
-								android:text="@string/title_wins"
-								android:textStyle="bold"/>
-
-							<TextView
-								style="@style/Text"
-								android:layout_gravity="center_vertical"
-								android:paddingLeft="@dimen/padding_half"
-								android:text="@string/score"
-								android:textStyle="bold"/>
-						</TableRow>
-					</TableLayout>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_dates"/>
-
-					<TableLayout
-						android:id="@+id/table_dates"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_play_time"/>
-
-					<TableLayout
-						android:id="@+id/table_play_time"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				android:id="@+id/card_locations"
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:visibility="gone"
-				tools:visibility="visible">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_locations"/>
-
-					<TableLayout
-						android:id="@+id/table_locations"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
-
-			<android.support.v7.widget.CardView
-				style="@style/Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<TextView
-						style="@style/Text.Header.Card"
-						android:layout_width="wrap_content"
-						android:text="@string/title_advanced"/>
-
-					<TableLayout
-						android:id="@+id/table_advanced"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:stretchColumns="0,1"/>
-				</LinearLayout>
-			</android.support.v7.widget.CardView>
+			<include layout="@layout/include_game_play_stats_advanced"/>
 		</LinearLayout>
-
 	</ScrollView>
+
+	<android.support.v4.widget.ContentLoadingProgressBar
+		android:id="@+id/progress"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		tools:visibility="gone"/>
 
 </FrameLayout>

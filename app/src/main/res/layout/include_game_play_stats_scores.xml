@@ -1,55 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-	   xmlns:tools="http://schemas.android.com/tools">
+<android.support.v7.widget.CardView
+	android:id="@+id/card_score"
+	style="@style/Card"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:showIn="@layout/fragment_game_play_stats">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center"
-		android:minHeight="40dp"
-		android:orientation="horizontal">
-
-		<TextView
-			android:id="@+id/name"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="3"
-			android:textAppearance="@style/Text"
-			tools:text="Chris (ccomeaux)"/>
-
-		<TextView
-			android:id="@+id/wins"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="2"
-			android:gravity="center_horizontal"
-			android:textAppearance="@style/Text"/>
-
-		<TextView
-			android:id="@+id/play_count"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:gravity="right"
-			android:textAppearance="@style/Text"/>
-	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/scores"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:visibility="gone"
-		tools:visibility="visible">
-
-		<TextView
-			android:id="@+id/scores_header"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:paddingTop="@dimen/padding_standard"
-			android:text="@string/title_scores"
-			android:textAppearance="@style/Text"
-			android:textColor="@color/secondary_text"/>
+		android:orientation="vertical">
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -57,9 +19,35 @@
 			android:orientation="horizontal">
 
 			<TextView
+				android:id="@+id/header_scores"
+				style="@style/Text.Header.Card"
+				android:layout_width="0dp"
+				android:layout_weight="1"
+				android:text="@string/title_scores"/>
+
+			<ImageView
+				android:id="@+id/score_help"
+				android:layout_width="@dimen/icon_width"
+				android:layout_height="@dimen/icon_width"
+				android:layout_gravity="right"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:scaleType="center"
+				android:src="@drawable/ic_help"
+				android:tint="@color/accent"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/scores"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingTop="@dimen/padding_extra">
+
+			<TextView
 				android:id="@+id/low_score"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:background="?attr/selectableItemBackgroundBorderless"
 				android:drawableLeft="@drawable/ic_score_low"
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_low"
@@ -105,6 +93,7 @@
 				android:id="@+id/high_score"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:background="?attr/selectableItemBackgroundBorderless"
 				android:drawableLeft="@drawable/ic_score_high"
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_high"
@@ -115,7 +104,8 @@
 		<com.boardgamegeek.ui.widget.ScoreGraphView
 			android:id="@+id/score_graph"
 			android:layout_width="match_parent"
-			android:layout_height="40dp"/>
-
+			android:layout_height="40dp"
+			android:visibility="gone"
+			tools:visibility="visible"/>
 	</LinearLayout>
-</merge>
+</android.support.v7.widget.CardView>

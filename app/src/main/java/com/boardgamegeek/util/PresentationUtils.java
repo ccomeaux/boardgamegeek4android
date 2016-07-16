@@ -300,11 +300,11 @@ public class PresentationUtils {
 	@NonNull
 	public static String describePlayDetails(Context context, String date, String location, int quantity, int length, int playerCount) {
 		String info = "";
-		if (!TextUtils.isEmpty(date)) {
-			info += context.getString(R.string.on) + " " + date + " ";
-		}
 		if (quantity > 1) {
 			info += quantity + " " + context.getString(R.string.times) + " ";
+		}
+		if (!TextUtils.isEmpty(date)) {
+			info += context.getString(R.string.on) + " " + date + " ";
 		}
 		if (!TextUtils.isEmpty(location)) {
 			info += context.getString(R.string.at) + " " + location + " ";
