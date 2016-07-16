@@ -5,6 +5,7 @@ Coming Soon...
 --------------
  * Darker (and more mysterious!) look
  * Modify your collection item's private information
+ * Better player stats
  * Spiffy up the collection filter dialogs
  * Better looking help screens
  * Lots of under-the-hood improvements
