@@ -4,14 +4,6 @@
 			 android:layout_width="match_parent"
 			 android:layout_height="match_parent">
 
-	<ProgressBar
-		android:id="@+id/progress"
-		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		tools:visibility="gone"/>
-
 	<TextView
 		android:id="@+id/empty"
 		android:layout_width="wrap_content"
@@ -41,7 +33,7 @@
 				android:paddingTop="@dimen/padding_standard">
 
 				<include layout="@layout/include_game_play_stats_counts"/>
-				
+
 				<include layout="@layout/include_game_play_stats_scores"/>
 
 				<include layout="@layout/include_game_play_stats_dates"/>
@@ -66,4 +58,13 @@
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
+
+	<android.support.v4.widget.ContentLoadingProgressBar
+		android:id="@+id/progress"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		tools:visibility="gone"/>
+
 </FrameLayout>

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -11,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.transition.AutoTransition;
@@ -20,7 +23,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -40,6 +42,7 @@ import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -88,7 +91,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private String selectedPlayerKey;
 
 	private Unbinder unbinder;
-	@BindView(R.id.progress) View progressView;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(R.id.empty) View emptyView;
 	@BindView(R.id.data) View dataView;
 	@BindView(R.id.table_play_count) TableLayout playCountTable;
@@ -146,10 +149,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		playCountChart.getXAxis().setDrawGridLines(false);
 		playCountChart.setDescription(null);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+		if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
 			playerTransition = new AutoTransition();
 			playerTransition.setDuration(150);
-			playerTransition.setInterpolator(AnimationUtils.loadInterpolator(getActivity(), android.R.interpolator.fast_out_slow_in));
+			AnimationUtils.setInterpolator(getContext(), playerTransition);
 		}
 
 		return rootView;
@@ -418,19 +421,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private void showEmpty() {
-		progressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		emptyView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-		progressView.setVisibility(View.GONE);
-		emptyView.setVisibility(View.VISIBLE);
-		dataView.setVisibility(View.GONE);
+		progressView.hide();
+		AnimationUtils.fadeOut(dataView);
+		AnimationUtils.fadeIn(emptyView);
 	}
 
 	private void showData() {
-		progressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		dataView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-		progressView.setVisibility(View.GONE);
-		emptyView.setVisibility(View.GONE);
-		dataView.setVisibility(View.VISIBLE);
+		progressView.hide();
+		AnimationUtils.fadeOut(emptyView);
+		AnimationUtils.fadeIn(dataView);
 	}
 
 	private void addStatRowMaybe(ViewGroup container, Builder builder) {

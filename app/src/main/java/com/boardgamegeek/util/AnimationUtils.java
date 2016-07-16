@@ -1,6 +1,9 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.transition.Transition;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -57,6 +60,12 @@ public class AnimationUtils {
 		} else {
 			view.clearAnimation();
 			view.setVisibility(View.GONE);
+		}
+	}
+
+	public static void setInterpolator(Context context, Transition transition) {
+		if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+			transition.setInterpolator(android.view.animation.AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in));
 		}
 	}
 }
