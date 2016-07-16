@@ -373,30 +373,33 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			view.setAverageWinScore(ps.getAverageWinScore());
 			view.setHighScore(ps.getHighScore());
 
-			view.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-						TransitionManager.beginDelayedTransition(playersList, playerTransition);
-					}
-					if (selectedPlayerKey != null && selectedPlayerKey.equals(view.getKey())) {
-						view.showScores(false);
-						selectedPlayerKey = null;
-					} else {
-						if (selectedPlayerKey != null) {
-							for (int i = 0; i < playersList.getChildCount(); i++) {
-								PlayerStatView psv = (PlayerStatView) playersList.getChildAt(i);
-								if (selectedPlayerKey.equals(psv.getKey())) {
-									psv.showScores(false);
-									break;
+			view.showScores(view.getKey().equals(selectedPlayerKey));
+			if (stats.hasScores()) {
+				view.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+							TransitionManager.beginDelayedTransition(playersList, playerTransition);
+						}
+						if (selectedPlayerKey != null && selectedPlayerKey.equals(view.getKey())) {
+							view.showScores(false);
+							selectedPlayerKey = null;
+						} else {
+							if (selectedPlayerKey != null) {
+								for (int i = 0; i < playersList.getChildCount(); i++) {
+									PlayerStatView psv = (PlayerStatView) playersList.getChildAt(i);
+									if (selectedPlayerKey.equals(psv.getKey())) {
+										psv.showScores(false);
+										break;
+									}
 								}
 							}
+							selectedPlayerKey = view.getKey();
+							view.showScores(true);
 						}
-						selectedPlayerKey = view.getKey();
-						view.showScores(true);
 					}
-				}
-			});
+				});
+			}
 			playersList.addView(view);
 		}
 
