@@ -6,7 +6,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 import org.greenrobot.eventbus.EventBus;
@@ -25,17 +24,7 @@ public class UpdateCollectionItemCommentTask extends UpdateCollectionItemTask {
 
 	@DebugLog
 	@Override
-	protected Void doInBackground(Void... params) {
-		final ContentResolver resolver = context.getContentResolver();
-		long internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
-		if (internalId != BggContract.INVALID_ID) {
-			updateResolver(resolver, internalId);
-		}
-		return null;
-	}
-
-	@DebugLog
-	private void updateResolver(@NonNull ContentResolver resolver, long internalId) {
+	protected void updateResolver(@NonNull ContentResolver resolver, long internalId) {
 		ContentValues values = new ContentValues(2);
 		values.put(Collection.COMMENT, comment);
 		values.put(Collection.COMMENT_DIRTY_TIMESTAMP, System.currentTimeMillis());
