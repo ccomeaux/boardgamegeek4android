@@ -39,6 +39,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		super(context, service);
 		okHttpClient = HttpUtils.getHttpClientWithAuth(context);
 		tasks = createTasks();
+		timestampColumns.add(Collection.STATUS_DIRTY_TIMESTAMP);
 		timestampColumns.add(Collection.RATING_DIRTY_TIMESTAMP);
 		timestampColumns.add(Collection.COMMENT_DIRTY_TIMESTAMP);
 		timestampColumns.add(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP);
@@ -46,6 +47,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private List<CollectionUploadTask> createTasks() {
 		List<CollectionUploadTask> tasks = new ArrayList<>();
+		tasks.add(new CollectionStatusUploadTask(okHttpClient));
 		tasks.add(new CollectionRatingUploadTask(okHttpClient));
 		tasks.add(new CollectionCommentUploadTask(okHttpClient));
 		tasks.add(new CollectionPrivateInfoUploadTask(okHttpClient));

@@ -273,6 +273,16 @@ public class CollectionPersister {
 
 		Builder operation;
 		if (internalId != BggContract.INVALID_ID) {
+			removeValuesIfDirty(values, internalId, Collection.STATUS_DIRTY_TIMESTAMP,
+				Collection.STATUS_OWN,
+				Collection.STATUS_PREVIOUSLY_OWNED,
+				Collection.STATUS_FOR_TRADE,
+				Collection.STATUS_WANT,
+				Collection.STATUS_WANT_TO_BUY,
+				Collection.STATUS_WISHLIST,
+				Collection.STATUS_WANT_TO_PLAY,
+				Collection.STATUS_PREORDERED,
+				Collection.STATUS_WISHLIST_PRIORITY);
 			removeValuesIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
 			removeValuesIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
 			removeValuesIfDirty(values, internalId, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,

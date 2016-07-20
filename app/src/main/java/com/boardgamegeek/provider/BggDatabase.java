@@ -70,7 +70,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_RATING_DIRTY_TIMESTAMP = 27;
 	private static final int VER_COMMENT_DIRTY_TIMESTAMP = 28;
 	private static final int VER_PRIVATE_INFO_DIRTY_TIMESTAMP = 29;
-	private static final int DATABASE_VERSION = VER_PRIVATE_INFO_DIRTY_TIMESTAMP;
+	private static final int VER_STATUS_DIRTY_TIMESTAMP = 30;
+	private static final int DATABASE_VERSION = VER_STATUS_DIRTY_TIMESTAMP;
 
 	private final Context context;
 
@@ -375,6 +376,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.RATING, COLUMN_TYPE.REAL)
 			.addColumn(Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.STATUS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
@@ -641,6 +643,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_COMMENT_DIRTY_TIMESTAMP:
 				addColumn(db, Tables.COLLECTION, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
 				version = VER_PRIVATE_INFO_DIRTY_TIMESTAMP;
+			case VER_PRIVATE_INFO_DIRTY_TIMESTAMP:
+				addColumn(db, Tables.COLLECTION, Collection.STATUS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+				version = VER_STATUS_DIRTY_TIMESTAMP;
 		}
 
 		if (version != DATABASE_VERSION) {

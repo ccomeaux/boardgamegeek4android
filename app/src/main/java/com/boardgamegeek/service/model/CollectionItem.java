@@ -3,6 +3,7 @@ package com.boardgamegeek.service.model;
 import android.database.Cursor;
 
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Collection;
 
 public class CollectionItem {
 	public static String[] PROJECTION = {
@@ -22,7 +23,17 @@ public class CollectionItem {
 		BggContract.Collection.PRIVATE_INFO_PRICE_PAID,
 		BggContract.Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
 		BggContract.Collection.PRIVATE_INFO_QUANTITY,
-		BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP
+		BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+		Collection.STATUS_OWN,
+		Collection.STATUS_PREVIOUSLY_OWNED,
+		Collection.STATUS_FOR_TRADE,
+		Collection.STATUS_WANT,
+		Collection.STATUS_WANT_TO_PLAY,
+		Collection.STATUS_WANT_TO_BUY,
+		Collection.STATUS_WISHLIST,
+		Collection.STATUS_WISHLIST_PRIORITY,
+		Collection.STATUS_PREORDERED,
+		Collection.STATUS_DIRTY_TIMESTAMP
 	};
 
 	private static int _ID = 0;
@@ -42,6 +53,16 @@ public class CollectionItem {
 	private static int PRIVATE_INFO_PRICE_PAID_CURRENCY = 14;
 	private static int PRIVATE_INFO_QUANTITY = 15;
 	private static int PRIVATE_INFO_DIRTY_TIMESTAMP = 16;
+	private static int STATUS_OWN = 17;
+	private static int STATUS_PREVIOUSLY_OWNED = 18;
+	private static int STATUS_FOR_TRADE = 19;
+	private static int STATUS_WANT = 20;
+	private static int STATUS_WANT_TO_PLAY = 21;
+	private static int STATUS_WANT_TO_BUY = 22;
+	private static int STATUS_WISHLIST = 23;
+	private static int STATUS_WISHLIST_PRIORITY = 24;
+	private static int STATUS_PREORDERED = 25;
+	private static int STATUS_DIRTY_TIMESTAMP = 26;
 
 	private long internalId;
 	private int collectionId;
@@ -60,6 +81,16 @@ public class CollectionItem {
 	private String pricePaidCurrency;
 	private int quantity;
 	private long privateInfoTimestamp;
+	private boolean owned;
+	private boolean previouslyOwned;
+	private boolean forTrade;
+	private boolean wantInTrade;
+	private boolean wantToBuy;
+	private boolean wishlist;
+	private int wishlistPriority;
+	private boolean wantToPlay;
+	private boolean preordered;
+	private long statusTimestamp;
 
 	public static CollectionItem fromCursor(Cursor cursor) {
 		CollectionItem collectionItem = new CollectionItem();
@@ -83,6 +114,18 @@ public class CollectionItem {
 		collectionItem.pricePaidCurrency = cursor.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY);
 		collectionItem.quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
 		collectionItem.privateInfoTimestamp = cursor.getLong(PRIVATE_INFO_DIRTY_TIMESTAMP);
+
+		collectionItem.owned = cursor.getInt(STATUS_OWN) == 1;
+		collectionItem.previouslyOwned = cursor.getInt(STATUS_PREVIOUSLY_OWNED) == 1;
+		collectionItem.forTrade = cursor.getInt(STATUS_FOR_TRADE) == 1;
+		collectionItem.wantInTrade = cursor.getInt(STATUS_WANT) == 1;
+		collectionItem.wantToBuy = cursor.getInt(STATUS_WANT_TO_BUY) == 1;
+		collectionItem.wantToPlay = cursor.getInt(STATUS_WANT_TO_PLAY) == 1;
+		collectionItem.preordered = cursor.getInt(STATUS_PREORDERED) == 1;
+		collectionItem.wishlist = cursor.getInt(STATUS_WISHLIST) == 1;
+		collectionItem.wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
+		collectionItem.statusTimestamp = cursor.getLong(STATUS_DIRTY_TIMESTAMP);
+
 		return collectionItem;
 	}
 
@@ -156,5 +199,45 @@ public class CollectionItem {
 
 	public long getPrivateInfoTimestamp() {
 		return privateInfoTimestamp;
+	}
+
+	public boolean owned() {
+		return owned;
+	}
+
+	public boolean previouslyOwned() {
+		return previouslyOwned;
+	}
+
+	public boolean forTrade() {
+		return forTrade;
+	}
+
+	public boolean wantInTrade() {
+		return wantInTrade;
+	}
+
+	public boolean wantToBuy() {
+		return wantToBuy;
+	}
+
+	public boolean wishlist() {
+		return wishlist;
+	}
+
+	public int wishlistPriority() {
+		return wishlistPriority;
+	}
+
+	public boolean wantToPlay() {
+		return wantToPlay;
+	}
+
+	public boolean preordered() {
+		return preordered;
+	}
+
+	public long getStatusTimestamp() {
+		return statusTimestamp;
 	}
 }

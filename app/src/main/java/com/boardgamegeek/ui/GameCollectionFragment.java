@@ -28,6 +28,9 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.UpdateCollectionItemCommentTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
+import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
@@ -68,7 +71,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private Unbinder unbinder;
 	@BindView(R.id.year) TextView year;
 	@BindView(R.id.info_bar) View infoBar;
-	@BindView(R.id.status) TextView status;
+	@BindView(R.id.status) TextView statusView;
 	@BindView(R.id.last_modified) TimestampView lastModified;
 	@BindView(R.id.rating_container) View ratingContainer;
 	@BindView(R.id.rating) TextView rating;
@@ -104,6 +107,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		R.id.card_header_want_parts,
 		R.id.card_header_has_parts
 	}) List<TextView> colorizedHeaders;
+	private CollectionStatusDialogFragment statusDialogFragment;
 	private EditTextDialogFragment commentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
@@ -247,6 +251,29 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
+	@OnClick(R.id.status_container)
+	public void onStatusClick() {
+		ensureCollectionStatusDialogFragment();
+		statusDialogFragment.setSelectedStatuses((List<String>) statusView.getTag());
+		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
+	}
+
+	@DebugLog
+	private void ensureCollectionStatusDialogFragment() {
+		if (statusDialogFragment == null) {
+			statusDialogFragment = CollectionStatusDialogFragment.newInstance(
+				new CollectionStatusDialogListener() {
+					@Override
+					public void onSelectStatuses(List<String> selectedStatuses) {
+						UpdateCollectionItemStatusTask task =
+							new UpdateCollectionItemStatusTask(getActivity(), gameId, collectionId, selectedStatuses);
+						TaskUtils.executeAsyncTask(task);
+					}
+				}
+			);
+		}
+	}
+
 	@DebugLog
 	@OnClick(R.id.comment_container)
 	public void onCommentClick() {
@@ -255,6 +282,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
 	}
 
+	@DebugLog
 	private void ensureCommentDialogFragment() {
 		if (commentDialogFragment == null) {
 			commentDialogFragment = EditTextDialogFragment.newLongFormInstance(
@@ -344,14 +372,15 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		notifyChange(item);
 
 		year.setText(item.getYearDescription());
-		lastModified.setTimestamp(item.lastModifiedDateTime);
+		lastModified.setTimestamp(item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
 		ratingContainer.setClickable(collectionId != 0);
 		rating.setText(item.getRatingDescription());
 		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 		ratingTimestampView.setTimestamp(item.ratingTimestamp);
 
-		status.setText(item.getStatus());
+		statusView.setText(item.getStatus());
+		statusView.setTag(item.getStatuses());
 		commentContainer.setClickable(collectionId != 0);
 		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
 		PresentationUtils.setTextOrHide(comment, item.comment);
@@ -401,7 +430,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
 			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
 			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP,
-			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP };
+			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP };
 
 		final int COLLECTION_ID = 1;
 		final int COLLECTION_NAME = 2;
@@ -438,6 +467,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final int RATING_DIRTY_TIMESTAMP = 33;
 		final int COMMENT_DIRTY_TIMESTAMP = 34;
 		final int PRIVATE_INFO_DIRTY_TIMESTAMP = 35;
+		final int STATUS_DIRTY_TIMESTAMP = 36;
 
 		Resources r;
 		int id;
@@ -458,6 +488,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		private String acquisitionDate;
 		String privateComment;
 		private long privateInfoTimestamp;
+		private long statusTimestamp;
 		String imageUrl;
 		private int year;
 		String condition;
@@ -492,6 +523,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
 			acquisitionDate = cursor.getString(PRIVATE_INFO_ACQUISITION_DATE);
 			privateInfoTimestamp = cursor.getLong(PRIVATE_INFO_DIRTY_TIMESTAMP);
+			statusTimestamp = cursor.getLong(STATUS_DIRTY_TIMESTAMP);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
 			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
@@ -521,6 +553,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				}
 				return r.getString(R.string.invalid_collection_status);
 			}
+			return status;
+		}
+
+		List<String> getStatuses() {
 			return status;
 		}
 

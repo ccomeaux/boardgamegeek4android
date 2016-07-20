@@ -130,6 +130,7 @@ public class BggContract {
 		String PRIVATE_INFO_ACQUISITION_DATE = "acquisition_date";
 		String PRIVATE_INFO_ACQUIRED_FROM = "acquired_from";
 		String PRIVATE_INFO_COMMENT = "private_comment";
+		String STATUS_DIRTY_TIMESTAMP = "status_dirty_timestamp";
 		String RATING_DIRTY_TIMESTAMP = "rating_dirty_timestamp";
 		String COMMENT_DIRTY_TIMESTAMP = "comment_dirty_timestamp";
 		String PRIVATE_INFO_DIRTY_TIMESTAMP = "private_info_dirty_timestamp";
