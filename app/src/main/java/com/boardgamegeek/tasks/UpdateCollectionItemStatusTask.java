@@ -16,11 +16,13 @@ import timber.log.Timber;
 
 public class UpdateCollectionItemStatusTask extends UpdateCollectionItemTask {
 	private final List<String> statuses;
+	private final int wishlistPriority;
 
 	@DebugLog
-	public UpdateCollectionItemStatusTask(Context context, int gameId, int collectionId, List<String> statuses) {
+	public UpdateCollectionItemStatusTask(Context context, int gameId, int collectionId, List<String> statuses, int wishlistPriority) {
 		super(context, gameId, collectionId);
 		this.statuses = statuses;
+		this.wishlistPriority = wishlistPriority;
 	}
 
 	@Override
@@ -44,12 +46,10 @@ public class UpdateCollectionItemStatusTask extends UpdateCollectionItemTask {
 	}
 
 	private void putWishlist(ContentValues values) {
-		for (int i = 1; i <= 5; i++) {
-			if (statuses.contains(String.valueOf(i))) {
-				values.put(Collection.STATUS_WISHLIST, 1);
-				values.put(Collection.STATUS_WISHLIST_PRIORITY, i);
-				return;
-			}
+		if (statuses.contains(Collection.STATUS_WISHLIST)) {
+			values.put(Collection.STATUS_WISHLIST, 1);
+			values.put(Collection.STATUS_WISHLIST_PRIORITY, wishlistPriority);
+			return;
 		}
 		values.put(Collection.STATUS_WISHLIST, 0);
 	}

@@ -41,7 +41,7 @@ public class CollectionStatusUploadTask extends CollectionUploadTask {
 			.add("wanttoplay", collectionItem.wantToPlay() ? "1" : "0")
 			.add("preordered", collectionItem.preordered() ? "1" : "0")
 			.add("wishlist", collectionItem.wishlist() ? "1" : "0")
-			.add("wishlistpriority", String.valueOf(collectionItem.wishlist()))
+			.add("wishlistpriority", String.valueOf(collectionItem.wishlistPriority()))
 			.build();
 	}
 

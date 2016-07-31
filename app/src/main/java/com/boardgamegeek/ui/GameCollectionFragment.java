@@ -71,6 +71,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private Unbinder unbinder;
 	@BindView(R.id.year) TextView year;
 	@BindView(R.id.info_bar) View infoBar;
+	@BindView(R.id.status_container) ViewGroup statusContainer;
 	@BindView(R.id.status) TextView statusView;
 	@BindView(R.id.last_modified) TimestampView lastModified;
 	@BindView(R.id.rating_container) View ratingContainer;
@@ -254,7 +255,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@OnClick(R.id.status_container)
 	public void onStatusClick() {
 		ensureCollectionStatusDialogFragment();
-		statusDialogFragment.setSelectedStatuses((List<String>) statusView.getTag());
+		//noinspection unchecked
+		statusDialogFragment.setSelectedStatuses((List<String>) statusView.getTag(R.id.status));
+		statusDialogFragment.setWishlistPriority((int) statusView.getTag(R.id.wishlist_priority));
 		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
 	}
 
@@ -262,11 +265,14 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private void ensureCollectionStatusDialogFragment() {
 		if (statusDialogFragment == null) {
 			statusDialogFragment = CollectionStatusDialogFragment.newInstance(
+				statusContainer,
 				new CollectionStatusDialogListener() {
 					@Override
-					public void onSelectStatuses(List<String> selectedStatuses) {
+					public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
 						UpdateCollectionItemStatusTask task =
-							new UpdateCollectionItemStatusTask(getActivity(), gameId, collectionId, selectedStatuses);
+							new UpdateCollectionItemStatusTask(getActivity(),
+								gameId, collectionId,
+								selectedStatuses, wishlistPriority);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}
@@ -379,8 +385,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 		ratingTimestampView.setTimestamp(item.ratingTimestamp);
 
-		statusView.setText(item.getStatus());
-		statusView.setTag(item.getStatuses());
+		statusView.setText(item.getStatusDescription());
+		statusView.setTag(R.id.status, item.getStatuses());
+		statusView.setTag(R.id.wishlist_priority, item.getWishlistPriority());
 		commentContainer.setClickable(collectionId != 0);
 		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
 		PresentationUtils.setTextOrHide(comment, item.comment);
@@ -497,7 +504,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		int wishlistPriority;
 		String wishlistComment;
 		int numPlays;
-		private ArrayList<String> status;
+		private ArrayList<String> statusDescriptions;
+		private ArrayList<String> statuses;
 
 		public CollectionItem() {
 			// TODO: delete this, here just to get the projection; gotta be a better way
@@ -533,20 +541,22 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			hasParts = cursor.getString(HAS_PARTS_LIST);
 			numPlays = cursor.getInt(NUM_PLAYS);
 
-			status = new ArrayList<>();
+			statuses = new ArrayList<>();
+			statusDescriptions = new ArrayList<>();
 			for (int i = STATUS_OWN; i <= STATUS_PREORDERED; i++) {
 				if (cursor.getInt(i) == 1) {
+					statuses.add(r.getStringArray(R.array.collection_status_filter_values)[i - STATUS_OWN]);
 					if (i == STATUS_WISHLIST) {
-						status.add(getWishlistPriority());
+						statusDescriptions.add(getWishlistPriorityDescription());
 					} else {
-						status.add(r.getStringArray(R.array.collection_status_filter_entries)[i - STATUS_OWN]);
+						statusDescriptions.add(r.getStringArray(R.array.collection_status_filter_entries)[i - STATUS_OWN]);
 					}
 				}
 			}
 		}
 
-		String getStatus() {
-			String status = StringUtils.formatList(this.status);
+		String getStatusDescription() {
+			String status = StringUtils.formatList(statusDescriptions);
 			if (TextUtils.isEmpty(status)) {
 				if (numPlays > 0) {
 					return r.getString(R.string.played);
@@ -557,7 +567,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		}
 
 		List<String> getStatuses() {
-			return status;
+			return statuses;
 		}
 
 		String getRatingDescription() {
@@ -568,7 +578,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			return PresentationUtils.describeYear(getActivity(), year);
 		}
 
-		String getWishlistPriority() {
+		int getWishlistPriority() {
+			return wishlistPriority;
+		}
+
+		String getWishlistPriorityDescription() {
 			return PresentationUtils.describeWishlist(getActivity(), wishlistPriority);
 		}
 

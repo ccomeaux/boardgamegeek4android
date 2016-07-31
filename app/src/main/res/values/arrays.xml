@@ -34,34 +34,7 @@
 	<string-array name="pref_sync_status_default">
 		<item>own</item>
 	</string-array>
-	<string-array name="collection_statuses">
-		<item>Own</item>
-		<item>Previously Owned</item>
-		<item>For Trade</item>
-		<item>Want in Trade</item>
-		<item>Want to Buy</item>
-		<item>Must have</item>
-		<item>Love to have</item>
-		<item>Like to have</item>
-		<item>Thinking about</item>
-		<item>Don\'t buy this</item>
-		<item>Want to Play</item>
-		<item>Preordered</item>
-	</string-array>
-	<string-array name="collection_status_values">
-		<item>own</item>
-		<item>previously_owned</item>
-		<item>for_trade</item>
-		<item>want</item>
-		<item>want_to_buy</item>
-		<item>1</item>
-		<item>2</item>
-		<item>3</item>
-		<item>4</item>
-		<item>5</item>
-		<item>want_to_play</item>
-		<item>preordered</item>
-	</string-array>	<string-array name="collection_status_filter_entries">
+	<string-array name="collection_status_filter_entries">
 		<item>Own</item>
 		<item>Previously Owned</item>
 		<item>For Trade</item>
@@ -95,6 +68,13 @@
 	</string-array>
 	<string-array name="wishlist_priority">
 		<item>Unknown</item>
+		<item>Must have</item>
+		<item>Love to have</item>
+		<item>Like to have</item>
+		<item>Thinking about it</item>
+		<item>Don\'t buy this</item>
+	</string-array>
+	<string-array name="wishlist_priority_finite">
 		<item>Must have</item>
 		<item>Love to have</item>
 		<item>Like to have</item>
