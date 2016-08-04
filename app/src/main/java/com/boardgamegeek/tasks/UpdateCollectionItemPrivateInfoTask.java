@@ -6,11 +6,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.ui.model.PrivateInfo;
-
-import org.greenrobot.eventbus.EventBus;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
@@ -43,7 +40,7 @@ public class UpdateCollectionItemPrivateInfoTask extends UpdateCollectionItemTas
 	@DebugLog
 	@Override
 	protected void onPostExecute(Void result) {
+		super.onPostExecute(result);
 		Timber.i("Updated game ID %1$s, collection ID %2$s with private info.", gameId, collectionId);
-		EventBus.getDefault().post(new CollectionItemUpdatedEvent());
 	}
 }

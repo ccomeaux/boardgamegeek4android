@@ -4,9 +4,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import hugo.weaving.DebugLog;
 
@@ -30,6 +33,11 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 			updateResolver(resolver, internalId);
 		}
 		return null;
+	}
+
+	@Override
+	protected void onPostExecute(Void aVoid) {
+		EventBus.getDefault().post(new CollectionItemUpdatedEvent());
 	}
 
 	@DebugLog

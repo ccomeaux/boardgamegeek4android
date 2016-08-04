@@ -5,10 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract.Collection;
-
-import org.greenrobot.eventbus.EventBus;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
@@ -34,7 +31,7 @@ public class UpdateCollectionItemRatingTask extends UpdateCollectionItemTask {
 	@DebugLog
 	@Override
 	protected void onPostExecute(Void result) {
+		super.onPostExecute(result);
 		Timber.i("Updated game ID %1$s, collection ID %2$s with rating %3$s", gameId, collectionId, rating);
-		EventBus.getDefault().post(new CollectionItemUpdatedEvent());
 	}
 }

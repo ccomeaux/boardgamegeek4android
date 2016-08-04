@@ -4,10 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 
-import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract.Collection;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -57,7 +54,7 @@ public class UpdateCollectionItemStatusTask extends UpdateCollectionItemTask {
 	@DebugLog
 	@Override
 	protected void onPostExecute(Void result) {
+		super.onPostExecute(result);
 		Timber.i("Updated game ID %1$s, collection ID %2$s with statuses \"%3$s\"", gameId, collectionId, statuses.toArray());
-		EventBus.getDefault().post(new CollectionItemUpdatedEvent());
 	}
 }
