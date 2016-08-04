@@ -45,6 +45,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
@@ -61,6 +62,7 @@ import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
 
@@ -119,6 +121,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.collection_card) View collectionCard;
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
+	@BindView(R.id.collection_add_button) TextView collectionAddButton;
 
 	@BindView(R.id.plays_card) View playsCard;
 	@BindView(R.id.plays_root) View playsRoot;
@@ -571,9 +574,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
+		collectionCard.setVisibility(View.VISIBLE);
+		collectionContainer.removeViews(2, collectionContainer.getChildCount() - 2);
 		if (cursor.moveToFirst()) {
-			collectionCard.setVisibility(View.VISIBLE);
-			collectionContainer.removeViews(1, collectionContainer.getChildCount() - 1);
+			collectionAddButton.setVisibility(View.GONE);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
 
@@ -610,7 +614,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
+		} else {
+			collectionAddButton.setVisibility(View.VISIBLE);
 		}
+	}
+
+	@OnClick(R.id.collection_add_button)
+	void onAddToCollectionClick() {
+		AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), Games.getGameId(gameUri));
+		TaskUtils.executeAsyncTask(task);
 	}
 
 	@DebugLog

@@ -71,7 +71,7 @@ public class GameCollectionRow extends LinearLayout {
 		});
 	}
 
-	private int obtainBackgroundResId(Context context) {
+	private static int obtainBackgroundResId(Context context) {
 		int backgroundResId = 0;
 		TypedArray a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
 		try {
