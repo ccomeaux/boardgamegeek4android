@@ -44,9 +44,10 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Void> {
 			values.put(Collection.GAME_ID, gameId);
 			values.put(Collection.COLLECTION_NAME, gameName);
 			values.put(Collection.COLLECTION_SORT_NAME, sortName);
-			values.put(Collection.YEAR_PUBLISHED, yearPublished);
+			values.put(Collection.COLLECTION_YEAR_PUBLISHED, yearPublished);
 			values.put(Collection.COLLECTION_IMAGE_URL, imageUrl);
 			values.put(Collection.COLLECTION_THUMBNAIL_URL, thumbnailUrl);
+			values.put(Collection.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis());
 
 			Uri response = resolver.insert(Collection.CONTENT_URI, values);
 			Timber.i(response != null ? response.toString() : null);
