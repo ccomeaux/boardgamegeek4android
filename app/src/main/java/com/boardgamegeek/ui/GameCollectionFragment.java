@@ -378,7 +378,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		notifyChange(item);
 
 		year.setText(item.getYearDescription());
-		lastModified.setTimestamp(item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
+		lastModified.setTimestamp(item.dirtyTimestamp > 0 ? item.dirtyTimestamp :
+			item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
 		ratingContainer.setClickable(collectionId != 0);
 		rating.setText(item.getRatingDescription());
 		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
@@ -437,7 +438,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
 			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
 			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP,
-			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP };
+			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP, Collection.COLLECTION_DIRTY_TIMESTAMP };
 
 		final int COLLECTION_ID = 1;
 		final int COLLECTION_NAME = 2;
@@ -475,6 +476,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final int COMMENT_DIRTY_TIMESTAMP = 34;
 		final int PRIVATE_INFO_DIRTY_TIMESTAMP = 35;
 		final int STATUS_DIRTY_TIMESTAMP = 36;
+		final int COLLECTION_DIRTY_TIMESTAMP = 37;
 
 		Resources r;
 		int id;
@@ -506,6 +508,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		int numPlays;
 		private ArrayList<String> statusDescriptions;
 		private ArrayList<String> statuses;
+		private long dirtyTimestamp;
 
 		public CollectionItem() {
 			// TODO: delete this, here just to get the projection; gotta be a better way
@@ -540,6 +543,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			wantParts = cursor.getString(WANT_PARTS_LIST);
 			hasParts = cursor.getString(HAS_PARTS_LIST);
 			numPlays = cursor.getInt(NUM_PLAYS);
+			dirtyTimestamp = cursor.getLong(COLLECTION_DIRTY_TIMESTAMP);
 
 			statuses = new ArrayList<>();
 			statusDescriptions = new ArrayList<>();
