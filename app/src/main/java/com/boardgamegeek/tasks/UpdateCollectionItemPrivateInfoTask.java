@@ -16,8 +16,8 @@ public class UpdateCollectionItemPrivateInfoTask extends UpdateCollectionItemTas
 	private final PrivateInfo privateInfo;
 
 	@DebugLog
-	public UpdateCollectionItemPrivateInfoTask(Context context, int gameId, int collectionId, PrivateInfo privateInfo) {
-		super(context, gameId, collectionId);
+	public UpdateCollectionItemPrivateInfoTask(Context context, int gameId, int collectionId, long internalId, PrivateInfo privateInfo) {
+		super(context, gameId, collectionId,internalId);
 		this.privateInfo = privateInfo;
 	}
 

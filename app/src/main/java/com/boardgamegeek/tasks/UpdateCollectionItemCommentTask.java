@@ -14,8 +14,8 @@ public class UpdateCollectionItemCommentTask extends UpdateCollectionItemTask {
 	private final String comment;
 
 	@DebugLog
-	public UpdateCollectionItemCommentTask(Context context, int gameId, int collectionId, String comment) {
-		super(context, gameId, collectionId);
+	public UpdateCollectionItemCommentTask(Context context, int gameId, int collectionId, long internalId, String comment) {
+		super(context, gameId, collectionId, internalId);
 		this.comment = comment;
 	}
 

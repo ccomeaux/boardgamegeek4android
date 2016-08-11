@@ -14,8 +14,8 @@ public class UpdateCollectionItemRatingTask extends UpdateCollectionItemTask {
 	private final double rating;
 
 	@DebugLog
-	public UpdateCollectionItemRatingTask(Context context, int gameId, int collectionId, double rating) {
-		super(context, gameId, collectionId);
+	public UpdateCollectionItemRatingTask(Context context, int gameId, int collectionId, long internalId, double rating) {
+		super(context, gameId, collectionId, internalId);
 		this.rating = rating;
 	}
 

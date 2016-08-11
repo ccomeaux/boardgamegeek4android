@@ -114,6 +114,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
+	private long internalId = 0;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 	private boolean needsUploading;
@@ -205,6 +206,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			}
 
 			CollectionItem item = new CollectionItem(cursor);
+			internalId = item.internalId;
 			updateUi(item);
 
 			if (mightNeedRefreshing) {
@@ -271,7 +273,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 					public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
 						UpdateCollectionItemStatusTask task =
 							new UpdateCollectionItemStatusTask(getActivity(),
-								gameId, collectionId,
+								gameId, collectionId, internalId,
 								selectedStatuses, wishlistPriority);
 						TaskUtils.executeAsyncTask(task);
 					}
@@ -297,7 +299,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				new EditTextDialogListener() {
 					@Override
 					public void onFinishEditDialog(String inputText) {
-						UpdateCollectionItemCommentTask task = new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, inputText);
+						UpdateCollectionItemCommentTask task =
+							new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, internalId, inputText);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}
@@ -320,7 +323,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			@Override
 			public void onDoneClick(String output) {
 				double rating = StringUtils.parseDouble(output);
-				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, rating);
+				UpdateCollectionItemRatingTask task =
+					new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
 				TaskUtils.executeAsyncTask(task);
 			}
 		});
@@ -350,8 +354,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				new PrivateInfoDialogListener() {
 					@Override
 					public void onFinishEditDialog(PrivateInfo privateInfo) {
-						UpdateCollectionItemPrivateInfoTask task = new UpdateCollectionItemPrivateInfoTask(getActivity(),
-							gameId, collectionId, privateInfo);
+						UpdateCollectionItemPrivateInfoTask task =
+							new UpdateCollectionItemPrivateInfoTask(getActivity(), gameId, collectionId, internalId, privateInfo);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}
@@ -440,6 +444,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP,
 			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP, Collection.COLLECTION_DIRTY_TIMESTAMP };
 
+		final int _ID = 0;
 		final int COLLECTION_ID = 1;
 		final int COLLECTION_NAME = 2;
 		// int COLLECTION_SORT_NAME = 3;
@@ -480,6 +485,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 		Resources r;
 		int id;
+		private long internalId;
 		String name;
 		// String sortName;
 		private String comment;
@@ -517,6 +523,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		public CollectionItem(Cursor cursor) {
 			r = getResources();
 			id = cursor.getInt(COLLECTION_ID);
+			internalId = cursor.getLong(_ID);
 			name = cursor.getString(COLLECTION_NAME);
 			// sortName = cursor.getString(COLLECTION_SORT_NAME);
 			comment = cursor.getString(COMMENT);

@@ -16,8 +16,8 @@ public class UpdateCollectionItemStatusTask extends UpdateCollectionItemTask {
 	private final int wishlistPriority;
 
 	@DebugLog
-	public UpdateCollectionItemStatusTask(Context context, int gameId, int collectionId, List<String> statuses, int wishlistPriority) {
-		super(context, gameId, collectionId);
+	public UpdateCollectionItemStatusTask(Context context, int gameId, int collectionId, long internalId, List<String> statuses, int wishlistPriority) {
+		super(context, gameId, collectionId, internalId);
 		this.statuses = statuses;
 		this.wishlistPriority = wishlistPriority;
 	}
@@ -55,6 +55,6 @@ public class UpdateCollectionItemStatusTask extends UpdateCollectionItemTask {
 	@Override
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
-		Timber.i("Updated game ID %1$s, collection ID %2$s with statuses \"%3$s\"", gameId, collectionId, statuses.toArray());
+		Timber.i("Updated game ID %1$s, collection ID %2$s with statuses \"%3$s\"", gameId, collectionId, statuses.toString());
 	}
 }

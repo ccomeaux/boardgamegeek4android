@@ -17,18 +17,23 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 	protected final Context context;
 	protected final int gameId;
 	protected final int collectionId;
+	protected final long internalId;
 
-	public UpdateCollectionItemTask(Context context, int gameId, int collectionId) {
+	public UpdateCollectionItemTask(Context context, int gameId, int collectionId, long internalId) {
+		this.context = context;
 		this.gameId = gameId;
 		this.collectionId = collectionId;
-		this.context = context;
+		this.internalId = internalId;
 	}
 
 	@DebugLog
 	@Override
 	protected Void doInBackground(Void... params) {
 		final ContentResolver resolver = context.getContentResolver();
-		long internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
+		long internalId = this.internalId;
+		if (internalId == 0) {
+			internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
+		}
 		if (internalId != BggContract.INVALID_ID) {
 			updateResolver(resolver, internalId);
 		}
