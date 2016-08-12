@@ -50,7 +50,7 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
 
 	private CollectionStatusDialogListener listener;
-	private List<String> selectedStatuses;
+	@Nullable private List<String> selectedStatuses;
 	private int wishlistPriority;
 
 	@NonNull
@@ -62,7 +62,7 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 	}
 
 	@DebugLog
-	public void setSelectedStatuses(List<String> selectedStatuses) {
+	public void setSelectedStatuses(@Nullable List<String> selectedStatuses) {
 		this.selectedStatuses = selectedStatuses;
 	}
 
@@ -121,7 +121,7 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 	private void initUi() {
 		for (CheckBox checkBox : statusViews) {
 			String status = (String) checkBox.getTag();
-			checkBox.setChecked(selectedStatuses.contains(status));
+			checkBox.setChecked(selectedStatuses != null && selectedStatuses.contains(status));
 		}
 		wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
 		wishlistPriorityView.setSelection(wishlistPriority - 1);

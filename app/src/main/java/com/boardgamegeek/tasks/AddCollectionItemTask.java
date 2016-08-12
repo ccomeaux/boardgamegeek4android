@@ -10,22 +10,30 @@ import android.os.AsyncTask;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.List;
+
 import timber.log.Timber;
 
-public class AddCollectionItemTask extends AsyncTask<Void, Void, Void> {
+public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 	private final Context context;
 	private final int gameId;
+	private final List<String> statuses;
+	private final int wishlistPriority;
 
-	public AddCollectionItemTask(Context context, int gameId) {
+	public AddCollectionItemTask(Context context, int gameId, List<String> statuses, int wishlistPriority) {
 		this.context = context;
 		this.gameId = gameId;
+		this.statuses = statuses;
+		this.wishlistPriority = wishlistPriority;
 	}
 
 	@Override
-	protected Void doInBackground(Void... params) {
+	protected Long doInBackground(Void... params) {
+		long internalId = 0;
 		final ContentResolver resolver = context.getContentResolver();
 
 		Cursor cursor = null;
@@ -49,16 +57,41 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Void> {
 			values.put(Collection.COLLECTION_THUMBNAIL_URL, thumbnailUrl);
 			values.put(Collection.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis());
 
+			putValue(values, Collection.STATUS_OWN);
+			putValue(values, Collection.STATUS_PREORDERED);
+			putValue(values, Collection.STATUS_FOR_TRADE);
+			putValue(values, Collection.STATUS_WANT);
+			putValue(values, Collection.STATUS_WANT_TO_PLAY);
+			putValue(values, Collection.STATUS_WANT_TO_BUY);
+			putValue(values, Collection.STATUS_WISHLIST);
+			putValue(values, Collection.STATUS_PREVIOUSLY_OWNED);
+			putWishlist(values);
+			values.put(Collection.STATUS_DIRTY_TIMESTAMP, System.currentTimeMillis());
+
 			Uri response = resolver.insert(Collection.CONTENT_URI, values);
+			internalId = StringUtils.parseLong(response.getLastPathSegment());
 			Timber.i(response != null ? response.toString() : null);
 		} finally {
 			if (cursor != null) cursor.close();
 		}
-		return null;
+		return internalId;
+	}
+
+	private void putValue(ContentValues values, String statusColumn) {
+		values.put(statusColumn, statuses.contains(statusColumn) ? 1 : 0);
+	}
+
+	private void putWishlist(ContentValues values) {
+		if (statuses.contains(Collection.STATUS_WISHLIST)) {
+			values.put(Collection.STATUS_WISHLIST, 1);
+			values.put(Collection.STATUS_WISHLIST_PRIORITY, wishlistPriority);
+			return;
+		}
+		values.put(Collection.STATUS_WISHLIST, 0);
 	}
 
 	@Override
-	protected void onPostExecute(Void aVoid) {
-		EventBus.getDefault().post(new CollectionItemUpdatedEvent());
+	protected void onPostExecute(Long internalId) {
+		EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
 	}
 }

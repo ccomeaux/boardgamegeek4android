@@ -47,6 +47,8 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -621,8 +623,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@OnClick(R.id.collection_add_button)
 	void onAddToCollectionClick() {
-		AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), Games.getGameId(gameUri));
-		TaskUtils.executeAsyncTask(task);
+		CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
+			collectionContainer,
+			new CollectionStatusDialogListener() {
+				@Override
+				public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
+					int gameId = Games.getGameId(gameUri);
+					AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), gameId, selectedStatuses, wishlistPriority);
+					TaskUtils.executeAsyncTask(task);
+				}
+			}
+		);
+		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
 	}
 
 	@DebugLog
