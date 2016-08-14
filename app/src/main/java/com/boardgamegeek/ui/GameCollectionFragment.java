@@ -384,21 +384,24 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		year.setText(item.getYearDescription());
 		lastModified.setTimestamp(item.dirtyTimestamp > 0 ? item.dirtyTimestamp :
 			item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
-		ratingContainer.setClickable(collectionId != 0);
+
+		ratingContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		rating.setText(item.getRatingDescription());
 		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 		ratingTimestampView.setTimestamp(item.ratingTimestamp);
 
+		statusContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		statusView.setText(item.getStatusDescription());
 		statusView.setTag(R.id.status, item.getStatuses());
 		statusView.setTag(R.id.wishlist_priority, item.getWishlistPriority());
-		commentContainer.setClickable(collectionId != 0);
+
+		commentContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
 		PresentationUtils.setTextOrHide(comment, item.comment);
 		commentTimestampView.setTimestamp(item.commentTimestamp);
 
-		privateInfoContainer.setClickable(collectionId != 0);
+		privateInfoContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 		privateInfo.setText(item.getPrivateInfo());
 		privateInfo.setTag(R.id.price_currency, item.getPriceCurrency());
@@ -419,6 +422,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
 		updated.setTimestamp(item.updated);
+	}
+
+	private boolean isItemEditable(long dirtyTimestamp) {
+		return collectionId != 0 || dirtyTimestamp > 0;
 	}
 
 	@DebugLog
