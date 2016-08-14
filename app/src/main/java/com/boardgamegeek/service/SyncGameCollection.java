@@ -53,8 +53,8 @@ public class SyncGameCollection extends UpdateTask {
 		Timber.i("Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + gameId);
 
 		// XXX: this deleted more games that I expected. need to rework
-		// int deleteCount = persister.delete(items, gameId);
-		// Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + gameId);
+		int deleteCount = persister.delete(items, gameId);
+		Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + gameId);
 	}
 
 	private List<CollectionItem> request(Context context, @NonNull Account account) {

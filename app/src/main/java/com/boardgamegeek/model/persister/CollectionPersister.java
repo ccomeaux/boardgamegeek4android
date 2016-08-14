@@ -75,6 +75,12 @@ public class CollectionPersister {
 		return this;
 	}
 
+	/**
+	 * Remove all collection items belonging to a game, except the ones in the specified list.
+	 * @param items list of collection items not to delete.
+	 * @param gameId delete collection items with this game ID.
+	 * @return the number or rows deleted.
+	 */
 	@DebugLog
 	public int delete(List<CollectionItem> items, int gameId) {
 		if (items == null || items.size() == 0) {
