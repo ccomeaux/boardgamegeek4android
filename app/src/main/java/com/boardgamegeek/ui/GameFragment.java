@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -44,6 +45,7 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
@@ -69,6 +71,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -214,6 +217,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
+	}
+
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -777,6 +793,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		descriptionView.setMaxLines(isDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		descriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
 			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
+	}
+
+	@Subscribe
+	public void onEvent(CollectionItemUpdatedEvent event) {
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 	}
 
 	@SuppressWarnings("unused")
