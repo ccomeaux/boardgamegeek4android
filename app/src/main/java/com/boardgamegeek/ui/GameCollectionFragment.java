@@ -411,7 +411,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		privateInfo.setTag(R.id.quantity, item.getQuantity());
 		privateInfo.setTag(R.id.acquisition_date, item.getAcquisitionDate());
 		privateInfo.setTag(R.id.acquired_from, item.getAcquiredFrom());
-		PresentationUtils.setTextOrHide(privateInfoComments, item.privateComment);
+		PresentationUtils.setTextOrHide(privateInfoComments, item.getPrivateComment());
 		privateInfoTimestampView.setTimestamp(item.privateInfoTimestamp);
 
 		showSection(item.wishlistComment, wishlistContainer, wishlistComment);
@@ -625,7 +625,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		}
 
 		String getAcquisitionDate() {
-			return acquisitionDate;
+			return acquisitionDate == null ? "" : acquisitionDate;
 		}
 
 		boolean hasAcquisitionDate() {
@@ -633,11 +633,15 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		}
 
 		String getAcquiredFrom() {
-			return acquiredFrom;
+			return acquiredFrom == null ? "" : acquiredFrom;
 		}
 
 		boolean hasAcquiredFrom() {
 			return !TextUtils.isEmpty(acquiredFrom);
+		}
+
+		String getPrivateComment() {
+			return privateComment == null ? "" : privateComment;
 		}
 
 		String getPriceCurrency() {
