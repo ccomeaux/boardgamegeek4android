@@ -7,6 +7,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
@@ -34,6 +35,7 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 		void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority);
 	}
 
+	@StringRes private int titleResId = R.string.menu_collection_status;
 	private ViewGroup root;
 	private Unbinder unbinder;
 	@BindViews({
@@ -61,6 +63,10 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 		return fragment;
 	}
 
+	public void setTitle(int titleResId){
+		this.titleResId = titleResId;
+	}
+
 	@DebugLog
 	public void setSelectedStatuses(@Nullable List<String> selectedStatuses) {
 		this.selectedStatuses = selectedStatuses;
@@ -81,7 +87,7 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 		initUi();
 
 		AlertDialog.Builder builder = new Builder(getContext())
-			.setTitle(R.string.menu_collection_status)
+			.setTitle(titleResId)
 			.setView(rootView)
 			.setPositiveButton(R.string.ok, new OnClickListener() {
 				@Override

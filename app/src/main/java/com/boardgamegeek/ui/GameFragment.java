@@ -650,6 +650,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				}
 			}
 		);
+		statusDialogFragment.setTitle(R.string.title_add_a_copy);
 		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
 	}
 
