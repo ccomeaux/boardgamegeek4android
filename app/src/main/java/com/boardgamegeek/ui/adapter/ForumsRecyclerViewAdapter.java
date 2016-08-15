@@ -109,7 +109,6 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 			forumTitleView.setText(forum.title);
 			numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads, forum.numberOfThreads));
 			lastPostDateView.setTimestamp(forum.lastPostDate());
-			lastPostDateView.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
 
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
