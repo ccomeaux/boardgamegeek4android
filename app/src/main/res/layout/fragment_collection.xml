@@ -74,8 +74,6 @@
 						android:visibility="gone"/>
 				</LinearLayout>
 			</FrameLayout>
-
-
 		</LinearLayout>
 
 		<LinearLayout

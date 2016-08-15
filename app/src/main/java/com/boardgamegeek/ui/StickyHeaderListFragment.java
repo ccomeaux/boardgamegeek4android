@@ -126,7 +126,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		super.onViewCreated(view, savedInstanceState);
 		ensureList();
 		final StickyListHeadersListView listView = getListView();
-		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		int padding = getResources().getDimensionPixelSize(shouldPadForFab() ? R.dimen.fab_buffer : R.dimen.padding_standard);
 		listView.setClipToPadding(false);
 		listView.setPadding(0, 0, 0, padding);
 		if (dividerShown()) {
@@ -404,6 +404,10 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@OnClick(R.id.fab)
 	protected void onFabClicked(View v) {
 		// convenience for overriding
+	}
+
+	protected boolean shouldPadForFab() {
+		return false;
 	}
 
 	@OnClick(R.id.empty_button)

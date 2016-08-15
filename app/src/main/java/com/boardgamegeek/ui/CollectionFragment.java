@@ -173,6 +173,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		showcaseViewWizard.maybeShowHelp();
 	}
 
+	@Override
+	protected boolean shouldPadForFab() {
+		return true;
+	}
+
 	private void createShowcaseViewWizard() {
 		showcaseViewWizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION);
 		showcaseViewWizard.addTarget(R.string.help_collection, Target.NONE);
