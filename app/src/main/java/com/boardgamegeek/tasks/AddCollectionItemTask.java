@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.StringUtils;
@@ -15,8 +16,6 @@ import com.boardgamegeek.util.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
-
-import timber.log.Timber;
 
 public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 	private final Context context;
@@ -69,8 +68,7 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 			values.put(Collection.STATUS_DIRTY_TIMESTAMP, System.currentTimeMillis());
 
 			Uri response = resolver.insert(Collection.CONTENT_URI, values);
-			internalId = StringUtils.parseLong(response.getLastPathSegment());
-			Timber.i(response != null ? response.toString() : null);
+			internalId = response == null ? BggContract.INVALID_ID : StringUtils.parseLong(response.getLastPathSegment(), BggContract.INVALID_ID);
 		} finally {
 			if (cursor != null) cursor.close();
 		}

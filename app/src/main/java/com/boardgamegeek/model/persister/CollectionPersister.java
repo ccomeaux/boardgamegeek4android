@@ -77,7 +77,8 @@ public class CollectionPersister {
 
 	/**
 	 * Remove all collection items belonging to a game, except the ones in the specified list.
-	 * @param items list of collection items not to delete.
+	 *
+	 * @param items  list of collection items not to delete.
 	 * @param gameId delete collection items with this game ID.
 	 * @return the number or rows deleted.
 	 */
@@ -275,13 +276,12 @@ public class CollectionPersister {
 			values.remove(Collection.COLLECTION_ID);
 		}
 
-		long internalId = getCollectionItemInternalId(collectionId, gameId);
-
 		Builder operation;
+		long internalId = getCollectionItemInternalIdToUpdate(collectionId, gameId);
 		if (internalId != BggContract.INVALID_ID) {
 			operation = createUpdateOperation(values, batch, internalId);
 		} else {
-			internalId = getCollectionItemInternalId(gameId);
+			internalId = getCollectionItemInternalIdToUpdate(gameId);
 			if (internalId != BggContract.INVALID_ID) {
 				operation = createUpdateOperation(values, batch, internalId);
 			} else {
@@ -325,14 +325,15 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private long getCollectionItemInternalId(int collectionId, int gameId) {
+	private long getCollectionItemInternalIdToUpdate(int collectionId, int gameId) {
 		long internalId;
 		if (collectionId == BggContract.INVALID_ID) {
 			internalId = ResolverUtils.queryLong(resolver,
 				Collection.CONTENT_URI,
 				Collection._ID,
 				BggContract.INVALID_ID,
-				"collection." + Collection.GAME_ID + "=? AND " + ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID),
+				"collection." + Collection.GAME_ID + "=? AND " +
+					ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID),
 				new String[] { String.valueOf(gameId) });
 		} else {
 			internalId = ResolverUtils.queryLong(resolver,
@@ -345,8 +346,9 @@ public class CollectionPersister {
 		return internalId;
 	}
 
-	private long getCollectionItemInternalId(int gameId) {
-		long internalId = ResolverUtils.queryLong(resolver,
+	@DebugLog
+	private long getCollectionItemInternalIdToUpdate(int gameId) {
+		return ResolverUtils.queryLong(resolver,
 			Collection.CONTENT_URI,
 			Collection._ID,
 			BggContract.INVALID_ID,
@@ -354,7 +356,6 @@ public class CollectionPersister {
 				ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID) + " AND " +
 				Collection.COLLECTION_DIRTY_TIMESTAMP + "=0",
 			new String[] { String.valueOf(gameId) });
-		return internalId;
 	}
 
 	@DebugLog
