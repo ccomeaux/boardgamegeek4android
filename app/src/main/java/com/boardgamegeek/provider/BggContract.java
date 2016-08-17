@@ -135,6 +135,7 @@ public class BggContract {
 		String COMMENT_DIRTY_TIMESTAMP = "comment_dirty_timestamp";
 		String PRIVATE_INFO_DIRTY_TIMESTAMP = "private_info_dirty_timestamp";
 		String COLLECTION_DIRTY_TIMESTAMP = "collection_dirty_timestamp";
+		String COLLECTION_DELETE_TIMESTAMP = "collection_delete_timestamp";
 	}
 
 	interface BuddiesColumns {
