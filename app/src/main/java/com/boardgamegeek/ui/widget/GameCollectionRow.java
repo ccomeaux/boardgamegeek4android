@@ -35,6 +35,7 @@ public class GameCollectionRow extends LinearLayout {
 	@BindView(R.id.comment) TextView commentView;
 	@BindView(R.id.rating) TextView ratingView;
 
+	private long internalId;
 	private int gameId;
 	private String gameName;
 	private String collectionName;
@@ -61,6 +62,7 @@ public class GameCollectionRow extends LinearLayout {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getContext(), GameCollectionActivity.class);
+				intent.putExtra(ActivityUtils.KEY_INTERNAL_ID, internalId);
 				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
 				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, collectionId);
@@ -84,7 +86,8 @@ public class GameCollectionRow extends LinearLayout {
 		return backgroundResId;
 	}
 
-	public void bind(int gameId, String gameName, int collectionId, int yearPublished, String imageUrl) {
+	public void bind(long internalId, int gameId, String gameName, int collectionId, int yearPublished, String imageUrl) {
+		this.internalId = internalId;
 		this.gameId = gameId;
 		this.gameName = gameName;
 		this.collectionId = collectionId;

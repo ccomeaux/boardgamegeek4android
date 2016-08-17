@@ -599,11 +599,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
 
+				final long internalId = cursor.getLong(CollectionQuery._ID);
 				final int gameId = Games.getGameId(gameUri);
 				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
 				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);
 				final String imageUrl = cursor.getString(CollectionQuery.COLLECTION_IMAGE_URL);
-				row.bind(gameId, gameName, collectionId, yearPublished, imageUrl);
+				row.bind(internalId, gameId, gameName, collectionId, yearPublished, imageUrl);
 
 				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL_URL);
 				final String collectionName = cursor.getString(CollectionQuery.COLLECTION_NAME);
@@ -945,6 +946,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS,
 			Collection.COMMENT, Games.YEAR_PUBLISHED, Collection.RATING, Collection.IMAGE_URL };
 		int _TOKEN = 0x20;
+		int _ID = 0;
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int COLLECTION_YEAR = 3;

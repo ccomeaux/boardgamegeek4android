@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import hugo.weaving.DebugLog;
 
 public class GameCollectionActivity extends HeroActivity implements Callback {
+	private long internalId;
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
@@ -38,6 +39,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 
 		final Intent intent = getIntent();
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		internalId = intent.getLongExtra(ActivityUtils.KEY_INTERNAL_ID, BggContract.INVALID_ID);
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 		String collectionName = intent.getStringExtra(ActivityUtils.KEY_COLLECTION_NAME);
 		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
