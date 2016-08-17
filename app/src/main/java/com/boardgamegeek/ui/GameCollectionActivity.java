@@ -15,6 +15,7 @@ import com.boardgamegeek.events.CollectionItemDeletedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.DeleteCollectionItemTask;
 import com.boardgamegeek.util.ActivityUtils;
@@ -128,5 +129,6 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionItemDeletedEvent event) {
 		Toast.makeText(this, R.string.msg_collection_item_deleted, Toast.LENGTH_LONG).show();
+		SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 	}
 }

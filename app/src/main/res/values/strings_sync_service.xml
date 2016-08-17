@@ -44,6 +44,14 @@
 	<string name="sync_msg_publisher_valid">update publisher %s</string>
 	<string name="sync_msg_publisher_invalid">update an publisher game</string>
 
+	<plurals name="sync_notification_collection_deleting">
+		<item quantity="one">Deleting %,d collection item.</item>
+		<item quantity="other">Deleting %,d collection items.</item>
+	</plurals>
+	<plurals name="sync_notification_collection_adding">
+		<item quantity="one">Adding %,d collection item.</item>
+		<item quantity="other">Adding %,d collection items.</item>
+	</plurals>
 	<plurals name="sync_notification_collection_uploading">
 		<item quantity="one">Uploading %,d collection item.</item>
 		<item quantity="other">Uploading %,d collection items.</item>

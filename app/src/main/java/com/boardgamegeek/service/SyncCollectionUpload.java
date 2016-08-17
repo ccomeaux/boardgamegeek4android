@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
+import android.support.annotation.PluralsRes;
 import android.text.SpannableString;
 import android.text.TextUtils;
 
@@ -34,6 +35,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	private SyncResult syncResult;
 	private final List<String> timestampColumns = new ArrayList<>();
 	private final OkHttpClient okHttpClient;
+	private CollectionDeleteTask deleteTask;
 	private CollectionAddTask addTask;
 	private List<CollectionUploadTask> uploadTasks;
 
@@ -41,6 +43,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	public SyncCollectionUpload(Context context, BggService service) {
 		super(context, service);
 		okHttpClient = HttpUtils.getHttpClientWithAuth(context);
+		deleteTask = new CollectionDeleteTask(okHttpClient);
 		addTask = new CollectionAddTask(okHttpClient);
 		uploadTasks = createUploadTasks();
 		timestampColumns.add(Collection.STATUS_DIRTY_TIMESTAMP);
@@ -101,6 +104,21 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 		Cursor cursor = null;
 		try {
+			cursor = fetchDeletedCollectionItems();
+			while (cursor != null && cursor.moveToNext()) {
+				if (isCancelled()) {
+					break;
+				}
+				processDeletedCollectionItem(cursor);
+			}
+		} finally {
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
+		}
+
+		cursor = null;
+		try {
 			cursor = fetchNewCollectionItems();
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
@@ -135,9 +153,14 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		this.syncResult = syncResult;
 	}
 
+	private Cursor fetchDeletedCollectionItems() {
+		String selection = Collection.COLLECTION_DELETE_TIMESTAMP + ">0";
+		return getCollectionItems(selection, R.plurals.sync_notification_collection_deleting);
+	}
+
 	private Cursor fetchNewCollectionItems() {
 		String selection = Collection.COLLECTION_DIRTY_TIMESTAMP + ">0 AND " + ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID);
-		return getCollectionItems(selection);
+		return getCollectionItems(selection, R.plurals.sync_notification_collection_adding);
 	}
 
 	private Cursor fetchDirtyCollectionItems() {
@@ -148,21 +171,32 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			}
 			selection += task.getTimestampColumn() + ">0";
 		}
-		return getCollectionItems(selection);
+		return getCollectionItems(selection, R.plurals.sync_notification_collection_uploading);
 	}
 
 	@Nullable
-	private Cursor getCollectionItems(String selection) {
+	private Cursor getCollectionItems(String selection, @PluralsRes int messageResId) {
 		Cursor cursor = context.getContentResolver().query(Collection.CONTENT_URI,
 			CollectionItem.PROJECTION,
 			selection,
 			null,
 			null);
 		final int count = cursor != null ? cursor.getCount() : 0;
-		String detail = context.getResources().getQuantityString(R.plurals.sync_notification_collection_uploading, count, count);
+		String detail = context.getResources().getQuantityString(messageResId, count, count);
 		Timber.i(detail);
 		showNotification(detail);
 		return cursor;
+	}
+
+	private void processDeletedCollectionItem(Cursor cursor) {
+		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
+		deleteTask.addCollectionItem(collectionItem);
+		deleteTask.post();
+		if (processResponseForError(deleteTask)) {
+			return;
+		}
+		resolver.delete(Collection.buildUri(collectionItem.getInternalId()), null, null);
+		notifySuccess(collectionItem.getCollectionName());
 	}
 
 	private void processNewCollectionItem(Cursor cursor) {
