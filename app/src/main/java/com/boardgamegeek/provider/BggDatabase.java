@@ -73,7 +73,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_STATUS_DIRTY_TIMESTAMP = 30;
 	private static final int VER_COLLECTION_DIRTY_TIMESTAMP = 31;
 	private static final int VER_COLLECTION_DELETE_TIMESTAMP = 32;
-	private static final int DATABASE_VERSION = VER_COLLECTION_DIRTY_TIMESTAMP;
+	private static final int DATABASE_VERSION = VER_COLLECTION_DELETE_TIMESTAMP;
 
 	private final Context context;
 
