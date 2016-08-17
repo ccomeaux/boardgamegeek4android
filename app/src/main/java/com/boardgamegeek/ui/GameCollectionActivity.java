@@ -11,15 +11,18 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
+import com.boardgamegeek.events.CollectionItemDeletedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.DeleteCollectionItemTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.ScrimUtils;
+import com.boardgamegeek.util.TaskUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -78,7 +81,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 					R.string.are_you_sure_delete_collection_item,
 					new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							Toast.makeText(GameCollectionActivity.this, "Deleting", Toast.LENGTH_SHORT).show();
+							TaskUtils.executeAsyncTask(new DeleteCollectionItemTask(GameCollectionActivity.this, internalId));
 							finish();
 						}
 					}).show();
@@ -120,5 +123,10 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateCompleteEvent event) {
 		updateRefreshStatus(false);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CollectionItemDeletedEvent event) {
+		Toast.makeText(this, R.string.msg_collection_item_deleted, Toast.LENGTH_LONG).show();
 	}
 }
