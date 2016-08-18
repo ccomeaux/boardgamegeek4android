@@ -136,6 +136,10 @@ public class BggContract {
 		String PRIVATE_INFO_DIRTY_TIMESTAMP = "private_info_dirty_timestamp";
 		String COLLECTION_DIRTY_TIMESTAMP = "collection_dirty_timestamp";
 		String COLLECTION_DELETE_TIMESTAMP = "collection_delete_timestamp";
+		String WISHLIST_COMMENT_DIRTY_TIMESTAMP = "wishlist_comment_dirty_timestamp";
+		String TRADE_CONDITION_DIRTY_TIMESTAMP = "trade_condition_dirty_timestamp";
+		String WANT_PARTS_DIRTY_TIMESTAMP = "want_parts_dirty_timestamp";
+		String HAS_PARTS_DIRTY_TIMESTAMP = "has_parts_dirty_timestamp";
 	}
 
 	interface BuddiesColumns {
