@@ -37,6 +37,7 @@ import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.ui.model.PrivateInfo;
+import com.boardgamegeek.ui.widget.TextEditorCard;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -85,14 +86,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@BindView(R.id.private_info) TextView privateInfo;
 	@BindView(R.id.private_info_comments) TextView privateInfoComments;
 	@BindView(R.id.private_info_timestamp) TimestampView privateInfoTimestampView;
-	@BindView(R.id.wishlist_container) View wishlistContainer;
-	@BindView(R.id.wishlist_comment) TextView wishlistComment;
-	@BindView(R.id.condition_container) View conditionContainer;
-	@BindView(R.id.condition_comment) TextView conditionComment;
-	@BindView(R.id.want_parts_container) View wantPartsContainer;
-	@BindView(R.id.want_parts_comment) TextView wantPartsComment;
-	@BindView(R.id.has_parts_container) View hasPartsContainer;
-	@BindView(R.id.has_parts_comment) TextView hasPartsComment;
+	@BindView(R.id.wishlist_card) TextEditorCard wishlistCard;
+	@BindView(R.id.condition_card) TextEditorCard conditionCard;
+	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
+	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
 	@BindView(R.id.collection_id) TextView id;
 	@BindView(R.id.updated) TimestampView updated;
 	@BindViews({
@@ -103,11 +100,13 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
-		R.id.card_header_wishlist,
-		R.id.card_header_condition,
-		R.id.card_header_want_parts,
-		R.id.card_header_has_parts
 	}) List<TextView> colorizedHeaders;
+	@BindViews({
+		R.id.wishlist_card,
+		R.id.condition_card,
+		R.id.want_parts_card,
+		R.id.has_parts_card
+	}) List<TextEditorCard> textEditorCards;
 	private CollectionStatusDialogFragment statusDialogFragment;
 	private EditTextDialogFragment commentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
@@ -252,6 +251,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(textEditorCards, TextEditorCard.headerColorSetter, swatch);
 	}
 
 	@OnClick(R.id.status_container)
@@ -414,10 +414,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		PresentationUtils.setTextOrHide(privateInfoComments, item.getPrivateComment());
 		privateInfoTimestampView.setTimestamp(item.privateInfoTimestamp);
 
-		showSection(item.wishlistComment, wishlistContainer, wishlistComment);
-		showSection(item.condition, conditionContainer, conditionComment);
-		showSection(item.wantParts, wantPartsContainer, wantPartsComment);
-		showSection(item.hasParts, hasPartsContainer, hasPartsComment);
+		wishlistCard.setContentText(item.wishlistComment);
+		conditionCard.setContentText(item.condition);
+		wantPartsCard.setContentText(item.wantParts);
+		hasPartsCard.setContentText(item.hasParts);
 
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
@@ -426,12 +426,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	private boolean isItemEditable(long dirtyTimestamp) {
 		return collectionId != 0 || dirtyTimestamp > 0;
-	}
-
-	@DebugLog
-	private void showSection(String text, View container, TextView comment) {
-		container.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-		comment.setText(text);
 	}
 
 	private class CollectionItem {
