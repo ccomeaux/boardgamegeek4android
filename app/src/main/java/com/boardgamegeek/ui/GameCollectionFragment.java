@@ -461,9 +461,13 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		privateInfoTimestampView.setTimestamp(item.privateInfoTimestamp);
 
 		wishlistCard.setContentText(item.wishlistComment);
+		wishlistCard.setTimestamp(item.wishlistCommentDirtyTimestamp);
 		conditionCard.setContentText(item.condition);
+		conditionCard.setTimestamp(item.tradeConditionDirtyTimestamp);
 		wantPartsCard.setContentText(item.wantParts);
+		wantPartsCard.setTimestamp(item.wantPartsDirtyTimestamp);
 		hasPartsCard.setContentText(item.hasParts);
+		hasPartsCard.setTimestamp(item.hasPartsDirtyTimestamp);
 
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
@@ -489,7 +493,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
 			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
 			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP,
-			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP, Collection.COLLECTION_DIRTY_TIMESTAMP };
+			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP, Collection.COLLECTION_DIRTY_TIMESTAMP,
+			Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, Collection.WANT_PARTS_DIRTY_TIMESTAMP,
+			Collection.HAS_PARTS_DIRTY_TIMESTAMP };
 
 		final int _ID = 0;
 		final int COLLECTION_ID = 1;
@@ -529,6 +535,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final int PRIVATE_INFO_DIRTY_TIMESTAMP = 35;
 		final int STATUS_DIRTY_TIMESTAMP = 36;
 		final int COLLECTION_DIRTY_TIMESTAMP = 37;
+		final int WISHLIST_COMMENT_DIRTY_TIMESTAMP = 38;
+		final int TRADE_CONDITION_DIRTY_TIMESTAMP = 39;
+		final int WANT_PARTS_DIRTY_TIMESTAMP = 40;
+		final int HAS_PARTS_DIRTY_TIMESTAMP = 41;
 
 		Resources r;
 		int id;
@@ -562,6 +572,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		private ArrayList<String> statusDescriptions;
 		private ArrayList<String> statuses;
 		private long dirtyTimestamp;
+		private long wishlistCommentDirtyTimestamp;
+		private long tradeConditionDirtyTimestamp;
+		private long wantPartsDirtyTimestamp;
+		private long hasPartsDirtyTimestamp;
 
 		public CollectionItem() {
 			// TODO: delete this, here just to get the projection; gotta be a better way
@@ -598,6 +612,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			hasParts = cursor.getString(HAS_PARTS_LIST);
 			numPlays = cursor.getInt(NUM_PLAYS);
 			dirtyTimestamp = cursor.getLong(COLLECTION_DIRTY_TIMESTAMP);
+			wishlistCommentDirtyTimestamp = cursor.getLong(WISHLIST_COMMENT_DIRTY_TIMESTAMP);
+			tradeConditionDirtyTimestamp = cursor.getLong(TRADE_CONDITION_DIRTY_TIMESTAMP);
+			wantPartsDirtyTimestamp = cursor.getLong(WANT_PARTS_DIRTY_TIMESTAMP);
+			hasPartsDirtyTimestamp = cursor.getLong(HAS_PARTS_DIRTY_TIMESTAMP);
 
 			statuses = new ArrayList<>();
 			statusDescriptions = new ArrayList<>();

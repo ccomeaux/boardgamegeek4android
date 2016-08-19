@@ -20,6 +20,7 @@ import butterknife.ButterKnife;
 public class TextEditorCard extends CardView {
 	@BindView(R.id.text_editor_header) TextView headerView;
 	@BindView(R.id.text_editor_content) TextView contentView;
+	@BindView(R.id.text_editor_timestamp) TimestampView timestampView;
 
 	public TextEditorCard(Context context) {
 		super(context);
@@ -51,6 +52,10 @@ public class TextEditorCard extends CardView {
 	public void setContentText(CharSequence text) {
 		contentView.setText(text);
 		setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+	}
+
+	public void setTimestamp(long timestamp) {
+		timestampView.setTimestamp(timestamp);
 	}
 
 	public String getContentText() {

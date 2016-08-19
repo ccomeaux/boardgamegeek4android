@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
@@ -25,5 +26,16 @@
 			android:layout_height="wrap_content"
 			android:paddingBottom="@dimen/padding_half"
 			tools:text="This thing is awesome. I love it. You should check it out."/>
+
+		<com.boardgamegeek.ui.widget.TimestampView
+			android:id="@+id/text_editor_timestamp"
+			style="@style/Text.Footnote2"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="right"
+			android:visibility="gone"
+			app:hideWhenEmpty="true"
+			tools:text="Yesterday"
+			tools:visibility="visible"/>
 	</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 </merge>
