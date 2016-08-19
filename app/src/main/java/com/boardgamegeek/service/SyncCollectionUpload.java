@@ -57,6 +57,10 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		tasks.add(new CollectionRatingUploadTask(okHttpClient));
 		tasks.add(new CollectionCommentUploadTask(okHttpClient));
 		tasks.add(new CollectionPrivateInfoUploadTask(okHttpClient));
+		tasks.add(new CollectionWishlistCommentUploadTask(okHttpClient));
+		tasks.add(new CollectionTradeConditionUploadTask(okHttpClient));
+		tasks.add(new CollectionWantPartsUploadTask(okHttpClient));
+		tasks.add(new CollectionHasPartsUploadTask(okHttpClient));
 		return tasks;
 	}
 
