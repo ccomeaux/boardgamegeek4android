@@ -46,10 +46,9 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		deleteTask = new CollectionDeleteTask(okHttpClient);
 		addTask = new CollectionAddTask(okHttpClient);
 		uploadTasks = createUploadTasks();
-		timestampColumns.add(Collection.STATUS_DIRTY_TIMESTAMP);
-		timestampColumns.add(Collection.RATING_DIRTY_TIMESTAMP);
-		timestampColumns.add(Collection.COMMENT_DIRTY_TIMESTAMP);
-		timestampColumns.add(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP);
+		for (CollectionUploadTask task : uploadTasks) {
+			timestampColumns.add(task.getTimestampColumn());
+		}
 	}
 
 	private List<CollectionUploadTask> createUploadTasks() {

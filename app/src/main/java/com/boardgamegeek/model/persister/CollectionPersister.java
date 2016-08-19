@@ -322,6 +322,10 @@ public class CollectionPersister {
 			Collection.PRIVATE_INFO_PRICE_PAID,
 			Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
 			Collection.PRIVATE_INFO_QUANTITY);
+		removeValuesIfDirty(values, internalId, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, Collection.WISHLIST_COMMENT);
+		removeValuesIfDirty(values, internalId, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, Collection.CONDITION);
+		removeValuesIfDirty(values, internalId, Collection.WANT_PARTS_DIRTY_TIMESTAMP, Collection.WANTPARTS_LIST);
+		removeValuesIfDirty(values, internalId, Collection.HAS_PARTS_DIRTY_TIMESTAMP, Collection.HASPARTS_LIST);
 	}
 
 	@DebugLog
