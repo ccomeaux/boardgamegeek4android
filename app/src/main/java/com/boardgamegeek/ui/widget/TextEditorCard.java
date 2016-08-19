@@ -53,6 +53,14 @@ public class TextEditorCard extends CardView {
 		setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 	}
 
+	public String getContentText() {
+		return contentView.getText().toString();
+	}
+
+	public String getHeaderText() {
+		return headerView.getText().toString();
+	}
+
 	public void setHeaderColor(@ColorInt int color) {
 		headerView.setTextColor(color);
 	}

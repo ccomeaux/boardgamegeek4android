@@ -5,9 +5,12 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<LinearLayout
+	<com.boardgamegeek.ui.widget.ForegroundLinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:foreground="?attr/selectableItemBackground"
+		android:gravity="center_vertical"
+		android:minHeight="@dimen/edit_row_height"
 		android:orientation="vertical">
 
 		<TextView
@@ -22,5 +25,5 @@
 			android:layout_height="wrap_content"
 			android:paddingBottom="@dimen/padding_half"
 			tools:text="This thing is awesome. I love it. You should check it out."/>
-	</LinearLayout>
+	</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 </merge>

@@ -25,10 +25,10 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.tasks.UpdateCollectionItemCommentTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
+import com.boardgamegeek.tasks.UpdateCollectionItemTextTask;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
@@ -283,6 +283,50 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	@DebugLog
+	@OnClick(R.id.wishlist_card)
+	public void onWishlistCommentClick() {
+		onTextEditorClick(wishlistCard, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
+	}
+
+	@DebugLog
+	@OnClick(R.id.condition_card)
+	public void onConditionClick() {
+		onTextEditorClick(conditionCard, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
+	}
+
+	@DebugLog
+	@OnClick(R.id.want_parts_card)
+	public void onWantPartsClick() {
+		onTextEditorClick(wantPartsCard, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
+	}
+
+	@DebugLog
+	@OnClick(R.id.has_parts_card)
+	public void onHasPartsClick() {
+		onTextEditorClick(hasPartsCard, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
+	}
+
+	@DebugLog
+	private void onTextEditorClick(TextEditorCard card, final String textColumn, final String timestampColumn) {
+		EditTextDialogFragment dialogFragment = EditTextDialogFragment.newLongFormInstance(
+			card.getHeaderText(),
+			card,
+			new EditTextDialogListener() {
+				@Override
+				public void onFinishEditDialog(String inputText) {
+					UpdateCollectionItemTextTask task =
+						new UpdateCollectionItemTextTask(getActivity(),
+							gameId, collectionId, internalId, inputText,
+							textColumn, timestampColumn);
+					TaskUtils.executeAsyncTask(task);
+				}
+			}
+		);
+		dialogFragment.setText(card.getContentText());
+		DialogUtils.showFragment(getActivity(), dialogFragment, card.toString());
+	}
+
+	@DebugLog
 	@OnClick(R.id.comment_container)
 	public void onCommentClick() {
 		ensureCommentDialogFragment();
@@ -299,8 +343,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				new EditTextDialogListener() {
 					@Override
 					public void onFinishEditDialog(String inputText) {
-						UpdateCollectionItemCommentTask task =
-							new UpdateCollectionItemCommentTask(getActivity(), gameId, collectionId, internalId, inputText);
+						UpdateCollectionItemTextTask task =
+							new UpdateCollectionItemTextTask(getActivity(),
+								gameId, collectionId, internalId, inputText,
+								Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}
