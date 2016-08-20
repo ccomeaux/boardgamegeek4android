@@ -228,6 +228,13 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	public void enableEditMode(boolean enable) {
+		wishlistCard.enableEditMode(enable);
+		conditionCard.enableEditMode(enable);
+		wantPartsCard.enableEditMode(enable);
+		hasPartsCard.enableEditMode(enable);
+	}
+
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@Subscribe

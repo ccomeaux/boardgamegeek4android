@@ -25,7 +25,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:paddingBottom="@dimen/padding_half"
-			tools:text="This thing is awesome. I love it. You should check it out."/>
+			android:visibility="gone"
+			tools:text="This thing is awesome. I love it. You should check it out."
+			tools:visibility="visible"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/text_editor_timestamp"

@@ -21,6 +21,7 @@ public class TextEditorCard extends CardView {
 	@BindView(R.id.text_editor_header) TextView headerView;
 	@BindView(R.id.text_editor_content) TextView contentView;
 	@BindView(R.id.text_editor_timestamp) TimestampView timestampView;
+	boolean isInEditMode;
 
 	public TextEditorCard(Context context) {
 		super(context);
@@ -51,7 +52,8 @@ public class TextEditorCard extends CardView {
 
 	public void setContentText(CharSequence text) {
 		contentView.setText(text);
-		setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		contentView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		setEditMode();
 	}
 
 	public void setTimestamp(long timestamp) {
@@ -70,6 +72,11 @@ public class TextEditorCard extends CardView {
 		headerView.setTextColor(color);
 	}
 
+	public void enableEditMode(boolean enable) {
+		isInEditMode = enable;
+		setEditMode();
+	}
+
 	public static final ButterKnife.Setter<TextEditorCard, Palette.Swatch> headerColorSetter =
 		new ButterKnife.Setter<TextEditorCard, Palette.Swatch>() {
 			@Override
@@ -79,4 +86,14 @@ public class TextEditorCard extends CardView {
 				}
 			}
 		};
+
+	private void setEditMode() {
+		if (isInEditMode) {
+			setVisibility(View.VISIBLE);
+			setClickable(true);
+		} else {
+			setVisibility(TextUtils.isEmpty(contentView.getText()) ? View.GONE : View.VISIBLE);
+			setClickable(false);
+		}
+	}
 }

@@ -59,8 +59,13 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		safelySetTitle(collectionName);
+		fab.setVisibility(View.VISIBLE);
+	}
 
-		showFab();
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setEditMode();
 	}
 
 	@Override
@@ -156,11 +161,11 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
 		isInEditMode = !isInEditMode;
-		showFab();
+		setEditMode();
 	}
 
-	private void showFab() {
+	private void setEditMode() {
+		((GameCollectionFragment) getFragment()).enableEditMode(isInEditMode);
 		fab.setImageResource(isInEditMode ? R.drawable.fab_done : R.drawable.fab_edit);
-		fab.setVisibility(View.VISIBLE);
 	}
 }
