@@ -3,10 +3,13 @@ package com.boardgamegeek.ui;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -22,19 +25,24 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.TaskUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import butterknife.OnClick;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class GameCollectionActivity extends HeroActivity implements Callback {
 	private long internalId;
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
+	@State boolean isInEditMode;
 
 	@DebugLog
 	@Override
@@ -48,7 +56,17 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		String collectionName = intent.getStringExtra(ActivityUtils.KEY_COLLECTION_NAME);
 		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
 
+		Icepick.restoreInstanceState(this, savedInstanceState);
+
 		safelySetTitle(collectionName);
+
+		showFab();
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@DebugLog
@@ -104,6 +122,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@Override
 	public void onSuccessfulLoad(Palette palette) {
 		((GameCollectionFragment) getFragment()).onPaletteGenerated(palette);
+		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
 	}
 
 	@DebugLog
@@ -126,9 +145,22 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		updateRefreshStatus(false);
 	}
 
+	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionItemDeletedEvent event) {
 		Toast.makeText(this, R.string.msg_collection_item_deleted, Toast.LENGTH_LONG).show();
 		SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+	}
+
+	@DebugLog
+	@OnClick(R.id.fab)
+	public void onFabClicked() {
+		isInEditMode = !isInEditMode;
+		showFab();
+	}
+
+	private void showFab() {
+		fab.setImageResource(isInEditMode ? R.drawable.fab_done : R.drawable.fab_edit);
+		fab.setVisibility(View.VISIBLE);
 	}
 }

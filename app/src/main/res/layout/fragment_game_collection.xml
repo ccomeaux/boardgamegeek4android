@@ -210,9 +210,11 @@
 
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/game_detail_row_height"
+		android:layout_height="wrap_content"
 		android:gravity="center"
+		android:minHeight="@dimen/game_detail_row_height"
 		android:orientation="horizontal"
+		android:paddingBottom="@dimen/fab_buffer"
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal">
 
