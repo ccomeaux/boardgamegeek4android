@@ -106,6 +106,7 @@
 	<string name="are_you_sure_timer_reset">Are you sure you want to reset the timer and lose the current length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
+	<string name="are_you_sure_cancel_collection_edit">Are you sure you want to discard all of the changes you\'ve made to this collection item?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>

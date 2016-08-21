@@ -151,10 +151,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@DebugLog
 	@Override
 	public void onStop() {
-		if (needsUploading) {
-			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
-			needsUploading = false;
-		}
 		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
@@ -233,6 +229,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		conditionCard.enableEditMode(enable);
 		wantPartsCard.enableEditMode(enable);
 		hasPartsCard.enableEditMode(enable);
+		if (!enable && needsUploading) {
+			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+			needsUploading = false;
+		}
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })

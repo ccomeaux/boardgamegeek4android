@@ -15,12 +15,14 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemDeletedEvent;
+import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.DeleteCollectionItemTask;
+import com.boardgamegeek.tasks.ResetCollectionItemTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -43,6 +45,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	private String gameName;
 	private String imageUrl;
 	@State boolean isInEditMode;
+	private boolean isItemUpdated;
 
 	@DebugLog
 	@Override
@@ -72,6 +75,24 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (isInEditMode && isItemUpdated) {
+			DialogUtils.createConfirmationDialog(this,
+				R.string.are_you_sure_cancel_collection_edit,
+				new OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						ResetCollectionItemTask task =
+							new ResetCollectionItemTask(GameCollectionActivity.this, internalId, gameId);
+						TaskUtils.executeAsyncTask(task);
+						GameCollectionActivity.super.onBackPressed();
+					}
+				}).show();
+		} else {
+			super.onBackPressed();
+		}
 	}
 
 	@DebugLog
@@ -155,6 +176,15 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	public void onEvent(CollectionItemDeletedEvent event) {
 		Toast.makeText(this, R.string.msg_collection_item_deleted, Toast.LENGTH_LONG).show();
 		SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+		isItemUpdated = false;
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CollectionItemUpdatedEvent event) {
+		if (internalId == event.getInternalId()) {
+			isItemUpdated = true;
+		}
 	}
 
 	@DebugLog

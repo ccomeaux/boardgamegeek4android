@@ -17,7 +17,7 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 	protected final Context context;
 	protected final int gameId;
 	protected final int collectionId;
-	protected final long internalId;
+	protected long internalId;
 
 	public UpdateCollectionItemTask(Context context, int gameId, int collectionId, long internalId) {
 		this.context = context;
@@ -30,7 +30,6 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 	@Override
 	protected Void doInBackground(Void... params) {
 		final ContentResolver resolver = context.getContentResolver();
-		long internalId = this.internalId;
 		if (internalId == 0) {
 			internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
 		}
@@ -42,7 +41,7 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 
 	@Override
 	protected void onPostExecute(Void aVoid) {
-		EventBus.getDefault().post(new CollectionItemUpdatedEvent());
+		EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
 	}
 
 	@DebugLog
