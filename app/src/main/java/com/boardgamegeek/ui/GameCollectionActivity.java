@@ -174,9 +174,11 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionItemDeletedEvent event) {
-		Toast.makeText(this, R.string.msg_collection_item_deleted, Toast.LENGTH_LONG).show();
-		SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
-		isItemUpdated = false;
+		if (internalId == event.getInternalId()) {
+			Toast.makeText(this, R.string.msg_collection_item_deleted, Toast.LENGTH_LONG).show();
+			SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+			isItemUpdated = false;
+		}
 	}
 
 	@SuppressWarnings("unused")
