@@ -470,9 +470,10 @@
 	<string name="acquired">Acquired</string>
 	<string name="currently_worth">currently worth</string>
 	<string name="wishlist">Wishlist</string>
-	<string name="condition">Trade Condition</string>
-	<string name="want_parts">Want Parts</string>
-	<string name="has_parts">Has Parts</string>
+	<string name="wishlist_comment">Wishlist Comment</string>
+	<string name="trade_condition">Trade Condition</string>
+	<string name="want_parts_list">Want Parts List</string>
+	<string name="has_parts_list">Has Parts List</string>
 	<string name="msg_colors_generated">Colors generated!</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>

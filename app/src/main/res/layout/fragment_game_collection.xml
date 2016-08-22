@@ -186,28 +186,28 @@
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:headerText="@string/wishlist"/>
+		app:headerText="@string/wishlist_comment"/>
 
 	<com.boardgamegeek.ui.widget.TextEditorCard
 		android:id="@+id/condition_card"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:headerText="@string/condition"/>
+		app:headerText="@string/trade_condition"/>
 
 	<com.boardgamegeek.ui.widget.TextEditorCard
 		android:id="@+id/want_parts_card"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:headerText="@string/want_parts"/>
+		app:headerText="@string/want_parts_list"/>
 
 	<com.boardgamegeek.ui.widget.TextEditorCard
 		android:id="@+id/has_parts_card"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:headerText="@string/has_parts"/>
+		app:headerText="@string/has_parts_list"/>
 
 	<LinearLayout
 		android:layout_width="match_parent"
