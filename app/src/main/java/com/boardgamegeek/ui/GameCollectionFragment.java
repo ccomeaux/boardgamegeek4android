@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -63,6 +64,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import timber.log.Timber;
 
 public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor> {
@@ -117,6 +120,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 	private boolean needsUploading;
+	@State boolean isItemEditable;
 
 	@DebugLog
 	@Override
@@ -125,6 +129,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		collectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@DebugLog
@@ -153,6 +158,14 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+
+	@DebugLog
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@DebugLog
@@ -225,10 +238,15 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	public void enableEditMode(boolean enable) {
-		wishlistCard.enableEditMode(enable);
-		conditionCard.enableEditMode(enable);
-		wantPartsCard.enableEditMode(enable);
-		hasPartsCard.enableEditMode(enable);
+		boolean clickable = enable && isItemEditable;
+		statusContainer.setClickable(clickable);
+		commentContainer.setClickable(clickable);
+		ratingContainer.setClickable(clickable);
+		privateInfoContainer.setClickable(clickable);
+		wishlistCard.enableEditMode(clickable);
+		conditionCard.enableEditMode(clickable);
+		wantPartsCard.enableEditMode(clickable);
+		hasPartsCard.enableEditMode(clickable);
 		if (!enable && needsUploading) {
 			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
@@ -434,27 +452,25 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private void updateUi(CollectionItem item) {
 		notifyChange(item);
 
+		isItemEditable = collectionId > 0 || item.dirtyTimestamp > 0;
+
 		year.setText(item.getYearDescription());
 		lastModified.setTimestamp(item.dirtyTimestamp > 0 ? item.dirtyTimestamp :
 			item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
 
-		ratingContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		rating.setText(item.getRatingDescription());
 		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 		ratingTimestampView.setTimestamp(item.ratingTimestamp);
 
-		statusContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		statusView.setText(item.getStatusDescription());
 		statusView.setTag(R.id.status, item.getStatuses());
 		statusView.setTag(R.id.wishlist_priority, item.getWishlistPriority());
 
-		commentContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
 		PresentationUtils.setTextOrHide(comment, item.comment);
 		commentTimestampView.setTimestamp(item.commentTimestamp);
 
-		privateInfoContainer.setClickable(isItemEditable(item.dirtyTimestamp));
 		privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 		privateInfo.setText(item.getPrivateInfo());
 		privateInfo.setTag(R.id.price_currency, item.getPriceCurrency());
@@ -479,10 +495,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
 		updated.setTimestamp(item.updated);
-	}
-
-	private boolean isItemEditable(long dirtyTimestamp) {
-		return collectionId != 0 || dirtyTimestamp > 0;
 	}
 
 	private class CollectionItem {
@@ -534,7 +546,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		// int STATUS_WANT_TO_BUY = 27;
 		final int STATUS_WISHLIST = 28;
 		// int STATUS_WANT_TO_PLAY = 29;
-		final int STATUS_PREORDERED = 30;
+		final int STATUS_PRE_ORDERED = 30;
 		final int STATUS_WISHLIST_PRIORITY = 31;
 		final int NUM_PLAYS = 32;
 		final int RATING_DIRTY_TIMESTAMP = 33;
@@ -626,7 +638,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 			statuses = new ArrayList<>();
 			statusDescriptions = new ArrayList<>();
-			for (int i = STATUS_OWN; i <= STATUS_PREORDERED; i++) {
+			for (int i = STATUS_OWN; i <= STATUS_PRE_ORDERED; i++) {
 				if (cursor.getInt(i) == 1) {
 					statuses.add(r.getStringArray(R.array.collection_status_filter_values)[i - STATUS_OWN]);
 					if (i == STATUS_WISHLIST) {
