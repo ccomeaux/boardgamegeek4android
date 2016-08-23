@@ -9,6 +9,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ public class EditTextDialogFragment extends DialogFragment {
 
 	private static final String KEY_TITLE_ID = "title_id";
 	@StringRes private int titleResId;
+	private String title;
 	private ViewGroup root;
 	private EditTextDialogListener listener;
 	private boolean isUsername;
@@ -45,7 +47,7 @@ public class EditTextDialogFragment extends DialogFragment {
 		EditTextDialogListener listener) {
 
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, false, false);
+		fragment.initialize(titleResId, null, root, listener, false, false);
 		return fragment;
 	}
 
@@ -56,7 +58,18 @@ public class EditTextDialogFragment extends DialogFragment {
 		EditTextDialogListener listener) {
 
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, false, true);
+		fragment.initialize(titleResId, null, root, listener, false, true);
+		return fragment;
+	}
+
+	@NonNull
+	public static EditTextDialogFragment newLongFormInstance(
+		String title,
+		@Nullable ViewGroup root,
+		EditTextDialogListener listener) {
+
+		EditTextDialogFragment fragment = new EditTextDialogFragment();
+		fragment.initialize(0, title, root, listener, false, true);
 		return fragment;
 	}
 
@@ -67,18 +80,20 @@ public class EditTextDialogFragment extends DialogFragment {
 		EditTextDialogListener listener) {
 
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, true, false);
+		fragment.initialize(titleResId, null, root, listener, true, false);
 		return fragment;
 	}
 
 	private void initialize(
 		@StringRes int titleResId,
+		String title,
 		@Nullable ViewGroup root,
 		EditTextDialogListener listener,
 		boolean isUsername,
 		boolean isLongForm) {
 
 		this.titleResId = titleResId;
+		this.title = title;
 		this.root = root;
 		this.listener = listener;
 		this.isUsername = isUsername;
@@ -108,6 +123,8 @@ public class EditTextDialogFragment extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		if (titleResId > 0) {
 			builder.setTitle(titleResId);
+		} else if (!TextUtils.isEmpty(title)) {
+			builder.setTitle(title);
 		}
 		builder.setView(rootView)
 			.setNegativeButton(R.string.cancel, null)

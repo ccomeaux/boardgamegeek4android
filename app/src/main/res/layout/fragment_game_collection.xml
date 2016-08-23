@@ -5,6 +5,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:animateLayoutChanges="true"
 	android:orientation="vertical"
 	tools:context=".ui.GameCollectionActivity">
 
@@ -17,9 +18,11 @@
 		android:orientation="horizontal">
 
 		<LinearLayout
+			android:id="@+id/status_container"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
+			android:background="?attr/selectableItemBackground"
 			android:gravity="center"
 			android:orientation="vertical">
 
@@ -178,123 +181,41 @@
 		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 	</android.support.v7.widget.CardView>
 
-	<android.support.v7.widget.CardView
-		android:id="@+id/wishlist_container"
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/wishlist_card"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone"
-		tools:visibility="visible">
+		app:headerText="@string/wishlist_comment"/>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/card_header_wishlist"
-				style="@style/Text.Header.Card"
-				android:layout_width="match_parent"
-				android:text="@string/wishlist"/>
-
-			<TextView
-				android:id="@+id/wishlist_comment"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingBottom="@dimen/padding_half"
-				tools:text="I wish I had this game. It looks gonzo!"/>
-		</LinearLayout>
-	</android.support.v7.widget.CardView>
-
-	<android.support.v7.widget.CardView
-		android:id="@+id/condition_container"
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/condition_card"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone"
-		tools:visibility="visible">
+		app:headerText="@string/trade_condition"/>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/card_header_condition"
-				style="@style/Text.Header.Card"
-				android:layout_width="match_parent"
-				android:text="@string/condition"/>
-
-			<TextView
-				android:id="@+id/condition_comment"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingBottom="@dimen/padding_half"
-				tools:text="Trade condition"/>
-		</LinearLayout>
-	</android.support.v7.widget.CardView>
-
-	<android.support.v7.widget.CardView
-		android:id="@+id/want_parts_container"
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/want_parts_card"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone"
-		tools:visibility="visible">
+		app:headerText="@string/want_parts_list"/>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/card_header_want_parts"
-				style="@style/Text.Header.Card"
-				android:layout_width="match_parent"
-				android:text="@string/want_parts"/>
-
-			<TextView
-				android:id="@+id/want_parts_comment"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingBottom="@dimen/padding_half"
-				tools:text="I want some parts."/>
-		</LinearLayout>
-	</android.support.v7.widget.CardView>
-
-	<android.support.v7.widget.CardView
-		android:id="@+id/has_parts_container"
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/has_parts_card"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone"
-		tools:visibility="visible">
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/card_header_has_parts"
-				style="@style/Text.Header.Card"
-				android:layout_width="match_parent"
-				android:text="@string/has_parts"/>
-
-			<TextView
-				android:id="@+id/has_parts_comment"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingBottom="@dimen/padding_half"
-				tools:text="I have some parts."/>
-		</LinearLayout>
-	</android.support.v7.widget.CardView>
+		app:headerText="@string/has_parts_list"/>
 
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/game_detail_row_height"
+		android:layout_height="wrap_content"
 		android:gravity="center"
+		android:minHeight="@dimen/game_detail_row_height"
 		android:orientation="horizontal"
+		android:paddingBottom="@dimen/fab_buffer"
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal">
 

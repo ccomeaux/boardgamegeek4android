@@ -31,6 +31,7 @@ import java.util.List;
 import timber.log.Timber;
 
 public class ActivityUtils {
+	public static final String KEY_INTERNAL_ID = "_ID";
 	public static final String KEY_TITLE = "TITLE";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";

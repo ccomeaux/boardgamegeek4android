@@ -7,32 +7,35 @@ import com.boardgamegeek.service.model.CollectionItem;
 
 import okhttp3.OkHttpClient;
 
-public class CollectionCommentUploadTask extends CollectionTextUploadTask {
-	public CollectionCommentUploadTask(OkHttpClient client) {
+public class CollectionWishlistCommentUploadTask extends CollectionTextUploadTask {
+	public CollectionWishlistCommentUploadTask(OkHttpClient client) {
 		super(client);
 	}
 
+	@Override
 	@NonNull
 	protected String getTextColumn() {
-		return Collection.COMMENT;
+		return Collection.WISHLIST_COMMENT;
 	}
 
 	@Override
 	public String getTimestampColumn() {
-		return Collection.COMMENT_DIRTY_TIMESTAMP;
+		return Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP;
 	}
 
+	@Override
 	@NonNull
 	protected String getFieldName() {
-		return "comment";
+		return "wishlistcomment";
 	}
 
+	@Override
 	protected String getValue(CollectionItem collectionItem) {
-		return collectionItem.getComment();
+		return collectionItem.getWishlistComment();
 	}
 
 	@Override
 	public boolean isDirty() {
-		return collectionItem.getCommentTimestamp() > 0;
+		return collectionItem.getWishlistCommentDirtyTimestamp() > 0;
 	}
 }

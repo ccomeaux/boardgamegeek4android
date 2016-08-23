@@ -4,9 +4,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import hugo.weaving.DebugLog;
 
@@ -14,11 +17,31 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 	protected final Context context;
 	protected final int gameId;
 	protected final int collectionId;
+	protected long internalId;
 
-	public UpdateCollectionItemTask(Context context, int gameId, int collectionId) {
+	public UpdateCollectionItemTask(Context context, int gameId, int collectionId, long internalId) {
+		this.context = context;
 		this.gameId = gameId;
 		this.collectionId = collectionId;
-		this.context = context;
+		this.internalId = internalId;
+	}
+
+	@DebugLog
+	@Override
+	protected Void doInBackground(Void... params) {
+		final ContentResolver resolver = context.getContentResolver();
+		if (internalId == 0) {
+			internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
+		}
+		if (internalId != BggContract.INVALID_ID) {
+			updateResolver(resolver, internalId);
+		}
+		return null;
+	}
+
+	@Override
+	protected void onPostExecute(Void aVoid) {
+		EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
 	}
 
 	@DebugLog
@@ -41,4 +64,6 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 		}
 		return internalId;
 	}
+
+	protected abstract void updateResolver(ContentResolver resolver, long internalId);
 }

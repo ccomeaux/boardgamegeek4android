@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -44,8 +45,12 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -61,10 +66,12 @@ import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +126,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.collection_card) View collectionCard;
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
+	@BindView(R.id.collection_add_button) TextView collectionAddButton;
 
 	@BindView(R.id.plays_card) View playsCard;
 	@BindView(R.id.plays_root) View playsRoot;
@@ -209,6 +217,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
+	}
+
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -571,17 +592,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
+		collectionCard.setVisibility(View.VISIBLE);
+		collectionContainer.removeViews(2, collectionContainer.getChildCount() - 2);
 		if (cursor.moveToFirst()) {
-			collectionCard.setVisibility(View.VISIBLE);
-			collectionContainer.removeViews(1, collectionContainer.getChildCount() - 1);
+			collectionAddButton.setVisibility(View.GONE);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
 
+				final long internalId = cursor.getLong(CollectionQuery._ID);
 				final int gameId = Games.getGameId(gameUri);
 				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
 				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);
 				final String imageUrl = cursor.getString(CollectionQuery.COLLECTION_IMAGE_URL);
-				row.bind(gameId, gameName, collectionId, yearPublished, imageUrl);
+				row.bind(internalId, gameId, gameName, collectionId, yearPublished, imageUrl);
 
 				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL_URL);
 				final String collectionName = cursor.getString(CollectionQuery.COLLECTION_NAME);
@@ -610,7 +633,26 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
+		} else {
+			collectionAddButton.setVisibility(View.VISIBLE);
 		}
+	}
+
+	@OnClick(R.id.collection_add_button)
+	void onAddToCollectionClick() {
+		CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
+			collectionContainer,
+			new CollectionStatusDialogListener() {
+				@Override
+				public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
+					int gameId = Games.getGameId(gameUri);
+					AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), gameId, selectedStatuses, wishlistPriority);
+					TaskUtils.executeAsyncTask(task);
+				}
+			}
+		);
+		statusDialogFragment.setTitle(R.string.title_add_a_copy);
+		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
 	}
 
 	@DebugLog
@@ -753,6 +795,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		descriptionView.setMaxLines(isDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		descriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
 			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
+	}
+
+	@Subscribe
+	public void onEvent(CollectionItemUpdatedEvent event) {
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 	}
 
 	@SuppressWarnings("unused")
@@ -899,6 +946,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS,
 			Collection.COMMENT, Games.YEAR_PUBLISHED, Collection.RATING, Collection.IMAGE_URL };
 		int _TOKEN = 0x20;
+		int _ID = 0;
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int COLLECTION_YEAR = 3;

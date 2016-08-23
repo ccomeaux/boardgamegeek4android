@@ -3,8 +3,9 @@ Release Notes
 
 Coming Soon...
 --------------
- * Darker (and more mysterious!) look
+ * Add and remove items in your collection
  * Modify your collection item's private information
+ * Darker (and more mysterious!) look
  * Better player stats
  * Spiffy up the collection filter dialogs
  * Better looking help screens

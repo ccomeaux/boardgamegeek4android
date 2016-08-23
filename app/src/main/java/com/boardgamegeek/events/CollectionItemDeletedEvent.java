@@ -1,9 +1,9 @@
 package com.boardgamegeek.events;
 
-public class CollectionItemUpdatedEvent {
+public class CollectionItemDeletedEvent {
 	private final long internalId;
 
-	public CollectionItemUpdatedEvent(long internalId) {
+	public CollectionItemDeletedEvent(long internalId) {
 		this.internalId = internalId;
 	}
 

@@ -7,32 +7,35 @@ import com.boardgamegeek.service.model.CollectionItem;
 
 import okhttp3.OkHttpClient;
 
-public class CollectionCommentUploadTask extends CollectionTextUploadTask {
-	public CollectionCommentUploadTask(OkHttpClient client) {
+public class CollectionTradeConditionUploadTask extends CollectionTextUploadTask {
+	public CollectionTradeConditionUploadTask(OkHttpClient client) {
 		super(client);
 	}
 
+	@Override
 	@NonNull
 	protected String getTextColumn() {
-		return Collection.COMMENT;
+		return Collection.CONDITION;
 	}
 
 	@Override
 	public String getTimestampColumn() {
-		return Collection.COMMENT_DIRTY_TIMESTAMP;
+		return Collection.TRADE_CONDITION_DIRTY_TIMESTAMP;
 	}
 
+	@Override
 	@NonNull
 	protected String getFieldName() {
-		return "comment";
+		return "conditiontext";
 	}
 
+	@Override
 	protected String getValue(CollectionItem collectionItem) {
-		return collectionItem.getComment();
+		return collectionItem.getTradeCondition();
 	}
 
 	@Override
 	public boolean isDirty() {
-		return collectionItem.getCommentTimestamp() > 0;
+		return collectionItem.getTradeConditionDirtyTimestamp() > 0;
 	}
 }

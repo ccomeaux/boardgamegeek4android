@@ -10,21 +10,25 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class UpdateCollectionItemRatingTask extends UpdateCollectionItemTask {
-	private final double rating;
+public class UpdateCollectionItemTextTask extends UpdateCollectionItemTask {
+	private final String text;
+	private String textColumn;
+	private String timestampColumn;
 
 	@DebugLog
-	public UpdateCollectionItemRatingTask(Context context, int gameId, int collectionId, long internalId, double rating) {
+	public UpdateCollectionItemTextTask(Context context, int gameId, int collectionId, long internalId, String text, String textColumn, String timestampColumn) {
 		super(context, gameId, collectionId, internalId);
-		this.rating = rating;
+		this.text = text;
+		this.textColumn = textColumn;
+		this.timestampColumn = timestampColumn;
 	}
 
 	@DebugLog
 	@Override
 	protected void updateResolver(@NonNull ContentResolver resolver, long internalId) {
 		ContentValues values = new ContentValues(2);
-		values.put(Collection.RATING, rating);
-		values.put(Collection.RATING_DIRTY_TIMESTAMP, System.currentTimeMillis());
+		values.put(textColumn, text);
+		values.put(timestampColumn, System.currentTimeMillis());
 		resolver.update(Collection.buildUri(internalId), values, null, null);
 	}
 
@@ -32,6 +36,6 @@ public class UpdateCollectionItemRatingTask extends UpdateCollectionItemTask {
 	@Override
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
-		Timber.i("Updated game ID %1$s, collection ID %2$s with rating %3$s", gameId, collectionId, rating);
+		Timber.i("Updated game ID %1$s, collection ID %2$s with text \"%3$s\"", gameId, collectionId, text);
 	}
 }

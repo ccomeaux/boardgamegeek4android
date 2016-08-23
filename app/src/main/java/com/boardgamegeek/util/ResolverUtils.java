@@ -288,6 +288,10 @@ public class ResolverUtils {
 		return null;
 	}
 
+	public static String generateWhereNullOrEmpty(String columnName) {
+		return "(" + columnName + " IS NULL OR " + columnName + "='')";
+	}
+
 	private static void closeCursor(Cursor cursor) {
 		if (cursor != null && !cursor.isClosed()) {
 			cursor.close();
