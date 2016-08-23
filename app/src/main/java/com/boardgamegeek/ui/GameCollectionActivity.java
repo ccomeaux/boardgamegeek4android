@@ -97,7 +97,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 
 	@DebugLog
 	@Override
-	protected Fragment onCreatePane(Intent intent) {
+	protected Fragment onCreatePane() {
 		return new GameCollectionFragment();
 	}
 

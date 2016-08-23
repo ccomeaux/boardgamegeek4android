@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -139,8 +140,8 @@ public class GameDetailRow extends LinearLayout {
 	public static final ButterKnife.Setter<GameDetailRow, Palette.Swatch> colorIconSetter =
 		new ButterKnife.Setter<GameDetailRow, Palette.Swatch>() {
 			@Override
-			public void set(GameDetailRow view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
+			public void set(@NonNull GameDetailRow view, Palette.Swatch value, int index) {
+				if (value != null) {
 					view.colorIcon(value);
 				}
 			}

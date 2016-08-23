@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -53,7 +52,7 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	}
 
 	protected void createFragment() {
-		fragment = onCreatePane(getIntent());
+		fragment = onCreatePane();
 		if (fragment != null) {
 			fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
 			getSupportFragmentManager()
@@ -67,7 +66,7 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	 * Called in <code>onCreate</code> when the fragment constituting this activity is needed. The returned fragment's
 	 * arguments will be set to the intent used to invoke this activity.
 	 */
-	protected abstract Fragment onCreatePane(Intent intent);
+	protected abstract Fragment onCreatePane();
 
 	protected Fragment getFragment() {
 		return fragment;

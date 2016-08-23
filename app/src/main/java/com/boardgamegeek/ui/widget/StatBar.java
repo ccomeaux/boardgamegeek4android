@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -67,8 +68,8 @@ public class StatBar extends FrameLayout {
 	public static final ButterKnife.Setter<StatBar, Palette.Swatch> colorSetter =
 		new ButterKnife.Setter<StatBar, Palette.Swatch>() {
 			@Override
-			public void set(StatBar view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
+			public void set(@NonNull StatBar view, Palette.Swatch value, int index) {
+				if (value != null) {
 					view.setColor(value.getRgb());
 				}
 			}

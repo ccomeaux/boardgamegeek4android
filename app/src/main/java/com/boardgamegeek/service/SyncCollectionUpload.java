@@ -223,7 +223,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			for (CollectionUploadTask task : uploadTasks) {
 				if (processUploadTask(task, collectionItem, contentValues)) return;
 			}
-			if (contentValues != null && contentValues.size() > 0) {
+			if (contentValues.size() > 0) {
 				resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
 				notifySuccess(collectionItem.getCollectionName());
 			}

@@ -402,7 +402,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	@OnClick(R.id.fab)
-	protected void onFabClicked(View v) {
+	protected void onFabClicked() {
 		// convenience for overriding
 	}
 

@@ -73,7 +73,7 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@DebugLog
 	@Override
-	protected Fragment onCreatePane(Intent intent) {
+	protected Fragment onCreatePane() {
 		return new GameFragment();
 	}
 
