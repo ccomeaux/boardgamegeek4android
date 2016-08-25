@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout
-	style="@style/RowContainer.VeryTall"
+	style="@style/RowContainer.Tall"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -12,26 +12,41 @@
 
 	<TextView
 		android:id="@+id/forum_title"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:paddingBottom="4dp"
 		android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
 		tools:text="Strategy"/>
 
-	<TextView
-		android:id="@+id/number_of_threads"
-		android:layout_width="wrap_content"
+	<LinearLayout
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-		tools:text="42 threads"/>
+		android:gravity="center_vertical"
+		android:orientation="horizontal">
 
-	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/last_post_date"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-		android:textColor="@color/secondary_text"
-		app:format="@string/forum_last_post"
-		app:hideWhenEmpty="true"
-		app:isForumTimestamp="true"
-		tools:text="3 days ago"/>
+		<TextView
+			android:id="@+id/number_of_threads"
+			style="@style/SecondaryTextWithImage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_forums_small"
+			tools:text="42"/>
+
+		<View
+			android:layout_width="1dp"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="@dimen/padding_standard"
+			android:layout_marginRight="@dimen/padding_standard"
+			android:background="@color/list_divider"/>
+
+		<com.boardgamegeek.ui.widget.TimestampView
+			android:id="@+id/last_post_date"
+			style="@style/SecondaryTextWithImage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_clock_small"
+			app:hideWhenEmpty="true"
+			app:isForumTimestamp="true"
+			tools:text="3 days ago"/>
+	</LinearLayout>
 </LinearLayout>

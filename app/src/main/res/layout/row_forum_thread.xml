@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout style="@style/RowContainer.VeryTall"
+<LinearLayout style="@style/RowContainer.Tall"
 			  xmlns:android="http://schemas.android.com/apk/res/android"
 			  xmlns:app="http://schemas.android.com/apk/res-auto"
+			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="wrap_content"
 			  android:background="?android:attr/selectableItemBackground"
@@ -11,7 +12,9 @@
 		android:id="@+id/subject"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+		android:paddingBottom="4dp"
+		android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+		tools:text="The Best way to Play!"/>
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -20,45 +23,42 @@
 
 		<TextView
 			android:id="@+id/author"
+			style="@style/SecondaryTextWithImage"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+			android:drawableLeft="@drawable/ic_user_small"
+			tools:text="ccomeaux"/>
 
-		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/post_date"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:gravity="end"
-			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-			android:textColor="@color/secondary_text"
-			app:format="@string/forum_thread_created"
-			app:isForumTimestamp="true"/>
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal">
+		<View
+			android:layout_width="1dp"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="@dimen/padding_standard"
+			android:layout_marginRight="@dimen/padding_standard"
+			android:background="@color/list_divider"/>
 
 		<TextView
 			android:id="@+id/number_of_articles"
+			style="@style/SecondaryTextWithImage"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+			android:drawableLeft="@drawable/ic_forums_small"
+			tools:text="42"/>
+
+		<View
+			android:layout_width="1dp"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="@dimen/padding_standard"
+			android:layout_marginRight="@dimen/padding_standard"
+			android:background="@color/list_divider"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/last_post_date"
-			android:layout_width="0dp"
+			style="@style/SecondaryTextWithImage"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:gravity="end"
-			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-			android:textColor="@color/secondary_text"
-			app:format="@string/forum_last_post"
-			app:isForumTimestamp="true"/>
+			android:drawableLeft="@drawable/ic_clock_small"
+			app:isForumTimestamp="true"
+			tools:text="Yesterday"/>
 	</LinearLayout>
 
 </LinearLayout>

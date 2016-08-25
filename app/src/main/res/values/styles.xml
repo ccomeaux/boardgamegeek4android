@@ -565,4 +565,14 @@
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 		<item name="android:gravity">center</item>
 	</style>
+
+	<style name="SecondaryTextWithImage">
+		<item name="android:drawablePadding">4dp</item>
+		<item name="android:drawableTint">@color/secondary_text</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:maxLines">1</item>
+		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+		<item name="android:textColor">@color/secondary_text</item>
+		<item name="android:textSize">12sp</item>
+	</style>
 </resources>
