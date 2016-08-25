@@ -53,7 +53,7 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
 					break;
 				case PlayersSorterFactory.TYPE_WINS:
-					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
+					menu.findItem(R.id.menu_sort_wins).setChecked(true);
 					break;
 				case PlayersSorterFactory.TYPE_NAME:
 				default:
