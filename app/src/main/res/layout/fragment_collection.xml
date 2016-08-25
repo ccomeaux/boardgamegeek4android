@@ -117,7 +117,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:singleLine="true"
-						android:textAppearance="@style/Text.ActionBar"
+						style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
 						tools:text="42"/>
 
 					<TextView
@@ -125,7 +125,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:singleLine="true"
-						android:textAppearance="@style/Text.ActionBar.Small"
+						style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
 						tools:text="by Name"/>
 
 				</LinearLayout>

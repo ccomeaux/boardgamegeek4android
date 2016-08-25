@@ -183,16 +183,6 @@
 		<item name="android:scaleType">center</item>
 	</style>
 
-	<style name="Text.ActionBar">
-		<item name="android:textColor">@color/actionbar_text</item>
-		<item name="android:textSize">18sp</item>
-	</style>
-
-	<style name="Text.ActionBar.Small">
-		<item name="android:textColor">@color/actionbar_text</item>
-		<item name="android:textSize">12sp</item>
-	</style>
-
 	<style name="DrawerItemContainer">
 		<item name="android:background">?attr/selectableItemBackground</item>
 		<item name="android:gravity">center_vertical</item>

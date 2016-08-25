@@ -17,7 +17,6 @@
 	<color name="secondary_text">#8a000000</color>
 	<color name="inverse_text">#ffffff</color>
 	<color name="inverse_text_body">#deffffff</color>
-	<color name="actionbar_text">@color/primary_text_default_material_dark</color>
 
 	<color name="black_overlay">#CC000000</color>
 	<color name="black_overlay_light">#6000</color>
