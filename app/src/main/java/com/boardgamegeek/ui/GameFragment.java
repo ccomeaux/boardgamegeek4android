@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
@@ -99,6 +101,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
+	@ColorInt private int iconColor;
 
 	private Unbinder unbinder;
 
@@ -474,11 +477,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (palette == null || primaryInfoContainer == null || !isAdded()) {
 			return;
 		}
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, ContextCompat.getColor(getContext(), R.color.info_background));
 		primaryInfoContainer.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 
 		swatch = PaletteUtils.getIconSwatch(palette);
+		iconColor = swatch.getRgb();
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
 
@@ -750,6 +754,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		Intent intent = new Intent(getActivity(), ColorsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
 		startActivity(intent);
 	}
 

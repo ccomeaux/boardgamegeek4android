@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
+import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,7 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -45,6 +46,7 @@ import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter.Callback;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -77,6 +79,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
 	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
+	private int iconColor;
 
 	@DebugLog
 	@Override
@@ -91,6 +94,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
+		colorFab();
 		setUpRecyclerView();
 		return rootView;
 	}
@@ -170,8 +174,10 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
-		gameId = Games.getGameId(uri);
+		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		gameId = Games.getGameId(intent.getData());
+		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, 0);
+		colorFab();
 
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 	}
@@ -319,6 +325,13 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			});
 		}
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
+	}
+
+	@DebugLog
+	private void colorFab() {
+		if (fab != null && iconColor != 0) {
+			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
+		}
 	}
 
 	@DebugLog
