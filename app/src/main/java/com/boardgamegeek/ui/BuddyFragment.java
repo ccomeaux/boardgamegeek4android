@@ -78,6 +78,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@BindView(R.id.nickname) TextView nicknameView;
 	@BindView(R.id.collection_card) View collectionCard;
 	@BindView(R.id.plays_label) TextView playsView;
+	@BindView(R.id.wins_label) TextView winsView;
+	@BindView(R.id.wins_percentage) TextView winPercentageView;
 	@BindView(R.id.color_container) LinearLayout colorContainer;
 	@BindView(R.id.updated) TimestampView updatedView;
 	private int defaultTextColor;
@@ -319,7 +321,10 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		Player player = Player.fromCursor(cursor);
 		final int playCount = player.getPlayCount();
+		final int winCount = player.getWinCount();
 		playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
+		winsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.wins_suffix, winCount, winCount));
+		winPercentageView.setText(getString(R.string.percentage, (int) ((double) winCount / playCount * 100)));
 	}
 
 	@DebugLog

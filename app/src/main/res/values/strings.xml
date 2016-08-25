@@ -487,6 +487,7 @@
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
 	<string name="play_stat_win_percentage">%1$,d/%2$,d (%3$,d%%)</string>
+	<string name="percentage">%,d%%</string>
 	<string name="title_win_skill">Skill</string>
 	<string name="winnable">Winnable</string>
 	<string name="all">All</string>
