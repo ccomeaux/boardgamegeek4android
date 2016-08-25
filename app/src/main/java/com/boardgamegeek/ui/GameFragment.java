@@ -334,8 +334,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case PlaysQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlaysQuery.PROJECTION,
-					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?",
+				String selection = PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?";
+				if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+					selection += " AND " + Plays.INCOMPLETE + "!=1";
+				}
+				loader = new CursorLoader(getActivity(),
+					Plays.CONTENT_URI,
+					PlaysQuery.PROJECTION,
+					selection,
 					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 				break;
 			case ColorQuery._TOKEN:
@@ -797,6 +803,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
+	@SuppressWarnings("unused")
 	@Subscribe
 	public void onEvent(CollectionItemUpdatedEvent event) {
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
