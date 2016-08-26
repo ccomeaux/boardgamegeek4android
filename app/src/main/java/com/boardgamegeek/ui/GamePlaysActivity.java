@@ -22,9 +22,9 @@ import icepick.Icepick;
 import icepick.State;
 
 public class GamePlaysActivity extends SimpleSinglePaneActivity {
-	private int mGameId;
-	private String mGameName;
-	@State int mCount = -1;
+	private int gameId;
+	private String gameName;
+	@State int playCount = -1;
 
 	@DebugLog
 	@Override
@@ -32,13 +32,13 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
-		mGameId = BggContract.Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = BggContract.Games.getGameId(getIntent().getData());
+		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
-		if (!TextUtils.isEmpty(mGameName)) {
+		if (!TextUtils.isEmpty(gameName)) {
 			ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
-				actionBar.setSubtitle(mGameName);
+				actionBar.setSubtitle(gameName);
 			}
 		}
 	}
@@ -63,7 +63,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		String countDescription = mCount <= 0 ? "" : String.valueOf(mCount);
+		String countDescription = playCount <= 0 ? "" : String.valueOf(playCount);
 		ToolbarUtils.setActionBarText(menu, R.id.menu_text, countDescription);
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -73,23 +73,25 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+				ActivityUtils.navigateUpToGame(this, gameId, gameName);
 				finish();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(sticky = true)
 	public void onEvent(PlaysCountChangedEvent event) {
-		mCount = event.getCount();
+		playCount = event.getCount();
 		supportInvalidateOptionsMenu();
 	}
 }

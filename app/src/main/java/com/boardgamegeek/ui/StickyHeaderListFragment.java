@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
@@ -128,12 +129,12 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		ensureList();
 		final StickyListHeadersListView listView = getListView();
 		int padding = getResources().getDimensionPixelSize(shouldPadForFab() ? R.dimen.fab_buffer : R.dimen.padding_standard);
+		assert listView != null;
 		listView.setClipToPadding(false);
 		listView.setPadding(0, 0, 0, padding);
 		if (dividerShown()) {
 			int height = getResources().getDimensionPixelSize(R.dimen.divider_height);
-			//noinspection deprecation
-			listView.setDivider(getResources().getDrawable(R.drawable.list_divider));
+			listView.setDivider(ContextCompat.getDrawable(getActivity(), R.drawable.list_divider));
 			listView.setDividerHeight(height);
 		} else {
 			listView.setDivider(null);
