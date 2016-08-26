@@ -9,18 +9,8 @@ import android.util.AttributeSet;
 import com.boardgamegeek.BuildConfig;
 
 public class ChangeLogPreference extends Preference {
-	public ChangeLogPreference(Context context) {
-		super(context);
-		init();
-	}
-
 	public ChangeLogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
-	}
-
-	public ChangeLogPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-		super(context, attrs, defStyleAttr);
 		init();
 	}
 

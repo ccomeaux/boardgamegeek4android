@@ -10,6 +10,11 @@ buildscript {
     }
 }
 
+def versionMajor = 5
+def versionMinor = 3
+def versionPatch = 0
+def versionBuild = 0
+
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'io.fabric'
@@ -22,35 +27,46 @@ repositories {
     maven { url "https://clojars.org/repo/" }
 }
 
-def getBranchName = { ->
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
-        standardOutput = stdout
+def gitBranchName = { ->
+    def p = 'git rev-parse --abbrev-ref HEAD'.execute([], project.rootDir)
+    p.waitFor()
+    if (p.exitValue() != 0) {
+        throw new RuntimeException(p.errorStream.text)
     }
-    return stdout.toString().trim()
+
+    return p.text.trim()
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
         applicationId "com.boardgamegeek"
+
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 59
-        versionName "5.3"
-        buildConfigField "String", "BRANCH", "\"" + getBranchName() + "\""
+
+        versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+
+        buildConfigField 'String', 'BRANCH', "\"${gitBranchName()}\""
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (versionBuild > 0 && gitBranchName() != "master") {
+                versionNameSuffix " RC${versionBuild}"
+            }
         }
         debug {
-            // applicationIdSuffix ".debug"
-            versionNameSuffix '-' + getBranchName()
+            if (versionBuild > 0) {
+                versionNameSuffix " build ${versionBuild} (${gitBranchName()})"
+            } else {
+                versionNameSuffix " (${gitBranchName()})"
+            }
         }
     }
     compileOptions {
