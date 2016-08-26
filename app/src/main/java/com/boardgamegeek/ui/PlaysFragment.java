@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -121,7 +122,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		mSorter = PlaysSorterFactory.create(getActivity(), sortType);
 
 		mUri = Plays.CONTENT_URI;
-		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
+		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		Uri uri = intent.getData();
+		int iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, 0);
 		mMode = MODE_ALL;
 		mGameId = BggContract.INVALID_ID;
 		mBuddyName = "";
@@ -135,6 +138,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			mMode = getArguments().getInt(PlaysFragment.KEY_MODE, mMode);
 		}
 		showFab(mMode == MODE_GAME);
+		if (fabView != null && iconColor != 0) {
+			fabView.setBackgroundTintList(ColorStateList.valueOf(iconColor));
+		}
 
 		switch (mMode) {
 			case MODE_GAME:

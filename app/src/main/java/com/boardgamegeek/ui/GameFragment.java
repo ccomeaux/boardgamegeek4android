@@ -732,6 +732,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
 		startActivity(intent);
 	}
 
