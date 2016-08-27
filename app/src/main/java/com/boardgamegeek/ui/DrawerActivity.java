@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
@@ -51,7 +52,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 		if (drawerLayout != null) {
 			drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-			drawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
+			drawerLayout.setStatusBarBackgroundColor(ContextCompat.getColor(this, R.color.primary_dark));
 		}
 	}
 
@@ -236,10 +237,10 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 		if (titleId == getDrawerResId()) {
 			view.setBackgroundResource(R.color.navdrawer_selected_row);
-			titleView.setTextColor(getResources().getColor(R.color.primary));
-			iconView.setColorFilter(getResources().getColor(R.color.primary));
+			titleView.setTextColor(ContextCompat.getColor(this, R.color.primary));
+			iconView.setColorFilter(ContextCompat.getColor(this, R.color.primary));
 		} else {
-			iconView.setColorFilter(getResources().getColor(R.color.navdrawer_icon_tint));
+			iconView.setColorFilter(ContextCompat.getColor(this, R.color.navdrawer_icon_tint));
 		}
 
 		view.setOnClickListener(new View.OnClickListener() {

@@ -18,6 +18,7 @@ import android.support.annotation.ColorInt;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
@@ -335,7 +336,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		mHeaderView.setText(mGameName);
 
-		mFabColor = getResources().getColor(R.color.accent);
+		mFabColor = ContextCompat.getColor(this, R.color.accent);
 		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl, new ImageUtils.Callback() {
 			@Override
 			public void onSuccessfulLoad(Palette palette) {

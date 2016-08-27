@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -19,7 +20,7 @@ import com.boardgamegeek.util.ColorUtils;
 import java.text.DecimalFormat;
 
 public class PlayerRow extends LinearLayout {
-	private DecimalFormat mFormat = new DecimalFormat("0.0######");
+	private final DecimalFormat mFormat = new DecimalFormat("0.0######");
 
 	private View mDragHandle;
 	private ImageView mColorView;
@@ -65,7 +66,7 @@ public class PlayerRow extends LinearLayout {
 		mUsernameTypeface = mUsername.getTypeface();
 		mScoreTypeface = mScore.getTypeface();
 
-		mScoreButton.setColorFilter(getResources().getColor(R.color.button_under_text), Mode.SRC_IN);
+		mScoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
 	}

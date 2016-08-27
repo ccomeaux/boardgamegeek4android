@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.DisplayMetrics;
@@ -138,9 +139,9 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 			case SUGGESTED_NUM_PLAYERS:
 				isBarChart = true;
 				getDialog().setTitle(R.string.suggested_numplayers);
-				addKeyRow(getResources().getColor(R.color.best), BEST);
-				addKeyRow(getResources().getColor(R.color.recommended), RECOMMENDED);
-				addKeyRow(getResources().getColor(R.color.not_recommended), NOT_RECOMMENDED);
+				addKeyRow(ContextCompat.getColor(getActivity(), R.color.best), BEST);
+				addKeyRow(ContextCompat.getColor(getActivity(), R.color.recommended), RECOMMENDED);
+				addKeyRow(ContextCompat.getColor(getActivity(), R.color.not_recommended), NOT_RECOMMENDED);
 				break;
 		}
 

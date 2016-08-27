@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -259,9 +260,9 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			ColorUtils.setColorViewValue(convertView.findViewById(R.id.color_view), color.second);
 			View frame = convertView.findViewById(R.id.color_frame);
 			if (color.first.equals(mSelectedColor)) {
-				frame.setBackgroundColor(getResources().getColor(R.color.primary));
+				frame.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.primary));
 			} else if (disabledColors != null && disabledColors.contains(color.first)) {
-				frame.setBackgroundColor(getResources().getColor(R.color.disabled));
+				frame.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.disabled));
 			}
 
 			return convertView;
