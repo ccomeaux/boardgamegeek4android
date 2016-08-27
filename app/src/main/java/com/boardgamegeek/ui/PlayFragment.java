@@ -393,10 +393,14 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		ImageUtils.safelyLoadImage(mThumbnailView, mImageUrl, new Callback() {
 			@Override
-			public void onSuccessfulLoad(Palette palette) {
+			public void onSuccessfulImageLoad(Palette palette) {
 				if (mGameName != null && isAdded()) {
 					mGameName.setBackgroundResource(R.color.black_overlay_light);
 				}
+			}
+
+			@Override
+			public void onFailedImageLoad() {
 			}
 		});
 

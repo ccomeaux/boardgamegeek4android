@@ -339,10 +339,16 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mFabColor = ContextCompat.getColor(this, R.color.accent);
 		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl, new ImageUtils.Callback() {
 			@Override
-			public void onSuccessfulLoad(Palette palette) {
+			public void onSuccessfulImageLoad(Palette palette) {
 				mHeaderView.setBackgroundResource(R.color.black_overlay_light);
 				mFabColor = PaletteUtils.getIconSwatch(palette).getRgb();
 				mFab.setBackgroundTintList(ColorStateList.valueOf(mFabColor));
+				mFab.show();
+			}
+
+			@Override
+			public void onFailedImageLoad() {
+				mFab.show();
 			}
 		});
 

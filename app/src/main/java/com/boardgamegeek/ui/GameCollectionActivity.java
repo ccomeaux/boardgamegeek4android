@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -62,7 +61,6 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		safelySetTitle(collectionName);
-		fab.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -146,9 +144,15 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 
 	@DebugLog
 	@Override
-	public void onSuccessfulLoad(Palette palette) {
+	public void onSuccessfulImageLoad(Palette palette) {
 		((GameCollectionFragment) getFragment()).onPaletteGenerated(palette);
 		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
+		fab.show();
+	}
+
+	@Override
+	public void onFailedImageLoad() {
+		fab.show();
 	}
 
 	@DebugLog

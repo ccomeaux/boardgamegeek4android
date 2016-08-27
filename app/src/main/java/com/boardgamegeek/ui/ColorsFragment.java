@@ -233,7 +233,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 						public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 							MenuInflater inflater = mode.getMenuInflater();
 							inflater.inflate(R.menu.colors_context, menu);
-							fab.setVisibility(View.GONE);
+							fab.hide();
 							return true;
 						}
 
@@ -265,7 +265,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 						public void onDestroyActionMode(ActionMode mode) {
 							actionMode = null;
 							adapter.clearSelections();
-							fab.setVisibility(View.VISIBLE);
+							fab.show();
 						}
 					});
 					toggleSelection(position);
@@ -300,7 +300,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		}
 
 		AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
-		AnimationUtils.fadeIn(getActivity(), fab, isResumed());
+		fab.show();
 		AnimationUtils.fadeOut(progressView);
 	}
 
@@ -330,8 +330,8 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@DebugLog
 	private void colorFab() {
 		if (fab != null && iconColor != 0) {
-			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
-		}
+				fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
+			}
 	}
 
 	@DebugLog

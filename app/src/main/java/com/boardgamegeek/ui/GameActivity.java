@@ -14,7 +14,6 @@ import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -67,7 +66,6 @@ public class GameActivity extends HeroActivity implements Callback {
 		});
 		if (PreferencesUtils.showLogPlay(this)) {
 			fab.setImageResource(R.drawable.fab_log_play);
-			fab.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -150,9 +148,19 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@DebugLog
 	@Override
-	public void onSuccessfulLoad(Palette palette) {
+	public void onSuccessfulImageLoad(Palette palette) {
 		((GameFragment) getFragment()).onPaletteGenerated(palette);
 		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.show();
+		}
+	}
+
+	@Override
+	public void onFailedImageLoad() {
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.show();
+		}
 	}
 
 	@DebugLog

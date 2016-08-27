@@ -142,12 +142,16 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	}
 
 	@Override
-	public void onSuccessfulLoad(Palette palette) {
+	public void onSuccessfulImageLoad(Palette palette) {
 		if (!isAdded()) {
 			return;
 		}
 		swatch = PaletteUtils.getInverseSwatch(palette, ContextCompat.getColor(getActivity(), R.color.info_background));
 		applySwatch();
+	}
+
+	@Override
+	public void onFailedImageLoad() {
 	}
 
 	private void applySwatch() {

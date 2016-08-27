@@ -87,6 +87,9 @@ public class ImageUtils {
 										final Callback callback) {
 		String imageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(imageUrl)) {
+			if (callback != null) {
+				callback.onFailedImageLoad();
+			}
 			return;
 		}
 		Picasso
@@ -99,7 +102,7 @@ public class ImageUtils {
 					Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 					Palette palette = PaletteTransformation.getPalette(bitmap);
 					if (callback != null) {
-						callback.onSuccessfulLoad(palette);
+						callback.onSuccessfulImageLoad(palette);
 					}
 				}
 
@@ -147,7 +150,8 @@ public class ImageUtils {
 	 * Call back from loading an image.
 	 */
 	public interface Callback {
-		void onSuccessfulLoad(Palette palette);
+		void onSuccessfulImageLoad(Palette palette);
+		void onFailedImageLoad();
 	}
 
 	public static void loadThumbnail(int imageId, ImageView target) {
