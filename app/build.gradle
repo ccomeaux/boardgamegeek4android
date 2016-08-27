@@ -13,7 +13,7 @@ buildscript {
 def versionMajor = 6
 def versionMinor = 0
 def versionPatch = 0
-def versionBuild = 0
+def versionBuild = 1
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
@@ -57,7 +57,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (versionBuild > 0 && gitBranchName() != "master") {
+            if (gitBranchName() != "master") {
                 versionNameSuffix " RC${versionBuild}"
             }
         }
