@@ -1,8 +1,8 @@
 Release Notes
 =============
 
-Coming Soon...
---------------
+Version 6.0
+-----------
  * Add and remove items in your collection
  * Modify your collection item's private information
  * Darker (and more mysterious!) look
