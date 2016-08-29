@@ -242,7 +242,7 @@ public class ActivityUtils {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://boardgameprices.com/compare-prices-for-" + HttpUtils.encode(gameName));
+		link(context, "http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkAmazon(Context context, String gameName) {
