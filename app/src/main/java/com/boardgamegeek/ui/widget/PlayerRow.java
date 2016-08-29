@@ -19,20 +19,23 @@ import com.boardgamegeek.util.ColorUtils;
 
 import java.text.DecimalFormat;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class PlayerRow extends LinearLayout {
 	private final DecimalFormat ratingFormat = new DecimalFormat("0.0######");
 
-	private View dragHandle;
-	private ImageView colorView;
-	private TextView seatView;
-	private TextView nameView;
-	private TextView usernameView;
-	private TextView teamColorView;
-	private TextView scoreView;
-	private TextView startingPositionView;
-	private TextView ratingView;
-	private ImageView deleteButton;
-	private ImageView scoreButton;
+	@BindView(R.id.drag_handle) View dragHandle;
+	@BindView(R.id.color_view) ImageView colorView;
+	@BindView(R.id.seat) TextView seatView;
+	@BindView(R.id.name) TextView nameView;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.team_color) TextView teamColorView;
+	@BindView(R.id.score) TextView scoreView;
+	@BindView(R.id.starting_position) TextView startingPositionView;
+	@BindView(R.id.rating) TextView ratingView;
+	@BindView(R.id.log_player_delete) ImageView deleteButton;
+	@BindView(R.id.score_button) ImageView scoreButton;
 
 	private Typeface nameTypeface;
 	private Typeface usernameTypeface;
@@ -47,28 +50,14 @@ public class PlayerRow extends LinearLayout {
 	public PlayerRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		LayoutInflater.from(context).inflate(R.layout.row_player, this);
-		initializeUi();
-	}
 
-	private void initializeUi() {
-		dragHandle = findViewById(R.id.drag_handle);
-		colorView = (ImageView) findViewById(R.id.color_view);
-		seatView = (TextView) findViewById(R.id.seat);
-		nameView = (TextView) findViewById(R.id.name);
-		usernameView = (TextView) findViewById(R.id.username);
-		teamColorView = (TextView) findViewById(R.id.team_color);
-		scoreView = (TextView) findViewById(R.id.score);
-		ratingView = (TextView) findViewById(R.id.rating);
-		startingPositionView = (TextView) findViewById(R.id.starting_position);
-		scoreButton = (ImageView) findViewById(R.id.score_button);
+		ButterKnife.bind(this);
 
 		nameTypeface = nameView.getTypeface();
 		usernameTypeface = usernameView.getTypeface();
 		scoreTypeface = scoreView.getTypeface();
 
 		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
-
-		deleteButton = (ImageView) findViewById(R.id.log_player_delete);
 	}
 
 	public void setOnDeleteListener(OnClickListener l) {
