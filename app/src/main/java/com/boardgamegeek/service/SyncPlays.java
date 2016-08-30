@@ -123,7 +123,7 @@ public class SyncPlays extends SyncTask {
 		if (page > 1) {
 			message = String.format("%s (page %,d)", message, page);
 		}
-		showNotification(message);
+		updateProgressNotification(message);
 	}
 
 	private void persist(@NonNull PlaysResponse response) {
@@ -169,7 +169,7 @@ public class SyncPlays extends SyncTask {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_plays;
 	}
 }

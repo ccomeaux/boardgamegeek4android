@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -41,24 +42,20 @@ public abstract class SyncTask extends ServiceTask {
 		return isCancelled;
 	}
 
-	protected void showNotification() {
-		showNotification(getNotification(), null);
+	protected void updateProgressNotification() {
+		updateProgressNotification(null);
 	}
 
-	protected void showNotification(String detail) {
-		showNotification(getNotification(), detail);
-	}
-
-	private void showNotification(int messageId, String detail) {
+	protected void updateProgressNotification(String detail) {
 		if (!shouldShowNotifications) {
 			return;
 		}
 
-		if (messageId == NO_NOTIFICATION) {
+		if (getNotificationSummaryMessageId() == NO_NOTIFICATION) {
 			return;
 		}
 
-		String message = context.getString(messageId);
+		String message = context.getString(getNotificationSummaryMessageId());
 		Timber.i(detail);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		NotificationCompat.Builder builder = NotificationUtils
@@ -66,10 +63,14 @@ public abstract class SyncTask extends ServiceTask {
 			.setContentText(message)
 			.setPriority(NotificationCompat.PRIORITY_LOW)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE)
-			.setOngoing(true).setProgress(1, 0, true)
+			.setOngoing(true)
+			.setProgress(1, 0, true)
 			.addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi);
 		if (!TextUtils.isEmpty(detail)) {
-			builder.setStyle(new NotificationCompat.BigTextStyle().setSummaryText(message).bigText(detail));
+			final BigTextStyle bigTextStyle = new BigTextStyle()
+				.setSummaryText(message)
+				.bigText(detail);
+			builder.setStyle(bigTextStyle);
 		}
 		NotificationUtils.notify(context, NotificationUtils.ID_SYNC, builder);
 	}

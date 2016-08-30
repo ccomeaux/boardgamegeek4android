@@ -67,8 +67,7 @@ public class NotificationUtils {
 			.setContentTitle(title)
 			.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		Intent intent = new Intent(context, cls);
-		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent,
-			PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(resultPendingIntent);
 		return builder;
 	}

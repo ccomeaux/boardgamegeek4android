@@ -187,7 +187,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		final int count = cursor != null ? cursor.getCount() : 0;
 		String detail = context.getResources().getQuantityString(messageResId, count, count);
 		Timber.i(detail);
-		showNotification(detail);
+		updateProgressNotification(detail);
 		return cursor;
 	}
 

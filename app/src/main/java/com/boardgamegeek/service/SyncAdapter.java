@@ -87,14 +87,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
 				if (currentTask != null) {
-					showCancel(currentTask.getNotification());
+					notifySyncIsCancelled(currentTask.getNotificationSummaryMessageId());
 				}
 				break;
 			}
 			currentTask = tasks.get(i);
 			try {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
-				currentTask.showNotification();
+				currentTask.updateProgressNotification();
 				currentTask.execute(account, syncResult);
 				EventBus.getDefault().post(new SyncCompleteEvent());
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
@@ -215,7 +215,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
-		final int notification = task.getNotification();
+		final int notification = task.getNotificationSummaryMessageId();
 		if (notification != ServiceTask.NO_NOTIFICATION) {
 			CharSequence text = context.getText(notification);
 			NotificationCompat.Builder builder = NotificationUtils
@@ -230,7 +230,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	@DebugLog
-	private void showCancel(int messageId) {
+	private void notifySyncIsCancelled(int messageId) {
 		if (!shouldShowNotifications) {
 			return;
 		}

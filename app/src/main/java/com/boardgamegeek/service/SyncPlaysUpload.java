@@ -110,7 +110,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_plays_upload;
 	}
 
@@ -125,7 +125,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				null);
 			String detail = String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);
-			showNotification(detail);
+			updateProgressNotification(detail);
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
@@ -197,7 +197,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				null);
 			String detail = String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);
-			showNotification(detail);
+			updateProgressNotification(detail);
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {

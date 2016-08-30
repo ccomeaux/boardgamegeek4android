@@ -44,7 +44,7 @@ public abstract class SyncGames extends SyncTask {
 					if (numberOfFetches > 1) {
 						detail += " (page " + numberOfFetches + ")";
 					}
-					showNotification(detail);
+					updateProgressNotification(detail);
 
 					GamePersister persister = new GamePersister(context);
 					ThingResponse response = getThingResponse(service, gameIds);
