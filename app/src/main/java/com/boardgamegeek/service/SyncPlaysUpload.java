@@ -79,14 +79,14 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected int getNotificationErrorId() {
-		return NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR;
+	protected String getNotificationMessageTag() {
+		return NotificationUtils.TAG_UPLOAD_PLAY;
 	}
 
 	@DebugLog
 	@Override
-	protected int getNotificationMessageId() {
-		return NotificationUtils.ID_SYNC_PLAY_UPLOAD;
+	protected String getNotificationErrorTag() {
+		return NotificationUtils.TAG_UPLOAD_PLAY_ERROR;
 	}
 
 	@DebugLog

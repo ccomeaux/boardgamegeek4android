@@ -30,9 +30,9 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	protected abstract Class<?> getNotificationIntentClass();
 
-	protected abstract int getNotificationErrorId();
+	protected abstract String getNotificationMessageTag();
 
-	protected abstract int getNotificationMessageId();
+	protected abstract String getNotificationErrorTag();
 
 	@StringRes
 	protected abstract int getUploadSummaryWithSize();
@@ -46,7 +46,7 @@ public abstract class SyncUploadTask extends SyncTask {
 		} else {
 			addSubsequentMessage(builder);
 		}
-		NotificationUtils.notify(context, getNotificationMessageId(), builder);
+		NotificationUtils.notify(context, getNotificationMessageTag(), 0, builder);
 	}
 
 	@DebugLog
@@ -86,7 +86,7 @@ public abstract class SyncUploadTask extends SyncTask {
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(errorMessage);
-		NotificationUtils.notify(context, getNotificationErrorId(), builder);
+		NotificationUtils.notify(context, getNotificationErrorTag(), 0, builder);
 	}
 
 	@DebugLog

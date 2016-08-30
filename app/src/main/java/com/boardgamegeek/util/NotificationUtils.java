@@ -20,16 +20,16 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class NotificationUtils {
-	public static final int ID_SYNC = 0;
-	public static final int ID_SYNC_PLAY_UPLOAD = 1;
-	public static final int ID_PLAY_TIMER = 2;
-	public static final int ID_H_INDEX = 3;
-	public static final int ID_SYNC_COLLECTION_UPLOAD = 4;
-	public static final int ID_SYNC_ERROR = -1;
-	public static final int ID_PROVIDER_ERROR = -2;
-	public static final int ID_SYNC_PLAY_UPLOAD_ERROR = -3;
-	public static final int ID_PERSIST_ERROR = -4;
-	public static final int ID_SYNC_COLLECTION_UPLOAD_ERROR = -5;
+	public static final String TAG_H_INDEX = "H-INDEX";
+	public static final String TAG_PERSIST_ERROR = "PERSIST_ERROR";
+	public static final String TAG_PLAY_TIMER = "PLAY_TIMER";
+	public static final String TAG_PROVIDER_ERROR = "PROVIDER_ERROR";
+	public static final String TAG_SYNC_PROGRESS = "SYNC_PROGRESS";
+	public static final String TAG_UPDATE_ERROR = "UPDATE_ERROR";
+	public static final String TAG_UPLOAD_PLAY = "UPLOAD_PLAY";
+	public static final String TAG_UPLOAD_PLAY_ERROR = "UPLOAD_PLAY_ERROR";
+	public static final String TAG_UPLOAD_COLLECTION = "UPLOAD_COLLECTION";
+	public static final String TAG_UPLOAD_COLLECTION_ERROR = "UPLOAD_COLLECTION_ERROR";
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
@@ -75,17 +75,17 @@ public class NotificationUtils {
 	/**
 	 * Display the notification with a unique ID.
 	 */
-	public static void notify(Context context, int id, NotificationCompat.Builder builder) {
+	public static void notify(Context context, String tag, int id, NotificationCompat.Builder builder) {
 		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.notify(id, builder.build());
+		nm.notify(tag, id, builder.build());
 	}
 
 	/**
 	 * Cancel the notification by a unique ID.
 	 */
-	public static void cancel(Context context, int id) {
+	public static void cancel(Context context, String tag, int id) {
 		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.cancel(id);
+		nm.cancel(tag, id);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class NotificationUtils {
 			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
 		}
 
-		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, 0, builder);
 	}
 
 	/**

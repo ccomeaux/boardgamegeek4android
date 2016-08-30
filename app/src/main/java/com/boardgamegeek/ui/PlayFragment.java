@@ -245,7 +245,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (mPlay.hasStarted()) {
-								NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+								NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, 0);
 							}
 							mPlay.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
@@ -483,7 +483,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		} else if (hasBeenNotified) {
-			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+			NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, 0);
 		}
 	}
 

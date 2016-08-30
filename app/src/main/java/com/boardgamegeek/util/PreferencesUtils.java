@@ -231,7 +231,7 @@ public class PreferencesUtils {
 			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
 			.setContentText(PresentationUtils.getText(context, messageId, hIndex))
 			.setContentIntent(pi);
-		NotificationUtils.notify(context, NotificationUtils.ID_H_INDEX, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_H_INDEX, 0, builder);
 	}
 
 	public static long getViewDefaultId(Context context) {

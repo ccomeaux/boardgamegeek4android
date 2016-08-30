@@ -72,6 +72,6 @@ public abstract class SyncTask extends ServiceTask {
 				.bigText(detail);
 			builder.setStyle(bigTextStyle);
 		}
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
 }

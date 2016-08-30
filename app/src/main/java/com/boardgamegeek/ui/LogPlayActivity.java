@@ -302,7 +302,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private void finishDataLoad() {
 		outstandingQueries = 0;
 		if (isRequestingToEndPlay) {
-			NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
+			NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, 0);
 		} else {
 			maybeShowNotification();
 		}
@@ -674,7 +674,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				PreferencesUtils.putLastPlayLocation(this, play.location);
 				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());
 			}
-			NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
+			NotificationUtils.cancel(this, NotificationUtils.TAG_PLAY_TIMER, 0);
 			triggerUpload();
 			Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 		}
@@ -720,7 +720,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						public void onClick(DialogInterface dialog, int id) {
 							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
 								triggerUpload();
-								NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
+								NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, 0);
 							}
 							setResult(RESULT_CANCELED);
 							finish();
@@ -1361,7 +1361,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					isRequestingToEndPlay = true;
 					play.end();
 					bind();
-					NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
+					NotificationUtils.cancel(this, NotificationUtils.TAG_PLAY_TIMER, 0);
 					if (play.length > 0) {
 						UIUtils.finishingEditing(lengthView);
 					}
@@ -1623,7 +1623,7 @@ public class LogPlayActivity extends AppCompatActivity {
 								@Override
 								public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
 									final Player player = play.getPlayers().get(position);
-									switch (item.getItemId()){
+									switch (item.getItemId()) {
 										case newItemId:
 											player.New(!item.isChecked());
 											bind(position);

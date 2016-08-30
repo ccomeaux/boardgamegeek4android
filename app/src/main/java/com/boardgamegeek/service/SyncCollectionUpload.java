@@ -84,14 +84,14 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected int getNotificationErrorId() {
-		return NotificationUtils.ID_SYNC_COLLECTION_UPLOAD_ERROR;
+	protected String getNotificationMessageTag() {
+		return NotificationUtils.TAG_UPLOAD_COLLECTION;
 	}
 
 	@DebugLog
 	@Override
-	protected int getNotificationMessageId() {
-		return NotificationUtils.ID_SYNC_COLLECTION_UPLOAD;
+	protected String getNotificationErrorTag() {
+		return NotificationUtils.TAG_UPLOAD_COLLECTION;
 	}
 
 	@DebugLog

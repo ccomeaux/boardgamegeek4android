@@ -108,7 +108,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 		toggleReceiver(false);
-		NotificationUtils.cancel(context, NotificationUtils.ID_SYNC);
+		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS, 0);
 	}
 
 	@DebugLog
@@ -225,7 +225,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			if (!TextUtils.isEmpty(message)) {
 				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 			}
-			NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
+			NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 		}
 	}
 
@@ -244,6 +244,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			.createNotificationBuilder(context, R.string.sync_notification_title_cancel)
 			.setContentText(contextText)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE);
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
 }
