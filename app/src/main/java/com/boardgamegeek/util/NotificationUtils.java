@@ -5,19 +5,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.util.LinkedList;
-import java.util.Queue;
+import com.boardgamegeek.util.LargeIconLoader.Callback;
 
 public class NotificationUtils {
 	public static final String TAG_H_INDEX = "H-INDEX";
@@ -93,12 +87,18 @@ public class NotificationUtils {
 	 */
 	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
 		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
-		Queue<String> imageUrls = new LinkedList<>();
-		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
-		imageUrls.add(imageUrl);
-		imageUrls.add(thumbnailUrl);
-		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
-		tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
+		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
+			@Override
+			public void onSuccessfulImageLoad(Bitmap bitmap) {
+				buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
+			}
+
+			@Override
+			public void onFailedImageLoad() {
+				// oh well!
+			}
+		});
+		loader.execute();
 	}
 
 	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
@@ -129,37 +129,5 @@ public class NotificationUtils {
 		}
 
 		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, 0, builder);
-	}
-
-	/**
-	 * Attempt to load the first icon in the queue. If this fails, try the next icon in the queue until successful or
-	 * the queue is empty.
-	 */
-	private static void tryLoadLargeIcon(final Context context, final Play play, final String thumbnailUrl,
-										 final String imageUrl, final Queue<String> imageUrls) {
-		String path = imageUrls.poll();
-		if (TextUtils.isEmpty(path)) {
-			return;
-		}
-		Picasso.with(context.getApplicationContext())
-			.load(HttpUtils.ensureScheme(path))
-			.networkPolicy(NetworkPolicy.NO_STORE)
-			.resize(400, 400) // recommended size for wearables
-			.centerCrop()
-			.into(new Target() {
-				@Override
-				public void onPrepareLoad(Drawable placeHolderDrawable) {
-				}
-
-				@Override
-				public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-					buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
-				}
-
-				@Override
-				public void onBitmapFailed(Drawable errorDrawable) {
-					tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
-				}
-			});
 	}
 }
