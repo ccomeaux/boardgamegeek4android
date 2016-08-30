@@ -235,11 +235,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return;
 		}
 
+		CharSequence contextText = "";
 		if (messageId == SyncTask.NO_NOTIFICATION) {
-			return;
+			contextText = context.getText(messageId);
 		}
 
-		final CharSequence contextText = context.getText(messageId);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_cancel)
 			.setContentText(contextText)

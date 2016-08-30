@@ -51,11 +51,11 @@ public abstract class SyncTask extends ServiceTask {
 			return;
 		}
 
+		String message = "";
 		if (getNotificationSummaryMessageId() == NO_NOTIFICATION) {
-			return;
+			message = context.getString(getNotificationSummaryMessageId());
 		}
 
-		String message = context.getString(getNotificationSummaryMessageId());
 		Timber.i(detail);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		NotificationCompat.Builder builder = NotificationUtils
