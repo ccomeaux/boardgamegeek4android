@@ -16,11 +16,8 @@ import java.util.Queue;
 import timber.log.Timber;
 
 public class LargeIconLoader implements Target {
-	public interface Callback {
-		void onSuccessfulImageLoad(Bitmap bitmap);
 
-		void onFailedImageLoad();
-	}
+	private static final int WEARABLE_ICON_SIZE = 400;
 
 	private final Context context;
 	private final Callback callback;
@@ -45,13 +42,13 @@ public class LargeIconLoader implements Target {
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
 			if (callback != null) {
-				callback.onFailedImageLoad();
+				callback.onFailedIconLoad();
 			}
 		}
 		Picasso.with(context.getApplicationContext())
 			.load(HttpUtils.ensureScheme(currentImageUrl))
 			.networkPolicy(NetworkPolicy.NO_STORE)
-			.resize(400, 400) // recommended size for wearables
+			.resize(WEARABLE_ICON_SIZE, WEARABLE_ICON_SIZE)
 			.centerCrop()
 			.into(this);
 	}
@@ -60,7 +57,7 @@ public class LargeIconLoader implements Target {
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
 		Timber.i("Found an image at " + currentImageUrl);
 		if (callback != null) {
-			callback.onSuccessfulImageLoad(bitmap);
+			callback.onSuccessfulIconLoad(bitmap);
 		}
 	}
 
@@ -72,5 +69,11 @@ public class LargeIconLoader implements Target {
 
 	@Override
 	public void onPrepareLoad(Drawable placeHolderDrawable) {
+	}
+
+	public interface Callback {
+		void onSuccessfulIconLoad(Bitmap bitmap);
+
+		void onFailedIconLoad();
 	}
 }

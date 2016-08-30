@@ -13,6 +13,8 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 
+import timber.log.Timber;
+
 public class NotificationUtils {
 	public static final String TAG_H_INDEX = "H-INDEX";
 	public static final String TAG_PERSIST_ERROR = "PERSIST_ERROR";
@@ -86,15 +88,17 @@ public class NotificationUtils {
 	 * Launch the "Playing" notification.
 	 */
 	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
+		Timber.i("Launching notification without icon for play ID=" + play.playId);
 		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
+		Timber.i("Attempting to load icon for play ID=" + play.playId);
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
-			public void onSuccessfulImageLoad(Bitmap bitmap) {
+			public void onSuccessfulIconLoad(Bitmap bitmap) {
 				buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
 			}
 
 			@Override
-			public void onFailedImageLoad() {
+			public void onFailedIconLoad() {
 				// oh well!
 			}
 		});
