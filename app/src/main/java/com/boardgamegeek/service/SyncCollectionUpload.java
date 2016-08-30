@@ -91,7 +91,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	protected String getNotificationErrorTag() {
-		return NotificationUtils.TAG_UPLOAD_COLLECTION;
+		return NotificationUtils.TAG_UPLOAD_COLLECTION_ERROR;
 	}
 
 	@DebugLog
