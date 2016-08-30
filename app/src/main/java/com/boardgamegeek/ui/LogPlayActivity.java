@@ -302,7 +302,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private void finishDataLoad() {
 		outstandingQueries = 0;
 		if (isRequestingToEndPlay) {
-			NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, 0);
+			cancelNotification();
 		} else {
 			maybeShowNotification();
 		}
@@ -674,7 +674,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				PreferencesUtils.putLastPlayLocation(this, play.location);
 				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());
 			}
-			NotificationUtils.cancel(this, NotificationUtils.TAG_PLAY_TIMER, 0);
+			cancelNotification();
 			triggerUpload();
 			Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 		}
@@ -720,7 +720,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						public void onClick(DialogInterface dialog, int id) {
 							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
 								triggerUpload();
-								NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, 0);
+								cancelNotification();
 							}
 							setResult(RESULT_CANCELED);
 							finish();
@@ -893,7 +893,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			}
 		};
 	}
-
+	
 	private Callback popupMenuCallback() {
 		return new MenuBuilder.Callback() {
 			@Override
@@ -1038,6 +1038,11 @@ public class LogPlayActivity extends AppCompatActivity {
 		if (play != null && play.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(this, play, thumbnailUrl, imageUrl);
 		}
+	}
+
+	@DebugLog
+	private void cancelNotification() {
+		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, playId);
 	}
 
 	public class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.PlayViewHolder> {
@@ -1361,7 +1366,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					isRequestingToEndPlay = true;
 					play.end();
 					bind();
-					NotificationUtils.cancel(this, NotificationUtils.TAG_PLAY_TIMER, 0);
+					cancelNotification();
 					if (play.length > 0) {
 						UIUtils.finishingEditing(lengthView);
 					}

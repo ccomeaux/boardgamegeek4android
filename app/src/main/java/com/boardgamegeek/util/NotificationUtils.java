@@ -106,7 +106,7 @@ public class NotificationUtils {
 
 		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, play.playId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		String info = "";
 		if (!TextUtils.isEmpty(play.location)) {
@@ -128,6 +128,6 @@ public class NotificationUtils {
 			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
 		}
 
-		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, 0, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, play.playId, builder);
 	}
 }
