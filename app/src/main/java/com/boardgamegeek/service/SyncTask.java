@@ -52,7 +52,7 @@ public abstract class SyncTask extends ServiceTask {
 		}
 
 		String message = "";
-		if (getNotificationSummaryMessageId() == NO_NOTIFICATION) {
+		if (getNotificationSummaryMessageId() != NO_NOTIFICATION) {
 			message = context.getString(getNotificationSummaryMessageId());
 		}
 

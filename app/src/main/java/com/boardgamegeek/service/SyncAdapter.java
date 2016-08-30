@@ -236,7 +236,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		CharSequence contextText = "";
-		if (messageId == SyncTask.NO_NOTIFICATION) {
+		if (messageId != SyncTask.NO_NOTIFICATION) {
 			contextText = context.getText(messageId);
 		}
 
