@@ -138,6 +138,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private Play mOriginalPlay;
 	private final Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
+	private AutoCompleteAdapter locationAdapter;
 	private AlertDialog.Builder mAddPlayersBuilder;
 	private final List<Player> mPlayersToAdd = new ArrayList<>();
 	private final List<String> mUsernames = new ArrayList<>();
@@ -391,6 +392,9 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mPrefShowComments = PreferencesUtils.showLogPlayComments(this);
 		mPrefShowPlayers = PreferencesUtils.showLogPlayPlayerList(this);
 		setViewVisibility();
+
+		locationAdapter = new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri());
+		mLocationView.setAdapter(locationAdapter);
 	}
 
 	@DebugLog
@@ -417,6 +421,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@Override
 	protected void onPause() {
 		super.onPause();
+		locationAdapter.changeCursor(null);
 		if (mSaveOnPause && !mLaunchingActivity) {
 			saveDraft(false);
 		}
@@ -490,8 +495,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		if (mDatePickerFragment != null) {
 			mDatePickerFragment.setOnDateSetListener(this);
 		}
-
-		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
 
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
