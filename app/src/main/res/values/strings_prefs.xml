@@ -124,16 +124,6 @@
 	<string name="library_RangeSeekBar_isOpenSource">true</string>
 	<string name="library_RangeSeekBar_repositoryLink">https://code.google.com/p/range-seek-bar</string>
 
-	<string name="define_int_StickyListHeaders"></string>
-	<string name="library_StickyListHeaders_author">Emil Sjölander</string>
-	<string name="library_StickyListHeaders_authorWebsite">http://emilsjolander.se</string>
-	<string name="library_StickyListHeaders_libraryName">StickyListHeaders</string>
-	<string name="library_StickyListHeaders_libraryDescription">An android library for section headers that stick to the top.</string>
-	<string name="library_StickyListHeaders_libraryVersion">2.5.2</string>
-	<string name="library_StickyListHeaders_licenseId">apache_2_0</string>
-	<string name="library_StickyListHeaders_isOpenSource">true</string>
-	<string name="library_StickyListHeaders_repositoryLink">https://github.com/emilsjolander/StickyListHeaders</string>
-
 	<string name="define_int_AndroidIcons"></string>
 	<string name="library_AndroidIcons_author">Opoloo</string>
 	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>

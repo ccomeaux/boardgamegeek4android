@@ -103,7 +103,6 @@ public class SettingsActivity extends DrawerActivity {
 								"DragSortListView",
 								"Hugo",
 								"PhotoView",
-								"StickyListHeaders",
 								"AndroidIcons",
 								"MPAndroidChart",
 								"AndroidRandomColor",
