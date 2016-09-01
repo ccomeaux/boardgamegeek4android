@@ -67,9 +67,7 @@ public abstract class SyncTask extends ServiceTask {
 			.setProgress(1, 0, true)
 			.addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi);
 		if (!TextUtils.isEmpty(detail)) {
-			final BigTextStyle bigTextStyle = new BigTextStyle()
-				.setSummaryText(message)
-				.bigText(detail);
+			final BigTextStyle bigTextStyle = new BigTextStyle().bigText(detail);
 			builder.setStyle(bigTextStyle);
 		}
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
