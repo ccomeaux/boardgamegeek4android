@@ -550,6 +550,11 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		if (searchResultsAdapter == null ||
+			searchResultsAdapter.getSelectedItems() == null ||
+			searchResultsAdapter.getSelectedItems().size() == 0) {
+			return false;
+		}
 		SearchResult game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems().get(0));
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
