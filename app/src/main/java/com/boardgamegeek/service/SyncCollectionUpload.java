@@ -8,7 +8,6 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
-import android.text.SpannableString;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -20,8 +19,8 @@ import com.boardgamegeek.service.model.CollectionItem;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
-import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,9 +94,10 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
+	@PluralsRes
 	@Override
 	protected int getUploadSummaryWithSize() {
-		return R.string.sync_notification_collection_upload_summary;
+		return R.plurals.sync_notification_collection_upload_summary;
 	}
 
 	@DebugLog
@@ -199,7 +199,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			return;
 		}
 		resolver.delete(Collection.buildUri(collectionItem.getInternalId()), null, null);
-		notifySuccess(collectionItem.getCollectionName());
+		notifySuccess(collectionItem.getCollectionName(), collectionItem.getCollectionId());
 	}
 
 	private void processNewCollectionItem(Cursor cursor) {
@@ -213,7 +213,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		addTask.appendContentValues(contentValues);
 		resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
 		UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, collectionItem.getGameId());
-		notifySuccess(collectionItem.getCollectionName());
+		notifySuccess(collectionItem.getCollectionName(), collectionItem.getGameId() * -1);
 	}
 
 	private void processDirtyCollectionItem(Cursor cursor) {
@@ -225,7 +225,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			}
 			if (contentValues.size() > 0) {
 				resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
-				notifySuccess(collectionItem.getCollectionName());
+				notifySuccess(collectionItem.getCollectionName(), collectionItem.getCollectionId());
 			}
 		} else {
 			Timber.d("Invalid collectionItem ID for internal ID %1$s; game ID %2$s", collectionItem.getInternalId(), collectionItem.getGameId());
@@ -244,11 +244,11 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return false;
 	}
 
-	private void notifySuccess(String collectionName) {
+	private void notifySuccess(String collectionName, int id) {
 		syncResult.stats.numUpdates++;
-		SpannableString message = StringUtils.boldSecondString(context.getString(R.string.sync_notification_collection_upload_detail), collectionName);
+		CharSequence message = PresentationUtils.getText(context, R.string.sync_notification_collection_upload_detail, collectionName);
 		Timber.i(message.toString());
-		notifyUser(message);
+		notifyUser(message, id);
 	}
 
 	private boolean processResponseForError(CollectionTask response) {

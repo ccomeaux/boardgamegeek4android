@@ -10,7 +10,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import android.support.annotation.PluralsRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.LocalBroadcastManager;
@@ -90,10 +90,10 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	@StringRes
+	@PluralsRes
 	@Override
 	protected int getUploadSummaryWithSize() {
-		return R.string.sync_notification_plays_upload_summary;
+		return R.plurals.sync_notification_plays_upload_summary;
 	}
 
 	@DebugLog
@@ -153,7 +153,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					currentPlayIdForMessage = newPlayId;
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
-					notifyUser(StringUtils.boldSecondString(message, play.gameName));
+					notifyUser(StringUtils.boldSecondString(message, play.gameName), play.playId);
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(play);
@@ -169,7 +169,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id), String.valueOf(play.playId)));
+					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id), String.valueOf(play.playId)), play.playId);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
@@ -212,10 +212,10 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					} else if (response.isSuccessful()) {
 						deletePlay(play);
 						updateGamePlayCount(play);
-						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
+						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
 						deletePlay(play);
-						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
+						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
 						Authenticator.clearPassword(context);
@@ -225,7 +225,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					}
 				} else {
 					deletePlay(play);
-					notifyUserOfDelete(R.string.msg_play_deleted_draft, play.gameName);
+					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
 				}
 			}
 		} finally {
@@ -348,8 +348,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	private void notifyUserOfDelete(int messageId, String gameName) {
-		notifyUser(StringUtils.boldSecondString(context.getString(messageId), gameName));
+	private void notifyUserOfDelete(int messageId, Play play) {
+		notifyUser(StringUtils.boldSecondString(context.getString(messageId), play.gameName), play.playId);
 	}
 
 	@DebugLog

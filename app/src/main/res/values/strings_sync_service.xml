@@ -17,9 +17,7 @@
 	<string name="sync_notification_buddies_unupdated">Updating newly added buddies</string>
 	<string name="sync_notification_plays">Downloading plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>
-	<string name="sync_notification_plays_upload_summary">Uploaded %d plays</string>
-	<string name="sync_notification_collection_upload_summary">Uploaded %d collection items</string>
-	<string name="sync_notification_collection_upload_detail">Updated your collection item of</string>
+	<string name="sync_notification_collection_upload_detail"><b>%s</b> updated</string>
 	<string name="sync_notification_title_h_index">H-index</string>
 	<string name="sync_notification_h_index_increase">Congratulations! Your game h-index is now <b>%d</b>.</string>
 	<string name="sync_notification_h_index_decrease">Your game h-index has changed to <b>%d</b>.</string>
@@ -55,6 +53,14 @@
 	<plurals name="sync_notification_collection_uploading">
 		<item quantity="one">Uploading %,d collection item.</item>
 		<item quantity="other">Uploading %,d collection items.</item>
+	</plurals>
+	<plurals name="sync_notification_collection_upload_summary">
+		<item quantity="one">%,d item</item>
+		<item quantity="other">%,d items</item>
+	</plurals>
+	<plurals name="sync_notification_plays_upload_summary">
+		<item quantity="one">%,d play</item>
+		<item quantity="other">%,d plays</item>
 	</plurals>
 
 </resources>

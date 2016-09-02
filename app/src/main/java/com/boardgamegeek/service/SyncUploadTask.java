@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
@@ -34,25 +35,27 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	protected abstract String getNotificationErrorTag();
 
-	@StringRes
+	@PluralsRes
 	protected abstract int getUploadSummaryWithSize();
 
 	@DebugLog
-	protected void notifyUser(CharSequence message) {
+	protected void notifyUser(CharSequence message, int id) {
+		NotificationCompat.Builder builder = createNotificationBuilder()
+			.setCategory(NotificationCompat.CATEGORY_SERVICE);
+
+		addInitialMessage(builder, message);
+		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
+
 		notificationMessages.add(message);
-		NotificationCompat.Builder builder = createNotificationBuilder().setCategory(NotificationCompat.CATEGORY_SERVICE);
-		if (notificationMessages.size() == 1) {
-			addInitialMessage(builder);
-		} else {
-			addSubsequentMessage(builder);
-		}
-		NotificationUtils.notify(context, getNotificationMessageTag(), 0, builder);
+		addSubsequentMessage(builder);
+		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
 	}
 
 	@DebugLog
-	private void addInitialMessage(@NonNull Builder builder) {
-		CharSequence message = notificationMessages.get(0);
-		builder.setContentText(message);
+	private void addInitialMessage(@NonNull Builder builder, CharSequence message) {
+		builder
+			.setContentText(message)
+			.setGroup(getNotificationMessageTag());
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(message);
 		Action action = createMessageAction();
@@ -63,11 +66,15 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	@DebugLog
 	private void addSubsequentMessage(@NonNull Builder builder) {
-		String summary = String.format(context.getString(getUploadSummaryWithSize()), notificationMessages.size());
-		builder.setContentText(summary);
+		final int messageCount = notificationMessages.size();
+		String summary = context.getResources().getQuantityString(getUploadSummaryWithSize(), messageCount, messageCount);
+		builder
+			.setContentText(summary)
+			.setGroup(getNotificationMessageTag())
+			.setGroupSummary(true);
 		NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
 		detail.setSummaryText(summary);
-		for (int i = notificationMessages.size() - 1; i >= 0; i--) {
+		for (int i = messageCount - 1; i >= 0; i--) {
 			detail.addLine(notificationMessages.get(i));
 		}
 	}
