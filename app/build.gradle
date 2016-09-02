@@ -38,14 +38,14 @@ def gitBranchName = { ->
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 24
     buildToolsVersion "24.0.2"
 
     defaultConfig {
         applicationId "com.boardgamegeek"
 
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 24
 
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
