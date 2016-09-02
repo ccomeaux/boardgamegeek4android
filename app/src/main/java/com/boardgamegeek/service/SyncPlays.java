@@ -112,16 +112,16 @@ public class SyncPlays extends SyncTask {
 	private void showNotification(String minDate, String maxDate, int page) {
 		String message;
 		if (TextUtils.isEmpty(minDate) && TextUtils.isEmpty(maxDate)) {
-			message = "Syncing all plays";
+			message = context.getString(R.string.sync_notification_plays_all);
 		} else if (TextUtils.isEmpty(minDate)) {
-			message = "Updating plays before " + maxDate;
+			message = context.getString(R.string.sync_notification_plays_old, maxDate);
 		} else if (TextUtils.isEmpty(maxDate)) {
-			message = "Updating plays since " + minDate;
+			message = context.getString(R.string.sync_notification_plays_new, minDate);
 		} else {
-			message = "Updating plays between " + minDate + " and " + maxDate;
+			message = context.getString(R.string.sync_notification_plays_between, minDate, maxDate);
 		}
 		if (page > 1) {
-			message = String.format("%s (page %,d)", message, page);
+			message = context.getString(R.string.sync_notification_page_suffix, message, page);
 		}
 		updateProgressNotification(message);
 	}

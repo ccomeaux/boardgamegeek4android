@@ -6,6 +6,7 @@ import android.content.SyncResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.Game;
@@ -39,9 +40,9 @@ public abstract class SyncGames extends SyncTask {
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
 					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
-					String detail = fetchSize + " games: " + gameIdDescription;
+					String detail = context.getString(R.string.sync_notification_games, fetchSize, gameIdDescription);
 					if (numberOfFetches > 1) {
-						detail += " (page " + numberOfFetches + ")";
+						detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches);
 					}
 					updateProgressNotification(detail);
 
@@ -72,8 +73,8 @@ public abstract class SyncGames extends SyncTask {
 	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
 //		while (true) {
 //			try {
-				String ids = TextUtils.join(",", gameIds);
-				return new ThingRequest(service, ids).execute();
+		String ids = TextUtils.join(",", gameIds);
+		return new ThingRequest(service, ids).execute();
 //			} catch (Exception e) {
 //				if (e.getCause() instanceof SocketTimeoutException) {
 //					if (fetchSize == 1) {
