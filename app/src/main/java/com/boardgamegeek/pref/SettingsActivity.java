@@ -115,7 +115,7 @@ public class SettingsActivity extends DrawerActivity {
 							.withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
 							.withAboutIconShown(true)
 							.withAboutAppName(getString(R.string.app_name))
-							.withAboutVersionShown(true)
+							.withAboutVersionShownName(true)
 							.start(getActivity());
 						return true;
 					}
