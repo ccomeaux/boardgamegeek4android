@@ -163,13 +163,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private MenuBuilder mShortPopupMenu;
 	private ShowcaseViewWizard showcaseWizard;
 
-	private boolean mPrefShowLocation;
-	private boolean mPrefShowLength;
-	private boolean mPrefShowQuantity;
-	private boolean mPrefShowIncomplete;
-	private boolean mPrefShowNoWinStats;
-	private boolean mPrefShowComments;
-	private boolean mPrefShowPlayers;
 	private boolean mUserShowLocation;
 	private boolean mUserShowLength;
 	private boolean mUserShowQuantity;
@@ -384,13 +377,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	protected void onResume() {
 		super.onResume();
 		mLaunchingActivity = false;
-		mPrefShowLocation = PreferencesUtils.showLogPlayLocation(this);
-		mPrefShowLength = PreferencesUtils.showLogPlayLength(this);
-		mPrefShowQuantity = PreferencesUtils.showLogPlayQuantity(this);
-		mPrefShowIncomplete = PreferencesUtils.showLogPlayIncomplete(this);
-		mPrefShowNoWinStats = PreferencesUtils.showLogPlayNoWinStats(this);
-		mPrefShowComments = PreferencesUtils.showLogPlayComments(this);
-		mPrefShowPlayers = PreferencesUtils.showLogPlayPlayerList(this);
 		setViewVisibility();
 
 		locationAdapter = new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri());
@@ -594,37 +580,37 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	private boolean shouldHideLocation() {
-		return !mPrefShowLocation && !mUserShowLocation && TextUtils.isEmpty(mPlay.location);
+		return !PreferencesUtils.showLogPlayLocation(this) && !mUserShowLocation && TextUtils.isEmpty(mPlay.location);
 	}
 
 	@DebugLog
 	private boolean shouldHideLength() {
-		return !mPrefShowLength && !mUserShowLength && !(mPlay.length > 0);
+		return !PreferencesUtils.showLogPlayLength(this) && !mUserShowLength && !(mPlay.length > 0);
 	}
 
 	@DebugLog
 	private boolean shouldHideQuantity() {
-		return !mPrefShowQuantity && !mUserShowQuantity && !(mPlay.quantity > 1);
+		return !PreferencesUtils.showLogPlayQuantity(this) && !mUserShowQuantity && !(mPlay.quantity > 1);
 	}
 
 	@DebugLog
 	private boolean shouldHideIncomplete() {
-		return !mPrefShowIncomplete && !mUserShowIncomplete && !mPlay.Incomplete();
+		return !PreferencesUtils.showLogPlayIncomplete(this) && !mUserShowIncomplete && !mPlay.Incomplete();
 	}
 
 	@DebugLog
 	private boolean shouldHideNoWinStats() {
-		return !mPrefShowNoWinStats && !mUserShowNoWinStats && !mPlay.NoWinStats();
+		return !PreferencesUtils.showLogPlayNoWinStats(this) && !mUserShowNoWinStats && !mPlay.NoWinStats();
 	}
 
 	@DebugLog
 	private boolean shouldHideComments() {
-		return !mPrefShowComments && !mUserShowComments && TextUtils.isEmpty(mPlay.comments);
+		return !PreferencesUtils.showLogPlayComments(this) && !mUserShowComments && TextUtils.isEmpty(mPlay.comments);
 	}
 
 	@DebugLog
 	private boolean shouldHidePlayers() {
-		return !mPrefShowPlayers && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
+		return !PreferencesUtils.showLogPlayPlayerList(this) && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
 	}
 
 	@DebugLog
