@@ -19,7 +19,6 @@ import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 10;
-	private int fetchSize;
 
 	public SyncGames(Context context, BggService service) {
 		super(context, service);
@@ -29,7 +28,7 @@ public abstract class SyncGames extends SyncTask {
 	public void execute(Account account, @NonNull SyncResult syncResult) {
 		Timber.i(getIntroLogMessage());
 		try {
-			fetchSize = GAMES_PER_FETCH;
+			int fetchSize = GAMES_PER_FETCH;
 			int numberOfFetches = 0;
 			do {
 				if (isCancelled()) {

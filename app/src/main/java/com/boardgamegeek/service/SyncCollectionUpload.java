@@ -32,11 +32,10 @@ import timber.log.Timber;
 public class SyncCollectionUpload extends SyncUploadTask {
 	private ContentResolver resolver;
 	private SyncResult syncResult;
-	private final List<String> timestampColumns = new ArrayList<>();
 	private final OkHttpClient okHttpClient;
-	private CollectionDeleteTask deleteTask;
-	private CollectionAddTask addTask;
-	private List<CollectionUploadTask> uploadTasks;
+	private final CollectionDeleteTask deleteTask;
+	private final CollectionAddTask addTask;
+	private final List<CollectionUploadTask> uploadTasks;
 
 	@DebugLog
 	public SyncCollectionUpload(Context context, BggService service) {
@@ -45,9 +44,6 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		deleteTask = new CollectionDeleteTask(okHttpClient);
 		addTask = new CollectionAddTask(okHttpClient);
 		uploadTasks = createUploadTasks();
-		for (CollectionUploadTask task : uploadTasks) {
-			timestampColumns.add(task.getTimestampColumn());
-		}
 	}
 
 	private List<CollectionUploadTask> createUploadTasks() {
