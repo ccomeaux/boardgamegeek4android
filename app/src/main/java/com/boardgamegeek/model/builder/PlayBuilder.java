@@ -15,6 +15,23 @@ import com.boardgamegeek.util.CursorUtils;
 import java.util.ArrayList;
 
 public class PlayBuilder {
+	public static final String[] PLAY_PROJECTION = {
+		Plays.PLAY_ID,
+		PlayItems.NAME,
+		PlayItems.OBJECT_ID,
+		Plays.DATE,
+		Plays.LOCATION,
+		Plays.LENGTH,
+		Plays.QUANTITY,
+		Plays.INCOMPLETE,
+		Plays.NO_WIN_STATS,
+		Plays.COMMENTS,
+		Plays.UPDATED_LIST,
+		Plays.SYNC_STATUS,
+		Plays.UPDATED,
+		Plays.START_TIME,
+		Plays.PLAYER_COUNT
+	};
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";

@@ -51,7 +51,6 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -104,22 +103,11 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
-	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
-	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
-	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
-	private static final String KEY_INCOMPLETE_SHOWN = "INCOMPLETE_SHOWN";
-	private static final String KEY_NO_WIN_STATS_SHOWN = "NO_WIN_STATS_SHOWN";
-	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
-	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
-	private static final String KEY_DELETE_ON_CANCEL = "DELETE_ON_CANCEL";
 	private static final String DATE_PICKER_DIALOG_TAG = "DATE_PICKER_DIALOG";
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_ID = 1 << 2;
 	private static final int TOKEN_UNINITIALIZED = 1 << 31;
-	private static final String[] PLAY_PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE,
-		Plays.LOCATION, Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS,
-		Plays.START_TIME };
 	private static final String[] PLAYER_PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME,
 		PlayPlayers.START_POSITION, PlayPlayers.COLOR, PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW,
 		PlayPlayers.WIN, };
@@ -613,7 +601,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 					shouldDeletePlayOnActivityCancel = true;
 					mOutstandingQueries |= TOKEN_ID;
 				}
-				mHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(mPlayId), PLAY_PROJECTION, null, null, null);
+				mHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(mPlayId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 			} else {
 				// Starting a new play
 				shouldDeletePlayOnActivityCancel = true;

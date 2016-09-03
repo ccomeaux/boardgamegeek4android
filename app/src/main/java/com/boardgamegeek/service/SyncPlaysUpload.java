@@ -185,7 +185,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
-				null,
+				PlayBuilder.PLAY_PROJECTION,
 				Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
 				null);

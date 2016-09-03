@@ -37,7 +37,6 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
@@ -69,6 +68,8 @@ import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final int PLAY_QUERY_TOKEN = 0x01;
+	private static final int PLAYER_QUERY_TOKEN = 0x02;
 
 	private boolean mSyncing;
 	private int mPlayId = BggContract.INVALID_ID;
@@ -159,7 +160,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		mAdapter = new PlayerAdapter();
 		playersView.setAdapter(mAdapter);
 
-		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
 
 		return rootView;
 	}
@@ -317,8 +318,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
-			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayQuery.PROJECTION, null, null, null);
+			case PLAY_QUERY_TOKEN:
+				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 				break;
 			case PlayerQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayerQuery.PROJECTION, null, null, null);
@@ -337,7 +338,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		switch (loader.getId()) {
-			case PlayQuery._TOKEN:
+			case PLAY_QUERY_TOKEN:
 				if (onPlayQueryComplete(cursor)) {
 					showList();
 				}
@@ -371,7 +372,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void setNewPlayId(int playId) {
 		mPlayId = playId;
 		if (isAdded()) {
-			getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+			getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
 		}
 	}
 
@@ -524,13 +525,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			row.setPlayer((Player) getItem(position));
 			return row;
 		}
-	}
-
-	private interface PlayQuery {
-		int _TOKEN = 0x01;
-		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST,
-			Plays.SYNC_STATUS, Plays.UPDATED, Plays.START_TIME };
 	}
 
 	private interface PlayerQuery {
