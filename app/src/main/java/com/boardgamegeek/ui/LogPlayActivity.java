@@ -143,8 +143,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private AutoCompleteAdapter locationAdapter;
 	private AlertDialog.Builder mAddPlayersBuilder;
 	private final List<Player> mPlayersToAdd = new ArrayList<>();
-	private final List<String> mUsernames = new ArrayList<>();
-	private final List<String> mNames = new ArrayList<>();
+	private final List<String> userNames = new ArrayList<>();
+	private final List<String> names = new ArrayList<>();
 
 	@BindView(R.id.header) TextView mHeaderView;
 	@BindView(R.id.log_play_date) TextView mDateButton;
@@ -176,8 +176,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@State boolean shouldDeletePlayOnActivityCancel;
 	@State boolean arePlayersCustomSorted;
 
-	private boolean mLaunchingActivity;
-	private boolean mSaveOnPause = true;
+	private boolean isLaunchingActivity;
+	private boolean shouldSaveOnPause = true;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
 		@Override
@@ -370,7 +370,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mLaunchingActivity = false;
+		isLaunchingActivity = false;
 		setViewVisibility();
 
 		locationAdapter = new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri());
@@ -394,7 +394,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	protected void onPause() {
 		super.onPause();
 		locationAdapter.changeCursor(null);
-		if (mSaveOnPause && !mLaunchingActivity) {
+		if (shouldSaveOnPause && !isLaunchingActivity) {
 			saveDraft(false);
 		}
 	}
@@ -679,7 +679,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		if (mPlay == null) {
 			return false;
 		}
-		mSaveOnPause = false;
+		shouldSaveOnPause = false;
 		if (syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 			captureForm();
 		}
@@ -690,7 +690,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	private void cancel() {
-		mSaveOnPause = false;
+		shouldSaveOnPause = false;
 		captureForm();
 		if (mPlay == null || mPlay.equals(mOriginalPlay)) {
 			if (shouldDeletePlayOnActivityCancel) {
@@ -904,8 +904,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		captureForm(); // to get location
 
 		mPlayersToAdd.clear();
-		mUsernames.clear();
-		mNames.clear();
+		userNames.clear();
+		names.clear();
 		List<String> descriptions = new ArrayList<>();
 
 		String selection = null;
@@ -924,8 +924,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				String username = cursor.getString(1);
 				String name = cursor.getString(2);
 				if (!containsPlayer(username, name)) {
-					mUsernames.add(username);
-					mNames.add(name);
+					userNames.add(username);
+					names.add(name);
 					descriptions.add(cursor.getString(3));
 				}
 			}
@@ -945,8 +945,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				@Override
 				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 					Player player = new Player();
-					player.username = mUsernames.get(which);
-					player.name = mNames.get(which);
+					player.username = userNames.get(which);
+					player.name = names.get(which);
 					if (isChecked) {
 						mPlayersToAdd.add(player);
 					} else {
@@ -1205,7 +1205,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	private void editPlayer(Intent intent, int requestCode) {
-		mLaunchingActivity = true;
+		isLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.gameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.gameName);
