@@ -58,7 +58,7 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 			int replies = thread.numberOfArticles - 1;
 			numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
 			lastPostDateView.setTimestamp(thread.lastPostDate());
-			postDateView.setTimestamp(thread.lastPostDate());
+			postDateView.setTimestamp(thread.postDate());
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
