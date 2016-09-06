@@ -340,7 +340,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
 	}
 
-	@DebugLog
 	@Override
 	protected int getSyncType() {
 		return SyncService.FLAG_SYNC_COLLECTION;

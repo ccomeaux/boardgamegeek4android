@@ -100,8 +100,13 @@ public class PlayerRow extends LinearLayout {
 			mScoreButton.setVisibility(View.GONE);
 		} else {
 			setText(mSeat, player.getStartingPosition());
-			setText(mName, player.name, mNameTypeface, player.New(), player.Win());
-			setText(mUsername, player.username, mUsernameTypeface, player.New(), false);
+			if (TextUtils.isEmpty(player.name)) {
+				setText(mName, player.username, mNameTypeface, player.New(), player.Win());
+				mUsername.setVisibility(View.GONE);
+			} else {
+				setText(mName, player.name, mNameTypeface, player.New(), player.Win());
+				setText(mUsername, player.username, mUsernameTypeface, player.New(), player.Win());
+			}
 			setText(mTeamColor, player.color);
 			setText(mScore, player.score, mScoreTypeface, false, player.Win());
 			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
