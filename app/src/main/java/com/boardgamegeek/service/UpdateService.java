@@ -17,7 +17,8 @@ import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+
 import timber.log.Timber;
 
 public class UpdateService extends IntentService {
@@ -81,6 +82,7 @@ public class UpdateService extends IntentService {
 		try {
 			task.execute(this);
 		} catch (Exception e) {
+			Timber.e(e, "Error executing task");
 			String message = createErrorMessage(task, e);
 			maybeShowNotification(message);
 			postError(message);

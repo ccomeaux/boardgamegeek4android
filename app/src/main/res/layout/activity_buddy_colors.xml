@@ -24,28 +24,12 @@
 			android:layout_gravity="center"
 			tools:visibility="gone"/>
 
-		<com.mobeta.android.dslv.DragSortListView
+		<android.support.v7.widget.RecyclerView
 			android:id="@android:id/list"
-			xmlns:dslv="http://schemas.android.com/apk/res-auto"
+			style="@style/RecyclerViewVerticalList"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:clipToPadding="false"
-			android:divider="@null"
-			android:fillViewport="true"
-			android:footerDividersEnabled="false"
-			android:headerDividersEnabled="false"
-			android:paddingBottom="@dimen/material_margin_vertical"
-			android:paddingTop="@dimen/material_margin_vertical"
-			android:visibility="gone"
-			dslv:collapsed_height="@dimen/padding_standard"
-			dslv:drag_enabled="true"
-			dslv:drag_handle_id="@+id/drag_handle"
-			dslv:drag_start_mode="onDown"
-			dslv:float_alpha="0.75"
-			dslv:float_background_color="@color/primary"
-			dslv:remove_enabled="false"
-			dslv:sort_enabled="true"
-			dslv:use_default_controller="true"/>
+			android:paddingBottom="@dimen/fab_buffer"/>
 
 		<LinearLayout
 			android:id="@android:id/empty"
@@ -92,7 +76,7 @@
 			android:visibility="visible"
 			app:elevation="@dimen/fab_elevation"
 			app:pressedTranslationZ="@dimen/fab_translation"
-			app:rippleColor="@color/primary_dark"
+			app:rippleColor="@color/medium_blue"
 			tools:visibility="visible"/>
 	</android.support.design.widget.CoordinatorLayout>
 </LinearLayout>

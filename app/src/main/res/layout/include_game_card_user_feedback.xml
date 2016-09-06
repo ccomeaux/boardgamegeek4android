@@ -2,6 +2,7 @@
 <android.support.v7.widget.CardView
 	style="@style/Card"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -28,7 +29,7 @@
 			<ImageView
 				android:id="@+id/icon_ratings"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_stars"/>
+				android:src="@drawable/ic_rating"/>
 
 			<LinearLayout
 				android:id="@+id/rating_container"
@@ -97,16 +98,37 @@
 			<ImageView
 				android:id="@+id/icon_forums"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_forum"/>
+				android:src="@drawable/ic_forums"/>
 
-			<TextView
+			<LinearLayout
+				android:id="@+id/forums_container"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:maxLines="1"
-				android:text="@string/title_forums"
-				android:textAppearance="@style/Text"/>
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/forums"
+					style="@style/Text"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					android:text="@string/title_forums"
+					android:textAppearance="@style/Text"/>
+
+				<com.boardgamegeek.ui.widget.TimestampView
+					android:id="@+id/forums_last_post_date"
+					style="@style/Text.Secondary"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:visibility="invisible"
+					app:format="@string/forum_last_post_in"
+					app:hideWhenEmpty="true"
+					app:isForumTimestamp="true"
+					tools:text="Last post 1 hour ago"
+					tools:visibility="visible"/>
+			</LinearLayout>
 		</LinearLayout>
 
 		<LinearLayout
@@ -119,7 +141,7 @@
 			<ImageView
 				android:id="@+id/icon_weight"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_anchor"/>
+				android:src="@drawable/ic_weight"/>
 
 			<LinearLayout
 				android:id="@+id/weight_container"
@@ -159,14 +181,30 @@
 				style="@style/Icon"
 				android:src="@drawable/ic_language"/>
 
-			<TextView
+			<LinearLayout
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:maxLines="1"
-				android:text="@string/language_dependence"
-				android:textAppearance="@style/Text"/>
+				android:orientation="vertical">
+
+				<TextView
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:maxLines="1"
+					android:text="@string/language_dependence"/>
+
+				<TextView
+					android:id="@+id/language_dependence_details"
+					style="@style/Text.Secondary"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:maxLines="2"
+					android:visibility="gone"
+					tools:text="Unplayable in another language (4.81/5)"
+					tools:visibility="visible"/>
+			</LinearLayout>
 		</LinearLayout>
 
 		<LinearLayout
@@ -178,7 +216,7 @@
 			<ImageView
 				android:id="@+id/icon_users"
 				style="@style/Icon"
-				android:src="@drawable/ic_action_users"/>
+				android:src="@drawable/ic_users"/>
 
 			<LinearLayout
 				style="@style/CardRowContent"

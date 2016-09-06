@@ -3,6 +3,7 @@ package com.boardgamegeek.util;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,9 +21,22 @@ public class PaletteUtils {
 	public static final ButterKnife.Setter<TextView, Palette.Swatch> colorTextViewSetter =
 		new ButterKnife.Setter<TextView, Palette.Swatch>() {
 			@Override
-			public void set(TextView view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
+			public void set(@NonNull TextView view, Palette.Swatch value, int index) {
+				if (value != null) {
 					view.setTextColor(value.getRgb());
+				}
+			}
+		};
+
+	/**
+	 * Sets the {@link android.widget.TextView}'s text color filter to the RGB color.
+	 */
+	public static final ButterKnife.Setter<TextView, Integer> rgbTextViewSetter =
+		new ButterKnife.Setter<TextView, Integer>() {
+			@Override
+			public void set(@NonNull TextView view, Integer value, int index) {
+				if (value != null) {
+					view.setTextColor(value);
 				}
 			}
 		};
@@ -34,9 +48,22 @@ public class PaletteUtils {
 	public static final ButterKnife.Setter<ImageView, Palette.Swatch> colorIconSetter =
 		new ButterKnife.Setter<ImageView, Palette.Swatch>() {
 			@Override
-			public void set(ImageView view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
+			public void set(@NonNull ImageView view, Palette.Swatch value, int index) {
+				if (value != null) {
 					view.setColorFilter(value.getRgb());
+				}
+			}
+		};
+
+	/**
+	 * Sets the {@link android.widget.ImageView}'s color filter to the RGB color.
+	 */
+	public static final ButterKnife.Setter<ImageView, Integer> rgbIconSetter =
+		new ButterKnife.Setter<ImageView, Integer>() {
+			@Override
+			public void set(@NonNull ImageView view, Integer value, int index) {
+				if (value != null) {
+					view.setColorFilter(value);
 				}
 			}
 		};
@@ -48,8 +75,8 @@ public class PaletteUtils {
 	public static final ButterKnife.Setter<TextView, Palette.Swatch> colorTextViewOnBackgroundSetter =
 		new ButterKnife.Setter<TextView, Palette.Swatch>() {
 			@Override
-			public void set(TextView view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
+			public void set(@NonNull TextView view, Palette.Swatch value, int index) {
+				if (value != null) {
 					view.setTextColor(value.getBodyTextColor());
 					for (Drawable d : view.getCompoundDrawables()) {
 						if (d != null) {

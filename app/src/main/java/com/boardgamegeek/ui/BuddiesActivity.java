@@ -9,6 +9,9 @@ import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hugo.weaving.DebugLog;
 
 public class BuddiesActivity extends TopLevelSinglePaneActivity {
@@ -23,7 +26,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, (isDrawerOpen() || numberOfBuddies <= 0) ? "" : String.valueOf(numberOfBuddies));
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, numberOfBuddies <= 0 ? "" : String.format("%,d", numberOfBuddies));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -41,13 +44,16 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
 	public void onEvent(BuddiesCountChangedEvent event) {
 		numberOfBuddies = event.getCount();
 		supportInvalidateOptionsMenu();
+		invalidateOptionsMenu();
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(BuddySelectedEvent event) {
 		ActivityUtils.startBuddyActivity(this, event.getBuddyName(), null);
 	}

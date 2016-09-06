@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
@@ -20,7 +18,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -28,55 +25,53 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class PlayStatView extends TableRow {
-	@InjectView(R.id.label) TextView mLabel;
-	@InjectView(R.id.value) TextView mValue;
-	@InjectView(R.id.info) ImageView mInfo;
-	@InjectView(R.id.label_container) View mContainer;
-	private AlertDialog.Builder mBuilder;
+	@BindView(R.id.label) TextView labelView;
+	@BindView(R.id.value) TextView valueView;
+	@BindView(R.id.info) ImageView infoImageView;
+	@BindView(R.id.label_container) View container;
+	private AlertDialog.Builder builder;
 
 	public PlayStatView(Context context) {
 		super(context);
 		LayoutInflater inflater = LayoutInflater.from(context);
 		inflater.inflate(R.layout.widget_play_stat, this);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 	}
 
 	public void setLabel(CharSequence text) {
-		mLabel.setText(text);
+		labelView.setText(text);
 	}
 
 	public void setLabel(@StringRes int textId) {
-		mLabel.setText(textId);
+		labelView.setText(textId);
 	}
 
 	public void setValue(CharSequence text) {
-		mValue.setText(text);
+		valueView.setText(text);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(@StringRes int textId) {
 		setInfoText(getContext().getString(textId));
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(String text) {
-		mInfo.setVisibility(View.VISIBLE);
+		infoImageView.setVisibility(View.VISIBLE);
 		setClickBackground();
 		final SpannableString s = new SpannableString(text);
 		Linkify.addLinks(s, Linkify.ALL);
-		mBuilder = new AlertDialog.Builder(getContext());
-		mBuilder.setTitle(mLabel.getText()).setMessage(s);
+		builder = new AlertDialog.Builder(getContext());
+		builder.setTitle(labelView.getText()).setMessage(s);
 	}
 
 	@OnClick(R.id.label_container)
-	public void onInfoClick(View v) {
-		if (mBuilder != null) {
-			AlertDialog dialog = mBuilder.show();
+	public void onInfoClick() {
+		if (builder != null) {
+			AlertDialog dialog = builder.show();
 			TextView textView = (TextView) dialog.findViewById(android.R.id.message);
 			if (textView != null) {
 				textView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -84,18 +79,15 @@ public class PlayStatView extends TableRow {
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setClickBackground() {
-		if (VersionUtils.hasHoneycomb()) {
-			int resId = 0;
-			TypedArray a = getContext().obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
-			try {
-				resId = a.getResourceId(0, resId);
-			} finally {
-				a.recycle();
-			}
-			mContainer.setBackgroundResource(resId);
+		int resId = 0;
+		TypedArray a = getContext().obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
+		try {
+			resId = a.getResourceId(0, resId);
+		} finally {
+			a.recycle();
 		}
+		container.setBackgroundResource(resId);
 	}
 
 	public static class Builder {

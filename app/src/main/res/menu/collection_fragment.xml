@@ -1,30 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	  xmlns:app="http://schemas.android.com/apk/res-auto"
+	  xmlns:tools="http://schemas.android.com/tools">
 
 	<item
 		android:id="@+id/menu_collection_sort"
-		android:icon="@drawable/ic_action_sort_light"
+		android:icon="@drawable/menu_sort"
 		android:title="@string/menu_sort"
-		app:showAsAction="always"/>
+		app:showAsAction="always"
+		tools:ignore="AlwaysShowAction"/>
 	<item
 		android:id="@+id/menu_collection_filter"
-		android:icon="@drawable/ic_action_filter_on_light"
+		android:icon="@drawable/menu_filter"
 		android:title="@string/menu_collection_filter_add"
-		app:showAsAction="always"/>
+		app:showAsAction="always"
+		tools:ignore="AlwaysShowAction"/>
 	<item
 		android:id="@+id/menu_collection_view_save"
-		android:icon="@drawable/ic_action_save_light"
+		android:icon="@drawable/menu_save"
 		android:title="@string/menu_collection_view_save"
-		app:showAsAction="always"/>
+		app:showAsAction="always"
+		tools:ignore="AlwaysShowAction"/>
 	<item
 		android:id="@+id/menu_collection_view_delete"
-		android:icon="@drawable/ic_action_delete_light"
+		android:icon="@drawable/menu_delete"
 		android:title="@string/menu_collection_view_delete"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_collection_random_game"
-		android:icon="@drawable/ic_action_help_light"
+		android:icon="@drawable/menu_random"
 		android:title="@string/menu_collection_random_game"
 		app:showAsAction="ifRoom"/>
 

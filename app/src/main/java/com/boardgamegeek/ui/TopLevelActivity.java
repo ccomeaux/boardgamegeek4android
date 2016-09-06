@@ -27,10 +27,6 @@ public abstract class TopLevelActivity extends DrawerActivity {
 				final ActionBar actionBar = getSupportActionBar();
 				if (actionBar != null) {
 					actionBar.setTitle(title);
-					if (isTitleHidden()) {
-						actionBar.setDisplayShowTitleEnabled(false);
-						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-					}
 				}
 				supportInvalidateOptionsMenu();
 			}
@@ -38,16 +34,12 @@ public abstract class TopLevelActivity extends DrawerActivity {
 			public void onDrawerOpened(View drawerView) {
 				final ActionBar actionBar = getSupportActionBar();
 				if (actionBar != null) {
-					if (isTitleHidden()) {
-						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-						actionBar.setDisplayShowTitleEnabled(true);
-					}
 					actionBar.setTitle(drawerTitle);
 				}
 				supportInvalidateOptionsMenu();
 			}
 		};
-		drawerLayout.setDrawerListener(drawerToggle);
+		drawerLayout.addDrawerListener(drawerToggle);
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
@@ -79,9 +71,5 @@ public abstract class TopLevelActivity extends DrawerActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
-	}
-
-	protected boolean isTitleHidden() {
-		return false;
 	}
 }

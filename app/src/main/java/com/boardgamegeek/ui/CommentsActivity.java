@@ -15,15 +15,15 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	public static final int SORT_USER = 0;
 	public static final int SORT_RATING = 1;
 
-	private int mGameId;
-	private String mGameName;
+	private int gameId;
+	private String gameName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mGameId = BggContract.Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = BggContract.Games.getGameId(getIntent().getData());
+		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 		int sort = getIntent().getIntExtra(ActivityUtils.KEY_SORT, SORT_USER);
 
 		ActionBar actionBar = getSupportActionBar();
@@ -31,8 +31,8 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 			if (sort == SORT_RATING) {
 				actionBar.setTitle(R.string.title_ratings);
 			}
-			if (!TextUtils.isEmpty(mGameName)) {
-				actionBar.setSubtitle(mGameName);
+			if (!TextUtils.isEmpty(gameName)) {
+				actionBar.setSubtitle(gameName);
 			}
 		}
 	}
@@ -46,7 +46,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+				ActivityUtils.navigateUpToGame(this, gameId, gameName);
 				finish();
 				return true;
 		}

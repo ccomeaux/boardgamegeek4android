@@ -26,13 +26,13 @@ import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
-import retrofit.RetrofitError;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -47,7 +47,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		this.context = context;
 		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 
-		// // noinspection ConstantConditions,PointlessBooleanExpression
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 				@Override
@@ -99,11 +98,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				currentTask.execute(account, syncResult);
 				EventBus.getDefault().post(new SyncCompleteEvent());
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
-			} catch (RetrofitError re) {
-				Timber.e(re, "Syncing " + currentTask);
-				syncResult.stats.numIoExceptions += 10;
-				showError(currentTask, re);
-				break;
 			} catch (Exception e) {
 				Timber.e(e, "Syncing " + currentTask);
 				syncResult.stats.numIoExceptions += 10;
@@ -161,7 +155,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@DebugLog
 	@NonNull
 	private List<SyncTask> createTasks(Context context, final int type) {
-		BggService service = Adapter.createWithAuth(context);
+		BggService service = Adapter.createForXmlWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION_UPLOAD) == SyncService.FLAG_SYNC_COLLECTION_UPLOAD) {
 			tasks.add(new SyncCollectionUpload(context, service));
@@ -221,20 +215,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
-		CharSequence text = context.getText(task.getNotification());
-		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_error)
-			.setContentText(text)
-			.setCategory(NotificationCompat.CATEGORY_ERROR);
-		if (!TextUtils.isEmpty(message)) {
-			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+		final int notification = task.getNotification();
+		if (notification != ServiceTask.NO_NOTIFICATION) {
+			CharSequence text = context.getText(notification);
+			NotificationCompat.Builder builder = NotificationUtils
+				.createNotificationBuilder(context, R.string.sync_notification_title_error)
+				.setContentText(text)
+				.setCategory(NotificationCompat.CATEGORY_ERROR);
+			if (!TextUtils.isEmpty(message)) {
+				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+			}
+			NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 		}
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 
 	@DebugLog
 	private void showCancel(int messageId) {
 		if (!shouldShowNotifications) {
+			return;
+		}
+
+		if (messageId == SyncTask.NO_NOTIFICATION) {
 			return;
 		}
 

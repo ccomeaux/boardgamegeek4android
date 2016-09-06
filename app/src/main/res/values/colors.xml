@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<color name="dark_blue">#ff292e62</color>
+	<color name="medium_blue">#ff405898</color>
+	<color name="light_blue">#ffe7ecf1</color>
+	<color name="orange">#ffff7807</color>
+	<color name="light_blue_transparent">#aae7ecf1</color>
+	<color name="medium_blue_transparent">#cc405898</color>
 
-	<color name="primary">#ffe0e0ef</color>
-	<color name="primary_dark">#ff4c6099</color>
-	<color name="primary_transparent">#aae0e0ef</color>
-	<color name="accent">#ff2a2c70</color>
-	<color name="info_background">@color/primary</color>
-	<color name="info_background_dark">@color/primary_dark</color>
+	<color name="primary">@color/dark_blue</color>
+	<color name="primary_dark">#ff232753</color>
+	<color name="accent">@color/orange</color>
+	<color name="info_background">@color/light_blue</color>
+	<color name="info_background_dark">@color/medium_blue</color>
 
-	<color name="light_text">#6000</color>
-	<color name="dialog_text">#ffffffff</color>
-	<color name="inverse_text_title">#deffffff</color>
+	<color name="dialog_text">#000</color>
+	<color name="secondary_text">#8a000000</color>
 	<color name="inverse_text">#ffffff</color>
 	<color name="inverse_text_body">#deffffff</color>
-	<color name="actionbar_text">#99333333</color>
 
 	<color name="black_overlay">#CC000000</color>
-	<color name="white_overlay">#CCffffff</color>
+	<color name="black_overlay_light">#6000</color>
 	<color name="no_image">#808080</color>
-	<color name="navdrawer_icon_tint">#88FFFFFF</color>
+	<color name="navdrawer_icon_tint">#75ffffff</color>
 	<color name="navdrawer_selected_row">#eeeeee</color>
 	<color name="disabled">#cccc</color>
-	<color name="pressed">#CC4c6199</color>
 
 	<color name="best">#00a550</color>
 	<color name="recommended">#ffef00</color>
@@ -30,4 +32,9 @@
 
 	<color name="list_divider">#1F000000</color>
 	<color name="button_under_text">#2000</color>
+
+	<color name="score_low">#f00</color>
+	<color name="score_average">#cc0</color>
+	<color name="score_average_win">#00f</color>
+	<color name="score_high">#080</color>
 </resources>

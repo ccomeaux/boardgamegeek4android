@@ -4,17 +4,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.util.HttpUtils;
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 
 import hugo.weaving.DebugLog;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import timber.log.Timber;
 
 public class NetworkAuthenticator {
@@ -28,16 +25,16 @@ public class NetworkAuthenticator {
 	 * requests, or null if authentication fails.
 	 */
 	@Nullable
-	public static AuthResponse authenticate(@NonNull String username, @NonNull String password) {
+	public static BggCookieJar authenticate(@NonNull String username, @NonNull String password) {
 		if (MOCK_LOGIN) {
-			return AuthResponse.getMock();
+			return BggCookieJar.getMock();
 		} else {
 			return tryAuthenticate(username, password);
 		}
 	}
 
 	@Nullable
-	private static AuthResponse tryAuthenticate(@NonNull String username, @NonNull String password) {
+	private static BggCookieJar tryAuthenticate(@NonNull String username, @NonNull String password) {
 		try {
 			return performAuthenticate(username, password);
 		} catch (@NonNull final IOException e) {
@@ -50,18 +47,26 @@ public class NetworkAuthenticator {
 
 	@Nullable
 	@DebugLog
-	private static AuthResponse performAuthenticate(@NonNull String username, @NonNull String password) throws IOException {
-		final OkHttpClient client = HttpUtils.getHttpClient();
-		CookieManager cookieManager = createCookieManager(client);
+	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password) throws IOException {
+		final BggCookieJar cookieJar = new BggCookieJar();
+		final OkHttpClient client = HttpUtils.getHttpClient().newBuilder()
+			.cookieJar(cookieJar)
+			.build();
 		Request post = buildRequest(username, password);
 		final Response response = client.newCall(post).execute();
-		return determineResponseSuccess(cookieManager, response);
+		if (response.isSuccessful() && cookieJar.isValid()) {
+			Timber.w("Successful authentication");
+			return cookieJar;
+		} else {
+			Timber.w("Bad response code - " + response.code());
+			return null;
+		}
 	}
 
 	@DebugLog
 	@NonNull
 	private static Request buildRequest(@NonNull String username, @NonNull String password) {
-		RequestBody formBody = new FormEncodingBuilder()
+		FormBody formBody = new FormBody.Builder()
 			.add("username", username)
 			.add("password", password)
 			.build();
@@ -69,26 +74,5 @@ public class NetworkAuthenticator {
 			.url("https://www.boardgamegeek.com/login")
 			.post(formBody)
 			.build();
-	}
-
-	@DebugLog
-	@NonNull
-	private static CookieManager createCookieManager(@NonNull OkHttpClient client) {
-		CookieManager cookieManager = new CookieManager();
-		cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-		client.setCookieHandler(cookieManager);
-		return cookieManager;
-	}
-
-	@DebugLog
-	@Nullable
-	private static AuthResponse determineResponseSuccess(@NonNull CookieManager cookieManager, @NonNull Response response) {
-		if (response.isSuccessful()) {
-			Timber.w("Successful authentication");
-			return AuthResponse.fromCookieStore(cookieManager.getCookieStore());
-		} else {
-			Timber.w("Bad response code - " + response.code());
-			return null;
-		}
 	}
 }

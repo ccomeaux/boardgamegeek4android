@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Version 6.0
+-----------
+ * Add and remove items in your collection
+ * Modify your collection item's private information
+ * Darker (and more mysterious!) look
+ * Better player stats
+ * Spiffy up the collection filter dialogs
+ * Better looking help screens
+ * Lots of under-the-hood improvements
+
 Version 5.2.7
 -------------
  * No more RetrofitError when modifying your collection (we hope!)

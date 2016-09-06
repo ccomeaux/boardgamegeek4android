@@ -49,12 +49,12 @@ public class SyncGamePlays extends UpdateTask {
 			return;
 		}
 
-		BggService service = Adapter.create();
+		BggService service = Adapter.createForXml();
 		PlayPersister persister = new PlayPersister(context);
 		PlaysResponse response;
 		try {
 			long startTime = System.currentTimeMillis();
-			response = service.playsByGame(account.name, gameId);
+			response = service.playsByGame(account.name, gameId).execute().body();
 			persister.save(response.plays, startTime);
 			updateGameTimestamp(context);
 			SyncService.hIndex(context);

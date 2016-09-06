@@ -41,4 +41,10 @@ public class PlayersQuantitySorter extends PlayersSorter {
 		}
 		return prefix + suffix;
 	}
+
+	@Override
+	public String getDisplayInfo(Cursor cursor) {
+		int playCount = getInt(cursor, Plays.SUM_QUANTITY);
+		return context.getResources().getQuantityString(R.plurals.plays_suffix, playCount, playCount);
+	}
 }

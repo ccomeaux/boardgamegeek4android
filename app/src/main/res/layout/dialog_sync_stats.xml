@@ -1,56 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:paddingBottom="@dimen/material_margin_vertical"
-	android:paddingLeft="@dimen/material_margin_horizontal"
-	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical"
-	android:stretchColumns="1" >
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+			xmlns:tools="http://schemas.android.com/tools"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
 
-	<TableRow>
-
-		<TextView
-			style="@style/TextLabel"
-			android:text="@string/pref_sync_timestamps_collection_full" />
-
-		<TextView android:id="@+id/sync_timestamp_collection_full" />
-	</TableRow>
-
-	<TableRow>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical">
 
 		<TextView
-			style="@style/TextLabel"
-			android:text="@string/pref_sync_timestamps_collection_partial" />
-
-		<TextView android:id="@+id/sync_timestamp_collection_partial" />
-	</TableRow>
-
-	<TableRow>
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/pref_sync_timestamps_collection_full"/>
 
 		<TextView
-			style="@style/TextLabel"
-			android:text="@string/pref_sync_timestamps_buddy" />
-
-		<TextView android:id="@+id/sync_timestamp_buddy" />
-	</TableRow>
-
-	<TableRow>
+			android:id="@+id/sync_timestamp_collection_full"
+			style="@style/Text.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="January 1, 1970 12:00 AM"/>
 
 		<TextView
-			style="@style/TextLabel"
-			android:text="@string/pref_sync_timestamps_plays_newest_date" />
-
-		<TextView android:id="@+id/sync_timestamp_plays_newest_date" />
-	</TableRow>
-
-	<TableRow>
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/pref_sync_timestamps_collection_partial"/>
 
 		<TextView
-			style="@style/TextLabel"
-			android:text="@string/pref_sync_timestamps_plays_oldest_date" />
+			android:id="@+id/sync_timestamp_collection_partial"
+			style="@style/Text.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="January 1 12:00 AM"/>
 
-		<TextView android:id="@+id/sync_timestamp_plays_oldest_date" />
-	</TableRow>
+		<TextView
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/pref_sync_timestamps_buddy"/>
 
-</TableLayout>
+		<TextView
+			android:id="@+id/sync_timestamp_buddy"
+			style="@style/Text.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="January 1 12:00 AM"/>
+
+		<TextView
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/pref_sync_timestamps_plays_newest_date"/>
+
+		<TextView
+			android:id="@+id/sync_timestamp_plays_newest_date"
+			style="@style/Text.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="January 1"/>
+
+		<TextView
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/pref_sync_timestamps_plays_oldest_date"/>
+
+		<TextView
+			android:id="@+id/sync_timestamp_plays_oldest_date"
+			style="@style/Text.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="January 1"/>
+	</LinearLayout>
+</ScrollView>

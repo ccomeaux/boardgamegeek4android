@@ -127,10 +127,10 @@ public class MultiSelectListPreference extends DialogPreference {
 		mValues.clear();
 		mValues.addAll(values);
 
-		persistStringSet(values);
+		persistStringSetCustom(values);
 	}
 
-	private boolean persistStringSet(Set<String> values) {
+	private boolean persistStringSetCustom(Set<String> values) {
 		String value = buildString(values);
 		return persistString(value);
 	}
@@ -248,10 +248,10 @@ public class MultiSelectListPreference extends DialogPreference {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-		setValues(restoreValue ? getPersistedStringSet(mValues) : (Set<String>) defaultValue);
+		setValues(restoreValue ? getPersistedStringSetCustom(mValues) : (Set<String>) defaultValue);
 	}
 
-	private Set<String> getPersistedStringSet(Set<String> defaultReturnValue) {
+	private Set<String> getPersistedStringSetCustom(Set<String> defaultReturnValue) {
 		if (!shouldPersist()) {
 			return defaultReturnValue;
 		}

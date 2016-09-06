@@ -5,10 +5,12 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
@@ -39,18 +41,22 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.github.amlcurran.showcaseview.targets.Target;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
 public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -60,39 +66,35 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_USED_COLORS = "USED_COLORS";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
-	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
-	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
-	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
-	private static final String KEY_RATING_SHOWN = "RATING_SHOWN";
-	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
-	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
+	public static final String KEY_FAB_COLOR = "FAB_COLOR";
 
-	private static final int HELP_VERSION = 1;
+	private static final int HELP_VERSION = 2;
 	private static final int TOKEN_COLORS = 1;
 
 	private String mGameName;
 
-	private Player mPlayer;
+	@State Player mPlayer;
 	private Player mOriginalPlayer;
 
-	@InjectView(R.id.scroll_container) ScrollView mScrollContainer;
-	@InjectView(R.id.header) TextView mHeader;
-	@InjectView(R.id.two_line_container) View mTwoLineContainer;
-	@InjectView(R.id.header2) TextView mHeader2;
-	@InjectView(R.id.subheader) TextView mSubheader;
-	@InjectView(R.id.log_player_username) AutoCompleteTextView mUsername;
-	@InjectView(R.id.log_player_name) AutoCompleteTextView mName;
-	@InjectView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
-	@InjectView(R.id.color_view) ImageView mColorView;
-	@InjectView(R.id.log_player_position) EditText mPosition;
-	@InjectView(R.id.log_player_position_button) Button mPositionButton;
-	@InjectView(R.id.log_player_score) EditText mScore;
-	@InjectView(R.id.log_player_score_button) Button mScoreButton;
-	@InjectView(R.id.log_player_rating) EditText mRating;
-	@InjectView(R.id.log_player_new) SwitchCompat mNew;
-	@InjectView(R.id.log_player_win) SwitchCompat mWin;
-	@InjectView(R.id.fab) FloatingActionButton mFab;
-	@InjectView(R.id.fab_buffer) View mFabBuffer;
+	@BindView(R.id.scroll_container) ScrollView mScrollContainer;
+	@BindView(R.id.header) TextView mHeader;
+	@BindView(R.id.two_line_container) View mTwoLineContainer;
+	@BindView(R.id.header2) TextView mHeader2;
+	@BindView(R.id.subheader) TextView mSubheader;
+	@BindView(R.id.log_player_username) AutoCompleteTextView mUsername;
+	@BindView(R.id.log_player_name) AutoCompleteTextView mName;
+	@BindView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
+	@BindView(R.id.color_view) ImageView mColorView;
+	@BindView(R.id.log_player_position) EditText mPosition;
+	@BindView(R.id.log_player_position_button) Button mPositionButton;
+	@BindView(R.id.log_player_score) EditText mScore;
+	@BindView(R.id.log_player_score_button) Button mScoreButton;
+	@BindView(R.id.log_player_rating) EditText mRating;
+	@BindView(R.id.log_player_new) SwitchCompat mNew;
+	@BindView(R.id.log_player_win) SwitchCompat mWin;
+	@BindView(R.id.fab) FloatingActionButton mFab;
+	@BindView(R.id.fab_buffer) View mFabBuffer;
+	private ShowcaseViewWizard showcaseWizard;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -100,12 +102,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 	private boolean mPrefShowRating;
 	private boolean mPrefShowNew;
 	private boolean mPrefShowWin;
-	private boolean mUserShowTeamColor;
-	private boolean mUserShowPosition;
-	private boolean mUserShowScore;
-	private boolean mUserShowRating;
-	private boolean mUserShowNew;
-	private boolean mUserShowWin;
+	@State boolean mUserShowTeamColor;
+	@State boolean mUserShowPosition;
+	@State boolean mUserShowScore;
+	@State boolean mUserShowRating;
+	@State boolean mUserShowNew;
+	@State boolean mUserShowWin;
 	private int mAutoPosition;
 	private ArrayList<String> mUsedColors;
 	private ArrayList<String> mColors;
@@ -164,7 +166,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_logplayer);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		mName.setOnItemClickListener(nameClickListener());
 
@@ -180,6 +182,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			mUserShowScore = true;
 			mScore.requestFocus();
 		}
+		mFab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent))));
 
 		if (savedInstanceState == null) {
 			mPlayer = intent.getParcelableExtra(KEY_PLAYER);
@@ -191,17 +194,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 			}
 			mOriginalPlayer = new Player(mPlayer);
 		} else {
-			mUserShowTeamColor = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
-			mUserShowPosition = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
-			mUserShowScore = savedInstanceState.getBoolean(KEY_SCORE_SHOWN);
-			mUserShowRating = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
-			mUserShowNew = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
-			mUserShowWin = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
-
-			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
+			Icepick.restoreInstanceState(this, savedInstanceState);
 		}
 
-		mUsedColors = new ArrayList<>(Arrays.asList(usedColors));
+		mUsedColors = (usedColors == null) ?
+			new ArrayList<String>() :
+			new ArrayList<>(Arrays.asList(usedColors));
 		mUsedColors.remove(mPlayer.color);
 
 		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
@@ -214,7 +212,8 @@ public class LogPlayerActivity extends AppCompatActivity {
 		mUsername.setAdapter(new BuddyNameAdapter(this));
 		mTeamColor.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
 
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
+		setUpShowcaseViewWizard();
+		showcaseWizard.maybeShowHelp();
 	}
 
 	@DebugLog
@@ -234,13 +233,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putParcelable(KEY_PLAYER, mPlayer);
-		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mUserShowTeamColor);
-		outState.putBoolean(KEY_POSITION_SHOWN, mUserShowPosition);
-		outState.putBoolean(KEY_SCORE_SHOWN, mUserShowScore);
-		outState.putBoolean(KEY_RATING_SHOWN, mUserShowRating);
-		outState.putBoolean(KEY_NEW_SHOWN, mUserShowNew);
-		outState.putBoolean(KEY_WIN_SHOWN, mUserShowWin);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@DebugLog
@@ -261,11 +254,11 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	@OnClick(R.id.color_view)
-	public void onColorClick(View v) {
-		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
+	public void onColorClick() {
+		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
 			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, null, 4);
 
-		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
+		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
 			public void onColorSelected(String description, int color) {
 				mTeamColor.setText(description);
@@ -273,23 +266,23 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 		});
 
-		colordashfragment.show(getSupportFragmentManager(), "color_picker");
+		fragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
 	@DebugLog
 	@OnTextChanged(R.id.log_player_team_color)
-	public void afterTextChanged(Editable s) {
-		int color = ColorUtils.parseColor(s.toString());
+	public void afterTextChanged(Editable text) {
+		int color = ColorUtils.parseColor(text.toString());
 		ColorUtils.setColorViewValue(mColorView, color);
 	}
 
 	@DebugLog
 	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
-	public void onNumberToTextClick(View v) {
+	public void onNumberToTextClick(Button button) {
 		EditText editText = null;
-		if (v == mPositionButton) {
+		if (button == mPositionButton) {
 			editText = mPosition;
-		} else if (v == mScoreButton) {
+		} else if (button == mScoreButton) {
 			editText = mScore;
 		}
 		if (editText == null) {
@@ -299,13 +292,19 @@ public class LogPlayerActivity extends AppCompatActivity {
 		if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
 			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
 				| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-			((Button) v).setText(R.string.text_to_number);
+			button.setText(R.string.text_to_number);
 		} else {
 			editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
 				| InputType.TYPE_NUMBER_FLAG_SIGNED);
-			((Button) v).setText(R.string.number_to_text);
+			button.setText(R.string.number_to_text);
 		}
 		editText.requestFocus();
+	}
+
+	@DebugLog
+	private void setUpShowcaseViewWizard() {
+		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION);
+		showcaseWizard.addTarget(R.string.help_logplayer, Target.NONE);
 	}
 
 	@DebugLog
@@ -407,7 +406,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void addField(View v) {
+	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
 			return;

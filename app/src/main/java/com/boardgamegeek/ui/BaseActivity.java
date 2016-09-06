@@ -13,7 +13,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.UpdateErrorEvent;
 import com.boardgamegeek.service.SyncService;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hugo.weaving.DebugLog;
 
 /**
@@ -29,7 +32,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@DebugLog
@@ -41,7 +44,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(UpdateErrorEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(UpdateErrorEvent event) {
 		Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
 	}
 

@@ -1,9 +1,7 @@
 package com.boardgamegeek.util;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Html;
@@ -82,11 +80,8 @@ public class UIUtils {
 		return intent;
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static void setActivatedCompat(View view, boolean activated) {
-		if (VersionUtils.hasHoneycomb()) {
-			view.setActivated(activated);
-		}
+		view.setActivated(activated);
 	}
 
 	/**

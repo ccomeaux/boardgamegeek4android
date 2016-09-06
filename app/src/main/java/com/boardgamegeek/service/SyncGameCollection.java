@@ -53,13 +53,13 @@ public class SyncGameCollection extends UpdateTask {
 		Timber.i("Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + gameId);
 
 		// XXX: this deleted more games that I expected. need to rework
-		// int deleteCount = persister.delete(items, gameId);
-		// Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + gameId);
+		int deleteCount = persister.delete(items, gameId);
+		Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + gameId);
 	}
 
 	private List<CollectionItem> request(Context context, @NonNull Account account) {
 		// Only one of these requests will return results
-		BggService service = Adapter.createWithAuth(context);
+		BggService service = Adapter.createForXmlWithAuth(context);
 
 		ArrayMap<String, String> options = new ArrayMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");

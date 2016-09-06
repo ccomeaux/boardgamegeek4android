@@ -14,6 +14,8 @@ import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
 
 public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
@@ -73,12 +75,14 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
 		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(PlaysCountChangedEvent event) {
 		numberOfPlays = event.getCount();
 		supportInvalidateOptionsMenu();

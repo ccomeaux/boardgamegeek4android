@@ -130,8 +130,16 @@ public class BggContract {
 		String PRIVATE_INFO_ACQUISITION_DATE = "acquisition_date";
 		String PRIVATE_INFO_ACQUIRED_FROM = "acquired_from";
 		String PRIVATE_INFO_COMMENT = "private_comment";
+		String STATUS_DIRTY_TIMESTAMP = "status_dirty_timestamp";
 		String RATING_DIRTY_TIMESTAMP = "rating_dirty_timestamp";
 		String COMMENT_DIRTY_TIMESTAMP = "comment_dirty_timestamp";
+		String PRIVATE_INFO_DIRTY_TIMESTAMP = "private_info_dirty_timestamp";
+		String COLLECTION_DIRTY_TIMESTAMP = "collection_dirty_timestamp";
+		String COLLECTION_DELETE_TIMESTAMP = "collection_delete_timestamp";
+		String WISHLIST_COMMENT_DIRTY_TIMESTAMP = "wishlist_comment_dirty_timestamp";
+		String TRADE_CONDITION_DIRTY_TIMESTAMP = "trade_condition_dirty_timestamp";
+		String WANT_PARTS_DIRTY_TIMESTAMP = "want_parts_dirty_timestamp";
+		String HAS_PARTS_DIRTY_TIMESTAMP = "has_parts_dirty_timestamp";
 	}
 
 	interface BuddiesColumns {
@@ -192,6 +200,7 @@ public class BggContract {
 		String PLAYER_COUNT = "player_count";
 		String SYNC_HASH_CODE = "sync_hash_code";
 		String SUM_QUANTITY = "sum_quantity";
+		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";
 	}
 

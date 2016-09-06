@@ -68,7 +68,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		CollectionResponse response;
-		response = new CollectionRequest(bggService, username, options).execute();
+		response = new CollectionRequest(service, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();

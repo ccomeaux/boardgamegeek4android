@@ -7,7 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import timber.log.Timber;
 
 /**
- * A {@link timber.log.Timber.Tree} that reports crashes to Crashlytics.
+ * A {@link timber.log.Timber.Tree} that reports crashes to Fabric.
  */
 public class CrashReportingTree extends Timber.Tree {
 	@Override

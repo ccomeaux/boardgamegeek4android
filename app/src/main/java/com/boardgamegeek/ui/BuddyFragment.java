@@ -3,9 +3,9 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -34,8 +34,9 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.ui.model.Buddy;
-import com.boardgamegeek.ui.model.BuddyColor;
 import com.boardgamegeek.ui.model.Player;
+import com.boardgamegeek.ui.model.PlayerColor;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -45,49 +46,49 @@ import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
-	private static final String KEY_REFRESHED = "REFRESHED";
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 	private static final int TOKEN = 0;
-
-	private Handler timeHintUpdateHandler = new Handler();
-	private Runnable timeHintUpdateRunnable = null;
 
 	private String buddyName;
 	private String playerName;
 	private boolean isRefreshing;
-	private boolean hasBeenRefreshed;
+	@State boolean hasBeenRefreshed;
 
-	private ViewGroup rootView;
+	private Unbinder unbinder;
 	private SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.buddy_info) View buddyInfoView;
-	@SuppressWarnings("unused") @InjectView(R.id.full_name) TextView fullNameView;
-	@SuppressWarnings("unused") @InjectView(R.id.username) TextView usernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView avatarView;
-	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView nicknameView;
-	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsView;
-	@SuppressWarnings("unused") @InjectView(R.id.color_container) LinearLayout colorContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updatedView;
+	@BindView(R.id.buddy_info) View buddyInfoView;
+	@BindView(R.id.full_name) TextView fullNameView;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.avatar) ImageView avatarView;
+	@BindView(R.id.nickname) TextView nicknameView;
+	@BindView(R.id.collection_card) View collectionCard;
+	@BindView(R.id.plays_label) TextView playsView;
+	@BindView(R.id.wins_label) TextView winsView;
+	@BindView(R.id.wins_percentage) TextView winPercentageView;
+	@BindView(R.id.color_container) LinearLayout colorContainer;
+	@BindView(R.id.updated) TimestampView updatedView;
 	private int defaultTextColor;
 	private int lightTextColor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		timeHintUpdateHandler = new Handler();
-		if (savedInstanceState != null) {
-			hasBeenRefreshed = savedInstanceState.getBoolean(KEY_REFRESHED);
-		}
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
@@ -97,14 +98,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_REFRESHED, hasBeenRefreshed);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
-		ButterKnife.inject(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);
@@ -113,14 +114,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		swipeRefreshLayout = (SwipeRefreshLayout) rootView;
 		if (isUser()) {
 			swipeRefreshLayout.setOnRefreshListener(this);
-			swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 			swipeRefreshLayout.setEnabled(true);
 		} else {
 			swipeRefreshLayout.setEnabled(false);
 		}
 
 		defaultTextColor = nicknameView.getTextColors().getDefaultColor();
-		lightTextColor = getResources().getColor(R.color.light_text);
+		lightTextColor = ContextCompat.getColor(getContext(), R.color.secondary_text);
 
 		if (isUser()) {
 			getLoaderManager().restartLoader(TOKEN, null, this);
@@ -142,25 +143,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@Override
-	@DebugLog
-	public void onResume() {
-		super.onResume();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onPause() {
-		super.onPause();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
+		EventBus.getDefault().register(this);
 	}
 
 	@DebugLog
@@ -170,14 +153,23 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		super.onStop();
 	}
 
+	@Override
+	public void onDestroyView() {
+		if (unbinder != null) unbinder.unbind();
+		super.onDestroyView();
+	}
+
 	@SuppressWarnings("unused")
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		isRefreshing = event.getType() == UpdateService.SYNC_TYPE_BUDDY;
 		updateRefreshStatus();
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
-	public void onEventMainThread(UpdateCompleteEvent event) {
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		isRefreshing = false;
 		updateRefreshStatus();
 	}
@@ -222,7 +214,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			case COLORS_TOKEN:
 				loader = new CursorLoader(getActivity(),
 					isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName),
-					BuddyColor.PROJECTION,
+					PlayerColor.PROJECTION,
 					null, null, null);
 				break;
 		}
@@ -258,9 +250,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.nickname)
-	public void onEditNicknameClick(View v) {
+	public void onEditNicknameClick() {
 		if (isUser()) {
 			showNicknameDialog(nicknameView.getText().toString(), buddyName);
 		} else {
@@ -269,18 +260,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.collection_root)
-	public void onCollectionClick(View v) {
+	public void onCollectionClick() {
 		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		startActivity(intent);
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
-	public void onPlaysClick(View v) {
+	public void onPlaysClick() {
 		if (isUser()) {
 			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
 			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
@@ -291,9 +280,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@OnClick(R.id.colors_root)
-	public void onColorsClick(View v) {
+	public void onColorsClick() {
 		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
@@ -322,31 +310,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			nicknameView.setTextColor(defaultTextColor);
 			nicknameView.setText(buddy.getNickName());
 		}
-		updatedView.setTag(buddy.getUpdated());
-
-		updateTimeBasedUi();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-		timeHintUpdateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (updatedView != null) {
-			long updated = (long) updatedView.getTag();
-			updatedView.setText(PresentationUtils.describePastTimeSpan(updated, getString(R.string.needs_updating), getString(R.string.updated)));
-		}
+		updatedView.setTimestamp(buddy.getUpdated());
 	}
 
 	@DebugLog
@@ -357,7 +321,10 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		Player player = Player.fromCursor(cursor);
 		final int playCount = player.getPlayCount();
+		final int winCount = player.getWinCount();
 		playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
+		winsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.wins_suffix, winCount, winCount));
+		winPercentageView.setText(getString(R.string.percentage, (int) ((double) winCount / playCount * 100)));
 	}
 
 	@DebugLog
@@ -372,7 +339,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			if (cursor.moveToNext()) {
 				colorContainer.setVisibility(View.VISIBLE);
 				ImageView view = createViewToBeColored();
-				BuddyColor color = BuddyColor.fromCursor(cursor);
+				PlayerColor color = PlayerColor.fromCursor(cursor);
 				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
 				colorContainer.addView(view);
 			} else {
@@ -396,7 +363,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		forceRefresh();
+		requestRefresh();
 	}
 
 	@DebugLog

@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_log_play_quick"
-		android:icon="@drawable/ic_action_today_light"
+		android:icon="@drawable/menu_log_play_quick"
 		android:title="@string/menu_log_play_quick"
 		app:showAsAction="never"/>
 	<item
@@ -13,12 +13,11 @@
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_share"
-		android:icon="@drawable/ic_action_share_light"
+		android:icon="@drawable/menu_share"
 		android:title="@string/menu_share"
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_shortcut"
-		android:icon="@drawable/ic_action_flash_light"
 		android:title="@string/menu_create_shortcut"
 		app:showAsAction="never"/>
 

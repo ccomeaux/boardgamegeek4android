@@ -3,12 +3,14 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -43,8 +45,22 @@ public class PresentationUtils {
 		return format;
 	}
 
-	public static CharSequence describePastTimeSpan(long time) {
-		return describePastTimeSpan(time, "");
+	/**
+	 * Formats the date for display in the forums (based on the users selected preference.
+	 */
+	public static CharSequence formatTimestamp(Context context, long date, boolean isForumTimestamp) {
+		if (isForumTimestamp && PreferencesUtils.getForumDates(context)) {
+			return DateUtils.formatDateTime(context, date,
+				DateUtils.FORMAT_SHOW_DATE |
+					DateUtils.FORMAT_SHOW_YEAR |
+					DateUtils.FORMAT_ABBREV_MONTH |
+					DateUtils.FORMAT_SHOW_TIME);
+		} else {
+			if (date == 0) {
+				return context.getString(R.string.text_unknown);
+			}
+			return DateUtils.getRelativeTimeSpanString(date);
+		}
 	}
 
 	@DebugLog
@@ -53,22 +69,6 @@ public class PresentationUtils {
 			return "";
 		}
 		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS);
-	}
-
-	@DebugLog
-	public static CharSequence describePastTimeSpan(long time, String defaultValue) {
-		if (time == 0) {
-			return defaultValue;
-		}
-		return DateUtils.getRelativeTimeSpanString(time);
-	}
-
-	@DebugLog
-	public static CharSequence describePastTimeSpan(long time, String defaultValue, String prefix) {
-		if (time == 0) {
-			return defaultValue;
-		}
-		return prefix + " " + DateUtils.getRelativeTimeSpanString(time);
 	}
 
 	@DebugLog
@@ -201,6 +201,21 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
+	public static CharSequence describeLanguageDependence(Context context, double value) {
+		@StringRes int resId = R.string.language_1_text;
+		if (value >= 4.2) {
+			resId = R.string.language_5_text;
+		} else if (value >= 3.4) {
+			resId = R.string.language_4_text;
+		} else if (value >= 2.6) {
+			resId = R.string.language_3_text;
+		} else if (value >= 1.8) {
+			resId = R.string.language_2_text;
+		}
+		return getText(context, resId, value);
+	}
+
+	@DebugLog
 	public static String describePlayCount(Context context, int playCount) {
 		@StringRes int resId = 0;
 		if (playCount >= 100) {
@@ -285,11 +300,11 @@ public class PresentationUtils {
 	@NonNull
 	public static String describePlayDetails(Context context, String date, String location, int quantity, int length, int playerCount) {
 		String info = "";
-		if (!TextUtils.isEmpty(date)) {
-			info += context.getString(R.string.on) + " " + date + " ";
-		}
 		if (quantity > 1) {
 			info += quantity + " " + context.getString(R.string.times) + " ";
+		}
+		if (!TextUtils.isEmpty(date)) {
+			info += context.getString(R.string.on) + " " + date + " ";
 		}
 		if (!TextUtils.isEmpty(location)) {
 			info += context.getString(R.string.at) + " " + location + " ";
@@ -304,15 +319,22 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static void setTextOrHide(@Nullable TextView textView, CharSequence text) {
-		if (textView != null) {
-			textView.setText(text);
-			textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+	public static void setTextOrHide(@Nullable TextView view, CharSequence text) {
+		if (view != null) {
+			view.setText(text);
+			view.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		}
+	}
+
+	public static void setAndSelectExistingText(@Nullable EditText view, @Nullable String existingText) {
+		if (view != null && !TextUtils.isEmpty(existingText)) {
+			view.setText(existingText);
+			view.setSelection(0, existingText.length());
 		}
 	}
 
 	@DebugLog
-	public static CharSequence getText(Context context, int id, Object... args) {
+	public static CharSequence getText(Context context, @StringRes int id, Object... args) {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
@@ -320,10 +342,15 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static CharSequence getQuantityText(Context context, int id, int quantity, Object... args) {
+	public static CharSequence getQuantityText(Context context, @PluralsRes int id, int quantity, Object... args) {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
 		return Html.fromHtml(String.format(Html.toHtml(new SpannedString(context.getResources().getQuantityText(id, quantity))), args));
+	}
+
+	@DebugLog
+	public static int[] getColorSchemeResources() {
+		return new int[] { R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue };
 	}
 }

@@ -32,7 +32,6 @@ import android.view.Gravity;
 import android.widget.LinearLayout;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.VersionUtils;
 
 public class ForegroundLinearLayout extends LinearLayout {
 	private Drawable foregroundDrawable;
@@ -109,10 +108,8 @@ public class ForegroundLinearLayout extends LinearLayout {
 	@Override
 	public void jumpDrawablesToCurrentState() {
 		super.jumpDrawablesToCurrentState();
-		if (VersionUtils.hasHoneycomb()) {
-			if (foregroundDrawable != null) {
-				foregroundDrawable.jumpToCurrentState();
-			}
+		if (foregroundDrawable != null) {
+			foregroundDrawable.jumpToCurrentState();
 		}
 	}
 

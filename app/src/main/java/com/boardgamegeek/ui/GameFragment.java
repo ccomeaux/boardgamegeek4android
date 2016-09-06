@@ -4,15 +4,21 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
+import android.support.v7.graphics.Palette.Swatch;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,12 +27,19 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.events.GameInfoChangedEvent;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.Forum;
+import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
+import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
@@ -34,11 +47,17 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
+import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.StatBar;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -48,91 +67,107 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.ShowcaseViewWizard;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.targets.Target;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.InjectViews;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import timber.log.Timber;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
-	private static final int HELP_VERSION = 1;
+	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final String KEY_RANKS_EXPANDED = "RANKS_EXPANDED";
-	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+	private static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
 
-	private Handler timeHintUpdateHandler = new Handler();
-	private Runnable timeHintUpdateRunnable = null;
 	private Uri gameUri;
 	private String gameName;
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
+	@ColorInt private int iconColor;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_rating) TextView ratingView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_description) TextView descriptionView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_rank) TextView rankView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_year_published) TextView yearPublishedView;
+	private Unbinder unbinder;
 
-	@SuppressWarnings("unused") @InjectView(R.id.primary_info_container) View primaryInfoContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.number_of_players) TextView numberOfPlayersView;
-	@SuppressWarnings("unused") @InjectView(R.id.play_time) TextView playTimeView;
-	@SuppressWarnings("unused") @InjectView(R.id.player_age) TextView playerAgeView;
+	@BindView(R.id.game_rating) TextView ratingView;
+	@BindView(R.id.game_description) TextView descriptionView;
+	@BindView(R.id.game_rank) TextView rankView;
+	@BindView(R.id.game_year_published) TextView yearPublishedView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_subtype) TextView subtypeView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_subtype_container) ViewGroup subtypeContainer;
-	@SuppressWarnings("unused") @InjectView(R.id.subtype_expander) ImageView subtypeExpander;
+	@BindView(R.id.primary_info_container) View primaryInfoContainer;
+	@BindView(R.id.number_of_players) TextView numberOfPlayersView;
+	@BindView(R.id.play_time) TextView playTimeView;
+	@BindView(R.id.player_age) TextView playerAgeView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_designers) GameDetailRow designersView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_artists) GameDetailRow artistsView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_publishers) GameDetailRow publishersView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_categories) GameDetailRow categoriesView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_mechanics) GameDetailRow mechanicsView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_expansions) GameDetailRow expansionsView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_base_games) GameDetailRow baseGamesView;
+	@BindView(R.id.game_subtype) TextView subtypeView;
+	@BindView(R.id.game_subtype_container) ViewGroup subtypeContainer;
+	@BindView(R.id.subtype_expander) ImageView subtypeExpander;
 
-	@SuppressWarnings("unused") @InjectView(R.id.collection_card) View collectionCard;
-	@SuppressWarnings("unused") @InjectView(R.id.collection_container) ViewGroup collectionContainer;
+	@BindView(R.id.game_info_designers) GameDetailRow designersView;
+	@BindView(R.id.game_info_artists) GameDetailRow artistsView;
+	@BindView(R.id.game_info_publishers) GameDetailRow publishersView;
+	@BindView(R.id.game_info_categories) GameDetailRow categoriesView;
+	@BindView(R.id.game_info_mechanics) GameDetailRow mechanicsView;
+	@BindView(R.id.game_info_expansions) GameDetailRow expansionsView;
+	@BindView(R.id.game_info_base_games) GameDetailRow baseGamesView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.plays_card) View playsCard;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_root) View playsRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView playsLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.plays_last_play) TextView lastPlayView;
-	@SuppressWarnings("unused") @InjectView(R.id.play_stats_root) View playStatsRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.colors_root) View colorsRoot;
-	@SuppressWarnings("unused") @InjectView(R.id.game_colors_label) TextView colorsLabel;
+	@BindView(R.id.collection_card) View collectionCard;
+	@BindView(R.id.collection_container) ViewGroup collectionContainer;
+	@BindView(R.id.collection_add_button) TextView collectionAddButton;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_comments_label) TextView commentsLabel;
+	@BindView(R.id.plays_card) View playsCard;
+	@BindView(R.id.plays_root) View playsRoot;
+	@BindView(R.id.plays_label) TextView playsLabel;
+	@BindView(R.id.plays_last_play) TextView lastPlayView;
+	@BindView(R.id.play_stats_root) View playStatsRoot;
+	@BindView(R.id.colors_root) View colorsRoot;
+	@BindView(R.id.game_colors_label) TextView colorsLabel;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_label) TextView ratingsLabel;
-	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_votes) TextView ratingsVotes;
-	@SuppressWarnings("unused") @InjectView(R.id.game_ratings_standard_deviation) TextView ratingsStandardDeviation;
+	@BindView(R.id.game_ratings_label) TextView ratingsLabel;
+	@BindView(R.id.game_ratings_votes) TextView ratingsVotes;
+	@BindView(R.id.game_ratings_standard_deviation) TextView ratingsStandardDeviation;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_weight) TextView weightView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_weight_votes) TextView weightVotes;
+	@BindView(R.id.game_comments_label) TextView commentsLabel;
 
-	@SuppressWarnings("unused") @InjectView(R.id.users_count) TextView userCountView;
-	@SuppressWarnings("unused") @InjectView(R.id.users_owning_bar) StatBar numberOwningBar;
-	@SuppressWarnings("unused") @InjectView(R.id.users_trading_bar) StatBar numberTradingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.users_wanting_bar) StatBar numberWantingBar;
-	@SuppressWarnings("unused") @InjectView(R.id.users_wishing_bar) StatBar numberWishingBar;
+	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_id) TextView idView;
-	@SuppressWarnings("unused") @InjectView(R.id.game_info_last_updated) TextView updatedView;
+	@BindView(R.id.game_weight) TextView weightView;
+	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
-	@SuppressWarnings("unused") @InjectViews({
+	@BindView(R.id.language_dependence_details) TextView languageDependenceDetails;
+
+	@BindView(R.id.users_count) TextView userCountView;
+	@BindView(R.id.users_owning_bar) StatBar numberOwningBar;
+	@BindView(R.id.users_trading_bar) StatBar numberTradingBar;
+	@BindView(R.id.users_wanting_bar) StatBar numberWantingBar;
+	@BindView(R.id.users_wishing_bar) StatBar numberWishingBar;
+
+	@BindView(R.id.game_info_id) TextView idView;
+	@BindView(R.id.game_info_last_updated) TimestampView updatedView;
+
+	@BindViews({
+		R.id.game_year_published,
 		R.id.number_of_players,
 		R.id.play_time,
 		R.id.player_age
 	}) List<TextView> colorizedTextViews;
-	@SuppressWarnings("unused") @InjectViews({
+	@BindViews({
 		R.id.game_info_designers,
 		R.id.game_info_artists,
 		R.id.game_info_publishers,
@@ -141,14 +176,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.game_info_expansions,
 		R.id.game_info_base_games
 	}) List<GameDetailRow> colorizedRows;
-	@SuppressWarnings("unused") @InjectViews({
+	@BindViews({
 		R.id.card_header_details,
 		R.id.card_header_collection,
 		R.id.card_header_plays,
 		R.id.card_header_user_feedback,
 		R.id.card_header_links
 	}) List<TextView> colorizedHeaders;
-	@SuppressWarnings("unused") @InjectViews({
+	@BindViews({
 		R.id.icon_plays,
 		R.id.icon_play_stats,
 		R.id.icon_colors,
@@ -163,45 +198,48 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_link_amazon,
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
-	@SuppressWarnings("unused") @InjectViews({
+	@BindViews({
 		R.id.users_owning_bar,
 		R.id.users_trading_bar,
 		R.id.users_wanting_bar,
 		R.id.users_wishing_bar,
 	}) List<StatBar> statBars;
 
-	private boolean isRanksExpanded;
-	private boolean isDescriptionExpanded;
+	@State boolean isRanksExpanded;
+	@State boolean isDescriptionExpanded;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
+	private ShowcaseViewWizard showcaseViewWizard;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		timeHintUpdateHandler = new Handler();
+		Icepick.restoreInstanceState(this, savedInstanceState);
+		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
+	}
 
-		if (gameUri == null) {
-			return;
-		}
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
 
-		if (savedInstanceState != null) {
-			isRanksExpanded = savedInstanceState.getBoolean(KEY_RANKS_EXPANDED);
-			isDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
-		}
-
-		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
-		ButterKnife.inject(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		colorize();
 		openOrCloseDescription();
@@ -216,40 +254,50 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (PreferencesUtils.showLogPlay(getActivity())) {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
+		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
+
+		showcaseViewWizard = setUpShowcaseViewWizard();
+		showcaseViewWizard.maybeShowHelp();
 		return rootView;
-	}
-
-	@Override
-	@DebugLog
-	public void onResume() {
-		super.onResume();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onPause() {
-		super.onPause();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
 	}
 
 	@Override
 	@DebugLog
 	public void onDestroyView() {
 		super.onDestroyView();
-		ButterKnife.reset(this);
+		unbinder.unbind();
 	}
 
 	@Override
 	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_RANKS_EXPANDED, isRanksExpanded);
-		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, isDescriptionExpanded);
+		Icepick.saveInstanceState(this, outState);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_help) {
+			showcaseViewWizard.showHelp();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@NonNull
+	private ShowcaseViewWizard setUpShowcaseViewWizard() {
+		ShowcaseViewWizard wizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION);
+		wizard.addTarget(R.string.help_game_menu, Target.NONE);
+		wizard.addTarget(R.string.help_game_log_play, new SafeViewTarget(R.id.fab, getActivity()));
+		wizard.addTarget(R.string.help_game_poll, new SafeViewTarget(R.id.number_of_players, getActivity()));
+		wizard.addTarget(-1, new SafeViewTarget(R.id.player_age, getActivity()));
+		return wizard;
 	}
 
 	@Override
@@ -289,12 +337,26 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case PlaysQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlaysQuery.PROJECTION,
-					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?",
+				String selection = PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?";
+				if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+					selection += " AND " + Plays.INCOMPLETE + "!=1";
+				}
+				loader = new CursorLoader(getActivity(),
+					Plays.CONTENT_URI,
+					PlaysQuery.PROJECTION,
+					selection,
 					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 				break;
 			case ColorQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId), GameColorAdapter.PROJECTION, null, null, null);
+				break;
+			case LanguagePollQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Games.buildPollResultsResultUri(gameId, POLL_TYPE_LANGUAGE_DEPENDENCE),
+					LanguagePollQuery.PROJECTION,
+					null,
+					null,
+					LanguagePollQuery.SORT);
 				break;
 			default:
 				Timber.w("Invalid query token=" + id);
@@ -322,6 +384,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				lm.restartLoader(MechanicQuery._TOKEN, null, this);
 				lm.restartLoader(ExpansionQuery._TOKEN, null, this);
 				lm.restartLoader(BaseGameQuery._TOKEN, null, this);
+				fetchForumInfo();
 				break;
 			case DesignerQuery._TOKEN:
 				onListQueryComplete(cursor, designersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID);
@@ -359,10 +422,43 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				int count = cursor.getCount();
 				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
 				break;
+			case LanguagePollQuery._TOKEN:
+				onLanguagePollQueryComplete(cursor);
+				break;
 			default:
 				cursor.close();
 				break;
 		}
+	}
+
+	private void fetchForumInfo() {
+		if (forumsLastPostDateView.getVisibility() == View.VISIBLE) {
+			return;
+		}
+		BggService bggService = Adapter.createForXml();
+		Call<ForumListResponse> call = bggService.forumList(BggService.FORUM_TYPE_THING, Games.getGameId(gameUri));
+		call.enqueue(new Callback<ForumListResponse>() {
+			@Override
+			public void onResponse(Call<ForumListResponse> call, Response<ForumListResponse> response) {
+				if (response.isSuccessful() && forumsLastPostDateView != null) {
+					long lastPostDate = 0;
+					String title = "";
+					for (Forum forum : response.body().getForums()) {
+						if (forum.lastPostDate() > lastPostDate) {
+							lastPostDate = forum.lastPostDate();
+							title = forum.title;
+						}
+					}
+					forumsLastPostDateView.setFormatArg(title);
+					forumsLastPostDateView.setTimestamp(lastPostDate);
+				}
+			}
+
+			@Override
+			public void onFailure(Call<ForumListResponse> call, Throwable t) {
+				Timber.w("Failed fetching forum for game %s: %s", Games.getGameId(gameUri), t.getMessage());
+			}
+		});
 	}
 
 	@Override
@@ -381,11 +477,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (palette == null || primaryInfoContainer == null || !isAdded()) {
 			return;
 		}
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, ContextCompat.getColor(getContext(), R.color.info_background));
 		primaryInfoContainer.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 
 		swatch = PaletteUtils.getIconSwatch(palette);
+		iconColor = swatch.getRgb();
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
 
@@ -416,7 +513,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		ratingView.setText(game.getRatingDescription());
 		ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
 		idView.setText(String.valueOf(game.Id));
-		updatedView.setTag(game.Updated);
+		updatedView.setTimestamp(game.Updated);
 		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
 		numberOfPlayersView.setText(game.getPlayerRangeDescription());
 		playTimeView.setText(game.getPlayingTimeDescription());
@@ -443,45 +540,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			playStatsRoot.setVisibility(View.VISIBLE);
 		}
 
-		updateTimeBasedUi();
-		if (timeHintUpdateRunnable != null) {
-			timeHintUpdateHandler.removeCallbacks(timeHintUpdateRunnable);
-		}
-		timeHintUpdateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				updateTimeBasedUi();
-				timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-			}
-		};
-		timeHintUpdateHandler.postDelayed(timeHintUpdateRunnable, TIME_HINT_UPDATE_INTERVAL);
-
 		if (mightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 		mightNeedRefreshing = false;
-	}
-
-	@DebugLog
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (updatedView != null) {
-			final Object tag = updatedView.getTag();
-			if (tag != null) {
-				long updatedTime = (long) tag;
-				updatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
-			}
-		}
-		if (lastPlayView != null) {
-			final Object tag = lastPlayView.getTag();
-			if (tag != null) {
-				long lastPlayedTime = (long) tag;
-				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(lastPlayedTime)));
-			}
-		}
 	}
 
 	@DebugLog
@@ -539,17 +602,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
+		collectionCard.setVisibility(View.VISIBLE);
+		collectionContainer.removeViews(2, collectionContainer.getChildCount() - 2);
 		if (cursor.moveToFirst()) {
-			collectionCard.setVisibility(View.VISIBLE);
-			collectionContainer.removeViews(1, collectionContainer.getChildCount() - 1);
+			collectionAddButton.setVisibility(View.GONE);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
 
+				final long internalId = cursor.getLong(CollectionQuery._ID);
 				final int gameId = Games.getGameId(gameUri);
 				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
 				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);
 				final String imageUrl = cursor.getString(CollectionQuery.COLLECTION_IMAGE_URL);
-				row.bind(gameId, gameName, collectionId, yearPublished, imageUrl);
+				row.bind(internalId, gameId, gameName, collectionId, yearPublished, imageUrl);
 
 				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL_URL);
 				final String collectionName = cursor.getString(CollectionQuery.COLLECTION_NAME);
@@ -578,7 +643,26 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
+		} else {
+			collectionAddButton.setVisibility(View.VISIBLE);
 		}
+	}
+
+	@OnClick(R.id.collection_add_button)
+	void onAddToCollectionClick() {
+		CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
+			collectionContainer,
+			new CollectionStatusDialogListener() {
+				@Override
+				public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
+					int gameId = Games.getGameId(gameUri);
+					AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), gameId, selectedStatuses, wishlistPriority);
+					TaskUtils.executeAsyncTask(task);
+				}
+			}
+		);
+		statusDialogFragment.setTitle(R.string.title_add_a_copy);
+		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
 	}
 
 	@DebugLog
@@ -601,97 +685,110 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			}
 
 			if (date > 0) {
-				lastPlayView.setTag(date);
+				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(date)));
 				lastPlayView.setVisibility(View.VISIBLE);
-				updateTimeBasedUi();
 			} else {
 				lastPlayView.setVisibility(View.GONE);
 			}
 		}
 	}
 
-	@SuppressWarnings("unused")
+	@DebugLog
+	private void onLanguagePollQueryComplete(Cursor cursor) {
+		int totalLevel = 0;
+		int totalVotes = 0;
+		if (cursor != null) {
+			while (cursor.moveToNext()) {
+				totalVotes = cursor.getInt(LanguagePollQuery.POLL_TOTAL_VOTES);
+				int level = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_LEVEL) % 5;
+				int votes = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_VOTES);
+				totalLevel += votes * level;
+			}
+		}
+		languageDependenceDetails.setText(PresentationUtils.describeLanguageDependence(getActivity(), (double) totalLevel / totalVotes));
+		languageDependenceDetails.setVisibility(View.VISIBLE);
+	}
+
 	@OnClick(R.id.rank_root)
 	@DebugLog
-	public void onRankClick(View v) {
+	public void onRankClick() {
 		isRanksExpanded = !isRanksExpanded;
 		openOrCloseRanks();
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.game_description)
 	@DebugLog
-	public void onDescriptionClick(View v) {
+	public void onDescriptionClick() {
 		isDescriptionExpanded = !isDescriptionExpanded;
 		openOrCloseDescription();
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
 	@DebugLog
-	public void onPlaysClick(View v) {
+	public void onPlaysClick() {
 		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.play_stats_root)
 	@DebugLog
-	public void onPlayStatsClick(View v) {
+	public void onPlayStatsClick() {
 		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		if (palette != null) {
+			final Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
+			intent.putExtra(ActivityUtils.KEY_HEADER_COLOR, swatch.getRgb());
+		}
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.colors_root)
 	@DebugLog
-	public void onColorsClick(View v) {
+	public void onColorsClick() {
 		Intent intent = new Intent(getActivity(), ColorsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.forums_root)
 	@DebugLog
-	public void onForumsClick(View v) {
+	public void onForumsClick() {
 		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.language_dependence_root)
 	@DebugLog
-	public void onLanguageDependenceClick(View v) {
+	public void onLanguageDependenceClick() {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
+		arguments.putString(ActivityUtils.KEY_TYPE, POLL_TYPE_LANGUAGE_DEPENDENCE);
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.comments_root)
 	@DebugLog
-	public void onCommentsClick(@SuppressWarnings("UnusedParameters") View v) {
+	public void onCommentsClick() {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 
-	@SuppressWarnings("unused")
+	@DebugLog
 	@OnClick(R.id.ratings_root)
-	public void onRatingsClick(@SuppressWarnings("UnusedParameters") View v) {
+	public void onRatingsClick() {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
@@ -713,10 +810,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@SuppressWarnings("unused")
+	@Subscribe
+	public void onEvent(CollectionItemUpdatedEvent event) {
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+	}
+
+	@SuppressWarnings("unused")
 	@DebugLog
 	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_ebay })
-	void onLinkClick(View v) {
-		switch (v.getId()) {
+	void onLinkClick(View view) {
+		switch (view.getId()) {
 			case R.id.link_bgg:
 				ActivityUtils.linkBgg(getActivity(), Games.getGameId(gameUri));
 				break;
@@ -732,13 +835,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick({ R.id.number_of_players, R.id.player_age })
 	@DebugLog
-	public void onPollClick(View v) {
+	public void onPollClick(View view) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, (String) v.getTag());
+		arguments.putString(ActivityUtils.KEY_TYPE, (String) view.getTag());
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
@@ -857,6 +959,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS,
 			Collection.COMMENT, Games.YEAR_PUBLISHED, Collection.RATING, Collection.IMAGE_URL };
 		int _TOKEN = 0x20;
+		int _ID = 0;
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int COLLECTION_YEAR = 3;
@@ -881,6 +984,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	private interface ColorQuery {
 		int _TOKEN = 0x22;
+	}
+
+	private interface LanguagePollQuery {
+		String[] PROJECTION = {
+			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
+			GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL,
+			GamePolls.POLL_TOTAL_VOTES
+		};
+		int _TOKEN = 0x23;
+		int POLL_RESULTS_RESULT_VOTES = 0;
+		int POLL_RESULTS_RESULT_LEVEL = 1;
+		int POLL_TOTAL_VOTES = 2;
+		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
 	}
 
 	private class Game {

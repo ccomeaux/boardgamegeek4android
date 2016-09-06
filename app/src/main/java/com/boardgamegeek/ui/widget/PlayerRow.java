@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -19,7 +20,7 @@ import com.boardgamegeek.util.ColorUtils;
 import java.text.DecimalFormat;
 
 public class PlayerRow extends LinearLayout {
-	private DecimalFormat mFormat = new DecimalFormat("0.0######");
+	private final DecimalFormat mFormat = new DecimalFormat("0.0######");
 
 	private View mDragHandle;
 	private ImageView mColorView;
@@ -65,7 +66,7 @@ public class PlayerRow extends LinearLayout {
 		mUsernameTypeface = mUsername.getTypeface();
 		mScoreTypeface = mScore.getTypeface();
 
-		mScoreButton.setColorFilter(getResources().getColor(R.color.button_under_text), Mode.SRC_IN);
+		mScoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
 	}
@@ -99,8 +100,13 @@ public class PlayerRow extends LinearLayout {
 			mScoreButton.setVisibility(View.GONE);
 		} else {
 			setText(mSeat, player.getStartingPosition());
-			setText(mName, player.name, mNameTypeface, player.New(), player.Win());
-			setText(mUsername, player.username, mUsernameTypeface, player.New(), false);
+			if (TextUtils.isEmpty(player.name)) {
+				setText(mName, player.username, mNameTypeface, player.New(), player.Win());
+				mUsername.setVisibility(View.GONE);
+			} else {
+				setText(mName, player.name, mNameTypeface, player.New(), player.Win());
+				setText(mUsername, player.username, mUsernameTypeface, player.New(), player.Win());
+			}
 			setText(mTeamColor, player.color);
 			setText(mScore, player.score, mScoreTypeface, false, player.Win());
 			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");

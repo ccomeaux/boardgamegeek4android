@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -10,6 +12,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -28,6 +31,7 @@ import java.util.List;
 import timber.log.Timber;
 
 public class ActivityUtils {
+	public static final String KEY_INTERNAL_ID = "_ID";
 	public static final String KEY_TITLE = "TITLE";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -66,6 +70,8 @@ public class ActivityUtils {
 	public static final String KEY_OBJECT_ID = "GEEKLIST_OBJECT_ID";
 	public static final String KEY_OBJECT_URL = "GEEKLIST_OBJECT_URL";
 	public static final String KEY_IS_BOARD_GAME = "GEEKLIST_IS_BOARD_GAME";
+	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
+	public static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
 	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
@@ -221,7 +227,7 @@ public class ActivityUtils {
 		Play play = new Play(gameId, gameName);
 		play.setCurrentDate();
 		play.syncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
-		new PlayPersister(context).save(context, play);
+		new PlayPersister(context).save(play);
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
@@ -236,7 +242,7 @@ public class ActivityUtils {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://boardgameprices.com/compare-prices-for-" + HttpUtils.encode(gameName));
+		link(context, "http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkAmazon(Context context, String gameName) {
@@ -253,16 +259,23 @@ public class ActivityUtils {
 		link(context, "http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName));
 	}
 
-	public static void link(Context context, Uri link) {
-		context.startActivity(new Intent(Intent.ACTION_VIEW, link));
+	public static void linkToBgg(Context context, String path) {
+		link(context, createBggUri(path));
 	}
 
 	public static void link(Context context, String link) {
-		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+		link(context, Uri.parse(link));
 	}
 
-	public static void linkToBgg(Context context, String path) {
-		context.startActivity(new Intent(Intent.ACTION_VIEW, createBggUri(path)));
+	public static void link(Context context, Uri link) {
+		final Intent intent = new Intent(Intent.ACTION_VIEW, link);
+		if (isIntentAvailable(context, intent)) {
+			context.startActivity(intent);
+		} else {
+			String message = "Can't figure out how to launch " + link;
+			Timber.w(message);
+			Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public static Uri createBggUri(String path) {
@@ -271,5 +284,11 @@ public class ActivityUtils {
 
 	public static Uri createBggUri(String path, int id) {
 		return BGG_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
+	}
+
+	public static boolean isIntentAvailable(Context context, Intent intent) {
+		final PackageManager packageManager = context.getPackageManager();
+		List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		return list.size() > 0;
 	}
 }

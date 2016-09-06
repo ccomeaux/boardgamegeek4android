@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -20,10 +21,11 @@
 		android:layout_weight="1"
 		tools:text="13"/>
 
-	<TextView
+	<com.boardgamegeek.ui.widget.TimestampView
 		android:id="@+id/game_info_last_updated"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		app:emptyMessage="@string/needs_updating"
 		tools:text="Yesterday"/>
 </LinearLayout>

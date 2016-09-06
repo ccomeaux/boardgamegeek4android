@@ -9,7 +9,7 @@
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_sort"
-		android:icon="@drawable/ic_action_sort_light"
+		android:icon="@drawable/menu_sort"
 		android:title="@string/menu_sort"
 		app:showAsAction="ifRoom">
 		<menu>
@@ -20,6 +20,9 @@
 				<item
 					android:id="@+id/menu_sort_quantity"
 					android:title="@string/menu_sort_quantity"/>
+				<item
+					android:id="@+id/menu_sort_wins"
+					android:title="@string/menu_sort_wins"/>
 			</group>
 		</menu>
 	</item>

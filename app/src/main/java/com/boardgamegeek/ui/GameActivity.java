@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -13,7 +14,6 @@ import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -25,9 +25,13 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -60,21 +64,15 @@ public class GameActivity extends HeroActivity implements Callback {
 				getContentResolver().update(getIntent().getData(), values, null, null);
 			}
 		});
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.setImageResource(R.drawable.fab_log_play);
+		}
 	}
 
 	@DebugLog
 	@Override
-	protected Fragment onCreatePane(Intent intent) {
+	protected Fragment onCreatePane() {
 		return new GameFragment();
-	}
-
-	@Override
-	protected void onPostInject() {
-		super.onPostInject();
-		if (PreferencesUtils.showLogPlay(this)) {
-			fab.setImageResource(R.drawable.ic_event_available);
-			fab.setVisibility(View.VISIBLE);
-		}
 	}
 
 	@DebugLog
@@ -129,7 +127,8 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(GameInfoChangedEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
@@ -149,8 +148,19 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@DebugLog
 	@Override
-	public void onPaletteGenerated(Palette palette) {
+	public void onSuccessfulImageLoad(Palette palette) {
 		((GameFragment) getFragment()).onPaletteGenerated(palette);
+		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.show();
+		}
+	}
+
+	@Override
+	public void onFailedImageLoad() {
+		if (PreferencesUtils.showLogPlay(this)) {
+			fab.show();
+		}
 	}
 
 	@DebugLog
@@ -161,20 +171,21 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	public void onEventMainThread(UpdateEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
 		updateRefreshStatus(event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION);
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
-	public void onEventMainThread(@SuppressWarnings("UnusedParameters") UpdateCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
 		updateRefreshStatus(false);
 	}
 
-	@SuppressWarnings("unused")
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void onFabClicked(View v) {
+	public void onFabClicked() {
 		Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		startActivityForResult(intent, REQUEST_EDIT_PLAY);

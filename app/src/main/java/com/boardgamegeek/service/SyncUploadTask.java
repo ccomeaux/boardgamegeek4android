@@ -21,8 +21,8 @@ public abstract class SyncUploadTask extends SyncTask {
 	private final List<CharSequence> notificationMessages = new ArrayList<>();
 
 	@DebugLog
-	public SyncUploadTask(Context context, BggService bggService) {
-		super(context, bggService);
+	public SyncUploadTask(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@StringRes

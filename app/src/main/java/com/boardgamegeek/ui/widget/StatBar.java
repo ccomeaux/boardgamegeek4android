@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -14,14 +15,14 @@ import com.boardgamegeek.R;
 
 import java.text.NumberFormat;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class StatBar extends FrameLayout {
 	private static final NumberFormat FORMAT = NumberFormat.getInstance();
-	@SuppressWarnings("unused") @InjectView(R.id.value) View valueView;
-	@SuppressWarnings("unused") @InjectView(R.id.no_value) View noValueView;
-	@SuppressWarnings("unused") @InjectView(android.R.id.text1) TextView textView;
+	@BindView(R.id.value) View valueView;
+	@BindView(R.id.no_value) View noValueView;
+	@BindView(android.R.id.text1) TextView textView;
 
 	public StatBar(Context context) {
 		this(context, null);
@@ -45,7 +46,7 @@ public class StatBar extends FrameLayout {
 		LayoutInflater li = LayoutInflater.from(context);
 		li.inflate(R.layout.widget_stat_bar, this, true);
 
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 	}
 
 	public void setBar(int id, double progress, double max) {
@@ -67,8 +68,8 @@ public class StatBar extends FrameLayout {
 	public static final ButterKnife.Setter<StatBar, Palette.Swatch> colorSetter =
 		new ButterKnife.Setter<StatBar, Palette.Swatch>() {
 			@Override
-			public void set(StatBar view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
+			public void set(@NonNull StatBar view, Palette.Swatch value, int index) {
+				if (value != null) {
 					view.setColor(value.getRgb());
 				}
 			}

@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_view"
-		android:icon="@drawable/ic_action_web_site_light"
+		android:icon="@drawable/menu_view"
 		android:orderInCategory="1"
 		android:title="@string/menu_view"
 		app:showAsAction="ifRoom"/>

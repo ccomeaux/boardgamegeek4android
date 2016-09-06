@@ -47,7 +47,7 @@ public abstract class SyncGames extends SyncTask {
 					showNotification(detail);
 
 					GamePersister persister = new GamePersister(context);
-					ThingResponse response = getThingResponse(bggService, gameIds);
+					ThingResponse response = getThingResponse(service, gameIds);
 					final List<Game> games = response.getGames();
 					if (games != null && games.size() > 0) {
 						int count = persister.save(games, detail);

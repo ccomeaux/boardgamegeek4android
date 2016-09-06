@@ -8,23 +8,28 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,20 +39,31 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
+import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
+import com.github.amlcurran.showcaseview.targets.Target;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
-public class SearchResultsFragment extends BggListFragment implements LoaderCallbacks<SearchData>, MultiChoiceModeListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
+import retrofit2.Call;
+
+public class SearchResultsFragment extends Fragment implements LoaderCallbacks<SearchData>, ActionMode.Callback {
+	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 0;
 	private static final int MESSAGE_QUERY_UPDATE = 1;
 	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
@@ -57,11 +73,15 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	private String previousSearchText;
 	private boolean previousShouldSearchExact;
 	private SearchResultsAdapter searchResultsAdapter;
-	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
-	private MenuItem logPlayMenuItem;
-	private MenuItem logPlayQuickMenuItem;
-	private MenuItem bggLinkMenuItem;
 	private Snackbar snackbar;
+	private ShowcaseView showcaseView;
+
+	private ActionMode actionMode;
+	private Unbinder unbinder;
+	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	private final Handler requeryHandler = new Handler() {
 		@Override
@@ -74,33 +94,88 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	};
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		setEmptyText(getString(R.string.search_initial_help));
-		getListView().setOnCreateContextMenuListener(this);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_search_results, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		restartLoader(intent.getStringExtra(SearchManager.QUERY), true);
 	}
 
 	@Override
-	protected boolean padTop() {
-		return true;
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
-	protected boolean padBottomForSnackBar() {
-		return true;
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help, menu);
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
-	protected boolean dividerShown() {
-		return true;
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_help) {
+			showHelp();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void setUpRecyclerView() {
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
+	}
+
+	@DebugLog
+	private void showHelp() {
+		Builder builder = HelpUtils.getShowcaseBuilder(getActivity())
+			.setContentText(R.string.help_searchresults)
+			.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showcaseView.hide();
+					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION);
+				}
+			});
+		Target viewTarget = getTarget();
+		builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
+		showcaseView = builder.build();
+		showcaseView.show();
+	}
+
+	@DebugLog
+	private Target getTarget() {
+		final View child = HelpUtils.getRecyclerViewVisibleChild(recyclerView);
+		return child == null ? null : new SafeViewTarget(child);
+	}
+
+	@DebugLog
+	private void maybeShowHelp() {
+		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)) {
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					showHelp();
+				}
+			}, 100);
+		}
 	}
 
 	@Override
@@ -110,42 +185,83 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			data.getBoolean(KEY_SEARCH_EXACT, true));
 	}
 
+	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<SearchData> loader, SearchData data) {
-		setProgressShown(false);
+		AnimationUtils.fadeOut(progressView);
 
 		if (getActivity() == null) {
 			return;
 		}
 
-		int count = data == null ? 0 : data.count();
+		int count = data == null ? 0 : data.getCount();
 		final String searchText = data == null ? "" : data.getSearchText();
-		boolean isExactMatch = data != null && data.isExactMatch;
+		boolean isExactMatch = data != null && data.isExactMatch();
 
 		if (data != null) {
-			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.list());
-			setListAdapter(searchResultsAdapter);
+			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.getList(),
+				new Callback() {
+					@Override
+					public boolean onItemClick(int position) {
+						if (actionMode == null) {
+							return false;
+						}
+						toggleSelection(position);
+						return true;
+					}
+
+					@Override
+					public boolean onItemLongClick(int position) {
+						if (actionMode != null) {
+							return false;
+						}
+						actionMode = getActivity().startActionMode(SearchResultsFragment.this);
+						toggleSelection(position);
+						return true;
+					}
+
+					private void toggleSelection(int position) {
+						searchResultsAdapter.toggleSelection(position);
+						int count = searchResultsAdapter.getSelectedItemCount();
+						if (count == 0) {
+							actionMode.finish();
+						} else {
+							actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+							actionMode.invalidate();
+						}
+					}
+				});
+			recyclerView.setAdapter(searchResultsAdapter);
 		} else if (searchResultsAdapter != null) {
 			searchResultsAdapter.clear();
 		}
 
-		if (data != null && data.hasError()) {
-			setEmptyText(data.getErrorMessage());
-		} else {
+		if (data == null) {
 			if (TextUtils.isEmpty(searchText)) {
-				setEmptyText(getString(R.string.search_initial_help));
+				emptyView.setText(R.string.search_initial_help);
 			} else {
-				setEmptyText(getString(R.string.empty_search));
+				emptyView.setText(R.string.empty_search);
 			}
-		}
-
-		if (isResumed()) {
-			setListShown(true);
+			AnimationUtils.fadeIn(emptyView);
+			AnimationUtils.fadeOut(recyclerView);
+		} else if (data.hasError()) {
+			emptyView.setText(data.getErrorMessage());
+			AnimationUtils.fadeIn(emptyView);
+			AnimationUtils.fadeOut(recyclerView);
+		} else if (data.getCount() == 0) {
+			if (TextUtils.isEmpty(searchText)) {
+				emptyView.setText(R.string.search_initial_help);
+			} else {
+				emptyView.setText(R.string.empty_search);
+			}
+			AnimationUtils.fadeIn(emptyView);
+			AnimationUtils.fadeOut(recyclerView);
 		} else {
-			setListShownNoAnimation(true);
+			AnimationUtils.fadeOut(emptyView);
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		}
 
-		restoreScrollState();
+		maybeShowHelp();
 
 		if (TextUtils.isEmpty(searchText)) {
 			if (snackbar != null) {
@@ -154,11 +270,11 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 		} else {
 			@PluralsRes final int messageId = isExactMatch ? R.plurals.search_results_exact : R.plurals.search_results;
 			if (snackbar == null || !snackbar.isShown()) {
-				snackbar = Snackbar.make(getListContainer(),
+				snackbar = Snackbar.make(containerView,
 					getResources().getQuantityString(messageId, count, count, searchText),
 					Snackbar.LENGTH_INDEFINITE);
-				snackbar.getView().setBackgroundResource(R.color.primary_dark);
-				snackbar.setActionTextColor(getResources().getColor(R.color.inverse_text));
+				snackbar.getView().setBackgroundResource(R.color.dark_blue);
+				snackbar.setActionTextColor(ContextCompat.getColor(getActivity(), R.color.inverse_text));
 			} else {
 				snackbar.setText(getResources().getQuantityString(messageId, count, count, searchText));
 			}
@@ -167,7 +283,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 					@Override
 					public void onClick(View v) {
 						requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
-						setProgressShown(true);
+						//setProgressShown(true);
 						requery(searchText, false);
 					}
 				});
@@ -182,14 +298,8 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	public void onLoaderReset(Loader<SearchData> results) {
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		SearchResult game = searchResultsAdapter.getItem(position);
-		ActivityUtils.launchGame(getActivity(), game.id, game.name);
-	}
-
 	public void requestQueryUpdate(String query) {
-		setProgressShown(true);
+		AnimationUtils.fadeIn(progressView);
 		if (TextUtils.isEmpty(query)) {
 			requery(query, true);
 		} else {
@@ -200,7 +310,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 	public void forceQueryUpdate(String query) {
 		requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
-		setProgressShown(true);
+		AnimationUtils.fadeIn(progressView);
 		requery(query, true);
 	}
 
@@ -233,7 +343,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 
 		public SearchLoader(Context context, String searchText, boolean shouldSearchExact) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.createForXml();
 			this.searchText = searchText;
 			this.shouldSearchExact = shouldSearchExact;
 		}
@@ -243,91 +353,114 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 			if (TextUtils.isEmpty(searchText)) {
 				return null;
 			}
-			SearchData games = null;
+			SearchData response = null;
 			if (shouldSearchExact) {
-				try {
-					games = new SearchData(searchText, true, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1));
-				} catch (Exception e) {
-					// we'll try it again below
-				}
+				response = new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1), searchText, true);
 			}
-			try {
-				if (games == null || games.count() == 0) {
-					games = new SearchData(searchText, false, bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0));
-				}
-			} catch (Exception e) {
-				games = new SearchData(searchText, e);
+			if (response == null || response.getBody() == null || response.getBody().games == null || response.getBody().games.isEmpty()) {
+				return new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0), searchText, false);
+			} else {
+				return response;
 			}
-			return games;
 		}
 	}
 
-	static class SearchData extends Data<SearchResult> {
+	static class SearchData extends SafeResponse<SearchResponse> {
 		private final String searchText;
 		private final boolean isExactMatch;
-		private SearchResponse response;
 
-		public SearchData(String searchText, boolean isExactMatch, SearchResponse response) {
+		public SearchData(Call<SearchResponse> call, String searchText, boolean isExactMatch) {
+			super(call);
 			this.searchText = searchText;
 			this.isExactMatch = isExactMatch;
-			this.response = response;
-		}
-
-		public SearchData(String searchText, Exception e) {
-			super(e);
-			this.searchText = searchText;
-			this.isExactMatch = false;
 		}
 
 		public String getSearchText() {
 			return searchText;
 		}
 
-		public int count() {
-			if (response == null) {
-				return 0;
-			}
-			return response.total;
+
+		public boolean isExactMatch() {
+			return isExactMatch;
 		}
 
-		@Override
-		public List<SearchResult> list() {
-			if (response == null || response.games == null) {
+		public int getCount() {
+			if (getBody() == null || getBody().games == null) {
+				return 0;
+			}
+			return getBody().games.size();
+		}
+
+		public List<SearchResult> getList() {
+			if (getBody() == null || getBody().games == null) {
 				return new ArrayList<>();
 			}
-			return response.games;
+			return getBody().games;
 		}
 	}
 
-	public static class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
-		@NonNull private final LayoutInflater layoutInflater;
-		@NonNull private final String gameIdFormat;
+	public interface Callback {
+		boolean onItemClick(int position);
 
-		public SearchResultsAdapter(@NonNull Activity activity, @NonNull List<SearchResult> results) {
-			super(activity, R.layout.row_search, results);
-			layoutInflater = activity.getLayoutInflater();
-			gameIdFormat = activity.getResources().getString(R.string.id_list_text);
+		boolean onItemLongClick(int position);
+	}
+
+	public static class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.SearchResultViewHolder> {
+		private final LayoutInflater inflater;
+		private final List<SearchResult> results;
+		private final Callback callback;
+		private final SparseBooleanArray selectedItems;
+
+		public SearchResultsAdapter(Activity activity, List<SearchResult> results, Callback callback) {
+			this.results = results;
+			this.callback = callback;
+			inflater = activity.getLayoutInflater();
+			selectedItems = new SparseBooleanArray();
+			setHasStableIds(true);
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			if (convertView == null) {
-				convertView = layoutInflater.inflate(R.layout.row_search, parent, false);
-				holder = new ViewHolder(convertView);
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
+		public SearchResultViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View view = inflater.inflate(R.layout.row_search, parent, false);
+			return new SearchResultViewHolder(view);
+		}
+
+		@Override
+		public void onBindViewHolder(SearchResultViewHolder holder, int position) {
+			holder.bind(getItem(position), position);
+		}
+
+		@Override
+		public int getItemCount() {
+			return results == null ? 0 : results.size();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public SearchResult getItem(int position) {
+			return results.get(position);
+		}
+
+		public void clear() {
+			results.clear();
+		}
+
+		public class SearchResultViewHolder extends RecyclerView.ViewHolder {
+			@BindView(R.id.name) TextView nameView;
+			@BindView(R.id.year) TextView yearView;
+			@BindView(R.id.game_id) TextView gameIdView;
+
+			public SearchResultViewHolder(View itemView) {
+				super(itemView);
+				ButterKnife.bind(this, itemView);
 			}
 
-			SearchResult game;
-			try {
-				game = getItem(position);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return convertView;
-			}
-			if (game != null) {
-				holder.name.setText(game.name);
+			public void bind(final SearchResult game, final int position) {
+				if (game == null) return;
+				nameView.setText(game.name);
 				int style;
 				switch (game.getNameType()) {
 					case SearchResult.NAME_TYPE_ALTERNATE:
@@ -339,24 +472,58 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 						style = Typeface.NORMAL;
 						break;
 				}
-				holder.name.setTypeface(holder.name.getTypeface(), style);
-				holder.year.setText(PresentationUtils.describeYear(getContext(), game.getYearPublished()));
-				holder.gameId.setText(String.format(gameIdFormat, game.id));
+				nameView.setTypeface(nameView.getTypeface(), style);
+				yearView.setText(PresentationUtils.describeYear(yearView.getContext(), game.getYearPublished()));
+				gameIdView.setText(gameIdView.getContext().getString(R.string.id_list_text, game.id));
+
+				itemView.setActivated(selectedItems.get(position, false));
+
+				itemView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						boolean handled = false;
+						if (callback != null) {
+							handled = callback.onItemClick(position);
+						}
+						if (!handled) {
+							ActivityUtils.launchGame(itemView.getContext(), game.id, game.name);
+						}
+					}
+				});
+
+				itemView.setOnLongClickListener(new OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View v) {
+						return callback != null && callback.onItemLongClick(position);
+					}
+				});
 			}
-
-			return convertView;
 		}
-	}
 
-	static class ViewHolder {
-		@NonNull final TextView name;
-		@NonNull final TextView year;
-		@NonNull final TextView gameId;
+		public void toggleSelection(int position) {
+			if (selectedItems.get(position, false)) {
+				selectedItems.delete(position);
+			} else {
+				selectedItems.put(position, true);
+			}
+			notifyItemChanged(position);
+		}
 
-		public ViewHolder(@NonNull View view) {
-			name = (TextView) view.findViewById(R.id.name);
-			year = (TextView) view.findViewById(R.id.year);
-			gameId = (TextView) view.findViewById(R.id.gameId);
+		public void clearSelections() {
+			selectedItems.clear();
+			notifyDataSetChanged();
+		}
+
+		public int getSelectedItemCount() {
+			return selectedItems.size();
+		}
+
+		public List<Integer> getSelectedItems() {
+			List<Integer> items = new ArrayList<>(selectedItems.size());
+			for (int i = 0; i < selectedItems.size(); i++) {
+				items.add(selectedItems.keyAt(i));
+			}
+			return items;
 		}
 	}
 
@@ -364,16 +531,17 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
-		logPlayMenuItem = menu.findItem(R.id.menu_log_play);
-		logPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
-		bggLinkMenuItem = menu.findItem(R.id.menu_link);
-		selectedPositions.clear();
+		searchResultsAdapter.clearSelections();
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
+		int count = searchResultsAdapter.getSelectedItemCount();
+		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_link).setVisible(count == 1);
+		return true;
 	}
 
 	@Override
@@ -381,27 +549,13 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 	}
 
 	@Override
-	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-		if (checked) {
-			selectedPositions.add(position);
-		} else {
-			selectedPositions.remove(position);
-		}
-
-		int count = selectedPositions.size();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-
-		logPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		logPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
-		bggLinkMenuItem.setVisible(count == 1);
-	}
-
-	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (!selectedPositions.iterator().hasNext()) {
+		if (searchResultsAdapter == null ||
+			searchResultsAdapter.getSelectedItems() == null ||
+			searchResultsAdapter.getSelectedItems().size() == 0) {
 			return false;
 		}
-		SearchResult game = searchResultsAdapter.getItem(selectedPositions.iterator().next());
+		SearchResult game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems().get(0));
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -409,22 +563,22 @@ public class SearchResultsFragment extends BggListFragment implements LoaderCall
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, selectedPositions.size());
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.getSelectedItemCount());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-				for (int position : selectedPositions) {
+				for (int position : searchResultsAdapter.getSelectedItems()) {
 					SearchResult g = searchResultsAdapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
-				if (selectedPositions.size() == 1) {
+				if (searchResultsAdapter.getSelectedItemCount() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<>(selectedPositions.size());
-					for (int position : selectedPositions) {
+					List<Pair<Integer, String>> games = new ArrayList<>(searchResultsAdapter.getSelectedItemCount());
+					for (int position : searchResultsAdapter.getSelectedItems()) {
 						SearchResult g = searchResultsAdapter.getItem(position);
-						games.add(new Pair<>(g.id, g.name));
+						games.add(Pair.create(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

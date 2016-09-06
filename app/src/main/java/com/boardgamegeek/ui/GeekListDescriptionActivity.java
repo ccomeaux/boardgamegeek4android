@@ -12,18 +12,18 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
-	private int mGeekListId;
-	private String mGeekListTitle;
+	private int geekListId;
+	private String geekListTitle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = getIntent();
-		mGeekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		mGeekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
+		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setTitle(mGeekListTitle);
+			actionBar.setTitle(geekListTitle);
 		}
 	}
 
@@ -39,13 +39,13 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Uri uri = ActivityUtils.createBggUri("geeklist", mGeekListId);
+		Uri uri = ActivityUtils.createBggUri("geeklist", geekListId);
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				if (mGeekListId != BggContract.INVALID_ID) {
+				if (geekListId != BggContract.INVALID_ID) {
 					Intent intent = new Intent(this, GeekListActivity.class);
-					intent.putExtra(ActivityUtils.KEY_ID, mGeekListId);
-					intent.putExtra(ActivityUtils.KEY_TITLE, mGeekListTitle);
+					intent.putExtra(ActivityUtils.KEY_ID, geekListId);
+					intent.putExtra(ActivityUtils.KEY_TITLE, geekListTitle);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
@@ -57,9 +57,8 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 				ActivityUtils.link(this, uri);
 				return true;
 			case R.id.menu_share:
-				String description = String.format(getString(R.string.share_geeklist_text), mGeekListTitle);
-				ActivityUtils.share(this, getString(R.string.share_geeklist_subject), description + "\n\n" + uri,
-					R.string.title_share);
+				String description = String.format(getString(R.string.share_geeklist_text), geekListTitle);
+				ActivityUtils.share(this, getString(R.string.share_geeklist_subject), description + "\n\n" + uri, R.string.title_share);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

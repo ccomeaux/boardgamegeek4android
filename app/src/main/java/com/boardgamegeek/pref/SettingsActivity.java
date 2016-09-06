@@ -1,28 +1,32 @@
 package com.boardgamegeek.pref;
 
-import android.annotation.TargetApi;
+import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.v4.util.ArrayMap;
+import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.VersionUtils;
+import com.boardgamegeek.ui.DrawerActivity;
 import com.mikepenz.aboutlibraries.Libs;
+import com.mikepenz.aboutlibraries.LibsBuilder;
 
-import java.util.List;
+public class SettingsActivity extends DrawerActivity {
+	private static final String TAG_SINGLE_PANE = "single_pane";
+	private static final String KEY_SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT";
 
-@SuppressWarnings("deprecation")
-public class SettingsActivity extends AppCompatPreferenceActivity {
-	private final static String ACTION_LOG = "com.boardgamegeek.prefs.LOG";
-	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
-	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
-	private final static String ACTION_ABOUT = "com.boardgamegeek.prefs.ABOUT";
+	private static final String ACTION_PREFIX = "com.boardgamegeek.prefs.";
+	private static final String ACTION_LOG = ACTION_PREFIX + "LOG";
+	private static final String ACTION_SYNC = ACTION_PREFIX + "SYNC";
+	private static final String ACTION_ADVANCED = ACTION_PREFIX + "ADVANCED";
+	private static final String ACTION_ABOUT = ACTION_PREFIX + "ABOUT";
+	private static final String ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS";
 	private static final ArrayMap<String, Integer> FRAGMENT_MAP = buildFragmentMap();
 
 	private static ArrayMap<String, Integer> buildFragmentMap() {
@@ -31,65 +35,58 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		map.put(ACTION_SYNC, R.xml.preference_sync);
 		map.put(ACTION_ADVANCED, R.xml.preference_advanced);
 		map.put(ACTION_ABOUT, R.xml.preference_about);
+		map.put(ACTION_AUTHORS, R.xml.preference_authors);
 		return map;
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		buildLegacyPreferences();
-	}
-
-	private void buildLegacyPreferences() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			String action = getIntent().getAction();
-			if (action != null) {
-				Integer fragmentId = FRAGMENT_MAP.get(action);
-				if (fragmentId != null) {
-					addPreferencesFromResource(fragmentId);
-				}
-			} else if (!VersionUtils.hasHoneycomb()) {
-				addPreferencesFromResource(R.xml.preference_headers_legacy);
-			}
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction().add(R.id.root_container, new PrefFragment(), TAG_SINGLE_PANE).commit();
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
-	public void onBuildHeaders(List<Header> target) {
-		super.onBuildHeaders(target);
-		loadHeadersFromResource(R.xml.preference_headers, target);
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-		super.onPreferenceTreeClick(preferenceScreen, preference);
-		if (preference != null)
-			if (preference instanceof PreferenceScreen)
-				if (((PreferenceScreen) preference).getDialog() != null)
-					((PreferenceScreen) preference)
-						.getDialog()
-						.getWindow()
-						.getDecorView()
-						.setBackgroundDrawable(
-							this.getWindow().getDecorView().getBackground().getConstantState().newDrawable());
-		return false;
+	public void onBackPressed() {
+		if (!getFragmentManager().popBackStackImmediate()) {
+			super.onBackPressed();
+		}
 	}
 
-	@Override
-	protected boolean isValidFragment(String fragmentName) {
-		return fragmentName.equals(PrefFragment.class.getName());
+	void replaceFragment(String key) {
+		Bundle args = new Bundle();
+		args.putString(KEY_SETTINGS_FRAGMENT, key);
+		Fragment fragment = new PrefFragment();
+		fragment.setArguments(args);
+		getFragmentManager().beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commit();
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
-		private int mSyncType = 0;
+		private int syncType = 0;
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			String fragment = getArguments().getString("fragment");
-			if (fragment != null) {
+
+			final String fragment = getArguments() == null ? null : getArguments().getString(KEY_SETTINGS_FRAGMENT);
+			if (fragment == null) {
+				addPreferencesFromResource(R.xml.preference_headers);
+			} else {
 				Integer fragmentId = FRAGMENT_MAP.get(fragment);
 				if (fragmentId != null) {
 					addPreferencesFromResource(fragmentId);
@@ -100,25 +97,26 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 			if (oslPref != null) {
 				oslPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 					public boolean onPreferenceClick(Preference preference) {
-						new Libs.Builder()
+						new LibsBuilder()
 							.withFields(R.string.class.getFields())
 							.withLibraries(
-								"OkHttp",
 								"DragSortListView",
 								"Hugo",
 								"PhotoView",
-								"RangeSeekBar",
-								"StickyListHeaders",
 								"AndroidIcons",
-								"EventBus",
 								"MPAndroidChart",
-								"AndroidRandomColor")
+								"AndroidRandomColor",
+								"LeakCanary",
+								"MaterialRangeBar")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))
-							.withActivityTheme(R.style.Theme_bgglight)
-							.withAboutVersionShown(true)
-							.start(PrefFragment.this.getActivity());
+							.withActivityTheme(R.style.Theme_bgglight_About)
+							.withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+							.withAboutIconShown(true)
+							.withAboutAppName(getString(R.string.app_name))
+							.withAboutVersionShownName(true)
+							.start(getActivity());
 						return true;
 					}
 				});
@@ -140,8 +138,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		@Override
 		public void onStop() {
 			super.onStop();
-			if (mSyncType > 0) {
-				SyncService.sync(getActivity(), mSyncType);
+			if (syncType > 0) {
+				SyncService.sync(getActivity(), syncType);
+				syncType = 0;
 			}
 		}
 
@@ -150,17 +149,27 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 			switch (key) {
 				case "syncStatuses":
 					SyncService.clearCollection(getActivity());
-					mSyncType |= SyncService.FLAG_SYNC_COLLECTION;
+					syncType |= SyncService.FLAG_SYNC_COLLECTION;
 					break;
 				case "syncPlays":
 					SyncService.clearPlays(getActivity());
-					mSyncType |= SyncService.FLAG_SYNC_PLAYS;
+					syncType |= SyncService.FLAG_SYNC_PLAYS;
 					break;
 				case "syncBuddies":
 					SyncService.clearBuddies(getActivity());
-					mSyncType |= SyncService.FLAG_SYNC_BUDDIES;
+					syncType |= SyncService.FLAG_SYNC_BUDDIES;
 					break;
 			}
+		}
+
+		@Override
+		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+			String key = preference.getKey();
+			if (key != null && key.startsWith(ACTION_PREFIX)) {
+				((SettingsActivity) getActivity()).replaceFragment(key);
+				return true;
+			}
+			return super.onPreferenceTreeClick(preferenceScreen, preference);
 		}
 	}
 }

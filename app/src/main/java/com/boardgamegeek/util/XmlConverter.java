@@ -15,126 +15,124 @@ public class XmlConverter {
 	private static final String BASE_URL = "https://boardgamegeek.com";
 	private static final String STATIC_IMAGES_URL = "https://cf.geekdo-static.com/images/";
 	private static final String IMAGES_URL = "https://cf.geekdo-images.com/images/";
-	private final List<Replaceable> mReplacers;
+	private final List<Replaceable> replacers;
 
 	public XmlConverter() {
-		mReplacers = new ArrayList<>();
-		mReplacers.add(new SimpleReplacer("\\[hr\\]", "<hr/>"));
-		mReplacers.add(new SimpleReplacer("\\[clear\\]", "<div style=\"clear:both\"></div>"));
+		replacers = new ArrayList<>();
+		replacers.add(new SimpleReplacer("\\[hr\\]", "<hr/>"));
+		replacers.add(new SimpleReplacer("\\[clear\\]", "<div style=\"clear:both\"></div>"));
 		createPair("b");
 		createPair("i");
 		createPair("u");
 		createPair("-", "strike");
-		mReplacers.add(new SimpleReplacer("\\[floatleft\\]", "<div style=\"float:left\">"));
-		mReplacers.add(new SimpleReplacer("\\[/floatleft\\]", "</div>"));
+		replacers.add(new SimpleReplacer("\\[floatleft\\]", "<div style=\"float:left\">"));
+		replacers.add(new SimpleReplacer("\\[/floatleft\\]", "</div>"));
 		createPair("center");
-		mReplacers.add(new SimpleReplacer("\\[floatright\\]", "<div style=\"float:right\">"));
-		mReplacers.add(new SimpleReplacer("\\[/floatright\\]", "</div>"));
-		mReplacers.add(new Replacer("\\[COLOR=([^#].*?)\\]", "<span style=\"color:", "\">"));
-		mReplacers.add(new Replacer("\\[COLOR=#(.*?)\\]", "<span style=\"color:#", "\">"));
-		mReplacers.add(new SimpleReplacer("\\[/COLOR\\]", "</span>"));
-		mReplacers.add(new Replacer("\\[BGCOLOR=([^#].*?)\\]", "<span style=\"background-color:", "\">"));
-		mReplacers.add(new Replacer("\\[BGCOLOR=#(.*?)\\]", "<span style=\"background-color#:", "\">"));
-		mReplacers.add(new SimpleReplacer("\\[/BGCOLOR\\]", "</span>"));
+		replacers.add(new SimpleReplacer("\\[floatright\\]", "<div style=\"float:right\">"));
+		replacers.add(new SimpleReplacer("\\[/floatright\\]", "</div>"));
+		replacers.add(new Replacer("\\[COLOR=([^#].*?)\\]", "<span style=\"color:", "\">"));
+		replacers.add(new Replacer("\\[COLOR=#(.*?)\\]", "<span style=\"color:#", "\">"));
+		replacers.add(new SimpleReplacer("\\[/COLOR\\]", "</span>"));
+		replacers.add(new Replacer("\\[BGCOLOR=([^#].*?)\\]", "<span style=\"background-color:", "\">"));
+		replacers.add(new Replacer("\\[BGCOLOR=#(.*?)\\]", "<span style=\"background-color#:", "\">"));
+		replacers.add(new SimpleReplacer("\\[/BGCOLOR\\]", "</span>"));
 		// TODO: determine when image is a PNG
-		mReplacers.add(new Replacer("\\[ImageID=(\\d+).*?\\]", "<div style=\"display:inline\"><img src=\"" + IMAGES_URL
-			+ "pic", "_t.jpg\"/></div>"));
-		mReplacers.add(new Replacer("\\[IMG\\](.*?)\\[/IMG\\]", "<div style=\"display:inline\"><img src=\"",
-			"\"/></div>"));
+		replacers.add(new Replacer("\\[ImageID=(\\d+).*?\\]", "<div style=\"display:inline\"><img src=\"" + IMAGES_URL + "pic", "_t.jpg\"/></div>"));
+		replacers.add(new Replacer("\\[IMG\\](.*?)\\[/IMG\\]", "<div style=\"display:inline\"><img src=\"", "\"/></div>"));
 		// TODO: YouTube, Vimeo, tweet, mp3
-		mReplacers.add(new GeekUrlReplacer());
-		mReplacers.add(GeekLinkReplacer.createNumeric("thing"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("thread"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("article", "reply"));// TODO: add #id
-		mReplacers.add(GeekLinkReplacer.createNumeric("geeklist", "GeekList"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("filepage", "file"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("person"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("company"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("property"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("family"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("guild"));
-		mReplacers.add(GeekLinkReplacer.createAlpha("user"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("question", "GeekQuestion"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("media", "podcast episode"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("blog"));
-		mReplacers.add(GeekLinkReplacer.createNumeric("blogpost", "blog post"));
-		mReplacers.add(new SimpleReplacer("\\[q\\]", "Quote:<blockquote>"));
-		mReplacers.add(new Replacer("\\[q=\"(.*?)\"\\]", "", " wrote:<blockquote>"));
-		mReplacers.add(new SimpleReplacer("\\[/q\\]", "</blockquote>"));
-		mReplacers.add(new SimpleReplacer("\\[o\\]", "Spoiler: <span style=\"color:white\">"));
-		mReplacers.add(new SimpleReplacer("\\[/o\\]", "</span>"));
+		replacers.add(new GeekUrlReplacer());
+		replacers.add(GeekLinkReplacer.createNumeric("thing"));
+		replacers.add(GeekLinkReplacer.createNumeric("thread"));
+		replacers.add(GeekLinkReplacer.createNumeric("article", "reply"));// TODO: add #id
+		replacers.add(GeekLinkReplacer.createNumeric("geeklist", "GeekList"));
+		replacers.add(GeekLinkReplacer.createNumeric("filepage", "file"));
+		replacers.add(GeekLinkReplacer.createNumeric("person"));
+		replacers.add(GeekLinkReplacer.createNumeric("company"));
+		replacers.add(GeekLinkReplacer.createNumeric("property"));
+		replacers.add(GeekLinkReplacer.createNumeric("family"));
+		replacers.add(GeekLinkReplacer.createNumeric("guild"));
+		replacers.add(GeekLinkReplacer.createAlpha("user"));
+		replacers.add(GeekLinkReplacer.createNumeric("question", "GeekQuestion"));
+		replacers.add(GeekLinkReplacer.createNumeric("media", "podcast episode"));
+		replacers.add(GeekLinkReplacer.createNumeric("blog"));
+		replacers.add(GeekLinkReplacer.createNumeric("blogpost", "blog post"));
+		replacers.add(new SimpleReplacer("\\[q\\]", "Quote:<blockquote>"));
+		replacers.add(new Replacer("\\[q=\"(.*?)\"\\]", "", " wrote:<blockquote>"));
+		replacers.add(new SimpleReplacer("\\[/q\\]", "</blockquote>"));
+		replacers.add(new SimpleReplacer("\\[o\\]", "Spoiler: <span style=\"color:white\">"));
+		replacers.add(new SimpleReplacer("\\[/o\\]", "</span>"));
 		createPair("c", "tt");
-		mReplacers.add(new UrlReplacer());
-		mReplacers.add(new UrlReplacer2());
+		replacers.add(new UrlReplacer());
+		replacers.add(new UrlReplacer2());
 		// TODO: roll
 		// TODO: size isn't working
-		mReplacers.add(new Replacer("\\[size=(.*?)\\]", "<span font-size=\"", "px\">"));
-		mReplacers.add(new SimpleReplacer("\\[/size\\]", "</span>"));
+		replacers.add(new Replacer("\\[size=(.*?)\\]", "<span font-size=\"", "px\">"));
+		replacers.add(new SimpleReplacer("\\[/size\\]", "</span>"));
 
-		mReplacers.add(SimpleReplacer.createCustomImage("\\:\\)\\s", "smile.gif"));
-		mReplacers.add(SimpleReplacer.createCustomImage("\\:\\(\\s", "sad.gif"));
-		mReplacers.add(SimpleReplacer.createCustomImage("\\:D\\s", "biggrin.gif"));
-		mReplacers.add(SimpleReplacer.createCustomImage("\\:p\\s", "tongue.gif"));
-		mReplacers.add(SimpleReplacer.createCustomImage("\\;\\)\\s", "wink.gif"));
-		mReplacers.add(SimpleReplacer.createImage("what", "rock.gif"));
-		mReplacers.add(SimpleReplacer.createGif("wow"));
-		mReplacers.add(SimpleReplacer.createGif("angry"));
-		mReplacers.add(SimpleReplacer.createGif("cool"));
-		mReplacers.add(SimpleReplacer.createGif("laugh"));
-		mReplacers.add(SimpleReplacer.createGif("meeple"));
-		mReplacers.add(SimpleReplacer.createGif("surprise"));
-		mReplacers.add(SimpleReplacer.createGif("blush"));
-		mReplacers.add(SimpleReplacer.createGif("snore"));
-		mReplacers.add(SimpleReplacer.createGif("cry"));
-		mReplacers.add(SimpleReplacer.createGif("kiss"));
-		mReplacers.add(SimpleReplacer.createGif("modest"));
-		mReplacers.add(SimpleReplacer.createGif("whistle"));
-		mReplacers.add(SimpleReplacer.createGif("devil"));
-		mReplacers.add(SimpleReplacer.createGif("soblue"));
-		mReplacers.add(SimpleReplacer.createGif("yuk"));
-		mReplacers.add(SimpleReplacer.createGif("gulp"));
-		mReplacers.add(SimpleReplacer.createGif("shake"));
-		mReplacers.add(SimpleReplacer.createGif("arrrh"));
-		mReplacers.add(SimpleReplacer.createGif("zombie"));
-		mReplacers.add(SimpleReplacer.createGif("robot"));
-		mReplacers.add(SimpleReplacer.createGif("ninja"));
-		mReplacers.add(SimpleReplacer.createGif("sauron"));
-		mReplacers.add(SimpleReplacer.createGif("goo"));
-		mReplacers.add(SimpleReplacer.createImage("star", "star_yellow.gif"));
-		mReplacers.add(SimpleReplacer.createImage("halfstar", "star_yellowhalf.gif"));
-		mReplacers.add(SimpleReplacer.createImage("nostar", "star_white.gif"));
-		mReplacers.add(SimpleReplacer.createImage("gg", "geekgold.gif"));
-		mReplacers.add(SimpleReplacer.createGif("bag"));
-		mReplacers.add(SimpleReplacer.createGif("bacon"));
-		mReplacers.add(SimpleReplacer.createGif("caravan"));
+		replacers.add(SimpleReplacer.createCustomImage("\\:\\)\\s", "smile.gif"));
+		replacers.add(SimpleReplacer.createCustomImage("\\:\\(\\s", "sad.gif"));
+		replacers.add(SimpleReplacer.createCustomImage("\\:D\\s", "biggrin.gif"));
+		replacers.add(SimpleReplacer.createCustomImage("\\:p\\s", "tongue.gif"));
+		replacers.add(SimpleReplacer.createCustomImage("\\;\\)\\s", "wink.gif"));
+		replacers.add(SimpleReplacer.createImage("what", "rock.gif"));
+		replacers.add(SimpleReplacer.createGif("wow"));
+		replacers.add(SimpleReplacer.createGif("angry"));
+		replacers.add(SimpleReplacer.createGif("cool"));
+		replacers.add(SimpleReplacer.createGif("laugh"));
+		replacers.add(SimpleReplacer.createGif("meeple"));
+		replacers.add(SimpleReplacer.createGif("surprise"));
+		replacers.add(SimpleReplacer.createGif("blush"));
+		replacers.add(SimpleReplacer.createGif("snore"));
+		replacers.add(SimpleReplacer.createGif("cry"));
+		replacers.add(SimpleReplacer.createGif("kiss"));
+		replacers.add(SimpleReplacer.createGif("modest"));
+		replacers.add(SimpleReplacer.createGif("whistle"));
+		replacers.add(SimpleReplacer.createGif("devil"));
+		replacers.add(SimpleReplacer.createGif("soblue"));
+		replacers.add(SimpleReplacer.createGif("yuk"));
+		replacers.add(SimpleReplacer.createGif("gulp"));
+		replacers.add(SimpleReplacer.createGif("shake"));
+		replacers.add(SimpleReplacer.createGif("arrrh"));
+		replacers.add(SimpleReplacer.createGif("zombie"));
+		replacers.add(SimpleReplacer.createGif("robot"));
+		replacers.add(SimpleReplacer.createGif("ninja"));
+		replacers.add(SimpleReplacer.createGif("sauron"));
+		replacers.add(SimpleReplacer.createGif("goo"));
+		replacers.add(SimpleReplacer.createImage("star", "star_yellow.gif"));
+		replacers.add(SimpleReplacer.createImage("halfstar", "star_yellowhalf.gif"));
+		replacers.add(SimpleReplacer.createImage("nostar", "star_white.gif"));
+		replacers.add(SimpleReplacer.createImage("gg", "geekgold.gif"));
+		replacers.add(SimpleReplacer.createGif("bag"));
+		replacers.add(SimpleReplacer.createGif("bacon"));
+		replacers.add(SimpleReplacer.createGif("caravan"));
 		createCamelImage("mint");
 		createCamelImage("lime");
 		createCamelImage("grape");
 		createCamelImage("lemon");
 		createCamelImage("orange");
-		mReplacers.add(SimpleReplacer.createGif("goldencamel"));
+		replacers.add(SimpleReplacer.createGif("goldencamel"));
 		createTajImage("blue");
 		createTajImage("brown");
 		createTajImage("gray");
 		createTajImage("maroon");
 		createTajImage("tan");
 		createTajImage("white");
-		mReplacers.add(SimpleReplacer.createImage("thumbsup", "thumbs-up.gif"));
-		mReplacers.add(SimpleReplacer.createImage("thumbsdown", "thumbs-down.gif"));
-		mReplacers.add(SimpleReplacer.createGif("coffee"));
-		mReplacers.add(SimpleReplacer.createGif("tobacco"));
-		mReplacers.add(SimpleReplacer.createGif("indigo"));
-		mReplacers.add(SimpleReplacer.createGif("sugar"));
-		mReplacers.add(SimpleReplacer.createGif("corn"));
-		mReplacers.add(SimpleReplacer.createGif("colonist"));
-		mReplacers.add(SimpleReplacer.createGif("1vp"));
-		mReplacers.add(SimpleReplacer.createGif("5vp"));
-		mReplacers.add(SimpleReplacer.createGif("1db"));
-		mReplacers.add(SimpleReplacer.createGif("5db"));
+		replacers.add(SimpleReplacer.createImage("thumbsup", "thumbs-up.gif"));
+		replacers.add(SimpleReplacer.createImage("thumbsdown", "thumbs-down.gif"));
+		replacers.add(SimpleReplacer.createGif("coffee"));
+		replacers.add(SimpleReplacer.createGif("tobacco"));
+		replacers.add(SimpleReplacer.createGif("indigo"));
+		replacers.add(SimpleReplacer.createGif("sugar"));
+		replacers.add(SimpleReplacer.createGif("corn"));
+		replacers.add(SimpleReplacer.createGif("colonist"));
+		replacers.add(SimpleReplacer.createGif("1vp"));
+		replacers.add(SimpleReplacer.createGif("5vp"));
+		replacers.add(SimpleReplacer.createGif("1db"));
+		replacers.add(SimpleReplacer.createGif("5db"));
 		for (int i = 0; i <= 9; i++) {
-			mReplacers.add(SimpleReplacer.createImage("d10-" + i, "d10-" + i + ".gif"));
+			replacers.add(SimpleReplacer.createImage("d10-" + i, "d10-" + i + ".gif"));
 		}
-		mReplacers.add(SimpleReplacer.createImage("city", "ttr_city.gif"));
+		replacers.add(SimpleReplacer.createImage("city", "ttr_city.gif"));
 		createTrainImage("red");
 		createTrainImage("green");
 		createTrainImage("blue");
@@ -142,87 +140,86 @@ public class XmlConverter {
 		createTrainImage("black");
 		createTrainImage("purple");
 		createTrainImage("white");
-		mReplacers.add(SimpleReplacer.createGif("wood"));
-		mReplacers.add(SimpleReplacer.createGif("wheat"));
-		mReplacers.add(SimpleReplacer.createGif("sheep"));
-		mReplacers.add(SimpleReplacer.createGif("ore"));
-		mReplacers.add(SimpleReplacer.createGif("brick"));
-		mReplacers.add(SimpleReplacer.createGif("cinnamon"));
-		mReplacers.add(SimpleReplacer.createGif("clove"));
-		mReplacers.add(SimpleReplacer.createGif("ginger"));
-		mReplacers.add(SimpleReplacer.createGif("nutmeg"));
-		mReplacers.add(SimpleReplacer.createGif("pepper"));
-		mReplacers.add(SimpleReplacer.createGif("coal"));
-		mReplacers.add(SimpleReplacer.createGif("oil"));
-		mReplacers.add(SimpleReplacer.createGif("trash"));
-		mReplacers.add(SimpleReplacer.createGif("nuclear"));
+		replacers.add(SimpleReplacer.createGif("wood"));
+		replacers.add(SimpleReplacer.createGif("wheat"));
+		replacers.add(SimpleReplacer.createGif("sheep"));
+		replacers.add(SimpleReplacer.createGif("ore"));
+		replacers.add(SimpleReplacer.createGif("brick"));
+		replacers.add(SimpleReplacer.createGif("cinnamon"));
+		replacers.add(SimpleReplacer.createGif("clove"));
+		replacers.add(SimpleReplacer.createGif("ginger"));
+		replacers.add(SimpleReplacer.createGif("nutmeg"));
+		replacers.add(SimpleReplacer.createGif("pepper"));
+		replacers.add(SimpleReplacer.createGif("coal"));
+		replacers.add(SimpleReplacer.createGif("oil"));
+		replacers.add(SimpleReplacer.createGif("trash"));
+		replacers.add(SimpleReplacer.createGif("nuclear"));
 		for (int i = 1; i <= 6; i++) {
-			mReplacers.add(SimpleReplacer.createImage("d6-" + i, "die-white-" + i + ".gif"));
-			mReplacers.add(SimpleReplacer.createImage("bd6-" + i, "die-black-" + i + ".gif"));
+			replacers.add(SimpleReplacer.createImage("d6-" + i, "die-white-" + i + ".gif"));
+			replacers.add(SimpleReplacer.createImage("bd6-" + i, "die-black-" + i + ".gif"));
 		}
-		mReplacers.add(SimpleReplacer.createPng("tankard"));
-		mReplacers.add(SimpleReplacer.createPng("jug"));
-		mReplacers.add(SimpleReplacer.createPng("chalice"));
-		mReplacers.add(SimpleReplacer.createGif("worker"));
-		mReplacers.add(SimpleReplacer.createGif("building"));
-		mReplacers.add(SimpleReplacer.createGif("aristocrat"));
-		mReplacers.add(SimpleReplacer.createGif("trade"));
-		mReplacers.add(SimpleReplacer.createPng("arrowN"));
-		mReplacers.add(SimpleReplacer.createPng("arrowNE"));
-		mReplacers.add(SimpleReplacer.createPng("arrowE"));
-		mReplacers.add(SimpleReplacer.createPng("arrowSE"));
-		mReplacers.add(SimpleReplacer.createPng("arrowS"));
-		mReplacers.add(SimpleReplacer.createPng("arrowSW"));
-		mReplacers.add(SimpleReplacer.createPng("arrowW"));
-		mReplacers.add(SimpleReplacer.createPng("arrowNW"));
-		mReplacers.add(SimpleReplacer.createPng("power"));
-		mReplacers.add(SimpleReplacer.createPng("XBA"));
-		mReplacers.add(SimpleReplacer.createPng("XBB"));
-		mReplacers.add(SimpleReplacer.createPng("XBX"));
-		mReplacers.add(SimpleReplacer.createPng("XBY"));
-		mReplacers.add(SimpleReplacer.createPng("PSC"));
-		mReplacers.add(SimpleReplacer.createPng("PSS"));
-		mReplacers.add(SimpleReplacer.createPng("PST"));
-		mReplacers.add(SimpleReplacer.createPng("PSX"));
-		mReplacers.add(SimpleReplacer.createPng("WiiH"));
-		mReplacers.add(SimpleReplacer.createPng("Wii1"));
-		mReplacers.add(SimpleReplacer.createPng("Wii2"));
-		mReplacers.add(SimpleReplacer.createPng("WiiA"));
-		mReplacers.add(SimpleReplacer.createPng("WiiB"));
-		mReplacers.add(SimpleReplacer.createPng("WiiC"));
-		mReplacers.add(SimpleReplacer.createPng("WiiX"));
-		mReplacers.add(SimpleReplacer.createPng("WiiY"));
-		mReplacers.add(SimpleReplacer.createPng("WiiZ"));
-		mReplacers.add(SimpleReplacer.createPng("Wii\\+"));
-		mReplacers.add(SimpleReplacer.createPng("Wii-"));
-		mReplacers.add(SimpleReplacer.createImage("!block", "bang_block.png"));
-		mReplacers.add(SimpleReplacer.createImage("\\?block", "question_block.png"));
-		mReplacers.add(SimpleReplacer.createImage("blank", "tiles/BLANK.gif"));
-		mReplacers.add(new UpperCaseReplacer("\\:([A-Za-z])\\:", "<img src=\"" + STATIC_IMAGES_URL + "tiles/",
-			".gif\"/>"));
-		mReplacers.add(new Replacer("\\:k([A-Za-z])\\:", "<img src=\"" + STATIC_IMAGES_URL + "k", ".png\"/>"));
+		replacers.add(SimpleReplacer.createPng("tankard"));
+		replacers.add(SimpleReplacer.createPng("jug"));
+		replacers.add(SimpleReplacer.createPng("chalice"));
+		replacers.add(SimpleReplacer.createGif("worker"));
+		replacers.add(SimpleReplacer.createGif("building"));
+		replacers.add(SimpleReplacer.createGif("aristocrat"));
+		replacers.add(SimpleReplacer.createGif("trade"));
+		replacers.add(SimpleReplacer.createPng("arrowN"));
+		replacers.add(SimpleReplacer.createPng("arrowNE"));
+		replacers.add(SimpleReplacer.createPng("arrowE"));
+		replacers.add(SimpleReplacer.createPng("arrowSE"));
+		replacers.add(SimpleReplacer.createPng("arrowS"));
+		replacers.add(SimpleReplacer.createPng("arrowSW"));
+		replacers.add(SimpleReplacer.createPng("arrowW"));
+		replacers.add(SimpleReplacer.createPng("arrowNW"));
+		replacers.add(SimpleReplacer.createPng("power"));
+		replacers.add(SimpleReplacer.createPng("XBA"));
+		replacers.add(SimpleReplacer.createPng("XBB"));
+		replacers.add(SimpleReplacer.createPng("XBX"));
+		replacers.add(SimpleReplacer.createPng("XBY"));
+		replacers.add(SimpleReplacer.createPng("PSC"));
+		replacers.add(SimpleReplacer.createPng("PSS"));
+		replacers.add(SimpleReplacer.createPng("PST"));
+		replacers.add(SimpleReplacer.createPng("PSX"));
+		replacers.add(SimpleReplacer.createPng("WiiH"));
+		replacers.add(SimpleReplacer.createPng("Wii1"));
+		replacers.add(SimpleReplacer.createPng("Wii2"));
+		replacers.add(SimpleReplacer.createPng("WiiA"));
+		replacers.add(SimpleReplacer.createPng("WiiB"));
+		replacers.add(SimpleReplacer.createPng("WiiC"));
+		replacers.add(SimpleReplacer.createPng("WiiX"));
+		replacers.add(SimpleReplacer.createPng("WiiY"));
+		replacers.add(SimpleReplacer.createPng("WiiZ"));
+		replacers.add(SimpleReplacer.createPng("Wii\\+"));
+		replacers.add(SimpleReplacer.createPng("Wii-"));
+		replacers.add(SimpleReplacer.createImage("!block", "bang_block.png"));
+		replacers.add(SimpleReplacer.createImage("\\?block", "question_block.png"));
+		replacers.add(SimpleReplacer.createImage("blank", "tiles/BLANK.gif"));
+		replacers.add(new UpperCaseReplacer("\\:([A-Za-z])\\:", "<img src=\"" + STATIC_IMAGES_URL + "tiles/", ".gif\"/>"));
+		replacers.add(new Replacer("\\:k([A-Za-z])\\:", "<img src=\"" + STATIC_IMAGES_URL + "k", ".png\"/>"));
 	}
 
 	private void createPair(String tag) {
-		mReplacers.add(SimpleReplacer.createStart(tag));
-		mReplacers.add(SimpleReplacer.createEnd(tag));
+		replacers.add(SimpleReplacer.createStart(tag));
+		replacers.add(SimpleReplacer.createEnd(tag));
 	}
 
 	private void createPair(String tag, String replacementTag) {
-		mReplacers.add(SimpleReplacer.createStart(tag, replacementTag));
-		mReplacers.add(SimpleReplacer.createEnd(tag, replacementTag));
+		replacers.add(SimpleReplacer.createStart(tag, replacementTag));
+		replacers.add(SimpleReplacer.createEnd(tag, replacementTag));
 	}
 
 	private void createCamelImage(String color) {
-		mReplacers.add(SimpleReplacer.createImage(color + "camel", "camel_" + color + ".gif"));
+		replacers.add(SimpleReplacer.createImage(color + "camel", "camel_" + color + ".gif"));
 	}
 
 	private void createTajImage(String color) {
-		mReplacers.add(SimpleReplacer.createImage(color + "taj", "taj_" + color + ".gif"));
+		replacers.add(SimpleReplacer.createImage(color + "taj", "taj_" + color + ".gif"));
 	}
 
 	private void createTrainImage(String color) {
-		mReplacers.add(SimpleReplacer.createImage(color + "train", "ttr_" + color + ".gif"));
+		replacers.add(SimpleReplacer.createImage(color + "train", "ttr_" + color + ".gif"));
 	}
 
 	public String toHtml(String text) {
@@ -230,7 +227,7 @@ public class XmlConverter {
 			return "";
 		}
 
-		for (Replaceable replacer : mReplacers) {
+		for (Replaceable replacer : replacers) {
 			text = replacer.replace(text);
 		}
 		text = "<div style=\"white-space: pre-wrap\">" + text + "</div>";
@@ -238,17 +235,31 @@ public class XmlConverter {
 		return text;
 	}
 
+	public String strip(String text) {
+		if (TextUtils.isEmpty(text)) {
+			return "";
+		}
+
+		for (Replaceable replacer : replacers) {
+			text = replacer.strip(text);
+		}
+
+		return text;
+	}
+
 	interface Replaceable {
 		String replace(String text);
+
+		String strip(String text);
 	}
 
 	private static class SimpleReplacer implements Replaceable {
-		final Pattern mPattern;
-		final String mReplacement;
+		final Pattern pattern;
+		final String replacement;
 
 		public SimpleReplacer(String pattern, String replacement) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mReplacement = replacement;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.replacement = replacement;
 		}
 
 		public static SimpleReplacer createStart(String tag) {
@@ -285,31 +296,47 @@ public class XmlConverter {
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			if (matcher.find()) {
-				return matcher.replaceAll(mReplacement);
+				return matcher.replaceAll(replacement);
 			}
 			return text;
+		}
+
+		@Override
+		public String strip(String text) {
+			return pattern.matcher(text).replaceAll("");
 		}
 	}
 
 	private static class Replacer implements Replaceable {
-		private final Pattern mPattern;
-		private final String mPrefix;
-		private final String mSuffix;
+		private final Pattern pattern;
+		private final String prefix;
+		private final String suffix;
 
 		public Replacer(String pattern, String prefix, String suffix) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mPrefix = prefix;
-			mSuffix = suffix;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.prefix = prefix;
+			this.suffix = suffix;
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer buffer = new StringBuffer();
 			while (matcher.find()) {
-				matcher.appendReplacement(buffer, mPrefix + matcher.group(1) + mSuffix);
+				matcher.appendReplacement(buffer, prefix + matcher.group(1) + suffix);
+			}
+			matcher.appendTail(buffer);
+			return buffer.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer buffer = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(buffer, matcher.group(1));
 			}
 			matcher.appendTail(buffer);
 			return buffer.toString();
@@ -317,23 +344,34 @@ public class XmlConverter {
 	}
 
 	private static class UpperCaseReplacer implements Replaceable {
-		private final Pattern mPattern;
-		private final String mPrefix;
-		private final String mSuffix;
+		private final Pattern pattern;
+		private final String prefix;
+		private final String suffix;
 
 		public UpperCaseReplacer(String pattern, String prefix, String suffix) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mPrefix = prefix;
-			mSuffix = suffix;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.prefix = prefix;
+			this.suffix = suffix;
 		}
 
 		@SuppressLint("DefaultLocale")
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer buffer = new StringBuffer();
 			while (matcher.find()) {
-				matcher.appendReplacement(buffer, mPrefix + matcher.group(1).toUpperCase() + mSuffix);
+				matcher.appendReplacement(buffer, prefix + matcher.group(1).toUpperCase() + suffix);
+			}
+			matcher.appendTail(buffer);
+			return buffer.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer buffer = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(buffer, matcher.group(1).toUpperCase());
 			}
 			matcher.appendTail(buffer);
 			return buffer.toString();
@@ -341,15 +379,15 @@ public class XmlConverter {
 	}
 
 	public static class UrlReplacer implements Replaceable {
-		private final Pattern mPattern;
+		private final Pattern pattern;
 
 		public UrlReplacer() {
-			mPattern = Pattern.compile("\\[url\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile("\\[url\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String url = HttpUtils.ensureScheme(matcher.group(1));
@@ -358,18 +396,29 @@ public class XmlConverter {
 			matcher.appendTail(result);
 			return result.toString();
 		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(result, HttpUtils.ensureScheme(matcher.group(1)));
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
 	}
 
 	public static class UrlReplacer2 implements Replaceable {
-		private final Pattern mPattern;
+		private final Pattern pattern;
 
 		public UrlReplacer2() {
-			mPattern = Pattern.compile("\\[url=(.*?)\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile("\\[url=(.*?)\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String url = HttpUtils.ensureScheme(matcher.group(1));
@@ -383,27 +432,17 @@ public class XmlConverter {
 			matcher.appendTail(result);
 			return result.toString();
 		}
-	}
-
-	public static class GeekUrlReplacer implements Replaceable {
-		private final Pattern mPattern;
-
-		public GeekUrlReplacer() {
-			mPattern = Pattern.compile("\\[geekurl=(.*?)\\](.*?)\\[/geekurl\\]", Pattern.CASE_INSENSITIVE);
-		}
 
 		@Override
-		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String displayText = matcher.group(2);
 				if (TextUtils.isEmpty(displayText)) {
-					matcher.appendReplacement(result,
-						"<a href=\"" + BASE_URL + matcher.group(1) + "\">" + matcher.group(1) + "</a>");
+					matcher.appendReplacement(result, HttpUtils.ensureScheme(matcher.group(1)));
 				} else {
-					matcher.appendReplacement(result, "<a href=\"" + BASE_URL + matcher.group(1) + "\">" + displayText
-						+ "</a>");
+					matcher.appendReplacement(result, displayText);
 				}
 			}
 			matcher.appendTail(result);
@@ -411,20 +450,64 @@ public class XmlConverter {
 		}
 	}
 
+	public static class GeekUrlReplacer implements Replaceable {
+		private final Pattern pattern;
+
+		public GeekUrlReplacer() {
+			pattern = Pattern.compile("\\[geekurl=(.*?)\\](.*?)\\[/geekurl\\]", Pattern.CASE_INSENSITIVE);
+		}
+
+		@Override
+		public String replace(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				String displayText = matcher.group(2);
+				if (TextUtils.isEmpty(displayText)) {
+					matcher.appendReplacement(result, "<a href=\"" + BASE_URL + matcher.group(1) + "\">" + matcher.group(1) + "</a>");
+				} else {
+					matcher.appendReplacement(result, "<a href=\"" + BASE_URL + matcher.group(1) + "\">" + displayText + "</a>");
+				}
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				String displayText = matcher.group(2);
+				if (TextUtils.isEmpty(displayText)) {
+					matcher.appendReplacement(result, matcher.group(1));
+				} else {
+					matcher.appendReplacement(result, displayText);
+				}
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
+	}
+
+	/***
+	 * Replaces a GeekLink with an HREF tag.
+	 * [thing=13]Catan[/thing] becomes <a href="https://boardgamegeek.com/thing/13">Catan</a>
+	 * [thing=13][/thing] becomes <a href="https://boardgamegeek.com/thing/13">thing 13</a>
+	 */
 	public static class GeekLinkReplacer implements Replaceable {
-		private final Pattern mPattern;
-		private final String mUrl;
-		private final String mDisplayPrefix;
+		private final Pattern pattern;
+		private final String url;
+		private final String displayPrefix;
 
 		private GeekLinkReplacer(String pattern, String url, String displayPrefix) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mUrl = url;
-			mDisplayPrefix = displayPrefix;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.url = url;
+			this.displayPrefix = displayPrefix;
 		}
 
 		static GeekLinkReplacer createAlpha(String path) {
-			return new GeekLinkReplacer("\\[" + path + "=(.*?)\\](.*?)\\[/" + path + "\\]",
-				BASE_URL + "/" + path + "/", path);
+			return new GeekLinkReplacer("\\[" + path + "=(.*?)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path + "/", path);
 		}
 
 		static GeekLinkReplacer createNumeric(String path) {
@@ -432,22 +515,35 @@ public class XmlConverter {
 		}
 
 		static GeekLinkReplacer createNumeric(String path, String display) {
-			return new GeekLinkReplacer("\\[" + path + "=(\\d+)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path
-				+ "/", display);
+			return new GeekLinkReplacer("\\[" + path + "=(\\d+)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path + "/", display);
 		}
 
 		@Override
 		public String replace(String text) {
-			Matcher matcher = mPattern.matcher(text);
+			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
 				String displayText = matcher.group(2);
 				if (TextUtils.isEmpty(displayText)) {
-					matcher.appendReplacement(result, "<a href=\"" + mUrl + matcher.group(1) + "\">" + mDisplayPrefix
-						+ " " + matcher.group(1) + "</a>");
+					matcher.appendReplacement(result, "<a href=\"" + url + matcher.group(1) + "\">" + displayPrefix + " " + matcher.group(1) + "</a>");
 				} else {
-					matcher.appendReplacement(result, "<a href=\"" + mUrl + matcher.group(1) + "\">" + displayText
-						+ "</a>");
+					matcher.appendReplacement(result, "<a href=\"" + url + matcher.group(1) + "\">" + displayText + "</a>");
+				}
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
+
+		@Override
+		public String strip(String text) {
+			Matcher matcher = pattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				String displayText = matcher.group(2);
+				if (TextUtils.isEmpty(displayText)) {
+					matcher.appendReplacement(result, displayPrefix + " " + matcher.group(1));
+				} else {
+					matcher.appendReplacement(result, displayText);
 				}
 			}
 			matcher.appendTail(result);

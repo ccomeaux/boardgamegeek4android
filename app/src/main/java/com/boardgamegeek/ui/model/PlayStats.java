@@ -20,11 +20,13 @@ import java.util.Stack;
 public class PlayStats {
 	public static String[] PROJECTION = {
 		Plays.SUM_QUANTITY,
-		Games.GAME_NAME
+		Games.GAME_NAME,
+		Games.GAME_RANK
 	};
 
 	private static final int SUM_QUANTITY = 0;
 	private static final int GAME_NAME = 1;
+	private static final int RANK = 2;
 
 	private static final int MIN_H_INDEX_GAMES = 2;
 	private static final int MAX_H_INDEX_GAMES = 6;
@@ -39,6 +41,7 @@ public class PlayStats {
 	private final Stack<Pair<String, Integer>> hIndexGamesStack = new Stack<>();
 	private int postIndexCount = 0;
 	private int priorPlayCount;
+	private int top100count = 0;
 
 	public static PlayStats fromCursor(Cursor cursor) {
 		return new PlayStats(cursor);
@@ -56,6 +59,7 @@ public class PlayStats {
 		do {
 			int playCount = cursor.getInt(SUM_QUANTITY);
 			String gameName = cursor.getString(GAME_NAME);
+			int rank = cursor.getInt(RANK);
 
 			numberOfPlays += playCount;
 			numberOfGames++;
@@ -66,6 +70,10 @@ public class PlayStats {
 				numberOfDimes++;
 			} else if (playCount > 5) {
 				numberOfNickels++;
+			}
+
+			if (rank >= 1 && rank <= 100) {
+				top100count++;
 			}
 
 			if (hIndex == 0) {
@@ -116,10 +124,12 @@ public class PlayStats {
 
 	@NonNull
 	public static String getSelection(Context context) {
-		String selection = Plays.SYNC_STATUS + "=?";
+		String selection = Plays.SYNC_STATUS + "!=?";
+
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
 			selection += " AND " + Plays.INCOMPLETE + "!=?";
 		}
+
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
 			selection += " AND (" + Games.SUBTYPE + "=? OR " + Games.SUBTYPE + " IS NULL)";
@@ -127,13 +137,16 @@ public class PlayStats {
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
 			selection += " AND (" + Games.SUBTYPE + "!=? OR " + Games.SUBTYPE + " IS NULL)";
 		}
+		
 		return selection;
 	}
 
 	@NonNull
 	public static String[] getSelectionArgs(Context context) {
 		List<String> args = new ArrayList<>();
-		args.add(String.valueOf(Play.SYNC_STATUS_SYNCED));
+
+		args.add(String.valueOf(Play.SYNC_STATUS_PENDING_DELETE));
+
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
 			args.add("1");
 		}
@@ -146,6 +159,7 @@ public class PlayStats {
 		} else if (!PreferencesUtils.logPlayStatsAccessories(context)) {
 			args.add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 		}
+
 		return args.toArray(new String[args.size()]);
 	}
 
@@ -176,6 +190,10 @@ public class PlayStats {
 
 	public int getHIndex() {
 		return hIndex;
+	}
+
+	public int getTop100Count() {
+		return top100count;
 	}
 
 	public List<Pair<String, Integer>> getHIndexGames() {

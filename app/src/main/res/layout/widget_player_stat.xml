@@ -1,24 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	   xmlns:tools="http://schemas.android.com/tools">
 
-	<TextView
-		android:id="@+id/name"
-		style="@style/Text"
-		android:gravity="center_vertical"
-		android:minHeight="@dimen/card_row_height"/>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:minHeight="40dp"
+		android:orientation="horizontal">
 
-	<TextView
-		android:id="@+id/play_count"
-		style="@style/Text"
-		android:layout_gravity="center"/>
+		<TextView
+			android:id="@+id/name"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="3"
+			android:textAppearance="@style/Text"
+			tools:text="Chris (ccomeaux)"/>
 
-	<TextView
-		android:id="@+id/wins"
-		style="@style/Text"
-		android:layout_gravity="center"/>
+		<TextView
+			android:id="@+id/wins"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="2"
+			android:gravity="center_horizontal"
+			android:textAppearance="@style/Text"/>
 
-	<TextView
-		android:id="@+id/score"
-		style="@style/Text"
-		android:layout_gravity="center"/>
+		<TextView
+			android:id="@+id/play_count"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:gravity="right"
+			android:textAppearance="@style/Text"/>
+	</LinearLayout>
+
+	<LinearLayout
+		android:id="@+id/scores"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:visibility="gone"
+		tools:visibility="visible">
+
+		<TextView
+			android:id="@+id/scores_header"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingTop="@dimen/padding_standard"
+			android:text="@string/title_scores"
+			android:textAppearance="@style/Text"
+			android:textColor="@color/secondary_text"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:id="@+id/low_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_low"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_low"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
+
+			<android.support.v4.widget.Space
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"/>
+
+			<TextView
+				android:id="@+id/average_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_average"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_average"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
+
+			<android.support.v4.widget.Space
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"/>
+
+			<TextView
+				android:id="@+id/average_win_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_average_win"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_average_win"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
+
+			<android.support.v4.widget.Space
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"/>
+
+			<TextView
+				android:id="@+id/high_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_score_high"
+				android:drawablePadding="@dimen/padding_standard"
+				android:drawableTint="@color/score_high"
+				android:gravity="center_vertical"
+				android:textAppearance="@style/Text"/>
+		</LinearLayout>
+
+		<com.boardgamegeek.ui.widget.ScoreGraphView
+			android:id="@+id/score_graph"
+			android:layout_width="match_parent"
+			android:layout_height="40dp"/>
+
+	</LinearLayout>
 </merge>

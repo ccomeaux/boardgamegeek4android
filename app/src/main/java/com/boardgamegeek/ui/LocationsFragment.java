@@ -23,9 +23,11 @@ import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
@@ -52,6 +54,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	}
 
 	@DebugLog
+	@Subscribe(sticky = true)
 	public void onEvent(LocationSelectedEvent event) {
 		mSelectedName = event.getLocationName();
 		if (mAdapter != null) {
@@ -60,6 +63,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	}
 
 	@DebugLog
+	@Subscribe
 	public void onEvent(LocationSortChangedEvent event) {
 		setSort(event.getSortType());
 	}
@@ -175,11 +179,11 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 
 		class ViewHolder {
-			@InjectView(android.R.id.title) TextView name;
-			@InjectView(android.R.id.text1) TextView quantity;
+			@BindView(android.R.id.title) TextView name;
+			@BindView(android.R.id.text1) TextView quantity;
 
 			public ViewHolder(View view) {
-				ButterKnife.inject(this, view);
+				ButterKnife.bind(this, view);
 			}
 		}
 

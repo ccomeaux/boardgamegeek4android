@@ -23,33 +23,32 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.BuddyCollectionRequest;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import icepick.Icepick;
+import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class BuddyCollectionFragment extends StickyHeaderListFragment implements
-	LoaderManager.LoaderCallbacks<BuddyCollectionFragment.BuddyCollectionData> {
+public class BuddyCollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<CollectionResponse>> {
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
-	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
-	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
 
 	private BuddyCollectionAdapter adapter;
 	private SubMenu subMenu;
 	private String buddyName;
-	private String statusValue;
-	private String statusLabel;
+	@State String statusValue;
+	@State String statusLabel;
 	private String[] statusValues;
 	private String[] statusEntries;
 
@@ -69,12 +68,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		statusValues = getResources().getStringArray(R.array.pref_sync_status_values);
 
 		setHasOptionsMenu(true);
-		if (savedInstanceState == null) {
+		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (TextUtils.isEmpty(statusValue)) {
 			statusValue = statusValues[0];
+		}
+		if (TextUtils.isEmpty(statusLabel)) {
 			statusLabel = statusEntries[0];
-		} else {
-			statusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
-			statusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
 		}
 	}
 
@@ -95,9 +94,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		outState.putString(STATE_STATUS_VALUE, statusValue);
-		outState.putString(STATE_STATUS_LABEL, statusLabel);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -176,20 +174,19 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public Loader<BuddyCollectionData> onCreateLoader(int id, Bundle data) {
+	public Loader<SafeResponse<CollectionResponse>> onCreateLoader(int id, Bundle data) {
 		return new BuddyGamesLoader(getActivity(), buddyName, statusValue);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<BuddyCollectionData> loader, BuddyCollectionData data) {
+	public void onLoadFinished(Loader<SafeResponse<CollectionResponse>> loader, SafeResponse<CollectionResponse> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		List<CollectionItem> list = new ArrayList<>();
-		if (data != null) {
-			list = data.list();
-		}
+		List<CollectionItem> list = (data == null || data.getBody() == null) ?
+			new ArrayList<CollectionItem>() :
+			data.getBody().items;
 
 		if (adapter == null) {
 			adapter = new BuddyCollectionAdapter(getActivity(), list);
@@ -215,17 +212,17 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public void onLoaderReset(Loader<BuddyCollectionData> loader) {
+	public void onLoaderReset(Loader<SafeResponse<CollectionResponse>> loader) {
 	}
 
-	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
+	private static class BuddyGamesLoader extends BggLoader<SafeResponse<CollectionResponse>> {
 		private final BggService bggService;
 		private final String username;
 		private final ArrayMap<String, String> options;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
-			bggService = Adapter.create();
+			bggService = Adapter.createForXml();
 			this.username = username;
 			options = new ArrayMap<>();
 			options.put(status, "1");
@@ -233,35 +230,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		@Override
-		public BuddyCollectionData loadInBackground() {
-			BuddyCollectionData collection;
-			try {
-				CollectionResponse response = new BuddyCollectionRequest(bggService, username, options).execute();
-				collection = new BuddyCollectionData(response);
-			} catch (Exception e) {
-				collection = new BuddyCollectionData(e);
-			}
-			return collection;
-		}
-	}
-
-	static class BuddyCollectionData extends Data<CollectionItem> {
-		private CollectionResponse mResponse;
-
-		public BuddyCollectionData(CollectionResponse response) {
-			mResponse = response;
-		}
-
-		public BuddyCollectionData(Exception e) {
-			super(e);
-		}
-
-		@Override
-		public List<CollectionItem> list() {
-			if (mResponse == null || mResponse.items == null) {
-				return new ArrayList<>();
-			}
-			return mResponse.items;
+		public SafeResponse<CollectionResponse> loadInBackground() {
+			return new SafeResponse<>(bggService.collection(username, options));
 		}
 	}
 

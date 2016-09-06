@@ -85,7 +85,7 @@
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:scaleType="center"
 			android:visibility="gone"
-			android:src="@drawable/ic_action_achievement"
+			android:src="@drawable/ic_score"
 			tools:visibility="visible"/>
 
 		<LinearLayout

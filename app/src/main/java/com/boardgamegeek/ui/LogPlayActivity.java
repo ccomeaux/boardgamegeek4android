@@ -10,15 +10,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuBuilder.Callback;
 import android.support.v7.view.menu.MenuPopupHelper;
@@ -61,27 +65,33 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.github.amlcurran.showcaseview.targets.Target;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity implements OnDateSetListener {
-	private static final int HELP_VERSION = 2;
+	private static final int HELP_VERSION = 3;
 	private static final int REQUEST_ADD_PLAYER = 999;
 
 	public static final String KEY_PLAY_ID = "PLAY_ID";
@@ -128,28 +138,30 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private Play mOriginalPlay;
 	private final Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
+	private AutoCompleteAdapter locationAdapter;
 	private AlertDialog.Builder mAddPlayersBuilder;
 	private final List<Player> mPlayersToAdd = new ArrayList<>();
 	private final List<String> mUsernames = new ArrayList<>();
 	private final List<String> mNames = new ArrayList<>();
 
-	@InjectView(R.id.header) TextView mHeaderView;
-	@InjectView(R.id.log_play_date) TextView mDateButton;
-	@InjectView(R.id.log_play_quantity) EditText mQuantityView;
-	@InjectView(R.id.log_play_length) EditText mLengthView;
-	@InjectView(R.id.log_play_location) AutoCompleteTextView mLocationView;
-	@InjectView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
-	@InjectView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
-	@InjectView(R.id.timer) Chronometer mTimer;
-	@InjectView(R.id.timer_toggle) ImageView mTimerToggle;
-	@InjectView(R.id.log_play_comments) EditText mCommentsView;
-	@InjectView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
-	@InjectView(R.id.log_play_players_label) TextView mPlayerLabel;
-	@InjectView(R.id.fab) FloatingActionButton mFab;
+	@BindView(R.id.header) TextView mHeaderView;
+	@BindView(R.id.log_play_date) TextView mDateButton;
+	@BindView(R.id.log_play_quantity) EditText mQuantityView;
+	@BindView(R.id.log_play_length) EditText mLengthView;
+	@BindView(R.id.log_play_location) AutoCompleteTextView mLocationView;
+	@BindView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
+	@BindView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
+	@BindView(R.id.timer) Chronometer mTimer;
+	@BindView(R.id.timer_toggle) ImageView mTimerToggle;
+	@BindView(R.id.log_play_comments) EditText mCommentsView;
+	@BindView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
+	@BindView(R.id.log_play_players_label) TextView mPlayerLabel;
+	@BindView(R.id.fab) FloatingActionButton mFab;
 	private DragSortListView mPlayerList;
 	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
 	private MenuBuilder mShortPopupMenu;
+	private ShowcaseViewWizard showcaseWizard;
 
 	private boolean mPrefShowLocation;
 	private boolean mPrefShowLength;
@@ -170,6 +182,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private boolean mDeleteOnCancel;
 	private boolean mSaveOnPause = true;
 	private boolean mCustomPlayerSort;
+	@ColorInt private int mFabColor;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
 		@Override
@@ -324,7 +337,21 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		mHeaderView.setText(mGameName);
 
-		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
+		mFabColor = ContextCompat.getColor(this, R.color.accent);
+		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl, new ImageUtils.Callback() {
+			@Override
+			public void onSuccessfulImageLoad(Palette palette) {
+				mHeaderView.setBackgroundResource(R.color.black_overlay_light);
+				mFabColor = PaletteUtils.getIconSwatch(palette).getRgb();
+				mFab.setBackgroundTintList(ColorStateList.valueOf(mFabColor));
+				mFab.show();
+			}
+
+			@Override
+			public void onFailedImageLoad() {
+				mFab.show();
+			}
+		});
 
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
@@ -341,14 +368,15 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		startQuery();
 
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
+		setUpShowcaseViewWizard();
+		showcaseWizard.maybeShowHelp();
 	}
 
 	@DebugLog
 	@Override
 	protected void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@DebugLog
@@ -364,6 +392,9 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mPrefShowComments = PreferencesUtils.showLogPlayComments(this);
 		mPrefShowPlayers = PreferencesUtils.showLogPlayPlayerList(this);
 		setViewVisibility();
+
+		locationAdapter = new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri());
+		mLocationView.setAdapter(locationAdapter);
 	}
 
 	@DebugLog
@@ -390,6 +421,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@Override
 	protected void onPause() {
 		super.onPause();
+		locationAdapter.changeCursor(null);
 		if (mSaveOnPause && !mLaunchingActivity) {
 			saveDraft(false);
 		}
@@ -431,7 +463,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	}
 
 	@DebugLog
-	public void onEventMainThread(ColorAssignmentCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ColorAssignmentCompleteEvent event) {
 		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
 			bindUiPlayers();
@@ -442,12 +475,18 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	}
 
 	@DebugLog
+	private void setUpShowcaseViewWizard() {
+		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION);
+		showcaseWizard.addTarget(R.string.help_logplay, Target.NONE);
+	}
+
+	@DebugLog
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
 		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_fab_buffer, null), null, false);
 
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
@@ -457,8 +496,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			mDatePickerFragment.setOnDateSetListener(this);
 		}
 
-		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
-
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -467,6 +504,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				Intent intent = new Intent();
 				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
 				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
+				intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, mFabColor);
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 				}
@@ -527,10 +565,10 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		if (mPlay.hasStarted()) {
 			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_action_timer_off);
+			mTimerToggle.setImageResource(R.drawable.ic_timer_off);
 		} else if (DateUtils.isToday(mPlay.getDateInMillis() + mPlay.length * 60 * 1000)) {
 			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_action_timer);
+			mTimerToggle.setImageResource(R.drawable.ic_timer);
 		} else {
 			mTimerToggle.setEnabled(false);
 		}
@@ -674,7 +712,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			captureForm();
 		}
 		mPlay.syncStatus = syncStatus;
-		new PlayPersister(this).save(this, mPlay);
+		new PlayPersister(this).save(mPlay);
 		return true;
 	}
 
@@ -716,7 +754,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.fab)
-	public void addField(View v) {
+	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
 			return;
@@ -967,7 +1005,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.log_play_date)
-	public void onDateClick(View v) {
+	public void onDateClick() {
 		if (mDatePickerFragment == null) {
 			mDatePickerFragment = new DatePickerDialogFragment();
 			mDatePickerFragment.setOnDateSetListener(this);
@@ -995,7 +1033,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.timer_toggle)
-	public void onTimer(View v) {
+	public void onTimer() {
 		if (mPlay.hasStarted()) {
 			mEndPlay = true;
 			mPlay.end();
@@ -1033,7 +1071,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.player_sort)
-	public void onPlayerSort(View v) {
+	public void onPlayerSort(View view) {
 		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
 			if (mFullPopupMenu == null) {
@@ -1049,7 +1087,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				mFullPopupMenu.setCallback(popupMenuCallback());
 			}
 			mFullPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
-			popup = new MenuPopupHelper(this, mFullPopupMenu, v);
+			popup = new MenuPopupHelper(this, mFullPopupMenu, view);
 		} else {
 			if (mShortPopupMenu == null) {
 				mShortPopupMenu = new MenuBuilder(this);
@@ -1059,7 +1097,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				mShortPopupMenu.setCallback(popupMenuCallback());
 			}
 			mShortPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
-			popup = new MenuPopupHelper(this, mShortPopupMenu, v);
+			popup = new MenuPopupHelper(this, mShortPopupMenu, view);
 		}
 		popup.show();
 	}
@@ -1182,7 +1220,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@OnClick(R.id.clear_players)
-	public void onClearPlayers(View v) {
+	public void onClearPlayers() {
 		DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
 				@Override

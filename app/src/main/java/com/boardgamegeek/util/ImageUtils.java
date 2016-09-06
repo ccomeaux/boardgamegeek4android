@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.boardgamegeek.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
@@ -19,9 +20,9 @@ import java.util.Queue;
 public class ImageUtils {
 	private static final String IMAGE_URL_PREFIX = "https://cf.geekdo-images.com/images/pic";
 	public static final String SUFFIX_MEDIUM = "_md";
-	private static final String SUFFIX_SQUARE = "_sq";
+	//private static final String SUFFIX_SQUARE = "_sq";
 	private static final String SUFFIX_SMALL = "_t";
-	private static final String SUFFIX_LARGE = "_lg";
+	//private static final String SUFFIX_LARGE = "_lg";
 	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
 
 	private ImageUtils() {
@@ -86,6 +87,9 @@ public class ImageUtils {
 										final Callback callback) {
 		String imageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(imageUrl)) {
+			if (callback != null) {
+				callback.onFailedImageLoad();
+			}
 			return;
 		}
 		Picasso
@@ -98,7 +102,7 @@ public class ImageUtils {
 					Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 					Palette palette = PaletteTransformation.getPalette(bitmap);
 					if (callback != null) {
-						callback.onPaletteGenerated(palette);
+						callback.onSuccessfulImageLoad(palette);
 					}
 				}
 
@@ -146,6 +150,43 @@ public class ImageUtils {
 	 * Call back from loading an image.
 	 */
 	public interface Callback {
-		void onPaletteGenerated(Palette palette);
+		void onSuccessfulImageLoad(Palette palette);
+		void onFailedImageLoad();
+	}
+
+	public static void loadThumbnail(int imageId, ImageView target) {
+		Queue<String> queue = new LinkedList<>();
+		queue.add(ImageUtils.createThumbnailJpgUrl(imageId));
+		queue.add(ImageUtils.createThumbnailPngUrl(imageId));
+		safelyLoadThumbnail(target, queue);
+	}
+
+	public static void loadThumbnail(String path, ImageView target) {
+		Queue<String> queue = new LinkedList<>();
+		queue.add(path);
+		safelyLoadThumbnail(target, queue);
+	}
+
+	private static void safelyLoadThumbnail(final ImageView imageView, final Queue<String> imageUrls) {
+		final String imageUrl = imageUrls.poll();
+		if (TextUtils.isEmpty(imageUrl)) {
+			return;
+		}
+		Picasso.with(imageView.getContext())
+			.load(HttpUtils.ensureScheme(imageUrl))
+			.placeholder(R.drawable.thumbnail_image_empty)
+			.error(R.drawable.thumbnail_image_empty)
+			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size)
+			.centerCrop()
+			.into(imageView, new com.squareup.picasso.Callback() {
+				@Override
+				public void onSuccess() {
+				}
+
+				@Override
+				public void onError() {
+					safelyLoadThumbnail(imageView, imageUrls);
+				}
+			});
 	}
 }

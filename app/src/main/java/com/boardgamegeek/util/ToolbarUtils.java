@@ -1,7 +1,6 @@
 package com.boardgamegeek.util;
 
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -36,26 +35,6 @@ public class ToolbarUtils {
 					tv2.setText(text2);
 				}
 			}
-		}
-	}
-
-	public static void setCustomActionBarText(ActionBar actionBar, String text) {
-		if (actionBar != null) {
-			setCustomTextView(actionBar, android.R.id.text1, text);
-		}
-	}
-
-	public static void setCustomActionBarText(ActionBar actionBar, String text1, String text2) {
-		if (actionBar != null) {
-			setCustomTextView(actionBar, android.R.id.text1, text1);
-			setCustomTextView(actionBar, android.R.id.text2, text2);
-		}
-	}
-
-	private static void setCustomTextView(ActionBar actionBar, int id, String text) {
-		TextView tv = (TextView) actionBar.getCustomView().findViewById(id);
-		if (tv != null) {
-			tv.setText(text);
 		}
 	}
 

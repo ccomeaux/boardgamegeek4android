@@ -5,26 +5,9 @@
 
 	<com.boardgamegeek.pref.ChangeLogPreference android:title="@string/pref_change_log"/>
 
-	<PreferenceScreen android:title="Authors">
-		<com.boardgamegeek.pref.BuddyPreference
-			android:summary="rjnfc"
-			android:title="Dennis Bond"/>
-		<com.boardgamegeek.pref.BuddyPreference
-			android:summary="ccomeaux"
-			android:title="Chris Comeaux"/>
-		<com.boardgamegeek.pref.BuddyPreference
-			android:summary="icesphere"
-			android:title="John"/>
-		<com.boardgamegeek.pref.BuddyPreference
-			android:summary="Marc6"
-			android:title="Marek Jeszka"/>
-		<com.boardgamegeek.pref.BuddyPreference
-			android:summary="Capoeirista"
-			android:title="Gareth McSorley"/>
-		<com.boardgamegeek.pref.BuddyPreference
-			android:summary="nibuen"
-			android:title="Leif Norcott"/>
-	</PreferenceScreen>
+	<Preference
+		android:key="com.boardgamegeek.prefs.AUTHORS"
+		android:title="@string/pref_about_authors"/>
 	<Preference
 		android:key="open_source_licenses"
 		android:title="@string/pref_about_licenses"/>

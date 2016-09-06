@@ -27,24 +27,26 @@ import com.boardgamegeek.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int TOKEN = 0x01;
-	@SuppressWarnings("unused") @InjectView(R.id.progress) View progressView;
-	@SuppressWarnings("unused") @InjectView(R.id.empty) View emptyView;
-	@SuppressWarnings("unused") @InjectView(R.id.data) ViewGroup dataView;
-	@SuppressWarnings("unused") @InjectView(R.id.table) TableLayout table;
-	@SuppressWarnings("unused") @InjectView(R.id.table_hindex) TableLayout hIndexTable;
-	@SuppressWarnings("unused") @InjectView(R.id.accuracy_message) TextView accuracyMessage;
+	private Unbinder unbinder;
+	@BindView(R.id.progress) View progressView;
+	@BindView(R.id.empty) View emptyView;
+	@BindView(R.id.data) ViewGroup dataView;
+	@BindView(R.id.table) TableLayout table;
+	@BindView(R.id.table_hindex) TableLayout hIndexTable;
+	@BindView(R.id.accuracy_message) TextView accuracyMessage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
-		ButterKnife.inject(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 		bindAccuracyMessage();
 		return rootView;
 	}
@@ -65,6 +67,12 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onPause() {
 		super.onPause();
 		PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	@Override
@@ -135,6 +143,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		addStatRow(table, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
+		addStatRow(table, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
 		hIndexTable.removeAllViews();
 		addStatRow(hIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.getHIndex()).infoId(R.string.play_stat_h_index_info));
@@ -143,7 +152,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		for (Pair<String, Integer> game : stats.getHIndexGames()) {
 			final Builder builder = new Builder().labelText(game.first).value(game.second);
 			if (game.second == stats.getHIndex()) {
-				builder.backgroundResource(R.color.primary);
+				builder.backgroundResource(R.color.light_blue_transparent);
 				addDivider = false;
 			} else if (game.second < stats.getHIndex() && addDivider) {
 				addDivider(hIndexTable);
@@ -178,13 +187,12 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	private void addDivider(ViewGroup container) {
 		View view = new View(getActivity());
 		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
-		view.setBackgroundResource(R.color.primary_dark);
+		view.setBackgroundResource(R.color.dark_blue);
 		container.addView(view);
 	}
 
-	@SuppressWarnings("unused")
 	@OnClick(R.id.settings)
-	void onSettingsClick(@SuppressWarnings("UnusedParameters") View v) {
+	void onSettingsClick() {
 		PlayStatsSettingsDialogFragment df = PlayStatsSettingsDialogFragment.newInstance(dataView);
 		DialogUtils.showFragment(getActivity(), df, "play_stats_settings");
 	}

@@ -1,12 +1,10 @@
 package com.boardgamegeek.util;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -59,9 +57,7 @@ public class DialogUtils {
 		return createConfirmationDialog(context, messageId, null, null, okListener, null);
 	}
 
-	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view,
-												   DialogInterface.OnClickListener okListener,
-												   DialogInterface.OnClickListener cancelListener) {
+	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view, DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
 			.setNegativeButton(android.R.string.cancel, cancelListener)
 			.setPositiveButton(android.R.string.ok, okListener)
@@ -79,13 +75,8 @@ public class DialogUtils {
 		return builder.create();
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static AlertDialog.Builder addAlertIcon(AlertDialog.Builder builder) {
-		if (VersionUtils.hasHoneycomb()) {
-			return builder.setIconAttribute(android.R.attr.alertDialogIcon);
-		} else {
-			return builder.setIcon(android.R.drawable.ic_dialog_alert);
-		}
+		return builder.setIconAttribute(android.R.attr.alertDialogIcon);
 	}
 
 	public static void showFragment(FragmentActivity activity, DialogFragment fragment, String tag) {

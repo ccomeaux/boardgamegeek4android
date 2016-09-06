@@ -5,16 +5,19 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -23,61 +26,69 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 
-public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnNavigationListener {
-	private static final int HELP_VERSION = 1;
-	private static final String STATE_VIEW_INDEX = "STATE_VIEW_INDEX";
-
+public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor> {
 	private CollectionViewAdapter adapter;
 	private long viewId;
-	private boolean isTitleHidden;
-	private int viewIndex;
+	@State int viewIndex;
+	private Spinner spinner;
+	private boolean isCreatingShortcut;
 
 	@Override
 	@DebugLog
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
+		viewId = savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this);
 
-		if (savedInstanceState != null) {
-			viewId = -1;
-			viewIndex = savedInstanceState.getInt(STATE_VIEW_INDEX);
-		} else {
-			viewId = PreferencesUtils.getViewDefaultId(this);
-		}
-
-		boolean shortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
+		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-			actionBar.setCustomView(R.layout.actionbar_text_2line);
-			if (shortcut) {
+			if (isCreatingShortcut) {
 				actionBar.setHomeButtonEnabled(false);
 				actionBar.setDisplayHomeAsUpEnabled(false);
 				actionBar.setTitle(R.string.app_name);
+			} else {
+				actionBar.setDisplayShowTitleEnabled(false);
+				actionBar.setDisplayShowCustomEnabled(true);
+				actionBar.setCustomView(R.layout.actionbar_collection);
 			}
 		}
-		if (!shortcut) {
+		if (!isCreatingShortcut) {
 			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
 		}
-
-		HelpUtils.showHelpDialog(this, HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
 	}
 
 	@Override
 	@DebugLog
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_VIEW_INDEX, viewIndex);
 		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		spinner = (Spinner) findViewById(R.id.menu_spinner);
+		bindSpinner();
+		return true;
 	}
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search;
+		if (isCreatingShortcut) {
+			return super.getOptionsMenuId();
+		} else {
+			return R.menu.search;
+		}
 	}
 
 	@Override
@@ -89,11 +100,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	@Override
-	protected boolean isTitleHidden() {
-		return isTitleHidden;
 	}
 
 	@Override
@@ -109,12 +115,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(GameSelectedEvent event) {
 		ActivityUtils.launchGame(this, event.getId(), event.getName());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(GameShortcutCreatedEvent event) {
 		Intent intent = ShortcutUtils.createIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		setResult(RESULT_OK, intent);
@@ -123,6 +131,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@SuppressWarnings("unused")
 	@DebugLog
+	@Subscribe
 	public void onEvent(CollectionViewRequestedEvent event) {
 		viewId = event.getViewId();
 		viewIndex = findViewIndex(viewId);
@@ -150,16 +159,36 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			if (viewId != -1) {
 				viewIndex = findViewIndex(viewId);
 			}
-			final ActionBar actionBar = getSupportActionBar();
-			if (actionBar != null) {
-				actionBar.setDisplayShowTitleEnabled(false);
-				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-				actionBar.setListNavigationCallbacks(adapter, this);
-				actionBar.setSelectedNavigationItem(viewIndex);
-			}
-			isTitleHidden = true;
+			bindSpinner();
 		} else {
 			cursor.close();
+		}
+	}
+
+	private void bindSpinner() {
+		if (spinner != null && adapter != null) {
+			spinner.setAdapter(adapter);
+			spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+					CollectionFragment fragment = (CollectionFragment) getFragment();
+					long oldId = fragment.getViewId();
+					if (id != oldId) {
+						viewIndex = findViewIndex(id);
+						if (id < 0) {
+							fragment.clearView();
+						} else {
+							fragment.setView(id);
+						}
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+					// Do nothing
+				}
+			});
+			spinner.setSelection(viewIndex);
 		}
 	}
 
@@ -167,22 +196,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.changeCursor(null);
-	}
-
-	@Override
-	@DebugLog
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		CollectionFragment fragment = (CollectionFragment) getFragment();
-		long oldId = fragment.getViewId();
-		if (itemId != oldId) {
-			viewIndex = findViewIndex(itemId);
-			if (itemId < 0) {
-				fragment.clearView();
-			} else {
-				fragment.setView(itemId);
-			}
-		}
-		return true;
 	}
 
 	@DebugLog
@@ -202,13 +215,17 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	private static class CollectionViewAdapter extends SimpleCursorAdapter {
-		private final LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		public CollectionViewAdapter(Context context, Cursor cursor) {
-			super(context, android.R.layout.simple_spinner_item, cursor, new String[] { CollectionViews._ID,
-				CollectionViews.NAME }, new int[] { 0, android.R.id.text1 }, 0);
+			super(context,
+				R.layout.actionbar_spinner_item,
+				cursor,
+				new String[] { CollectionViews._ID, CollectionViews.NAME },
+				new int[] { 0, android.R.id.text1 },
+				0);
 			setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		@Override
@@ -219,7 +236,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (position == 0) {
-				return createDefaultItem(convertView, parent, android.R.layout.simple_spinner_item);
+				return createDefaultItem(convertView, parent, R.layout.actionbar_spinner_item);
 			} else {
 				return super.getView(position - 1, convertView, parent);
 			}
@@ -237,7 +254,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		private View createDefaultItem(View convertView, ViewGroup parent, int layout) {
 			View v;
 			if (convertView == null) {
-				v = mInflater.inflate(layout, parent, false);
+				v = inflater.inflate(layout, parent, false);
 			} else {
 				v = convertView;
 			}

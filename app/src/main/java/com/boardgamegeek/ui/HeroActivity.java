@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -14,9 +13,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * A navigation drawer activity that displays a hero image.
@@ -26,12 +26,12 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	private Fragment fragment;
 	private boolean isRefreshing;
 
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.coordinator) CoordinatorLayout coordinator;
-	@SuppressWarnings("unused") @InjectView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
-	@SuppressWarnings("unused") @InjectView(R.id.toolbar_image) ImageView toolbarImage;
-	@SuppressWarnings("unused") @InjectView(R.id.scrim) View scrimView;
-	@SuppressWarnings("unused") @InjectView(R.id.fab) FloatingActionButton fab;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.coordinator) CoordinatorLayout coordinator;
+	@BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
+	@BindView(R.id.toolbar_image) ImageView toolbarImage;
+	@BindView(R.id.scrim) View scrimView;
+	@BindView(R.id.fab) FloatingActionButton fab;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,16 +47,12 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 		} else {
 			fragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
-	}
-
-	@Override
-	protected void onPostInject() {
 		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 	}
 
 	protected void createFragment() {
-		fragment = onCreatePane(getIntent());
+		fragment = onCreatePane();
 		if (fragment != null) {
 			fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
 			getSupportFragmentManager()
@@ -70,7 +66,7 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	 * Called in <code>onCreate</code> when the fragment constituting this activity is needed. The returned fragment's
 	 * arguments will be set to the intent used to invoke this activity.
 	 */
-	protected abstract Fragment onCreatePane(Intent intent);
+	protected abstract Fragment onCreatePane();
 
 	protected Fragment getFragment() {
 		return fragment;

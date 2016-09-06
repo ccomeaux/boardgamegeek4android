@@ -5,10 +5,8 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog.Builder;
 import android.text.InputType;
@@ -21,14 +19,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.AuthResponse;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.VersionUtils;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -41,11 +38,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private String username;
 	private String password;
 
-	@SuppressWarnings("unused") @InjectView(R.id.username) EditText usernameView;
-	@SuppressWarnings("unused") @InjectView(R.id.password) EditText passwordView;
-	@SuppressWarnings("unused") @InjectView(R.id.login_form) View loginFormView;
-	@SuppressWarnings("unused") @InjectView(R.id.login_status) View loginStatusView;
-	@SuppressWarnings("unused") @InjectView(R.id.login_status_message) TextView loginStatusMessageView;
+	@BindView(R.id.username) EditText usernameView;
+	@BindView(R.id.password) EditText passwordView;
+	@BindView(R.id.login_form) View loginFormView;
+	@BindView(R.id.login_status) View loginStatusView;
+	@BindView(R.id.login_status_message) TextView loginStatusMessageView;
 
 	private UserLoginTask userLoginTask = null;
 	private AccountManager accountManager;
@@ -58,7 +55,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		setContentView(R.layout.activity_login);
 
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		accountManager = AccountManager.get(this);
 		username = getIntent().getStringExtra(ActivityUtils.KEY_USER);
@@ -108,9 +105,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	}
 
 	@DebugLog
-	@SuppressWarnings({ "UnusedParameters", "unused" })
 	@OnClick(R.id.sign_in_button)
-	public void onSignInClick(View view) {
+	public void onSignInClick() {
 		attemptLogin();
 	}
 
@@ -162,51 +158,44 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	 * Shows the progress UI and hides the login form.
 	 */
 	@DebugLog
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 	private void showProgress(final boolean show) {
-		// Fade in/out if possible
-		if (VersionUtils.hasHoneycombMR2()) {
-			int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+		int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-			loginStatusView.setVisibility(View.VISIBLE);
-			loginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						loginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-					}
-				});
+		loginStatusView.setVisibility(View.VISIBLE);
+		loginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					loginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+				}
+			});
 
-			loginFormView.setVisibility(View.VISIBLE);
-			loginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						loginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
-					}
-				});
-		} else {
-			loginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-			loginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
-		}
+		loginFormView.setVisibility(View.VISIBLE);
+		loginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					loginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+				}
+			});
 	}
 
 	/**
 	 * Represents an asynchronous login/registration task used to authenticate the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, AuthResponse> {
+	public class UserLoginTask extends AsyncTask<Void, Void, BggCookieJar> {
 		@Override
-		protected AuthResponse doInBackground(Void... params) {
+		protected BggCookieJar doInBackground(Void... params) {
 			return NetworkAuthenticator.authenticate(username, password);
 		}
 
 		@Override
-		protected void onPostExecute(AuthResponse authResponse) {
+		protected void onPostExecute(BggCookieJar bggCookieJar) {
 			userLoginTask = null;
 			showProgress(false);
 
-			if (authResponse != null) {
-				createAccount(authResponse);
+			if (bggCookieJar != null) {
+				createAccount(bggCookieJar);
 			} else {
 				passwordView.setError(getString(R.string.error_incorrect_password));
 				passwordView.requestFocus();
@@ -221,18 +210,18 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	}
 
 	@DebugLog
-	private void createAccount(AuthResponse authResponse) {
+	private void createAccount(BggCookieJar bggCookieJar) {
 		Timber.i("Creating account");
 		final Account account = new Account(username, Authenticator.ACCOUNT_TYPE);
 
 		try {
-			accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, authResponse.authToken);
+			accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, bggCookieJar.getAuthToken());
 		} catch (SecurityException e) {
 			showError("Uh-oh! This isn't an error we expect to see. If you have ScorePal installed, there's a known problem that one prevents the other from signing in. We're working to resolve the issue.");
 			return;
 		}
 		Bundle userData = new Bundle();
-		userData.putString(Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(authResponse.authTokenExpiry));
+		userData.putString(Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(bggCookieJar.getAuthTokenExpiry()));
 
 		if (isRequestingNewAccount) {
 			if (!accountManager.addAccountExplicitly(account, password, userData)) {

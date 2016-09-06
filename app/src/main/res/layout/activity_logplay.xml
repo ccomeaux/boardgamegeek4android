@@ -51,9 +51,11 @@
 				android:layout_gravity="bottom|right"
 				android:layout_margin="@dimen/padding_fab"
 				android:src="@drawable/ic_action_add"
+				android:visibility="gone"
 				app:elevation="@dimen/fab_elevation"
 				app:pressedTranslationZ="@dimen/fab_translation"
-				app:rippleColor="@color/primary_dark"/>
+				app:rippleColor="@color/medium_blue"
+				tools:visibility="visible"/>
 		</FrameLayout>
 	</FrameLayout>
 

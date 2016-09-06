@@ -115,12 +115,12 @@ public class Play {
 
 	@Path("item")
 	@ElementList
-	List<Subtype> subtypes;
+	public List<Subtype> subtypes;
 
 	@Root(name = "subtype")
-	static class Subtype {
+	public static class Subtype {
 		@Attribute
-		String value;
+		public String value;
 	}
 
 	@Element(required = false)
@@ -602,7 +602,7 @@ public class Play {
 	public String toLongDescription(Context context) {
 		Resources resources = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		toLongDescriptionPrefix(resources, sb);
+		toLongDescriptionPrefix(context, sb);
 		if (players.size() > 0) {
 			sb.append(resources.getString(R.string.play_description_players_segment, players.size()));
 		}
@@ -613,7 +613,7 @@ public class Play {
 	public String toLongDescriptionWithPlayers(Context context) {
 		Resources resources = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		toLongDescriptionPrefix(resources, sb);
+		toLongDescriptionPrefix(context, sb);
 		if (players.size() > 0) {
 			sb.append(" ").append(resources.getString(R.string.with));
 			if (arePlayersCustomSorted()) {
@@ -643,10 +643,14 @@ public class Play {
 		return sb.toString();
 	}
 
-	private void toLongDescriptionPrefix(Resources resources, StringBuilder sb) {
+	private void toLongDescriptionPrefix(Context context, StringBuilder sb) {
+		Resources resources = context.getResources();
 		sb.append(resources.getString(R.string.play_description_game_segment, gameName));
 		if (quantity > 1) {
 			sb.append(resources.getString(R.string.play_description_quantity_segment, quantity));
+		}
+		if (length > 0) {
+			sb.append(resources.getString(R.string.play_description_length_segment, DateTimeUtils.describeMinutes(context, length)));
 		}
 		sb.append(resources.getString(R.string.play_description_date_segment, getDate()));
 		if (!TextUtils.isEmpty(location)) {

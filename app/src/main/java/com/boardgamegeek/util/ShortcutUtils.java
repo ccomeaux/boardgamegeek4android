@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -65,49 +64,46 @@ public class ShortcutUtils {
 	}
 
 	private static class shortcutTask extends AsyncTask<Void, Void, Void> {
-		private final Context mContext;
-		private final int mGameId;
-		private final String mGameName;
-		private final String mThumbnailUrl;
+		private final Context context;
+		private final int gameId;
+		private final String gameName;
+		private final String thumbnailUrl;
 
 		public shortcutTask(Context context, int gameId, String gameName, String thumbnailUrl) {
-			mContext = context.getApplicationContext();
-			mGameId = gameId;
-			mGameName = gameName;
-			mThumbnailUrl = HttpUtils.ensureScheme(thumbnailUrl);
+			this.context = context.getApplicationContext();
+			this.gameId = gameId;
+			this.gameName = gameName;
+			this.thumbnailUrl = HttpUtils.ensureScheme(thumbnailUrl);
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			Intent mShortcut = createShortcutIntent(mContext, mGameId, mGameName);
-			if (!TextUtils.isEmpty(mThumbnailUrl)) {
+			Intent shortcutIntent = createShortcutIntent(context, gameId, gameName);
+			if (!TextUtils.isEmpty(thumbnailUrl)) {
 				Bitmap bitmap = fetchThumbnail();
 				if (bitmap != null) {
-					mShortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, bitmap);
+					shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, bitmap);
 				}
 			}
 
-			mContext.sendBroadcast(mShortcut);
+			context.sendBroadcast(shortcutIntent);
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void nothing) {
-			if (!VersionUtils.hasJellyBean()) {
-				Toast.makeText(mContext, R.string.msg_shortcut_created, Toast.LENGTH_SHORT).show();
-			}
 		}
 
 		private Bitmap fetchThumbnail() {
 			Bitmap bitmap = null;
-			File file = getThumbnailFile(mContext, mThumbnailUrl);
+			File file = getThumbnailFile(context, thumbnailUrl);
 			if (file != null) {
 				if (file.exists()) {
 					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
 				} else {
 					try {
-						bitmap = Picasso.with(mContext)
-							.load(mThumbnailUrl)
+						bitmap = Picasso.with(context)
+							.load(thumbnailUrl)
 							.resizeDimen(R.dimen.shortcut_icon_size, R.dimen.shortcut_icon_size)
 							.centerCrop().get();
 					} catch (IOException e) {

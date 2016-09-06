@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -23,46 +22,47 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import de.greenrobot.event.EventBus;
+import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
-	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
-
-	private Handler mHandler = new Handler();
-	private Runnable mUpdaterRunnable = null;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 30;
-	private Uri mUri;
-	private int mToken;
-	private int mId;
-	private boolean mSyncing;
+	private Uri uri;
+	private int token;
+	private int id;
+	private boolean isSyncing;
 
-	@SuppressWarnings("unused") @InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@SuppressWarnings("unused") @InjectView(R.id.id) TextView mIdView;
-	@SuppressWarnings("unused") @InjectView(R.id.name) TextView mName;
-	@SuppressWarnings("unused") @InjectView(R.id.description) TextView mDescription;
-	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView mUpdated;
+	private Unbinder unbinder;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.id) TextView idView;
+	@BindView(R.id.name) TextView nameView;
+	@BindView(R.id.description) TextView descriptionView;
+	@BindView(R.id.updated) TimestampView updatedView;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mUri = intent.getData();
+		uri = intent.getData();
 
-		if (Designers.isDesignerUri(mUri)) {
-			mToken = DesignerQuery._TOKEN;
-		} else if (Artists.isArtistUri(mUri)) {
-			mToken = ArtistQuery._TOKEN;
-		} else if (Publishers.isPublisherUri(mUri)) {
-			mToken = PublisherQuery._TOKEN;
+		if (Designers.isDesignerUri(uri)) {
+			token = DesignerQuery._TOKEN;
+		} else if (Artists.isArtistUri(uri)) {
+			token = ArtistQuery._TOKEN;
+		} else if (Publishers.isPublisherUri(uri)) {
+			token = PublisherQuery._TOKEN;
 		}
 	}
 
@@ -70,42 +70,34 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_producer, container, false);
-		ButterKnife.inject(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
-		mSwipeRefreshLayout.setOnRefreshListener(this);
-		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
-		getLoaderManager().restartLoader(mToken, null, this);
+		getLoaderManager().restartLoader(token, null, this);
 		return rootView;
 	}
 
+	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
-		EventBus.getDefault().registerSticky(this);
+		EventBus.getDefault().register(this);
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		if (mUpdaterRunnable != null) {
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-		}
-	}
-
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mUpdaterRunnable);
-		}
-	}
-
+	@DebugLog
 	@Override
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
+	}
+
+	@DebugLog
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -114,51 +106,39 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		CursorLoader loader = null;
 		switch (id) {
 			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), mUri, DesignerQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), uri, DesignerQuery.PROJECTION, null, null, null);
 				break;
 			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), mUri, ArtistQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), uri, ArtistQuery.PROJECTION, null, null, null);
 				break;
 			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), mUri, PublisherQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), uri, PublisherQuery.PROJECTION, null, null, null);
 				break;
 		}
 		return loader;
 	}
 
+	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (loader.getId() == mToken) {
+		if (loader.getId() == token) {
 			if (cursor == null || !cursor.moveToFirst()) {
 				return;
 			}
 
-			mId = cursor.getInt(Query.ID);
+			id = cursor.getInt(Query.ID);
 			String name = cursor.getString(Query.NAME);
 			String description = cursor.getString(Query.DESCRIPTION);
 			long updated = cursor.getLong(Query.UPDATED);
 
-			mIdView.setText(String.format(getString(R.string.id_list_text), mId));
-			mName.setText(name);
-			UIUtils.setTextMaybeHtml(mDescription, description);
-			mUpdated.setTag(updated);
-
-			updateTimeBasedUi();
-			if (mUpdaterRunnable != null) {
-				mHandler.removeCallbacks(mUpdaterRunnable);
-			}
-			mUpdaterRunnable = new Runnable() {
-				@Override
-				public void run() {
-					updateTimeBasedUi();
-					mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-				}
-			};
-			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			idView.setText(String.format(getString(R.string.id_list_text), id));
+			nameView.setText(name);
+			UIUtils.setTextMaybeHtml(descriptionView, description);
+			updatedView.setTimestamp(updated);
 
 			if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH) {
 				triggerRefresh();
@@ -170,18 +150,9 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		}
 	}
 
+	@DebugLog
 	private void triggerRefresh() {
-		UpdateService.start(getActivity(), mToken, mId);
-	}
-
-	private void updateTimeBasedUi() {
-		if (!isAdded()) {
-			return;
-		}
-		if (mUpdated != null) {
-			long updated = (long) mUpdated.getTag();
-			mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, getResources().getString(R.string.text_unknown)));
-		}
+		UpdateService.start(getActivity(), token, id);
 	}
 
 	@Override
@@ -194,22 +165,29 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		triggerRefresh();
 	}
 
-	public void onEventMainThread(UpdateEvent event) {
-		mSyncing = event.getType() == mToken;
+	@DebugLog
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateEvent event) {
+		isSyncing = event.getType() == token;
 		updateRefreshStatus();
 	}
 
-	public void onEventMainThread(UpdateCompleteEvent event) {
-		mSyncing = false;
+	@DebugLog
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(UpdateCompleteEvent event) {
+		isSyncing = false;
 		updateRefreshStatus();
 	}
 
+	@DebugLog
 	private void updateRefreshStatus() {
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.post(new Runnable() {
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					mSwipeRefreshLayout.setRefreshing(mSyncing);
+					swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}

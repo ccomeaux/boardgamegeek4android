@@ -16,19 +16,19 @@ import com.boardgamegeek.util.PaletteTransformation;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class ImageActivity extends AppCompatActivity {
-	@InjectView(R.id.image) ImageView imageView;
-	@InjectView(R.id.progress) View progressBar;
+	@BindView(R.id.image) ImageView imageView;
+	@BindView(R.id.progress) View progressBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_image);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		String imageUrl = getIntent().getStringExtra(ActivityUtils.KEY_IMAGE_URL);
 

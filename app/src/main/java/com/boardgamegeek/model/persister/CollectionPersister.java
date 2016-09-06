@@ -75,6 +75,13 @@ public class CollectionPersister {
 		return this;
 	}
 
+	/**
+	 * Remove all collection items belonging to a game, except the ones in the specified list.
+	 *
+	 * @param items  list of collection items not to delete.
+	 * @param gameId delete collection items with this game ID.
+	 * @return the number or rows deleted.
+	 */
 	@DebugLog
 	public int delete(List<CollectionItem> items, int gameId) {
 		if (items == null || items.size() == 0) {
@@ -269,31 +276,68 @@ public class CollectionPersister {
 			values.remove(Collection.COLLECTION_ID);
 		}
 
-		long internalId = getCollectionItemInternalId(collectionId, gameId);
-
 		Builder operation;
+		long internalId = getCollectionItemInternalIdToUpdate(collectionId, gameId);
 		if (internalId != BggContract.INVALID_ID) {
-			removeValueIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
-			removeValueIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
-			Uri uri = Collection.buildUri(internalId);
-			operation = ContentProviderOperation.newUpdate(uri);
-			maybeDeleteThumbnail(values, uri, batch);
+			operation = createUpdateOperation(values, batch, internalId);
 		} else {
-			// insert
-			operation = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
+			internalId = getCollectionItemInternalIdToUpdate(gameId);
+			if (internalId != BggContract.INVALID_ID) {
+				operation = createUpdateOperation(values, batch, internalId);
+			} else {
+				operation = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
+			}
 		}
 		batch.add(operation.withValues(values).withYieldAllowed(true).build());
 	}
 
+	private Builder createUpdateOperation(ContentValues values, ArrayList<ContentProviderOperation> batch, long internalId) {
+		removeDirtyValues(values, internalId);
+		Uri uri = Collection.buildUri(internalId);
+		Builder operation = ContentProviderOperation.newUpdate(uri);
+		maybeDeleteThumbnail(values, uri, batch);
+		return operation;
+	}
+
 	@DebugLog
-	private long getCollectionItemInternalId(int collectionId, int gameId) {
+	private void removeDirtyValues(ContentValues values, long internalId) {
+		removeValuesIfDirty(values, internalId, Collection.STATUS_DIRTY_TIMESTAMP,
+			Collection.STATUS_OWN,
+			Collection.STATUS_PREVIOUSLY_OWNED,
+			Collection.STATUS_FOR_TRADE,
+			Collection.STATUS_WANT,
+			Collection.STATUS_WANT_TO_BUY,
+			Collection.STATUS_WISHLIST,
+			Collection.STATUS_WANT_TO_PLAY,
+			Collection.STATUS_PREORDERED,
+			Collection.STATUS_WISHLIST_PRIORITY);
+		removeValuesIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
+		removeValuesIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
+		removeValuesIfDirty(values, internalId, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+			Collection.PRIVATE_INFO_ACQUIRED_FROM,
+			Collection.PRIVATE_INFO_ACQUISITION_DATE,
+			Collection.PRIVATE_INFO_COMMENT,
+			Collection.PRIVATE_INFO_CURRENT_VALUE,
+			Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+			Collection.PRIVATE_INFO_PRICE_PAID,
+			Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+			Collection.PRIVATE_INFO_QUANTITY);
+		removeValuesIfDirty(values, internalId, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, Collection.WISHLIST_COMMENT);
+		removeValuesIfDirty(values, internalId, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, Collection.CONDITION);
+		removeValuesIfDirty(values, internalId, Collection.WANT_PARTS_DIRTY_TIMESTAMP, Collection.WANTPARTS_LIST);
+		removeValuesIfDirty(values, internalId, Collection.HAS_PARTS_DIRTY_TIMESTAMP, Collection.HASPARTS_LIST);
+	}
+
+	@DebugLog
+	private long getCollectionItemInternalIdToUpdate(int collectionId, int gameId) {
 		long internalId;
 		if (collectionId == BggContract.INVALID_ID) {
 			internalId = ResolverUtils.queryLong(resolver,
 				Collection.CONTENT_URI,
 				Collection._ID,
 				BggContract.INVALID_ID,
-				"collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
+				"collection." + Collection.GAME_ID + "=? AND " +
+					ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID),
 				new String[] { String.valueOf(gameId) });
 		} else {
 			internalId = ResolverUtils.queryLong(resolver,
@@ -304,6 +348,18 @@ public class CollectionPersister {
 				new String[] { String.valueOf(collectionId) });
 		}
 		return internalId;
+	}
+
+	@DebugLog
+	private long getCollectionItemInternalIdToUpdate(int gameId) {
+		return ResolverUtils.queryLong(resolver,
+			Collection.CONTENT_URI,
+			Collection._ID,
+			BggContract.INVALID_ID,
+			"collection." + Collection.GAME_ID + "=? AND " +
+				ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID) + " AND " +
+				Collection.COLLECTION_DIRTY_TIMESTAMP + "=0",
+			new String[] { String.valueOf(gameId) });
 	}
 
 	@DebugLog
@@ -331,9 +387,11 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void removeValueIfDirty(ContentValues values, long internalId, String commentDirtyTimestamp, String comment) {
-		if (getDirtyTimestamp(internalId, commentDirtyTimestamp) != NOT_DIRTY) {
-			values.remove(comment);
+	private void removeValuesIfDirty(ContentValues values, long internalId, String columnName, String... columns) {
+		if (getDirtyTimestamp(internalId, columnName) != NOT_DIRTY) {
+			for (String column : columns) {
+				values.remove(column);
+			}
 		}
 	}
 

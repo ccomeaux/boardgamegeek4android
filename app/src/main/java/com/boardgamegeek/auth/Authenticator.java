@@ -90,12 +90,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// Ensure the password is valid and not expired, then return the stored AuthToken
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			AuthResponse ar = NetworkAuthenticator.authenticate(account.name, password);
-			if (ar != null) {
-				am.setAuthToken(account, authTokenType, ar.authToken);
-				am.setUserData(account, Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(ar.authTokenExpiry));
+			BggCookieJar cookieJar = NetworkAuthenticator.authenticate(account.name, password);
+			if (cookieJar != null) {
+				am.setAuthToken(account, authTokenType, cookieJar.getAuthToken());
+				am.setUserData(account, Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(cookieJar.getAuthTokenExpiry()));
 				Timber.v(toDebugString());
-				return createAuthTokenBundle(account, ar.authToken);
+				return createAuthTokenBundle(account, cookieJar.getAuthToken());
 			}
 		}
 
@@ -273,7 +273,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return bundle;
 	}
 
-	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, String key) {
+	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, @SuppressWarnings("SameParameterValue") String key) {
 		String expiration = am.getUserData(account, key);
 		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
 	}
@@ -327,10 +327,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		if (account == null) {
 			return "";
 		}
-		String debugString = "ACCOUNT" + "\n" +
+		return "ACCOUNT" + "\n" +
 			"Name:       " + account.name + "\n" +
 			"Type:       " + account.type + "\n" +
 			"Password:   " + accountManager.getPassword(account) + "\n";
-		return debugString;
 	}
 }

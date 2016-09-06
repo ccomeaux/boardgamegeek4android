@@ -90,6 +90,14 @@ public class DateTimeUtils {
 		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
 	}
 
+	public static String formatDateFromApi(Context context, String date) {
+		long millis = getMillisFromApiDate(date, Long.MAX_VALUE);
+		if (millis == Long.MAX_VALUE) {
+			return "";
+		}
+		return DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE);
+	}
+
 	public static long getMillisFromApiDate(String date, long defaultMillis) {
 		if (TextUtils.isEmpty(date)) {
 			return defaultMillis;
@@ -102,7 +110,7 @@ public class DateTimeUtils {
 		try {
 			calendar.set(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(parts[2]));
 		} catch (Exception e) {
-			Timber.w(e, "Couldn't get a date from the API: " + date);
+			Timber.w(e, "Couldn't get a date from the API: %s", date);
 		}
 		return calendar.getTimeInMillis();
 	}
@@ -114,21 +122,6 @@ public class DateTimeUtils {
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(date);
 		return FORMAT_API.format(c.getTime());
-	}
-
-	/**
-	 * Formats the date for display in the forums (based on the users selected preference.
-	 */
-	public static CharSequence formatForumDate(Context context, long date) {
-		if (PreferencesUtils.getForumDates(context)) {
-			return DateUtils.formatDateTime(context, date,
-				DateUtils.FORMAT_SHOW_DATE |
-					DateUtils.FORMAT_SHOW_YEAR |
-					DateUtils.FORMAT_ABBREV_MONTH |
-					DateUtils.FORMAT_SHOW_TIME);
-		} else {
-			return PresentationUtils.describePastTimeSpan(date, context.getString(R.string.text_unknown));
-		}
 	}
 
 	/**

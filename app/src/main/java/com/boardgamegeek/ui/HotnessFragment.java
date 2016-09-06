@@ -1,22 +1,27 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
@@ -24,211 +29,286 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.actionmodecompat.ActionMode;
-import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
-public class HotnessFragment extends BggListFragment implements
-	LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
+import retrofit2.Call;
+
+public class HotnessFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, ActionMode.Callback {
 	private static final int LOADER_ID = 1;
 
-	private BoardGameAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
-	private MenuItem mLogPlayMenuItem;
-	private MenuItem mLogPlayQuickMenuItem;
-	private MenuItem mBggLinkMenuItem;
+	private HotGamesAdapter adapter;
+	private ActionMode actionMode;
+	private Unbinder unbinder;
+	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
+	@DebugLog
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		setEmptyText(getString(R.string.empty_hotness));
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_hotness, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		return rootView;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(LOADER_ID, null, this);
-		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
 	@Override
-	protected boolean padTop() {
-		return true;
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
+	}
+
+	private void setUpRecyclerView() {
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setHasFixedSize(true);
 	}
 
 	@Override
-	public Loader<HotnessData> onCreateLoader(int id, Bundle data) {
+	public Loader<SafeResponse<HotnessResponse>> onCreateLoader(int id, Bundle data) {
 		return new HotnessLoader(getActivity());
 	}
 
 	@Override
-	public void onLoadFinished(Loader<HotnessData> loader, HotnessData data) {
+	public void onLoadFinished(Loader<SafeResponse<HotnessResponse>> loader, SafeResponse<HotnessResponse> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new BoardGameAdapter(getActivity(), data.list());
-			setListAdapter(mAdapter);
-		}
-		mAdapter.notifyDataSetChanged();
+		if (adapter == null) {
+			adapter = new HotGamesAdapter(getActivity(),
+				data == null || data.getBody() == null ? new ArrayList<HotGame>() : data.getBody().games,
+				new Callback() {
+					@Override
+					public boolean onItemClick(int position) {
+						if (actionMode == null) {
+							return false;
+						}
+						toggleSelection(position);
+						return true;
+					}
 
-		if (data.hasError()) {
-			setEmptyText(data.getErrorMessage());
+					@Override
+					public boolean onItemLongClick(int position) {
+						if (actionMode != null) {
+							return false;
+						}
+						actionMode = getActivity().startActionMode(HotnessFragment.this);
+						toggleSelection(position);
+						return true;
+					}
+
+					private void toggleSelection(int position) {
+						adapter.toggleSelection(position);
+						int count = adapter.getSelectedItemCount();
+						if (count == 0) {
+							actionMode.finish();
+						} else {
+							actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+							actionMode.invalidate();
+						}
+					}
+				});
+			recyclerView.setAdapter(adapter);
 		} else {
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
-			}
-			restoreScrollState();
+			adapter.notifyDataSetChanged();
 		}
+
+		if (data == null) {
+			AnimationUtils.fadeOut(recyclerView);
+			AnimationUtils.fadeIn(emptyView);
+		} else if (data.hasError()) {
+			emptyView.setText(data.getErrorMessage());
+			AnimationUtils.fadeOut(recyclerView);
+			AnimationUtils.fadeIn(emptyView);
+		} else {
+			AnimationUtils.fadeOut(emptyView);
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+		}
+		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override
-	public void onLoaderReset(Loader<HotnessData> loader) {
+	public void onLoaderReset(Loader<SafeResponse<HotnessResponse>> loader) {
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		HotGame game = mAdapter.getItem(position);
-		ActivityUtils.launchGame(getActivity(), game.id, game.name);
-	}
-
-	private static class HotnessLoader extends BggLoader<HotnessData> {
-		private BggService mService;
+	private static class HotnessLoader extends BggLoader<SafeResponse<HotnessResponse>> {
+		private final BggService bggService;
 
 		public HotnessLoader(Context context) {
 			super(context);
-			mService = Adapter.create();
+			bggService = Adapter.createForXml();
 		}
 
 		@Override
-		public HotnessData loadInBackground() {
-			HotnessData games;
-			try {
-				games = new HotnessData(mService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
-			} catch (Exception e) {
-				games = new HotnessData(e);
-			}
-			return games;
+		public SafeResponse<HotnessResponse> loadInBackground() {
+			Call<HotnessResponse> call = bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME);
+			return new SafeResponse<>(call);
 		}
 	}
 
-	static class HotnessData extends Data<HotGame> {
-		private HotnessResponse mResponse;
+	public interface Callback {
+		boolean onItemClick(int position);
 
-		public HotnessData(HotnessResponse response) {
-			mResponse = response;
-		}
-
-		public HotnessData(Exception e) {
-			super(e);
-		}
-
-		@Override
-		public List<HotGame> list() {
-			if (mResponse == null || mResponse.games == null) {
-				return new ArrayList<>();
-			}
-			return mResponse.games;
-		}
+		boolean onItemLongClick(int position);
 	}
 
-	private class BoardGameAdapter extends ArrayAdapter<HotGame> {
-		private LayoutInflater mInflater;
+	public class HotGamesAdapter extends RecyclerView.Adapter<HotGamesAdapter.ViewHolder> {
+		private final LayoutInflater inflater;
+		private final List<HotGame> games;
+		private final Callback callback;
+		private final SparseBooleanArray selectedItems;
 
-		public BoardGameAdapter(Activity activity, List<HotGame> games) {
-			super(activity, R.layout.row_hotness, games);
-			mInflater = activity.getLayoutInflater();
+		public HotGamesAdapter(Context context, List<HotGame> games, Callback callback) {
+			this.games = games;
+			this.callback = callback;
+			inflater = LayoutInflater.from(context);
+			selectedItems = new SparseBooleanArray();
+			setHasStableIds(true);
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_hotness, parent, false);
-				holder = new ViewHolder(convertView);
-				convertView.setTag(holder);
+		public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View view = inflater.inflate(R.layout.row_hotness, parent, false);
+			return new ViewHolder(view);
+		}
+
+		@Override
+		public void onBindViewHolder(ViewHolder holder, int position) {
+			holder.bind(getItem(position), position);
+		}
+
+		@Override
+		public int getItemCount() {
+			return games == null ? 0 : games.size();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public HotGame getItem(int position) {
+			return games.get(position);
+		}
+
+		public class ViewHolder extends RecyclerView.ViewHolder {
+			private int gameId;
+			private String gameName;
+			@BindView(R.id.name) TextView name;
+			@BindView(R.id.year) TextView year;
+			@BindView(R.id.rank) TextView rank;
+			@BindView(R.id.thumbnail) ImageView thumbnail;
+
+			public ViewHolder(View itemView) {
+				super(itemView);
+				ButterKnife.bind(this, itemView);
+			}
+
+			public void bind(HotGame game, final int position) {
+				if (game == null) return;
+				gameId = game.id;
+				gameName = game.name;
+				name.setText(game.name);
+				year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
+				rank.setText(String.valueOf(game.rank));
+				ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+
+				itemView.setActivated(selectedItems.get(position, false));
+
+				itemView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						boolean handled = false;
+						if (callback != null) {
+							handled = callback.onItemClick(position);
+						}
+						if (!handled) {
+							ActivityUtils.launchGame(itemView.getContext(), gameId, gameName);
+						}
+					}
+				});
+
+				itemView.setOnLongClickListener(new OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View v) {
+						return callback != null && callback.onItemLongClick(position);
+					}
+				});
+			}
+		}
+
+		public void toggleSelection(int position) {
+			if (selectedItems.get(position, false)) {
+				selectedItems.delete(position);
 			} else {
-				holder = (ViewHolder) convertView.getTag();
+				selectedItems.put(position, true);
 			}
-
-			HotGame game = getItem(position);
-			if (game != null) {
-				holder.name.setText(game.name);
-				holder.year.setText(PresentationUtils.describeYear(getActivity(), game.yearPublished));
-				holder.rank.setText(String.valueOf(game.rank));
-				loadThumbnail(game.thumbnailUrl, holder.thumbnail);
-			}
-
-			return convertView;
+			notifyItemChanged(position);
 		}
-	}
 
-	private static class ViewHolder {
-		TextView name;
-		TextView year;
-		TextView rank;
-		ImageView thumbnail;
+		public void clearSelections() {
+			selectedItems.clear();
+			notifyDataSetChanged();
+		}
 
-		public ViewHolder(View view) {
-			name = (TextView) view.findViewById(R.id.name);
-			year = (TextView) view.findViewById(R.id.year);
-			rank = (TextView) view.findViewById(R.id.rank);
-			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+		public int getSelectedItemCount() {
+			return selectedItems.size();
+		}
+
+		public List<Integer> getSelectedItems() {
+			List<Integer> items = new ArrayList<>(selectedItems.size());
+			for (int i = 0; i < selectedItems.size(); i++) {
+				items.add(selectedItems.keyAt(i));
+			}
+			return items;
 		}
 	}
 
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		adapter.clearSelections();
 		MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
-		mLogPlayMenuItem = menu.findItem(R.id.menu_log_play);
-		mLogPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
-		mBggLinkMenuItem = menu.findItem(R.id.menu_link);
-		mSelectedPositions.clear();
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
+		int count = adapter.getSelectedItemCount();
+		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_link).setVisible(count == 1);
+		return true;
 	}
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
-	}
-
-	@Override
-	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-		if (checked) {
-			mSelectedPositions.add(position);
-		} else {
-			mSelectedPositions.remove(position);
-		}
-
-		int count = mSelectedPositions.size();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-
-		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		mLogPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
-		mBggLinkMenuItem.setVisible(count == 1);
+		actionMode = null;
+		adapter.clearSelections();
 	}
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
-			return false;
-		}
-		HotGame game = mAdapter.getItem(mSelectedPositions.iterator().next());
+		HotGame game = adapter.getItem(adapter.getSelectedItems().get(0));
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -236,22 +316,22 @@ public class HotnessFragment extends BggListFragment implements
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
-				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-				for (int position : mSelectedPositions) {
-					HotGame g = mAdapter.getItem(position);
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, adapter.getSelectedItemCount());
+				Snackbar.make(containerView, text, Snackbar.LENGTH_SHORT).show();
+				for (int position : adapter.getSelectedItems()) {
+					HotGame g = adapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
-				if (mSelectedPositions.size() == 1) {
+				if (adapter.getSelectedItemCount() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
-					for (int position : mSelectedPositions) {
-						HotGame g = mAdapter.getItem(position);
-						games.add(new Pair<>(g.id, g.name));
+					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
+					for (int position : adapter.getSelectedItems()) {
+						HotGame g = adapter.getItem(position);
+						games.add(Pair.create(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

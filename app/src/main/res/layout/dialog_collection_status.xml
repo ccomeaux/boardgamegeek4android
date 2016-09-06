@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	android:id="@+id/scroll_container"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical">
+
+	<LinearLayout
+		android:id="@+id/container"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<CheckBox
+			android:id="@+id/own"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="own"
+			android:text="Own"/>
+
+		<CheckBox
+			android:id="@+id/previously_owned"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="previously_owned"
+			android:text="Prev. Owned"/>
+
+		<CheckBox
+			android:id="@+id/for_trade"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="for_trade"
+			android:text="For Trade"/>
+
+		<CheckBox
+			android:id="@+id/want_to_play"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="want_to_play"
+			android:text="Want to Play"/>
+
+		<CheckBox
+			android:id="@+id/want"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="want"
+			android:text="Want in Trade"/>
+
+		<CheckBox
+			android:id="@+id/want_to_buy"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="want_to_buy"
+			android:text="Want to Buy"/>
+
+		<CheckBox
+			android:id="@+id/preordered"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="preordered"
+			android:text="Pre-ordered"/>
+
+		<CheckBox
+			android:id="@+id/wishlist"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:tag="wishlist"
+			android:text="Wishlist"/>
+
+		<Spinner
+			android:id="@+id/wishlist_priority"
+			style="@style/DialogSpinner"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+
+	</LinearLayout>
+</ScrollView>

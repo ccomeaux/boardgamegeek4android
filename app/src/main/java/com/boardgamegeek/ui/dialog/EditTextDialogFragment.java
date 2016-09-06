@@ -17,9 +17,11 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.PresentationUtils;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 
 public class EditTextDialogFragment extends DialogFragment {
 	public interface EditTextDialogListener {
@@ -28,12 +30,14 @@ public class EditTextDialogFragment extends DialogFragment {
 
 	private static final String KEY_TITLE_ID = "title_id";
 	@StringRes private int titleResId;
+	private String title;
 	private ViewGroup root;
 	private EditTextDialogListener listener;
 	private boolean isUsername;
 	private boolean isLongForm;
 
-	@SuppressWarnings("unused") @InjectView(R.id.edit_text) EditText editText;
+	private Unbinder unbinder;
+	@BindView(R.id.edit_text) EditText editText;
 	private String existingText;
 
 	@NonNull
@@ -43,7 +47,7 @@ public class EditTextDialogFragment extends DialogFragment {
 		EditTextDialogListener listener) {
 
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, false, false);
+		fragment.initialize(titleResId, null, root, listener, false, false);
 		return fragment;
 	}
 
@@ -54,7 +58,18 @@ public class EditTextDialogFragment extends DialogFragment {
 		EditTextDialogListener listener) {
 
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, false, true);
+		fragment.initialize(titleResId, null, root, listener, false, true);
+		return fragment;
+	}
+
+	@NonNull
+	public static EditTextDialogFragment newLongFormInstance(
+		String title,
+		@Nullable ViewGroup root,
+		EditTextDialogListener listener) {
+
+		EditTextDialogFragment fragment = new EditTextDialogFragment();
+		fragment.initialize(0, title, root, listener, false, true);
 		return fragment;
 	}
 
@@ -65,18 +80,20 @@ public class EditTextDialogFragment extends DialogFragment {
 		EditTextDialogListener listener) {
 
 		EditTextDialogFragment fragment = new EditTextDialogFragment();
-		fragment.initialize(titleResId, root, listener, true, false);
+		fragment.initialize(titleResId, null, root, listener, true, false);
 		return fragment;
 	}
 
 	private void initialize(
 		@StringRes int titleResId,
+		String title,
 		@Nullable ViewGroup root,
 		EditTextDialogListener listener,
 		boolean isUsername,
 		boolean isLongForm) {
 
 		this.titleResId = titleResId;
+		this.title = title;
 		this.root = root;
 		this.listener = listener;
 		this.isUsername = isUsername;
@@ -95,17 +112,19 @@ public class EditTextDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_edit_text, root, false);
-		ButterKnife.inject(this, rootView);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		if (getArguments() != null) {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);
 		}
 
-		setAndSelectExistingText();
+		PresentationUtils.setAndSelectExistingText(editText, existingText);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		if (titleResId > 0) {
 			builder.setTitle(titleResId);
+		} else if (!TextUtils.isEmpty(title)) {
+			builder.setTitle(title);
 		}
 		builder.setView(rootView)
 			.setNegativeButton(R.string.cancel, null)
@@ -131,15 +150,14 @@ public class EditTextDialogFragment extends DialogFragment {
 		return dialog;
 	}
 
-	public void setText(String text) {
-		this.existingText = text;
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
-	private void setAndSelectExistingText() {
-		if (editText != null && !TextUtils.isEmpty(existingText)) {
-			editText.setText(existingText);
-			editText.setSelection(0, existingText.length());
-		}
+	public void setText(String text) {
+		this.existingText = text;
 	}
 
 	private void requestFocus(@NonNull AlertDialog dialog) {

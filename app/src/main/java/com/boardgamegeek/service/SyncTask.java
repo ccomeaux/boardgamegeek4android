@@ -13,21 +13,25 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import java.io.IOException;
+
+import timber.log.Timber;
+
 public abstract class SyncTask extends ServiceTask {
 	protected final Context context;
-	protected final BggService bggService;
+	protected final BggService service;
 	private final boolean shouldShowNotifications;
 	private boolean isCancelled = false;
 
 	public SyncTask(Context context, BggService service) {
 		this.context = context;
-		bggService = service;
+		this.service = service;
 		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 	}
 
 	public abstract int getSyncType();
 
-	public abstract void execute(Account account, SyncResult syncResult);
+	public abstract void execute(Account account, SyncResult syncResult) throws IOException;
 
 	public void cancel() {
 		isCancelled = true;
@@ -55,6 +59,7 @@ public abstract class SyncTask extends ServiceTask {
 		}
 
 		String message = context.getString(messageId);
+		Timber.i(detail);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title)
