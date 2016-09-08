@@ -37,7 +37,6 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
@@ -321,8 +320,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			case PLAY_QUERY_TOKEN:
 				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 				break;
-			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayerQuery.PROJECTION, null, null, null);
+			case PLAYER_QUERY_TOKEN:
+				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 				break;
 		}
 		if (loader != null) {
@@ -343,8 +342,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 					showList();
 				}
 				break;
-			case PlayerQuery._TOKEN:
-				mPlay.setPlayers(cursor);
+			case PLAYER_QUERY_TOKEN:
+				PlayBuilder.addPlayers(cursor, mPlay);
 				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 				mAdapter.notifyDataSetChanged();
 				maybeShowNotification();
@@ -470,7 +469,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		getActivity().supportInvalidateOptionsMenu();
-		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
 		if (mPlay.hasBeenSynced()
 			&& (mPlay.updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.updated) > AGE_IN_DAYS_TO_REFRESH)) {
@@ -525,11 +524,5 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			row.setPlayer((Player) getItem(position));
 			return row;
 		}
-	}
-
-	private interface PlayerQuery {
-		int _TOKEN = 0x02;
-		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
-			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
 	}
 }

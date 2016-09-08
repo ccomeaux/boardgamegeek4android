@@ -1,14 +1,11 @@
 package com.boardgamegeek.model;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
@@ -38,18 +35,6 @@ public class Player implements Parcelable {
 		rating = player.rating;
 		new_ = player.new_;
 		win = player.win;
-	}
-
-	public Player(Cursor cursor) {
-		userid = CursorUtils.getInt(cursor, PlayPlayers.USER_ID);
-		username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME);
-		name = CursorUtils.getString(cursor, PlayPlayers.NAME);
-		color = CursorUtils.getString(cursor, PlayPlayers.COLOR);
-		setStartingPosition(CursorUtils.getString(cursor, PlayPlayers.START_POSITION));
-		score = CursorUtils.getString(cursor, PlayPlayers.SCORE);
-		rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING, DEFAULT_RATING);
-		New(CursorUtils.getBoolean(cursor, PlayPlayers.NEW));
-		Win(CursorUtils.getBoolean(cursor, PlayPlayers.WIN));
 	}
 
 	@Attribute

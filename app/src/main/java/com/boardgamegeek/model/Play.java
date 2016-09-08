@@ -2,7 +2,6 @@ package com.boardgamegeek.model;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -261,19 +260,6 @@ public class Play {
 		}
 	}
 
-	public void setPlayers(Cursor cursor) {
-		clearPlayers();
-		while (cursor.moveToNext()) {
-			Player player = new Player(cursor);
-			addPlayer(player);
-		}
-		// When player count is in the double digits, numeric starting positions aren't sorted correctly
-		// TODO don't assume we should be sorting by starting positions
-		if (getPlayerCount() > 9 && !arePlayersCustomSorted()) {
-			sortPlayers();
-		}
-	}
-
 	public void clearPlayers() {
 		if (players != null) {
 			players.clear();
@@ -390,6 +376,14 @@ public class Play {
 				players.add(index, p);
 				index++;
 			}
+		}
+	}
+
+	public void sortByStartingPositions() {
+		// When player count is in the double digits, numeric starting positions aren't sorted correctly
+		// TODO don't assume we should be sorting by starting positions
+		if (getPlayerCount() > 9 && !arePlayersCustomSorted()) {
+			sortPlayers();
 		}
 	}
 

@@ -108,9 +108,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_ID = 1 << 2;
 	private static final int TOKEN_UNINITIALIZED = 1 << 31;
-	private static final String[] PLAYER_PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME,
-		PlayPlayers.START_POSITION, PlayPlayers.COLOR, PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW,
-		PlayPlayers.WIN, };
 	private static final String[] ID_PROJECTION = { "MAX(plays." + Plays.PLAY_ID + ")" };
 
 	private int mPlayId;
@@ -210,14 +207,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 						mPlay.end();
 					}
 					if ((mOutstandingQueries & TOKEN_PLAYERS) != 0) {
-						mHandler.startQuery(TOKEN_PLAYERS, null, Plays.buildPlayerUri(mPlayId), PLAYER_PROJECTION,
-							null, null, null);
+						mHandler.startQuery(TOKEN_PLAYERS, null, Plays.buildPlayerUri(mPlayId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 					}
 					setModelIfDone(token);
 					break;
 				case TOKEN_PLAYERS:
 					try {
-						mPlay.setPlayers(cursor);
+						PlayBuilder.addPlayers(cursor, mPlay);
 					} finally {
 						cursor.close();
 					}

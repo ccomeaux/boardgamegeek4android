@@ -131,7 +131,13 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = PlayBuilder.fromCursor(cursor, context, true);
+				Play play = PlayBuilder.fromCursor(cursor);
+				Cursor playerCursor = PlayBuilder.queryPlayers(context, play);
+				try {
+					PlayBuilder.addPlayers(playerCursor, play);
+				} finally {
+					if (playerCursor != null) playerCursor.close();
+				}
 
 				PlaySaveResponse response = postPlayUpdate(play);
 				if (response == null) {
