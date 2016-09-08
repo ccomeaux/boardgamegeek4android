@@ -59,6 +59,7 @@ import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -95,14 +96,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private static final int HELP_VERSION = 3;
 	private static final int REQUEST_ADD_PLAYER = 999;
 
-	public static final String KEY_PLAY_ID = "PLAY_ID";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_END_PLAY = "END_PLAY";
-	public static final String KEY_REMATCH = "REMATCH";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	public static final String KEY_IMAGE_URL = "IMAGE_URL";
-	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String DATE_PICKER_DIALOG_TAG = "DATE_PICKER_DIALOG";
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
@@ -228,7 +221,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 					if (mPlay.getPlayerCount() > 0) {
 						arePlayersCustomSorted = mPlay.arePlayersCustomSorted();
 					} else {
-						arePlayersCustomSorted = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
+						arePlayersCustomSorted = getIntent().getBooleanExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, false);
 					}
 					if ((mOutstandingQueries & TOKEN_ID) != 0) {
 						mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
@@ -308,13 +301,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mHandler = new QueryHandler(getContentResolver());
 
 		final Intent intent = getIntent();
-		mPlayId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
-		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(KEY_GAME_NAME);
-		mEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
-		mRematch = intent.getBooleanExtra(KEY_REMATCH, false);
-		mThumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
-		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+		mPlayId = intent.getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
+		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		mEndPlay = intent.getBooleanExtra(ActivityUtils.KEY_END_PLAY, false);
+		mRematch = intent.getBooleanExtra(ActivityUtils.KEY_REMATCH, false);
+		mThumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);
+		mImageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
 
 		if (mGameId <= 0) {
 			String message = "Can't log a play without a game ID.";
@@ -609,7 +602,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			} else {
 				// Starting a new play
 				shouldDeletePlayOnActivityCancel = true;
-				arePlayersCustomSorted = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
+				arePlayersCustomSorted = getIntent().getBooleanExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, false);
 				mOutstandingQueries = TOKEN_ID;
 				mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
 			}

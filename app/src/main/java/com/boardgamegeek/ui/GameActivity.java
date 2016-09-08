@@ -187,7 +187,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
 		Intent intent = ActivityUtils.createEditPlayIntent(this, 0, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		startActivityForResult(intent, REQUEST_EDIT_PLAY);
 	}
 }
