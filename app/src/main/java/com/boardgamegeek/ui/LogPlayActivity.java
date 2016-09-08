@@ -131,19 +131,27 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private final List<String> userNames = new ArrayList<>();
 	private final List<String> names = new ArrayList<>();
 
-	@BindView(R.id.header) TextView mHeaderView;
-	@BindView(R.id.log_play_date) TextView mDateButton;
-	@BindView(R.id.log_play_quantity) EditText mQuantityView;
-	@BindView(R.id.log_play_length) EditText mLengthView;
-	@BindView(R.id.log_play_location) AutoCompleteTextView mLocationView;
-	@BindView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
-	@BindView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
-	@BindView(R.id.timer) Chronometer mTimer;
-	@BindView(R.id.timer_toggle) ImageView mTimerToggle;
-	@BindView(R.id.log_play_comments) EditText mCommentsView;
-	@BindView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
-	@BindView(R.id.log_play_players_label) TextView mPlayerLabel;
-	@BindView(R.id.fab) FloatingActionButton mFab;
+	@BindView(R.id.progress) View progressView;
+	@BindView(R.id.form) View formView;
+	@BindView(R.id.header) TextView headerView;
+	@BindView(R.id.thumbnail) ImageView thumbnailView;
+	@BindView(R.id.log_play_date) TextView dateButton;
+	@BindView(R.id.log_play_quantity_root) View quantityRootView;
+	@BindView(R.id.log_play_quantity) EditText quantityView;
+	@BindView(R.id.log_play_length_root) View lengthRootView;
+	@BindView(R.id.log_play_length) EditText lengthView;
+	@BindView(R.id.timer) Chronometer timerView;
+	@BindView(R.id.timer_toggle) ImageView timerToggleView;
+	@BindView(R.id.log_play_location_root) View locationRootView;
+	@BindView(R.id.log_play_location) AutoCompleteTextView locationView;
+	@BindView(R.id.log_play_incomplete) SwitchCompat incompleteView;
+	@BindView(R.id.log_play_no_win_stats) SwitchCompat noWinStatsView;
+	@BindView(R.id.log_play_comments_root) View commentsRootView;
+	@BindView(R.id.log_play_comments) EditText commentsView;
+	@BindView(R.id.log_play_players_header) LinearLayout playerHeaderView;
+	@BindView(R.id.clear_players) View clearPlayersButton;
+	@BindView(R.id.log_play_players_label) TextView playerLabelView;
+	@BindView(R.id.fab) FloatingActionButton fab;
 	private DragSortListView mPlayerList;
 	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
@@ -286,8 +294,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 
 		bindUi();
-		findViewById(R.id.progress).setVisibility(View.GONE);
-		findViewById(R.id.form).setVisibility(View.VISIBLE);
+		progressView.setVisibility(View.GONE);
+		formView.setVisibility(View.VISIBLE);
 	}
 
 	@DebugLog
@@ -314,21 +322,21 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 			finish();
 		}
-		mHeaderView.setText(mGameName);
+		headerView.setText(mGameName);
 
 		mFabColor = ContextCompat.getColor(this, R.color.accent);
-		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl, new ImageUtils.Callback() {
+		ImageUtils.safelyLoadImage(thumbnailView, mImageUrl, new ImageUtils.Callback() {
 			@Override
 			public void onSuccessfulImageLoad(Palette palette) {
-				mHeaderView.setBackgroundResource(R.color.black_overlay_light);
+				headerView.setBackgroundResource(R.color.black_overlay_light);
 				mFabColor = PaletteUtils.getIconSwatch(palette).getRgb();
-				mFab.setBackgroundTintList(ColorStateList.valueOf(mFabColor));
-				mFab.show();
+				fab.setBackgroundTintList(ColorStateList.valueOf(mFabColor));
+				fab.show();
 			}
 
 			@Override
 			public void onFailedImageLoad() {
-				mFab.show();
+				fab.show();
 			}
 		});
 
@@ -358,7 +366,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		setViewVisibility();
 
 		locationAdapter = new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri());
-		mLocationView.setAdapter(locationAdapter);
+		locationView.setAdapter(locationAdapter);
 	}
 
 	@DebugLog
@@ -472,19 +480,19 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@DebugLog
 	private void bindUi() {
 		setDateButtonText();
-		mQuantityView.setTextKeepState((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
+		quantityView.setTextKeepState((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
 		bindLength();
-		mLocationView.setTextKeepState(mPlay.location);
-		mIncompleteView.setChecked(mPlay.Incomplete());
-		mNoWinStatsView.setChecked(mPlay.NoWinStats());
-		mCommentsView.setTextKeepState(mPlay.comments);
+		locationView.setTextKeepState(mPlay.location);
+		incompleteView.setChecked(mPlay.Incomplete());
+		noWinStatsView.setChecked(mPlay.NoWinStats());
+		commentsView.setTextKeepState(mPlay.comments);
 		bindUiPlayers();
 	}
 
 	@DebugLog
 	private void bindLength() {
-		mLengthView.setTextKeepState((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
-		UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
+		lengthView.setTextKeepState((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
+		UIUtils.startTimerWithSystemTime(timerView, mPlay.startTime);
 	}
 
 	@DebugLog
@@ -493,9 +501,9 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		Resources r = getResources();
 		int playerCount = mPlay.getPlayerCount();
 		if (playerCount <= 0) {
-			mPlayerLabel.setText(r.getString(R.string.title_players));
+			playerLabelView.setText(r.getString(R.string.title_players));
 		} else {
-			mPlayerLabel.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
+			playerLabelView.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
 		}
 
 		mPlayerList.setDragEnabled(!arePlayersCustomSorted);
@@ -511,31 +519,31 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			return;
 		}
 
-		hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
+		hideRow(shouldHideLength() && !mPlay.hasStarted(), lengthRootView);
 		if (mPlay.hasStarted()) {
-			mLengthView.setVisibility(View.GONE);
-			mTimer.setVisibility(View.VISIBLE);
+			lengthView.setVisibility(View.GONE);
+			timerView.setVisibility(View.VISIBLE);
 		} else {
-			mLengthView.setVisibility(View.VISIBLE);
-			mTimer.setVisibility(View.GONE);
+			lengthView.setVisibility(View.VISIBLE);
+			timerView.setVisibility(View.GONE);
 		}
 		if (mPlay.hasStarted()) {
-			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_timer_off);
+			timerToggleView.setEnabled(true);
+			timerToggleView.setImageResource(R.drawable.ic_timer_off);
 		} else if (DateUtils.isToday(mPlay.getDateInMillis() + mPlay.length * 60 * 1000)) {
-			mTimerToggle.setEnabled(true);
-			mTimerToggle.setImageResource(R.drawable.ic_timer);
+			timerToggleView.setEnabled(true);
+			timerToggleView.setImageResource(R.drawable.ic_timer);
 		} else {
-			mTimerToggle.setEnabled(false);
+			timerToggleView.setEnabled(false);
 		}
 
-		hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
-		hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
-		hideRow(shouldHideIncomplete(), mIncompleteView);
-		hideRow(shouldHideNoWinStats(), mNoWinStatsView);
-		hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
-		hideRow(shouldHidePlayers(), mPlayerHeader);
-		findViewById(R.id.clear_players).setEnabled(mPlay.getPlayerCount() > 0);
+		hideRow(shouldHideQuantity(), quantityRootView);
+		hideRow(shouldHideLocation(), locationRootView);
+		hideRow(shouldHideIncomplete(), incompleteView);
+		hideRow(shouldHideNoWinStats(), noWinStatsView);
+		hideRow(shouldHideComments(), commentsRootView);
+		hideRow(shouldHidePlayers(), playerHeaderView);
+		clearPlayersButton.setEnabled(mPlay.getPlayerCount() > 0);
 	}
 
 	@DebugLog
@@ -726,28 +734,28 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 					if (selection.equals(r.getString(R.string.location))) {
 						isUserShowingLocation = true;
-						viewToFocus = mLocationView;
-						viewToScroll = findViewById(R.id.log_play_location_root);
+						viewToFocus = locationView;
+						viewToScroll = locationRootView;
 					} else if (selection.equals(r.getString(R.string.length))) {
 						isUserShowingLength = true;
-						viewToFocus = mLengthView;
-						viewToScroll = findViewById(R.id.log_play_length_root);
+						viewToFocus = lengthView;
+						viewToScroll = lengthRootView;
 					} else if (selection.equals(r.getString(R.string.quantity))) {
 						isUserShowingQuantity = true;
-						viewToFocus = mQuantityView;
-						viewToScroll = findViewById(R.id.log_play_quantity_root);
+						viewToFocus = quantityView;
+						viewToScroll = quantityRootView;
 					} else if (selection.equals(r.getString(R.string.incomplete))) {
 						isUserShowingIncomplete = true;
-						mIncompleteView.setChecked(true);
-						viewToScroll = mIncompleteView;
+						incompleteView.setChecked(true);
+						viewToScroll = incompleteView;
 					} else if (selection.equals(r.getString(R.string.noWinStats))) {
 						isUserShowingNoWinStats = true;
-						mNoWinStatsView.setChecked(true);
-						viewToScroll = mNoWinStatsView;
+						noWinStatsView.setChecked(true);
+						viewToScroll = noWinStatsView;
 					} else if (selection.equals(r.getString(R.string.comments))) {
 						isUserShowingComments = true;
-						viewToFocus = mCommentsView;
-						viewToScroll = mCommentsView;
+						viewToFocus = commentsView;
+						viewToScroll = commentsView;
 					} else if (selection.equals(r.getString(R.string.title_colors))) {
 						if (mPlay.hasColors()) {
 							AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this)
@@ -776,13 +784,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 					} else if (selection.equals(r.getString(R.string.title_players))) {
 						if (shouldHidePlayers()) {
 							isUserShowingPlayers = true;
-							viewToScroll = mPlayerHeader;
+							viewToScroll = playerHeaderView;
 						}
 						addPlayers();
 					} else if (selection.equals(r.getString(R.string.title_player))) {
 						if (shouldHidePlayers()) {
 							isUserShowingPlayers = true;
-							viewToScroll = mPlayerHeader;
+							viewToScroll = playerHeaderView;
 						}
 						addPlayer();
 					}
@@ -984,7 +992,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	private void setDateButtonText() {
-		mDateButton.setText(mPlay.getDateForDisplay(this));
+		dateButton.setText(mPlay.getDateForDisplay(this));
 	}
 
 	@DebugLog
@@ -997,9 +1005,9 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			setViewVisibility();
 			NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 			if (mPlay.length > 0) {
-				mLengthView.setSelection(0, mLengthView.getText().length());
-				mLengthView.requestFocus();
-				((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(mLengthView,
+				lengthView.setSelection(0, lengthView.getText().length());
+				lengthView.requestFocus();
+				((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(lengthView,
 					InputMethodManager.SHOW_IMPLICIT);
 			}
 		} else {
@@ -1215,12 +1223,12 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			return;
 		}
 		// date info already captured
-		mPlay.quantity = StringUtils.parseInt(mQuantityView.getText().toString().trim(), 1);
-		mPlay.length = StringUtils.parseInt(mLengthView.getText().toString().trim());
-		mPlay.location = mLocationView.getText().toString().trim();
-		mPlay.setIncomplete(mIncompleteView.isChecked());
-		mPlay.setNoWinStats(mNoWinStatsView.isChecked());
-		mPlay.comments = mCommentsView.getText().toString().trim();
+		mPlay.quantity = StringUtils.parseInt(quantityView.getText().toString().trim(), 1);
+		mPlay.length = StringUtils.parseInt(lengthView.getText().toString().trim());
+		mPlay.location = locationView.getText().toString().trim();
+		mPlay.setIncomplete(incompleteView.isChecked());
+		mPlay.setNoWinStats(noWinStatsView.isChecked());
+		mPlay.comments = commentsView.getText().toString().trim();
 		// player info already captured
 		maybeShowNotification();
 	}
