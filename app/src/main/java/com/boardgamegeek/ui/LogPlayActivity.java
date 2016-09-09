@@ -119,7 +119,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	private Play mPlay;
 	private Play mOriginalPlay;
-	private final Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
 	private AutoCompleteAdapter locationAdapter;
 	private AlertDialog.Builder mAddPlayersBuilder;
@@ -1111,7 +1110,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 						promptPickStartPlayer();
 						return true;
 					case R.id.menu_random_start_player:
-						int newSeat = mRandom.nextInt(mPlay.getPlayerCount());
+						int newSeat = new Random().nextInt(play.getPlayerCount());
 						mPlay.pickStartPlayer(newSeat);
 						notifyStartPlayer();
 						bindUiPlayers();
