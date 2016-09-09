@@ -103,13 +103,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private static final int TOKEN_UNINITIALIZED = 1 << 31;
 	private static final String[] ID_PROJECTION = { "MAX(plays." + Plays.PLAY_ID + ")" };
 
-	private int mPlayId;
-	private int mGameId;
-	private String mGameName;
-	private boolean mEndPlay;
-	private boolean mRematch;
-	private String mThumbnailUrl;
-	private String mImageUrl;
+	private int playId;
+	private int gameId;
+	private String gameName;
+	private boolean isRequestingToEndPlay;
+	private boolean isRequestingRematch;
+	private String thumbnailUrl;
+	private String imageUrl;
 
 	private QueryHandler mHandler;
 	private int mOutstandingQueries = TOKEN_UNINITIALIZED;
@@ -204,11 +204,11 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 					cursor.moveToFirst();
 					mPlay = PlayBuilder.fromCursor(cursor);
 					cursor.close();
-					if (mEndPlay) {
+					if (isRequestingToEndPlay) {
 						mPlay.end();
 					}
 					if ((mOutstandingQueries & TOKEN_PLAYERS) != 0) {
-						mHandler.startQuery(TOKEN_PLAYERS, null, Plays.buildPlayerUri(mPlayId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
+						mHandler.startQuery(TOKEN_PLAYERS, null, Plays.buildPlayerUri(playId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 					}
 					setModelIfDone(token);
 					break;
@@ -241,7 +241,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 					} finally {
 						cursor.close();
 					}
-					mPlayId = id;
+					playId = id;
 					setModelIfDone(token);
 					break;
 				default:
@@ -257,7 +257,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			mOutstandingQueries &= ~queryType;
 			if (mOutstandingQueries == 0) {
 				if (mPlay == null) {
-					mPlay = new Play(mPlayId, mGameId, mGameName);
+					mPlay = new Play(playId, gameId, gameName);
 					mPlay.setCurrentDate();
 
 					long lastPlay = PreferencesUtils.getLastPlayTime(this);
@@ -267,8 +267,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 						mPlay.pickStartPlayer(0);
 					}
 				}
-				if (mRematch) {
-					mPlay.playId = mPlayId;
+				if (isRequestingRematch) {
+					mPlay.playId = playId;
 					mPlay = PlayBuilder.rematch(mPlay);
 				}
 				mOriginalPlay = PlayBuilder.copy(mPlay);
@@ -280,7 +280,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@DebugLog
 	private void finishDataLoad() {
 		mOutstandingQueries = 0;
-		if (mEndPlay) {
+		if (isRequestingToEndPlay) {
 			NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
 		} else {
 			maybeShowNotification();
@@ -301,24 +301,24 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		mHandler = new QueryHandler(getContentResolver());
 
 		final Intent intent = getIntent();
-		mPlayId = intent.getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
-		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		mEndPlay = intent.getBooleanExtra(ActivityUtils.KEY_END_PLAY, false);
-		mRematch = intent.getBooleanExtra(ActivityUtils.KEY_REMATCH, false);
-		mThumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);
-		mImageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+		playId = intent.getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
+		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		isRequestingToEndPlay = intent.getBooleanExtra(ActivityUtils.KEY_END_PLAY, false);
+		isRequestingRematch = intent.getBooleanExtra(ActivityUtils.KEY_REMATCH, false);
+		thumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);
+		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
 
-		if (mGameId <= 0) {
+		if (gameId <= 0) {
 			String message = "Can't log a play without a game ID.";
 			Timber.w(message);
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 			finish();
 		}
-		headerView.setText(mGameName);
+		headerView.setText(gameName);
 
 		mFabColor = ContextCompat.getColor(this, R.color.accent);
-		ImageUtils.safelyLoadImage(thumbnailView, mImageUrl, new ImageUtils.Callback() {
+		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, new ImageUtils.Callback() {
 			@Override
 			public void onSuccessfulImageLoad(Palette palette) {
 				headerView.setBackgroundResource(R.color.black_overlay_light);
@@ -460,7 +460,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
 				Intent intent = new Intent();
 				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
-				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
+				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
 				intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, mFabColor);
 				if (!arePlayersCustomSorted) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
@@ -590,15 +590,15 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			// we already have the play from the saved instance
 			finishDataLoad();
 		} else {
-			if (mPlayId > 0) {
+			if (playId > 0) {
 				// Editing or copying an existing play, so retrieve it
 				shouldDeletePlayOnActivityCancel = false;
 				mOutstandingQueries = TOKEN_PLAY | TOKEN_PLAYERS;
-				if (mRematch) {
+				if (isRequestingRematch) {
 					shouldDeletePlayOnActivityCancel = true;
 					mOutstandingQueries |= TOKEN_ID;
 				}
-				mHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(mPlayId), PlayBuilder.PLAY_PROJECTION, null, null, null);
+				mHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(playId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 			} else {
 				// Starting a new play
 				shouldDeletePlayOnActivityCancel = true;
@@ -992,7 +992,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@OnClick(R.id.timer_toggle)
 	public void onTimer() {
 		if (mPlay.hasStarted()) {
-			mEndPlay = true;
+			isRequestingToEndPlay = true;
 			mPlay.end();
 			bindLength();
 			setViewVisibility();
@@ -1194,8 +1194,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.gameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.gameName);
-		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, mImageUrl);
-		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
+		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
 		if (!arePlayersCustomSorted && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
 		}
@@ -1229,7 +1229,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@DebugLog
 	private void maybeShowNotification() {
 		if (mPlay != null && mPlay.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(this, mPlay, mThumbnailUrl, mImageUrl);
+			NotificationUtils.launchPlayingNotification(this, mPlay, thumbnailUrl, imageUrl);
 		}
 	}
 
