@@ -87,7 +87,9 @@ import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnFocusChange;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -368,7 +370,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (mOutstandingQueries == 0) {
-			captureForm();
 			PlayBuilder.toBundle(mPlay, outState, "P");
 			PlayBuilder.toBundle(mOriginalPlay, outState, "O");
 		}
@@ -666,9 +667,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			return false;
 		}
 		shouldSaveOnPause = false;
-		if (syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
-			captureForm();
-		}
 		mPlay.syncStatus = syncStatus;
 		new PlayPersister(this).save(mPlay);
 		return true;
@@ -677,7 +675,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	@DebugLog
 	private void cancel() {
 		shouldSaveOnPause = false;
-		captureForm();
 		if (mPlay == null || mPlay.equals(mOriginalPlay)) {
 			if (shouldDeletePlayOnActivityCancel) {
 				if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
@@ -886,8 +883,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				.setNeutralButton(R.string.more, addPlayersButtonClickListener())
 				.setNegativeButton(android.R.string.cancel, null);
 		}
-
-		captureForm(); // to get location
 
 		mPlayersToAdd.clear();
 		userNames.clear();
@@ -1208,23 +1203,42 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		startActivityForResult(intent, requestCode);
 	}
 
-	/**
-	 * Captures the data in the form in the mPlay object
-	 */
-	@DebugLog
-	private void captureForm() {
-		if (mPlay == null) {
-			return;
+	@OnFocusChange(R.id.log_play_location)
+	public void onLocationFocusChange(EditText v, boolean hasFocus) {
+		if (!hasFocus) {
+			mPlay.location = v.getText().toString().trim();
 		}
-		// date info already captured
-		mPlay.quantity = StringUtils.parseInt(quantityView.getText().toString().trim(), 1);
-		mPlay.length = StringUtils.parseInt(lengthView.getText().toString().trim());
-		mPlay.location = locationView.getText().toString().trim();
+	}
+
+	@OnFocusChange(R.id.log_play_length)
+	public void onLengthFocusChange(EditText v, boolean hasFocus) {
+		if (!hasFocus) {
+			mPlay.length = StringUtils.parseInt(v.getText().toString().trim());
+		}
+	}
+
+	@OnFocusChange(R.id.log_play_quantity)
+	public void onQuantityFocusChange(EditText v, boolean hasFocus) {
+		if (!hasFocus) {
+			mPlay.quantity = StringUtils.parseInt(v.getText().toString().trim(), 1);
+		}
+	}
+
+	@OnCheckedChanged(R.id.log_play_incomplete)
+	public void onIncompleteCheckedChanged() {
 		mPlay.setIncomplete(incompleteView.isChecked());
+	}
+
+	@OnCheckedChanged(R.id.log_play_no_win_stats)
+	public void onNoWinStatsCheckedChanged() {
 		mPlay.setNoWinStats(noWinStatsView.isChecked());
-		mPlay.comments = commentsView.getText().toString().trim();
-		// player info already captured
-		maybeShowNotification();
+	}
+
+	@OnFocusChange(R.id.log_play_comments)
+	public void onCommentsFocusChange(EditText v, boolean hasFocus) {
+		if (!hasFocus) {
+			mPlay.comments = v.getText().toString().trim();
+		}
 	}
 
 	@DebugLog
