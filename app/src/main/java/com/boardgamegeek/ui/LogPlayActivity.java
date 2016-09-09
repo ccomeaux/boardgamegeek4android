@@ -19,6 +19,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
@@ -124,7 +125,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private final List<String> userNames = new ArrayList<>();
 	private final List<String> names = new ArrayList<>();
 
-	@BindView(R.id.progress) View progressView;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(R.id.form) View formView;
 	@BindView(R.id.header) TextView headerView;
 	@BindView(R.id.thumbnail) ImageView thumbnailView;
@@ -287,7 +288,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 
 		bindUi();
-		progressView.setVisibility(View.GONE);
+		progressView.hide();
 		formView.setVisibility(View.VISIBLE);
 	}
 

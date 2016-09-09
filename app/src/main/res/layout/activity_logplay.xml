@@ -13,7 +13,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<ProgressBar
+		<android.support.v4.widget.ContentLoadingProgressBar
 			android:id="@+id/progress"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
