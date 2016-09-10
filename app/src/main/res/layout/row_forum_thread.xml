@@ -24,7 +24,7 @@
 
 		<TextView
 			android:id="@+id/author"
-			style="@style/SecondaryTextWithImage"
+			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_user_small"
@@ -39,7 +39,7 @@
 
 		<TextView
 			android:id="@+id/number_of_articles"
-			style="@style/SecondaryTextWithImage"
+			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_forums_small"
@@ -54,7 +54,7 @@
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/last_post_date"
-			style="@style/SecondaryTextWithImage"
+			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_clock_small"
