@@ -1277,8 +1277,47 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			PlayerRow row = (PlayerRow) convertView;
 			row.setAutoSort(!arePlayersCustomSorted);
 			row.setPlayer((Player) getItem(position));
-			row.setOnDeleteListener(new PlayerDeleteClickListener(position));
-			row.setOnScoreListener(new PlayerScoreClickListener(position));
+			final int finalPosition = position;
+			row.setOnDeleteListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);
+					builder
+						.setTitle(R.string.are_you_sure_title)
+						.setMessage(R.string.are_you_sure_delete_player)
+						.setCancelable(false)
+						.setNegativeButton(R.string.no, null)
+						.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								Player player = (Player) playAdapter.getItem(finalPosition);
+								Snackbar.make(coordinatorLayout, R.string.msg_player_deleted, Snackbar.LENGTH_LONG).show();
+								play.removePlayer(player, !arePlayersCustomSorted);
+								bindUiPlayers();
+							}
+						});
+					builder.create().show();
+				}
+			});
+			row.setOnScoreListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final Player player = play.getPlayers().get(finalPosition);
+					final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.score, player.color);
+					fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
+						@Override
+						public void onDoneClick(String output) {
+							player.score = output;
+							double highScore = play.getHighScore();
+							for (Player p : play.getPlayers()) {
+								double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
+								p.Win(score == highScore);
+							}
+							bindUiPlayers();
+						}
+					});
+					DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
+				}
+			});
 			return convertView;
 		}
 
@@ -1289,64 +1328,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				Toast.makeText(LogPlayActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
 			}
 			notifyDataSetChanged();
-		}
-	}
-
-	private class PlayerDeleteClickListener implements View.OnClickListener {
-		private final int position;
-
-		@DebugLog
-		public PlayerDeleteClickListener(int position) {
-			this.position = position;
-		}
-
-		@DebugLog
-		@Override
-		public void onClick(View v) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);
-			builder
-				.setTitle(R.string.are_you_sure_title)
-				.setMessage(R.string.are_you_sure_delete_player)
-				.setCancelable(false)
-				.setNegativeButton(R.string.no, null)
-				.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						Player player = (Player) playAdapter.getItem(position);
-						Snackbar.make(coordinatorLayout, R.string.msg_player_deleted, Snackbar.LENGTH_LONG).show();
-						play.removePlayer(player, !arePlayersCustomSorted);
-						bindUiPlayers();
-					}
-				});
-			builder.create().show();
-		}
-	}
-
-	private class PlayerScoreClickListener implements View.OnClickListener {
-		private final int position;
-
-		@DebugLog
-		public PlayerScoreClickListener(int position) {
-			this.position = position;
-		}
-
-		@DebugLog
-		@Override
-		public void onClick(View v) {
-			final Player player = play.getPlayers().get(position);
-			final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.score, player.color);
-			fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-				@Override
-				public void onDoneClick(String output) {
-					player.score = output;
-					double highScore = play.getHighScore();
-					for (Player p : play.getPlayers()) {
-						double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
-						p.Win(score == highScore);
-					}
-					bindUiPlayers();
-				}
-			});
-			DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
 		}
 	}
 }
