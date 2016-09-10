@@ -9,7 +9,8 @@
 
 	<include layout="@layout/actionbar_done_cancel"/>
 
-	<FrameLayout
+	<android.support.design.widget.CoordinatorLayout
+		android:id="@+id/coordinator"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
@@ -57,6 +58,6 @@
 				app:rippleColor="@color/medium_blue"
 				tools:visibility="visible"/>
 		</FrameLayout>
-	</FrameLayout>
+	</android.support.design.widget.CoordinatorLayout>
 
 </LinearLayout>

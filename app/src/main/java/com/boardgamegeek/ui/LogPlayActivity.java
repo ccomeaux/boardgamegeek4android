@@ -15,6 +15,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -126,6 +127,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private final List<String> userNames = new ArrayList<>();
 	private final List<String> names = new ArrayList<>();
 
+	@BindView(R.id.coordinator) CoordinatorLayout coordinatorLayout;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(R.id.form) View formView;
 	@BindView(R.id.header) TextView headerView;
@@ -428,7 +430,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			bindUiPlayers();
 		}
 		if (event.getMessageId() != 0) {
-			Snackbar.make(playerList, event.getMessageId(), Snackbar.LENGTH_LONG).show();
+			Snackbar.make(coordinatorLayout, event.getMessageId(), Snackbar.LENGTH_LONG).show();
 		}
 	}
 
@@ -1161,8 +1163,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			if (TextUtils.isEmpty(name)) {
 				name = String.format(getResources().getString(R.string.generic_player), 1);
 			}
-			Toast.makeText(this, String.format(getResources().getString(R.string.notification_start_player), name),
-				Toast.LENGTH_SHORT).show();
+			Snackbar.make(coordinatorLayout, String.format(getResources().getString(R.string.notification_start_player), name), Snackbar.LENGTH_LONG).show();
 		}
 	}
 
@@ -1292,11 +1293,11 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	}
 
 	private class PlayerDeleteClickListener implements View.OnClickListener {
-		private final int mPosition;
+		private final int position;
 
 		@DebugLog
 		public PlayerDeleteClickListener(int position) {
-			mPosition = position;
+			this.position = position;
 		}
 
 		@DebugLog
@@ -1310,8 +1311,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 				.setNegativeButton(R.string.no, null)
 				.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						Player player = (Player) playAdapter.getItem(mPosition);
-						Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
+						Player player = (Player) playAdapter.getItem(position);
+						Snackbar.make(coordinatorLayout, R.string.msg_player_deleted, Snackbar.LENGTH_LONG).show();
 						play.removePlayer(player, !arePlayersCustomSorted);
 						bindUiPlayers();
 					}
