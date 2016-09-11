@@ -17,7 +17,7 @@
 			style="@style/RowContainer"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/light_blue">
+			android:background="@color/info_background">
 
 			<TextView
 				android:id="@+id/username"

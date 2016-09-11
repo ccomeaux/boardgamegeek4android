@@ -14,6 +14,8 @@ import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import java.text.NumberFormat;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -30,7 +32,6 @@ public class ArticleFragment extends Fragment {
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.post_date) TimestampView postDateView;
 	@BindView(R.id.edit_date) TimestampView editDateView;
-	@BindView(R.id.edit_count) TextView editCountView;
 	@BindView(R.id.body) WebView bodyView;
 
 	@Override
@@ -52,19 +53,15 @@ public class ArticleFragment extends Fragment {
 		unbinder = ButterKnife.bind(this, rootView);
 
 		usernameView.setText(user);
-		if (editCount > 0) {
-			editCountView.setText(getResources().getQuantityString(R.plurals.edit_count, editCount, editCount));
-		} else {
-			editCountView.setVisibility(View.GONE);
-		}
 		postDateView.setTimestamp(postDate);
-		if (editDate != postDate) {
+		if (editCount > 0) {
+			editDateView.setFormat(getResources().getQuantityString(R.plurals.edit_timestamp, editCount));
+			editDateView.setFormatArg(NumberFormat.getNumberInstance().format(editCount));
 			editDateView.setTimestamp(editDate);
 			editDateView.setVisibility(View.VISIBLE);
 		} else {
 			editDateView.setVisibility(View.GONE);
 		}
-
 		UIUtils.setWebViewText(bodyView, body);
 
 		return rootView;

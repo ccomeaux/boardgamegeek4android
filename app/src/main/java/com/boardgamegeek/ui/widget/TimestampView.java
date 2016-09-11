@@ -78,6 +78,11 @@ public class TimestampView extends TextView {
 		setTimestampText();
 	}
 
+	public void setFormat(String format) {
+		this.format = format;
+		setTimestampText();
+	}
+
 	public void setTimestamp(final long timestamp) {
 		this.timestamp = timestamp;
 		setTimestampText();
