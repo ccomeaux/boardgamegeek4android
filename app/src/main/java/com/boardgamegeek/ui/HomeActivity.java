@@ -6,7 +6,10 @@ import android.os.Bundle;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import hugo.weaving.DebugLog;
+
 public class HomeActivity extends TopLevelActivity {
+	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

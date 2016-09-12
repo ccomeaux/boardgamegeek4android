@@ -3,7 +3,8 @@ Release Notes
 
 Version 6.0.1
 -------------
-* Bug fixes
+ * Better initial load experience
+ * Bug fixes
 
 Version 6.0
 -----------
