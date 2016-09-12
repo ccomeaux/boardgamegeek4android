@@ -90,6 +90,8 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 
 	@Override
 	protected void onPostExecute(Long internalId) {
-		EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
+		if (internalId != null) {
+			EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
+		}
 	}
 }
