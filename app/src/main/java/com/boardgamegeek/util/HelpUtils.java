@@ -26,7 +26,6 @@ import timber.log.Timber;
  * Methods to display help text.
  */
 public class HelpUtils {
-	public static final String HELP_HOME_KEY = "help.home";
 	public static final String HELP_GAME_KEY = "help.game";
 	public static final String HELP_COLLECTION_KEY = "help.collection";
 	public static final String HELP_PLAYS_KEY = "help.plays";

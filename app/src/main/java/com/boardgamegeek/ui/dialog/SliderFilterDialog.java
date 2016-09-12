@@ -34,8 +34,8 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		ButterKnife.bind(this, layout);
 
 		InitialValues initialValues = initValues(filter);
-		low = initialValues.min;
-		high = initialValues.max;
+		low = Math.max(initialValues.min, getAbsoluteMin());
+		high = Math.min(initialValues.max, getAbsoluteMax());
 
 		initSlider();
 
