@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.0.1
+-------------
+* Bug fixes
+
 Version 6.0
 -----------
  * Add and remove items in your collection
