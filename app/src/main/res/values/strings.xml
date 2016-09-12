@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="welcome_text">Welcome to the new BoardGameGeek for Android. Access the navigation menu by clicking on the icon in the top left or by dragging from the left edge of the screen.</string>
 	<string name="weight_1_text">Light (<b>%.2f</b>/5)</string>
 	<string name="weight_2_text">Medium Light (<b>%.2f</b>/5)</string>
 	<string name="weight_3_text">Medium (<b>%.2f</b>/5)</string>
@@ -439,7 +438,6 @@
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>
 	<string name="help_title">Help</string>
-	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when viewing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
 	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
 	<string name="help_game_menu">From here you can…\n- Share\n- Create a shortcut on the home screen\n- View a larger version of the game image</string>
 	<string name="help_game_log_play">- Log plays</string>
