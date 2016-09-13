@@ -33,6 +33,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_clock_small"
+			android:paddingTop="@dimen/padding_half"
 			app:isForumTimestamp="true"
 			tools:text="Yesterday"/>
 
@@ -42,6 +43,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_edit_small"
+			android:paddingTop="@dimen/padding_half"
 			app:isForumTimestamp="true"
 			tools:text="Today (3 edits)"/>
 

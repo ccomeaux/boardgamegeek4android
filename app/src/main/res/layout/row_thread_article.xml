@@ -17,7 +17,11 @@
 			style="@style/RowContainer"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/info_background">
+			android:background="@color/info_background"
+			android:paddingBottom="@dimen/padding_standard"
+			android:paddingLeft="@dimen/material_margin_horizontal_card_contents"
+			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
+			android:paddingTop="@dimen/padding_standard">
 
 			<TextView
 				android:id="@+id/username"
@@ -42,14 +46,16 @@
 				android:id="@+id/view_button"
 				android:layout_width="@dimen/icon_width"
 				android:layout_height="@dimen/icon_width"
-				android:layout_alignBottom="@+id/edit_date"
 				android:layout_alignParentEnd="true"
 				android:layout_alignParentRight="true"
-				android:layout_alignTop="@+id/username"
+				android:layout_centerInParent="true"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:contentDescription="@string/view"
 				android:onClick="onButtonClick"
-				android:padding="4dp"
+				android:paddingBottom="@dimen/padding_half"
+				android:paddingLeft="0dp"
+				android:paddingRight="0dp"
+				android:paddingTop="@dimen/padding_half"
 				android:src="@drawable/ic_open_in_new"/>
 		</RelativeLayout>
 
@@ -58,10 +64,9 @@
 			style="@style/Text.Body"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/material_margin_vertical"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal"
-			android:paddingTop="@dimen/material_margin_vertical"
+			android:paddingBottom="@dimen/padding_standard"
+			android:paddingLeft="@dimen/material_margin_horizontal_card_contents"
+			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
 			tools:text="This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text."/>
 	</LinearLayout>
 </android.support.v7.widget.CardView>
