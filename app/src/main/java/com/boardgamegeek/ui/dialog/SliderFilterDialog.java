@@ -15,6 +15,7 @@ import com.appyvet.rangebar.RangeBar.PinTextFormatter;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.interfaces.CollectionView;
+import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import butterknife.BindView;
@@ -34,8 +35,8 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		ButterKnife.bind(this, layout);
 
 		InitialValues initialValues = initValues(filter);
-		low = Math.max(initialValues.min, getAbsoluteMin());
-		high = Math.min(initialValues.max, getAbsoluteMax());
+		low = MathUtils.constrain(initialValues.min, getAbsoluteMin(), getAbsoluteMax());
+		low = MathUtils.constrain(initialValues.max, getAbsoluteMin(), getAbsoluteMax());
 
 		initSlider();
 
