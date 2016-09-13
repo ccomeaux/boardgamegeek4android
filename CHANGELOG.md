@@ -1,11 +1,15 @@
 Release Notes
 =============
 
+Coming Soon
+-----------
+ * Improved Forum UI
+
 Version 6.0.2
 -------------
  * Bug fixes
 
- Version 6.0.1
+Version 6.0.1
 -------------
  * Better initial load experience
  * Bug fixes
