@@ -46,7 +46,7 @@
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
 	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
-	<string name="filter_description_include_missing_suggested_age">If you <b>include games with missing values</b>, the filter will show games without a suggested age.</string>
+	<string name="filter_description_include_missing_suggested_age">If you <b>include games with missing values</b>, the filter will show games without a suggested minimum age.</string>
 	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
@@ -280,7 +280,7 @@
 	<string name="collection_sort_play_count_desc">Most Played</string>
 	<string name="collection_sort_play_time">Play Time</string>
 	<string name="collection_sort_rank">Rank</string>
-	<string name="collection_sort_suggested_age">Suggested Age</string>
+	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
 	<string name="collection_sort_wishlist_priority">Wishlist Priority</string>
 	<string name="collection_sort_year_published">Year Published</string>
 	<string name="collection_filter_stats">Stats</string>
@@ -317,7 +317,7 @@
 	<string name="year_negative">%s BC</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_play_count">Play Count</string>
-	<string name="menu_suggested_age">Suggested Age</string>
+	<string name="menu_suggested_age">Suggested Minimum Age</string>
 	<string name="menu_geek_ranking">Rank</string>
 	<string name="menu_geek_rating">Geek Rating</string>
 	<string name="menu_average_rating">Average Rating</string>
@@ -398,7 +398,7 @@
 	<string name="language_3_text">Moderate in-game text - needs crib sheets or paste ups (<b>%.2f</b>/5)</string>
 	<string name="language_4_text">Extensive use of text - massive conversion needed to be playable (<b>%.2f</b>/5)</string>
 	<string name="language_5_text">Unplayable in another language (<b>%.2f</b>/5)</string>
-	<string name="suggested_playerage">Suggested ages</string>
+	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_suffix">+</string>
 	<string name="name">Name</string>

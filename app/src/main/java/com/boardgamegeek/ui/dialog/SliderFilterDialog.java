@@ -36,7 +36,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 		InitialValues initialValues = initValues(filter);
 		low = MathUtils.constrain(initialValues.min, getAbsoluteMin(), getAbsoluteMax());
-		low = MathUtils.constrain(initialValues.max, getAbsoluteMin(), getAbsoluteMax());
+		high = MathUtils.constrain(initialValues.max, getAbsoluteMin(), getAbsoluteMax());
 
 		initSlider();
 
