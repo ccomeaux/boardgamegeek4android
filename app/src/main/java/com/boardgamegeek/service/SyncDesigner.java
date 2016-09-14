@@ -14,6 +14,7 @@ import com.boardgamegeek.provider.BggContract.Designers;
 
 import java.io.IOException;
 
+import retrofit2.Response;
 import timber.log.Timber;
 
 public class SyncDesigner extends UpdateTask {
@@ -41,10 +42,15 @@ public class SyncDesigner extends UpdateTask {
 	public void execute(@NonNull Context context) {
 		BggService service = Adapter.createForXml();
 		try {
-			Person person = service.person(BggService.PERSON_TYPE_DESIGNER, designerId).execute().body();
-			Uri uri = Designers.buildDesignerUri(designerId);
-			context.getContentResolver().update(uri, toValues(person), null, null);
-			Timber.i("Synced Designer " + designerId);
+			final Response<Person> response = service.person(BggService.PERSON_TYPE_DESIGNER, designerId).execute();
+			Person person = response.body();
+			if (person == null) {
+				Timber.w("Designer %1$s is null: %2$s", designerId, response.errorBody().string());
+			} else {
+				Uri uri = Designers.buildDesignerUri(designerId);
+				context.getContentResolver().update(uri, toValues(person), null, null);
+				Timber.i("Synced Designer: %s", designerId);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
