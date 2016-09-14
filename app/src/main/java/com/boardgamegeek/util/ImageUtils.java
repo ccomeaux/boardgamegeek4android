@@ -135,6 +135,9 @@ public class ImageUtils {
 	 * Resize the resizableView based on a standard aspect ratio, up to a maximum height
 	 */
 	public static void resizeImagePerAspectRatio(View image, int maxHeight, View resizableView) {
+		if (image == null) return;
+		if (resizableView == null) return;
+
 		int height = (int) (image.getWidth() / IMAGE_ASPECT_RATIO);
 		height = Math.min(height, maxHeight);
 
@@ -151,6 +154,7 @@ public class ImageUtils {
 	 */
 	public interface Callback {
 		void onSuccessfulImageLoad(Palette palette);
+
 		void onFailedImageLoad();
 	}
 
