@@ -219,7 +219,10 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					swipeRefreshLayout.setRefreshing(isSyncing);
+					if (swipeRefreshLayout != null) {
+						// this check seems unnecessary, but NullPointerException are getting thrown
+						swipeRefreshLayout.setRefreshing(isSyncing);
+					}
 				}
 			});
 		}
