@@ -295,11 +295,15 @@
 		</activity>
 		<activity
 			android:name=".pref.SettingsActivity"
+			android:exported="false"
 			android:label="@string/title_settings"
 			android:theme="@style/Theme.bgglight">
 			<intent-filter>
 				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
-
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 		</activity>
