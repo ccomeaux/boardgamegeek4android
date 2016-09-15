@@ -121,14 +121,21 @@ public class ScoreGraphView extends View {
 
 		// ticks
 		int tickSpacing = 10;
-		if (highScore - lowScore <= 20) {
+		final double scoreSpread = highScore - lowScore;
+		if (scoreSpread <= 20) {
 			tickSpacing = 1;
-		} else if (highScore - lowScore <= 50) {
+		} else if (scoreSpread <= 50) {
 			tickSpacing = 5;
+		} else if (scoreSpread <= 200) {
+			tickSpacing = 10;
+		} else if (scoreSpread <= 500) {
+			tickSpacing = 20;
+		} else {
+			tickSpacing = MathUtils.significantDigits((int) (Math.ceil(scoreSpread / 100) * 10), 2);
 		}
 		double tickScore = Math.ceil(lowScore / tickSpacing) * tickSpacing;
 		while (tickScore <= highScore) {
-			float x = (float) ((tickScore - lowScore) / (highScore - lowScore) * (right - left) + left);
+			float x = (float) ((tickScore - lowScore) / (scoreSpread) * (right - left) + left);
 			final float tickHeight;
 			if ((tickScore % (5 * tickSpacing)) == 0) {
 				tickHeight = largeTickHeight;
