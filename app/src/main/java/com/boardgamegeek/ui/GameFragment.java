@@ -419,7 +419,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case ColorQuery._TOKEN:
 				playsCard.setVisibility(View.VISIBLE);
 				colorsRoot.setVisibility(View.VISIBLE);
-				int count = cursor.getCount();
+				int count = cursor == null ? 0 : cursor.getCount();
 				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
 				break;
 			case LanguagePollQuery._TOKEN:
