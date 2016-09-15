@@ -236,30 +236,30 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItem> implements StickyListHeadersAdapter {
-		private List<CollectionItem> mBuddyCollection;
-		private final LayoutInflater mInflater;
+		private List<CollectionItem> collection;
+		private final LayoutInflater inflater;
 
 		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
 			super(activity, R.layout.row_text_2, collection);
-			mInflater = activity.getLayoutInflater();
+			inflater = activity.getLayoutInflater();
 			setCollection(collection);
 		}
 
 		public void setCollection(List<CollectionItem> games) {
-			mBuddyCollection = games;
+			collection = games;
 			notifyDataSetChanged();
 		}
 
 		@Override
 		public int getCount() {
-			return mBuddyCollection.size();
+			return collection == null ? 0 : collection.size();
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			BuddyGameViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_text_2, parent, false);
+				convertView = inflater.inflate(R.layout.row_text_2, parent, false);
 				holder = new BuddyGameViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
@@ -268,7 +268,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 			CollectionItem game;
 			try {
-				game = mBuddyCollection.get(position);
+				game = collection.get(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
@@ -287,7 +287,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
-				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				convertView = inflater.inflate(R.layout.row_header, parent, false);
 				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
@@ -303,8 +303,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		private String getHeaderText(int position) {
-			if (position < mBuddyCollection.size()) {
-				CollectionItem game = mBuddyCollection.get(position);
+			if (collection != null && position < collection.size()) {
+				CollectionItem game = collection.get(position);
 				if (game != null) {
 					return game.gameSortName().substring(0, 1);
 				}

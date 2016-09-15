@@ -14,6 +14,7 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 
 import java.io.IOException;
 
+import retrofit2.Response;
 import timber.log.Timber;
 
 public class SyncPublisher extends UpdateTask {
@@ -41,10 +42,15 @@ public class SyncPublisher extends UpdateTask {
 	public void execute(@NonNull Context context) {
 		BggService service = Adapter.createForXml();
 		try {
-			Company company = service.company(BggService.COMPANY_TYPE_PUBLISHER, publisherId).execute().body();
-			Uri uri = Publishers.buildPublisherUri(publisherId);
-			context.getContentResolver().update(uri, toValues(company), null, null);
-			Timber.i("Synced Publisher " + publisherId);
+			final Response<Company> response = service.company(BggService.COMPANY_TYPE_PUBLISHER, publisherId).execute();
+			Company company = response.body();
+			if (company == null) {
+				Timber.w("Publisher %1$s is null: %2$s", publisherId, response.errorBody().string());
+			} else {
+				Uri uri = Publishers.buildPublisherUri(publisherId);
+				context.getContentResolver().update(uri, toValues(company), null, null);
+				Timber.i("Synced Publisher: %s", publisherId);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

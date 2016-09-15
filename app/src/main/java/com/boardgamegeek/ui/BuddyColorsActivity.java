@@ -214,6 +214,7 @@ public class BuddyColorsActivity extends BaseActivity {
 			@Override
 			public void onSwiped(ViewHolder viewHolder, int swipeDir) {
 				final PlayerColor color = adapter.getItem(viewHolder.getAdapterPosition());
+				if (color == null) return;
 				Snackbar.make(coordinator, getString(R.string.removed_suffix, color.getColor()), Snackbar.LENGTH_LONG)
 					.setAction(R.string.undo, new View.OnClickListener() {
 						@Override
@@ -444,10 +445,6 @@ public class BuddyColorsActivity extends BaseActivity {
 		@Override
 		public long getItemId(int position) {
 			return position;
-		}
-
-		public PlayerColor getColor(int position) {
-			return colors.get(position);
 		}
 
 		public PlayerColor getItem(int position) {

@@ -20,13 +20,14 @@ public abstract class PlayPostResponse {
 			if (response.isSuccessful()) {
 				final String content = response.body().string();
 				if (content.startsWith(ERROR_DIV)) {
+					//noinspection deprecation
 					error = Html.fromHtml(content).toString().trim();
 				}
 				saveContent(content);
 			} else {
 				error = "Unsuccessful post: " + response.code();
 			}
-		} catch (IOException e) {
+		} catch (IOException | IllegalStateException e) {
 			exception = e;
 		}
 	}
