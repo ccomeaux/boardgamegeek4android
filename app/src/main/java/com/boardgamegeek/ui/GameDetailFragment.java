@@ -156,6 +156,7 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 
 		public class DetailViewHolder extends RecyclerView.ViewHolder {
 			@BindView(android.R.id.title) TextView titleView;
+			private Uri uri;
 
 			public DetailViewHolder(View itemView) {
 				super(itemView);
@@ -164,19 +165,16 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 
 			public void bind(final Cursor cursor) {
 				titleView.setText(cursor.getString(cursor.getColumnIndex(query.getTitleColumnName())));
-
+				uri = query.getUri(cursor);
 				if (query.isClickable()) {
 					itemView.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							Uri uri = query.getUri(cursor);
 							if (uri != null) {
 								getActivity().startActivity(new Intent(Intent.ACTION_VIEW, uri));
 							}
 						}
 					});
-				} else {
-					itemView.setBackgroundDrawable(null);
 				}
 			}
 		}
