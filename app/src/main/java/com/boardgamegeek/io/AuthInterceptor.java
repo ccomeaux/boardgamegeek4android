@@ -8,6 +8,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.util.HttpUtils;
 
 import java.io.IOException;
 
@@ -33,7 +34,7 @@ public class AuthInterceptor implements Interceptor {
 			try {
 				authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
 				if (!TextUtils.isEmpty(account.name) && !TextUtils.isEmpty(authToken)) {
-					final String cookieValue = "bggusername=" + account.name + "; bggpassword=" + authToken;
+					final String cookieValue = "bggusername=" + HttpUtils.encode(account.name) + "; bggpassword=" + authToken;
 					Request request = originalRequest.newBuilder().addHeader("Cookie", cookieValue).build();
 					return chain.proceed(request);
 				}
