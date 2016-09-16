@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.v4.util.Pair;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
@@ -38,7 +40,7 @@ public class ShowcaseViewWizard {
 
 	@DebugLog
 	public void showHelp() {
-		Activity activity = activityWeakReference.get();
+		final Activity activity = activityWeakReference.get();
 		if (activity == null) return;
 		helpIndex = 0;
 		Builder builder = HelpUtils.getShowcaseBuilder(activity)
@@ -49,6 +51,27 @@ public class ShowcaseViewWizard {
 				}
 			});
 		showcaseView = builder.build();
+		showcaseView.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+			@Override
+			public void onShowcaseViewHide(ShowcaseView showcaseView) {
+				HelpUtils.updateHelp(activity, helpKey, helpVersion);
+			}
+
+			@Override
+			public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+			}
+
+			@Override
+			public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+			}
+
+			@Override
+			public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+
+			}
+		});
 		showcaseView.setButtonPosition(HelpUtils.getLowerLeftLayoutParams(activity));
 		showNextHelp();
 	}
