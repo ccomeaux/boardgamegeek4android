@@ -604,7 +604,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private void onCollectionQueryComplete(Cursor cursor) {
 		collectionCard.setVisibility(View.VISIBLE);
 		collectionContainer.removeViews(2, collectionContainer.getChildCount() - 2);
-		if (cursor.moveToFirst()) {
+		if (cursor != null && cursor.moveToFirst()) {
 			collectionAddButton.setVisibility(View.GONE);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());

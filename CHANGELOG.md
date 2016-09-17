@@ -5,6 +5,11 @@ Coming Soon
 -----------
  * Improved Forum UI
 
+Version 6.0.3
+-------------
+ * User names with accents should work now
+ * Bug fixes
+
 Version 6.0.2
 -------------
  * Bug fixes
