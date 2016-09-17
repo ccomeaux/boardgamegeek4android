@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -46,7 +47,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	private ForumsRecyclerViewAdapter adapter;
 
 	Unbinder unbinder;
-	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
@@ -64,7 +65,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_forums, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
 		return rootView;
@@ -113,8 +114,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 				AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 			}
 		}
-		AnimationUtils.fadeOut(progressView);
-
+		progressView.hide();
 	}
 
 	@Override
