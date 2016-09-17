@@ -456,10 +456,18 @@
 		<item name="android:layout_marginRight">@dimen/material_margin_horizontal_card</item>
 		<item name="android:layout_marginTop">@dimen/material_margin_vertical_card</item>
 		<item name="cardElevation">2dp</item>
+		<item name="cardUseCompatPadding">true</item>
 		<item name="contentPaddingBottom">@dimen/material_margin_vertical_card_contents</item>
 		<item name="contentPaddingLeft">@dimen/material_margin_horizontal_card_contents</item>
 		<item name="contentPaddingRight">@dimen/material_margin_horizontal_card_contents</item>
 		<item name="contentPaddingTop">@dimen/material_margin_vertical_card_contents</item>
+	</style>
+
+	<style name="Card.NoPadding">
+		<item name="contentPaddingBottom">0dp</item>
+		<item name="contentPaddingLeft">0dp</item>
+		<item name="contentPaddingRight">0dp</item>
+		<item name="contentPaddingTop">0dp</item>
 	</style>
 
 	<style name="CardRow">
@@ -564,5 +572,18 @@
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 		<item name="android:gravity">center</item>
+	</style>
+
+	<style name="TextWithImage">
+		<item name="android:drawablePadding">4dp</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:maxLines">1</item>
+		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Subhead</item>
+	</style>
+
+	<style name="TextWithImage.Secondary">
+		<item name="android:drawableTint">@color/secondary_text</item>
+		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 </resources>

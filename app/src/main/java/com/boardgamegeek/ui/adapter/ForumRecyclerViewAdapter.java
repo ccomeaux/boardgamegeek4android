@@ -15,6 +15,8 @@ import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 
+import java.text.NumberFormat;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -23,6 +25,7 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 	private final String forumTitle;
 	private final int gameId;
 	private final String gameName;
+	private final NumberFormat numberFormat;
 
 	public ForumRecyclerViewAdapter(Context context, PaginatedData<Thread> data, int forumId, String forumTitle, int gameId, String gameName) {
 		super(context, R.layout.row_forum_thread, data);
@@ -30,6 +33,7 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 		this.forumTitle = forumTitle;
 		this.gameId = gameId;
 		this.gameName = gameName;
+		numberFormat = NumberFormat.getNumberInstance();
 	}
 
 	@NonNull
@@ -43,7 +47,6 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 		@BindView(R.id.author) TextView authorView;
 		@BindView(R.id.number_of_articles) TextView numberOfArticlesView;
 		@BindView(R.id.last_post_date) TimestampView lastPostDateView;
-		@BindView(R.id.post_date) TimestampView postDateView;
 
 		public ThreadViewHolder(View view) {
 			super(view);
@@ -53,12 +56,11 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 		@Override
 		protected void bind(final Thread thread) {
 			final Context context = itemView.getContext();
-			subjectView.setText(thread.subject);
-			authorView.setText(context.getString(R.string.forum_thread_author, thread.author));
+			subjectView.setText(thread.subject.trim());
+			authorView.setText(thread.author);
 			int replies = thread.numberOfArticles - 1;
-			numberOfArticlesView.setText(context.getResources().getQuantityString(R.plurals.forum_thread_replies, replies, replies));
+			numberOfArticlesView.setText(numberFormat.format(replies));
 			lastPostDateView.setTimestamp(thread.lastPostDate());
-			postDateView.setTimestamp(thread.postDate());
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

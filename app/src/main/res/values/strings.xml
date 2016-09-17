@@ -416,7 +416,6 @@
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>
-	<string name="last_edited_prefix">Last edited %s</string>
 	<string name="add">Add</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_custom_player_order">Custom</string>
@@ -452,10 +451,7 @@
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
-	<string name="forum_last_post">Last post %s</string>
 	<string name="forum_last_post_in">Last post <b>%1$s</b> in <b>%2$s</b></string>
-	<string name="forum_thread_created">Created %s</string>
-	<string name="forum_thread_author">by %s</string>
 	<string name="last_modified">Last modified</string>
 	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
@@ -555,14 +551,6 @@
 		<item quantity="one">Are you sure you want to send this play?</item>
 		<item quantity="other">Are you sure you want to send these plays?</item>
 	</plurals>
-	<plurals name="forum_threads">
-		<item quantity="one">%,d thread</item>
-		<item quantity="other">%,d threads</item>
-	</plurals>
-	<plurals name="forum_thread_replies">
-		<item quantity="one">%,d reply</item>
-		<item quantity="other">%,d replies</item>
-	</plurals>
 	<plurals name="plays_prefix">
 		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
 		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
@@ -578,10 +566,6 @@
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Logging play…</item>
 		<item quantity="other">Logging plays…</item>
-	</plurals>
-	<plurals name="edit_count">
-		<item quantity="one">%s total edit</item>
-		<item quantity="other">%s total edits</item>
 	</plurals>
 	<plurals name="colors_suffix">
 		<item quantity="one"><b>%,d</b> Color/Team</item>
@@ -622,5 +606,9 @@
 	<plurals name="wins_suffix">
 		<item quantity="one"><b>%,d</b> win</item>
 		<item quantity="other"><b>%,d</b> wins</item>
+	</plurals>
+	<plurals name="edit_timestamp">
+		<item quantity="one">%1$s (%2$s edit)</item>
+		<item quantity="other">%1$s (%2$s edits)</item>
 	</plurals>
 </resources>

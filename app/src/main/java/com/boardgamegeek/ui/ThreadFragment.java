@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -51,7 +52,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	private ShowcaseView showcaseView;
 
 	Unbinder unbinder;
-	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
@@ -164,7 +165,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 			maybeShowHelp();
 		}
-		AnimationUtils.fadeOut(progressView);
+		progressView.hide();
 	}
 
 	@DebugLog

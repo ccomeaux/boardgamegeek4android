@@ -9,7 +9,7 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/info_background_dark"
+		android:background="@color/info_background"
 		android:elevation="@dimen/material_elevation_subtle"
 		android:minHeight="@dimen/view_row_height"
 		android:orientation="vertical"
@@ -20,36 +20,33 @@
 
 		<TextView
 			android:id="@+id/username"
-			style="@style/Text.Primary.Inverse"
+			style="@style/TextWithImage"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_user_small"
 			android:ellipsize="end"
 			tools:text="ccomeaux"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/post_date"
-			style="@style/Text.Secondary.Inverse"
+			style="@style/TextWithImage.Secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:format="@string/posted_prefix"
+			android:drawableLeft="@drawable/ic_clock_small"
+			android:paddingTop="@dimen/padding_half"
 			app:isForumTimestamp="true"
-			tools:text="Posted Yesterday"/>
+			tools:text="Yesterday"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/edit_date"
-			style="@style/Text.Secondary.Inverse"
+			style="@style/TextWithImage.Secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:format="@string/last_edited_prefix"
+			android:drawableLeft="@drawable/ic_edit_small"
+			android:paddingTop="@dimen/padding_half"
 			app:isForumTimestamp="true"
-			tools:text="Edited Today"/>
+			tools:text="Today (3 edits)"/>
 
-		<TextView
-			android:id="@+id/edit_count"
-			style="@style/Text.Secondary.Inverse"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			tools:text="3 total edits"/>
 	</LinearLayout>
 
 	<FrameLayout style="@style/WebViewContainer">

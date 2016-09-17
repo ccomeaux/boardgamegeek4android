@@ -11,7 +11,6 @@
 	<color name="primary_dark">#ff232753</color>
 	<color name="accent">@color/orange</color>
 	<color name="info_background">@color/light_blue</color>
-	<color name="info_background_dark">@color/medium_blue</color>
 
 	<color name="dialog_text">#000</color>
 	<color name="secondary_text">#8a000000</color>

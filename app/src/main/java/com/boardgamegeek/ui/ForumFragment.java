@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -45,7 +46,7 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	private String gameName;
 
 	Unbinder unbinder;
-	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
@@ -153,7 +154,7 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 		} else {
 			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		}
-		AnimationUtils.fadeOut(progressView);
+		progressView.hide();
 	}
 
 	@Override
