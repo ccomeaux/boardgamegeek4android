@@ -12,7 +12,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -75,23 +74,6 @@ public class HelpUtils {
 			.hideOnTouchOutside()
 			.setStyle(R.style.BggShowcaseTheme)
 			.setContentTitle(R.string.help_title);
-	}
-
-	@DebugLog
-	public static View getListViewVisibleChild(ListView listView) {
-		if (listView == null) return null;
-
-		final int first = listView.getFirstVisiblePosition();
-		final int last = listView.getLastVisiblePosition();
-		int position = (first + last) / 2 - first;
-		if (position == 0 && (last - first) > 0) {
-			position = 1;
-		}
-		final View child = listView.getChildAt(position);
-		if (child == null) {
-			Timber.w("No child available at position " + position);
-		}
-		return child;
 	}
 
 	public static View getRecyclerViewVisibleChild(RecyclerView view) {
