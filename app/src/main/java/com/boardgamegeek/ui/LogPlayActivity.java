@@ -129,7 +129,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@BindView(R.id.coordinator) CoordinatorLayout coordinatorLayout;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(R.id.form) View formView;
 	@BindView(R.id.header) TextView headerView;
 	@BindView(R.id.thumbnail) ImageView thumbnailView;
 	@BindView(R.id.log_play_date) TextView dateButton;
@@ -292,7 +291,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 		bindUi();
 		progressView.hide();
-		formView.setVisibility(View.VISIBLE);
+		playerList.setVisibility(View.VISIBLE);
 	}
 
 	@DebugLog
