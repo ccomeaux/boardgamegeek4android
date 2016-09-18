@@ -35,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Chronometer;
@@ -168,7 +167,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private boolean isLaunchingActivity;
 	private boolean shouldSaveOnPause = true;
 
-	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
+	private final View.OnClickListener actionBarListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			onActionBarItemSelected(v.getId());
@@ -299,7 +298,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
-		ToolbarUtils.setDoneCancelActionBarView(this, mActionBarListener);
+		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 		setUiVariables();
 		queryHandler = new QueryHandler(getContentResolver());
 
@@ -454,22 +453,6 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		if (datePickerFragment != null) {
 			datePickerFragment.setOnDateSetListener(this);
 		}
-
-		playerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				int offsetPosition = position - 1; // offset by the list header
-				Player player = (Player) playAdapter.getItem(offsetPosition);
-				Intent intent = new Intent();
-				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
-				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
-				intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
-				if (!arePlayersCustomSorted) {
-					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
-				}
-				editPlayer(intent, offsetPosition);
-			}
-		});
 	}
 
 	@DebugLog
@@ -1277,6 +1260,21 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			row.setAutoSort(!arePlayersCustomSorted);
 			row.setPlayer((Player) getItem(position));
 			final int finalPosition = position;
+
+			row.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Player player = (Player) playAdapter.getItem(finalPosition);
+					Intent intent = new Intent();
+					intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
+					intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
+					intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
+					if (!arePlayersCustomSorted) {
+						intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
+					}
+					editPlayer(intent, finalPosition);
+				}
+			});
 			row.setOnDeleteListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
