@@ -469,6 +469,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private String username;
 		private int playCount;
 		private int wins;
+		private int winsWithScore;
 		private int winnableGames;
 		private int winsTimesPlayers;
 		private final Map<Integer, Integer> winsByPlayerCount = new HashMap<>();
@@ -484,6 +485,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			username = "";
 			playCount = 0;
 			wins = 0;
+			winsWithScore = 0;
 			winnableGames = 0;
 			winsTimesPlayers = 0;
 			winsByPlayerCount.clear();
@@ -505,7 +507,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				if (player.win) {
 					wins += play.quantity;
 					winsTimesPlayers += play.quantity * play.playerCount;
-
+					if (StringUtils.isNumeric(player.score)) winsWithScore += play.quantity;
 					addByPlayerCount(winsByPlayerCount, play.playerCount, play.quantity);
 				}
 			}
@@ -565,8 +567,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		public double getAverageWinScore() {
 			if (totalScoreCount == 0) return Integer.MIN_VALUE;
-			if (wins == 0) return Integer.MIN_VALUE;
-			return winningScore / wins;
+			if (winsWithScore == 0) return Integer.MIN_VALUE;
+			return winningScore / winsWithScore;
 		}
 
 		public double getHighScore() {
