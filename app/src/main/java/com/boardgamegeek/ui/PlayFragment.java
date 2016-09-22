@@ -297,7 +297,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			mSwipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					mSwipeRefreshLayout.setRefreshing(mSyncing);
+					if (mSwipeRefreshLayout != null) mSwipeRefreshLayout.setRefreshing(mSyncing);
 				}
 			});
 		}
