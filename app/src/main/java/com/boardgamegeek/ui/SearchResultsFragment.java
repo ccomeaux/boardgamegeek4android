@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -157,6 +158,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		Target viewTarget = getTarget();
 		builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
 		showcaseView = builder.build();
+		showcaseView.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(getActivity()));
 		showcaseView.show();
 	}
 

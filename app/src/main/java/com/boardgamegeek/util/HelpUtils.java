@@ -100,4 +100,15 @@ public class HelpUtils {
 		layoutParams.setMargins(margin, margin, margin, margin);
 		return layoutParams;
 	}
+
+	@DebugLog
+	@NonNull
+	public static LayoutParams getCenterLeftLayoutParams(Context context) {
+		LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		int margin = ((Number) (context.getResources().getDisplayMetrics().density * 12)).intValue();
+		layoutParams.setMargins(margin, margin, margin, margin);
+		return layoutParams;
+	}
 }
