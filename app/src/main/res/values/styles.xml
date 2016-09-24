@@ -440,6 +440,15 @@
 		<item name="android:gravity">center_vertical</item>
 	</style>
 
+	<style name="FormRow">
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:minHeight">48dp</item>
+		<item name="android:orientation">horizontal</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:layout_gravity">center_vertical</item>
+	</style>
+
 	<style name="WebViewContainer">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">match_parent</item>
@@ -560,6 +569,13 @@
 		<item name="android:clipToPadding">false</item>
 		<item name="android:paddingBottom">@dimen/padding_standard</item>
 		<item name="android:paddingTop">@dimen/padding_standard</item>
+		<item name="android:scrollbars">vertical</item>
+	</style>
+
+	<style name="RecyclerViewVerticalList.Edit">
+		<item name="android:clipToPadding">false</item>
+		<item name="android:paddingBottom">@dimen/fab_buffer</item>
+		<item name="android:paddingTop">0dp</item>
 		<item name="android:scrollbars">vertical</item>
 	</style>
 

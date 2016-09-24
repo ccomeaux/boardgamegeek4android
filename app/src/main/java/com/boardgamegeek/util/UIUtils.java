@@ -1,5 +1,6 @@
 package com.boardgamegeek.util;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,8 +10,10 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.TextView;
 
 /**
@@ -130,5 +133,12 @@ public class UIUtils {
 	public static void startTimerWithSystemTime(Chronometer timer, long time) {
 		timer.setBase(time - System.currentTimeMillis() + SystemClock.elapsedRealtime());
 		timer.start();
+	}
+
+	public static void finishingEditing(EditText editText) {
+		editText.setSelection(0, editText.getText().length());
+		editText.requestFocus();
+		((InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
+			.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
 	}
 }

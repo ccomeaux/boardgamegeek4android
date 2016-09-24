@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	style="@style/FormRow"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<android.support.v7.widget.SwitchCompat
+		android:id="@+id/log_play_no_win_stats"
+		style="@style/Text.Big"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:checked="false"
+		android:paddingLeft="@dimen/edit_label_width"
+		android:text="@string/noWinStats"/>
+</LinearLayout>

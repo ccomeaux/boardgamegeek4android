@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/FormRow"
+			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="wrap_content">
+
+	<ImageView
+		style="@style/Icon"
+		android:src="@drawable/ic_location"/>
+
+	<AutoCompleteTextView
+		android:id="@+id/log_play_location"
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:completionThreshold="1"
+		android:hint="@string/location_hint"
+		android:imeOptions="actionNext"
+		android:inputType="textCapWords"
+		android:textAppearance="@style/Text.Big"
+		android:textColor="#000"/>
+</LinearLayout>

@@ -49,6 +49,7 @@ public class PlayerRow extends LinearLayout {
 
 	public PlayerRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		LayoutInflater.from(context).inflate(R.layout.row_player, this);
 
 		ButterKnife.bind(this);
@@ -120,6 +121,10 @@ public class PlayerRow extends LinearLayout {
 
 			scoreButton.setVisibility(hasScoreListener ? View.VISIBLE : View.GONE);
 		}
+	}
+
+	public View getDragHandle() {
+		return dragHandle;
 	}
 
 	private void setText(TextView textView, String text) {
