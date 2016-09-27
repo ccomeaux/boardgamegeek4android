@@ -473,7 +473,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void bindUiPlayers() {
-		playAdapter.notifyPlayerChanged();
+		playAdapter.notifyPlayersChanged();
 		maybeShowNotification();
 	}
 
@@ -1058,9 +1058,16 @@ public class LogPlayActivity extends AppCompatActivity {
 			notifyDataSetChanged();
 		}
 
-		public void notifyPlayerChanged() {
+		public void notifyPlayersChanged() {
 			notifyLayoutChanged(R.layout.row_log_play_player_header);
 			notifyItemRangeChanged(layoutResources.size(), play.getPlayerCount());
+		}
+
+		public void notifyPlayerRemoved(int playerPosition) {
+			notifyLayoutChanged(R.layout.row_log_play_player_header);
+			final int position = layoutResources.size() + playerPosition;
+			notifyItemRemoved(position);
+			notifyItemRangeChanged(position, getItemCount() - position);
 		}
 
 		private void buildLayoutMap() {
@@ -1510,7 +1517,7 @@ public class LogPlayActivity extends AppCompatActivity {
 										Player player = playAdapter.getPlayer(finalPosition);
 										Snackbar.make(coordinatorLayout, R.string.msg_player_deleted, Snackbar.LENGTH_LONG).show();
 										play.removePlayer(player, !arePlayersCustomSorted);
-										bindUiPlayers();
+										playAdapter.notifyPlayerRemoved(position);
 									}
 								});
 							builder.create().show();
