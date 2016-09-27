@@ -104,7 +104,9 @@ public class PlayBuilder {
 		while (cursor != null && cursor.moveToNext()) {
 			play.addPlayer(playerFromCursor(cursor));
 		}
-		play.sortByStartingPositions();
+		if (play.getPlayerCount() > 9 && !play.arePlayersCustomSorted()) {
+			play.sortPlayers();
+		}
 	}
 
 	/**

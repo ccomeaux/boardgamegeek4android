@@ -336,7 +336,7 @@
 	<string name="menu_clear">Clear</string>
 	<string name="menu_add_username">Add username</string>
 	<string name="sort_description">by %s</string>
-	<string name="msg_player_deleted">Player deleted.</string>
+	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
 	<string name="msg_play_added">Logged your %s play of</string>

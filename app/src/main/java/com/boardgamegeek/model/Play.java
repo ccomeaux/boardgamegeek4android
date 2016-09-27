@@ -270,7 +270,17 @@ public class Play {
 		if (players == null) {
 			players = new ArrayList<>();
 		}
+		// if player has seat, bump down other players
+		if (!arePlayersCustomSorted() && player.getSeat() != Player.SEAT_UNKNOWN) {
+			for (int i = players.size(); i >= player.getSeat(); i--) {
+				Player p = getPlayerAtSeat(i);
+				if (p != null) {
+					p.setSeat(i + 1);
+				}
+			}
+		}
 		players.add(player);
+		sortPlayers();
 	}
 
 	public void removePlayer(Player player, boolean resort) {
@@ -367,7 +377,7 @@ public class Play {
 	/**
 	 * Sort the players by seat; unseated players left unsorted at the bottom of the list.
 	 */
-	private void sortPlayers() {
+	public void sortPlayers() {
 		int index = 0;
 		for (int i = 1; i <= getPlayerCount(); i++) {
 			Player p = getPlayerAtSeat(i);
@@ -376,14 +386,6 @@ public class Play {
 				players.add(index, p);
 				index++;
 			}
-		}
-	}
-
-	public void sortByStartingPositions() {
-		// When player count is in the double digits, numeric starting positions aren't sorted correctly
-		// TODO don't assume we should be sorting by starting positions
-		if (getPlayerCount() > 9 && !arePlayersCustomSorted()) {
-			sortPlayers();
 		}
 	}
 

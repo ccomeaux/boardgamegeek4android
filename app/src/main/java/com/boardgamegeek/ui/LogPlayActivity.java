@@ -126,6 +126,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private PlayAdapter playAdapter;
 	private AutoCompleteAdapter locationAdapter;
 	private AlertDialog.Builder addPlayersBuilder;
+	private Player lastRemovedPlayer;
 	private final List<Player> playersToAdd = new ArrayList<>();
 	private final List<String> userNames = new ArrayList<>();
 	private final List<String> names = new ArrayList<>();
@@ -1063,6 +1064,13 @@ public class LogPlayActivity extends AppCompatActivity {
 			notifyItemRangeChanged(layoutResources.size(), play.getPlayerCount());
 		}
 
+		public void notifyPlayerAdded(int playerPosition) {
+			notifyLayoutChanged(R.layout.row_log_play_player_header);
+			final int position = layoutResources.size() + playerPosition;
+			notifyItemInserted(position);
+			notifyItemRangeChanged(position + 1, getItemCount() - position);
+		}
+
 		public void notifyPlayerRemoved(int playerPosition) {
 			notifyLayoutChanged(R.layout.row_log_play_player_header);
 			final int position = layoutResources.size() + playerPosition;
@@ -1469,7 +1477,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				//no-op
 			}
 
-			public void bind(int position) {
+			public void bind(final int position) {
 				row.setAutoSort(!arePlayersCustomSorted);
 				row.setPlayer(getPlayer(position));
 				final int finalPosition = position;
@@ -1514,9 +1522,19 @@ public class LogPlayActivity extends AppCompatActivity {
 								.setNegativeButton(R.string.no, null)
 								.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog, int id) {
-										Player player = playAdapter.getPlayer(finalPosition);
-										Snackbar.make(coordinatorLayout, R.string.msg_player_deleted, Snackbar.LENGTH_LONG).show();
-										play.removePlayer(player, !arePlayersCustomSorted);
+										lastRemovedPlayer = playAdapter.getPlayer(finalPosition);
+										String message = getString(R.string.msg_player_deleted, lastRemovedPlayer.getDescription());
+										Snackbar
+											.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
+											.setAction(R.string.undo, new View.OnClickListener() {
+												@Override
+												public void onClick(View v) {
+													play.addPlayer(lastRemovedPlayer);
+													playAdapter.notifyPlayerAdded(position);
+												}
+											})
+											.show();
+										play.removePlayer(lastRemovedPlayer, !arePlayersCustomSorted);
 										playAdapter.notifyPlayerRemoved(position);
 									}
 								});
