@@ -68,7 +68,7 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void setAutoSort(boolean value) {
-		dragHandle.setVisibility(value ? View.VISIBLE : View.GONE);
+		dragHandle.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
 	}
 
 	public void setPlayer(Player player) {

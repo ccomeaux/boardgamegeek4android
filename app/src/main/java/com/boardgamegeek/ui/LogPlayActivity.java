@@ -727,31 +727,6 @@ public class LogPlayActivity extends AppCompatActivity {
 					} else if (selection.equals(r.getString(R.string.comments))) {
 						isUserShowingComments = true;
 						playAdapter.insertRow(R.layout.row_log_play_comments);
-					} else if (selection.equals(r.getString(R.string.title_colors))) {
-						if (play.hasColors()) {
-							Builder builder = new Builder(LogPlayActivity.this)
-								.setTitle(R.string.title_clear_colors)
-								.setMessage(R.string.msg_clear_colors)
-								.setCancelable(true)
-								.setNegativeButton(R.string.keep, new OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
-									}
-								})
-								.setPositiveButton(R.string.clear, new OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										for (Player player : play.getPlayers()) {
-											player.color = "";
-										}
-										TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
-									}
-								});
-							builder.show();
-						} else {
-							TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
-						}
 					} else if (selection.equals(r.getString(R.string.title_players))) {
 						if (shouldHidePlayers()) {
 							isUserShowingPlayers = true;
@@ -791,7 +766,6 @@ public class LogPlayActivity extends AppCompatActivity {
 		if (shouldHideIncomplete()) list.add(r.getString(R.string.incomplete));
 		if (shouldHideNoWinStats()) list.add(r.getString(R.string.noWinStats));
 		if (shouldHideComments()) list.add(r.getString(R.string.comments));
-		if (play.getPlayerCount() > 0) list.add(r.getString(R.string.title_colors));
 		list.add(r.getString(R.string.title_players));
 		list.add(r.getString(R.string.title_player));
 
@@ -1471,7 +1445,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		public class PlayerHeaderViewHolder extends PlayViewHolder {
-			@BindView(R.id.clear_players) View clearPlayersButton;
+			@BindView(R.id.assign_colors) View assignColorsButton;
 			@BindView(R.id.log_play_players_label) TextView playerLabelView;
 			private MenuBuilder fullPopupMenu;
 			private MenuBuilder shortPopupMenu;
@@ -1490,7 +1464,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				} else {
 					playerLabelView.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
 				}
-				clearPlayersButton.setEnabled(play != null && play.getPlayerCount() > 0);
+				assignColorsButton.setEnabled(play != null && play.getPlayerCount() > 0);
 			}
 
 			@OnClick(R.id.player_sort)
@@ -1521,17 +1495,32 @@ public class LogPlayActivity extends AppCompatActivity {
 				popup.show();
 			}
 
-			@OnClick(R.id.clear_players)
-			public void onClearPlayers() {
-				DialogUtils.createConfirmationDialog(LogPlayActivity.this,
-					R.string.are_you_sure_players_clear,
-					new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							playAdapter.notifyPlayersRemoved();
-							play.clearPlayers();
-						}
-					}).show();
+			@OnClick(R.id.assign_colors)
+			public void onAssignColors() {
+				if (play.hasColors()) {
+					Builder builder = new Builder(LogPlayActivity.this)
+						.setTitle(R.string.title_clear_colors)
+						.setMessage(R.string.msg_clear_colors)
+						.setCancelable(true)
+						.setNegativeButton(R.string.keep, new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
+							}
+						})
+						.setPositiveButton(R.string.clear, new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								for (Player player : play.getPlayers()) {
+									player.color = "";
+								}
+								TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
+							}
+						});
+					builder.show();
+				} else {
+					TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
+				}
 			}
 		}
 

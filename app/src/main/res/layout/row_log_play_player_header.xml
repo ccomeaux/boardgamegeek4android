@@ -7,10 +7,10 @@
 	android:gravity="center_vertical">
 
 	<ImageView
-		android:id="@+id/player_sort"
+		android:id="@+id/assign_colors"
 		style="@style/Icon"
 		android:background="?attr/selectableItemBackgroundBorderless"
-		android:src="@drawable/ic_sort"/>
+		android:src="@drawable/ic_colors"/>
 
 	<TextView
 		android:id="@+id/log_play_players_label"
@@ -22,10 +22,8 @@
 		android:textSize="16sp"/>
 
 	<ImageView
-		android:id="@+id/clear_players"
-		android:layout_width="@dimen/image_button_size"
-		android:layout_height="@dimen/image_button_size"
+		android:id="@+id/player_sort"
+		style="@style/Icon.Right"
 		android:background="?attr/selectableItemBackgroundBorderless"
-		android:scaleType="center"
-		android:src="@drawable/ic_clear"/>
+		android:src="@drawable/ic_sort"/>
 </LinearLayout>

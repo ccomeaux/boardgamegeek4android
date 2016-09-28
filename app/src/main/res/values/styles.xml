@@ -509,6 +509,11 @@
 		<item name="android:scaleType">centerInside</item>
 	</style>
 
+	<style name="Icon.Right">
+		<item name="android:layout_marginLeft">0dp</item>
+		<item name="android:layout_marginRight">0dp</item>
+	</style>
+
 	<style name="NumPad">
 		<item name="android:minWidth">@dimen/pad_button_size</item>
 		<item name="android:layout_width">0dp</item>
