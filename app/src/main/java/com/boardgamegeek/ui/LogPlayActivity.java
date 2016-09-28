@@ -319,7 +319,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
 					super.clearView(recyclerView, viewHolder);
 					viewHolder.itemView.setBackgroundColor(0);
-					bindUiPlayers();
+					playAdapter.notifyPlayersChanged();
 				}
 
 				@Override
@@ -445,11 +445,11 @@ public class LogPlayActivity extends AppCompatActivity {
 				addNewPlayer();
 			} else {
 				play.replacePlayer(player, requestCode);
-				bindUiPlayers();
+				playAdapter.notifyPlayerChanged(requestCode);
 				recyclerView.smoothScrollToPosition(requestCode);
 			}
 		} else if (resultCode == RESULT_CANCELED) {
-			bindUiPlayers();
+			playAdapter.notifyPlayersChanged();
 			recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
 		}
 	}
@@ -459,7 +459,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	public void onEvent(ColorAssignmentCompleteEvent event) {
 		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
-			bindUiPlayers();
+			playAdapter.notifyPlayersChanged();
 		}
 		if (event.getMessageId() != 0) {
 			Snackbar.make(coordinatorLayout, event.getMessageId(), Snackbar.LENGTH_LONG).show();
@@ -470,12 +470,6 @@ public class LogPlayActivity extends AppCompatActivity {
 	private void setUpShowcaseViewWizard() {
 		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION);
 		showcaseWizard.addTarget(R.string.help_logplay, Target.NONE);
-	}
-
-	@DebugLog
-	private void bindUiPlayers() {
-		playAdapter.notifyPlayersChanged();
-		maybeShowNotification();
 	}
 
 	@DebugLog
@@ -713,7 +707,7 @@ public class LogPlayActivity extends AppCompatActivity {
 								player.setSeat(play.getPlayerCount() + 1);
 							}
 							play.addPlayer(player);
-							bindUiPlayers();
+							playAdapter.notifyPlayerAdded(playAdapter.getItemCount());
 							recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
 						}
 					}
@@ -831,7 +825,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				if (!arePlayersCustomSorted) {
 					play.pickStartPlayer(0);
 				}
-				bindUiPlayers();
+				playAdapter.notifyPlayersChanged();
 				if (which == DialogInterface.BUTTON_NEUTRAL) {
 					addNewPlayer();
 				}
@@ -857,33 +851,33 @@ public class LogPlayActivity extends AppCompatActivity {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
 											play.pickStartPlayer(0);
-											arePlayersCustomSorted = !arePlayersCustomSorted;
-											bindUiPlayers();
+											arePlayersCustomSorted = false;
+											playAdapter.notifyPlayersChanged();
 										}
 									});
 								dialog.show();
 							} else {
 								play.pickStartPlayer(0);
-								arePlayersCustomSorted = !arePlayersCustomSorted;
-								bindUiPlayers();
+								arePlayersCustomSorted = false;
+								playAdapter.notifyPlayersChanged();
 							}
 						} else {
 							if (play.hasStartingPositions()) {
-								AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this)
+								AlertDialog.Builder builder = new Builder(LogPlayActivity.this)
 									.setCancelable(true).setTitle(R.string.title_custom_player_order)
 									.setMessage(R.string.message_custom_player_order)
-									.setNegativeButton(R.string.keep, new DialogInterface.OnClickListener() {
+									.setNegativeButton(R.string.keep, new OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
-											arePlayersCustomSorted = !arePlayersCustomSorted;
-											bindUiPlayers();
+											arePlayersCustomSorted = true;
+											playAdapter.notifyPlayersChanged();
 										}
 									}).setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
-											arePlayersCustomSorted = !arePlayersCustomSorted;
+											arePlayersCustomSorted = true;
 											play.clearPlayerPositions();
-											bindUiPlayers();
+											playAdapter.notifyPlayersChanged();
 										}
 									});
 								builder = DialogUtils.addAlertIcon(builder);
@@ -897,13 +891,13 @@ public class LogPlayActivity extends AppCompatActivity {
 					case R.id.menu_random_start_player:
 						int newSeat = new Random().nextInt(play.getPlayerCount());
 						play.pickStartPlayer(newSeat);
+						playAdapter.notifyPlayersChanged();
 						notifyStartPlayer();
-						bindUiPlayers();
 						return true;
 					case R.id.menu_random_player_order:
 						play.randomizePlayerOrder();
+						playAdapter.notifyPlayersChanged();
 						notifyStartPlayer();
-						bindUiPlayers();
 						return true;
 				}
 				return false;
@@ -920,7 +914,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				public void onClick(DialogInterface dialog, int which) {
 					play.pickStartPlayer(which);
 					notifyStartPlayer();
-					bindUiPlayers();
+					playAdapter.notifyPlayersChanged();
 				}
 			}).show();
 	}
@@ -1059,9 +1053,20 @@ public class LogPlayActivity extends AppCompatActivity {
 			notifyDataSetChanged();
 		}
 
+		public void notifyPlayersRemoved() {
+			notifyLayoutChanged(R.layout.row_log_play_player_header);
+			notifyItemRangeRemoved(layoutResources.size(), play.getPlayerCount());
+			maybeShowNotification();
+		}
+
 		public void notifyPlayersChanged() {
 			notifyLayoutChanged(R.layout.row_log_play_player_header);
 			notifyItemRangeChanged(layoutResources.size(), play.getPlayerCount());
+			maybeShowNotification();
+		}
+
+		public void notifyPlayerChanged(int playerPosition) {
+			notifyItemChanged(layoutResources.size() + playerPosition);
 		}
 
 		public void notifyPlayerAdded(int playerPosition) {
@@ -1069,6 +1074,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			final int position = layoutResources.size() + playerPosition;
 			notifyItemInserted(position);
 			notifyItemRangeChanged(position + 1, getItemCount() - position);
+			maybeShowNotification();
 		}
 
 		public void notifyPlayerRemoved(int playerPosition) {
@@ -1076,6 +1082,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			final int position = layoutResources.size() + playerPosition;
 			notifyItemRemoved(position);
 			notifyItemRangeChanged(position, getItemCount() - position);
+			maybeShowNotification();
 		}
 
 		private void buildLayoutMap() {
@@ -1454,11 +1461,11 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void onClearPlayers() {
 				DialogUtils.createConfirmationDialog(LogPlayActivity.this,
 					R.string.are_you_sure_players_clear,
-					new DialogInterface.OnClickListener() {
+					new OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
+							playAdapter.notifyPlayersRemoved();
 							play.clearPlayers();
-							bindUiPlayers();
 						}
 					}).show();
 			}
@@ -1523,7 +1530,11 @@ public class LogPlayActivity extends AppCompatActivity {
 								.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog, int id) {
 										lastRemovedPlayer = playAdapter.getPlayer(finalPosition);
-										String message = getString(R.string.msg_player_deleted, lastRemovedPlayer.getDescription());
+										String description = lastRemovedPlayer.getDescription();
+										if (TextUtils.isEmpty(description)) {
+											description = getString(R.string.title_player);
+										}
+										String message = getString(R.string.msg_player_deleted, description);
 										Snackbar
 											.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
 											.setAction(R.string.undo, new View.OnClickListener() {
@@ -1558,7 +1569,7 @@ public class LogPlayActivity extends AppCompatActivity {
 										double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
 										p.Win(score == highScore);
 									}
-									bindUiPlayers();
+									playAdapter.notifyPlayerChanged(finalPosition);
 								}
 							});
 							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
