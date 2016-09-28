@@ -34,12 +34,11 @@ public class PlayerRow extends LinearLayout {
 	@BindView(R.id.score) TextView scoreView;
 	@BindView(R.id.starting_position) TextView startingPositionView;
 	@BindView(R.id.rating) TextView ratingView;
-	@BindView(R.id.log_player_delete) ImageView deleteButton;
 	@BindView(R.id.score_button) ImageView scoreButton;
 
-	private Typeface nameTypeface;
-	private Typeface usernameTypeface;
-	private Typeface scoreTypeface;
+	private final Typeface nameTypeface;
+	private final Typeface usernameTypeface;
+	private final Typeface scoreTypeface;
 
 	private boolean hasScoreListener;
 
@@ -59,12 +58,6 @@ public class PlayerRow extends LinearLayout {
 		scoreTypeface = scoreView.getTypeface();
 
 		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
-	}
-
-	public void setOnDeleteListener(OnClickListener l) {
-		deleteButton.setVisibility(View.VISIBLE);
-		deleteButton.setFocusable(false); // necessary to allow the row to receive click events
-		deleteButton.setOnClickListener(l);
 	}
 
 	public void setOnScoreListener(OnClickListener l) {

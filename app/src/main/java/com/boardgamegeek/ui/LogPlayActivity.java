@@ -13,6 +13,12 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
@@ -90,6 +96,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
@@ -137,6 +144,9 @@ public class LogPlayActivity extends AppCompatActivity {
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 	private ShowcaseViewWizard showcaseWizard;
 	@ColorInt private int fabColor;
+	private final Paint swipePaint = new Paint();
+	private Bitmap deleteIcon;
+	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
 	private ItemTouchHelper itemTouchHelper;
 
 	@State boolean isUserShowingLocation;
@@ -293,8 +303,66 @@ public class LogPlayActivity extends AppCompatActivity {
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		recyclerView.setHasFixedSize(true);
 
+		swipePaint.setColor(ContextCompat.getColor(this, R.color.medium_blue));
+		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
 		itemTouchHelper = new ItemTouchHelper(
-			new SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+			new SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+				@Override
+				public void onChildDraw(Canvas c, RecyclerView recyclerView, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+					if (!(viewHolder instanceof PlayAdapter.PlayerViewHolder)) return;
+					if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+						View itemView = viewHolder.itemView;
+
+						// fade and slide item
+						float width = (float) itemView.getWidth();
+						float alpha = 1.0f - Math.abs(dX) / width;
+						itemView.setAlpha(alpha);
+						itemView.setTranslationX(dX);
+
+						// show background with delete icon
+						float verticalPadding = (itemView.getHeight() - deleteIcon.getHeight()) / 2;
+						RectF background;
+						Rect iconSrc;
+						RectF iconDst;
+
+						if (dX > 0) {
+							background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+							iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getHeight());
+							iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+						} else {
+							background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
+							iconSrc = new Rect(Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, deleteIcon.getWidth(), deleteIcon.getHeight());
+							iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+						}
+						c.drawRect(background, swipePaint);
+						c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint);
+					}
+					super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+				}
+
+				@Override
+				public void onSwiped(ViewHolder viewHolder, int swipeDir) {
+					final int position = playAdapter.getPlayerPosition(viewHolder.getAdapterPosition());
+					lastRemovedPlayer = playAdapter.getPlayer(position);
+					String description = lastRemovedPlayer.getDescription();
+					if (TextUtils.isEmpty(description)) {
+						description = getString(R.string.title_player);
+					}
+					String message = getString(R.string.msg_player_deleted, description);
+					Snackbar
+						.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
+						.setAction(R.string.undo, new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								play.addPlayer(lastRemovedPlayer);
+								playAdapter.notifyPlayerAdded(position);
+							}
+						})
+						.show();
+					play.removePlayer(lastRemovedPlayer, !arePlayersCustomSorted);
+					playAdapter.notifyPlayerRemoved(position);
+				}
+
 				@Override
 				public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
 					if (play == null || playAdapter == null) return false;
@@ -326,19 +394,14 @@ public class LogPlayActivity extends AppCompatActivity {
 				public void onSelectedChanged(ViewHolder viewHolder, int actionState) {
 					// We only want the active item to change
 					if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-						viewHolder.itemView.setBackgroundColor(getColor(R.color.light_blue_transparent));
+						viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(LogPlayActivity.this, R.color.light_blue_transparent));
 					}
 					super.onSelectedChanged(viewHolder, actionState);
 				}
 
 				@Override
-				public void onSwiped(ViewHolder viewHolder, int direction) {
-					// no-op
-				}
-
-				@Override
 				public int getMovementFlags(RecyclerView recyclerView, ViewHolder viewHolder) {
-					if (arePlayersCustomSorted) return 0;
+					if (arePlayersCustomSorted) return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
 					return super.getMovementFlags(recyclerView, viewHolder);
 				}
 
@@ -454,6 +517,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ColorAssignmentCompleteEvent event) {
@@ -1487,7 +1551,6 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void bind(final int position) {
 				row.setAutoSort(!arePlayersCustomSorted);
 				row.setPlayer(getPlayer(position));
-				final int finalPosition = position;
 
 				row.getDragHandle().setOnTouchListener(
 					new OnTouchListener() {
@@ -1504,7 +1567,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							Player player = playAdapter.getPlayer(finalPosition);
+							Player player = playAdapter.getPlayer(position);
 							Intent intent = new Intent();
 							intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
 							intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
@@ -1512,44 +1575,7 @@ public class LogPlayActivity extends AppCompatActivity {
 							if (!arePlayersCustomSorted) {
 								intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 							}
-							editPlayer(intent, finalPosition);
-						}
-					}
-
-				);
-				row.setOnDeleteListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);
-							builder
-								.setTitle(R.string.are_you_sure_title)
-								.setMessage(R.string.are_you_sure_delete_player)
-								.setCancelable(false)
-								.setNegativeButton(R.string.no, null)
-								.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										lastRemovedPlayer = playAdapter.getPlayer(finalPosition);
-										String description = lastRemovedPlayer.getDescription();
-										if (TextUtils.isEmpty(description)) {
-											description = getString(R.string.title_player);
-										}
-										String message = getString(R.string.msg_player_deleted, description);
-										Snackbar
-											.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
-											.setAction(R.string.undo, new View.OnClickListener() {
-												@Override
-												public void onClick(View v) {
-													play.addPlayer(lastRemovedPlayer);
-													playAdapter.notifyPlayerAdded(position);
-												}
-											})
-											.show();
-										play.removePlayer(lastRemovedPlayer, !arePlayersCustomSorted);
-										playAdapter.notifyPlayerRemoved(position);
-									}
-								});
-							builder.create().show();
+							editPlayer(intent, position);
 						}
 					}
 
@@ -1558,7 +1584,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							final Player player = play.getPlayers().get(finalPosition);
+							final Player player = play.getPlayers().get(position);
 							final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.score, player.color);
 							fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
 								@Override
@@ -1569,7 +1595,7 @@ public class LogPlayActivity extends AppCompatActivity {
 										double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
 										p.Win(score == highScore);
 									}
-									playAdapter.notifyPlayerChanged(finalPosition);
+									playAdapter.notifyPlayerChanged(position);
 								}
 							});
 							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");

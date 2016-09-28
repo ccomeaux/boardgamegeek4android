@@ -10,7 +10,8 @@
 			  android:paddingBottom="@dimen/padding_standard"
 			  android:paddingLeft="@dimen/material_margin_horizontal"
 			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/padding_standard">
+			  android:paddingTop="@dimen/padding_standard"
+			  android:baselineAligned="false">
 
 	<FrameLayout
 		android:layout_width="@dimen/edit_label_width"
@@ -117,19 +118,4 @@
 				tools:text="7.5"/>
 		</LinearLayout>
 	</FrameLayout>
-
-	<ImageView
-		android:id="@+id/log_player_delete"
-		android:layout_marginLeft="@dimen/padding_extra"
-		android:layout_width="@dimen/image_button_size"
-		android:layout_height="@dimen/image_button_size"
-		android:layout_gravity="center"
-		android:background="?attr/selectableItemBackgroundBorderless"
-		android:contentDescription="@string/delete"
-		android:focusable="false"
-		android:scaleType="center"
-		android:src="@drawable/ic_action_delete_light"
-		android:visibility="gone"
-		tools:visibility="visible"/>
-
 </LinearLayout>
