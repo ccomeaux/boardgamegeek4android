@@ -65,15 +65,19 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.GameColors;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
+import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -114,6 +118,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_ID = 1 << 2;
+	private static final int TOKEN_COLORS = 1 << 3;
 	private static final int TOKEN_UNINITIALIZED = 1 << 31;
 	private static final String[] ID_PROJECTION = { "MAX(plays." + Plays.PLAY_ID + ")" };
 
@@ -137,6 +142,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private final List<Player> playersToAdd = new ArrayList<>();
 	private final List<String> userNames = new ArrayList<>();
 	private final List<String> names = new ArrayList<>();
+	private final ArrayList<String> gameColors = new ArrayList<>();
 
 	@BindView(R.id.coordinator) CoordinatorLayout coordinatorLayout;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
@@ -239,6 +245,23 @@ public class LogPlayActivity extends AppCompatActivity {
 						cursor.close();
 					}
 					playId = id;
+					setModelIfDone(token);
+					break;
+				case TOKEN_COLORS:
+					if (cursor.getCount() == 0) {
+						cursor.close();
+					} else {
+						try {
+							if (cursor.moveToFirst()) {
+								gameColors.clear();
+								do {
+									gameColors.add(cursor.getString(0));
+								} while (cursor.moveToNext());
+							}
+						} finally {
+							cursor.close();
+						}
+					}
 					setModelIfDone(token);
 					break;
 				default:
@@ -577,10 +600,11 @@ public class LogPlayActivity extends AppCompatActivity {
 			// we already have the play from the saved instance
 			finishDataLoad();
 		} else {
+			outstandingQueries = TOKEN_COLORS;
 			if (playId > 0) {
 				// Editing or copying an existing play, so retrieve it
 				shouldDeletePlayOnActivityCancel = false;
-				outstandingQueries = TOKEN_PLAY | TOKEN_PLAYERS;
+				outstandingQueries |= TOKEN_PLAY | TOKEN_PLAYERS;
 				if (isRequestingRematch) {
 					shouldDeletePlayOnActivityCancel = true;
 					outstandingQueries |= TOKEN_ID;
@@ -590,9 +614,10 @@ public class LogPlayActivity extends AppCompatActivity {
 				// Starting a new play
 				shouldDeletePlayOnActivityCancel = true;
 				arePlayersCustomSorted = getIntent().getBooleanExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, false);
-				outstandingQueries = TOKEN_ID;
+				outstandingQueries |= TOKEN_ID;
 				queryHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
 			}
+			queryHandler.startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId), new String[] { GameColors.COLOR }, null, null, null);
 		}
 	}
 
@@ -1543,7 +1568,26 @@ public class LogPlayActivity extends AppCompatActivity {
 							return false;
 						}
 					});
-
+				row.setOnColorListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						final Player player = play.getPlayers().get(position);
+						final ArrayList<String> usedColors = new ArrayList<>();
+						for (Player p : play.getPlayers()) {
+							if (p != player) usedColors.add(p.color);
+						}
+						ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
+							ColorUtils.getColorList(), gameColors, player.color, usedColors, null, 4); // TODO: 9/28/16 Used colors
+						fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
+							@Override
+							public void onColorSelected(String description, int color) {
+								player.color = description;
+								playAdapter.notifyPlayerChanged(position);
+							}
+						});
+						fragment.show(getSupportFragmentManager(), "color_picker");
+					}
+				});
 				row.setOnClickListener(
 					new View.OnClickListener() {
 						@Override
@@ -1559,7 +1603,6 @@ public class LogPlayActivity extends AppCompatActivity {
 							editPlayer(intent, position);
 						}
 					}
-
 				);
 				row.setOnScoreListener(
 					new View.OnClickListener() {
@@ -1582,7 +1625,6 @@ public class LogPlayActivity extends AppCompatActivity {
 							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
 						}
 					}
-
 				);
 			}
 		}

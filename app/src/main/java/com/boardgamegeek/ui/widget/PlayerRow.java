@@ -63,8 +63,13 @@ public class PlayerRow extends LinearLayout {
 	public void setOnScoreListener(OnClickListener l) {
 		hasScoreListener = true;
 		scoreButton.setVisibility(View.VISIBLE);
-		scoreButton.setFocusable(false); // necessary to allow the row to receive click events
+		scoreButton.setFocusable(false);
 		scoreButton.setOnClickListener(l);
+	}
+
+	public void setOnColorListener(OnClickListener l) {
+		colorView.setFocusable(false);
+		colorView.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {
