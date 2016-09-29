@@ -598,25 +598,23 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean onActionBarItemSelected(int itemId) {
-		if (outstandingQueries == 0) {
-			switch (itemId) {
-				case R.id.menu_done:
-					if (play == null) {
-						cancel();
+		switch (itemId) {
+			case R.id.menu_done:
+				if (play != null && outstandingQueries == 0) {
+					if (play.hasStarted()) {
+						saveDraft(true);
+						setResult(Activity.RESULT_OK);
+						finish();
 					} else {
-						if (play.hasStarted()) {
-							saveDraft(true);
-							setResult(Activity.RESULT_OK);
-							finish();
-						} else {
-							logPlay();
-						}
+						logPlay();
 					}
-					return true;
-				case R.id.menu_cancel:
+				} else {
 					cancel();
-					return true;
-			}
+				}
+				return true;
+			case R.id.menu_cancel:
+				cancel();
+				return true;
 		}
 		return false;
 	}
@@ -1089,12 +1087,6 @@ public class LogPlayActivity extends AppCompatActivity {
 		public void refresh() {
 			buildLayoutMap();
 			notifyDataSetChanged();
-		}
-
-		public void notifyPlayersRemoved() {
-			notifyLayoutChanged(R.layout.row_log_play_player_header);
-			notifyItemRangeRemoved(layoutResources.size(), play.getPlayerCount());
-			maybeShowNotification();
 		}
 
 		public void notifyPlayersChanged() {
