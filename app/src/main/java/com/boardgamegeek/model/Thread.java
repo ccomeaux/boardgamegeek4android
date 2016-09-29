@@ -1,12 +1,12 @@
 package com.boardgamegeek.model;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import com.boardgamegeek.util.DateTimeUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
-import com.boardgamegeek.util.DateTimeUtils;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 @Root(name = "thread")
 public class Thread {
@@ -24,7 +24,7 @@ public class Thread {
 	@Attribute
 	public String author;
 
-	@Attribute(name = "numarticles")
+	@Attribute(name = "numarticles", required = false)
 	public int numberOfArticles;
 
 	@Attribute
