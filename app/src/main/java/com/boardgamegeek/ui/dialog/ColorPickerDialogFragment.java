@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
@@ -112,17 +113,14 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		this.selectedColor = selectedColor;
 		this.disabledColors = disabledColors;
 		this.hiddenColors = hiddenColors;
-		if (titleResId > 0) {
-			this.titleResId = titleResId;
-		}
+		if (titleResId > 0) this.titleResId = titleResId;
 		setArguments(this.titleResId, numberOfColumns);
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (colorChoices.size() > 0)
-			tryBindLists();
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (colorChoices.size() > 0) tryBindLists();
 	}
 
 	@Override
@@ -141,7 +139,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	@NonNull
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-		View rootView = layoutInflater.inflate(R.layout.dialog_colors, null); // TODO provide root
+		@SuppressLint("InflateParams") View rootView = layoutInflater.inflate(R.layout.dialog_colors, null);
 
 		if (getArguments() != null) {
 			titleResId = getArguments().getInt(KEY_TITLE_ID);
@@ -227,21 +225,21 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	}
 
 	private class ColorGridAdapter extends BaseAdapter {
-		private List<Pair<String, Integer>> mChoices = new ArrayList<>();
-		private String mSelectedColor;
+		private List<Pair<String, Integer>> choices = new ArrayList<>();
+		private String selectedColor;
 
 		private ColorGridAdapter(List<Pair<String, Integer>> choices) {
-			mChoices = choices;
+			this.choices = choices;
 		}
 
 		@Override
 		public int getCount() {
-			return mChoices.size();
+			return choices.size();
 		}
 
 		@Override
 		public Pair<String, Integer> getItem(int position) {
-			return mChoices.get(position);
+			return choices.get(position);
 		}
 
 		@Override
@@ -259,8 +257,8 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			((TextView) convertView.findViewById(R.id.color_description)).setText(color.first);
 			ColorUtils.setColorViewValue(convertView.findViewById(R.id.color_view), color.second);
 			View frame = convertView.findViewById(R.id.color_frame);
-			if (color.first.equals(mSelectedColor)) {
-				frame.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.primary));
+			if (color.first.equals(selectedColor)) {
+				frame.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue));
 			} else if (disabledColors != null && disabledColors.contains(color.first)) {
 				frame.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.disabled));
 			}
@@ -269,9 +267,9 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		}
 
 		public void setSelectedColor(String selectedColor) {
-			if (mSelectedColor == null ||
-				!mSelectedColor.equals(selectedColor)) {
-				mSelectedColor = selectedColor;
+			if (this.selectedColor == null ||
+				!this.selectedColor.equals(selectedColor)) {
+				this.selectedColor = selectedColor;
 				notifyDataSetChanged();
 			}
 		}

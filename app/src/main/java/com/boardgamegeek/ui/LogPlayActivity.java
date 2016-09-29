@@ -1577,7 +1577,7 @@ public class LogPlayActivity extends AppCompatActivity {
 							if (p != player) usedColors.add(p.color);
 						}
 						ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-							ColorUtils.getColorList(), gameColors, player.color, usedColors, null, 4); // TODO: 9/28/16 Used colors
+							ColorUtils.getColorList(), gameColors, player.color, usedColors, null, 4);
 						fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 							@Override
 							public void onColorSelected(String description, int color) {
