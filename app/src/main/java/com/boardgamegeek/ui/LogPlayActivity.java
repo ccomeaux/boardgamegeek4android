@@ -751,29 +751,9 @@ public class LogPlayActivity extends AppCompatActivity {
 						isUserShowingComments = true;
 						playAdapter.insertRow(R.layout.row_log_play_comments);
 					} else if (selection.equals(r.getString(R.string.title_players))) {
-						if (shouldHidePlayers()) {
-							isUserShowingPlayers = true;
-						}
-						if (!showPlayersToAddDialog()) {
-							addNewPlayer();
-						}
-					} else if (selection.equals(r.getString(R.string.title_player))) {
-						if (shouldHidePlayers()) {
-							isUserShowingPlayers = true;
-						}
-						if (PreferencesUtils.editPlayer(LogPlayActivity.this)) {
-							addNewPlayer();
-						} else {
-							Player player = new Player();
-							if (!arePlayersCustomSorted) {
-								player.setSeat(play.getPlayerCount() + 1);
-							}
-							play.addPlayer(player);
-							playAdapter.notifyPlayerAdded(playAdapter.getItemCount());
-							recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
-						}
+						isUserShowingPlayers = true;
+						playAdapter.insertRow(R.layout.row_log_play_add_player);
 					}
-					playAdapter.refresh();
 					supportInvalidateOptionsMenu();
 				}
 			}).show();
@@ -789,8 +769,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		if (shouldHideIncomplete()) list.add(r.getString(R.string.incomplete));
 		if (shouldHideNoWinStats()) list.add(r.getString(R.string.noWinStats));
 		if (shouldHideComments()) list.add(r.getString(R.string.comments));
-		list.add(r.getString(R.string.title_players));
-		list.add(r.getString(R.string.title_player));
+		if (shouldHidePlayers()) list.add(r.getString(R.string.title_players));
 
 		CharSequence[] array = {};
 		array = list.toArray(array);
@@ -1042,7 +1021,8 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	public class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.PlayViewHolder> {
 		private final LayoutInflater inflater;
-		private final List<Integer> layoutResources = new ArrayList<>();
+		private final List<Integer> headerResources = new ArrayList<>();
+		private final List<Integer> footerResources = new ArrayList<>();
 
 		public PlayAdapter(Context context) {
 			setHasStableIds(false);
@@ -1052,13 +1032,15 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		@Override
 		public int getItemCount() {
-			return play == null ? 1 : layoutResources.size() + play.getPlayerCount();
+			return play == null ? 1 : headerResources.size() + play.getPlayerCount() + footerResources.size();
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			if (position < layoutResources.size()) {
-				return layoutResources.get(position);
+			if (position < headerResources.size()) {
+				return headerResources.get(position);
+			} else if (position >= headerResources.size() + play.getPlayerCount()) {
+				return footerResources.get(position - headerResources.size() - play.getPlayerCount());
 			}
 			return R.layout.row_player;
 		}
@@ -1086,6 +1068,8 @@ public class LogPlayActivity extends AppCompatActivity {
 					return new PlayerHeaderViewHolder(parent);
 				case R.layout.row_player:
 					return new PlayerViewHolder();
+				case R.layout.row_log_play_add_player:
+					return new AddPlayerViewHolder(parent);
 			}
 			return null;
 		}
@@ -1093,14 +1077,14 @@ public class LogPlayActivity extends AppCompatActivity {
 		@Override
 		public void onBindViewHolder(PlayViewHolder holder, int position) {
 			if (holder.getItemViewType() == R.layout.row_player) {
-				((PlayerViewHolder) holder).bind(position - layoutResources.size());
+				((PlayerViewHolder) holder).bind(position - headerResources.size());
 			} else {
 				holder.bind();
 			}
 		}
 
 		public int getPlayerPosition(int adapterPosition) {
-			return adapterPosition - layoutResources.size();
+			return adapterPosition - headerResources.size();
 		}
 
 		public Player getPlayer(int position) {
@@ -1116,17 +1100,17 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		public void notifyPlayersChanged() {
 			notifyLayoutChanged(R.layout.row_log_play_player_header);
-			notifyItemRangeChanged(layoutResources.size(), play.getPlayerCount());
+			notifyItemRangeChanged(headerResources.size(), play.getPlayerCount());
 			maybeShowNotification();
 		}
 
 		public void notifyPlayerChanged(int playerPosition) {
-			notifyItemChanged(layoutResources.size() + playerPosition);
+			notifyItemChanged(headerResources.size() + playerPosition);
 		}
 
 		public void notifyPlayerAdded(int playerPosition) {
 			notifyLayoutChanged(R.layout.row_log_play_player_header);
-			final int position = layoutResources.size() + playerPosition;
+			final int position = headerResources.size() + playerPosition;
 			notifyItemInserted(position);
 			notifyItemRangeChanged(position + 1, getItemCount() - position);
 			maybeShowNotification();
@@ -1134,23 +1118,26 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		public void notifyPlayerRemoved(int playerPosition) {
 			notifyLayoutChanged(R.layout.row_log_play_player_header);
-			final int position = layoutResources.size() + playerPosition;
+			final int position = headerResources.size() + playerPosition;
 			notifyItemRemoved(position);
-			notifyItemRangeChanged(position, getItemCount() - position);
+			notifyItemRangeChanged(position, play.getPlayerCount() - playerPosition);
 			maybeShowNotification();
 		}
 
 		private void buildLayoutMap() {
-			layoutResources.clear();
-			layoutResources.add(R.layout.row_log_play_header);
-			layoutResources.add(R.layout.row_log_play_date);
-			if (!shouldHideLocation()) layoutResources.add(R.layout.row_log_play_location);
-			if (!shouldHideLength()) layoutResources.add(R.layout.row_log_play_length);
-			if (!shouldHideQuantity()) layoutResources.add(R.layout.row_log_play_quantity);
-			if (!shouldHideIncomplete()) layoutResources.add(R.layout.row_log_play_incomplete);
-			if (!shouldHideNoWinStats()) layoutResources.add(R.layout.row_log_play_no_win_stats);
-			if (!shouldHideComments()) layoutResources.add(R.layout.row_log_play_comments);
-			if (!shouldHidePlayers()) layoutResources.add(R.layout.row_log_play_player_header);
+			headerResources.clear();
+			headerResources.add(R.layout.row_log_play_header);
+			headerResources.add(R.layout.row_log_play_date);
+			if (!shouldHideLocation()) headerResources.add(R.layout.row_log_play_location);
+			if (!shouldHideLength()) headerResources.add(R.layout.row_log_play_length);
+			if (!shouldHideQuantity()) headerResources.add(R.layout.row_log_play_quantity);
+			if (!shouldHideIncomplete()) headerResources.add(R.layout.row_log_play_incomplete);
+			if (!shouldHideNoWinStats()) headerResources.add(R.layout.row_log_play_no_win_stats);
+			if (!shouldHideComments()) headerResources.add(R.layout.row_log_play_comments);
+			if (!shouldHidePlayers()) headerResources.add(R.layout.row_log_play_player_header);
+
+			footerResources.clear();
+			if (!shouldHidePlayers()) footerResources.add(R.layout.row_log_play_add_player);
 		}
 
 		public void insertRow(@LayoutRes int layoutResId) {
@@ -1163,12 +1150,17 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		private int findPositionOfNewItemType(@LayoutRes int layoutResId) {
-			if (!layoutResources.contains(layoutResId)) {
+			if (!headerResources.contains(layoutResId) || footerResources.contains(layoutResId)) {
 				// call this because we know the field was just shown - this is confusing and needs to be refactored
 				buildLayoutMap();
-				for (int i = 0; i < layoutResources.size(); i++) {
-					if (layoutResources.get(i) == layoutResId) {
+				for (int i = 0; i < headerResources.size(); i++) {
+					if (headerResources.get(i) == layoutResId) {
 						return i;
+					}
+				}
+				for (int i = 0; i < footerResources.size(); i++) {
+					if (footerResources.get(i) == layoutResId) {
+						return headerResources.size() + play.getPlayerCount() + i;
 					}
 				}
 			}
@@ -1177,9 +1169,16 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		private void notifyLayoutChanged(@LayoutRes int layoutResId) {
-			for (int i = 0; i < layoutResources.size(); i++) {
-				if (layoutResources.get(i) == layoutResId) {
+			for (int i = 0; i < headerResources.size(); i++) {
+				if (headerResources.get(i) == layoutResId) {
 					notifyItemChanged(i);
+					return;
+				}
+			}
+			for (int i = 0; i < footerResources.size(); i++) {
+				if (footerResources.get(i) == layoutResId) {
+					notifyItemChanged(headerResources.size() + play.getPlayerCount() + i);
+					return;
 				}
 			}
 		}
@@ -1457,6 +1456,35 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void onCommentsFocusChange(EditText v, boolean hasFocus) {
 				if (canEdit && !hasFocus) {
 					play.comments = v.getText().toString().trim();
+				}
+			}
+		}
+
+		public class AddPlayerViewHolder extends PlayViewHolder {
+			public AddPlayerViewHolder(ViewGroup parent) {
+				super(inflater.inflate(R.layout.row_log_play_add_player, parent, false));
+				ButterKnife.bind(this, itemView);
+			}
+
+			@Override
+			public void bind() {
+				// no-op
+			}
+
+			@OnClick(R.id.add_players_button)
+			public void onAddPlayerClicked() {
+				if (PreferencesUtils.editPlayer(LogPlayActivity.this)) {
+					if (!showPlayersToAddDialog()) {
+						addNewPlayer();
+					}
+				} else {
+					Player player = new Player();
+					if (!arePlayersCustomSorted) {
+						player.setSeat(play.getPlayerCount() + 1);
+					}
+					play.addPlayer(player);
+					playAdapter.notifyPlayerAdded(play.getPlayerCount());
+					recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
 				}
 			}
 		}

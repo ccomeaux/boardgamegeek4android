@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	style="@style/FormRow"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_vertical">
+
+	<TextView
+		android:id="@+id/add_players_button"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackground"
+		android:gravity="center"
+		android:text="@string/title_add_players"
+		android:textAppearance="@style/TextAppearance.AppCompat.Button"
+		android:textColor="@color/accent"/>
+</LinearLayout>
