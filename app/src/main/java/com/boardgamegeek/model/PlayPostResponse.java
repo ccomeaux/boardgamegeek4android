@@ -18,12 +18,13 @@ public abstract class PlayPostResponse {
 		try {
 			Response response = client.newCall(request).execute();
 			if (response.isSuccessful()) {
-				final String content = response.body().string();
+				final String content = response.body().string().trim();
 				if (content.startsWith(ERROR_DIV)) {
 					//noinspection deprecation
 					error = Html.fromHtml(content).toString().trim();
+				} else {
+					saveContent(content);
 				}
-				saveContent(content);
 			} else {
 				error = "Unsuccessful post: " + response.code();
 			}
