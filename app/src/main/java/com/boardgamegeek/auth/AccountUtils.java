@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
-import com.boardgamegeek.BuildConfig;
 import com.crashlytics.android.Crashlytics;
 
 public class AccountUtils {
@@ -19,9 +18,7 @@ public class AccountUtils {
 
 	public static void setUsername(final Context context, final String username) {
 		setString(context, username, KEY_USERNAME);
-		if (!BuildConfig.DEBUG) {
-			Crashlytics.setUserIdentifier(username);
-		}
+		Crashlytics.setUserIdentifier(username);
 	}
 
 	public static void setFullName(final Context context, String fullName) {

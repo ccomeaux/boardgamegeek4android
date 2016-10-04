@@ -27,6 +27,16 @@ repositories {
     maven { url "https://clojars.org/repo/" }
 }
 
+def gitSha = { ->
+    def p = 'git rev-parse --short HEAD'.execute([], project.rootDir)
+    p.waitFor()
+    if (p.exitValue() != 0) {
+        throw new RuntimeException(p.errorStream.text)
+    }
+
+    return p.text.trim()
+}
+
 def gitBranchName = { ->
     def p = 'git rev-parse --abbrev-ref HEAD'.execute([], project.rootDir)
     p.waitFor()
@@ -50,7 +60,10 @@ android {
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 
-        buildConfigField 'String', 'BRANCH', "\"${gitBranchName()}\""
+        def buildTime = new GregorianCalendar().format("yyyy-MM-dd h:mm:ss a z")
+        buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
+        buildConfigField 'String', 'GIT_SHA', "\"${gitSha()}\""
+        buildConfigField 'String', 'GIT_BRANCH', "\"${gitBranchName()}\""
     }
 
     buildTypes {
