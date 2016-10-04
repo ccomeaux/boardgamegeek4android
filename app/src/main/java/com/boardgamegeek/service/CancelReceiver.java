@@ -23,12 +23,16 @@ public class CancelReceiver extends BroadcastReceiver {
 		} else if (Intent.ACTION_BATTERY_LOW.equals(action)) {
 			notifyCause(context, "Cancelling because battery is running low.");
 			cancelSync(context);
-		} else if (Intent.ACTION_POWER_DISCONNECTED.equals(action) && PreferencesUtils.getSyncOnlyCharging(context)) {
-			notifyCause(context, "Cancelling because device was unplugged and user asked for this behavior.");
-			cancelSync(context);
-		} else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action) && PreferencesUtils.getSyncOnlyWifi(context)) {
-			notifyCause(context, "Cancelling because device lost Wifi and user asked for this behavior.");
-			cancelSync(context);
+		} else if (Intent.ACTION_POWER_DISCONNECTED.equals(action)) {
+			if (PreferencesUtils.getSyncOnlyCharging(context)) {
+				notifyCause(context, "Cancelling because device was unplugged and user asked for this behavior.");
+				cancelSync(context);
+			}
+		} else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
+			if (PreferencesUtils.getSyncOnlyWifi(context)) {
+				notifyCause(context, "Cancelling because device lost Wifi and user asked for this behavior.");
+				cancelSync(context);
+			}
 		} else {
 			notifyCause(context, "Not cancelling due to an unexpected action: " + action);
 		}
