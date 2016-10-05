@@ -14,6 +14,7 @@
 			  android:paddingTop="@dimen/padding_standard">
 
 	<FrameLayout
+		android:id="@+id/color_container"
 		android:layout_width="@dimen/edit_label_width"
 		android:layout_height="match_parent"
 		android:layout_gravity="left|center_vertical"

@@ -26,6 +26,7 @@ public class PlayerRow extends LinearLayout {
 	private final DecimalFormat ratingFormat = new DecimalFormat("0.0######");
 
 	@BindView(R.id.drag_handle) View dragHandle;
+	@BindView(R.id.color_container) View colorContainer;
 	@BindView(R.id.color_view) ImageView colorView;
 	@BindView(R.id.seat) TextView seatView;
 	@BindView(R.id.name) TextView nameView;
@@ -68,8 +69,8 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void setOnColorListener(OnClickListener l) {
-		colorView.setFocusable(false);
-		colorView.setOnClickListener(l);
+		colorContainer.setFocusable(false);
+		colorContainer.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {
