@@ -152,6 +152,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	@ColorInt private int fabColor;
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
+	private Bitmap editIcon;
 	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
 	private ItemTouchHelper itemTouchHelper;
 
@@ -328,6 +329,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		swipePaint.setColor(ContextCompat.getColor(this, R.color.medium_blue));
 		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
+		editIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_edit_white);
 		itemTouchHelper = new ItemTouchHelper(
 			new SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 				@Override
@@ -342,23 +344,29 @@ public class LogPlayActivity extends AppCompatActivity {
 						itemView.setAlpha(alpha);
 						itemView.setTranslationX(dX);
 
-						// show background with delete icon
-						float verticalPadding = (itemView.getHeight() - deleteIcon.getHeight()) / 2;
+						// show background with an icon
+						Bitmap icon = editIcon;
+						if (dX > 0) {
+							icon = deleteIcon;
+						}
+						float verticalPadding = (itemView.getHeight() - icon.getHeight()) / 2;
 						RectF background;
 						Rect iconSrc;
 						RectF iconDst;
 
 						if (dX > 0) {
+							swipePaint.setColor(ContextCompat.getColor(LogPlayActivity.this, R.color.delete));
 							background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
-							iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getHeight());
-							iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+							iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), icon.getHeight());
+							iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + icon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
 						} else {
+							swipePaint.setColor(ContextCompat.getColor(LogPlayActivity.this, R.color.edit));
 							background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
-							iconSrc = new Rect(Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, deleteIcon.getWidth(), deleteIcon.getHeight());
-							iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+							iconSrc = new Rect(Math.max(icon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, icon.getWidth(), icon.getHeight());
+							iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - icon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
 						}
 						c.drawRect(background, swipePaint);
-						c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint);
+						c.drawBitmap(icon, iconSrc, iconDst, swipePaint);
 					}
 					super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 				}
@@ -366,24 +374,37 @@ public class LogPlayActivity extends AppCompatActivity {
 				@Override
 				public void onSwiped(ViewHolder viewHolder, int swipeDir) {
 					final int position = playAdapter.getPlayerPosition(viewHolder.getAdapterPosition());
-					lastRemovedPlayer = playAdapter.getPlayer(position);
-					String description = lastRemovedPlayer.getDescription();
-					if (TextUtils.isEmpty(description)) {
-						description = getString(R.string.title_player);
+					if (swipeDir == ItemTouchHelper.RIGHT) {
+						lastRemovedPlayer = playAdapter.getPlayer(position);
+						String description = lastRemovedPlayer.getDescription();
+						if (TextUtils.isEmpty(description)) {
+							description = getString(R.string.title_player);
+						}
+						String message = getString(R.string.msg_player_deleted, description);
+						Snackbar
+							.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
+							.setAction(R.string.undo, new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									play.addPlayer(lastRemovedPlayer);
+									playAdapter.notifyPlayerAdded(position);
+								}
+							})
+							.show();
+						play.removePlayer(lastRemovedPlayer, !arePlayersCustomSorted);
+						playAdapter.notifyPlayerRemoved(position);
+					} else {
+						Player player = playAdapter.getPlayer(position);
+						Intent intent = new Intent();
+						intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
+						intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
+						intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
+						if (!arePlayersCustomSorted) {
+							intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
+						}
+						editPlayer(intent, position);
+						playAdapter.notifyPlayerChanged(position);
 					}
-					String message = getString(R.string.msg_player_deleted, description);
-					Snackbar
-						.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
-						.setAction(R.string.undo, new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								play.addPlayer(lastRemovedPlayer);
-								playAdapter.notifyPlayerAdded(position);
-							}
-						})
-						.show();
-					play.removePlayer(lastRemovedPlayer, !arePlayersCustomSorted);
-					playAdapter.notifyPlayerRemoved(position);
 				}
 
 				@Override
@@ -1616,22 +1637,6 @@ public class LogPlayActivity extends AppCompatActivity {
 						fragment.show(getSupportFragmentManager(), "color_picker");
 					}
 				});
-				row.setOnClickListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Player player = playAdapter.getPlayer(position);
-							Intent intent = new Intent();
-							intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
-							intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
-							intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
-							if (!arePlayersCustomSorted) {
-								intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
-							}
-							editPlayer(intent, position);
-						}
-					}
-				);
 				row.setOnScoreListener(
 					new View.OnClickListener() {
 						@Override

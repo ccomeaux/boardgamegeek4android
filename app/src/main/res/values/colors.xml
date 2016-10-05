@@ -36,4 +36,7 @@
 	<color name="score_average">#cc0</color>
 	<color name="score_average_win">#00f</color>
 	<color name="score_high">#080</color>
+
+	<color name="delete">#f00</color>
+	<color name="edit">#080</color>
 </resources>
