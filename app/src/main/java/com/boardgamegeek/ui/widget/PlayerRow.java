@@ -2,11 +2,12 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -50,8 +51,16 @@ public class PlayerRow extends LinearLayout {
 
 	public PlayerRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		LayoutInflater.from(context).inflate(R.layout.row_player, this);
+
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		setBaselineAligned(false);
+		setGravity(Gravity.CENTER_VERTICAL);
+		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.player_row_height));
+		setOrientation(LinearLayout.HORIZONTAL);
+		int horizontalPadding = getResources().getDimensionPixelSize(R.dimen.material_margin_horizontal);
+		int verticalPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 
 		ButterKnife.bind(this);
 
@@ -59,7 +68,9 @@ public class PlayerRow extends LinearLayout {
 		usernameTypeface = usernameView.getTypeface();
 		scoreTypeface = scoreView.getTypeface();
 
-		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
+		DrawableCompat.setTint(
+			DrawableCompat.wrap(scoreButton.getDrawable()),
+			ContextCompat.getColor(getContext(), R.color.button_under_text));
 	}
 
 	public void setOnScoreListener(OnClickListener l) {

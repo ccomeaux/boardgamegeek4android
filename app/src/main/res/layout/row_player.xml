@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="wrap_content"
-			  android:background="?attr/selectableItemBackground"
-			  android:baselineAligned="false"
-			  android:gravity="center_vertical"
-			  android:minHeight="@dimen/player_row_height"
-			  android:orientation="horizontal"
-			  android:paddingBottom="@dimen/padding_standard"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/padding_standard">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	   xmlns:tools="http://schemas.android.com/tools">
 
 	<FrameLayout
 		android:id="@+id/color_container"
@@ -126,4 +115,4 @@
 		android:src="@drawable/drag_grip"
 		android:visibility="invisible"
 		tools:visibility="visible"/>
-</LinearLayout>
+</merge>
