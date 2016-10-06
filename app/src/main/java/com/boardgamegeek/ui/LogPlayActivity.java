@@ -1693,7 +1693,7 @@ public class LogPlayActivity extends AppCompatActivity {
 										double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
 										p.Win(score == highScore);
 									}
-									playAdapter.notifyPlayerChanged(position);
+									playAdapter.notifyPlayersChanged();
 								}
 							});
 							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
