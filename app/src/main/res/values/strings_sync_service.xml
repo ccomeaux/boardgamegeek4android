@@ -21,8 +21,8 @@
 	<string name="sync_notification_collection_upload_summary">Uploaded %d collection items</string>
 	<string name="sync_notification_collection_upload_detail">Updated your collection item of</string>
 	<string name="sync_notification_title_h_index">H-index</string>
-	<string name="sync_notification_h_index_increase">Congratulations! Your h-index is now</string>
-	<string name="sync_notification_h_index_decrease">Oh no! Your h-index has fallen to</string>
+	<string name="sync_notification_h_index_increase">Congratulations! Your game h-index is now <b>%d</b>.</string>
+	<string name="sync_notification_h_index_decrease">Your game h-index has changed to <b>%d</b>.</string>
 	<string name="sync_update_invalid_sync_type">sync invalid type: %s</string>
 	<string name="sync_msg_error">Failed trying to %s!</string>
 	<string name="sync_msg_invalid">Unable to %s.</string>
