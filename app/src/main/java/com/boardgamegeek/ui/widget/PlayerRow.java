@@ -36,6 +36,7 @@ public class PlayerRow extends LinearLayout {
 	@BindView(R.id.starting_position) TextView startingPositionView;
 	@BindView(R.id.rating) TextView ratingView;
 	@BindView(R.id.score_button) ImageView scoreButton;
+	@BindView(R.id.more) View moreButton;
 
 	private final Typeface nameTypeface;
 	private final Typeface usernameTypeface;
@@ -71,6 +72,11 @@ public class PlayerRow extends LinearLayout {
 	public void setOnColorListener(OnClickListener l) {
 		colorContainer.setFocusable(false);
 		colorContainer.setOnClickListener(l);
+	}
+
+	public void setOnMoreListener(OnClickListener l) {
+		moreButton.setVisibility(View.VISIBLE);
+		moreButton.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {
@@ -120,6 +126,10 @@ public class PlayerRow extends LinearLayout {
 
 			scoreButton.setVisibility(hasScoreListener ? View.VISIBLE : View.GONE);
 		}
+	}
+
+	public View getMoreButton() {
+		return moreButton;
 	}
 
 	public View getDragHandle() {

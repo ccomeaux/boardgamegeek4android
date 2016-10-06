@@ -1513,8 +1513,8 @@ public class LogPlayActivity extends AppCompatActivity {
 		public class PlayerHeaderViewHolder extends PlayViewHolder {
 			@BindView(R.id.assign_colors) View assignColorsButton;
 			@BindView(R.id.log_play_players_label) TextView playerLabelView;
-			private MenuBuilder fullPopupMenu;
-			private MenuBuilder shortPopupMenu;
+			private MenuBuilder fullSortMenu;
+			private MenuBuilder shortSortMenu;
 
 			public PlayerHeaderViewHolder(ViewGroup parent) {
 				super(inflater.inflate(R.layout.row_log_play_player_header, parent, false));
@@ -1537,26 +1537,26 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void onPlayerSort(View view) {
 				MenuPopupHelper popup;
 				if (!arePlayersCustomSorted && play.getPlayerCount() > 1) {
-					if (fullPopupMenu == null) {
-						fullPopupMenu = new MenuBuilder(LogPlayActivity.this);
-						MenuItem mi = fullPopupMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
+					if (fullSortMenu == null) {
+						fullSortMenu = new MenuBuilder(LogPlayActivity.this);
+						MenuItem mi = fullSortMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
 						mi.setCheckable(true);
-						fullPopupMenu.add(MenuBuilder.NONE, R.id.menu_pick_start_player, 2, R.string.menu_pick_start_player);
-						fullPopupMenu.add(MenuBuilder.NONE, R.id.menu_random_start_player, 3, R.string.menu_random_start_player);
-						fullPopupMenu.add(MenuBuilder.NONE, R.id.menu_random_player_order, 4, R.string.menu_random_player_order);
-						fullPopupMenu.setCallback(popupMenuCallback());
+						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_pick_start_player, 2, R.string.menu_pick_start_player);
+						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_random_start_player, 3, R.string.menu_random_start_player);
+						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_random_player_order, 4, R.string.menu_random_player_order);
+						fullSortMenu.setCallback(popupMenuCallback());
 					}
-					fullPopupMenu.getItem(0).setChecked(arePlayersCustomSorted);
-					popup = new MenuPopupHelper(LogPlayActivity.this, fullPopupMenu, view);
+					fullSortMenu.getItem(0).setChecked(arePlayersCustomSorted);
+					popup = new MenuPopupHelper(LogPlayActivity.this, fullSortMenu, view);
 				} else {
-					if (shortPopupMenu == null) {
-						shortPopupMenu = new MenuBuilder(LogPlayActivity.this);
-						MenuItem mi = shortPopupMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
+					if (shortSortMenu == null) {
+						shortSortMenu = new MenuBuilder(LogPlayActivity.this);
+						MenuItem mi = shortSortMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
 						mi.setCheckable(true);
-						shortPopupMenu.setCallback(popupMenuCallback());
+						shortSortMenu.setCallback(popupMenuCallback());
 					}
-					shortPopupMenu.getItem(0).setChecked(arePlayersCustomSorted);
-					popup = new MenuPopupHelper(LogPlayActivity.this, shortPopupMenu, view);
+					shortSortMenu.getItem(0).setChecked(arePlayersCustomSorted);
+					popup = new MenuPopupHelper(LogPlayActivity.this, shortSortMenu, view);
 				}
 				popup.show();
 			}
@@ -1592,6 +1592,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		class PlayerViewHolder extends PlayViewHolder {
 			private final PlayerRow row;
+			private MenuBuilder moreMenu;
 
 			public PlayerViewHolder() {
 				super(new PlayerRow(LogPlayActivity.this));
@@ -1607,6 +1608,46 @@ public class LogPlayActivity extends AppCompatActivity {
 				row.setAutoSort(!arePlayersCustomSorted);
 				row.setPlayer(getPlayer(position));
 
+				row.setOnMoreListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						final int groupId = MenuBuilder.FIRST;
+						final int newItemId = MenuBuilder.FIRST;
+						final int winItemId = MenuBuilder.FIRST + 1;
+						if (moreMenu == null) {
+							moreMenu = new MenuBuilder(LogPlayActivity.this);
+							moreMenu.add(groupId, newItemId, MenuBuilder.NONE, R.string.new_label);
+							moreMenu.add(groupId, winItemId, MenuBuilder.NONE, R.string.win);
+							moreMenu.setGroupCheckable(groupId, true, false);
+							moreMenu.setCallback(new Callback() {
+								@Override
+								public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+									final Player player = play.getPlayers().get(position);
+									switch (item.getItemId()){
+										case newItemId:
+											player.New(!item.isChecked());
+											bind(position);
+											return true;
+										case winItemId:
+											player.Win(!item.isChecked());
+											bind(position);
+											return true;
+									}
+									return false;
+								}
+
+								@Override
+								public void onMenuModeChange(MenuBuilder menu) {
+								}
+							});
+						}
+						final Player player = play.getPlayers().get(position);
+						moreMenu.findItem(newItemId).setChecked(player.New());
+						moreMenu.findItem(winItemId).setChecked(player.Win());
+						MenuPopupHelper popup = new MenuPopupHelper(LogPlayActivity.this, moreMenu, row.getMoreButton());
+						popup.show();
+					}
+				});
 				row.getDragHandle().setOnTouchListener(
 					new OnTouchListener() {
 						@Override

@@ -113,6 +113,14 @@
 	</FrameLayout>
 
 	<ImageView
+		android:id="@+id/more"
+		style="@style/Icon.Right"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:src="@drawable/ic_more_vert"
+		android:visibility="gone"
+		tools:visibility="visible"/>
+
+	<ImageView
 		android:id="@+id/drag_handle"
 		style="@style/Icon.Right"
 		android:src="@drawable/drag_grip"
