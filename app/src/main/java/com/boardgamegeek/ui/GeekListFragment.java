@@ -125,7 +125,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 		@Override
 		public SafeResponse<GeekList> loadInBackground() {
-			return new SafeResponse<>(service.geekList(geekListId));
+			return new SafeResponse<>(service.geekList(geekListId, 0));
 		}
 	}
 
