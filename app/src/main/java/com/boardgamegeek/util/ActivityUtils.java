@@ -39,6 +39,9 @@ public class ActivityUtils {
 	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_PLAY_ID = "PLAY_ID";
+	public static final String KEY_END_PLAY = "END_PLAY";
+	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
@@ -59,17 +62,17 @@ public class ActivityUtils {
 	public static final String KEY_LINK = "LINK";
 	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
 	public static final String KEY_TYPE = "TYPE";
-	public static final String KEY_GEEKLIST = "GEEKLIST";
-	public static final String KEY_ID = "GEEKLIST_ID";
-	public static final String KEY_ORDER = "GEEKLIST_ORDER";
-	public static final String KEY_NAME = "GEEKLIST_NAME";
-	public static final String KEY_THUMBS = "GEEKLIST_THUMBS";
-	public static final String KEY_IMAGE_ID = "GEEKLIST_IMAGE_ID";
-	public static final String KEY_POSTED_DATE = "GEEKLIST_POSTED_DATE";
-	public static final String KEY_EDITED_DATE = "GEEKLIST_EDITED_DATE";
-	public static final String KEY_OBJECT_ID = "GEEKLIST_OBJECT_ID";
-	public static final String KEY_OBJECT_URL = "GEEKLIST_OBJECT_URL";
-	public static final String KEY_IS_BOARD_GAME = "GEEKLIST_IS_BOARD_GAME";
+	public static final String KEY_GEEK_LIST = "GEEK_LIST";
+	public static final String KEY_ID = "GEEK_LIST_ID";
+	public static final String KEY_ORDER = "GEEK_LIST_ORDER";
+	public static final String KEY_NAME = "GEEK_LIST_NAME";
+	public static final String KEY_THUMBS = "GEEK_LIST_THUMBS";
+	public static final String KEY_IMAGE_ID = "GEEK_LIST_IMAGE_ID";
+	public static final String KEY_POSTED_DATE = "GEEK_LIST_POSTED_DATE";
+	public static final String KEY_EDITED_DATE = "GEEK_LIST_EDITED_DATE";
+	public static final String KEY_OBJECT_ID = "GEEK_LIST_OBJECT_ID";
+	public static final String KEY_OBJECT_URL = "GEEK_LIST_OBJECT_URL";
+	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
@@ -182,7 +185,7 @@ public class ActivityUtils {
 
 	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
+		intent.putExtra(KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
@@ -193,23 +196,23 @@ public class ActivityUtils {
 
 	public static Intent createRematchIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_REMATCH, true);
+		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
 
 	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
 		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
+		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
 	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(LogPlayActivity.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_PLAY_ID, playId);
+		intent.putExtra(KEY_GAME_ID, gameId);
+		intent.putExtra(KEY_GAME_NAME, gameName);
+		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 

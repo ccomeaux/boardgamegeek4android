@@ -566,7 +566,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@Override
 	protected void onFabClicked() {
 		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), 0, mGameId, mGameName, mThumbnailUrl, mImageUrl);
-		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
+		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 		startActivity(intent);
 	}
 

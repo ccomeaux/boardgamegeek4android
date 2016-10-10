@@ -22,7 +22,7 @@
 	<color name="no_image">#808080</color>
 	<color name="navdrawer_icon_tint">#75ffffff</color>
 	<color name="navdrawer_selected_row">#eeeeee</color>
-	<color name="disabled">#cccc</color>
+	<color name="disabled">#eee</color>
 
 	<color name="best">#00a550</color>
 	<color name="recommended">#ffef00</color>
@@ -36,4 +36,7 @@
 	<color name="score_average">#cc0</color>
 	<color name="score_average_win">#00f</color>
 	<color name="score_high">#080</color>
+
+	<color name="delete">#f00</color>
+	<color name="edit">#080</color>
 </resources>

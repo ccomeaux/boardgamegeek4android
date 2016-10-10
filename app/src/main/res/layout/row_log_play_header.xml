@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/image_header_height"
+	android:layout_gravity="center"
+	android:background="@color/primary">
+
+	<ImageView
+		android:id="@+id/thumbnail"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:scaleType="centerCrop"/>
+
+	<TextView
+		android:id="@+id/header"
+		style="@style/Text.Title.Overlay"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:ellipsize="end"
+		android:gravity="left|center_vertical"
+		android:maxLines="2"
+		android:paddingLeft="@dimen/material_indent_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		tools:text="Puerto Rico"/>
+</FrameLayout>
+

@@ -86,16 +86,6 @@
 	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
 	<string name="pref_feedback_title">Feedback</string>
 
-	<string name="define_int_DragSortListView"></string>
-	<string name="library_DragSortListView_author">Carl A. Bauer</string>
-	<string name="library_DragSortListView_authorWebsite">https://github.com/bauerca</string>
-	<string name="library_DragSortListView_libraryName">DragSortListView</string>
-	<string name="library_DragSortListView_libraryDescription">DragSortListView (DSLV) is an extension of the Android ListView that enables drag-and-drop reordering of list items.</string>
-	<string name="library_DragSortListView_libraryVersion">0.6.1</string>
-	<string name="library_DragSortListView_licenseId">apache_2_0</string>
-	<string name="library_DragSortListView_isOpenSource">true</string>
-	<string name="library_DragSortListView_repositoryLink">https://github.com/bauerca/drag-sort-listview</string>
-
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>

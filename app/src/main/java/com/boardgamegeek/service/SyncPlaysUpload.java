@@ -131,7 +131,13 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = PlayBuilder.fromCursor(cursor, context, true);
+				Play play = PlayBuilder.fromCursor(cursor);
+				Cursor playerCursor = PlayBuilder.queryPlayers(context, play);
+				try {
+					PlayBuilder.addPlayers(playerCursor, play);
+				} finally {
+					if (playerCursor != null) playerCursor.close();
+				}
 
 				PlaySaveResponse response = postPlayUpdate(play);
 				if (response == null) {
@@ -185,7 +191,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
-				null,
+				PlayBuilder.PLAY_PROJECTION,
 				Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
 				null);

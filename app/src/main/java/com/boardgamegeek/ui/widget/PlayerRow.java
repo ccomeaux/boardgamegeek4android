@@ -2,11 +2,12 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,26 +20,30 @@ import com.boardgamegeek.util.ColorUtils;
 
 import java.text.DecimalFormat;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class PlayerRow extends LinearLayout {
-	private final DecimalFormat mFormat = new DecimalFormat("0.0######");
+	private final DecimalFormat ratingFormat = new DecimalFormat("0.0######");
 
-	private View mDragHandle;
-	private ImageView mColorView;
-	private TextView mSeat;
-	private TextView mName;
-	private TextView mUsername;
-	private TextView mTeamColor;
-	private TextView mScore;
-	private TextView mStartingPosition;
-	private TextView mRating;
-	private ImageView mDeleteButton;
-	private ImageView mScoreButton;
+	@BindView(R.id.drag_handle) View dragHandle;
+	@BindView(R.id.color_container) View colorContainer;
+	@BindView(R.id.color_view) ImageView colorView;
+	@BindView(R.id.seat) TextView seatView;
+	@BindView(R.id.name) TextView nameView;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.team_color) TextView teamColorView;
+	@BindView(R.id.score) TextView scoreView;
+	@BindView(R.id.starting_position) TextView startingPositionView;
+	@BindView(R.id.rating) TextView ratingView;
+	@BindView(R.id.score_button) ImageView scoreButton;
+	@BindView(R.id.more) View moreButton;
 
-	private Typeface mNameTypeface;
-	private Typeface mUsernameTypeface;
-	private Typeface mScoreTypeface;
+	private final Typeface nameTypeface;
+	private final Typeface usernameTypeface;
+	private final Typeface scoreTypeface;
 
-	private boolean mHasScoreListener;
+	private boolean hasScoreListener;
 
 	public PlayerRow(Context context) {
 		this(context, null);
@@ -46,91 +51,100 @@ public class PlayerRow extends LinearLayout {
 
 	public PlayerRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.row_player, this);
-		initializeUi();
-	}
+		LayoutInflater.from(context).inflate(R.layout.row_player, this);
 
-	private void initializeUi() {
-		mDragHandle = findViewById(R.id.drag_handle);
-		mColorView = (ImageView) findViewById(R.id.color_view);
-		mSeat = (TextView) findViewById(R.id.seat);
-		mName = (TextView) findViewById(R.id.name);
-		mUsername = (TextView) findViewById(R.id.username);
-		mTeamColor = (TextView) findViewById(R.id.team_color);
-		mScore = (TextView) findViewById(R.id.score);
-		mRating = (TextView) findViewById(R.id.rating);
-		mStartingPosition = (TextView) findViewById(R.id.starting_position);
-		mScoreButton = (ImageView) findViewById(R.id.score_button);
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		setBaselineAligned(false);
+		setGravity(Gravity.CENTER_VERTICAL);
+		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.player_row_height));
+		setOrientation(LinearLayout.HORIZONTAL);
+		int horizontalPadding = getResources().getDimensionPixelSize(R.dimen.material_margin_horizontal);
+		int verticalPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 
-		mNameTypeface = mName.getTypeface();
-		mUsernameTypeface = mUsername.getTypeface();
-		mScoreTypeface = mScore.getTypeface();
+		ButterKnife.bind(this);
 
-		mScoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
+		nameTypeface = nameView.getTypeface();
+		usernameTypeface = usernameView.getTypeface();
+		scoreTypeface = scoreView.getTypeface();
 
-		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
-	}
-
-	public void setOnDeleteListener(OnClickListener l) {
-		mDeleteButton.setVisibility(View.VISIBLE);
-		mDeleteButton.setFocusable(false); // necessary to allow the row to receive click events
-		mDeleteButton.setOnClickListener(l);
+		DrawableCompat.setTint(
+			DrawableCompat.wrap(scoreButton.getDrawable()),
+			ContextCompat.getColor(getContext(), R.color.button_under_text));
 	}
 
 	public void setOnScoreListener(OnClickListener l) {
-		mHasScoreListener = true;
-		mScoreButton.setVisibility(View.VISIBLE);
-		mScoreButton.setFocusable(false); // necessary to allow the row to receive click events
-		mScoreButton.setOnClickListener(l);
+		hasScoreListener = true;
+		scoreButton.setVisibility(View.VISIBLE);
+		scoreButton.setFocusable(false);
+		scoreButton.setOnClickListener(l);
+	}
+
+	public void setOnColorListener(OnClickListener l) {
+		colorContainer.setFocusable(false);
+		colorContainer.setOnClickListener(l);
+	}
+
+	public void setOnMoreListener(OnClickListener l) {
+		moreButton.setVisibility(View.VISIBLE);
+		moreButton.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {
-		mDragHandle.setVisibility(value ? View.VISIBLE : View.GONE);
+		dragHandle.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
 	}
 
 	public void setPlayer(Player player) {
 		if (player == null) {
-			mColorView.setVisibility(View.GONE);
-			setText(mSeat, "");
-			setText(mName, "");
-			setText(mUsername, "");
-			setText(mTeamColor, "");
-			setText(mScore, "");
-			setText(mRating, "");
-			mScoreButton.setVisibility(View.GONE);
+			colorView.setVisibility(View.GONE);
+			setText(seatView, "");
+			setText(nameView, "");
+			setText(usernameView, "");
+			setText(teamColorView, "");
+			setText(scoreView, "");
+			setText(ratingView, "");
+			scoreButton.setVisibility(View.GONE);
 		} else {
-			setText(mSeat, player.getStartingPosition());
+			setText(seatView, player.getStartingPosition());
 			if (TextUtils.isEmpty(player.name)) {
-				setText(mName, player.username, mNameTypeface, player.New(), player.Win());
-				mUsername.setVisibility(View.GONE);
+				setText(nameView, player.username, nameTypeface, player.New(), player.Win());
+				usernameView.setVisibility(View.GONE);
 			} else {
-				setText(mName, player.name, mNameTypeface, player.New(), player.Win());
-				setText(mUsername, player.username, mUsernameTypeface, player.New(), player.Win());
+				setText(nameView, player.name, nameTypeface, player.New(), player.Win());
+				setText(usernameView, player.username, usernameTypeface, player.New(), player.Win());
 			}
-			setText(mTeamColor, player.color);
-			setText(mScore, player.score, mScoreTypeface, false, player.Win());
-			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
-			setText(mStartingPosition, player.getStartingPosition());
+			setText(teamColorView, player.color);
+			setText(scoreView, player.score, scoreTypeface, false, player.Win());
+			setText(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
+			setText(startingPositionView, player.getStartingPosition());
 
 			int color = ColorUtils.parseColor(player.color);
-			mColorView.setVisibility(View.VISIBLE);
-			ColorUtils.setColorViewValue(mColorView, color);
+			colorView.setVisibility(View.VISIBLE);
+			ColorUtils.setColorViewValue(colorView, color);
 			if (player.getSeat() == Player.SEAT_UNKNOWN) {
-				mSeat.setVisibility(View.GONE);
+				seatView.setVisibility(View.GONE);
 			} else {
 				if (color != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(color)) {
-					mSeat.setTextColor(Color.WHITE);
+					seatView.setTextColor(Color.WHITE);
 				} else {
-					mSeat.setTextColor(Color.BLACK);
+					seatView.setTextColor(Color.BLACK);
 				}
-				mStartingPosition.setVisibility(View.GONE);
+				startingPositionView.setVisibility(View.GONE);
 			}
 			if (color != ColorUtils.TRANSPARENT) {
-				mTeamColor.setVisibility(View.GONE);
+				teamColorView.setVisibility(View.GONE);
 			}
 
-			mScoreButton.setVisibility(mHasScoreListener ? View.VISIBLE : View.GONE);
+			scoreButton.setVisibility(hasScoreListener ? View.VISIBLE : View.GONE);
 		}
+	}
+
+	public View getMoreButton() {
+		return moreButton;
+	}
+
+	public View getDragHandle() {
+		return dragHandle;
 	}
 
 	private void setText(TextView textView, String text) {

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	style="@style/FormRow"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_vertical">
+
+	<ImageView
+		android:id="@+id/assign_colors"
+		style="@style/Icon"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:src="@drawable/ic_colors"/>
+
+	<TextView
+		android:id="@+id/log_play_players_label"
+		style="@style/Text.Header.Underline"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:text="@string/title_players"
+		android:textSize="16sp"/>
+
+	<ImageView
+		android:id="@+id/player_sort"
+		style="@style/Icon.Right"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:src="@drawable/ic_sort"/>
+</LinearLayout>

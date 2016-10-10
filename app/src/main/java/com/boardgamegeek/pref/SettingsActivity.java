@@ -100,7 +100,6 @@ public class SettingsActivity extends DrawerActivity {
 						new LibsBuilder()
 							.withFields(R.string.class.getFields())
 							.withLibraries(
-								"DragSortListView",
 								"Hugo",
 								"PhotoView",
 								"AndroidIcons",
