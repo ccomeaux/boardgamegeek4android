@@ -13,6 +13,7 @@
 	<color name="info_background">@color/light_blue</color>
 
 	<color name="dialog_text">#000</color>
+	<color name="primary_text">#de000000</color>
 	<color name="secondary_text">#8a000000</color>
 	<color name="inverse_text">#ffffff</color>
 	<color name="inverse_text_body">#deffffff</color>
