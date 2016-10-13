@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.LocalBroadcastManager;
@@ -34,6 +35,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
@@ -147,13 +149,14 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					final int newPlayId = response.getPlayId();
 					final int oldPlayId = play.playId;
 
-					String message = play.hasBeenSynced() ?
-						context.getString(R.string.msg_play_updated) :
-						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 					currentPlayIdForMessage = newPlayId;
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
-					notifyUser(StringUtils.boldSecondString(message, play.gameName), play.playId, null, null);
+
+					CharSequence message = play.hasBeenSynced() ?
+						PresentationUtils.getText(context, R.string.msg_play_updated, play.gameName) :
+						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity), play.quantity);
+					notifyUser(message, play.playId, null, null);
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(play);
@@ -169,7 +172,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id), String.valueOf(play.playId)), play.playId, null, null);
+					notifyUser(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId), play.playId, null, null);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
@@ -348,8 +351,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	private void notifyUserOfDelete(int messageId, Play play) {
-		notifyUser(StringUtils.boldSecondString(context.getString(messageId), play.gameName), play.playId, null, null);
+	private void notifyUserOfDelete(@StringRes int messageId, Play play) {
+		notifyUser(PresentationUtils.getText(context, messageId, play.gameName), play.playId, null, null);
 	}
 
 	@DebugLog

@@ -2,7 +2,6 @@ package com.boardgamegeek.util;
 
 import android.graphics.Typeface;
 import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 
@@ -77,19 +76,6 @@ public class StringUtils {
 			return Double.parseDouble(text);
 		} catch (NumberFormatException | NullPointerException ex) {
 			return defaultValue;
-		}
-	}
-
-	/**
-	 * Determines if the string can be converted to an integer.
-	 */
-	public static boolean isInteger(String input) {
-		try {
-			//noinspection ResultOfMethodCallIgnored
-			Integer.parseInt(input);
-			return true;
-		} catch (Exception e) {
-			return false;
 		}
 	}
 
@@ -194,28 +180,6 @@ public class StringUtils {
 			}
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Return a {@link android.text.SpannableString} where the second part is bold.
-	 */
-	public static SpannableString boldSecondString(String first, String second) {
-		return boldSecondString(first, second, "");
-	}
-
-	/**
-	 * Return a {@link android.text.SpannableString} where the second part is bold.
-	 */
-	public static SpannableString boldSecondString(String first, String second, String third) {
-		String s = first + " " + second + " " + third;
-		SpannableString ss = new SpannableString(s);
-		int length = first.length() + 1;
-		ss.setSpan(
-			new StyleSpan(android.graphics.Typeface.BOLD),
-			length,
-			length + second.length(),
-			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		return ss;
 	}
 
 	/**

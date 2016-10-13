@@ -340,11 +340,11 @@
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
-	<string name="msg_play_added">Logged your %s play of</string>
-	<string name="msg_play_updated">Updated a play of</string>
-	<string name="msg_play_deleted">Deleted a play of</string>
-	<string name="msg_play_deleted_draft">Deleted a draft of</string>
-	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
+	<string name="msg_play_added">Logged your <b>%1$s</b> play of <b>%2$s</b></string>
+	<string name="msg_play_updated">Updated a play of <b>%s</b></string>
+	<string name="msg_play_deleted">Deleted a play of <b>%s</b></string>
+	<string name="msg_play_deleted_draft">Deleted a draft of <b>%s</b></string>
+	<string name="msg_play_update_bad_id">Play <b>%s</b> doesn\'t exist!</string>
 	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
