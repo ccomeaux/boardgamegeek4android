@@ -5,11 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -34,28 +35,44 @@ public class LargeIconLoader implements Target {
 		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
 	}
 
-	public void execute() {
-		loadNextPath();
-	}
-
-	private void loadNextPath() {
+	public void executeInBackground() {
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
 			if (callback != null) {
 				callback.onFailedIconLoad();
 			}
+		} else {
+			try {
+				final Bitmap bitmap = getRequestCreator().get();
+				onBitmapLoaded(bitmap, null);
+			} catch (IOException e) {
+				Timber.i("Didn't find an image at %s", currentImageUrl);
+				executeInBackground();
+			}
 		}
-		Picasso.with(context.getApplicationContext())
+	}
+
+	public void executeOnMainThread() {
+		currentImageUrl = imageUrls.poll();
+		if (TextUtils.isEmpty(currentImageUrl)) {
+			if (callback != null) {
+				callback.onFailedIconLoad();
+			}
+		} else {
+			getRequestCreator().into(this);
+		}
+	}
+
+	private RequestCreator getRequestCreator() {
+		return Picasso.with(context.getApplicationContext())
 			.load(HttpUtils.ensureScheme(currentImageUrl))
-			.networkPolicy(NetworkPolicy.NO_STORE)
 			.resize(WEARABLE_ICON_SIZE, WEARABLE_ICON_SIZE)
-			.centerCrop()
-			.into(this);
+			.centerCrop();
 	}
 
 	@Override
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-		Timber.i("Found an image at " + currentImageUrl);
+		Timber.i("Found an image at %s", currentImageUrl);
 		if (callback != null) {
 			callback.onSuccessfulIconLoad(bitmap);
 		}
@@ -63,8 +80,8 @@ public class LargeIconLoader implements Target {
 
 	@Override
 	public void onBitmapFailed(Drawable errorDrawable) {
-		Timber.i("Didn't find an image at " + currentImageUrl);
-		loadNextPath();
+		Timber.i("Didn't find an image at %s", currentImageUrl);
+		executeOnMainThread();
 	}
 
 	@Override

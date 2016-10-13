@@ -88,9 +88,9 @@ public class NotificationUtils {
 	 * Launch the "Playing" notification.
 	 */
 	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
-		Timber.i("Launching notification without icon for play ID=" + play.playId);
+		Timber.i("Launching notification without icon for play ID=%s", play.playId);
 		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
-		Timber.i("Attempting to load icon for play ID=" + play.playId);
+		Timber.i("Attempting to load icon for play ID=%s", play.playId);
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {
@@ -102,7 +102,7 @@ public class NotificationUtils {
 				// oh well!
 			}
 		});
-		loader.execute();
+		loader.executeOnMainThread();
 	}
 
 	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
