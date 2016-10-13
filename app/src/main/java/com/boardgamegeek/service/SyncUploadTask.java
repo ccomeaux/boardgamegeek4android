@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
@@ -10,6 +11,8 @@ import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
 
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.util.LargeIconLoader;
+import com.boardgamegeek.util.LargeIconLoader.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 
 import java.util.ArrayList;
@@ -39,22 +42,34 @@ public abstract class SyncUploadTask extends SyncTask {
 	protected abstract int getUploadSummaryWithSize();
 
 	@DebugLog
-	protected void notifyUser(CharSequence message, int id) {
-		NotificationCompat.Builder builder = createNotificationBuilder()
-			.setCategory(NotificationCompat.CATEGORY_SERVICE);
+	protected void notifyUser(final CharSequence message, final int id, String imageUrl, final String thumbnailUrl) {
+		buildAndNotify(message, id, null);
+		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
+			@Override
+			public void onSuccessfulIconLoad(Bitmap bitmap) {
+				buildAndNotify(message, id, bitmap);
+			}
 
-		addInitialMessage(builder, message);
-		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
+			@Override
+			public void onFailedIconLoad() {
+				// oh well!
+			}
+		});
+		loader.executeInBackground();
 
-		notificationMessages.add(message);
-		addSubsequentMessage(builder);
-		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
+//		notificationMessages.add(message);
+//		addSubsequentMessage(builder);
+//		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
 	}
 
-	@DebugLog
-	private void addInitialMessage(@NonNull Builder builder, CharSequence message) {
+	private void buildAndNotify(CharSequence message, int id, Bitmap largeIcon) {
+		Builder builder = createNotificationBuilder()
+			.setCategory(NotificationCompat.CATEGORY_SERVICE);
+
 		builder
-			.setContentText(message)
+			.setContentText(message.toString().trim())
+			.setLargeIcon(largeIcon)
+			.setOnlyAlertOnce(true)
 			.setGroup(getNotificationMessageTag());
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(message);
@@ -62,6 +77,10 @@ public abstract class SyncUploadTask extends SyncTask {
 		if (action != null) {
 			builder.addAction(action);
 		}
+		if (largeIcon != null) {
+			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
+		}
+		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
 	}
 
 	@DebugLog

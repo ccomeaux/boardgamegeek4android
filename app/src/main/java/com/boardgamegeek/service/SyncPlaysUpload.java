@@ -153,7 +153,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					currentPlayIdForMessage = newPlayId;
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
-					notifyUser(StringUtils.boldSecondString(message, play.gameName), play.playId);
+					notifyUser(StringUtils.boldSecondString(message, play.gameName), play.playId, null, null);
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(play);
@@ -169,7 +169,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id), String.valueOf(play.playId)), play.playId);
+					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id), String.valueOf(play.playId)), play.playId, null, null);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
@@ -349,7 +349,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	private void notifyUserOfDelete(int messageId, Play play) {
-		notifyUser(StringUtils.boldSecondString(context.getString(messageId), play.gameName), play.playId);
+		notifyUser(StringUtils.boldSecondString(context.getString(messageId), play.gameName), play.playId, null, null);
 	}
 
 	@DebugLog

@@ -40,7 +40,9 @@ public class CollectionItem {
 		Collection.WANTPARTS_LIST,
 		Collection.WANT_PARTS_DIRTY_TIMESTAMP,
 		Collection.HASPARTS_LIST,
-		Collection.HAS_PARTS_DIRTY_TIMESTAMP
+		Collection.HAS_PARTS_DIRTY_TIMESTAMP,
+		Collection.IMAGE_URL,
+		Collection.THUMBNAIL_URL
 	};
 
 	private static final int _ID = 0;
@@ -78,6 +80,8 @@ public class CollectionItem {
 	private static final int WANT_PARTS_DIRTY_TIMESTAMP = 32;
 	private static final int HASPARTS_LIST = 33;
 	private static final int HAS_PARTS_DIRTY_TIMESTAMP = 34;
+	private static final int IMAGE_URL = 35;
+	private static final int THUMBNAIL_URL = 36;
 
 	private long internalId;
 	private int collectionId;
@@ -114,6 +118,8 @@ public class CollectionItem {
 	private long wantPartsDirtyTimestamp;
 	private String hasParts;
 	private long hasPartsDirtyTimestamp;
+	public String imageUrl;
+	public String thumbnailUrl;
 
 	public static CollectionItem fromCursor(Cursor cursor) {
 		CollectionItem collectionItem = new CollectionItem();
@@ -121,6 +127,8 @@ public class CollectionItem {
 		collectionItem.collectionId = cursor.getInt(COLLECTION_ID);
 		collectionItem.gameId = cursor.getInt(GAME_ID);
 		collectionItem.collectionName = cursor.getString(COLLECTION_NAME);
+		collectionItem.imageUrl = cursor.getString(IMAGE_URL);
+		collectionItem.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
 
 		collectionItem.rating = cursor.getDouble(RATING);
 		collectionItem.ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
@@ -299,5 +307,13 @@ public class CollectionItem {
 
 	public long getHasPartsDirtyTimestamp() {
 		return hasPartsDirtyTimestamp;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public String getThumbnailUrl() {
+		return thumbnailUrl;
 	}
 }

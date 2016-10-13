@@ -188,43 +188,43 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	}
 
 	private void processDeletedCollectionItem(Cursor cursor) {
-		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
-		deleteTask.addCollectionItem(collectionItem);
+		CollectionItem item = CollectionItem.fromCursor(cursor);
+		deleteTask.addCollectionItem(item);
 		deleteTask.post();
 		if (processResponseForError(deleteTask)) {
 			return;
 		}
-		resolver.delete(Collection.buildUri(collectionItem.getInternalId()), null, null);
-		notifySuccess(collectionItem.getCollectionName(), collectionItem.getCollectionId());
+		resolver.delete(Collection.buildUri(item.getInternalId()), null, null);
+		notifySuccess(item.getCollectionName(), item.getCollectionId(), item.getImageUrl(), item.getThumbnailUrl());
 	}
 
 	private void processNewCollectionItem(Cursor cursor) {
-		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
-		addTask.addCollectionItem(collectionItem);
+		CollectionItem item = CollectionItem.fromCursor(cursor);
+		addTask.addCollectionItem(item);
 		addTask.post();
 		if (processResponseForError(addTask)) {
 			return;
 		}
 		ContentValues contentValues = new ContentValues();
 		addTask.appendContentValues(contentValues);
-		resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
-		UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, collectionItem.getGameId());
-		notifySuccess(collectionItem.getCollectionName(), collectionItem.getGameId() * -1);
+		resolver.update(Collection.buildUri(item.getInternalId()), contentValues, null, null);
+		UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, item.getGameId());
+		notifySuccess(item.getCollectionName(), item.getGameId() * -1, item.getImageUrl(), item.getThumbnailUrl());
 	}
 
 	private void processDirtyCollectionItem(Cursor cursor) {
-		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
-		if (collectionItem.getCollectionId() != BggContract.INVALID_ID) {
+		CollectionItem item = CollectionItem.fromCursor(cursor);
+		if (item.getCollectionId() != BggContract.INVALID_ID) {
 			ContentValues contentValues = new ContentValues();
 			for (CollectionUploadTask task : uploadTasks) {
-				if (processUploadTask(task, collectionItem, contentValues)) return;
+				if (processUploadTask(task, item, contentValues)) return;
 			}
 			if (contentValues.size() > 0) {
-				resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
-				notifySuccess(collectionItem.getCollectionName(), collectionItem.getCollectionId());
+				resolver.update(Collection.buildUri(item.getInternalId()), contentValues, null, null);
+				notifySuccess(item.getCollectionName(), item.getCollectionId(), item.getImageUrl(), item.getThumbnailUrl());
 			}
 		} else {
-			Timber.d("Invalid collectionItem ID for internal ID %1$s; game ID %2$s", collectionItem.getInternalId(), collectionItem.getGameId());
+			Timber.d("Invalid collectionItem ID for internal ID %1$s; game ID %2$s", item.getInternalId(), item.getGameId());
 		}
 	}
 
@@ -240,11 +240,11 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return false;
 	}
 
-	private void notifySuccess(String collectionName, int id) {
+	private void notifySuccess(String collectionName, int id, String imageUrl, String thumbnailUrl) {
 		syncResult.stats.numUpdates++;
-		CharSequence message = PresentationUtils.getText(context, R.string.sync_notification_collection_upload_detail, collectionName);
+		CharSequence message = PresentationUtils.getText(context, R.string.sync_notification_collection_upload_detail, collectionName).toString().trim();
 		Timber.i(message.toString());
-		notifyUser(message, id);
+		notifyUser(message, id, imageUrl, thumbnailUrl);
 	}
 
 	private boolean processResponseForError(CollectionTask response) {
