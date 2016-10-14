@@ -147,6 +147,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
+	@BindView(R.id.weight_root) View weightRoot;
 	@BindView(R.id.game_weight) TextView weightView;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
@@ -526,6 +527,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		ratingsVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.UsersRated));
 		ratingsStandardDeviation.setText(getString(R.string.standard_deviation_prefix, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
 
+		weightRoot.setVisibility(game.NumberWeights > 0 ? View.VISIBLE : View.GONE);
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
 		weightVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.NumberWeights));
 

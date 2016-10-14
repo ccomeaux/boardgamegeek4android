@@ -144,7 +144,6 @@
 				android:src="@drawable/ic_weight"/>
 
 			<LinearLayout
-				android:id="@+id/weight_container"
 				style="@style/CardRowContent"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
