@@ -541,7 +541,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
-	@DebugLog
 	@Override
 	protected int getSyncType() {
 		return mMode == MODE_GAME ? SyncService.FLAG_SYNC_NONE : SyncService.FLAG_SYNC_PLAYS;
