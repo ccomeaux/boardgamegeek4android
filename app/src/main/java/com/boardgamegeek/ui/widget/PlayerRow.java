@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -68,9 +67,7 @@ public class PlayerRow extends LinearLayout {
 		usernameTypeface = usernameView.getTypeface();
 		scoreTypeface = scoreView.getTypeface();
 
-		DrawableCompat.setTint(
-			DrawableCompat.wrap(scoreButton.getDrawable()),
-			ContextCompat.getColor(getContext(), R.color.button_under_text));
+		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text));
 	}
 
 	public void setOnScoreListener(OnClickListener l) {
