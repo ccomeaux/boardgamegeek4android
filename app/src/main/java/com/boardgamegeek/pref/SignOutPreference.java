@@ -12,15 +12,6 @@ public class SignOutPreference extends DialogPreference {
 
 	public SignOutPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
-	}
-
-	public SignOutPreference(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		init();
-	}
-
-	private void init() {
 		TypedValue typedValue = new TypedValue();
 		getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);
 		setDialogIcon(typedValue.resourceId);
