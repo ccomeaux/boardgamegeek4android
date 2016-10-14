@@ -156,7 +156,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 					CharSequence message = play.hasBeenSynced() ?
 						PresentationUtils.getText(context, R.string.msg_play_updated, play.gameName) :
-						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity), play.quantity);
+						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity), play.gameName);
 					Pair<String, String> imageUrls = queryGameImageUrls(play);
 					notifyUser(message, play.playId, imageUrls.first, imageUrls.second);
 
