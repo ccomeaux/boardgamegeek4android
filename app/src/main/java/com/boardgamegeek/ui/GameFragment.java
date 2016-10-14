@@ -150,6 +150,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.game_weight) TextView weightView;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
+	@BindView(R.id.language_dependence_root) View languageDependenceRoot;
 	@BindView(R.id.language_dependence_details) TextView languageDependenceDetails;
 
 	@BindView(R.id.users_count) TextView userCountView;
@@ -359,7 +360,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 					LanguagePollQuery.SORT);
 				break;
 			default:
-				Timber.w("Invalid query token=" + id);
+				Timber.w("Invalid query token=%s", id);
 				break;
 		}
 		return loader;
@@ -706,7 +707,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			}
 		}
 		languageDependenceDetails.setText(PresentationUtils.describeLanguageDependence(getActivity(), (double) totalLevel / totalVotes));
-		languageDependenceDetails.setVisibility(View.VISIBLE);
+		languageDependenceRoot.setVisibility(totalVotes > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	@OnClick(R.id.rank_root)

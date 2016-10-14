@@ -174,7 +174,9 @@
 			style="@style/CardRow.Clickable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal">
+			android:orientation="horizontal"
+			android:visibility="gone"
+			tools:visibility="visible">
 
 			<ImageView
 				android:id="@+id/icon_language_dependence"
@@ -201,9 +203,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:maxLines="2"
-					android:visibility="gone"
-					tools:text="Unplayable in another language (4.81/5)"
-					tools:visibility="visible"/>
+					tools:text="Unplayable in another language (4.81/5)"/>
 			</LinearLayout>
 		</LinearLayout>
 
