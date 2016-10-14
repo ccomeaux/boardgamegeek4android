@@ -242,7 +242,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private void notifySuccess(String collectionName, int id, String imageUrl, String thumbnailUrl) {
 		syncResult.stats.numUpdates++;
-		CharSequence message = PresentationUtils.getText(context, R.string.sync_notification_collection_upload_detail, collectionName).toString().trim();
+		CharSequence message = PresentationUtils.getText(context, R.string.sync_notification_collection_upload_detail, collectionName);
 		Timber.i(message.toString());
 		notifyUser(message, id, imageUrl, thumbnailUrl);
 	}
