@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -67,7 +68,7 @@ public class PlayerRow extends LinearLayout {
 		usernameTypeface = usernameView.getTypeface();
 		scoreTypeface = scoreView.getTypeface();
 
-		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text));
+		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 	}
 
 	public void setOnScoreListener(OnClickListener l) {
