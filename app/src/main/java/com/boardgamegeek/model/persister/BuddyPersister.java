@@ -115,7 +115,6 @@ public class BuddyPersister {
 		values.put(Buddies.BUDDY_ID, buddy.getId());
 		values.put(Buddies.BUDDY_NAME, buddy.name);
 		values.put(Buddies.UPDATED_LIST, updateTime);
-		// we assume only actually "buddies" call this (other users call above)
 		values.put(Buddies.BUDDY_FLAG, 1);
 		return values;
 	}
