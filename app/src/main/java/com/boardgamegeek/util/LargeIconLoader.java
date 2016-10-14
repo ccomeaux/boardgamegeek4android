@@ -29,10 +29,15 @@ public class LargeIconLoader implements Target {
 		this.context = context;
 		this.imageUrls = new LinkedList<>();
 		this.callback = callback;
-		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
-		imageUrls.add(imageUrl);
-		imageUrls.add(thumbnailUrl);
-		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
+		if (!TextUtils.isEmpty(imageUrl)) {
+			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
+			imageUrls.add(imageUrl);
+			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_SMALL));
+			imageUrls.add(TextUtils.isEmpty(thumbnailUrl) ?
+				ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_THUMBNAIL) :
+				thumbnailUrl);
+			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
+		}
 	}
 
 	public void executeInBackground() {

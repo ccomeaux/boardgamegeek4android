@@ -15,6 +15,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Pair;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -156,7 +157,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					CharSequence message = play.hasBeenSynced() ?
 						PresentationUtils.getText(context, R.string.msg_play_updated, play.gameName) :
 						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity), play.quantity);
-					notifyUser(message, play.playId, null, null);
+					Pair<String, String> imageUrls = queryGameImageUrls(play);
+					notifyUser(message, play.playId, imageUrls.first, imageUrls.second);
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(play);
@@ -172,7 +174,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					notifyUser(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId), play.playId, null, null);
+					Pair<String, String> imageUrls = queryGameImageUrls(play);
+					notifyUser(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId), play.playId, imageUrls.first, imageUrls.second);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
@@ -187,6 +190,20 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				cursor.close();
 			}
 		}
+	}
+
+	private Pair<String, String> queryGameImageUrls(Play play) {
+		Pair<String, String> imageUrls = Pair.create("", "");
+		Cursor gameCursor = context.getContentResolver().query(Games.buildGameUri(play.gameId),
+			new String[] { Games.IMAGE_URL, Games.THUMBNAIL_URL }, null, null, null);
+		try {
+			if (gameCursor != null && gameCursor.moveToFirst()) {
+				imageUrls = Pair.create(gameCursor.getString(0), gameCursor.getString(1));
+			}
+		} finally {
+			if (gameCursor != null) gameCursor.close();
+		}
+		return imageUrls;
 	}
 
 	@DebugLog
@@ -352,7 +369,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	private void notifyUserOfDelete(@StringRes int messageId, Play play) {
-		notifyUser(PresentationUtils.getText(context, messageId, play.gameName), play.playId, null, null);
+		Pair<String, String> imageUrls = queryGameImageUrls(play);
+		notifyUser(PresentationUtils.getText(context, messageId, play.gameName), play.playId, imageUrls.first, imageUrls.second);
 	}
 
 	@DebugLog
