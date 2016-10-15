@@ -237,7 +237,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		syncResult.stats.numUpdates++;
 		CharSequence message = PresentationUtils.getText(context, R.string.sync_notification_collection_upload_detail, collectionName);
 		Timber.i(message.toString());
-		notifyUser(message, id, imageUrl, thumbnailUrl);
+		notifyUser(collectionName, message, id, imageUrl, thumbnailUrl);
 	}
 
 	private boolean processResponseForError(CollectionTask response) {

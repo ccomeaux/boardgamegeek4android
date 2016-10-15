@@ -147,10 +147,10 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					currentGameNameForMessage = play.gameName;
 
 					CharSequence message = play.hasBeenSynced() ?
-						PresentationUtils.getText(context, R.string.msg_play_updated, play.gameName) :
-						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity), play.gameName);
+						PresentationUtils.getText(context, R.string.msg_play_updated) :
+						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 					Pair<String, String> imageUrls = queryGameImageUrls(play);
-					notifyUser(message, play.playId, imageUrls.first, imageUrls.second);
+					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(play);
@@ -167,7 +167,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
 					Pair<String, String> imageUrls = queryGameImageUrls(play);
-					notifyUser(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId), play.playId, imageUrls.first, imageUrls.second);
+					notifyUser(play.gameName, PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId), play.playId, imageUrls.first, imageUrls.second);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
@@ -362,7 +362,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	private void notifyUserOfDelete(@StringRes int messageId, Play play) {
 		Pair<String, String> imageUrls = queryGameImageUrls(play);
-		notifyUser(PresentationUtils.getText(context, messageId, play.gameName), play.playId, imageUrls.first, imageUrls.second);
+		notifyUser(play.gameName, PresentationUtils.getText(context, messageId, play.gameName), play.playId, imageUrls.first, imageUrls.second);
 	}
 
 	@DebugLog

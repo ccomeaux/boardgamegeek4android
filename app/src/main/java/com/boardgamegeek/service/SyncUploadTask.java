@@ -8,10 +8,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.LargeIconLoader;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PresentationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +39,12 @@ public abstract class SyncUploadTask extends SyncTask {
 	protected abstract String getNotificationErrorTag();
 
 	@DebugLog
-	protected void notifyUser(final CharSequence message, final int id, String imageUrl, final String thumbnailUrl) {
-		buildAndNotify(message, id, null);
+	protected void notifyUser(final CharSequence title, final CharSequence message, final int id, String imageUrl, final String thumbnailUrl) {
+		buildAndNotify(title, message, id, null);
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {
-				buildAndNotify(message, id, bitmap);
+				buildAndNotify(title, message, id, bitmap);
 			}
 
 			@Override
@@ -52,16 +54,15 @@ public abstract class SyncUploadTask extends SyncTask {
 		});
 		loader.executeInBackground();
 
-		notificationMessages.add(message);
+		notificationMessages.add(PresentationUtils.getText(context, R.string.msg_play_upload, title, message));
 		showNotificationSummary();
 	}
 
-	private void buildAndNotify(CharSequence message, int id, Bitmap largeIcon) {
+	private void buildAndNotify(CharSequence title, CharSequence message, int id, Bitmap largeIcon) {
 		Builder builder = createNotificationBuilder()
-			.setCategory(NotificationCompat.CATEGORY_SERVICE);
-
-		builder
-			.setContentText(message.toString().trim())
+			.setCategory(NotificationCompat.CATEGORY_SERVICE)
+			.setContentTitle(title)
+			.setContentText(message)
 			.setLargeIcon(largeIcon)
 			.setOnlyAlertOnce(true)
 			.setGroup(getNotificationMessageTag());
