@@ -149,8 +149,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					CharSequence message = play.hasBeenSynced() ?
 						PresentationUtils.getText(context, R.string.msg_play_updated) :
 						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
-					Pair<String, String> imageUrls = queryGameImageUrls(play);
-					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(play);
@@ -161,6 +159,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 						play.playId = newPlayId;
 					}
+					Pair<String, String> imageUrls = queryGameImageUrls(play);
+					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
 					play.syncStatus = Play.SYNC_STATUS_SYNCED;
 					persister.save(play);
 
