@@ -2,9 +2,7 @@ package com.boardgamegeek.service;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
@@ -38,9 +36,6 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	protected abstract String getNotificationErrorTag();
 
-	@PluralsRes
-	protected abstract int getUploadSummaryWithSize();
-
 	@DebugLog
 	protected void notifyUser(final CharSequence message, final int id, String imageUrl, final String thumbnailUrl) {
 		buildAndNotify(message, id, null);
@@ -57,9 +52,8 @@ public abstract class SyncUploadTask extends SyncTask {
 		});
 		loader.executeInBackground();
 
-//		notificationMessages.add(message);
-//		addSubsequentMessage(builder);
-//		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
+		notificationMessages.add(message);
+		showNotificationSummary();
 	}
 
 	private void buildAndNotify(CharSequence message, int id, Bitmap largeIcon) {
@@ -84,18 +78,20 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	@DebugLog
-	private void addSubsequentMessage(@NonNull Builder builder) {
-		final int messageCount = notificationMessages.size();
-		String summary = context.getResources().getQuantityString(getUploadSummaryWithSize(), messageCount, messageCount);
-		builder
-			.setContentText(summary)
+	private void showNotificationSummary() {
+		Builder builder = createNotificationBuilder()
 			.setGroup(getNotificationMessageTag())
 			.setGroupSummary(true);
-		NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
-		detail.setSummaryText(summary);
-		for (int i = messageCount - 1; i >= 0; i--) {
-			detail.addLine(notificationMessages.get(i));
+		final int messageCount = notificationMessages.size();
+		if (messageCount == 1) {
+			builder.setContentText(notificationMessages.get(0));
+		} else {
+			NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
+			for (int i = messageCount - 1; i >= 0; i--) {
+				detail.addLine(notificationMessages.get(i));
+			}
 		}
+		NotificationUtils.notify(context, getNotificationMessageTag(), 0, builder);
 	}
 
 	@Nullable

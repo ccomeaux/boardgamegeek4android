@@ -10,7 +10,6 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
@@ -90,13 +89,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@Override
 	protected String getNotificationErrorTag() {
 		return NotificationUtils.TAG_UPLOAD_PLAY_ERROR;
-	}
-
-	@DebugLog
-	@PluralsRes
-	@Override
-	protected int getUploadSummaryWithSize() {
-		return R.plurals.sync_notification_plays_upload_summary;
 	}
 
 	@DebugLog

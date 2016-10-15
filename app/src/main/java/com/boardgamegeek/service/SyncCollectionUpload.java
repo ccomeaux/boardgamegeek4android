@@ -90,13 +90,6 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	@PluralsRes
-	@Override
-	protected int getUploadSummaryWithSize() {
-		return R.plurals.sync_notification_collection_upload_summary;
-	}
-
-	@DebugLog
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		init(syncResult);

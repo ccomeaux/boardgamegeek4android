@@ -62,13 +62,5 @@
 		<item quantity="one">Uploading %,d collection item.</item>
 		<item quantity="other">Uploading %,d collection items.</item>
 	</plurals>
-	<plurals name="sync_notification_collection_upload_summary">
-		<item quantity="one">%,d item</item>
-		<item quantity="other">%,d items</item>
-	</plurals>
-	<plurals name="sync_notification_plays_upload_summary">
-		<item quantity="one">%,d play</item>
-		<item quantity="other">%,d plays</item>
-	</plurals>
 
 </resources>
