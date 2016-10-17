@@ -8,6 +8,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -19,7 +20,6 @@ import com.boardgamegeek.service.model.CollectionItem;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 import java.util.ArrayList;
@@ -188,7 +188,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			return;
 		}
 		resolver.delete(Collection.buildUri(item.getInternalId()), null, null);
-		notifySuccess(item.getCollectionName(), item.getCollectionId(), item.getImageUrl(), item.getThumbnailUrl());
+		notifySuccess(item, item.getCollectionId(), R.string.sync_notification_collection_deleted);
 	}
 
 	private void processNewCollectionItem(Cursor cursor) {
@@ -202,7 +202,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		addTask.appendContentValues(contentValues);
 		resolver.update(Collection.buildUri(item.getInternalId()), contentValues, null, null);
 		UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, item.getGameId());
-		notifySuccess(item.getCollectionName(), item.getGameId() * -1, item.getImageUrl(), item.getThumbnailUrl());
+		notifySuccess(item, item.getGameId() * -1, R.string.sync_notification_collection_added);
 	}
 
 	private void processDirtyCollectionItem(Cursor cursor) {
@@ -214,7 +214,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			}
 			if (contentValues.size() > 0) {
 				resolver.update(Collection.buildUri(item.getInternalId()), contentValues, null, null);
-				notifySuccess(item.getCollectionName(), item.getCollectionId(), item.getImageUrl(), item.getThumbnailUrl());
+				notifySuccess(item, item.getCollectionId(), R.string.sync_notification_collection_updated);
 			}
 		} else {
 			Timber.d("Invalid collectionItem ID for internal ID %1$s; game ID %2$s", item.getInternalId(), item.getGameId());
@@ -233,11 +233,9 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return false;
 	}
 
-	private void notifySuccess(String collectionName, int id, String imageUrl, String thumbnailUrl) {
+	private void notifySuccess(CollectionItem item, int id, @StringRes int messageResId) {
 		syncResult.stats.numUpdates++;
-		CharSequence message = PresentationUtils.getText(context, R.string.sync_notification_collection_upload_detail, collectionName);
-		Timber.i(message.toString());
-		notifyUser(collectionName, message, id, imageUrl, thumbnailUrl);
+		notifyUser(item.getCollectionName(), context.getString(messageResId), id, item.getImageUrl(), item.getThumbnailUrl());
 	}
 
 	private boolean processResponseForError(CollectionTask response) {
