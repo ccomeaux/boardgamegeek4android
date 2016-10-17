@@ -1,11 +1,11 @@
 package com.boardgamegeek.util;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -72,7 +72,7 @@ public class NotificationUtils {
 	 * Display the notification with a unique ID.
 	 */
 	public static void notify(Context context, String tag, int id, NotificationCompat.Builder builder) {
-		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		NotificationManagerCompat nm = NotificationManagerCompat.from(context);
 		nm.notify(tag, id, builder.build());
 	}
 
@@ -80,7 +80,7 @@ public class NotificationUtils {
 	 * Cancel the notification by a unique ID.
 	 */
 	public static void cancel(Context context, String tag, int id) {
-		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		NotificationManagerCompat nm = NotificationManagerCompat.from(context);
 		nm.cancel(tag, id);
 	}
 
