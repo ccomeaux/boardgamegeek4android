@@ -25,6 +25,8 @@ import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.ui.PlayerPlaysActivity;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ShareEvent;
 
 import java.util.List;
 
@@ -141,11 +143,16 @@ public class ActivityUtils {
 		activity.startActivity(intent);
 	}
 
-	public static void shareGame(Activity activity, int gameId, String gameName) {
+	public static void shareGame(Activity activity, int gameId, String gameName, String method) {
 		Resources r = activity.getResources();
 		String subject = String.format(r.getString(R.string.share_game_subject), gameName);
 		String text = r.getString(R.string.share_game_text) + "\n\n" + formatGameLink(gameId, gameName);
 		share(activity, subject, text, R.string.title_share_game);
+		Answers.getInstance().logShare(new ShareEvent()
+			.putMethod(method)
+			.putContentType("Game")
+			.putContentName(gameName)
+			.putContentId(String.valueOf(gameId)));
 	}
 
 	public static void shareGames(Activity activity, List<Pair<Integer, String>> games) {

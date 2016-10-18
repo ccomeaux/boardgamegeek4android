@@ -578,7 +578,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 			case R.id.menu_share:
 				mode.finish();
 				if (searchResultsAdapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.id, game.name);
+					ActivityUtils.shareGame(getActivity(), game.id, game.name, "Search");
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(searchResultsAdapter.getSelectedItemCount());
 					for (int position : searchResultsAdapter.getSelectedItems()) {

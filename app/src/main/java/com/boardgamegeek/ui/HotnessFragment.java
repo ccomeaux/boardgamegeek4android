@@ -326,7 +326,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 			case R.id.menu_share:
 				mode.finish();
 				if (adapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.id, game.name);
+					ActivityUtils.shareGame(getActivity(), game.id, game.name, "Hotness");
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
 					for (int position : adapter.getSelectedItems()) {
