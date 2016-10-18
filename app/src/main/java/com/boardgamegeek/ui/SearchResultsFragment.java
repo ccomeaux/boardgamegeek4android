@@ -50,6 +50,8 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.SearchEvent;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
@@ -326,6 +328,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		if (previousSearchText != null && previousSearchText.equals(query) && shouldSearchExact == previousShouldSearchExact) {
 			return;
 		}
+		Answers.getInstance().logSearch(new SearchEvent().putQuery(query));
 		restartLoader(query, shouldSearchExact);
 	}
 
