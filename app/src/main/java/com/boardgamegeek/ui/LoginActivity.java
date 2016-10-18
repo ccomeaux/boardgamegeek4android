@@ -186,7 +186,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	public class UserLoginTask extends AsyncTask<Void, Void, BggCookieJar> {
 		@Override
 		protected BggCookieJar doInBackground(Void... params) {
-			return NetworkAuthenticator.authenticate(username, password);
+			return NetworkAuthenticator.authenticate(username, password, "Dialog");
 		}
 
 		@Override
