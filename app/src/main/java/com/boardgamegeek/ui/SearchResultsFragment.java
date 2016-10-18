@@ -577,15 +577,16 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 				return true;
 			case R.id.menu_share:
 				mode.finish();
+				final String shareMethod = "Search";
 				if (searchResultsAdapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.id, game.name, "Search");
+					ActivityUtils.shareGame(getActivity(), game.id, game.name, shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(searchResultsAdapter.getSelectedItemCount());
 					for (int position : searchResultsAdapter.getSelectedItems()) {
 						SearchResult g = searchResultsAdapter.getItem(position);
 						games.add(Pair.create(g.id, g.name));
 					}
-					ActivityUtils.shareGames(getActivity(), games);
+					ActivityUtils.shareGames(getActivity(), games, shareMethod);
 				}
 				return true;
 			case R.id.menu_link:

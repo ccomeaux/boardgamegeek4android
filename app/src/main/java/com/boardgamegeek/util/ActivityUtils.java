@@ -28,6 +28,7 @@ import com.boardgamegeek.ui.PlayerPlaysActivity;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -155,14 +156,23 @@ public class ActivityUtils {
 			.putContentId(String.valueOf(gameId)));
 	}
 
-	public static void shareGames(Activity activity, List<Pair<Integer, String>> games) {
+	public static void shareGames(Activity activity, List<Pair<Integer, String>> games, String method) {
 		Resources r = activity.getResources();
 		StringBuilder text = new StringBuilder(r.getString(R.string.share_games_text));
 		text.append("\n").append("\n");
+		List<String> gameNames = new ArrayList<>();
+		List<String> gameIds = new ArrayList<>();
 		for (Pair<Integer, String> game : games) {
 			text.append(formatGameLink(game.first, game.second));
+			gameNames.add(game.second);
+			gameNames.add(String.valueOf(game.first));
 		}
 		share(activity, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
+		Answers.getInstance().logShare(new ShareEvent()
+			.putMethod(method)
+			.putContentType("Games")
+			.putContentName(StringUtils.formatList(gameNames))
+			.putContentId(String.valueOf(StringUtils.formatList(gameIds))));
 	}
 
 	private static String formatGameLink(int id, String name) {
