@@ -34,7 +34,7 @@ public class Article {
 	@Attribute
 	private int numedits;
 
-	@Element
+	@Element(required = false)
 	private String subject;
 
 	@Element
