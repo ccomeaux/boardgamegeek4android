@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.Menu;
 
 import com.boardgamegeek.R;
@@ -20,42 +19,21 @@ import org.greenrobot.eventbus.Subscribe;
 import hugo.weaving.DebugLog;
 
 public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
-	public static final String KEY_PLAYER_USERNAME = "PLAYER_USERNAME";
-	private int playCount;
-	private String name;
-	private String username;
+	private int playCount = -1;
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = getIntent();
-		name = intent.getStringExtra(KEY_PLAYER_NAME);
-		username = intent.getStringExtra(KEY_PLAYER_USERNAME);
-
-		String name = calculateName();
+		String name = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 		setSubtitle(name);
 		if (savedInstanceState == null) {
 			final ContentViewEvent event = new ContentViewEvent()
 				.putContentType("PlayerPlays")
 				.putContentName(name);
-			if (!TextUtils.isEmpty(username)) {
-				event.putContentId(username);
-			}
 			Answers.getInstance().logContentView(event);
 		}
-	}
-
-	@DebugLog
-	private String calculateName() {
-		if (TextUtils.isEmpty(name)) {
-			return username;
-		} else if (TextUtils.isEmpty(username)) {
-			return name;
-		}
-		return String.format("%s (%s)", name, username);
 	}
 
 	@NonNull
@@ -64,8 +42,7 @@ public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_PLAYER);
-		arguments.putString(PlaysFragment.KEY_PLAYER_NAME, intent.getStringExtra(KEY_PLAYER_NAME));
-		arguments.putString(PlaysFragment.KEY_USER_NAME, intent.getStringExtra(KEY_PLAYER_USERNAME));
+		arguments.putString(PlaysFragment.KEY_PLAYER_NAME, intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME));
 		return arguments;
 	}
 

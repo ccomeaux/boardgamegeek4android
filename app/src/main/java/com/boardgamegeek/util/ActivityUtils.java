@@ -24,7 +24,6 @@ import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
-import com.boardgamegeek.ui.PlayerPlaysActivity;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 
@@ -119,13 +118,6 @@ public class ActivityUtils {
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		return intent;
-	}
-
-	public static void startPlayerPlaysActivity(Context context, String name, String username) {
-		Intent intent = new Intent(context, PlayerPlaysActivity.class);
-		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_NAME, name);
-		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_USERNAME, username);
-		context.startActivity(intent);
 	}
 
 	@NonNull

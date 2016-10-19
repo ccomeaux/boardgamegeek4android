@@ -276,7 +276,9 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 			startActivity(intent);
 		} else {
-			ActivityUtils.startPlayerPlaysActivity(getActivity(), playerName, buddyName);
+			Intent intent = new Intent(getActivity(), PlayerPlaysActivity.class);
+			intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
+			startActivity(intent);
 		}
 	}
 
