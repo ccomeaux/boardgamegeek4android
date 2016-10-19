@@ -1,15 +1,19 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.util.LargeIconLoader;
+import com.boardgamegeek.util.LargeIconLoader.Callback;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PresentationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,46 +34,65 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	protected abstract Class<?> getNotificationIntentClass();
 
-	protected abstract int getNotificationErrorId();
+	protected abstract String getNotificationMessageTag();
 
-	protected abstract int getNotificationMessageId();
-
-	@StringRes
-	protected abstract int getUploadSummaryWithSize();
+	protected abstract String getNotificationErrorTag();
 
 	@DebugLog
-	protected void notifyUser(CharSequence message) {
-		notificationMessages.add(message);
-		NotificationCompat.Builder builder = createNotificationBuilder().setCategory(NotificationCompat.CATEGORY_SERVICE);
-		if (notificationMessages.size() == 1) {
-			addInitialMessage(builder);
-		} else {
-			addSubsequentMessage(builder);
-		}
-		NotificationUtils.notify(context, getNotificationMessageId(), builder);
+	protected void notifyUser(final CharSequence title, final CharSequence message, final int id, String imageUrl, final String thumbnailUrl) {
+		buildAndNotify(title, message, id, null);
+		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
+			@Override
+			public void onSuccessfulIconLoad(Bitmap bitmap) {
+				buildAndNotify(title, message, id, bitmap);
+			}
+
+			@Override
+			public void onFailedIconLoad() {
+				// oh well!
+			}
+		});
+		loader.executeInBackground();
+
+		notificationMessages.add(PresentationUtils.getText(context, R.string.msg_play_upload, title, message));
+		showNotificationSummary();
 	}
 
-	@DebugLog
-	private void addInitialMessage(@NonNull Builder builder) {
-		CharSequence message = notificationMessages.get(0);
-		builder.setContentText(message);
+	private void buildAndNotify(CharSequence title, CharSequence message, int id, Bitmap largeIcon) {
+		Builder builder = createNotificationBuilder()
+			.setCategory(NotificationCompat.CATEGORY_SERVICE)
+			.setContentTitle(title)
+			.setContentText(message)
+			.setLargeIcon(largeIcon)
+			.setOnlyAlertOnce(true)
+			.setGroup(getNotificationMessageTag());
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(message);
 		Action action = createMessageAction();
 		if (action != null) {
 			builder.addAction(action);
 		}
+		if (largeIcon != null) {
+			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
+		}
+		NotificationUtils.notify(context, getNotificationMessageTag(), id, builder);
 	}
 
 	@DebugLog
-	private void addSubsequentMessage(@NonNull Builder builder) {
-		String summary = String.format(context.getString(getUploadSummaryWithSize()), notificationMessages.size());
-		builder.setContentText(summary);
-		NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
-		detail.setSummaryText(summary);
-		for (int i = notificationMessages.size() - 1; i >= 0; i--) {
-			detail.addLine(notificationMessages.get(i));
+	private void showNotificationSummary() {
+		Builder builder = createNotificationBuilder()
+			.setGroup(getNotificationMessageTag())
+			.setGroupSummary(true);
+		final int messageCount = notificationMessages.size();
+		if (messageCount == 1) {
+			builder.setContentText(notificationMessages.get(0));
+		} else {
+			NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
+			for (int i = messageCount - 1; i >= 0; i--) {
+				detail.addLine(notificationMessages.get(i));
+			}
 		}
+		NotificationUtils.notify(context, getNotificationMessageTag(), 0, builder);
 	}
 
 	@Nullable
@@ -86,7 +109,7 @@ public abstract class SyncUploadTask extends SyncTask {
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(errorMessage);
-		NotificationUtils.notify(context, getNotificationErrorId(), builder);
+		NotificationUtils.notify(context, getNotificationErrorTag(), 0, builder);
 	}
 
 	@DebugLog

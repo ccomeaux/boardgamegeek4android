@@ -7,7 +7,7 @@ public class ServiceTask {
 		super();
 	}
 
-	protected int getNotification() {
+	protected int getNotificationSummaryMessageId() {
 		return NO_NOTIFICATION;
 	}
 }

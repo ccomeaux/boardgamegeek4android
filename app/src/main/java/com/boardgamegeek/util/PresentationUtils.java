@@ -338,7 +338,8 @@ public class PresentationUtils {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
-		return Html.fromHtml(String.format(Html.toHtml(new SpannedString(context.getText(id))), args));
+		final String htmlString = String.format(Html.toHtml(new SpannedString(context.getText(id))), args);
+		return trimTrailingWhitespace(Html.fromHtml(htmlString));
 	}
 
 	@DebugLog
@@ -346,7 +347,20 @@ public class PresentationUtils {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
-		return Html.fromHtml(String.format(Html.toHtml(new SpannedString(context.getResources().getQuantityText(id, quantity))), args));
+		final String htmlString = String.format(Html.toHtml(new SpannedString(context.getResources().getQuantityText(id, quantity))), args);
+		return trimTrailingWhitespace(Html.fromHtml(htmlString));
+	}
+
+	@DebugLog
+	public static CharSequence trimTrailingWhitespace(CharSequence source) {
+		if (source == null) return "";
+
+		int i = source.length();
+		do {
+			--i;
+		} while (i >= 0 && Character.isWhitespace(source.charAt(i)));
+
+		return source.subSequence(0, i + 1);
 	}
 
 	@DebugLog

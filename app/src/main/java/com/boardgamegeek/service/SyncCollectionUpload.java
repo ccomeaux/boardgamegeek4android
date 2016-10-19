@@ -8,7 +8,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
-import android.text.SpannableString;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -21,7 +21,6 @@ import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.ResolverUtils;
-import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +32,10 @@ import timber.log.Timber;
 public class SyncCollectionUpload extends SyncUploadTask {
 	private ContentResolver resolver;
 	private SyncResult syncResult;
-	private final List<String> timestampColumns = new ArrayList<>();
 	private final OkHttpClient okHttpClient;
-	private CollectionDeleteTask deleteTask;
-	private CollectionAddTask addTask;
-	private List<CollectionUploadTask> uploadTasks;
+	private final CollectionDeleteTask deleteTask;
+	private final CollectionAddTask addTask;
+	private final List<CollectionUploadTask> uploadTasks;
 
 	@DebugLog
 	public SyncCollectionUpload(Context context, BggService service) {
@@ -46,9 +44,6 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		deleteTask = new CollectionDeleteTask(okHttpClient);
 		addTask = new CollectionAddTask(okHttpClient);
 		uploadTasks = createUploadTasks();
-		for (CollectionUploadTask task : uploadTasks) {
-			timestampColumns.add(task.getTimestampColumn());
-		}
 	}
 
 	private List<CollectionUploadTask> createUploadTasks() {
@@ -84,20 +79,14 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected int getNotificationErrorId() {
-		return NotificationUtils.ID_SYNC_COLLECTION_UPLOAD_ERROR;
+	protected String getNotificationMessageTag() {
+		return NotificationUtils.TAG_UPLOAD_COLLECTION;
 	}
 
 	@DebugLog
 	@Override
-	protected int getNotificationMessageId() {
-		return NotificationUtils.ID_SYNC_COLLECTION_UPLOAD;
-	}
-
-	@DebugLog
-	@Override
-	protected int getUploadSummaryWithSize() {
-		return R.string.sync_notification_collection_upload_summary;
+	protected String getNotificationErrorTag() {
+		return NotificationUtils.TAG_UPLOAD_COLLECTION_ERROR;
 	}
 
 	@DebugLog
@@ -187,48 +176,48 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		final int count = cursor != null ? cursor.getCount() : 0;
 		String detail = context.getResources().getQuantityString(messageResId, count, count);
 		Timber.i(detail);
-		showNotification(detail);
+		updateProgressNotification(detail);
 		return cursor;
 	}
 
 	private void processDeletedCollectionItem(Cursor cursor) {
-		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
-		deleteTask.addCollectionItem(collectionItem);
+		CollectionItem item = CollectionItem.fromCursor(cursor);
+		deleteTask.addCollectionItem(item);
 		deleteTask.post();
 		if (processResponseForError(deleteTask)) {
 			return;
 		}
-		resolver.delete(Collection.buildUri(collectionItem.getInternalId()), null, null);
-		notifySuccess(collectionItem.getCollectionName());
+		resolver.delete(Collection.buildUri(item.getInternalId()), null, null);
+		notifySuccess(item, item.getCollectionId(), R.string.sync_notification_collection_deleted);
 	}
 
 	private void processNewCollectionItem(Cursor cursor) {
-		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
-		addTask.addCollectionItem(collectionItem);
+		CollectionItem item = CollectionItem.fromCursor(cursor);
+		addTask.addCollectionItem(item);
 		addTask.post();
 		if (processResponseForError(addTask)) {
 			return;
 		}
 		ContentValues contentValues = new ContentValues();
 		addTask.appendContentValues(contentValues);
-		resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
-		UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, collectionItem.getGameId());
-		notifySuccess(collectionItem.getCollectionName());
+		resolver.update(Collection.buildUri(item.getInternalId()), contentValues, null, null);
+		UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, item.getGameId());
+		notifySuccess(item, item.getGameId() * -1, R.string.sync_notification_collection_added);
 	}
 
 	private void processDirtyCollectionItem(Cursor cursor) {
-		CollectionItem collectionItem = CollectionItem.fromCursor(cursor);
-		if (collectionItem.getCollectionId() != BggContract.INVALID_ID) {
+		CollectionItem item = CollectionItem.fromCursor(cursor);
+		if (item.getCollectionId() != BggContract.INVALID_ID) {
 			ContentValues contentValues = new ContentValues();
 			for (CollectionUploadTask task : uploadTasks) {
-				if (processUploadTask(task, collectionItem, contentValues)) return;
+				if (processUploadTask(task, item, contentValues)) return;
 			}
 			if (contentValues.size() > 0) {
-				resolver.update(Collection.buildUri(collectionItem.getInternalId()), contentValues, null, null);
-				notifySuccess(collectionItem.getCollectionName());
+				resolver.update(Collection.buildUri(item.getInternalId()), contentValues, null, null);
+				notifySuccess(item, item.getCollectionId(), R.string.sync_notification_collection_updated);
 			}
 		} else {
-			Timber.d("Invalid collectionItem ID for internal ID %1$s; game ID %2$s", collectionItem.getInternalId(), collectionItem.getGameId());
+			Timber.d("Invalid collectionItem ID for internal ID %1$s; game ID %2$s", item.getInternalId(), item.getGameId());
 		}
 	}
 
@@ -244,11 +233,9 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return false;
 	}
 
-	private void notifySuccess(String collectionName) {
+	private void notifySuccess(CollectionItem item, int id, @StringRes int messageResId) {
 		syncResult.stats.numUpdates++;
-		SpannableString message = StringUtils.boldSecondString(context.getString(R.string.sync_notification_collection_upload_detail), collectionName);
-		Timber.i(message.toString());
-		notifyUser(message);
+		notifyUser(item.getCollectionName(), context.getString(messageResId), id, item.getImageUrl(), item.getThumbnailUrl());
 	}
 
 	private boolean processResponseForError(CollectionTask response) {

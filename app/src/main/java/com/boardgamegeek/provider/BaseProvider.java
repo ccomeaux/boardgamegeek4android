@@ -134,7 +134,7 @@ public abstract class BaseProvider {
 				.setContentText(e.getLocalizedMessage())
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getLocalizedMessage()));
-			NotificationUtils.notify(context, NotificationUtils.ID_PROVIDER_ERROR, builder);
+			NotificationUtils.notify(context, NotificationUtils.TAG_PROVIDER_ERROR, 0, builder);
 		}
 	}
 }

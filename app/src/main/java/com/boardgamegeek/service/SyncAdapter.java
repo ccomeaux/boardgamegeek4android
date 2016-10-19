@@ -87,14 +87,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
 				if (currentTask != null) {
-					showCancel(currentTask.getNotification());
+					notifySyncIsCancelled(currentTask.getNotificationSummaryMessageId());
 				}
 				break;
 			}
 			currentTask = tasks.get(i);
 			try {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
-				currentTask.showNotification();
+				currentTask.updateProgressNotification();
 				currentTask.execute(account, syncResult);
 				EventBus.getDefault().post(new SyncCompleteEvent());
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
@@ -108,7 +108,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 		toggleReceiver(false);
-		NotificationUtils.cancel(context, NotificationUtils.ID_SYNC);
+		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS, 0);
 	}
 
 	@DebugLog
@@ -215,7 +215,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
-		final int notification = task.getNotification();
+		final int notification = task.getNotificationSummaryMessageId();
 		if (notification != ServiceTask.NO_NOTIFICATION) {
 			CharSequence text = context.getText(notification);
 			NotificationCompat.Builder builder = NotificationUtils
@@ -225,25 +225,25 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			if (!TextUtils.isEmpty(message)) {
 				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 			}
-			NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
+			NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 		}
 	}
 
 	@DebugLog
-	private void showCancel(int messageId) {
+	private void notifySyncIsCancelled(int messageId) {
 		if (!shouldShowNotifications) {
 			return;
 		}
 
-		if (messageId == SyncTask.NO_NOTIFICATION) {
-			return;
+		CharSequence contextText = "";
+		if (messageId != SyncTask.NO_NOTIFICATION) {
+			contextText = context.getText(messageId);
 		}
 
-		final CharSequence contextText = context.getText(messageId);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_cancel)
 			.setContentText(contextText)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE);
-		NotificationUtils.notify(context, NotificationUtils.ID_SYNC_ERROR, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
 }

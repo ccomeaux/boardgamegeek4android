@@ -19,9 +19,11 @@ import java.util.Queue;
  */
 public class ImageUtils {
 	private static final String IMAGE_URL_PREFIX = "https://cf.geekdo-images.com/images/pic";
-	public static final String SUFFIX_MEDIUM = "_md";
+	//public static final String SUFFIX_SMALL_THUMBNAIL = "_mt";
+	public static final String SUFFIX_THUMBNAIL = "_t";
 	//private static final String SUFFIX_SQUARE = "_sq";
-	private static final String SUFFIX_SMALL = "_t";
+	public static final String SUFFIX_SMALL = "_t";
+	public static final String SUFFIX_MEDIUM = "_md";
 	//private static final String SUFFIX_LARGE = "_lg";
 	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
 

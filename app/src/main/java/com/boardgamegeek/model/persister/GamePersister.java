@@ -120,7 +120,7 @@ public class GamePersister {
 							.setStyle(
 								new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(
 									e.getMessage()));
-						NotificationUtils.notify(mContext, NotificationUtils.ID_PERSIST_ERROR, builder);
+						NotificationUtils.notify(mContext, NotificationUtils.TAG_PERSIST_ERROR, 0, builder);
 					} finally {
 						batch.clear();
 					}

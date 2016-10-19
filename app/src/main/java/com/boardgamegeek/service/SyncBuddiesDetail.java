@@ -38,7 +38,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 			List<String> names = getBuddyNames();
 			Timber.i("...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
-				showNotification(StringUtils.formatList(names));
+				updateProgressNotification(StringUtils.formatList(names));
 				List<User> buddies = new ArrayList<>(names.size());
 				for (String name : names) {
 					if (isCancelled()) {

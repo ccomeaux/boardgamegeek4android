@@ -63,7 +63,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 					if (numberOfFetches > 1) {
 						detail += " (page " + numberOfFetches + ")";
 					}
-					showNotification(detail);
+					updateProgressNotification(detail);
 
 					options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
 					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
@@ -101,7 +101,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_collection_unupdated;
 	}
 }

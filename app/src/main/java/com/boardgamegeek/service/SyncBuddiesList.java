@@ -47,13 +47,13 @@ public class SyncBuddiesList extends SyncTask {
 				return;
 			}
 
-			showNotification("Downloading list of GeekBuddies");
+			updateProgressNotification("Downloading list of GeekBuddies");
 			User user = new UserRequest(service, account.name, true).execute();
 			if (user == null) {
 				return;
 			}
 
-			showNotification("Storing list of GeekBuddies");
+			updateProgressNotification("Storing list of GeekBuddies");
 
 			Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.getId());
 
@@ -64,7 +64,7 @@ public class SyncBuddiesList extends SyncTask {
 			syncResult.stats.numEntries += count;
 			Timber.i("Synced " + count + " buddies");
 
-			showNotification("Discarding old GeekBuddies");
+			updateProgressNotification("Discarding old GeekBuddies");
 			// TODO: delete avatar images associated with this list
 			// Actually, these are now only in the cache!
 			ContentResolver resolver = context.getContentResolver();
@@ -80,7 +80,7 @@ public class SyncBuddiesList extends SyncTask {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_buddies_list;
 	}
 }

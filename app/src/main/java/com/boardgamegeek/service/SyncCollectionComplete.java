@@ -58,11 +58,11 @@ public class SyncCollectionComplete extends SyncTask {
 				}
 				Timber.i("...syncing status [" + status + "]");
 
-				showNotification(String.format("Syncing %s collection items", status));
+				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, status));
 				ArrayMap<String, String> options = createOptions(i, status);
 				requestAndPersist(account.name, persister, options, syncResult);
 
-				showNotification(String.format("Syncing %s collection accessories", status));
+				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, status));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 				requestAndPersist(account.name, persister, options, syncResult);
 			}
@@ -124,7 +124,7 @@ public class SyncCollectionComplete extends SyncTask {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_collection_full;
 	}
 }

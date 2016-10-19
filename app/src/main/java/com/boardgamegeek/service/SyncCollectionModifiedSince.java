@@ -46,7 +46,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 				return;
 			}
 
-			showNotification(String.format("Syncing collection items modified since %s", modifiedSince));
+			updateProgressNotification(String.format("Syncing collection items modified since %s", modifiedSince));
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
@@ -56,7 +56,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 				return;
 			}
 
-			showNotification(String.format("Syncing collection accessories modified since %s", modifiedSince));
+			updateProgressNotification(String.format("Syncing collection accessories modified since %s", modifiedSince));
 			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 			requestAndPersist(account.name, persister, options, syncResult);
 
@@ -79,7 +79,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_collection_partial;
 	}
 }

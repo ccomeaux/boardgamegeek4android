@@ -49,7 +49,7 @@ public class SyncGamesUnupdated extends SyncGames {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_games_unupdated;
 	}
 }
