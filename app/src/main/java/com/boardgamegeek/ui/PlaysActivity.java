@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
@@ -13,6 +14,8 @@ import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -22,6 +25,14 @@ import hugo.weaving.DebugLog;
 public class PlaysActivity extends SimpleSinglePaneActivity {
 	private int playCount;
 	private String sortName;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Plays"));
+		}
+	}
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {

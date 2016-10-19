@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -13,6 +14,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PaletteTransformation;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -31,6 +34,12 @@ public class ImageActivity extends AppCompatActivity {
 		ButterKnife.bind(this);
 
 		String imageUrl = getIntent().getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+		if (savedInstanceState == null) {
+			String imageId = Uri.parse(imageUrl).getLastPathSegment();
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("Image")
+				.putContentId(imageId));
+		}
 
 		Picasso.with(this)
 			.load(HttpUtils.ensureScheme(imageUrl))

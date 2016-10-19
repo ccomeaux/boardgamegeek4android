@@ -12,6 +12,8 @@ import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -33,20 +35,27 @@ public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 		name = intent.getStringExtra(KEY_PLAYER_NAME);
 		username = intent.getStringExtra(KEY_PLAYER_USERNAME);
 
-		setSubtitle();
+		String name = calculateName();
+		setSubtitle(name);
+		if (savedInstanceState == null) {
+			final ContentViewEvent event = new ContentViewEvent()
+				.putContentType("PlayerPlays")
+				.putContentName(name);
+			if (!TextUtils.isEmpty(username)) {
+				event.putContentId(username);
+			}
+			Answers.getInstance().logContentView(event);
+		}
 	}
 
 	@DebugLog
-	private void setSubtitle() {
-		String title;
+	private String calculateName() {
 		if (TextUtils.isEmpty(name)) {
-			title = username;
+			return username;
 		} else if (TextUtils.isEmpty(username)) {
-			title = name;
-		} else {
-			title = name + " (" + username + ")";
+			return name;
 		}
-		setSubtitle(title);
+		return String.format("%s (%s)", name, username);
 	}
 
 	@NonNull

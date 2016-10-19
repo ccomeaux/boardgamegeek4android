@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +13,8 @@ import com.boardgamegeek.events.LocationsCountChangedEvent;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -21,6 +24,14 @@ import hugo.weaving.DebugLog;
 public class LocationsActivity extends SimpleSinglePaneActivity {
 	private int locationCount = -1;
 	private int sortType = LocationsSorterFactory.TYPE_DEFAULT;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Locations"));
+		}
+	}
 
 	@DebugLog
 	@Override
