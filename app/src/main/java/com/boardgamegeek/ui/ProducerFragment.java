@@ -135,7 +135,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 			String description = cursor.getString(Query.DESCRIPTION);
 			long updated = cursor.getLong(Query.UPDATED);
 
-			idView.setText(String.format(getString(R.string.id_list_text), id));
+			idView.setText(String.format(getString(R.string.id_list_text), String.valueOf(id)));
 			nameView.setText(name);
 			UIUtils.setTextMaybeHtml(descriptionView, description);
 			updatedView.setTimestamp(updated);
@@ -144,9 +144,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 				triggerRefresh();
 			}
 		} else {
-			if (cursor != null) {
-				cursor.close();
-			}
+			if (cursor != null) cursor.close();
 		}
 	}
 
@@ -187,7 +185,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					swipeRefreshLayout.setRefreshing(isSyncing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
