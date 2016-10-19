@@ -50,6 +50,8 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ShareEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -260,8 +262,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
-					mPlay.toLongDescriptionWithPlayers(getActivity()), R.string.share_play_title);
+				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()), mPlay.toLongDescriptionWithPlayers(getActivity()), R.string.share_play_title);
+				Answers.getInstance().logShare(new ShareEvent()
+					.putContentType("Play")
+					.putContentName(mPlay.toShortDescription(getActivity()))
+					.putContentId(String.valueOf(mPlay.playId)));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -273,6 +278,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		triggerRefresh();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateEvent event) {
@@ -385,7 +391,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				setNewPlayId(newPlayId);
 				return false;
 			}
-			mEmpty.setText(String.format(getResources().getString(R.string.empty_play), mPlayId));
+			mEmpty.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(mPlayId)));
 			mEmpty.setVisibility(View.VISIBLE);
 			return true;
 		}
@@ -444,7 +450,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		mUpdated.setTimestamp(mPlay.updated);
 
 		if (mPlay.hasBeenSynced()) {
-			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.playId));
+			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(mPlay.playId)));
 		}
 
 		if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {

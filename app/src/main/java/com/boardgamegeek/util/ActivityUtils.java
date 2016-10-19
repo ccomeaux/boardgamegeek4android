@@ -57,6 +57,7 @@ public class ActivityUtils {
 	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
 	public static final String KEY_THREAD_ID = "THREAD_ID";
 	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
+	public static final String KEY_ARTICLE_ID = "ARTICLE_ID";
 	public static final String KEY_POST_DATE = "POST_DATE";
 	public static final String KEY_EDIT_DATE = "EDIT_DATE";
 	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
@@ -179,6 +180,16 @@ public class ActivityUtils {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
+	public static void shareGeekList(Activity activity, int id, String title) {
+		String description = String.format(activity.getString(R.string.share_geeklist_text), title);
+		Uri uri = ActivityUtils.createBggUri("geeklist", id);
+		ActivityUtils.share(activity, activity.getString(R.string.share_geeklist_subject), description + "\n\n" + uri, R.string.title_share);
+		Answers.getInstance().logShare(new ShareEvent()
+			.putContentType("GeekList")
+			.putContentName(title)
+			.putContentId(String.valueOf(id)));
+	}
+
 	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
@@ -280,6 +291,10 @@ public class ActivityUtils {
 
 	public static void linkToBgg(Context context, String path) {
 		link(context, createBggUri(path));
+	}
+
+	public static void linkToBgg(Context context, String path, int id) {
+		link(context, createBggUri(path, id));
 	}
 
 	public static void link(Context context, String link) {

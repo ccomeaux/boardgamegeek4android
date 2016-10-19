@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -39,14 +38,12 @@ public class GeekListActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Uri uri = ActivityUtils.createBggUri("geeklist", geekListId);
 		switch (item.getItemId()) {
 			case R.id.menu_view:
-				ActivityUtils.link(this, uri);
+				ActivityUtils.linkToBgg(this, "geeklist", geekListId);
 				return true;
 			case R.id.menu_share:
-				String description = String.format(getString(R.string.share_geeklist_text), geekListTitle);
-				ActivityUtils.share(this, getString(R.string.share_geeklist_subject), description + "\n\n" + uri, R.string.title_share);
+				ActivityUtils.shareGeekList(this, geekListId, geekListTitle);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
