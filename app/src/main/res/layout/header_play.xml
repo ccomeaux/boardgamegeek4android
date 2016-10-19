@@ -12,10 +12,11 @@
 		android:layout_gravity="center"
 		android:background="@color/primary">
 
-		<ImageView
+		<com.boardgamegeek.ui.widget.ForegroundImageView
 			android:id="@+id/thumbnail"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:foreground="?attr/selectableItemBackground"
 			android:scaleType="centerCrop"/>
 
 		<TextView
@@ -29,11 +30,6 @@
 			android:paddingLeft="@dimen/material_indent_horizontal"
 			android:paddingRight="@dimen/material_margin_horizontal"
 			tools:text="Puerto Rico"/>
-
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:background="?attr/selectableItemBackground"/>
 	</FrameLayout>
 
 	<LinearLayout
