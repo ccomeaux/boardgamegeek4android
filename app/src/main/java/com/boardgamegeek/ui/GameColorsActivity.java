@@ -15,7 +15,7 @@ import com.crashlytics.android.answers.ContentViewEvent;
 
 import hugo.weaving.DebugLog;
 
-public class ColorsActivity extends SimpleSinglePaneActivity {
+public class GameColorsActivity extends SimpleSinglePaneActivity {
 	private int gameId;
 	private String gameName;
 

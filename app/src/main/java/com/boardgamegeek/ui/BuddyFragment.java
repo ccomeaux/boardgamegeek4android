@@ -285,7 +285,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@DebugLog
 	@OnClick(R.id.colors_root)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
+		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		startActivity(intent);

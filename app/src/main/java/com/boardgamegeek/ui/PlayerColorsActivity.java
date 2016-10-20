@@ -39,7 +39,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
-import com.boardgamegeek.ui.BuddyColorsActivity.RecyclerViewAdapter.ColorViewHolder;
+import com.boardgamegeek.ui.PlayerColorsActivity.RecyclerViewAdapter.ColorViewHolder;
 import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.util.ActivityUtils;
@@ -60,7 +60,7 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class BuddyColorsActivity extends BaseActivity {
+public class PlayerColorsActivity extends BaseActivity {
 	private QueryHandler queryHandler;
 	private String buddyName;
 	private String playerName;
@@ -103,7 +103,7 @@ public class BuddyColorsActivity extends BaseActivity {
 				while (cursor.moveToNext()) {
 					colors.add(PlayerColor.fromCursor(cursor));
 				}
-				adapter = new RecyclerViewAdapter(BuddyColorsActivity.this);
+				adapter = new RecyclerViewAdapter(PlayerColorsActivity.this);
 				recyclerView.setAdapter(adapter);
 			} finally {
 				cursor.close();
@@ -222,7 +222,7 @@ public class BuddyColorsActivity extends BaseActivity {
 							adapter.add(color);
 						}
 					})
-					.setActionTextColor(ContextCompat.getColor(BuddyColorsActivity.this, R.color.light_blue))
+					.setActionTextColor(ContextCompat.getColor(PlayerColorsActivity.this, R.color.light_blue))
 					.show();
 				adapter.remove(color);
 			}
