@@ -48,6 +48,8 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,6 +144,16 @@ public class PlayerColorsActivity extends BaseActivity {
 
 		queryHandler = new QueryHandler(getContentResolver());
 		startQuery();
+
+		if (savedInstanceState == null) {
+			final ContentViewEvent event = new ContentViewEvent()
+				.putContentType("PlayerColors")
+				.putContentName(playerName);
+			if (!TextUtils.isEmpty(buddyName)) {
+				event.putContentId(String.valueOf(buddyName));
+			}
+			Answers.getInstance().logContentView(event);
+		}
 	}
 
 	private void setUpRecyclerView() {

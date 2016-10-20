@@ -8,10 +8,12 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 public class GameDetailActivity extends SimpleSinglePaneActivity {
-	private int mGameId;
-	private String mGameName;
+	private int gameId;
+	private String gameName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -19,13 +21,19 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 
 		final Intent intent = getIntent();
 		String title = intent.getStringExtra(ActivityUtils.KEY_TITLE);
-		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setTitle(title);
-			actionBar.setSubtitle(mGameName);
+			actionBar.setSubtitle(gameName);
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GameDetail")
+				.putContentName(title));
 		}
 	}
 
@@ -38,10 +46,10 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				if (mGameId == BggContract.INVALID_ID) {
+				if (gameId == BggContract.INVALID_ID) {
 					onBackPressed();
 				} else {
-					ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+					ActivityUtils.navigateUpToGame(this, gameId, gameName);
 				}
 				finish();
 				return true;
