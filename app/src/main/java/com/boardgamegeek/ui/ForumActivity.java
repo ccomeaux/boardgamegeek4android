@@ -11,6 +11,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 public class ForumActivity extends SimpleSinglePaneActivity {
 	private int gameId;
@@ -37,6 +39,13 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 					actionBar.setSubtitle(gameName);
 				}
 			}
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("Forum")
+				.putContentId(String.valueOf(forumId))
+				.putContentName(forumTitle));
 		}
 	}
 

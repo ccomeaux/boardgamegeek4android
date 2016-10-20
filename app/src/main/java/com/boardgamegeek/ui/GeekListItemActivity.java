@@ -10,6 +10,8 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 public class GeekListItemActivity extends SimpleSinglePaneActivity {
 	private int geekListId;
@@ -36,6 +38,13 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 			if (actionBar != null) {
 				actionBar.setTitle(geekListTitle);
 			}
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GeekListItem")
+				.putContentId(String.valueOf(objectId))
+				.putContentName(objectName));
 		}
 	}
 

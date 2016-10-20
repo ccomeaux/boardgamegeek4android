@@ -10,6 +10,8 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import hugo.weaving.DebugLog;
 
@@ -30,6 +32,13 @@ public class ColorsActivity extends SimpleSinglePaneActivity {
 			if (supportActionBar != null) {
 				supportActionBar.setSubtitle(gameName);
 			}
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GameColors")
+				.putContentId(String.valueOf(gameId))
+				.putContentName(gameName));
 		}
 	}
 

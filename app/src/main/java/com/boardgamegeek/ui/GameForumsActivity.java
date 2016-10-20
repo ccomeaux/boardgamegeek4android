@@ -9,23 +9,32 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 public class GameForumsActivity extends SimpleSinglePaneActivity {
-	private int mGameId;
-	private String mGameName;
+	private int gameId;
+	private String gameName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mGameId = Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameId = Games.getGameId(getIntent().getData());
+		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
-		if (!TextUtils.isEmpty(mGameName)) {
+		if (!TextUtils.isEmpty(gameName)) {
 			ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
-				actionBar.setSubtitle(mGameName);
+				actionBar.setSubtitle(gameName);
 			}
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GameForums")
+				.putContentId(String.valueOf(gameId))
+				.putContentName(gameName));
 		}
 	}
 
@@ -38,7 +47,7 @@ public class GameForumsActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+				ActivityUtils.navigateUpToGame(this, gameId, gameName);
 				finish();
 				return true;
 		}

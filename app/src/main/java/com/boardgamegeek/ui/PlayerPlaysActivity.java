@@ -29,10 +29,9 @@ public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 		String name = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 		setSubtitle(name);
 		if (savedInstanceState == null) {
-			final ContentViewEvent event = new ContentViewEvent()
+			Answers.getInstance().logContentView(new ContentViewEvent()
 				.putContentType("PlayerPlays")
-				.putContentName(name);
-			Answers.getInstance().logContentView(event);
+				.putContentName(name));
 		}
 	}
 

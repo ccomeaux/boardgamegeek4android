@@ -20,6 +20,8 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -44,6 +46,12 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 		setSubtitle();
 
 		EventBus.getDefault().removeStickyEvent(BuddySelectedEvent.class);
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("Buddy")
+				.putContentId(username)
+				.putContentName(name));
+		}
 	}
 
 	@Override

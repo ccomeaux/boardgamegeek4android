@@ -11,6 +11,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 
 public class ArticleActivity extends SimpleSinglePaneActivity {
@@ -47,6 +48,12 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				actionBar.setSubtitle(gameName);
 			}
 		}
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("Article")
+				.putContentId(String.valueOf(articleId))
+				.putContentName(threadSubject));
+		}
 	}
 
 	@Override
@@ -80,11 +87,11 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 			case R.id.menu_share:
 				String description = TextUtils.isEmpty(gameName) ?
 					String.format(getString(R.string.share_thread_article_text), threadSubject, forumTitle) :
-					String.format(getString(R.string.share_thread_article_game_text), threadSubject, forumTitle, gameName) ;
+					String.format(getString(R.string.share_thread_article_game_text), threadSubject, forumTitle, gameName);
 				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link, R.string.title_share);
 				String contentName = TextUtils.isEmpty(gameName) ?
 					String.format("%s | %s", forumTitle, threadSubject) :
-					String.format("%s | %s | %s", gameName, forumTitle, threadSubject) ;
+					String.format("%s | %s | %s", gameName, forumTitle, threadSubject);
 				Answers.getInstance().logShare(new ShareEvent()
 					.putContentType("Article")
 					.putContentName(contentName)
