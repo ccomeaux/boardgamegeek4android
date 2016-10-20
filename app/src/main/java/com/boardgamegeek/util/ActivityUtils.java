@@ -57,7 +57,6 @@ public class ActivityUtils {
 	public static final String KEY_POST_DATE = "POST_DATE";
 	public static final String KEY_EDIT_DATE = "EDIT_DATE";
 	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
-	public static final String KEY_TEXT = "TEXT";
 	public static final String KEY_BODY = "BODY";
 	public static final String KEY_LINK = "LINK";
 	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
