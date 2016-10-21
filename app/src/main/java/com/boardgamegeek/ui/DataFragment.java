@@ -29,6 +29,8 @@ import com.boardgamegeek.export.Step;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TaskUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,6 +44,8 @@ import hugo.weaving.DebugLog;
 
 public class DataFragment extends Fragment {
 	private static final int REQUEST_EXPORT = 0;
+	private static final String ANSWERS_EVENT_NAME = "DataManagement";
+	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
 	private Unbinder unbinder;
 	@BindView(R.id.backup_location) TextView fileLocationView;
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
@@ -99,6 +103,8 @@ public class DataFragment extends Fragment {
 				if (PackageManager.PERMISSION_GRANTED ==
 					ContextCompat.checkSelfPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE)) {
 					export();
+					Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME)
+						.putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Export"));
 				} else {
 					if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
 						View v = getView();
@@ -142,6 +148,8 @@ public class DataFragment extends Fragment {
 			public void onClick(DialogInterface dialog, int which) {
 				initProgressBar();
 				TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), false));
+				Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME)
+					.putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Import"));
 			}
 		}).show();
 	}

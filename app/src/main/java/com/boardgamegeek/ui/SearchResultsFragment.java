@@ -30,7 +30,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +50,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.SearchEvent;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
@@ -289,6 +289,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 						requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
 						//setProgressShown(true);
 						requery(searchText, false);
+						Answers.getInstance().logCustom(new CustomEvent("SearchMore"));
 					}
 				});
 			} else {
@@ -479,7 +480,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 				}
 				nameView.setTypeface(nameView.getTypeface(), style);
 				yearView.setText(PresentationUtils.describeYear(yearView.getContext(), game.getYearPublished()));
-				gameIdView.setText(gameIdView.getContext().getString(R.string.id_list_text, game.id));
+				gameIdView.setText(gameIdView.getContext().getString(R.string.id_list_text, String.valueOf(game.id)));
 
 				itemView.setActivated(selectedItems.get(position, false));
 

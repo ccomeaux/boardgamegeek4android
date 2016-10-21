@@ -44,6 +44,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -399,6 +400,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				if (!TextUtils.isEmpty(newNickname)) {
 					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
+					DataManipulationEvent.log("BuddyNickname", "Edit");
 				}
 			}
 		});

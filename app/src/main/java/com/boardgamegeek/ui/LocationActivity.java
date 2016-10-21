@@ -21,6 +21,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -140,6 +141,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 				@Override
 				public void onFinishEditDialog(String inputText) {
 					if (!TextUtils.isEmpty(inputText)) {
+						DataManipulationEvent.log("Location", "Edit");
 						RenameLocationTask task = new RenameLocationTask(LocationActivity.this, oldLocation, inputText);
 						TaskUtils.executeAsyncTask(task);
 					}

@@ -30,6 +30,8 @@ import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -156,7 +158,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (!TextUtils.isEmpty(status) && !status.equals(statusValue)) {
 			statusValue = status;
 			statusLabel = statusEntries[i];
-
+			Answers.getInstance().logCustom(new CustomEvent("Filter")
+				.putCustomAttribute("contentType", "BuddyCollection")
+				.putCustomAttribute("filterType", status));
 			reload();
 			return true;
 		}

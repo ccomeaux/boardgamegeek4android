@@ -48,6 +48,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -232,11 +233,13 @@ public class PlayerColorsActivity extends BaseActivity {
 						@Override
 						public void onClick(View v) {
 							adapter.add(color);
+							PlayerColorsManipulationEvent.log("UndoDelete", color.getColor());
 						}
 					})
 					.setActionTextColor(ContextCompat.getColor(PlayerColorsActivity.this, R.color.light_blue))
 					.show();
 				adapter.remove(color);
+				PlayerColorsManipulationEvent.log("Delete", color.getColor());
 			}
 
 			@Override
@@ -342,6 +345,7 @@ public class PlayerColorsActivity extends BaseActivity {
 				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_clear_colors, new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						PlayerColorsManipulationEvent.log("Clear");
 						if (colors != null) {
 							colors.clear();
 						}
@@ -398,7 +402,7 @@ public class PlayerColorsActivity extends BaseActivity {
 			PlayerColor color = new PlayerColor(colors.remove(i).first, order++);
 			this.colors.add(color);
 		}
-
+		PlayerColorsManipulationEvent.log("Generate");
 		showData();
 		adapter.notifyItemRangeInserted(0, colors.size());
 	}
@@ -420,6 +424,7 @@ public class PlayerColorsActivity extends BaseActivity {
 			@Override
 			public void onColorSelected(String description, int color) {
 				if (colors != null) {
+					PlayerColorsManipulationEvent.log("Add", description);
 					colors.add(new PlayerColor(description, colors.size() + 1));
 					showData();
 					adapter.notifyItemInserted(colors.size());
