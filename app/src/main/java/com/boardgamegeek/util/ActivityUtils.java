@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
@@ -24,7 +25,9 @@ import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
+import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.ShareEvent;
 
 import java.util.ArrayList;
@@ -198,6 +201,7 @@ public class ActivityUtils {
 	}
 
 	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		PlayManipulationEvent.log("Edit", gameName);
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
@@ -254,10 +258,10 @@ public class ActivityUtils {
 	}
 
 	public static void linkBgg(Context context, int gameId) {
-		if (gameId <= 0) {
+		if (gameId == BggContract.INVALID_ID) {
 			return;
 		}
-		link(context, BOARDGAME_URL_PREFIX + gameId);
+		linkToBgg(context, BOARDGAME_URL_PREFIX, gameId);
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {
@@ -283,17 +287,23 @@ public class ActivityUtils {
 
 	public static void linkToBgg(Context context, String path) {
 		link(context, createBggUri(path));
+		Answers.getInstance().logCustom(new CustomEvent("Link")
+			.putCustomAttribute("Path", path));
 	}
 
 	public static void linkToBgg(Context context, String path, int id) {
 		link(context, createBggUri(path, id));
+		Answers.getInstance().logCustom(new CustomEvent("Link")
+			.putCustomAttribute("Path", path));
 	}
 
-	public static void link(Context context, String link) {
-		link(context, Uri.parse(link));
+	public static void link(Context context, String url) {
+		link(context, Uri.parse(url));
+		Answers.getInstance().logCustom(new CustomEvent("Link")
+			.putCustomAttribute("Url", url));
 	}
 
-	public static void link(Context context, Uri link) {
+	private static void link(Context context, Uri link) {
 		final Intent intent = new Intent(Intent.ACTION_VIEW, link);
 		if (isIntentAvailable(context, intent)) {
 			context.startActivity(intent);

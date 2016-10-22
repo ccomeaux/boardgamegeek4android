@@ -50,6 +50,7 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 
@@ -231,11 +232,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							PlayManipulationEvent.log("Discard", mPlay.gameName);
 							save(Play.SYNC_STATUS_SYNCED);
 						}
 					}).show();
 				return true;
 			case R.id.menu_edit:
+				PlayManipulationEvent.log("Edit", mPlay.gameName);
 				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 				return true;
 			case R.id.menu_send:
@@ -257,8 +260,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			}
 			case R.id.menu_rematch:
-				ActivityUtils.rematch(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
-					mImageUrl);
+				PlayManipulationEvent.log("Rematch", mPlay.gameName);
+				ActivityUtils.rematch(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -502,6 +505,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void save(int status) {
+		String action = "Save";
+		if (status == Play.SYNC_STATUS_PENDING_DELETE) {
+			action = "Delete";
+		} else if (status == Play.SYNC_STATUS_PENDING_UPDATE {
+			action = "SaveDraft";
+		}
+		PlayManipulationEvent.log(action, mPlay.gameName);
 		mPlay.syncStatus = status;
 		new PlayPersister(getActivity()).save(mPlay);
 		triggerRefresh();

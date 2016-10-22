@@ -97,7 +97,7 @@
 	<string name="msg_color_success">You get a color and you get a color. Everybody gets a color!</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
-	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
+	<string name="are_you_sure_refresh_message">Are you sure you want to discard local changes?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
