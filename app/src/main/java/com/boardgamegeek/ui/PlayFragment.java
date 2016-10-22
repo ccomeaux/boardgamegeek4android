@@ -508,7 +508,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		String action = "Save";
 		if (status == Play.SYNC_STATUS_PENDING_DELETE) {
 			action = "Delete";
-		} else if (status == Play.SYNC_STATUS_PENDING_UPDATE {
+		} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
 			action = "SaveDraft";
 		}
 		PlayManipulationEvent.log(action, mPlay.gameName);

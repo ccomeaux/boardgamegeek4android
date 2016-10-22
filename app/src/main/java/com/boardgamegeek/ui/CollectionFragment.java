@@ -68,6 +68,11 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
+import com.boardgamegeek.util.fabric.FilterEvent;
+import com.boardgamegeek.util.fabric.SortEvent;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
@@ -296,6 +301,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
 			switch (item.getItemId()) {
 				case R.id.menu_collection_random_game:
+					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
@@ -549,6 +555,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (filter.isValid()) {
 			filters.add(filter);
 		}
+		FilterEvent.log("Collection", String.valueOf(filter.getType()));
 		setEmptyText();
 		resetScrollState();
 		requery();
@@ -589,6 +596,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
+		SortEvent.log("Collection", String.valueOf(sortType));
 		sorter = getCollectionSorter(sortType);
 		resetScrollState();
 		requery();
@@ -597,6 +605,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void createView(long id, String name) {
+		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
 		EventBus.getDefault().post(new CollectionViewRequestedEvent(id));
 	}
@@ -604,6 +613,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void deleteView(long id) {
+		CollectionViewManipulationEvent.log("Delete");
 		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (viewId == id) {
 			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));

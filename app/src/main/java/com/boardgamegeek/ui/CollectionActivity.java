@@ -30,6 +30,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -180,6 +181,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 					CollectionFragment fragment = (CollectionFragment) getFragment();
 					long oldId = fragment.getViewId();
 					if (id != oldId) {
+						Answers.getInstance().logCustom(new CustomEvent("CollectionViewSelected"));
 						viewIndex = findViewIndex(id);
 						if (id < 0) {
 							fragment.clearView();
