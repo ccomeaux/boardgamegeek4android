@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,7 +25,6 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter;
-import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
@@ -129,7 +129,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 
 		if (gameId == BggContract.INVALID_ID) {
 			recyclerView.setPadding(recyclerView.getPaddingLeft(), 0, recyclerView.getRight(), recyclerView.getBottom());

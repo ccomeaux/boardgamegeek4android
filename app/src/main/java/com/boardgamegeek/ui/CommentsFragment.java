@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,7 +21,6 @@ import com.boardgamegeek.model.Game.Comment;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
-import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GameComments;
 import com.boardgamegeek.ui.model.PaginatedData;
@@ -93,7 +93,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
