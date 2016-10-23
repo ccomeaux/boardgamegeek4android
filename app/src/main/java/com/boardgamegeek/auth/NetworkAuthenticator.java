@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.util.HttpUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.LoginEvent;
 
 import java.io.IOException;
 
@@ -25,20 +27,20 @@ public class NetworkAuthenticator {
 	 * requests, or null if authentication fails.
 	 */
 	@Nullable
-	public static BggCookieJar authenticate(@NonNull String username, @NonNull String password) {
+	public static BggCookieJar authenticate(@NonNull String username, @NonNull String password, @NonNull String method) {
 		if (MOCK_LOGIN) {
 			return BggCookieJar.getMock();
 		} else {
-			return tryAuthenticate(username, password);
+			return tryAuthenticate(username, password, method);
 		}
 	}
 
 	@Nullable
-	private static BggCookieJar tryAuthenticate(@NonNull String username, @NonNull String password) {
+	private static BggCookieJar tryAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method) {
 		try {
-			return performAuthenticate(username, password);
+			return performAuthenticate(username, password, method);
 		} catch (@NonNull final IOException e) {
-			Timber.w(e, "IOException when attempting to authenticate");
+			logAuthFailure(method, "IOException");
 		} finally {
 			Timber.w("Authentication complete");
 		}
@@ -47,20 +49,34 @@ public class NetworkAuthenticator {
 
 	@Nullable
 	@DebugLog
-	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password) throws IOException {
+	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method) throws IOException {
 		final BggCookieJar cookieJar = new BggCookieJar();
 		final OkHttpClient client = HttpUtils.getHttpClient().newBuilder()
 			.cookieJar(cookieJar)
 			.build();
 		Request post = buildRequest(username, password);
 		final Response response = client.newCall(post).execute();
-		if (response.isSuccessful() && cookieJar.isValid()) {
-			Timber.w("Successful authentication");
-			return cookieJar;
+		if (response.isSuccessful()) {
+			if (cookieJar.isValid()) {
+				Answers.getInstance().logLogin(new LoginEvent()
+					.putMethod(method)
+					.putSuccess(true));
+				return cookieJar;
+			} else {
+				logAuthFailure(method, "Invalid cookie jar");
+			}
 		} else {
-			Timber.w("Bad response code - " + response.code());
-			return null;
+			logAuthFailure(method, "Response: " + response.toString());
 		}
+		return null;
+	}
+
+	private static void logAuthFailure(String method, String reason) {
+		Timber.w("Failed %1$s login: %2$s", method, reason);
+		Answers.getInstance().logLogin(new LoginEvent()
+			.putMethod(method)
+			.putSuccess(false)
+			.putCustomAttribute("Reason", reason));
 	}
 
 	@DebugLog

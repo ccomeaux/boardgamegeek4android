@@ -9,6 +9,8 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -30,6 +32,11 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 			if (bar != null) {
 				bar.setSubtitle(buddyName);
 			}
+		}
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("BuddyCollection")
+				.putContentId(buddyName));
 		}
 	}
 

@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -10,6 +9,8 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 	private int geekListId;
@@ -25,6 +26,13 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 		if (actionBar != null) {
 			actionBar.setTitle(geekListTitle);
 		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GeekListDescription")
+				.putContentId(String.valueOf(geekListId))
+				.putContentName(geekListTitle));
+		}
 	}
 
 	@Override
@@ -39,7 +47,6 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Uri uri = ActivityUtils.createBggUri("geeklist", geekListId);
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				if (geekListId != BggContract.INVALID_ID) {
@@ -54,11 +61,10 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 				}
 				return true;
 			case R.id.menu_view:
-				ActivityUtils.link(this, uri);
+				ActivityUtils.linkToBgg(this, "geeklist", geekListId);
 				return true;
 			case R.id.menu_share:
-				String description = String.format(getString(R.string.share_geeklist_text), geekListTitle);
-				ActivityUtils.share(this, getString(R.string.share_geeklist_subject), description + "\n\n" + uri, R.string.title_share);
+				ActivityUtils.shareGeekList(this, geekListId, geekListTitle);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

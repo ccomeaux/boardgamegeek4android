@@ -90,6 +90,9 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.AddFieldEvent;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
@@ -565,6 +568,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ColorAssignmentCompleteEvent event) {
+		Answers.getInstance().logCustom(new CustomEvent("LogPlayColorAssignment"));
 		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
 			playAdapter.notifyPlayersChanged();
@@ -775,6 +779,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						isUserShowingPlayers = true;
 						playAdapter.insertRow(R.layout.row_log_play_add_player);
 					}
+					AddFieldEvent.log("Play", selection);
 					supportInvalidateOptionsMenu();
 				}
 			}).show();
@@ -905,6 +910,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				switch (item.getItemId()) {
 					case R.id.menu_custom_player_order:
 						if (arePlayersCustomSorted) {
+							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
 							if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
 								Dialog dialog = DialogUtils.createConfirmationDialog(LogPlayActivity.this,
 									R.string.are_you_sure_player_sort_custom_off,
@@ -923,6 +929,7 @@ public class LogPlayActivity extends AppCompatActivity {
 								playAdapter.notifyPlayersChanged();
 							}
 						} else {
+							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
 							if (play.hasStartingPositions()) {
 								AlertDialog.Builder builder = new Builder(LogPlayActivity.this)
 									.setCancelable(true).setTitle(R.string.title_custom_player_order)
@@ -947,15 +954,18 @@ public class LogPlayActivity extends AppCompatActivity {
 						}
 						return true;
 					case R.id.menu_pick_start_player:
+						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
 						promptPickStartPlayer();
 						return true;
 					case R.id.menu_random_start_player:
+						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "RandomStarter"));
 						int newSeat = new Random().nextInt(play.getPlayerCount());
 						play.pickStartPlayer(newSeat);
 						playAdapter.notifyPlayersChanged();
 						notifyStartPlayer();
 						return true;
 					case R.id.menu_random_player_order:
+						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
 						play.randomizePlayerOrder();
 						playAdapter.notifyPlayersChanged();
 						notifyStartPlayer();
@@ -1364,6 +1374,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void onTimer() {
 				if (play.hasStarted()) {
 					isRequestingToEndPlay = true;
+					Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "Off"));
 					play.end();
 					bind();
 					cancelNotification();
@@ -1388,6 +1399,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@DebugLog
 			private void startTimer() {
+				Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "On"));
 				play.start();
 				bind();
 				maybeShowNotification();

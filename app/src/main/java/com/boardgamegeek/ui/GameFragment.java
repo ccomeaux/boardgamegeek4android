@@ -771,7 +771,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@OnClick(R.id.colors_root)
 	@DebugLog
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), ColorsActivity.class);
+		Intent intent = new Intent(getActivity(), GameColorsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);

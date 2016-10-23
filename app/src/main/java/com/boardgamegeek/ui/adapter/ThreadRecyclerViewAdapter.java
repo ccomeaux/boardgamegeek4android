@@ -75,6 +75,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
 			bundle.putString(ActivityUtils.KEY_BODY, article.body);
 			bundle.putString(ActivityUtils.KEY_LINK, article.link);
+			bundle.putInt(ActivityUtils.KEY_ARTICLE_ID, article.id);
 			viewButton.setTag(bundle);
 		}
 	}

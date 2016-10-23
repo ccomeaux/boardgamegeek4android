@@ -10,6 +10,7 @@ import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
 import com.jakewharton.picasso.OkHttp3Downloader;
@@ -29,7 +30,7 @@ public class BggApplication extends Application {
 	@DebugLog
 	public void onCreate() {
 		super.onCreate();
-		Fabric.with(this, new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build());
+		initializeFabric();
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
 			enableStrictMode();
@@ -58,6 +59,11 @@ public class BggApplication extends Application {
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
 			.downloader(new OkHttp3Downloader(HttpUtils.getHttpClientWithCache(this)))
 			.build());
+	}
+
+	private void initializeFabric() {
+		final Crashlytics crashlytics = new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build();
+		Fabric.with(this, crashlytics, new Answers());
 	}
 
 	private void enableStrictMode() {

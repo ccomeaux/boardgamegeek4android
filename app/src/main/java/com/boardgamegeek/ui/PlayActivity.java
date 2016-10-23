@@ -16,6 +16,8 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -40,6 +42,14 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 		EventBus.getDefault().removeStickyEvent(PlaySelectedEvent.class);
 
 		final int originalPlayId = getPlayId();
+		if (savedInstanceState == null) {
+			final ContentViewEvent event = new ContentViewEvent().putContentType("Play");
+			if (originalPlayId != BggContract.INVALID_ID) {
+				event.putContentId(String.valueOf(originalPlayId));
+			}
+			Answers.getInstance().logContentView(event);
+		}
+
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -88,6 +98,11 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 		if (playId != BggContract.INVALID_ID) {
 			this.playId = playId;
 			((PlayFragment) getFragment()).setNewPlayId(playId);
+			final ContentViewEvent event = new ContentViewEvent().putContentType("Play");
+			if (this.playId != BggContract.INVALID_ID) {
+				event.putContentId(String.valueOf(playId));
+			}
+			Answers.getInstance().logContentView(event);
 		}
 	}
 

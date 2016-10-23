@@ -39,7 +39,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
-import com.boardgamegeek.ui.BuddyColorsActivity.RecyclerViewAdapter.ColorViewHolder;
+import com.boardgamegeek.ui.PlayerColorsActivity.RecyclerViewAdapter.ColorViewHolder;
 import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.util.ActivityUtils;
@@ -48,6 +48,9 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +63,7 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class BuddyColorsActivity extends BaseActivity {
+public class PlayerColorsActivity extends BaseActivity {
 	private QueryHandler queryHandler;
 	private String buddyName;
 	private String playerName;
@@ -103,7 +106,7 @@ public class BuddyColorsActivity extends BaseActivity {
 				while (cursor.moveToNext()) {
 					colors.add(PlayerColor.fromCursor(cursor));
 				}
-				adapter = new RecyclerViewAdapter(BuddyColorsActivity.this);
+				adapter = new RecyclerViewAdapter(PlayerColorsActivity.this);
 				recyclerView.setAdapter(adapter);
 			} finally {
 				cursor.close();
@@ -142,6 +145,16 @@ public class BuddyColorsActivity extends BaseActivity {
 
 		queryHandler = new QueryHandler(getContentResolver());
 		startQuery();
+
+		if (savedInstanceState == null) {
+			final ContentViewEvent event = new ContentViewEvent()
+				.putContentType("PlayerColors")
+				.putContentName(playerName);
+			if (!TextUtils.isEmpty(buddyName)) {
+				event.putContentId(String.valueOf(buddyName));
+			}
+			Answers.getInstance().logContentView(event);
+		}
 	}
 
 	private void setUpRecyclerView() {
@@ -220,11 +233,13 @@ public class BuddyColorsActivity extends BaseActivity {
 						@Override
 						public void onClick(View v) {
 							adapter.add(color);
+							PlayerColorsManipulationEvent.log("UndoDelete", color.getColor());
 						}
 					})
-					.setActionTextColor(ContextCompat.getColor(BuddyColorsActivity.this, R.color.light_blue))
+					.setActionTextColor(ContextCompat.getColor(PlayerColorsActivity.this, R.color.light_blue))
 					.show();
 				adapter.remove(color);
+				PlayerColorsManipulationEvent.log("Delete", color.getColor());
 			}
 
 			@Override
@@ -330,6 +345,7 @@ public class BuddyColorsActivity extends BaseActivity {
 				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_clear_colors, new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						PlayerColorsManipulationEvent.log("Clear");
 						if (colors != null) {
 							colors.clear();
 						}
@@ -386,7 +402,7 @@ public class BuddyColorsActivity extends BaseActivity {
 			PlayerColor color = new PlayerColor(colors.remove(i).first, order++);
 			this.colors.add(color);
 		}
-
+		PlayerColorsManipulationEvent.log("Generate");
 		showData();
 		adapter.notifyItemRangeInserted(0, colors.size());
 	}
@@ -408,6 +424,7 @@ public class BuddyColorsActivity extends BaseActivity {
 			@Override
 			public void onColorSelected(String description, int color) {
 				if (colors != null) {
+					PlayerColorsManipulationEvent.log("Add", description);
 					colors.add(new PlayerColor(description, colors.size() + 1));
 					showData();
 					adapter.notifyItemInserted(colors.size());

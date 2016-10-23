@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 
@@ -8,6 +9,8 @@ import com.boardgamegeek.events.BuddiesCountChangedEvent;
 import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -16,6 +19,14 @@ import hugo.weaving.DebugLog;
 
 public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	private int numberOfBuddies = -1;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Buddies"));
+		}
+	}
 
 	@DebugLog
 	@Override

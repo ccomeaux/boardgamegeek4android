@@ -17,7 +17,7 @@ public class Article {
 	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute
-	private int id;
+	public int id;
 
 	@Attribute
 	public String username;

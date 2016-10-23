@@ -44,6 +44,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -276,14 +277,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 			startActivity(intent);
 		} else {
-			ActivityUtils.startPlayerPlaysActivity(getActivity(), playerName, buddyName);
+			Intent intent = new Intent(getActivity(), PlayerPlaysActivity.class);
+			intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
+			startActivity(intent);
 		}
 	}
 
 	@DebugLog
 	@OnClick(R.id.colors_root)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
+		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		startActivity(intent);
@@ -397,6 +400,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				if (!TextUtils.isEmpty(newNickname)) {
 					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
+					DataManipulationEvent.log("BuddyNickname", "Edit");
 				}
 			}
 		});

@@ -13,6 +13,8 @@ import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -34,6 +36,11 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 			if (bar != null) {
 				bar.setSubtitle(buddyName);
 			}
+		}
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("BuddyPlays")
+				.putContentId(buddyName));
 		}
 	}
 

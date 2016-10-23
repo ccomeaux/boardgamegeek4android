@@ -29,6 +29,8 @@ import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -66,6 +68,13 @@ public class GameActivity extends HeroActivity implements Callback {
 		});
 		if (PreferencesUtils.showLogPlay(this)) {
 			fab.setImageResource(R.drawable.fab_log_play);
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("Game")
+				.putContentId(String.valueOf(gameId))
+				.putContentName(gameName));
 		}
 	}
 
@@ -105,7 +114,7 @@ public class GameActivity extends HeroActivity implements Callback {
 				}
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.shareGame(this, gameId, gameName);
+				ActivityUtils.shareGame(this, gameId, gameName, "Game");
 				return true;
 			case R.id.menu_shortcut:
 				ShortcutUtils.createShortcut(this, gameId, gameName, thumbnailUrl);
