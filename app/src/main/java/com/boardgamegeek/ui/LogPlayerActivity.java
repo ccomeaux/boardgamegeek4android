@@ -44,6 +44,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.boardgamegeek.util.fabric.AddFieldEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import java.util.ArrayList;
@@ -447,6 +448,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 						viewToScroll = mWin;
 						viewToFocus = mWin;
 					}
+					AddFieldEvent.log("Player", selection);
 					setViewVisibility();
 					if (viewToFocus != null) {
 						viewToFocus.requestFocus();
