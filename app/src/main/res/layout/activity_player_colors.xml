@@ -16,12 +16,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<ProgressBar
+		<android.support.v4.widget.ContentLoadingProgressBar
 			android:id="@android:id/progress"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
+			android:gravity="center"
 			tools:visibility="gone"/>
 
 		<android.support.v7.widget.RecyclerView
