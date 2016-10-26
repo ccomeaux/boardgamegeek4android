@@ -4,19 +4,14 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 
 public class DataManipulationEvent extends CustomEvent {
-	public DataManipulationEvent() {
+	protected DataManipulationEvent(String contentType) {
 		super("DataManipulation");
+		putCustomAttribute("contentType", contentType);
 	}
 
 	public static void log(String contentType, String action) {
-		DataManipulationEvent event = newInstance(contentType);
+		DataManipulationEvent event = new DataManipulationEvent(contentType);
 		event.putCustomAttribute("Action", action);
 		Answers.getInstance().logCustom(event);
-	}
-
-	protected static DataManipulationEvent newInstance(String contentType) {
-		DataManipulationEvent event = new DataManipulationEvent();
-		event.putCustomAttribute("contentType", contentType);
-		return event;
 	}
 }
