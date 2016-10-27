@@ -397,16 +397,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						play.removePlayer(lastRemovedPlayer, !arePlayersCustomSorted);
 						playAdapter.notifyPlayerRemoved(position);
 					} else {
-						Player player = playAdapter.getPlayer(position);
-						Intent intent = new Intent();
-						intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
-						intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
-						intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
-						if (!arePlayersCustomSorted) {
-							intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
-						}
-						editPlayer(intent, position);
-						playAdapter.notifyPlayerChanged(position);
+						editPlayer(position);
 					}
 				}
 
@@ -1023,6 +1014,20 @@ public class LogPlayActivity extends AppCompatActivity {
 	}
 
 	@DebugLog
+	private void editPlayer(int position) {
+		Player player = playAdapter.getPlayer(position);
+		Intent intent = new Intent();
+		intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
+		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
+		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
+		if (!arePlayersCustomSorted) {
+			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
+		}
+		editPlayer(intent, position);
+		playAdapter.notifyPlayerChanged(position);
+	}
+
+	@DebugLog
 	private void editPlayer(Intent intent, int requestCode) {
 		isLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
@@ -1622,7 +1627,12 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void bind(final int position) {
 				row.setAutoSort(!arePlayersCustomSorted);
 				row.setPlayer(getPlayer(position));
-
+				row.setNameListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						editPlayer(position);
+					}
+				});
 				row.setOnMoreListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
