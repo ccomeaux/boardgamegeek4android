@@ -647,7 +647,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	}
 
 	@DebugLog
-	private boolean onActionBarItemSelected(int itemId) {
+	private void onActionBarItemSelected(int itemId) {
 		switch (itemId) {
 			case R.id.menu_done:
 				if (play != null && outstandingQueries == 0) {
@@ -661,12 +661,9 @@ public class LogPlayActivity extends AppCompatActivity {
 				} else {
 					cancel();
 				}
-				return true;
 			case R.id.menu_cancel:
 				cancel();
-				return true;
 		}
-		return false;
 	}
 
 	@DebugLog
@@ -700,7 +697,8 @@ public class LogPlayActivity extends AppCompatActivity {
 			return false;
 		}
 		shouldSaveOnPause = false;
-		recyclerView.findFocus().clearFocus();
+		final View focusedView = recyclerView.findFocus();
+		if (focusedView != null) focusedView.clearFocus();
 		play.syncStatus = syncStatus;
 		new PlayPersister(this).save(play);
 		return true;
@@ -898,7 +896,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			}
 		};
 	}
-	
+
 	private Callback popupMenuCallback() {
 		return new MenuBuilder.Callback() {
 			@Override
