@@ -1020,7 +1020,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
 		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
-		if (!arePlayersCustomSorted) {
+		if (!arePlayersCustomSorted && player != null) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 		}
 		editPlayer(intent, position);
@@ -1127,7 +1127,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		public Player getPlayer(int position) {
-			return (play == null || play.getPlayerCount() <= position) ?
+			return (play == null || position < 0 || play.getPlayerCount() <= position) ?
 				null :
 				play.getPlayers().get(position);
 		}
