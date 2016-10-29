@@ -440,7 +440,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 				@Override
 				public int getMovementFlags(RecyclerView recyclerView, ViewHolder viewHolder) {
-					if (arePlayersCustomSorted) return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+					if (arePlayersCustomSorted) return makeMovementFlags(0, getSwipeDirs(recyclerView, viewHolder));
 					return super.getMovementFlags(recyclerView, viewHolder);
 				}
 
