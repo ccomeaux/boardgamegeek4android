@@ -41,6 +41,8 @@ public class PreferencesUtils {
 	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
 	private static final String LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions";
 	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
+	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
+	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
 
 	private PreferencesUtils() {
 	}
@@ -53,8 +55,20 @@ public class PreferencesUtils {
 		return getBoolean(context, "quickLogPlay", !getBoolean(context, "logHideQuickLog", false));
 	}
 
-	public static boolean editPlayer(Context context) {
-		return getBoolean(context, "logEditPlayer", false);
+	public static boolean getEditPlayerPrompted(Context context) {
+		return getBoolean(context, LOG_EDIT_PLAYER_PROMPTED, false);
+	}
+
+	public static boolean putEditPlayerPrompted(Context context) {
+		return putBoolean(context, LOG_EDIT_PLAYER_PROMPTED, true);
+	}
+
+	public static boolean getEditPlayer(Context context) {
+		return getBoolean(context, LOG_EDIT_PLAYER, false);
+	}
+
+	public static boolean putEditPlayer(Context context, boolean value) {
+		return putBoolean(context, LOG_EDIT_PLAYER, value);
 	}
 
 	public static boolean showLogPlayQuantity(Context context) {

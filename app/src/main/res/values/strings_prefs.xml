@@ -8,6 +8,10 @@
 	<string name="pref_edit_player">Edit player on add</string>
 	<string name="pref_edit_player_off">Just add the player</string>
 	<string name="pref_edit_player_on">Start editing the player after adding</string>
+	<string name="pref_edit_player_prompt_title">Pardon the Interruption...</string>
+	<string name="pref_edit_player_prompt_message">Do you typically keep track of the players you play with, or do just count the number of players? (Note that this can be changed in the settings.)</string>
+	<string name="pref_edit_player_prompt_positive">Keep Track</string>
+	<string name="pref_edit_player_prompt_negative">Just Count</string>
 	<string name="pref_general">General fields</string>
 	<string name="pref_log_play_quantity">Quantity</string>
 	<string name="pref_log_play_length">Length</string>

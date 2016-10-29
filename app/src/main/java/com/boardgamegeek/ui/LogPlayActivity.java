@@ -22,6 +22,7 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -1514,7 +1515,15 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@OnClick(R.id.add_players_button)
 			public void onAddPlayerClicked() {
-				if (PreferencesUtils.editPlayer(LogPlayActivity.this)) {
+				if (PreferencesUtils.getEditPlayerPrompted(LogPlayActivity.this)) {
+					addPlayers(PreferencesUtils.getEditPlayer(LogPlayActivity.this));
+				} else {
+					promptToEditPlayers();
+				}
+			}
+
+			private void addPlayers(boolean editPlayer) {
+				if (editPlayer) {
 					if (!showPlayersToAddDialog()) {
 						addNewPlayer();
 					}
@@ -1527,6 +1536,28 @@ public class LogPlayActivity extends AppCompatActivity {
 					playAdapter.notifyPlayerAdded(play.getPlayerCount());
 					recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
 				}
+			}
+
+			private void promptToEditPlayers() {
+				new Builder(LogPlayActivity.this)
+					.setTitle(R.string.pref_edit_player_prompt_title)
+					.setMessage(R.string.pref_edit_player_prompt_message)
+					.setCancelable(true)
+					.setPositiveButton(R.string.pref_edit_player_prompt_positive, onPromptClickListener(true))
+					.setNegativeButton(R.string.pref_edit_player_prompt_negative, onPromptClickListener(false))
+					.create().show();
+				PreferencesUtils.putEditPlayerPrompted(LogPlayActivity.this);
+			}
+
+			@NonNull
+			private OnClickListener onPromptClickListener(final boolean value) {
+				return new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						PreferencesUtils.putEditPlayer(LogPlayActivity.this, value);
+						addPlayers(value);
+					}
+				};
 			}
 		}
 
