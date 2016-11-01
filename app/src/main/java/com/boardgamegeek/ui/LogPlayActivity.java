@@ -653,8 +653,10 @@ public class LogPlayActivity extends AppCompatActivity {
 				} else {
 					cancel();
 				}
+				break;
 			case R.id.menu_cancel:
 				cancel();
+				break;
 		}
 	}
 
