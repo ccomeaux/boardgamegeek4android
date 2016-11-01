@@ -530,6 +530,14 @@
 	<string name="show_missing_votes">Show missing votes</string>
 	<string name="msg_invalid_token">Attempting to use an unrecognized query token: %s</string>
 	<string name="msg_collection_item_deleted">Deleted!</string>
+	<string name="collection_status_own">Own</string>
+	<string name="collection_status_prev_owned">Prev. Owned</string>
+	<string name="collection_status_for_trade">For Trade</string>
+	<string name="collection_status_want_to_play">Want to Play</string>
+	<string name="collection_status_want_in_trade">Want in Trade</string>
+	<string name="collection_status_want_to_buy">Want to Buy</string>
+	<string name="collection_status_want_preordered">Pre-ordered</string>
+	<string name="collection_status_wishlist">Wishlist</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
