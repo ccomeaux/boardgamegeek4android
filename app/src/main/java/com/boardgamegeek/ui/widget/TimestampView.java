@@ -95,7 +95,7 @@ public class TimestampView extends TextView {
 
 	private void setTimestampText() {
 		removeCallbacks(timeHintUpdateRunnable);
-		if (timestamp == 0) {
+		if (timestamp <= 0) {
 			if (hideWhenEmpty) setVisibility(View.GONE);
 			setText(defaultMessage);
 		} else {

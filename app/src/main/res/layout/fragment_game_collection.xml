@@ -39,8 +39,8 @@
 				style="@style/Text.Footnote"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				app:emptyMessage="@string/text_unknown"
 				app:format="@string/last_modified_prefix"
+				app:hideWhenEmpty="true"
 				tools:text="Last modified Yesterday"/>
 		</LinearLayout>
 
