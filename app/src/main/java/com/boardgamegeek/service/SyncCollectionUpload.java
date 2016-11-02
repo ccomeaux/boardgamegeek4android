@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -146,24 +145,31 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	}
 
 	private Cursor fetchDeletedCollectionItems() {
-		String selection = Collection.COLLECTION_DELETE_TIMESTAMP + ">0";
-		return getCollectionItems(selection, R.plurals.sync_notification_collection_deleting);
+		return getCollectionItems(isGreaterThanZero(Collection.COLLECTION_DELETE_TIMESTAMP), R.plurals.sync_notification_collection_deleting);
 	}
 
 	private Cursor fetchNewCollectionItems() {
-		String selection = Collection.COLLECTION_DIRTY_TIMESTAMP + ">0 AND " + ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID);
+		String selection = "(" + getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP)) + ") AND " +
+			ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID);
 		return getCollectionItems(selection, R.plurals.sync_notification_collection_adding);
 	}
 
 	private Cursor fetchDirtyCollectionItems() {
-		String selection = "";
-		for (CollectionUploadTask task : uploadTasks) {
-			if (!TextUtils.isEmpty(selection)) {
-				selection += " OR ";
-			}
-			selection += task.getTimestampColumn() + ">0";
-		}
+		String selection = getDirtyColumnSelection("");
 		return getCollectionItems(selection, R.plurals.sync_notification_collection_uploading);
+	}
+
+	private String getDirtyColumnSelection(String existingSelection) {
+		StringBuilder sb = new StringBuilder(existingSelection);
+		for (CollectionUploadTask task : uploadTasks) {
+			if (sb.length() > 0) sb.append(" OR ");
+			sb.append(isGreaterThanZero(task.getTimestampColumn()));
+		}
+		return sb.toString();
+	}
+
+	private static String isGreaterThanZero(String columnName) {
+		return columnName + ">0";
 	}
 
 	@Nullable
