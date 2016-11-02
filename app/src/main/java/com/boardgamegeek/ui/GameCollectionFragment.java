@@ -452,7 +452,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private void updateUi(CollectionItem item) {
 		notifyChange(item);
 
-		isItemEditable = collectionId > 0 || item.dirtyTimestamp > 0;
+		isItemEditable = true;
 
 		year.setText(item.getYearDescription());
 		lastModified.setTimestamp(item.dirtyTimestamp > 0 ? item.dirtyTimestamp :
