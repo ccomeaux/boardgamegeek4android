@@ -21,6 +21,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -71,7 +72,7 @@ public class PlayerColorsActivity extends BaseActivity {
 	private RecyclerViewAdapter adapter;
 
 	@BindView(R.id.toolbar) Toolbar toolbar;
-	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 	@BindView(R.id.coordinator) CoordinatorLayout coordinator;
@@ -122,7 +123,7 @@ public class PlayerColorsActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_buddy_colors);
+		setContentView(R.layout.activity_player_colors);
 		ButterKnife.bind(this);
 
 		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
@@ -346,12 +347,8 @@ public class PlayerColorsActivity extends BaseActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						PlayerColorsManipulationEvent.log("Clear");
-						if (colors != null) {
-							colors.clear();
-						}
-						if (adapter != null) {
-							adapter.notifyDataSetChanged();
-						}
+						if (colors != null) colors.clear();
+						if (adapter != null) adapter.notifyDataSetChanged();
 						showData();
 					}
 				}).show();
@@ -378,8 +375,8 @@ public class PlayerColorsActivity extends BaseActivity {
 	}
 
 	private void showData() {
-		AnimationUtils.fadeOut(progressView);
-		if (colors.size() == 0) {
+		progressView.hide();
+		if (colors == null || colors.size() == 0) {
 			AnimationUtils.fadeIn(emptyView);
 			AnimationUtils.fadeOut(recyclerView);
 		} else {

@@ -21,7 +21,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="own"
-			android:text="Own"/>
+			android:text="@string/collection_status_own"/>
 
 		<CheckBox
 			android:id="@+id/previously_owned"
@@ -29,7 +29,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="previously_owned"
-			android:text="Prev. Owned"/>
+			android:text="@string/collection_status_prev_owned"/>
 
 		<CheckBox
 			android:id="@+id/for_trade"
@@ -37,7 +37,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="for_trade"
-			android:text="For Trade"/>
+			android:text="@string/collection_status_for_trade"/>
 
 		<CheckBox
 			android:id="@+id/want_to_play"
@@ -45,7 +45,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="want_to_play"
-			android:text="Want to Play"/>
+			android:text="@string/collection_status_want_to_play"/>
 
 		<CheckBox
 			android:id="@+id/want"
@@ -53,7 +53,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="want"
-			android:text="Want in Trade"/>
+			android:text="@string/collection_status_want_in_trade"/>
 
 		<CheckBox
 			android:id="@+id/want_to_buy"
@@ -61,7 +61,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="want_to_buy"
-			android:text="Want to Buy"/>
+			android:text="@string/collection_status_want_to_buy"/>
 
 		<CheckBox
 			android:id="@+id/preordered"
@@ -69,7 +69,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="preordered"
-			android:text="Pre-ordered"/>
+			android:text="@string/collection_status_want_preordered"/>
 
 		<CheckBox
 			android:id="@+id/wishlist"
@@ -77,7 +77,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="wishlist"
-			android:text="Wishlist"/>
+			android:text="@string/collection_status_wishlist"/>
 
 		<Spinner
 			android:id="@+id/wishlist_priority"

@@ -22,6 +22,7 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -397,16 +398,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						play.removePlayer(lastRemovedPlayer, !arePlayersCustomSorted);
 						playAdapter.notifyPlayerRemoved(position);
 					} else {
-						Player player = playAdapter.getPlayer(position);
-						Intent intent = new Intent();
-						intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
-						intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
-						intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
-						if (!arePlayersCustomSorted) {
-							intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
-						}
-						editPlayer(intent, position);
-						playAdapter.notifyPlayerChanged(position);
+						editPlayer(position);
 					}
 				}
 
@@ -448,7 +440,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 				@Override
 				public int getMovementFlags(RecyclerView recyclerView, ViewHolder viewHolder) {
-					if (arePlayersCustomSorted) return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+					if (arePlayersCustomSorted) return makeMovementFlags(0, getSwipeDirs(recyclerView, viewHolder));
 					return super.getMovementFlags(recyclerView, viewHolder);
 				}
 
@@ -647,7 +639,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	}
 
 	@DebugLog
-	private boolean onActionBarItemSelected(int itemId) {
+	private void onActionBarItemSelected(int itemId) {
 		switch (itemId) {
 			case R.id.menu_done:
 				if (play != null && outstandingQueries == 0) {
@@ -661,12 +653,11 @@ public class LogPlayActivity extends AppCompatActivity {
 				} else {
 					cancel();
 				}
-				return true;
+				break;
 			case R.id.menu_cancel:
 				cancel();
-				return true;
+				break;
 		}
-		return false;
 	}
 
 	@DebugLog
@@ -700,7 +691,8 @@ public class LogPlayActivity extends AppCompatActivity {
 			return false;
 		}
 		shouldSaveOnPause = false;
-		recyclerView.findFocus().clearFocus();
+		final View focusedView = recyclerView.findFocus();
+		if (focusedView != null) focusedView.clearFocus();
 		play.syncStatus = syncStatus;
 		new PlayPersister(this).save(play);
 		return true;
@@ -898,7 +890,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			}
 		};
 	}
-	
+
 	private Callback popupMenuCallback() {
 		return new MenuBuilder.Callback() {
 			@Override
@@ -1025,6 +1017,20 @@ public class LogPlayActivity extends AppCompatActivity {
 	}
 
 	@DebugLog
+	private void editPlayer(int position) {
+		Player player = playAdapter.getPlayer(position);
+		Intent intent = new Intent();
+		intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
+		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
+		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
+		if (!arePlayersCustomSorted && player != null) {
+			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
+		}
+		editPlayer(intent, position);
+		playAdapter.notifyPlayerChanged(position);
+	}
+
+	@DebugLog
 	private void editPlayer(Intent intent, int requestCode) {
 		isLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
@@ -1124,7 +1130,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		public Player getPlayer(int position) {
-			return (play == null || play.getPlayerCount() <= position) ?
+			return (play == null || position < 0 || play.getPlayerCount() <= position) ?
 				null :
 				play.getPlayers().get(position);
 		}
@@ -1511,7 +1517,15 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@OnClick(R.id.add_players_button)
 			public void onAddPlayerClicked() {
-				if (PreferencesUtils.editPlayer(LogPlayActivity.this)) {
+				if (PreferencesUtils.getEditPlayerPrompted(LogPlayActivity.this)) {
+					addPlayers(PreferencesUtils.getEditPlayer(LogPlayActivity.this));
+				} else {
+					promptToEditPlayers();
+				}
+			}
+
+			private void addPlayers(boolean editPlayer) {
+				if (editPlayer) {
 					if (!showPlayersToAddDialog()) {
 						addNewPlayer();
 					}
@@ -1524,6 +1538,28 @@ public class LogPlayActivity extends AppCompatActivity {
 					playAdapter.notifyPlayerAdded(play.getPlayerCount());
 					recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
 				}
+			}
+
+			private void promptToEditPlayers() {
+				new Builder(LogPlayActivity.this)
+					.setTitle(R.string.pref_edit_player_prompt_title)
+					.setMessage(R.string.pref_edit_player_prompt_message)
+					.setCancelable(true)
+					.setPositiveButton(R.string.pref_edit_player_prompt_positive, onPromptClickListener(true))
+					.setNegativeButton(R.string.pref_edit_player_prompt_negative, onPromptClickListener(false))
+					.create().show();
+				PreferencesUtils.putEditPlayerPrompted(LogPlayActivity.this);
+			}
+
+			@NonNull
+			private OnClickListener onPromptClickListener(final boolean value) {
+				return new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						PreferencesUtils.putEditPlayer(LogPlayActivity.this, value);
+						addPlayers(value);
+					}
+				};
 			}
 		}
 
@@ -1624,7 +1660,12 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void bind(final int position) {
 				row.setAutoSort(!arePlayersCustomSorted);
 				row.setPlayer(getPlayer(position));
-
+				row.setNameListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						editPlayer(position);
+					}
+				});
 				row.setOnMoreListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {

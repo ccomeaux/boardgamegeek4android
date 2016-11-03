@@ -84,18 +84,15 @@ public class CollectionPersister {
 	 */
 	@DebugLog
 	public int delete(List<CollectionItem> items, int gameId) {
-		if (items == null || items.size() == 0) {
-			return 0;
-		}
-
 		// determine the collection IDs that are no longer in the collection
 		List<Integer> collectionIds = ResolverUtils.queryInts(resolver, Collection.CONTENT_URI,
 			Collection.COLLECTION_ID, "collection." + Collection.GAME_ID + "=?",
 			new String[] { String.valueOf(gameId) });
-		for (CollectionItem item : items) {
-			collectionIds.remove(Integer.valueOf(item.collectionId()));
+		if (items != null) {
+			for (CollectionItem item : items) {
+				collectionIds.remove(Integer.valueOf(item.collectionId()));
+			}
 		}
-
 		// remove them
 		if (collectionIds.size() > 0) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
@@ -130,7 +127,7 @@ public class CollectionPersister {
 				}
 			}
 			recordCount += processBatch(batch, context);
-			Timber.i("Saved " + items.size() + " collection items");
+			Timber.i("Saved %,d collection items", items.size());
 			return recordCount;
 		}
 		return 0;
@@ -252,7 +249,7 @@ public class CollectionPersister {
 	private void saveGame(ContentValues values, ArrayList<ContentProviderOperation> batch) {
 		int gameId = values.getAsInteger(Games.GAME_ID);
 		if (persistedGameIds.contains(gameId)) {
-			Timber.i("Already saved game [ID=" + gameId + "; NAME=" + values.getAsString(Games.GAME_NAME) + "]");
+			Timber.i("Already saved game [ID=%s; NAME=%s]", gameId, values.getAsString(Games.GAME_NAME));
 		} else {
 			Builder cpo;
 			Uri uri = Games.buildGameUri(gameId);

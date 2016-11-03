@@ -30,6 +30,7 @@ public class PlayerRow extends LinearLayout {
 	@BindView(R.id.color_container) View colorContainer;
 	@BindView(R.id.color_view) ImageView colorView;
 	@BindView(R.id.seat) TextView seatView;
+	@BindView(R.id.name_container) View nameContainer;
 	@BindView(R.id.name) TextView nameView;
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.team_color) TextView teamColorView;
@@ -42,6 +43,7 @@ public class PlayerRow extends LinearLayout {
 	private final Typeface nameTypeface;
 	private final Typeface usernameTypeface;
 	private final Typeface scoreTypeface;
+	private final int nameColor;
 
 	private boolean hasScoreListener;
 
@@ -67,6 +69,7 @@ public class PlayerRow extends LinearLayout {
 		nameTypeface = nameView.getTypeface();
 		usernameTypeface = usernameView.getTypeface();
 		scoreTypeface = scoreView.getTypeface();
+		nameColor = nameView.getTextColors().getDefaultColor();
 
 		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 	}
@@ -83,6 +86,11 @@ public class PlayerRow extends LinearLayout {
 		colorContainer.setOnClickListener(l);
 	}
 
+	public void setNameListener(OnClickListener l) {
+		nameContainer.setVisibility(View.VISIBLE);
+		nameContainer.setOnClickListener(l);
+	}
+
 	public void setOnMoreListener(OnClickListener l) {
 		moreButton.setVisibility(View.VISIBLE);
 		moreButton.setOnClickListener(l);
@@ -96,7 +104,7 @@ public class PlayerRow extends LinearLayout {
 		if (player == null) {
 			colorView.setVisibility(View.GONE);
 			setText(seatView, "");
-			setText(nameView, "");
+			setText(nameView, getResources().getString(R.string.title_player));
 			setText(usernameView, "");
 			setText(teamColorView, "");
 			setText(scoreView, "");
@@ -104,7 +112,16 @@ public class PlayerRow extends LinearLayout {
 			scoreButton.setVisibility(View.GONE);
 		} else {
 			setText(seatView, player.getStartingPosition());
-			if (TextUtils.isEmpty(player.name)) {
+			if (TextUtils.isEmpty(player.name) && TextUtils.isEmpty(player.username)) {
+				String name;
+				if (player.getSeat() == Player.SEAT_UNKNOWN) {
+					name = getResources().getString(R.string.title_player);
+				} else {
+					name = getResources().getString(R.string.generic_player, player.getSeat());
+				}
+				setText(nameView, name, nameTypeface, player.New(), player.Win(), true);
+				usernameView.setVisibility(View.GONE);
+			} else if (TextUtils.isEmpty(player.name)) {
 				setText(nameView, player.username, nameTypeface, player.New(), player.Win());
 				usernameView.setVisibility(View.GONE);
 			} else {
@@ -151,6 +168,10 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold) {
+		setText(textView, text, tf, italic, bold, false);
+	}
+
+	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold, boolean secondary) {
 		setText(textView, text);
 		if (!TextUtils.isEmpty(text)) {
 			if (italic && bold) {
@@ -161,6 +182,11 @@ public class PlayerRow extends LinearLayout {
 				textView.setTypeface(tf, Typeface.BOLD);
 			} else {
 				textView.setTypeface(tf, Typeface.NORMAL);
+			}
+			if (secondary) {
+				textView.setTextColor(ContextCompat.getColor(getContext(), R.color.secondary_text));
+			} else {
+				textView.setTextColor(nameColor);
 			}
 		}
 	}

@@ -28,9 +28,11 @@
 	</FrameLayout>
 
 	<LinearLayout
+		android:id="@+id/name_container"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
+		android:background="?attr/selectableItemBackground"
 		android:orientation="vertical">
 
 		<TextView
