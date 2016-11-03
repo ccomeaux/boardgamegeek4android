@@ -44,6 +44,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -77,6 +78,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@BindView(R.id.avatar) ImageView avatarView;
 	@BindView(R.id.nickname) TextView nicknameView;
 	@BindView(R.id.collection_card) View collectionCard;
+	@BindView(R.id.plays_card) View playsCard;
 	@BindView(R.id.plays_label) TextView playsView;
 	@BindView(R.id.wins_label) TextView winsView;
 	@BindView(R.id.wins_percentage) TextView winPercentageView;
@@ -275,14 +277,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 			startActivity(intent);
 		} else {
-			ActivityUtils.startPlayerPlaysActivity(getActivity(), playerName, buddyName);
+			Intent intent = new Intent(getActivity(), PlayerPlaysActivity.class);
+			intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
+			startActivity(intent);
 		}
 	}
 
 	@DebugLog
 	@OnClick(R.id.colors_root)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
+		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
 		startActivity(intent);
@@ -322,9 +326,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		Player player = Player.fromCursor(cursor);
 		final int playCount = player.getPlayCount();
 		final int winCount = player.getWinCount();
-		playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
-		winsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.wins_suffix, winCount, winCount));
-		winPercentageView.setText(getString(R.string.percentage, (int) ((double) winCount / playCount * 100)));
+		if (playCount > 0 || winCount > 0) {
+			playsCard.setVisibility(View.VISIBLE);
+			playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
+			winsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.wins_suffix, winCount, winCount));
+			winPercentageView.setText(getString(R.string.percentage, (int) ((double) winCount / playCount * 100)));
+		} else {
+			playsCard.setVisibility(View.GONE);
+		}
 	}
 
 	@DebugLog
@@ -391,6 +400,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				if (!TextUtils.isEmpty(newNickname)) {
 					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
+					DataManipulationEvent.log("BuddyNickname", "Edit");
 				}
 			}
 		});

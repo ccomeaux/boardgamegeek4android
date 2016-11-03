@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,7 @@ import com.boardgamegeek.ui.ForumActivity;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 import butterknife.BindView;
@@ -27,17 +27,17 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 
 	private final List<Forum> forums;
 	private final LayoutInflater inflater;
-	private final Resources resources;
 	private final int gameId;
 	private final String gameName;
+	private final NumberFormat numberFormat;
 
 	public ForumsRecyclerViewAdapter(Context context, List<Forum> forums, int gameId, String gameName) {
 		this.forums = forums;
 		this.gameId = gameId;
 		this.gameName = gameName;
 		inflater = LayoutInflater.from(context);
-		resources = context.getResources();
 		setHasStableIds(true);
+		numberFormat = NumberFormat.getNumberInstance();
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 
 			final Context context = itemView.getContext();
 			forumTitleView.setText(forum.title);
-			numberOfThreadsView.setText(resources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads, forum.numberOfThreads));
+			numberOfThreadsView.setText(numberFormat.format(forum.numberOfThreads));
 			lastPostDateView.setTimestamp(forum.lastPostDate());
 
 			itemView.setOnClickListener(new OnClickListener() {

@@ -68,6 +68,11 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
+import com.boardgamegeek.util.fabric.FilterEvent;
+import com.boardgamegeek.util.fabric.SortEvent;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
@@ -126,14 +131,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			filters.clear();
 			if (types != null && data != null) {
 				if (types.size() != data.size()) {
-					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2@s", types.size(), data.size());
+					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2$s", types.size(), data.size());
 				} else {
 					CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
 					for (int i = 0; i < types.size(); i++) {
 						final Integer filterType = types.get(i);
 						CollectionFilterer filterer = factory.create(filterType);
 						if (filterer == null) {
-							Timber.w("Couldn't create filterer with type " + filterType);
+							Timber.w("Couldn't create filterer with type %s", filterType);
 						} else {
 							filterer.setData(data.get(i));
 							filters.add(filterer);
@@ -296,6 +301,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
 			switch (item.getItemId()) {
 				case R.id.menu_collection_random_game:
+					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
@@ -489,7 +495,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				requery();
 			}
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
 		}
 	}
@@ -549,6 +555,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (filter.isValid()) {
 			filters.add(filter);
 		}
+		FilterEvent.log("Collection", String.valueOf(filter.getType()));
 		setEmptyText();
 		resetScrollState();
 		requery();
@@ -589,6 +596,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
+		SortEvent.log("Collection", String.valueOf(sortType));
 		sorter = getCollectionSorter(sortType);
 		resetScrollState();
 		requery();
@@ -597,6 +605,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void createView(long id, String name) {
+		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
 		EventBus.getDefault().post(new CollectionViewRequestedEvent(id));
 	}
@@ -604,6 +613,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void deleteView(long id) {
+		CollectionViewManipulationEvent.log("Delete");
 		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (viewId == id) {
 			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
@@ -668,7 +678,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			dialog.createDialog(getActivity(), this, findFilter(filterType));
 			return true;
 		} else {
-			Timber.w("Couldn't find a filter dialog of type " + filterType);
+			Timber.w("Couldn't find a filter dialog of type %s", filterType);
 			return false;
 		}
 	}
@@ -886,15 +896,16 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 			case R.id.menu_share:
 				mode.finish();
+				final String shareMethod = "Collection";
 				if (selectedPositions.size() == 1) {
-					ActivityUtils.shareGame(getActivity(), gameId, gameName);
+					ActivityUtils.shareGame(getActivity(), gameId, gameName, shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(selectedPositions.size());
 					for (int position : selectedPositions) {
 						Cursor c = (Cursor) adapter.getItem(position);
 						games.add(new Pair<>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
 					}
-					ActivityUtils.shareGames(getActivity(), games);
+					ActivityUtils.shareGames(getActivity(), games, shareMethod);
 				}
 				return true;
 			case R.id.menu_link:

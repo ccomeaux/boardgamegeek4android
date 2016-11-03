@@ -10,6 +10,9 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.ShareEvent;
 
 public class ArticleActivity extends SimpleSinglePaneActivity {
 	private String threadId;
@@ -19,6 +22,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private int gameId;
 	private String gameName;
 	private String link;
+	private int articleId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 		link = intent.getStringExtra(ActivityUtils.KEY_LINK);
+		articleId = intent.getIntExtra(ActivityUtils.KEY_ARTICLE_ID, BggContract.INVALID_ID);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -42,6 +47,12 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				actionBar.setTitle(threadSubject + " - " + forumTitle);
 				actionBar.setSubtitle(gameName);
 			}
+		}
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("Article")
+				.putContentId(String.valueOf(articleId))
+				.putContentName(threadSubject));
 		}
 	}
 
@@ -74,10 +85,17 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				ActivityUtils.link(this, link);
 				return true;
 			case R.id.menu_share:
-				String description = String.format(getString(R.string.share_thread_article_text), threadSubject,
-					forumTitle, gameName);
-				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link,
-					R.string.title_share);
+				String description = TextUtils.isEmpty(gameName) ?
+					String.format(getString(R.string.share_thread_article_text), threadSubject, forumTitle) :
+					String.format(getString(R.string.share_thread_article_game_text), threadSubject, forumTitle, gameName);
+				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link, R.string.title_share);
+				String contentName = TextUtils.isEmpty(gameName) ?
+					String.format("%s | %s", forumTitle, threadSubject) :
+					String.format("%s | %s | %s", gameName, forumTitle, threadSubject);
+				Answers.getInstance().logShare(new ShareEvent()
+					.putContentType("Article")
+					.putContentName(contentName)
+					.putContentId(String.valueOf(articleId)));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

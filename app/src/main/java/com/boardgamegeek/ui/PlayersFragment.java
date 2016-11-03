@@ -23,6 +23,7 @@ import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.SortEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -96,9 +97,10 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 
 	@DebugLog
-	public void setSort(int sort) {
-		if (sorter.getType() != sort) {
-			sorter = PlayersSorterFactory.create(getActivity(), sort);
+	public void setSort(int sortType) {
+		if (sorter.getType() != sortType) {
+			SortEvent.log("Players", String.valueOf(sortType));
+			sorter = PlayersSorterFactory.create(getActivity(), sortType);
 			requery();
 		}
 	}

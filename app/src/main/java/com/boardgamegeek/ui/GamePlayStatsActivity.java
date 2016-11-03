@@ -9,6 +9,8 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
 	private int gameId;
@@ -26,6 +28,13 @@ public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
 			if (actionBar != null) {
 				actionBar.setSubtitle(gameName);
 			}
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GamePlayStats")
+				.putContentId(String.valueOf(gameId))
+				.putContentName(gameName));
 		}
 	}
 

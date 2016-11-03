@@ -38,11 +38,11 @@ public class SyncBuddy extends UpdateTask {
 	public void execute(Context context) {
 		User user = new UserRequest(Adapter.createForXml(), name).execute();
 		if (user == null || user.getId() == 0 || user.getId() == BggContract.INVALID_ID) {
-			Timber.i("Invalid user: " + name);
+			Timber.i("Invalid user: %s", name);
 			return;
 		}
 		BuddyPersister persister = new BuddyPersister(context);
 		persister.save(user);
-		Timber.i("Synced Buddy " + name);
+		Timber.i("Synced Buddy %s", name);
 	}
 }

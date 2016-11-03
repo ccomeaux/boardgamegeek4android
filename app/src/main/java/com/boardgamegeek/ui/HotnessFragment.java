@@ -325,15 +325,16 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				return true;
 			case R.id.menu_share:
 				mode.finish();
+				final String shareMethod = "Hotness";
 				if (adapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.id, game.name);
+					ActivityUtils.shareGame(getActivity(), game.id, game.name, shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
 					for (int position : adapter.getSelectedItems()) {
 						HotGame g = adapter.getItem(position);
 						games.add(Pair.create(g.id, g.name));
 					}
-					ActivityUtils.shareGames(getActivity(), games);
+					ActivityUtils.shareGames(getActivity(), games, shareMethod);
 				}
 				return true;
 			case R.id.menu_link:

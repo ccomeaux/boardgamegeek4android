@@ -29,6 +29,8 @@ import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.TaskUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -52,6 +54,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
+		int collectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		internalId = intent.getLongExtra(ActivityUtils.KEY_INTERNAL_ID, BggContract.INVALID_ID);
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
@@ -61,6 +64,13 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		safelySetTitle(collectionName);
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GameCollection")
+				.putContentId(String.valueOf(collectionId))
+				.putContentName(collectionName));
+		}
 	}
 
 	@Override

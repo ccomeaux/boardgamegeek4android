@@ -30,6 +30,8 @@ import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -156,7 +158,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (!TextUtils.isEmpty(status) && !status.equals(statusValue)) {
 			statusValue = status;
 			statusLabel = statusEntries[i];
-
+			Answers.getInstance().logCustom(new CustomEvent("Filter")
+				.putCustomAttribute("contentType", "BuddyCollection")
+				.putCustomAttribute("filterType", status));
 			reload();
 			return true;
 		}
@@ -187,6 +191,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		List<CollectionItem> list = (data == null || data.getBody() == null) ?
 			new ArrayList<CollectionItem>() :
 			data.getBody().items;
+		if (list == null) list = new ArrayList<>();
 
 		if (adapter == null) {
 			adapter = new BuddyCollectionAdapter(getActivity(), list);
@@ -236,7 +241,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItem> implements StickyListHeadersAdapter {
-		private List<CollectionItem> collection;
 		private final LayoutInflater inflater;
 
 		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
@@ -246,13 +250,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		public void setCollection(List<CollectionItem> games) {
-			collection = games;
 			notifyDataSetChanged();
-		}
-
-		@Override
-		public int getCount() {
-			return collection == null ? 0 : collection.size();
 		}
 
 		@Override
@@ -268,7 +266,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 			CollectionItem game;
 			try {
-				game = collection.get(position);
+				game = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
@@ -303,8 +301,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		private String getHeaderText(int position) {
-			if (collection != null && position < collection.size()) {
-				CollectionItem game = collection.get(position);
+			if (position < getCount()) {
+				CollectionItem game = getItem(position);
 				if (game != null) {
 					return game.gameSortName().substring(0, 1);
 				}

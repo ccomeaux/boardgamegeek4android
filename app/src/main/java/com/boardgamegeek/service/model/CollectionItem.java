@@ -5,7 +5,7 @@ import android.database.Cursor;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class CollectionItem {
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		Collection._ID,
 		Collection.GAME_ID,
 		Collection.COLLECTION_ID,
@@ -40,44 +40,48 @@ public class CollectionItem {
 		Collection.WANTPARTS_LIST,
 		Collection.WANT_PARTS_DIRTY_TIMESTAMP,
 		Collection.HASPARTS_LIST,
-		Collection.HAS_PARTS_DIRTY_TIMESTAMP
+		Collection.HAS_PARTS_DIRTY_TIMESTAMP,
+		Collection.IMAGE_URL,
+		Collection.THUMBNAIL_URL
 	};
 
-	private static int _ID = 0;
-	private static int GAME_ID = 1;
-	private static int COLLECTION_ID = 2;
-	private static int COLLECTION_NAME = 3;
-	private static int RATING = 4;
-	private static int RATING_DIRTY_TIMESTAMP = 5;
-	private static int COMMENT = 6;
-	private static int COMMENT_DIRTY_TIMESTAMP = 7;
-	private static int PRIVATE_INFO_ACQUIRED_FROM = 8;
-	private static int PRIVATE_INFO_ACQUISITION_DATE = 9;
-	private static int PRIVATE_INFO_COMMENT = 10;
-	private static int PRIVATE_INFO_CURRENT_VALUE = 11;
-	private static int PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 12;
-	private static int PRIVATE_INFO_PRICE_PAID = 13;
-	private static int PRIVATE_INFO_PRICE_PAID_CURRENCY = 14;
-	private static int PRIVATE_INFO_QUANTITY = 15;
-	private static int PRIVATE_INFO_DIRTY_TIMESTAMP = 16;
-	private static int STATUS_OWN = 17;
-	private static int STATUS_PREVIOUSLY_OWNED = 18;
-	private static int STATUS_FOR_TRADE = 19;
-	private static int STATUS_WANT = 20;
-	private static int STATUS_WANT_TO_PLAY = 21;
-	private static int STATUS_WANT_TO_BUY = 22;
-	private static int STATUS_WISHLIST = 23;
-	private static int STATUS_WISHLIST_PRIORITY = 24;
-	private static int STATUS_PREORDERED = 25;
-	private static int STATUS_DIRTY_TIMESTAMP = 26;
-	private static int WISHLIST_COMMENT = 27;
-	private static int WISHLIST_COMMENT_DIRTY_TIMESTAMP = 28;
-	private static int CONDITION = 29;
-	private static int TRADE_CONDITION_DIRTY_TIMESTAMP = 30;
-	private static int WANTPARTS_LIST = 31;
-	private static int WANT_PARTS_DIRTY_TIMESTAMP = 32;
-	private static int HASPARTS_LIST = 33;
-	private static int HAS_PARTS_DIRTY_TIMESTAMP = 34;
+	private static final int _ID = 0;
+	private static final int GAME_ID = 1;
+	private static final int COLLECTION_ID = 2;
+	private static final int COLLECTION_NAME = 3;
+	private static final int RATING = 4;
+	private static final int RATING_DIRTY_TIMESTAMP = 5;
+	private static final int COMMENT = 6;
+	private static final int COMMENT_DIRTY_TIMESTAMP = 7;
+	private static final int PRIVATE_INFO_ACQUIRED_FROM = 8;
+	private static final int PRIVATE_INFO_ACQUISITION_DATE = 9;
+	private static final int PRIVATE_INFO_COMMENT = 10;
+	private static final int PRIVATE_INFO_CURRENT_VALUE = 11;
+	private static final int PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 12;
+	private static final int PRIVATE_INFO_PRICE_PAID = 13;
+	private static final int PRIVATE_INFO_PRICE_PAID_CURRENCY = 14;
+	private static final int PRIVATE_INFO_QUANTITY = 15;
+	private static final int PRIVATE_INFO_DIRTY_TIMESTAMP = 16;
+	private static final int STATUS_OWN = 17;
+	private static final int STATUS_PREVIOUSLY_OWNED = 18;
+	private static final int STATUS_FOR_TRADE = 19;
+	private static final int STATUS_WANT = 20;
+	private static final int STATUS_WANT_TO_PLAY = 21;
+	private static final int STATUS_WANT_TO_BUY = 22;
+	private static final int STATUS_WISHLIST = 23;
+	private static final int STATUS_WISHLIST_PRIORITY = 24;
+	private static final int STATUS_PREORDERED = 25;
+	private static final int STATUS_DIRTY_TIMESTAMP = 26;
+	private static final int WISHLIST_COMMENT = 27;
+	private static final int WISHLIST_COMMENT_DIRTY_TIMESTAMP = 28;
+	private static final int CONDITION = 29;
+	private static final int TRADE_CONDITION_DIRTY_TIMESTAMP = 30;
+	private static final int WANTPARTS_LIST = 31;
+	private static final int WANT_PARTS_DIRTY_TIMESTAMP = 32;
+	private static final int HASPARTS_LIST = 33;
+	private static final int HAS_PARTS_DIRTY_TIMESTAMP = 34;
+	private static final int IMAGE_URL = 35;
+	private static final int THUMBNAIL_URL = 36;
 
 	private long internalId;
 	private int collectionId;
@@ -114,6 +118,8 @@ public class CollectionItem {
 	private long wantPartsDirtyTimestamp;
 	private String hasParts;
 	private long hasPartsDirtyTimestamp;
+	public String imageUrl;
+	public String thumbnailUrl;
 
 	public static CollectionItem fromCursor(Cursor cursor) {
 		CollectionItem collectionItem = new CollectionItem();
@@ -121,6 +127,8 @@ public class CollectionItem {
 		collectionItem.collectionId = cursor.getInt(COLLECTION_ID);
 		collectionItem.gameId = cursor.getInt(GAME_ID);
 		collectionItem.collectionName = cursor.getString(COLLECTION_NAME);
+		collectionItem.imageUrl = cursor.getString(IMAGE_URL);
+		collectionItem.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
 
 		collectionItem.rating = cursor.getDouble(RATING);
 		collectionItem.ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
@@ -167,10 +175,6 @@ public class CollectionItem {
 
 	public long getInternalId() {
 		return internalId;
-	}
-
-	public void setCollectionId(int collectionId) {
-		this.collectionId = collectionId;
 	}
 
 	public int getGameId() {
@@ -303,5 +307,13 @@ public class CollectionItem {
 
 	public long getHasPartsDirtyTimestamp() {
 		return hasPartsDirtyTimestamp;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public String getThumbnailUrl() {
+		return thumbnailUrl;
 	}
 }

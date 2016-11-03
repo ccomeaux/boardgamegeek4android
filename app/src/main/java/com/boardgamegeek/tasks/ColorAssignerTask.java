@@ -134,7 +134,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 
 	@DebugLog
 	private int getMessageIdFromResults(@NonNull Results results) {
-		@StringRes int messageId = 0;
+		@StringRes int messageId = R.string.msg_color_success;
 		if (results.hasError()) {
 			messageId = R.string.title_error;
 			switch (results.resultCode) {
@@ -313,7 +313,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 						}
 					}
 				} catch (Exception e) {
-					Timber.w(e, "Couldn't get the colors for " + player);
+					Timber.w(e, "Couldn't get the colors for %s", player);
 				} finally {
 					if (cursor != null) {
 						cursor.close();
@@ -347,7 +347,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private void assignColorToPlayer(@NonNull String color, @NonNull PlayerColorChoices player, String reason) {
 		PlayerResult playerResult = new PlayerResult(player.name, player.type, color, reason);
 		results.results.add(playerResult);
-		Timber.i("Assigned " + playerResult);
+		Timber.i("Assigned %s", playerResult);
 
 		colorsAvailable.remove(color);
 		playersNeedingColor.remove(player);

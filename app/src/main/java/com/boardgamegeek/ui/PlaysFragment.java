@@ -59,6 +59,8 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.FilterEvent;
+import com.boardgamegeek.util.fabric.SortEvent;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.Target;
 
@@ -352,6 +354,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (sortType == PlaysSorterFactory.TYPE_UNKNOWN) {
 			sortType = PlaysSorterFactory.TYPE_DEFAULT;
 		}
+		SortEvent.log("Plays", String.valueOf(sortType));
 		mSorter = PlaysSorterFactory.create(getActivity(), sortType);
 		resetScrollState();
 		requery();
@@ -541,7 +544,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
-	@DebugLog
 	@Override
 	protected int getSyncType() {
 		return mMode == MODE_GAME ? SyncService.FLAG_SYNC_NONE : SyncService.FLAG_SYNC_PLAYS;
@@ -566,13 +568,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@Override
 	protected void onFabClicked() {
 		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), 0, mGameId, mGameName, mThumbnailUrl, mImageUrl);
-		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
+		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 		startActivity(intent);
 	}
 
 	public void filter(int type, String description) {
 		if (type != mFilterType && mMode == MODE_ALL) {
 			mFilterType = type;
+			FilterEvent.log("Plays", String.valueOf(type));
 			EventBus.getDefault().postSticky(new PlaysFilterChangedEvent(mFilterType, description));
 			setEmptyText(getString(getEmptyStringResource()));
 			requery();

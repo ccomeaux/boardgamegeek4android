@@ -10,6 +10,8 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 public class CommentsActivity extends SimpleSinglePaneActivity {
 	public static final int SORT_USER = 0;
@@ -34,6 +36,13 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 			if (!TextUtils.isEmpty(gameName)) {
 				actionBar.setSubtitle(gameName);
 			}
+		}
+
+		if (savedInstanceState == null) {
+			Answers.getInstance().logContentView(new ContentViewEvent()
+				.putContentType("GameComments")
+				.putContentId(String.valueOf(gameId))
+				.putContentName(gameName));
 		}
 	}
 

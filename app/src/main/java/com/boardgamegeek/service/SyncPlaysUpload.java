@@ -14,6 +14,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Pair;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -34,6 +35,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
@@ -79,21 +81,14 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected int getNotificationErrorId() {
-		return NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR;
+	protected String getNotificationMessageTag() {
+		return NotificationUtils.TAG_UPLOAD_PLAY;
 	}
 
 	@DebugLog
 	@Override
-	protected int getNotificationMessageId() {
-		return NotificationUtils.ID_SYNC_PLAY_UPLOAD;
-	}
-
-	@DebugLog
-	@StringRes
-	@Override
-	protected int getUploadSummaryWithSize() {
-		return R.string.sync_notification_plays_upload_summary;
+	protected String getNotificationErrorTag() {
+		return NotificationUtils.TAG_UPLOAD_PLAY_ERROR;
 	}
 
 	@DebugLog
@@ -110,7 +105,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_plays_upload;
 	}
 
@@ -125,13 +120,19 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				null);
 			String detail = String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);
-			showNotification(detail);
+			updateProgressNotification(detail);
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = PlayBuilder.fromCursor(cursor, context, true);
+				Play play = PlayBuilder.fromCursor(cursor);
+				Cursor playerCursor = PlayBuilder.queryPlayers(context, play);
+				try {
+					PlayBuilder.addPlayers(playerCursor, play);
+				} finally {
+					if (playerCursor != null) playerCursor.close();
+				}
 
 				PlaySaveResponse response = postPlayUpdate(play);
 				if (response == null) {
@@ -141,13 +142,13 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					final int newPlayId = response.getPlayId();
 					final int oldPlayId = play.playId;
 
-					String message = play.hasBeenSynced() ?
-						context.getString(R.string.msg_play_updated) :
-						context.getString(R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 					currentPlayIdForMessage = newPlayId;
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
-					notifyUser(StringUtils.boldSecondString(message, play.gameName));
+
+					CharSequence message = play.hasBeenSynced() ?
+						PresentationUtils.getText(context, R.string.msg_play_updated) :
+						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(play);
@@ -158,12 +159,15 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 						play.playId = newPlayId;
 					}
+					Pair<String, String> imageUrls = queryGameImageUrls(play);
+					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
 					play.syncStatus = Play.SYNC_STATUS_SYNCED;
 					persister.save(play);
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					notifyUser(StringUtils.boldSecondString(context.getString(R.string.msg_play_update_bad_id), String.valueOf(play.playId)));
+					Pair<String, String> imageUrls = queryGameImageUrls(play);
+					notifyUser(play.gameName, PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId), play.playId, imageUrls.first, imageUrls.second);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
@@ -180,18 +184,32 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		}
 	}
 
+	private Pair<String, String> queryGameImageUrls(Play play) {
+		Pair<String, String> imageUrls = Pair.create("", "");
+		Cursor gameCursor = context.getContentResolver().query(Games.buildGameUri(play.gameId),
+			new String[] { Games.IMAGE_URL, Games.THUMBNAIL_URL }, null, null, null);
+		try {
+			if (gameCursor != null && gameCursor.moveToFirst()) {
+				imageUrls = Pair.create(gameCursor.getString(0), gameCursor.getString(1));
+			}
+		} finally {
+			if (gameCursor != null) gameCursor.close();
+		}
+		return imageUrls;
+	}
+
 	@DebugLog
 	private void deletePendingPlays(@NonNull SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
-				null,
+				PlayBuilder.PLAY_PROJECTION,
 				Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
 				null);
 			String detail = String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);
-			showNotification(detail);
+			updateProgressNotification(detail);
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
@@ -206,10 +224,10 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					} else if (response.isSuccessful()) {
 						deletePlay(play);
 						updateGamePlayCount(play);
-						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
+						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
 						deletePlay(play);
-						notifyUserOfDelete(R.string.msg_play_deleted, play.gameName);
+						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
 						Authenticator.clearPassword(context);
@@ -219,7 +237,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					}
 				} else {
 					deletePlay(play);
-					notifyUserOfDelete(R.string.msg_play_deleted_draft, play.gameName);
+					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
 				}
 			}
 		} finally {
@@ -342,8 +360,9 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	private void notifyUserOfDelete(int messageId, String gameName) {
-		notifyUser(StringUtils.boldSecondString(context.getString(messageId), gameName));
+	private void notifyUserOfDelete(@StringRes int messageId, Play play) {
+		Pair<String, String> imageUrls = queryGameImageUrls(play);
+		notifyUser(play.gameName, PresentationUtils.getText(context, messageId, play.gameName), play.playId, imageUrls.first, imageUrls.second);
 	}
 
 	@DebugLog

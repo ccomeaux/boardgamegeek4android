@@ -10,6 +10,8 @@ import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.leakcanary.LeakCanary;
@@ -28,6 +30,7 @@ public class BggApplication extends Application {
 	@DebugLog
 	public void onCreate() {
 		super.onCreate();
+		initializeFabric();
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
 			enableStrictMode();
@@ -37,11 +40,12 @@ public class BggApplication extends Application {
 					.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
 					.build());
 		} else {
-			Fabric.with(this, new Crashlytics());
 			String username = AccountUtils.getUsername(this);
 			if (!TextUtils.isEmpty(username)) {
 				Crashlytics.setUserIdentifier(username);
 			}
+			Crashlytics.setString("BUILD_TIME", BuildConfig.BUILD_TIME);
+			Crashlytics.setString("GIT_SHA", BuildConfig.GIT_SHA);
 			Timber.plant(new CrashReportingTree());
 		}
 		LeakCanary.install(this);
@@ -55,6 +59,11 @@ public class BggApplication extends Application {
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
 			.downloader(new OkHttp3Downloader(HttpUtils.getHttpClientWithCache(this)))
 			.build());
+	}
+
+	private void initializeFabric() {
+		final Crashlytics crashlytics = new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build();
+		Fabric.with(this, crashlytics, new Answers());
 	}
 
 	private void enableStrictMode() {

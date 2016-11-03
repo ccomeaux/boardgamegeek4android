@@ -396,7 +396,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@SuppressWarnings("unused")
 	@OnClick(R.id.card_footer_colors)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
+		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(getActivity()));
 		startActivity(intent);
 	}

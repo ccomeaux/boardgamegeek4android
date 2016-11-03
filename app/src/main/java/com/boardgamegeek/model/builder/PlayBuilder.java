@@ -9,12 +9,42 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
 
 import java.util.ArrayList;
 
 public class PlayBuilder {
+	public static final String[] PLAY_PROJECTION = {
+		Plays.PLAY_ID,
+		PlayItems.NAME,
+		PlayItems.OBJECT_ID,
+		Plays.DATE,
+		Plays.LOCATION,
+		Plays.LENGTH,
+		Plays.QUANTITY,
+		Plays.INCOMPLETE,
+		Plays.NO_WIN_STATS,
+		Plays.COMMENTS,
+		Plays.UPDATED_LIST,
+		Plays.SYNC_STATUS,
+		Plays.UPDATED,
+		Plays.START_TIME,
+		Plays.PLAYER_COUNT
+	};
+
+	public static final String[] PLAYER_PROJECTION = {
+		PlayPlayers.USER_NAME,
+		PlayPlayers.NAME,
+		PlayPlayers.START_POSITION,
+		PlayPlayers.COLOR,
+		PlayPlayers.SCORE,
+		PlayPlayers.RATING,
+		PlayPlayers.NEW,
+		PlayPlayers.WIN
+	};
+
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -32,10 +62,6 @@ public class PlayBuilder {
 	public static final String KEY_START_TIME = "START_TIME";
 
 	public static Play fromCursor(Cursor cursor) {
-		return fromCursor(cursor, null, false);
-	}
-
-	public static Play fromCursor(Cursor cursor, Context context, boolean includePlayers) {
 		Play play = new Play();
 		play.playId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
 		play.gameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
@@ -52,20 +78,35 @@ public class PlayBuilder {
 		play.saved = CursorUtils.getLong(cursor, Plays.UPDATED);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
 		play.playerCount = CursorUtils.getInt(cursor, Plays.PLAYER_COUNT);
-		if (includePlayers && context != null) {
-			Cursor c = null;
-			try {
-				c = context.getContentResolver().query(play.playerUri(), null, null, null, null);
-				while (c != null && c.moveToNext()) {
-					play.addPlayer(new Player(c));
-				}
-			} finally {
-				if (c != null) {
-					c.close();
-				}
-			}
-		}
 		return play;
+	}
+
+	public static Player playerFromCursor(Cursor cursor) {
+		Player player = new Player();
+		player.userid = CursorUtils.getInt(cursor, PlayPlayers.USER_ID);
+		player.username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME);
+		player.name = CursorUtils.getString(cursor, PlayPlayers.NAME);
+		player.color = CursorUtils.getString(cursor, PlayPlayers.COLOR);
+		player.setStartingPosition(CursorUtils.getString(cursor, PlayPlayers.START_POSITION));
+		player.score = CursorUtils.getString(cursor, PlayPlayers.SCORE);
+		player.rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING, Player.DEFAULT_RATING);
+		player.New(CursorUtils.getBoolean(cursor, PlayPlayers.NEW));
+		player.Win(CursorUtils.getBoolean(cursor, PlayPlayers.WIN));
+		return player;
+	}
+
+	public static Cursor queryPlayers(Context context, Play play) {
+		return context.getContentResolver().query(play.playerUri(), null, null, null, null);
+	}
+
+	public static void addPlayers(Cursor cursor, Play play) {
+		play.clearPlayers();
+		while (cursor != null && cursor.moveToNext()) {
+			play.addPlayer(playerFromCursor(cursor));
+		}
+		if (play.getPlayerCount() > 9 && !play.arePlayersCustomSorted()) {
+			play.sortPlayers();
+		}
 	}
 
 	/**

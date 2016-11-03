@@ -40,7 +40,7 @@ public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_buddies_unupdated;
 	}
 }

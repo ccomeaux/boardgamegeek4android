@@ -6,6 +6,7 @@ import android.content.SyncResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.Game;
@@ -19,7 +20,6 @@ import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 10;
-	private int fetchSize;
 
 	public SyncGames(Context context, BggService service) {
 		super(context, service);
@@ -29,7 +29,7 @@ public abstract class SyncGames extends SyncTask {
 	public void execute(Account account, @NonNull SyncResult syncResult) {
 		Timber.i(getIntroLogMessage());
 		try {
-			fetchSize = GAMES_PER_FETCH;
+			int fetchSize = GAMES_PER_FETCH;
 			int numberOfFetches = 0;
 			do {
 				if (isCancelled()) {
@@ -40,11 +40,11 @@ public abstract class SyncGames extends SyncTask {
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
 					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
-					String detail = fetchSize + " games: " + gameIdDescription;
+					String detail = context.getString(R.string.sync_notification_games, fetchSize, gameIdDescription);
 					if (numberOfFetches > 1) {
-						detail += " (page " + numberOfFetches + ")";
+						detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches);
 					}
-					showNotification(detail);
+					updateProgressNotification(detail);
 
 					GamePersister persister = new GamePersister(context);
 					ThingResponse response = getThingResponse(service, gameIds);
@@ -73,8 +73,8 @@ public abstract class SyncGames extends SyncTask {
 	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
 //		while (true) {
 //			try {
-				String ids = TextUtils.join(",", gameIds);
-				return new ThingRequest(service, ids).execute();
+		String ids = TextUtils.join(",", gameIds);
+		return new ThingRequest(service, ids).execute();
 //			} catch (Exception e) {
 //				if (e.getCause() instanceof SocketTimeoutException) {
 //					if (fetchSize == 1) {

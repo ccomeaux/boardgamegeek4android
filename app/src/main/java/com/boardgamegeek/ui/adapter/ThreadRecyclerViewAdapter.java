@@ -66,7 +66,6 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			if (article == null) return;
 
 			usernameView.setText(article.username);
-			editDateView.setFormat(article.getNumberOfEdits() > 0 ? R.string.edited_prefix : R.string.posted_prefix);
 			editDateView.setTimestamp(article.editDate());
 			UIUtils.setTextMaybeHtml(bodyView, article.body);
 			Bundle bundle = new Bundle();
@@ -76,6 +75,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
 			bundle.putString(ActivityUtils.KEY_BODY, article.body);
 			bundle.putString(ActivityUtils.KEY_LINK, article.link);
+			bundle.putInt(ActivityUtils.KEY_ARTICLE_ID, article.id);
 			viewButton.setTag(bundle);
 		}
 	}

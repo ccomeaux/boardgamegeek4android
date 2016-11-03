@@ -1,35 +1,31 @@
 package com.boardgamegeek.util;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.boardgamegeek.util.LargeIconLoader.Callback;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import timber.log.Timber;
 
 public class NotificationUtils {
-	public static final int ID_SYNC = 0;
-	public static final int ID_SYNC_PLAY_UPLOAD = 1;
-	public static final int ID_PLAY_TIMER = 2;
-	public static final int ID_H_INDEX = 3;
-	public static final int ID_SYNC_COLLECTION_UPLOAD = 4;
-	public static final int ID_SYNC_ERROR = -1;
-	public static final int ID_PROVIDER_ERROR = -2;
-	public static final int ID_SYNC_PLAY_UPLOAD_ERROR = -3;
-	public static final int ID_PERSIST_ERROR = -4;
-	public static final int ID_SYNC_COLLECTION_UPLOAD_ERROR = -5;
+	public static final String TAG_H_INDEX = "H-INDEX";
+	public static final String TAG_PERSIST_ERROR = "PERSIST_ERROR";
+	public static final String TAG_PLAY_TIMER = "PLAY_TIMER";
+	public static final String TAG_PROVIDER_ERROR = "PROVIDER_ERROR";
+	public static final String TAG_SYNC_PROGRESS = "SYNC_PROGRESS";
+	public static final String TAG_UPDATE_ERROR = "UPDATE_ERROR";
+	public static final String TAG_UPLOAD_PLAY = "UPLOAD_PLAY";
+	public static final String TAG_UPLOAD_PLAY_ERROR = "UPLOAD_PLAY_ERROR";
+	public static final String TAG_UPLOAD_COLLECTION = "UPLOAD_COLLECTION";
+	public static final String TAG_UPLOAD_COLLECTION_ERROR = "UPLOAD_COLLECTION_ERROR";
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
@@ -67,8 +63,7 @@ public class NotificationUtils {
 			.setContentTitle(title)
 			.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		Intent intent = new Intent(context, cls);
-		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent,
-			PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(resultPendingIntent);
 		return builder;
 	}
@@ -76,30 +71,38 @@ public class NotificationUtils {
 	/**
 	 * Display the notification with a unique ID.
 	 */
-	public static void notify(Context context, int id, NotificationCompat.Builder builder) {
-		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.notify(id, builder.build());
+	public static void notify(Context context, String tag, int id, NotificationCompat.Builder builder) {
+		NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+		nm.notify(tag, id, builder.build());
 	}
 
 	/**
 	 * Cancel the notification by a unique ID.
 	 */
-	public static void cancel(Context context, int id) {
-		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.cancel(id);
+	public static void cancel(Context context, String tag, int id) {
+		NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+		nm.cancel(tag, id);
 	}
 
 	/**
 	 * Launch the "Playing" notification.
 	 */
 	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
+		Timber.i("Launching notification without icon for play ID=%s", play.playId);
 		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
-		Queue<String> imageUrls = new LinkedList<>();
-		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
-		imageUrls.add(imageUrl);
-		imageUrls.add(thumbnailUrl);
-		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
-		tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
+		Timber.i("Attempting to load icon for play ID=%s", play.playId);
+		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
+			@Override
+			public void onSuccessfulIconLoad(Bitmap bitmap) {
+				buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
+			}
+
+			@Override
+			public void onFailedIconLoad() {
+				// oh well!
+			}
+		});
+		loader.executeOnMainThread();
 	}
 
 	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
@@ -107,7 +110,7 @@ public class NotificationUtils {
 
 		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, play.playId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		String info = "";
 		if (!TextUtils.isEmpty(play.location)) {
@@ -129,38 +132,6 @@ public class NotificationUtils {
 			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
 		}
 
-		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
-	}
-
-	/**
-	 * Attempt to load the first icon in the queue. If this fails, try the next icon in the queue until successful or
-	 * the queue is empty.
-	 */
-	private static void tryLoadLargeIcon(final Context context, final Play play, final String thumbnailUrl,
-										 final String imageUrl, final Queue<String> imageUrls) {
-		String path = imageUrls.poll();
-		if (TextUtils.isEmpty(path)) {
-			return;
-		}
-		Picasso.with(context.getApplicationContext())
-			.load(HttpUtils.ensureScheme(path))
-			.networkPolicy(NetworkPolicy.NO_STORE)
-			.resize(400, 400) // recommended size for wearables
-			.centerCrop()
-			.into(new Target() {
-				@Override
-				public void onPrepareLoad(Drawable placeHolderDrawable) {
-				}
-
-				@Override
-				public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-					buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
-				}
-
-				@Override
-				public void onBitmapFailed(Drawable errorDrawable) {
-					tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
-				}
-			});
+		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, play.playId, builder);
 	}
 }

@@ -34,7 +34,7 @@ public class CollectionStatusUploadTask extends CollectionUploadTask {
 		return createFormBuilder()
 			.add("fieldname", "status")
 			.add("own", collectionItem.owned() ? "1" : "0")
-			.add("prevown", collectionItem.previouslyOwned() ? "1" : "0")
+			.add("prevowned", collectionItem.previouslyOwned() ? "1" : "0")
 			.add("fortrade", collectionItem.forTrade() ? "1" : "0")
 			.add("want", collectionItem.wantInTrade() ? "1" : "0")
 			.add("wanttobuy", collectionItem.wantToBuy() ? "1" : "0")

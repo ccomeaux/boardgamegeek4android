@@ -129,6 +129,6 @@ public interface BggService {
 	@GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&showcount=12&tradelists=0&version=v2")
 	Call<GeekListsResponse> geekLists(@Query("pageid") int page, @Query("sort") String sort);
 
-	@GET("/xmlapi/geeklist/{id}?comments=1")
-	Call<GeekList> geekList(@Path("id") int id);
+	@GET("/xmlapi/geeklist/{id}")
+	Call<GeekList> geekList(@Path("id") int id, @Query("comments") int comments);
 }

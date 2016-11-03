@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
@@ -24,8 +25,12 @@ import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
-import com.boardgamegeek.ui.PlayerPlaysActivity;
+import com.boardgamegeek.util.fabric.PlayManipulationEvent;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+import com.crashlytics.android.answers.ShareEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -39,6 +44,9 @@ public class ActivityUtils {
 	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_PLAY_ID = "PLAY_ID";
+	public static final String KEY_END_PLAY = "END_PLAY";
+	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
@@ -51,25 +59,25 @@ public class ActivityUtils {
 	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
 	public static final String KEY_THREAD_ID = "THREAD_ID";
 	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
+	public static final String KEY_ARTICLE_ID = "ARTICLE_ID";
 	public static final String KEY_POST_DATE = "POST_DATE";
 	public static final String KEY_EDIT_DATE = "EDIT_DATE";
 	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
-	public static final String KEY_TEXT = "TEXT";
 	public static final String KEY_BODY = "BODY";
 	public static final String KEY_LINK = "LINK";
 	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
 	public static final String KEY_TYPE = "TYPE";
-	public static final String KEY_GEEKLIST = "GEEKLIST";
-	public static final String KEY_ID = "GEEKLIST_ID";
-	public static final String KEY_ORDER = "GEEKLIST_ORDER";
-	public static final String KEY_NAME = "GEEKLIST_NAME";
-	public static final String KEY_THUMBS = "GEEKLIST_THUMBS";
-	public static final String KEY_IMAGE_ID = "GEEKLIST_IMAGE_ID";
-	public static final String KEY_POSTED_DATE = "GEEKLIST_POSTED_DATE";
-	public static final String KEY_EDITED_DATE = "GEEKLIST_EDITED_DATE";
-	public static final String KEY_OBJECT_ID = "GEEKLIST_OBJECT_ID";
-	public static final String KEY_OBJECT_URL = "GEEKLIST_OBJECT_URL";
-	public static final String KEY_IS_BOARD_GAME = "GEEKLIST_IS_BOARD_GAME";
+	public static final String KEY_GEEK_LIST = "GEEK_LIST";
+	public static final String KEY_ID = "GEEK_LIST_ID";
+	public static final String KEY_ORDER = "GEEK_LIST_ORDER";
+	public static final String KEY_NAME = "GEEK_LIST_NAME";
+	public static final String KEY_THUMBS = "GEEK_LIST_THUMBS";
+	public static final String KEY_IMAGE_ID = "GEEK_LIST_IMAGE_ID";
+	public static final String KEY_POSTED_DATE = "GEEK_LIST_POSTED_DATE";
+	public static final String KEY_EDITED_DATE = "GEEK_LIST_EDITED_DATE";
+	public static final String KEY_OBJECT_ID = "GEEK_LIST_OBJECT_ID";
+	public static final String KEY_OBJECT_URL = "GEEK_LIST_OBJECT_URL";
+	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
@@ -115,13 +123,6 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void startPlayerPlaysActivity(Context context, String name, String username) {
-		Intent intent = new Intent(context, PlayerPlaysActivity.class);
-		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_NAME, name);
-		intent.putExtra(PlayerPlaysActivity.KEY_PLAYER_USERNAME, username);
-		context.startActivity(intent);
-	}
-
 	@NonNull
 	public static Intent createLocationIntent(Context context, String locationName) {
 		Intent intent = new Intent(context, LocationActivity.class);
@@ -139,25 +140,49 @@ public class ActivityUtils {
 		activity.startActivity(intent);
 	}
 
-	public static void shareGame(Activity activity, int gameId, String gameName) {
+	public static void shareGame(Activity activity, int gameId, String gameName, String method) {
 		Resources r = activity.getResources();
 		String subject = String.format(r.getString(R.string.share_game_subject), gameName);
 		String text = r.getString(R.string.share_game_text) + "\n\n" + formatGameLink(gameId, gameName);
 		share(activity, subject, text, R.string.title_share_game);
+		Answers.getInstance().logShare(new ShareEvent()
+			.putMethod(method)
+			.putContentType("Game")
+			.putContentName(gameName)
+			.putContentId(String.valueOf(gameId)));
 	}
 
-	public static void shareGames(Activity activity, List<Pair<Integer, String>> games) {
+	public static void shareGames(Activity activity, List<Pair<Integer, String>> games, String method) {
 		Resources r = activity.getResources();
 		StringBuilder text = new StringBuilder(r.getString(R.string.share_games_text));
 		text.append("\n").append("\n");
+		List<String> gameNames = new ArrayList<>();
+		List<String> gameIds = new ArrayList<>();
 		for (Pair<Integer, String> game : games) {
 			text.append(formatGameLink(game.first, game.second));
+			gameNames.add(game.second);
+			gameNames.add(String.valueOf(game.first));
 		}
 		share(activity, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
+		Answers.getInstance().logShare(new ShareEvent()
+			.putMethod(method)
+			.putContentType("Games")
+			.putContentName(StringUtils.formatList(gameNames))
+			.putContentId(String.valueOf(StringUtils.formatList(gameIds))));
 	}
 
 	private static String formatGameLink(int id, String name) {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
+	}
+
+	public static void shareGeekList(Activity activity, int id, String title) {
+		String description = String.format(activity.getString(R.string.share_geeklist_text), title);
+		Uri uri = ActivityUtils.createBggUri("geeklist", id);
+		ActivityUtils.share(activity, activity.getString(R.string.share_geeklist_subject), description + "\n\n" + uri, R.string.title_share);
+		Answers.getInstance().logShare(new ShareEvent()
+			.putContentType("GeekList")
+			.putContentName(title)
+			.putContentId(String.valueOf(id)));
 	}
 
 	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
@@ -176,13 +201,14 @@ public class ActivityUtils {
 	}
 
 	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		PlayManipulationEvent.log("Edit", gameName);
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
 	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
+		intent.putExtra(KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
@@ -193,23 +219,23 @@ public class ActivityUtils {
 
 	public static Intent createRematchIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_REMATCH, true);
+		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
 
 	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
 		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
+		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
 	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(LogPlayActivity.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_PLAY_ID, playId);
+		intent.putExtra(KEY_GAME_ID, gameId);
+		intent.putExtra(KEY_GAME_NAME, gameName);
+		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 
@@ -232,10 +258,10 @@ public class ActivityUtils {
 	}
 
 	public static void linkBgg(Context context, int gameId) {
-		if (gameId <= 0) {
+		if (gameId == BggContract.INVALID_ID) {
 			return;
 		}
-		link(context, BOARDGAME_URL_PREFIX + gameId);
+		linkToBgg(context, BOARDGAME_URL_PREFIX, gameId);
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {
@@ -261,13 +287,23 @@ public class ActivityUtils {
 
 	public static void linkToBgg(Context context, String path) {
 		link(context, createBggUri(path));
+		Answers.getInstance().logCustom(new CustomEvent("Link")
+			.putCustomAttribute("Path", path));
 	}
 
-	public static void link(Context context, String link) {
-		link(context, Uri.parse(link));
+	public static void linkToBgg(Context context, String path, int id) {
+		link(context, createBggUri(path, id));
+		Answers.getInstance().logCustom(new CustomEvent("Link")
+			.putCustomAttribute("Path", path));
 	}
 
-	public static void link(Context context, Uri link) {
+	public static void link(Context context, String url) {
+		link(context, Uri.parse(url));
+		Answers.getInstance().logCustom(new CustomEvent("Link")
+			.putCustomAttribute("Url", url));
+	}
+
+	private static void link(Context context, Uri link) {
 		final Intent intent = new Intent(Intent.ACTION_VIEW, link);
 		if (isIntentAvailable(context, intent)) {
 			context.startActivity(intent);

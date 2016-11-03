@@ -66,7 +66,7 @@ public class SyncService extends Service {
 	}
 
 	public static void cancelSync(Context context) {
-		NotificationUtils.cancel(context, NotificationUtils.ID_SYNC);
+		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS, 0);
 		Account account = Authenticator.getAccount(context);
 		if (account != null) {
 			ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY);

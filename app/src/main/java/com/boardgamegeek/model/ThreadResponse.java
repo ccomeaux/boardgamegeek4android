@@ -11,7 +11,7 @@ public class ThreadResponse {
 	@Attribute(required = false)
 	private int id;
 
-	@Attribute(name = "numarticles")
+	@Attribute(name = "numarticles", required = false)
 	private int numberOfArticles;
 
 	@Attribute(required = false)

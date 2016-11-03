@@ -53,7 +53,7 @@ public class SyncGamesRemove extends SyncTask {
 				new String[] { String.valueOf(hoursAgo) }, "games." + Games.UPDATED);
 			if (gameIds.size() > 0) {
 				Timber.i("...found " + gameIds.size() + " games to delete");
-				showNotification("Deleting " + gameIds.size() + " games from your collection");
+				updateProgressNotification("Deleting " + gameIds.size() + " games from your collection");
 
 				int count = 0;
 				// NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
@@ -72,7 +72,7 @@ public class SyncGamesRemove extends SyncTask {
 	}
 
 	@Override
-	public int getNotification() {
+	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_collection_missing;
 	}
 }

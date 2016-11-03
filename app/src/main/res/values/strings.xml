@@ -94,9 +94,10 @@
 	<string name="msg_color_error_missing_player_name">Can\'t assign colors if a player doesn\'t have a user name or unique name.</string>
 	<string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
 	<string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
+	<string name="msg_color_success">You get a color and you get a color. Everybody gets a color!</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
-	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
+	<string name="are_you_sure_refresh_message">Are you sure you want to discard local changes?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
@@ -336,14 +337,15 @@
 	<string name="menu_clear">Clear</string>
 	<string name="menu_add_username">Add username</string>
 	<string name="sort_description">by %s</string>
-	<string name="msg_player_deleted">Player deleted.</string>
+	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
-	<string name="msg_play_added">Logged your %s play of</string>
-	<string name="msg_play_updated">Updated a play of</string>
-	<string name="msg_play_deleted">Deleted a play of</string>
-	<string name="msg_play_deleted_draft">Deleted a draft of</string>
-	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
+	<string name="msg_play_added">Logged your <b>%1$s</b> play</string>
+	<string name="msg_play_updated">Updated play</string>
+	<string name="msg_play_deleted">Deleted play</string>
+	<string name="msg_play_deleted_draft">Deleted draft</string>
+	<string name="msg_play_update_bad_id">Play <b>%s</b> doesn\'t exist!</string>
+	<string name="msg_play_upload"><b>%1$s</b> - %2$s</string>
 	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
@@ -360,10 +362,12 @@
 	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
 	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
-	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
-	<string name="share_thread_article_text">I found this reply in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
+	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
+	<string name="share_thread_game_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
+	<string name="share_thread_article_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
+	<string name="share_thread_article_game_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
-	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android:</string>
+	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
 	<string name="times">times</string>
 	<string name="times_suffix">%,d times</string>
 	<string name="on">on</string>
@@ -416,7 +420,6 @@
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>
-	<string name="last_edited_prefix">Last edited %s</string>
 	<string name="add">Add</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_custom_player_order">Custom</string>
@@ -452,10 +455,7 @@
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
-	<string name="forum_last_post">Last post %s</string>
 	<string name="forum_last_post_in">Last post <b>%1$s</b> in <b>%2$s</b></string>
-	<string name="forum_thread_created">Created %s</string>
-	<string name="forum_thread_author">by %s</string>
 	<string name="last_modified">Last modified</string>
 	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
@@ -530,6 +530,14 @@
 	<string name="show_missing_votes">Show missing votes</string>
 	<string name="msg_invalid_token">Attempting to use an unrecognized query token: %s</string>
 	<string name="msg_collection_item_deleted">Deleted!</string>
+	<string name="collection_status_own">Own</string>
+	<string name="collection_status_prev_owned">Prev. Owned</string>
+	<string name="collection_status_for_trade">For Trade</string>
+	<string name="collection_status_want_to_play">Want to Play</string>
+	<string name="collection_status_want_in_trade">Want in Trade</string>
+	<string name="collection_status_want_to_buy">Want to Buy</string>
+	<string name="collection_status_want_preordered">Pre-ordered</string>
+	<string name="collection_status_wishlist">Wishlist</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -555,14 +563,6 @@
 		<item quantity="one">Are you sure you want to send this play?</item>
 		<item quantity="other">Are you sure you want to send these plays?</item>
 	</plurals>
-	<plurals name="forum_threads">
-		<item quantity="one">%,d thread</item>
-		<item quantity="other">%,d threads</item>
-	</plurals>
-	<plurals name="forum_thread_replies">
-		<item quantity="one">%,d reply</item>
-		<item quantity="other">%,d replies</item>
-	</plurals>
 	<plurals name="plays_prefix">
 		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
 		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
@@ -578,10 +578,6 @@
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Logging play…</item>
 		<item quantity="other">Logging plays…</item>
-	</plurals>
-	<plurals name="edit_count">
-		<item quantity="one">%s total edit</item>
-		<item quantity="other">%s total edits</item>
 	</plurals>
 	<plurals name="colors_suffix">
 		<item quantity="one"><b>%,d</b> Color/Team</item>
@@ -622,5 +618,9 @@
 	<plurals name="wins_suffix">
 		<item quantity="one"><b>%,d</b> win</item>
 		<item quantity="other"><b>%,d</b> wins</item>
+	</plurals>
+	<plurals name="edit_timestamp">
+		<item quantity="one">%1$s (%2$s edit)</item>
+		<item quantity="other">%1$s (%2$s edits)</item>
 	</plurals>
 </resources>

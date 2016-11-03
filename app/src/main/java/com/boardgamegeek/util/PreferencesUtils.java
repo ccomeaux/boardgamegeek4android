@@ -9,7 +9,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
-import android.text.SpannableString;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -20,10 +19,7 @@ import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.PlaysActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Utility for getting and putting preferences.
@@ -45,6 +41,8 @@ public class PreferencesUtils {
 	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
 	private static final String LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions";
 	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
+	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
+	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
 
 	private PreferencesUtils() {
 	}
@@ -57,8 +55,20 @@ public class PreferencesUtils {
 		return getBoolean(context, "quickLogPlay", !getBoolean(context, "logHideQuickLog", false));
 	}
 
-	public static boolean editPlayer(Context context) {
-		return getBoolean(context, "logEditPlayer", false);
+	public static boolean getEditPlayerPrompted(Context context) {
+		return getBoolean(context, LOG_EDIT_PLAYER_PROMPTED, false);
+	}
+
+	public static boolean putEditPlayerPrompted(Context context) {
+		return putBoolean(context, LOG_EDIT_PLAYER_PROMPTED, true);
+	}
+
+	public static boolean getEditPlayer(Context context) {
+		return getBoolean(context, LOG_EDIT_PLAYER, false);
+	}
+
+	public static boolean putEditPlayer(Context context, boolean value) {
+		return putBoolean(context, LOG_EDIT_PLAYER, value);
 	}
 
 	public static boolean showLogPlayQuantity(Context context) {
@@ -141,30 +151,6 @@ public class PreferencesUtils {
 		return getStringArray(context, KEY_SYNC_STATUSES, context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
-	public static boolean addSyncStatus(Context context, String status) {
-		if (TextUtils.isEmpty(status)) {
-			return false;
-		}
-		if (isSyncStatus(context, status)) {
-			return false;
-		}
-
-		Set<String> set = new HashSet<>();
-		String[] statuses = getSyncStatuses(context);
-		if (statuses != null) {
-			final int stringCount = statuses.length;
-			if (stringCount > 0) {
-				set.addAll(Arrays.asList(statuses).subList(0, stringCount));
-			}
-		}
-
-		set.add(status);
-
-		String s = MultiSelectListPreference.buildString(set);
-
-		return putString(context, KEY_SYNC_STATUSES, s);
-	}
-
 	public static boolean isSyncStatus(Context context) {
 		String[] statuses = getSyncStatuses(context);
 		return statuses != null && statuses.length > 0;
@@ -191,10 +177,6 @@ public class PreferencesUtils {
 
 	public static boolean getSyncPlays(Context context) {
 		return getBoolean(context, "syncPlays", false);
-	}
-
-	public static boolean isSyncPlays(String key) {
-		return "syncPlays".equals(key);
 	}
 
 	public static boolean getSyncBuddies(Context context) {
@@ -236,10 +218,6 @@ public class PreferencesUtils {
 		editor.apply();
 	}
 
-	public static void removeNewPlayId(Context context, int oldPlayId) {
-		putNewPlayId(context, oldPlayId, BggContract.INVALID_ID);
-	}
-
 	public static int getHIndex(Context context) {
 		return getInt(context, "hIndex", 0);
 	}
@@ -261,13 +239,13 @@ public class PreferencesUtils {
 		} else {
 			messageId = R.string.sync_notification_h_index_decrease;
 		}
-		SpannableString ss = StringUtils.boldSecondString(context.getString(messageId), String.valueOf(hIndex));
 		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
-			.setContentText(ss).setContentIntent(pi);
-		NotificationUtils.notify(context, NotificationUtils.ID_H_INDEX, builder);
+			.setContentText(PresentationUtils.getText(context, messageId, hIndex))
+			.setContentIntent(pi);
+		NotificationUtils.notify(context, NotificationUtils.TAG_H_INDEX, 0, builder);
 	}
 
 	public static long getViewDefaultId(Context context) {

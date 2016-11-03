@@ -37,8 +37,6 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayItems;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
@@ -52,6 +50,9 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.PlayManipulationEvent;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ShareEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -69,6 +70,8 @@ import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final int PLAY_QUERY_TOKEN = 0x01;
+	private static final int PLAYER_QUERY_TOKEN = 0x02;
 
 	private boolean mSyncing;
 	private int mPlayId = BggContract.INVALID_ID;
@@ -159,7 +162,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		mAdapter = new PlayerAdapter();
 		playersView.setAdapter(mAdapter);
 
-		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
 
 		return rootView;
 	}
@@ -229,11 +232,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							PlayManipulationEvent.log("Discard", mPlay.gameName);
 							save(Play.SYNC_STATUS_SYNCED);
 						}
 					}).show();
 				return true;
 			case R.id.menu_edit:
+				PlayManipulationEvent.log("Edit", mPlay.gameName);
 				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 				return true;
 			case R.id.menu_send:
@@ -245,7 +250,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (mPlay.hasStarted()) {
-								NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+								cancelNotification();
 							}
 							mPlay.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
@@ -255,13 +260,16 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			}
 			case R.id.menu_rematch:
-				ActivityUtils.rematch(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
-					mImageUrl);
+				PlayManipulationEvent.log("Rematch", mPlay.gameName);
+				ActivityUtils.rematch(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
-					mPlay.toLongDescriptionWithPlayers(getActivity()), R.string.share_play_title);
+				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()), mPlay.toLongDescriptionWithPlayers(getActivity()), R.string.share_play_title);
+				Answers.getInstance().logShare(new ShareEvent()
+					.putContentType("Play")
+					.putContentName(mPlay.toShortDescription(getActivity()))
+					.putContentId(String.valueOf(mPlay.playId)));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -273,6 +281,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		triggerRefresh();
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateEvent event) {
@@ -297,7 +306,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			mSwipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					mSwipeRefreshLayout.setRefreshing(mSyncing);
+					if (mSwipeRefreshLayout != null) mSwipeRefreshLayout.setRefreshing(mSyncing);
 				}
 			});
 		}
@@ -317,11 +326,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
-			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayQuery.PROJECTION, null, null, null);
+			case PLAY_QUERY_TOKEN:
+				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 				break;
-			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayerQuery.PROJECTION, null, null, null);
+			case PLAYER_QUERY_TOKEN:
+				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 				break;
 		}
 		if (loader != null) {
@@ -337,13 +346,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		switch (loader.getId()) {
-			case PlayQuery._TOKEN:
+			case PLAY_QUERY_TOKEN:
 				if (onPlayQueryComplete(cursor)) {
 					showList();
 				}
 				break;
-			case PlayerQuery._TOKEN:
-				mPlay.setPlayers(cursor);
+			case PLAYER_QUERY_TOKEN:
+				PlayBuilder.addPlayers(cursor, mPlay);
 				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 				mAdapter.notifyDataSetChanged();
 				maybeShowNotification();
@@ -371,7 +380,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void setNewPlayId(int playId) {
 		mPlayId = playId;
 		if (isAdded()) {
-			getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+			getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
 		}
 	}
 
@@ -385,7 +394,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				setNewPlayId(newPlayId);
 				return false;
 			}
-			mEmpty.setText(String.format(getResources().getString(R.string.empty_play), mPlayId));
+			mEmpty.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(mPlayId)));
 			mEmpty.setVisibility(View.VISIBLE);
 			return true;
 		}
@@ -444,7 +453,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		mUpdated.setTimestamp(mPlay.updated);
 
 		if (mPlay.hasBeenSynced()) {
-			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.playId));
+			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(mPlay.playId)));
 		}
 
 		if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
@@ -469,7 +478,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		getActivity().supportInvalidateOptionsMenu();
-		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
 		if (mPlay.hasBeenSynced()
 			&& (mPlay.updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.updated) > AGE_IN_DAYS_TO_REFRESH)) {
@@ -483,8 +492,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		} else if (hasBeenNotified) {
-			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+			cancelNotification();
 		}
+	}
+
+	private void cancelNotification() {
+		NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, mPlayId);
 	}
 
 	private void triggerRefresh() {
@@ -492,6 +505,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void save(int status) {
+		String action = "Save";
+		if (status == Play.SYNC_STATUS_PENDING_DELETE) {
+			action = "Delete";
+		} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
+			action = "SaveDraft";
+		}
+		PlayManipulationEvent.log(action, mPlay.gameName);
 		mPlay.syncStatus = status;
 		new PlayPersister(getActivity()).save(mPlay);
 		triggerRefresh();
@@ -524,18 +544,5 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			row.setPlayer((Player) getItem(position));
 			return row;
 		}
-	}
-
-	private interface PlayQuery {
-		int _TOKEN = 0x01;
-		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST,
-			Plays.SYNC_STATUS, Plays.UPDATED, Plays.START_TIME };
-	}
-
-	private interface PlayerQuery {
-		int _TOKEN = 0x02;
-		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
-			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
 	}
 }

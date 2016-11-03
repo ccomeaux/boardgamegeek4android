@@ -73,7 +73,7 @@ public class ResolverUtils {
 	 * Determines if the URI exists in the resolver
 	 */
 	public static boolean rowExists(ContentResolver resolver, Uri uri) {
-		return getCount(resolver, uri) == 1;
+		return getCount(resolver, uri) > 0;
 	}
 
 	/**
@@ -278,7 +278,7 @@ public class ResolverUtils {
 		try {
 			stream = resolver.openInputStream(uri);
 		} catch (FileNotFoundException e) {
-			Timber.d("Couldn't find drawable: " + uri, e);
+			Timber.d(e, "Couldn't find drawable: %s", uri);
 		}
 		if (stream != null) {
 			Bitmap bitmap = BitmapFactory.decodeStream(stream);

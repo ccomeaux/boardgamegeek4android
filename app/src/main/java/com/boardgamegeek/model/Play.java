@@ -2,7 +2,6 @@ package com.boardgamegeek.model;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -261,19 +260,6 @@ public class Play {
 		}
 	}
 
-	public void setPlayers(Cursor cursor) {
-		clearPlayers();
-		while (cursor.moveToNext()) {
-			Player player = new Player(cursor);
-			addPlayer(player);
-		}
-		// When player count is in the double digits, numeric starting positions aren't sorted correctly
-		// TODO don't assume we should be sorting by starting positions
-		if (getPlayerCount() > 9 && !arePlayersCustomSorted()) {
-			sortPlayers();
-		}
-	}
-
 	public void clearPlayers() {
 		if (players != null) {
 			players.clear();
@@ -284,7 +270,17 @@ public class Play {
 		if (players == null) {
 			players = new ArrayList<>();
 		}
+		// if player has seat, bump down other players
+		if (!arePlayersCustomSorted() && player.getSeat() != Player.SEAT_UNKNOWN) {
+			for (int i = players.size(); i >= player.getSeat(); i--) {
+				Player p = getPlayerAtSeat(i);
+				if (p != null) {
+					p.setSeat(i + 1);
+				}
+			}
+		}
 		players.add(player);
+		sortPlayers();
 	}
 
 	public void removePlayer(Player player, boolean resort) {
@@ -381,7 +377,7 @@ public class Play {
 	/**
 	 * Sort the players by seat; unseated players left unsorted at the bottom of the list.
 	 */
-	private void sortPlayers() {
+	public void sortPlayers() {
 		int index = 0;
 		for (int i = 1; i <= getPlayerCount(); i++) {
 			Player p = getPlayerAtSeat(i);

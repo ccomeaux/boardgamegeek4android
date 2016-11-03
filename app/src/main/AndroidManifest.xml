@@ -128,7 +128,7 @@
 			android:exported="false"
 			android:label="@string/title_plays"/>
 		<activity
-			android:name=".ui.BuddyColorsActivity"
+			android:name=".ui.PlayerColorsActivity"
 			android:label="@string/title_favorite_colors"
 			android:theme="@style/Theme.bgglight"/>
 		<activity
@@ -238,7 +238,7 @@
 			android:name=".ui.GamePlayStatsActivity"
 			android:label="@string/title_play_stats"/>
 		<activity
-			android:name=".ui.ColorsActivity"
+			android:name=".ui.GameColorsActivity"
 			android:label="@string/title_colors"/>
 		<activity
 			android:name=".ui.GameForumsActivity"
@@ -295,11 +295,15 @@
 		</activity>
 		<activity
 			android:name=".pref.SettingsActivity"
+			android:exported="false"
 			android:label="@string/title_settings"
 			android:theme="@style/Theme.bgglight">
 			<intent-filter>
 				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
-
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 		</activity>

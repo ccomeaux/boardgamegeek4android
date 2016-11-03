@@ -11,9 +11,9 @@
 	<color name="primary_dark">#ff232753</color>
 	<color name="accent">@color/orange</color>
 	<color name="info_background">@color/light_blue</color>
-	<color name="info_background_dark">@color/medium_blue</color>
 
 	<color name="dialog_text">#000</color>
+	<color name="primary_text">#de000000</color>
 	<color name="secondary_text">#8a000000</color>
 	<color name="inverse_text">#ffffff</color>
 	<color name="inverse_text_body">#deffffff</color>
@@ -23,7 +23,7 @@
 	<color name="no_image">#808080</color>
 	<color name="navdrawer_icon_tint">#75ffffff</color>
 	<color name="navdrawer_selected_row">#eeeeee</color>
-	<color name="disabled">#cccc</color>
+	<color name="disabled">#eee</color>
 
 	<color name="best">#00a550</color>
 	<color name="recommended">#ffef00</color>
@@ -37,4 +37,7 @@
 	<color name="score_average">#cc0</color>
 	<color name="score_average_win">#00f</color>
 	<color name="score_high">#080</color>
+
+	<color name="delete">#f00</color>
+	<color name="edit">#080</color>
 </resources>

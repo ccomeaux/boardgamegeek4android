@@ -23,7 +23,8 @@ public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	@NonNull
 	@Override
 	protected Boolean doInBackground(Void... params) {
-		ContentValues values = new ContentValues(8);
+		ContentValues values = new ContentValues(9);
+		values.put(Collection.COLLECTION_DIRTY_TIMESTAMP, 0);
 		values.put(Collection.STATUS_DIRTY_TIMESTAMP, 0);
 		values.put(Collection.COMMENT_DIRTY_TIMESTAMP, 0);
 		values.put(Collection.RATING_DIRTY_TIMESTAMP, 0);

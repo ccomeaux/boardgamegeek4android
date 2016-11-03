@@ -78,6 +78,11 @@ public class TimestampView extends TextView {
 		setTimestampText();
 	}
 
+	public void setFormat(String format) {
+		this.format = format;
+		setTimestampText();
+	}
+
 	public void setTimestamp(final long timestamp) {
 		this.timestamp = timestamp;
 		setTimestampText();
@@ -90,7 +95,7 @@ public class TimestampView extends TextView {
 
 	private void setTimestampText() {
 		removeCallbacks(timeHintUpdateRunnable);
-		if (timestamp == 0) {
+		if (timestamp <= 0) {
 			if (hideWhenEmpty) setVisibility(View.GONE);
 			setText(defaultMessage);
 		} else {

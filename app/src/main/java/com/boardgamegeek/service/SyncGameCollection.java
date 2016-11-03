@@ -30,7 +30,7 @@ public class SyncGameCollection extends UpdateTask {
 	@Override
 	public String getDescription(Context context) {
 		if (isValid()) {
-			return context.getString(R.string.sync_msg_game_collection_valid, gameId);
+			return context.getString(R.string.sync_msg_game_collection_valid, String.valueOf(gameId));
 		}
 		return context.getString(R.string.sync_msg_game_collection_invalid);
 	}
@@ -50,11 +50,11 @@ public class SyncGameCollection extends UpdateTask {
 		List<CollectionItem> items = request(context, account);
 		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 		persister.save(items);
-		Timber.i("Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + gameId);
+		Timber.i("Synced %,d collection item(s) for game ID=%s", items == null ? 0 : items.size(), gameId);
 
 		// XXX: this deleted more games that I expected. need to rework
 		int deleteCount = persister.delete(items, gameId);
-		Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + gameId);
+		Timber.i("Removed %,d collection item(s) for game ID=%s", deleteCount, gameId);
 	}
 
 	private List<CollectionItem> request(Context context, @NonNull Account account) {
@@ -91,14 +91,14 @@ public class SyncGameCollection extends UpdateTask {
 			return items;
 		}
 
-		Timber.i("No collection items for game ID=" + gameId);
+		Timber.i("No collection items for game ID=%s", gameId);
 		return null;
 	}
 
 	private List<CollectionItem> requestItems(@NonNull Account account, BggService service, ArrayMap<String, String> options) {
 		CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 		if (response == null || response.items == null || response.items.size() == 0) {
-			Timber.i("No collection items for game ID=" + gameId + " with options=" + options);
+			Timber.i("No collection items for game ID=%d with options=%s", gameId, options);
 			return null;
 		} else {
 			return response.items;

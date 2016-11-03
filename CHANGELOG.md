@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Version 6.1
+-----------
+ * Changes to play logging, including support for Android 7
+ * Improved Forum UI
+ * Reworked notifications when uploading plays and collection items
+ * Bug fixes
+ * Under-the-hood improvements
+
 Version 6.0.3
 -------------
  * User names with accents should work now

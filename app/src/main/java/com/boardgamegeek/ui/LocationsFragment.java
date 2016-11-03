@@ -22,6 +22,7 @@ import com.boardgamegeek.sorter.LocationsSorter;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.SortEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -34,9 +35,9 @@ import timber.log.Timber;
 
 public class LocationsFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int TOKEN = 0;
-	private LocationsAdapter mAdapter;
-	private String mSelectedName;
-	private LocationsSorter mSorter;
+	private LocationsAdapter adapter;
+	private String selectedName;
+	private LocationsSorter sorter;
 
 	@DebugLog
 	@Override
@@ -56,9 +57,9 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	@DebugLog
 	@Subscribe(sticky = true)
 	public void onEvent(LocationSelectedEvent event) {
-		mSelectedName = event.getLocationName();
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
+		selectedName = event.getLocationName();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
 		}
 	}
 
@@ -74,9 +75,10 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	}
 
 	@DebugLog
-	public void setSort(int sort) {
-		if (mSorter == null || mSorter.getType() != sort) {
-			mSorter = LocationsSorterFactory.create(getActivity(), sort);
+	public void setSort(int sortType) {
+		if (sorter == null || sorter.getType() != sortType) {
+			SortEvent.log("Locations", String.valueOf(sortType));
+			sorter = LocationsSorterFactory.create(getActivity(), sortType);
 			requery();
 		}
 	}
@@ -84,7 +86,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), Location.PROJECTION, null, null, mSorter.getOrderByClause());
+		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), Location.PROJECTION, null, null, sorter.getOrderByClause());
 	}
 
 	@DebugLog
@@ -96,11 +98,11 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 		int token = loader.getId();
 		if (token == TOKEN) {
-			if (mAdapter == null) {
-				mAdapter = new LocationsAdapter(getActivity());
-				setListAdapter(mAdapter);
+			if (adapter == null) {
+				adapter = new LocationsAdapter(getActivity());
+				setListAdapter(adapter);
 			}
-			mAdapter.changeCursor(cursor);
+			adapter.changeCursor(cursor);
 			EventBus.getDefault().postSticky(new LocationsCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
@@ -111,7 +113,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-		mAdapter.changeCursor(null);
+		adapter.changeCursor(null);
 	}
 
 	public class LocationsAdapter extends CursorAdapter implements StickyListHeadersAdapter {
@@ -148,13 +150,13 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 				.getQuantityString(R.plurals.plays_suffix, location.getPlayCount(), location.getPlayCount()));
 
 			view.setTag(R.id.name, location.getName());
-			UIUtils.setActivatedCompat(view, location.getName().equals(mSelectedName));
+			UIUtils.setActivatedCompat(view, location.getName().equals(selectedName));
 		}
 
 		@DebugLog
 		@Override
 		public long getHeaderId(int position) {
-			return mSorter.getHeaderId(getCursor(), position);
+			return sorter.getHeaderId(getCursor(), position);
 		}
 
 		@DebugLog
@@ -175,7 +177,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 		@DebugLog
 		private String getHeaderText(int position) {
-			return mSorter.getHeaderText(getCursor(), position);
+			return sorter.getHeaderText(getCursor(), position);
 		}
 
 		class ViewHolder {

@@ -153,7 +153,7 @@ public class UpdateService extends IntentService {
 				.createNotificationBuilder(getApplicationContext(), R.string.title_error)
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
-			NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
+			NotificationUtils.notify(getApplicationContext(), NotificationUtils.TAG_UPDATE_ERROR, 0, builder);
 		}
 	}
 

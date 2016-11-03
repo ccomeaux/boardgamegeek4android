@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="wrap_content"
-			  android:background="?attr/selectableItemBackground"
-			  android:gravity="center_vertical"
-			  android:minHeight="@dimen/player_row_height"
-			  android:orientation="horizontal"
-			  android:paddingBottom="@dimen/padding_standard"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/padding_standard">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	   xmlns:tools="http://schemas.android.com/tools">
 
 	<FrameLayout
+		android:id="@+id/color_container"
 		android:layout_width="@dimen/edit_label_width"
 		android:layout_height="match_parent"
-		android:layout_gravity="left|center_vertical">
+		android:layout_gravity="left|center_vertical"
+		android:background="?attr/selectableItemBackgroundBorderless">
 
 		<ImageView
 			android:id="@+id/color_view"
@@ -33,21 +25,14 @@
 			android:fontFamily="sans-serif-condensed"
 			android:gravity="center"
 			tools:text="1"/>
-
-		<ImageView
-			android:id="@+id/drag_handle"
-			android:layout_width="@dimen/color_circle_diameter"
-			android:layout_height="match_parent"
-			android:scaleType="center"
-			android:src="@drawable/drag_grip"
-			android:visibility="gone"
-			tools:visibility="visible"/>
 	</FrameLayout>
 
 	<LinearLayout
+		android:id="@+id/name_container"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
+		android:background="?attr/selectableItemBackground"
 		android:orientation="vertical">
 
 		<TextView
@@ -84,8 +69,8 @@
 			android:layout_gravity="center"
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:scaleType="center"
-			android:visibility="gone"
 			android:src="@drawable/ic_score"
+			android:visibility="gone"
 			tools:visibility="visible"/>
 
 		<LinearLayout
@@ -119,17 +104,17 @@
 	</FrameLayout>
 
 	<ImageView
-		android:id="@+id/log_player_delete"
-		android:layout_marginLeft="@dimen/padding_extra"
-		android:layout_width="@dimen/image_button_size"
-		android:layout_height="@dimen/image_button_size"
-		android:layout_gravity="center"
+		android:id="@+id/more"
+		style="@style/Icon.Right"
 		android:background="?attr/selectableItemBackgroundBorderless"
-		android:contentDescription="@string/delete"
-		android:focusable="false"
-		android:scaleType="center"
-		android:src="@drawable/ic_action_delete_light"
+		android:src="@drawable/ic_more_vert"
 		android:visibility="gone"
 		tools:visibility="visible"/>
 
-</LinearLayout>
+	<ImageView
+		android:id="@+id/drag_handle"
+		style="@style/Icon.Right"
+		android:src="@drawable/drag_grip"
+		android:visibility="invisible"
+		tools:visibility="visible"/>
+</merge>

@@ -24,6 +24,7 @@ import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GeekLists;
 import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.fabric.SortEvent;
 
 import java.util.List;
 
@@ -135,6 +136,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 				adapter.clear();
 			}
 			getLoaderManager().restartLoader(LOADER_ID, null, this);
+			SortEvent.log("GeekLists", String.valueOf(sortType));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

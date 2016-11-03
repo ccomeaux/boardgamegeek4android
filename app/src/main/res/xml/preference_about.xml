@@ -14,5 +14,14 @@
 	<com.boardgamegeek.pref.ContactUsPreference
 		android:summary="@string/pref_about_contact_us_summary"
 		android:title="@string/pref_about_contact_us"/>
+	<com.boardgamegeek.pref.LinkPreference
+		android:summary="https://plus.google.com/communities/109617005048169697217"
+		android:title="@string/pref_about_google_plus_community"/>
+	<com.boardgamegeek.pref.LinkPreference
+		android:summary="https://trello.com/b/pRZWIOOv"
+		android:title="@string/pref_about_trello_board"/>
+	<com.boardgamegeek.pref.LinkPreference
+		android:summary="https://boardgamegeek.com/thread/543998"
+		android:title="@string/pref_about_bgg_thread"/>
 
 </PreferenceScreen>

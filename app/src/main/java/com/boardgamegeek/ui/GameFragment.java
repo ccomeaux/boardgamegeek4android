@@ -3,6 +3,9 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -14,7 +17,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.Swatch;
+import android.support.v7.widget.CardView;
 import android.text.TextUtils;
+import android.transition.AutoTransition;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -59,6 +66,7 @@ import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -106,6 +114,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private Unbinder unbinder;
 
 	@BindView(R.id.game_rating) TextView ratingView;
+	@BindView(R.id.description_card) CardView descriptionCard;
 	@BindView(R.id.game_description) TextView descriptionView;
 	@BindView(R.id.game_rank) TextView rankView;
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
@@ -147,9 +156,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
+	@BindView(R.id.weight_root) View weightRoot;
 	@BindView(R.id.game_weight) TextView weightView;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
+	@BindView(R.id.language_dependence_root) View languageDependenceRoot;
 	@BindView(R.id.language_dependence_details) TextView languageDependenceDetails;
 
 	@BindView(R.id.users_count) TextView userCountView;
@@ -210,6 +221,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 	private ShowcaseViewWizard showcaseViewWizard;
+	private Transition expansionTransition;
 
 	@Override
 	@DebugLog
@@ -255,6 +267,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
 		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
+
+		if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+			expansionTransition = new AutoTransition();
+			expansionTransition.setDuration(150);
+			AnimationUtils.setInterpolator(getContext(), expansionTransition);
+		}
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
@@ -359,7 +377,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 					LanguagePollQuery.SORT);
 				break;
 			default:
-				Timber.w("Invalid query token=" + id);
+				Timber.w("Invalid query token=%s", id);
 				break;
 		}
 		return loader;
@@ -525,6 +543,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		ratingsVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.UsersRated));
 		ratingsStandardDeviation.setText(getString(R.string.standard_deviation_prefix, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
 
+		weightRoot.setVisibility(game.NumberWeights > 0 ? View.VISIBLE : View.GONE);
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
 		weightVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.NumberWeights));
 
@@ -706,7 +725,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			}
 		}
 		languageDependenceDetails.setText(PresentationUtils.describeLanguageDependence(getActivity(), (double) totalLevel / totalVotes));
-		languageDependenceDetails.setVisibility(View.VISIBLE);
+		languageDependenceRoot.setVisibility(totalVotes > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	@OnClick(R.id.rank_root)
@@ -752,7 +771,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@OnClick(R.id.colors_root)
 	@DebugLog
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), ColorsActivity.class);
+		Intent intent = new Intent(getActivity(), GameColorsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
@@ -798,12 +817,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void openOrCloseRanks() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			TransitionManager.beginDelayedTransition(subtypeContainer, expansionTransition);
+		}
 		subtypeContainer.setVisibility(isRanksExpanded ? View.VISIBLE : View.GONE);
 		subtypeExpander.setImageResource(isRanksExpanded ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
 	@DebugLog
 	private void openOrCloseDescription() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			TransitionManager.beginDelayedTransition(descriptionCard, expansionTransition);
+		}
 		descriptionView.setMaxLines(isDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		descriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
 			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);

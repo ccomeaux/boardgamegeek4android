@@ -17,7 +17,7 @@ public class Article {
 	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute
-	private int id;
+	public int id;
 
 	@Attribute
 	public String username;
@@ -34,7 +34,7 @@ public class Article {
 	@Attribute
 	private int numedits;
 
-	@Element
+	@Element(required = false)
 	private String subject;
 
 	@Element
