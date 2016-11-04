@@ -128,11 +128,6 @@ public class GameDetailRow extends LinearLayout {
 		dataView.setText("");
 	}
 
-	public void color(Palette.Swatch swatch) {
-		colorIcon(swatch);
-		colorText(swatch);
-	}
-
 	public void colorIcon(Palette.Swatch swatch) {
 		iconView.setColorFilter(swatch.getRgb());
 	}
@@ -146,10 +141,6 @@ public class GameDetailRow extends LinearLayout {
 				}
 			}
 		};
-
-	public void colorText(Palette.Swatch swatch) {
-		dataView.setTextColor(swatch.getRgb());
-	}
 
 	public void bind(Cursor cursor, int nameColumnIndex, int idColumnIndex, int gameId, String gameName) {
 		this.nameColumnIndex = nameColumnIndex;

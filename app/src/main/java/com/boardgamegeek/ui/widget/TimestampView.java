@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcelable;
-import android.support.annotation.StringRes;
 import android.support.v4.view.ViewCompat;
 import android.text.Html;
 import android.text.SpannedString;
@@ -73,11 +72,6 @@ public class TimestampView extends TextView {
 		setMaxLines(1);
 	}
 
-	public void setFormat(@StringRes final int formatResId) {
-		format = getContext().getText(formatResId);
-		setTimestampText();
-	}
-
 	public void setFormat(String format) {
 		this.format = format;
 		setTimestampText();
@@ -101,6 +95,7 @@ public class TimestampView extends TextView {
 		} else {
 			if (hideWhenEmpty) setVisibility(View.VISIBLE);
 			timeHintUpdateRunnable = new Runnable() {
+				@SuppressWarnings("deprecation")
 				@Override
 				public void run() {
 					if (!ViewCompat.isAttachedToWindow(TimestampView.this)) {

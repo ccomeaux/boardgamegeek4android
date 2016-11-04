@@ -19,6 +19,7 @@
 
 package com.boardgamegeek.ui.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -31,6 +32,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -43,14 +45,14 @@ import com.boardgamegeek.R;
  * flexible enough for use with other desired aesthetics.
  */
 public class BezelImageView extends ImageView {
-	private Paint mBlackPaint;
-	private Paint mMaskedPaint;
+	private final Paint mBlackPaint;
+	private final Paint mMaskedPaint;
 
 	private Rect mBounds;
 	private RectF mBoundsF;
 
-	private Drawable mBorderDrawable;
-	private Drawable mMaskDrawable;
+	private final Drawable mBorderDrawable;
+	private final Drawable mMaskDrawable;
 
 	private ColorMatrixColorFilter mDesaturateColorFilter;
 	private boolean mDesaturateOnPress = false;
@@ -154,7 +156,7 @@ public class BezelImageView extends ImageView {
 				mCachedHeight = height;
 			}
 
-			Canvas cacheCanvas = new Canvas(mCacheBitmap);
+			@SuppressLint("DrawAllocation") Canvas cacheCanvas = new Canvas(mCacheBitmap);
 			if (mMaskDrawable != null) {
 				int sc = cacheCanvas.save();
 				mMaskDrawable.draw(cacheCanvas);
@@ -200,7 +202,7 @@ public class BezelImageView extends ImageView {
 	}
 
 	@Override
-	public void invalidateDrawable(Drawable who) {
+	public void invalidateDrawable(@NonNull Drawable who) {
 		if (who == mBorderDrawable || who == mMaskDrawable) {
 			invalidate();
 		} else {
@@ -209,7 +211,7 @@ public class BezelImageView extends ImageView {
 	}
 
 	@Override
-	protected boolean verifyDrawable(Drawable who) {
+	protected boolean verifyDrawable(@NonNull Drawable who) {
 		return who == mBorderDrawable || who == mMaskDrawable || super.verifyDrawable(who);
 	}
 }

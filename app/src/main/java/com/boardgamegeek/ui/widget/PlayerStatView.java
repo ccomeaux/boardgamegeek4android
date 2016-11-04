@@ -49,10 +49,6 @@ public class PlayerStatView extends LinearLayout {
 		scoresView.setVisibility(show ? View.VISIBLE : View.GONE);
 	}
 
-	public String getKey() {
-		return nameView.getText().toString();
-	}
-
 	public void setName(CharSequence text) {
 		nameView.setText(text);
 	}
