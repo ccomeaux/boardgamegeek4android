@@ -12,8 +12,8 @@ buildscript {
 
 def versionMajor = 6
 def versionMinor = 1
-def versionPatch = 0
-def versionBuild = 5
+def versionPatch = 1
+def versionBuild = 1
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'

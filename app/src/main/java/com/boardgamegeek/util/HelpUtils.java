@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -68,7 +69,9 @@ public class HelpUtils {
 	}
 
 	@DebugLog
+	@Nullable
 	public static ShowcaseView.Builder getShowcaseBuilder(Activity activity) {
+		if (activity == null) return null;
 		return new ShowcaseView.Builder(activity)
 			.withMaterialShowcase()
 			.hideOnTouchOutside()
