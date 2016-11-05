@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.1.1
+-------------
+ * Bug fixes
+
 Version 6.1
 -----------
  * Changes to play logging, including support for Android 7
