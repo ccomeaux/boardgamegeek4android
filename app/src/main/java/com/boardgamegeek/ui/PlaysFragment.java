@@ -62,6 +62,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
 import com.boardgamegeek.util.fabric.SortEvent;
 import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
@@ -300,18 +301,21 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@DebugLog
 	private void showHelp() {
-		showcaseView = HelpUtils.getShowcaseBuilder(getActivity())
-			.setContentText(R.string.help_plays)
-			.setTarget(Target.NONE)
-			.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					showcaseView.hide();
-					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION);
-				}
-			})
-			.build();
-		showcaseView.show();
+		final Builder builder = HelpUtils.getShowcaseBuilder(getActivity());
+		if (builder != null) {
+			builder
+				.setContentText(R.string.help_plays)
+				.setTarget(Target.NONE)
+				.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						showcaseView.hide();
+						HelpUtils.updateHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION);
+					}
+				})
+				.build();
+			showcaseView.show();
+		}
 	}
 
 	@DebugLog
@@ -532,7 +536,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			}
 			EventBus.getDefault().postSticky(new PlaysCountChangedEvent(count));
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
 		}
 	}

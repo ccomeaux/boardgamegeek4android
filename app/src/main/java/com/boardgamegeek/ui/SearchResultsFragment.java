@@ -148,20 +148,22 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 
 	@DebugLog
 	private void showHelp() {
-		Builder builder = HelpUtils.getShowcaseBuilder(getActivity())
-			.setContentText(R.string.help_searchresults)
-			.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					showcaseView.hide();
-					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION);
-				}
-			});
-		Target viewTarget = getTarget();
-		builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
-		showcaseView = builder.build();
-		showcaseView.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(getActivity()));
-		showcaseView.show();
+		final Builder builder = HelpUtils.getShowcaseBuilder(getActivity());
+		if (builder != null) {
+			builder.setContentText(R.string.help_searchresults)
+				.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						showcaseView.hide();
+						HelpUtils.updateHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION);
+					}
+				});
+			Target viewTarget = getTarget();
+			builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
+			showcaseView = builder.build();
+			showcaseView.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(getActivity()));
+			showcaseView.show();
+		}
 	}
 
 	@DebugLog
