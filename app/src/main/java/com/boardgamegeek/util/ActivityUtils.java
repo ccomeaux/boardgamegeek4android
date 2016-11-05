@@ -80,9 +80,8 @@ public class ActivityUtils {
 	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
-	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
-	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
-	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
+	private static final String BOARDGAME_PATH = "boardgame";
+	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
 
 	public static void launchGame(Context context, int gameId, String gameName) {
 		final Intent intent = createGameIntent(gameId, gameName);
@@ -172,7 +171,7 @@ public class ActivityUtils {
 	}
 
 	private static String formatGameLink(int id, String name) {
-		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
+		return String.format("%s (%s)\n", name, createBggUri(BOARDGAME_PATH, id));
 	}
 
 	public static void shareGeekList(Activity activity, int id, String title) {
@@ -261,7 +260,7 @@ public class ActivityUtils {
 		if (gameId == BggContract.INVALID_ID) {
 			return;
 		}
-		linkToBgg(context, BOARDGAME_URL_PREFIX, gameId);
+		linkToBgg(context, BOARDGAME_PATH, gameId);
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {
