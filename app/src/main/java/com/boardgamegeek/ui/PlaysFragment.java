@@ -303,7 +303,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private void showHelp() {
 		final Builder builder = HelpUtils.getShowcaseBuilder(getActivity());
 		if (builder != null) {
-			builder
+			showcaseView = builder
 				.setContentText(R.string.help_plays)
 				.setTarget(Target.NONE)
 				.setOnClickListener(new OnClickListener() {
