@@ -6,17 +6,17 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdRankIdProvider extends BaseProvider {
-	GamesIdRankProvider mProvider = new GamesIdRankProvider();
+	final GamesIdRankProvider provider = new GamesIdRankProvider();
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		int rankId = GameRanks.getRankId(uri);
-		return mProvider.buildSimpleSelection(uri).whereEquals(GameRanks.GAME_RANK_ID, rankId);
+		return provider.buildSimpleSelection(uri).whereEquals(GameRanks.GAME_RANK_ID, rankId);
 	}
 
 	@Override
 	protected String getPath() {
-		return addIdToPath(mProvider.getPath());
+		return addIdToPath(provider.getPath());
 	}
 
 	@Override

@@ -8,8 +8,7 @@ import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdProvider extends BaseProvider {
-
-	private final GamesProvider mProvider = new GamesProvider();
+	private final GamesProvider provider = new GamesProvider();
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
@@ -23,12 +22,12 @@ public class GamesIdProvider extends BaseProvider {
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		int gameId = Games.getGameId(uri);
-		return mProvider.buildSimpleSelection(uri).whereEquals(Games.GAME_ID, gameId);
+		return provider.buildSimpleSelection(uri).whereEquals(Games.GAME_ID, gameId);
 	}
 
 	@Override
 	protected String getPath() {
-		return addIdToPath(mProvider.getPath());
+		return addIdToPath(provider.getPath());
 	}
 
 	@Override

@@ -249,7 +249,6 @@ public class BggContract {
 	public static final String PATH_CATEGORIES = "categories";
 	public static final String PATH_EXPANSIONS = "expansions";
 	public static final String PATH_COLLECTION = "collection";
-	public static final String PATH_NOEXPANSIONS = "noexpansions";
 	public static final String PATH_BUDDIES = "buddies";
 	public static final String PATH_USERS = "users";
 	private static final String PATH_POLLS = "polls";
@@ -313,10 +312,6 @@ public class BggContract {
 			return getUriBuilder(gameId).build();
 		}
 
-		public static Uri buildThumbnailUri(int gameId) {
-			return getUriBuilder(gameId, PATH_THUMBNAILS).build();
-		}
-
 		public static Uri buildRanksUri(int gameId) {
 			return getUriBuilder(gameId, PATH_RANKS).build();
 		}
@@ -333,10 +328,6 @@ public class BggContract {
 			return getLimitedUriBuilder(gameId, PATH_DESIGNERS, limitCount).build();
 		}
 
-		public static Uri buildDesignersUri(int gameId, int designerId) {
-			return getUriBuilder(gameId, PATH_DESIGNERS, designerId).build();
-		}
-
 		public static Uri buildDesignersUri(long rowId) {
 			return getUriBuilder().appendPath(PATH_DESIGNERS).appendPath(String.valueOf(rowId)).build();
 		}
@@ -347,10 +338,6 @@ public class BggContract {
 
 		public static Uri buildLimitedArtistsUri(int gameId, int limitCount) {
 			return getLimitedUriBuilder(gameId, PATH_ARTISTS, limitCount).build();
-		}
-
-		public static Uri buildArtistsUri(int gameId, int artistId) {
-			return getUriBuilder(gameId, PATH_ARTISTS, artistId).build();
 		}
 
 		public static Uri buildArtistUri(long rowId) {
@@ -365,10 +352,6 @@ public class BggContract {
 			return getLimitedUriBuilder(gameId, PATH_PUBLISHERS, limitCount).build();
 		}
 
-		public static Uri buildPublishersUri(int gameId, int publisherId) {
-			return getUriBuilder(gameId, PATH_PUBLISHERS, publisherId).build();
-		}
-
 		public static Uri buildPublisherUri(long rowId) {
 			return getUriBuilder().appendPath(PATH_PUBLISHERS).appendPath(String.valueOf(rowId)).build();
 		}
@@ -379,10 +362,6 @@ public class BggContract {
 
 		public static Uri buildLimitedMechanicsUri(int gameId, int limitCount) {
 			return getLimitedUriBuilder(gameId, PATH_MECHANICS, limitCount).build();
-		}
-
-		public static Uri buildMechanicsUri(int gameId, int mechanicId) {
-			return getUriBuilder(gameId, PATH_MECHANICS, mechanicId).build();
 		}
 
 		public static Uri buildMechanicUri(long rowId) {
@@ -397,10 +376,6 @@ public class BggContract {
 			return getLimitedUriBuilder(gameId, PATH_CATEGORIES, limitCount).build();
 		}
 
-		public static Uri buildCategoriesUri(int gameId, int categoryId) {
-			return getUriBuilder(gameId, PATH_CATEGORIES, categoryId).build();
-		}
-
 		public static Uri buildCategoryUri(long rowId) {
 			return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath(String.valueOf(rowId)).build();
 		}
@@ -413,16 +388,8 @@ public class BggContract {
 			return getLimitedUriBuilder(gameId, PATH_EXPANSIONS, limitCount).build();
 		}
 
-		public static Uri buildExpansionsUri(int gameId, int expansionId) {
-			return getUriBuilder(gameId, PATH_EXPANSIONS, expansionId).build();
-		}
-
 		public static Uri buildExpansionUri(long rowId) {
 			return getUriBuilder().appendPath(PATH_EXPANSIONS).appendPath(String.valueOf(rowId)).build();
-		}
-
-		public static Uri buildPlaysUri(int gameId) {
-			return getUriBuilder(gameId, PATH_PLAYS).build();
 		}
 
 		public static Uri buildPollsUri(int gameId) {
@@ -576,10 +543,6 @@ public class BggContract {
 		}
 	}
 
-	public static Uri buildBasicUri(String path, int id) {
-		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
-	}
-
 	public static Uri buildBasicUri(String path, long id) {
 		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
@@ -685,18 +648,9 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection";
 
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC";
-		public static final String SORT_BY_RATING = GamesColumns.STATS_BAYES_AVERAGE + " DESC, " + DEFAULT_SORT;
 
 		public static Uri buildUri(long id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
-		}
-
-		public static Uri buildUniqueGameUri() {
-			return CONTENT_URI.buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, GAME_ID).build();
-		}
-
-		public static Uri buildThumbnailUri(int itemId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).appendPath(PATH_THUMBNAILS).build();
 		}
 
 		public static long getId(Uri uri) {
@@ -811,10 +765,8 @@ public class BggContract {
 		public static final String DEFAULT_SORT = POLL_RESULTS_SORT_INDEX + " ASC";
 	}
 
-	public static final class GamePollResultsResult implements GamePollResultsResultColumns, GamePollResultsColumns,
-		BaseColumns {
-		public static final Uri CONTENT_URI = GamePollResults.CONTENT_URI.buildUpon()
-			.appendPath(PATH_POLL_RESULTS_RESULT).build();
+	public static final class GamePollResultsResult implements GamePollResultsResultColumns, GamePollResultsColumns, BaseColumns {
+		public static final Uri CONTENT_URI = GamePollResults.CONTENT_URI.buildUpon().appendPath(PATH_POLL_RESULTS_RESULT).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
@@ -874,10 +826,6 @@ public class BggContract {
 
 		public static Uri buildPlayersByPlayUri() {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_PLAY).build();
-		}
-
-		public static Uri buildPlayersByNameWithoutUsernameUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER).build();
 		}
 
 		public static Uri buildPlayersByUniquePlayerUri() {

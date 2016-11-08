@@ -6,17 +6,17 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class BuddiesIdProvider extends BaseProvider {
-	BuddiesProvider mProvider = new BuddiesProvider();
+	final BuddiesProvider provider = new BuddiesProvider();
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		String buddyName = Buddies.getBuddyName(uri);
-		return mProvider.buildSimpleSelection(uri).whereEquals(Buddies.BUDDY_NAME, buddyName);
+		return provider.buildSimpleSelection(uri).whereEquals(Buddies.BUDDY_NAME, buddyName);
 	}
 
 	@Override
 	protected String getPath() {
-		return addWildCardToPath(mProvider.getPath());
+		return addWildCardToPath(provider.getPath());
 	}
 
 	@Override
