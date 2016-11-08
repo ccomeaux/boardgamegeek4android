@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -380,6 +381,8 @@ public class LogPlayActivity extends AppCompatActivity {
 					final int position = playAdapter.getPlayerPosition(viewHolder.getAdapterPosition());
 					if (swipeDir == ItemTouchHelper.RIGHT) {
 						lastRemovedPlayer = playAdapter.getPlayer(position);
+						if (lastRemovedPlayer == null) return;
+
 						String description = lastRemovedPlayer.getDescription();
 						if (TextUtils.isEmpty(description)) {
 							description = getString(R.string.title_player);
@@ -1129,6 +1132,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			return adapterPosition - headerResources.size();
 		}
 
+		@Nullable
 		public Player getPlayer(int position) {
 			return (play == null || position < 0 || play.getPlayerCount() <= position) ?
 				null :
