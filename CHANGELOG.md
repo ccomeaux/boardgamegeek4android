@@ -1,17 +1,22 @@
 Release Notes
 =============
 
+Version 6.1.4
+-------------
+ * Fix crash when displaying plays for players without a username
+
 Version 6.1.3
 -------------
- * Bug fixes
+ * Fix crash when swiping to delete a player
 
 Version 6.1.2
 -------------
- * Bug fixes
+ * Fix crash when displaying help in the list of plays
 
 Version 6.1.1
 -------------
- * Bug fixes
+ * Fix crash when displaying help
+ * Fix the game's BoardGameGeek link
 
 Version 6.1
 -----------

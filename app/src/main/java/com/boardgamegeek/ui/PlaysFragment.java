@@ -81,9 +81,6 @@ import timber.log.Timber;
 
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
 	public static final String KEY_MODE = "MODE";
-	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
-	public static final String KEY_USER_NAME = "USER_NAME";
-	public static final String KEY_LOCATION = "LOCATION";
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
 	public static final int MODE_BUDDY = 2;
@@ -159,12 +156,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				mUri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_PLAYER:
-				mBuddyName = getArguments().getString(KEY_USER_NAME);
-				mPlayerName = getArguments().getString(KEY_PLAYER_NAME);
+				mBuddyName = "";
+				mPlayerName = getArguments().getString(ActivityUtils.KEY_PLAYER_NAME);
 				mUri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_LOCATION:
-				mLocation = getArguments().getString(KEY_LOCATION);
+				mLocation = getArguments().getString(ActivityUtils.KEY_LOCATION);
 				break;
 		}
 
