@@ -44,34 +44,20 @@ import java.util.List;
 import timber.log.Timber;
 
 public class GamePersister {
-	private Context mContext;
-	private ContentResolver mResolver;
-	private long mUpdateTime;
-	private List<Integer> mGameIds;
+	private final Context context;
+	private final ContentResolver resolver;
+	private final long updateTime;
+	private final List<Integer> gameIds;
 
 	public GamePersister(Context context) {
-		mContext = context;
-		mResolver = context.getContentResolver();
-		mUpdateTime = System.currentTimeMillis();
-		mGameIds = new ArrayList<>();
-	}
-
-	public int save(Game game) {
-		return save(game, null);
-	}
-
-	public int save(Game game, String debugMessage) {
-		List<Game> games = new ArrayList<>(1);
-		games.add(game);
-		return save(games, debugMessage);
-	}
-
-	public int save(List<Game> games) {
-		return save(games, null);
+		this.context = context;
+		resolver = context.getContentResolver();
+		updateTime = System.currentTimeMillis();
+		gameIds = new ArrayList<>();
 	}
 
 	public int save(List<Game> games, String debugMessage) {
-		boolean debug = PreferencesUtils.getAvoidBatching(mContext);
+		boolean debug = PreferencesUtils.getAvoidBatching(context);
 		int length = 0;
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (games != null) {
@@ -84,13 +70,13 @@ public class GamePersister {
 			ExpansionPersister expansionPersister = new ExpansionPersister();
 
 			for (Game game : games) {
-				if (mGameIds.contains(game.id)) {
+				if (gameIds.contains(game.id)) {
 					continue;
 				}
-				mGameIds.add(game.id);
+				gameIds.add(game.id);
 				Builder cpo;
-				ContentValues values = toValues(game, mUpdateTime);
-				if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(game.id))) {
+				ContentValues values = toValues(game, updateTime);
+				if (ResolverUtils.rowExists(resolver, Games.buildGameUri(game.id))) {
 					values.remove(Games.GAME_ID);
 					cpo = ContentProviderOperation.newUpdate(Games.buildGameUri(game.id));
 				} else {
@@ -99,28 +85,28 @@ public class GamePersister {
 				batch.add(cpo.withValues(values).build());
 				batch.addAll(ranks(game));
 				batch.addAll(polls(game));
-				batch.addAll(designerPersister.insertAndCreateAssociations(game.id, mResolver, game.getDesigners()));
-				batch.addAll(artistPersister.insertAndCreateAssociations(game.id, mResolver, game.getArtists()));
-				batch.addAll(publisherPersister.insertAndCreateAssociations(game.id, mResolver, game.getPublishers()));
-				batch.addAll(categoryPersister.insertAndCreateAssociations(game.id, mResolver, game.getCategories()));
-				batch.addAll(mechanicPersister.insertAndCreateAssociations(game.id, mResolver, game.getMechanics()));
-				batch.addAll(expansionPersister.insertAndCreateAssociations(game.id, mResolver, game.getExpansions()));
+				batch.addAll(designerPersister.insertAndCreateAssociations(game.id, resolver, game.getDesigners()));
+				batch.addAll(artistPersister.insertAndCreateAssociations(game.id, resolver, game.getArtists()));
+				batch.addAll(publisherPersister.insertAndCreateAssociations(game.id, resolver, game.getPublishers()));
+				batch.addAll(categoryPersister.insertAndCreateAssociations(game.id, resolver, game.getCategories()));
+				batch.addAll(mechanicPersister.insertAndCreateAssociations(game.id, resolver, game.getMechanics()));
+				batch.addAll(expansionPersister.insertAndCreateAssociations(game.id, resolver, game.getExpansions()));
 				// make sure the last operation has a yield allowed
 				batch.add(ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
-					.withValue(Games.UPDATED, mUpdateTime).withYieldAllowed(true).build());
+					.withValue(Games.UPDATED, updateTime).withYieldAllowed(true).build());
 				if (debug) {
 					try {
-						length += ResolverUtils.applyBatch(mContext, batch, debugMessage).length;
-						Timber.i("Saved game ID=" + game.id);
+						length += ResolverUtils.applyBatch(context, batch, debugMessage).length;
+						Timber.i("Saved game ID=%s", game.id);
 					} catch (Exception e) {
 						NotificationCompat.Builder builder = NotificationUtils
-							.createNotificationBuilder(mContext, R.string.sync_notification_title)
+							.createNotificationBuilder(context, R.string.sync_notification_title)
 							.setContentText(e.getMessage())
 							.setCategory(NotificationCompat.CATEGORY_ERROR)
 							.setStyle(
 								new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(
 									e.getMessage()));
-						NotificationUtils.notify(mContext, NotificationUtils.TAG_PERSIST_ERROR, 0, builder);
+						NotificationUtils.notify(context, NotificationUtils.TAG_PERSIST_ERROR, 0, builder);
 					} finally {
 						batch.clear();
 					}
@@ -129,7 +115,7 @@ public class GamePersister {
 			if (debug) {
 				return length;
 			} else {
-				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage);
+				ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch, debugMessage);
 				return result.length;
 			}
 		}
@@ -170,7 +156,7 @@ public class GamePersister {
 
 	private ArrayList<ContentProviderOperation> polls(Game game) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		List<String> existingPollNames = ResolverUtils.queryStrings(mResolver, Games.buildPollsUri(game.id),
+		List<String> existingPollNames = ResolverUtils.queryStrings(resolver, Games.buildPollsUri(game.id),
 			GamePolls.POLL_NAME);
 		if (game.polls != null) {
 			for (Poll poll : game.polls) {
@@ -182,7 +168,7 @@ public class GamePersister {
 				if (existingPollNames.remove(poll.name)) {
 					batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name))
 						.withValues(values).build());
-					existingResultKeys = ResolverUtils.queryStrings(mResolver,
+					existingResultKeys = ResolverUtils.queryStrings(resolver,
 						Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS);
 				} else {
 					values.put(GamePolls.POLL_NAME, poll.name);
@@ -200,7 +186,7 @@ public class GamePersister {
 						batch.add(ContentProviderOperation
 							.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.getKey()))
 							.withValues(values).build());
-						existingValues = ResolverUtils.queryStrings(mResolver,
+						existingValues = ResolverUtils.queryStrings(resolver,
 							Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()),
 							GamePollResultsResult.POLL_RESULTS_RESULT_KEY);
 					} else {
@@ -251,7 +237,7 @@ public class GamePersister {
 
 	private ArrayList<ContentProviderOperation> ranks(Game game) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		List<Integer> rankIds = ResolverUtils.queryInts(mResolver, GameRanks.CONTENT_URI, GameRanks.GAME_RANK_ID,
+		List<Integer> rankIds = ResolverUtils.queryInts(resolver, GameRanks.CONTENT_URI, GameRanks.GAME_RANK_ID,
 			GameRanks.GAME_ID + "=?", new String[] { String.valueOf(game.id) });
 
 		ContentValues values = new ContentValues();
