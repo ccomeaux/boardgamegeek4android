@@ -41,7 +41,7 @@ public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_PLAYER);
-		arguments.putString(PlaysFragment.KEY_PLAYER_NAME, intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME));
+		arguments.putString(ActivityUtils.KEY_PLAYER_NAME, intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME));
 		return arguments;
 	}
 
