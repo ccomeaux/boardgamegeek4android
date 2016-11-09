@@ -51,6 +51,7 @@ public class ActivityUtils {
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 	public static final String KEY_SORT = "SORT";
+	public static final String KEY_LOCATION = "LOCATION";
 	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_USER = "USER";

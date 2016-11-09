@@ -69,7 +69,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_LOCATION);
-		arguments.putString(PlaysFragment.KEY_LOCATION, intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME));
+		arguments.putString(ActivityUtils.KEY_LOCATION, intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME));
 		return arguments;
 	}
 
