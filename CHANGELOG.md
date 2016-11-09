@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.1.5
+-------------
+ * Bug fixes
+
 Version 6.1.4
 -------------
  * Fix crash when displaying plays for players without a username
