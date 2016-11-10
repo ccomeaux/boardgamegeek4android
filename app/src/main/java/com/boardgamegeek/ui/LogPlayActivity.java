@@ -393,6 +393,7 @@ public class LogPlayActivity extends AppCompatActivity {
 							.setAction(R.string.undo, new View.OnClickListener() {
 								@Override
 								public void onClick(View v) {
+									if (lastRemovedPlayer == null) return;
 									play.addPlayer(lastRemovedPlayer);
 									playAdapter.notifyPlayerAdded(position);
 								}
