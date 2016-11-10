@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -37,6 +38,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class GameActivity extends HeroActivity implements Callback {
 	private static final int REQUEST_EDIT_PLAY = 1;
@@ -55,7 +57,13 @@ public class GameActivity extends HeroActivity implements Callback {
 			supportActionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
-		gameId = Games.getGameId(getIntent().getData());
+		final Uri gameUri = getIntent().getData();
+		if (gameUri == null) {
+			Timber.w("Received a null gameUri");
+			finish();
+		}
+
+		gameId = Games.getGameId(gameUri);
 		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
 
 		new Handler().post(new Runnable() {
@@ -63,7 +71,7 @@ public class GameActivity extends HeroActivity implements Callback {
 			public void run() {
 				ContentValues values = new ContentValues();
 				values.put(Games.LAST_VIEWED, System.currentTimeMillis());
-				getContentResolver().update(getIntent().getData(), values, null, null);
+				getContentResolver().update(gameUri, values, null, null);
 			}
 		});
 		if (PreferencesUtils.showLogPlay(this)) {

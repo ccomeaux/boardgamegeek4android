@@ -21,6 +21,7 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 public class ImageActivity extends AppCompatActivity {
 	@BindView(R.id.image) ImageView imageView;
@@ -33,7 +34,12 @@ public class ImageActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_image);
 		ButterKnife.bind(this);
 
-		String imageUrl = getIntent().getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+		final String imageUrl = getIntent().getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+		if (imageUrl == null) {
+			Timber.w("Received a null imageUrl");
+			finish();
+		}
+
 		if (savedInstanceState == null) {
 			String imageId = Uri.parse(imageUrl).getLastPathSegment();
 			Answers.getInstance().logContentView(new ContentViewEvent()
