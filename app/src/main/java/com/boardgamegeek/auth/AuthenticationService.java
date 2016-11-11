@@ -22,7 +22,7 @@ public class AuthenticationService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		Timber.v("getBinder: returning the AccountAuthenticator binder for intent " + intent);
+		Timber.v("getBinder: returning the AccountAuthenticator binder for intent %s", intent.toString());
 		return authenticator.getIBinder();
 	}
 }
