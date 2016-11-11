@@ -145,7 +145,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 		@Override
 		public int getItemCount() {
-			return (geekList == null || geekList.getItems() == null) ? 0 : geekList.getItems().size();
+			return (geekList == null || geekList.getItems() == null) ? 0 : geekList.getItems().size() + 1;
 		}
 
 		@Override
@@ -179,10 +179,10 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				((GeekListHeaderViewHolder) holder).bind(geekList, xmlConverter);
 			} else if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
 				try {
-					GeekListItem item = geekList.getItems().get(position);
+					GeekListItem item = geekList.getItems().get(position - 1);
 					((GeekListItemViewHolder) holder).bind(item, position);
 				} catch (ArrayIndexOutOfBoundsException e) {
-					Timber.w("Didn't find a GeekList item as expected", e);
+					Timber.w(e, "Didn't find a GeekList item as expected");
 				}
 			}
 		}
