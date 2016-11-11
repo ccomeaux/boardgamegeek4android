@@ -550,7 +550,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				maybeShowNotification();
 				addNewPlayer();
 			} else {
-				play.replacePlayer(player, requestCode);
+				play.replaceOrAddPlayer(player, requestCode);
 				playAdapter.notifyPlayerChanged(requestCode);
 				recyclerView.smoothScrollToPosition(requestCode);
 			}

@@ -298,9 +298,15 @@ public class Play {
 		players.remove(player);
 	}
 
-	public void replacePlayer(Player player, int position) {
-		// TODO
-		players.set(position, player);
+	/**
+	 * Replaces a player at the position with a new player. If the position doesn't exists, the player is added instead.
+	 */
+	public void replaceOrAddPlayer(Player player, int position) {
+		if (position < players.size()) {
+			players.set(position, player);
+		} else {
+			players.add(player);
+		}
 	}
 
 	public Player getPlayerAtSeat(int seat) {
@@ -502,25 +508,6 @@ public class Play {
 		return length == 0 && startTime > 0;
 	}
 
-	/**
-	 * Determines if this play appears to have ended.
-	 *
-	 * @return true, if the length has been entered or at least one of the players has won.
-	 */
-	public boolean hasEnded() {
-		if (length > 0) {
-			return true;
-		}
-		if (players != null && players.size() > 0) {
-			for (Player player : players) {
-				if (player.Win()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	public void start() {
 		length = 0;
 		startTime = System.currentTimeMillis();
@@ -600,17 +587,6 @@ public class Play {
 		StringBuilder sb = new StringBuilder();
 		toLongDescriptionPrefix(context, sb);
 		if (players.size() > 0) {
-			sb.append(resources.getString(R.string.play_description_players_segment, players.size()));
-		}
-		sb.append("(").append(resources.getString(R.string.play_description_game_url_segment, gameId)).append(")");
-		return sb.toString();
-	}
-
-	public String toLongDescriptionWithPlayers(Context context) {
-		Resources resources = context.getResources();
-		StringBuilder sb = new StringBuilder();
-		toLongDescriptionPrefix(context, sb);
-		if (players.size() > 0) {
 			sb.append(" ").append(resources.getString(R.string.with));
 			if (arePlayersCustomSorted()) {
 				for (Player player : players) {
@@ -631,9 +607,9 @@ public class Play {
 			sb.append("\n").append(comments);
 		}
 		if (hasBeenSynced()) {
-			sb.append("\n").append(resources.getString(R.string.play_description_play_url_segment, playId).trim());
+			sb.append("\n").append(resources.getString(R.string.play_description_play_url_segment, String.valueOf(playId)).trim());
 		} else {
-			sb.append("\n").append(resources.getString(R.string.play_description_game_url_segment, gameId).trim());
+			sb.append("\n").append(resources.getString(R.string.play_description_game_url_segment, String.valueOf(gameId)).trim());
 		}
 
 		return sb.toString();
