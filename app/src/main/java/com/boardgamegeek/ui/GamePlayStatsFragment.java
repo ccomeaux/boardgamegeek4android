@@ -20,6 +20,7 @@ import android.transition.AutoTransition;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -472,9 +473,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private int winsWithScore;
 		private int winnableGames;
 		private int winsTimesPlayers;
-		private final Map<Integer, Integer> winsByPlayerCount = new HashMap<>();
-		private final Map<Integer, Integer> playsByPlayerCount = new HashMap<>();
-		private final Map<Integer, Integer> winnablePlaysByPlayerCount = new HashMap<>();
+		private final SparseIntArray winsByPlayerCount = new SparseIntArray();
+		private final SparseIntArray playsByPlayerCount = new SparseIntArray();
+		private final SparseIntArray winnablePlaysByPlayerCount = new SparseIntArray();
 		private double totalScore;
 		private double winningScore;
 		private int totalScoreCount;
@@ -523,12 +524,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			}
 		}
 
-		private void addByPlayerCount(Map<Integer, Integer> playerCountMap, int playerCount, int quantity) {
-			int previousByCount = 0;
-			if (playerCountMap.containsKey(playerCount)) {
-				previousByCount = playerCountMap.get(playerCount);
-			}
-			playerCountMap.put(playerCount, previousByCount + quantity);
+		private void addByPlayerCount(SparseIntArray playerCountMap, int playerCount, int quantity) {
+			playerCountMap.put(playerCount, playerCountMap.get(playerCount) + quantity);
 		}
 
 		public String getUsername() {
@@ -536,24 +533,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getWinCountByPlayerCount(int playerCount) {
-			if (winsByPlayerCount.containsKey(playerCount)) {
-				return winsByPlayerCount.get(playerCount);
-			}
-			return 0;
+			return winsByPlayerCount.get(playerCount);
 		}
 
 		public int getWinnablePlayCountByPlayerCount(int playerCount) {
-			if (winnablePlaysByPlayerCount.containsKey(playerCount)) {
-				return winnablePlaysByPlayerCount.get(playerCount);
-			}
-			return 0;
+			return winnablePlaysByPlayerCount.get(playerCount);
 		}
 
 		public int getPlayCountByPlayerCount(int playerCount) {
-			if (playsByPlayerCount.containsKey(playerCount)) {
-				return playsByPlayerCount.get(playerCount);
-			}
-			return 0;
+			return playsByPlayerCount.get(playerCount);
 		}
 
 		public int getWinSkill() {
