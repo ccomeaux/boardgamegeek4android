@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Stack;
 
 public class PlayStats {
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		Plays.SUM_QUANTITY,
 		Games.GAME_NAME,
 		Games.GAME_RANK
