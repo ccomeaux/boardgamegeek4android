@@ -246,7 +246,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			if (position == 0) {
 				return createDefaultItem(convertView, parent, R.layout.actionbar_spinner_item);
 			} else {
-				return super.getView(position - 1, convertView, parent);
+				try {
+					return super.getView(position - 1, convertView, parent);
+				} catch (IllegalStateException e) {
+					return createDefaultItem(convertView, parent, R.layout.actionbar_spinner_item);
+				}
 			}
 		}
 
