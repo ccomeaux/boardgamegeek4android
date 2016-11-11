@@ -118,7 +118,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 	@Override
 	public void onCheckedChanged(RadioGroup group, int checkedId) {
 		int sortType = getTypeFromView(group.findViewById(checkedId));
-		Timber.d("Sort by " + sortType);
+		Timber.d("Sort by %s", sortType);
 		if (listener != null) {
 			listener.onSortSelected(sortType);
 		}

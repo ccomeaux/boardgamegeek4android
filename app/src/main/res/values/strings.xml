@@ -415,8 +415,8 @@
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
 	<string name="votes_suffix"><b>%,d</b> votes</string>
-	<string name="items_suffix">%s items</string>
-	<string name="thumbs_suffix">%s thumbs</string>
+	<string name="items_suffix">%,d items</string>
+	<string name="thumbs_suffix">%,d thumbs</string>
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>

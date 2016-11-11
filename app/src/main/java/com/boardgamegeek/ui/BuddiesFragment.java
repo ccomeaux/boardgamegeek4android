@@ -118,7 +118,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
 		}
 	}

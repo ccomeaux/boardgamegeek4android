@@ -225,7 +225,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			}
 			mightNeedRefreshing = false;
 		} else {
-			Timber.d("Query complete, Not Actionable: " + loader.getId());
+			Timber.d("Query complete, Not Actionable: %s", loader.getId());
 			if (cursor != null) {
 				cursor.close();
 			}
@@ -758,7 +758,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				try {
 					date = DateUtils.formatDateTime(getContext(), DateTimeUtils.getMillisFromApiDate(acquisitionDate, 0), DateUtils.FORMAT_SHOW_DATE);
 				} catch (Exception e) {
-					Timber.w(e, "Could find a date in here: " + acquisitionDate);
+					Timber.w(e, "Could find a date in here: %s", acquisitionDate);
 				}
 				if (!TextUtils.isEmpty(date)) {
 					sb.append(" ").append(r.getString(R.string.on)).append(" ");

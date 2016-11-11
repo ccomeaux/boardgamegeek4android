@@ -135,12 +135,12 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 	void onClick(View view) {
 		int type = StringUtils.parseInt(view.getTag().toString(), -1);
 		if (type != -1) {
-			Timber.d("Filter by " + type);
+			Timber.d("Filter by %s", type);
 			if (listener != null) {
 				listener.onFilterSelected(type);
 			}
 		} else {
-			Timber.w("Invalid filter type selected: " + type);
+			Timber.w("Invalid filter type selected: %s", type);
 		}
 		dismiss();
 	}

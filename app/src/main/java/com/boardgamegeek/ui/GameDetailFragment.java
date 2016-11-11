@@ -69,7 +69,7 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		if (query != null) {
 			getLoaderManager().restartLoader(queryToken, getArguments(), this);
 		} else {
-			final String message = getString(R.string.msg_invalid_token, queryToken);
+			final String message = getString(R.string.msg_invalid_token, String.valueOf(queryToken));
 			Timber.w(message);
 			emptyView.setText(message);
 			AnimationUtils.fadeIn(emptyView);
@@ -108,7 +108,7 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		if (token == queryToken) {
 			adapter.changeCursor(cursor);
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
 		}
 
