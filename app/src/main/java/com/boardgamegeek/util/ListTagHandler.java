@@ -110,7 +110,7 @@ public class ListTagHandler implements Html.TagHandler {
 			}
 		} else {
 			if (opening) {
-				Timber.d("Found an unsupported tag: " + tag);
+				Timber.d("Found an unsupported tag: %s", tag);
 			}
 		}
 	}

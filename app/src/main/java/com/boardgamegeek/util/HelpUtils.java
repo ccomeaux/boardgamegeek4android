@@ -88,7 +88,7 @@ public class HelpUtils {
 			child = layoutManager.findViewByPosition(position);
 		}
 		if (child == null) {
-			Timber.w("No child available at position " + position);
+			Timber.w("No child available at position %,d", position);
 		}
 		return child;
 	}
