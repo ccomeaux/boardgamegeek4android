@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -55,7 +56,7 @@ public class PlayerRow extends LinearLayout {
 		super(context, attrs);
 		LayoutInflater.from(context).inflate(R.layout.row_player, this);
 
-		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		setBaselineAligned(false);
 		setGravity(Gravity.CENTER_VERTICAL);
 		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.player_row_height));
