@@ -314,7 +314,7 @@ public class Play {
 			return null;
 		}
 		for (Player player : players) {
-			if (player.getSeat() == seat) {
+			if (player != null && player.getSeat() == seat) {
 				return player;
 			}
 		}
@@ -407,7 +407,7 @@ public class Play {
 		do {
 			boolean foundSeat = false;
 			for (Player player : players) {
-				if (player.getSeat() == seat) {
+				if (player != null && player.getSeat() == seat) {
 					foundSeat = true;
 					break;
 				}
@@ -432,7 +432,7 @@ public class Play {
 		}
 
 		for (Player player : players) {
-			if (!TextUtils.isEmpty(player.getStartingPosition())) {
+			if (player != null && !TextUtils.isEmpty(player.getStartingPosition())) {
 				return true;
 			}
 		}
@@ -449,7 +449,9 @@ public class Play {
 		}
 
 		for (Player player : players) {
-			player.setStartingPosition(null);
+			if (player != null) {
+				player.setStartingPosition(null);
+			}
 		}
 	}
 
@@ -464,7 +466,7 @@ public class Play {
 		}
 
 		for (Player player : players) {
-			if (!TextUtils.isEmpty(player.color)) {
+			if (player != null && !TextUtils.isEmpty(player.color)) {
 				return true;
 			}
 		}
@@ -479,6 +481,7 @@ public class Play {
 
 		double highScore = Double.MIN_VALUE;
 		for (Player player : players) {
+			if (player == null) continue;
 			double score = StringUtils.parseDouble(player.score, Double.MIN_VALUE);
 			if (score > highScore) {
 				highScore = score;
