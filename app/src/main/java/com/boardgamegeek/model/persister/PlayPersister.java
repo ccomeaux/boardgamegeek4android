@@ -349,6 +349,12 @@ public class PlayPersister {
 
 	private void updateOrInsertItem(Play play, List<Integer> itemObjectIds) {
 		int objectId = play.gameId;
+
+		if (TextUtils.isEmpty(play.gameName)){
+			Timber.w("Missing game name for play ID %s; skipping insert/update", objectId);
+			return;
+		}
+
 		ContentValues values = new ContentValues();
 		values.put(PlayItems.NAME, play.gameName);
 

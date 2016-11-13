@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 6.1.5
+-------------
+ * Correctly display the first item in a GeekList
+ * Fix crash when viewing a play with players
+ * Bug fixes
+
 Version 6.1.4
 -------------
  * Fix crash when displaying plays for players without a username

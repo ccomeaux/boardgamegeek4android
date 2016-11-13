@@ -265,7 +265,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()), mPlay.toLongDescriptionWithPlayers(getActivity()), R.string.share_play_title);
+				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()), mPlay.toLongDescription(getActivity()), R.string.share_play_title);
 				Answers.getInstance().logShare(new ShareEvent()
 					.putContentType("Play")
 					.putContentName(mPlay.toShortDescription(getActivity()))
