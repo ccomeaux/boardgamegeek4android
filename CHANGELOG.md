@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.1.6
+-------------
+ * Bug fixes
+
 Version 6.1.5
 -------------
  * Correctly display the first item in a GeekList
