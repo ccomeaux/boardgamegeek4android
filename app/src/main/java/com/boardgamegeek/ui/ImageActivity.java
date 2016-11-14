@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -35,9 +36,10 @@ public class ImageActivity extends AppCompatActivity {
 		ButterKnife.bind(this);
 
 		final String imageUrl = getIntent().getStringExtra(ActivityUtils.KEY_IMAGE_URL);
-		if (imageUrl == null) {
-			Timber.w("Received a null imageUrl");
+		if (TextUtils.isEmpty(imageUrl)) {
+			Timber.w("Received an empty imageUrl");
 			finish();
+			return;
 		}
 
 		if (savedInstanceState == null) {
