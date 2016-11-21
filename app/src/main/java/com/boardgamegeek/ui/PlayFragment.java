@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
+import android.widget.AbsListView.LayoutParams;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
 import android.widget.Chronometer;
@@ -541,6 +542,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			PlayerRow row = new PlayerRow(getActivity());
+			row.setLayoutParams(new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			row.setPlayer((Player) getItem(position));
 			return row;
 		}
