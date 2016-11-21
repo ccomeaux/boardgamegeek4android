@@ -52,6 +52,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AutoCompleteTextView;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
@@ -1655,6 +1656,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			public PlayerViewHolder() {
 				super(new PlayerRow(LogPlayActivity.this));
 				row = (PlayerRow) itemView;
+				row.setLayoutParams(new RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			}
 
 			@Override
@@ -1685,6 +1687,10 @@ public class LogPlayActivity extends AppCompatActivity {
 							moreMenu.setCallback(new Callback() {
 								@Override
 								public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+									if (play.getPlayers() == null || play.getPlayers().size() <= position) {
+										Timber.w("Unable to set new/win on selected player");
+										return false;
+									}
 									final Player player = play.getPlayers().get(position);
 									switch (item.getItemId()) {
 										case newItemId:

@@ -37,7 +37,7 @@ public class Article {
 	@Element(required = false)
 	private String subject;
 
-	@Element
+	@Element(required = false)
 	public String body;
 
 	public long postDate() {

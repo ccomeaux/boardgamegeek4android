@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 6.1.6
+-------------
+ * Second attempt to fix crash when viewing a play with players
+ * Bug fixes
+
 Version 6.1.5
 -------------
  * Correctly display the first item in a GeekList
