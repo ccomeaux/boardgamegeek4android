@@ -52,6 +52,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AutoCompleteTextView;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
@@ -1655,6 +1656,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			public PlayerViewHolder() {
 				super(new PlayerRow(LogPlayActivity.this));
 				row = (PlayerRow) itemView;
+				row.setLayoutParams(new RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			}
 
 			@Override
