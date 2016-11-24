@@ -295,7 +295,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 
 			adapter.changeCursor(cursor);
 		} else {
-			Timber.w("Query complete, Not Actionable: " + token);
+			Timber.w("Query complete, Not Actionable: %s", token);
 			cursor.close();
 		}
 
@@ -330,8 +330,8 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@DebugLog
 	private void colorFab() {
 		if (fab != null && iconColor != 0) {
-				fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
-			}
+			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
+		}
 	}
 
 	@DebugLog

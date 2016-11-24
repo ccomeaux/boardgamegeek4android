@@ -8,17 +8,17 @@ import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdMechanicsIdProvider extends BaseProvider {
-	GamesIdMechanicsProvider mProvider = new GamesIdMechanicsProvider();
+	final GamesIdMechanicsProvider provider = new GamesIdMechanicsProvider();
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		final long mechanicId = ContentUris.parseId(uri);
-		return mProvider.buildSimpleSelection(uri).whereEquals(GamesMechanics.MECHANIC_ID, mechanicId);
+		return provider.buildSimpleSelection(uri).whereEquals(GamesMechanics.MECHANIC_ID, mechanicId);
 	}
 
 	@Override
 	protected String getPath() {
-		return addIdToPath(mProvider.getPath());
+		return addIdToPath(provider.getPath());
 	}
 
 	@Override

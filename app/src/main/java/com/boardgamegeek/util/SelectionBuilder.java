@@ -240,9 +240,9 @@ public class SelectionBuilder {
 		if (columns != null) {
 			mapColumns(columns);
 		}
-		Timber.v("QUERY: columns=" + Arrays.toString(columns) + ", " + this);
+		Timber.v("QUERY: columns=%s, %s", Arrays.toString(columns), this);
 		Cursor c = db.query(tableName, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
-		Timber.v("queried " + c.getCount() + " rows");
+		Timber.v("queried %,d rows", c.getCount());
 		return c;
 	}
 
@@ -251,9 +251,9 @@ public class SelectionBuilder {
 	 */
 	public int update(SQLiteDatabase db, ContentValues values) {
 		assertTable();
-		Timber.v("UPDATE: " + this);
+		Timber.v("UPDATE: %s", this);
 		int count = db.update(tableName, values, getSelection(), getSelectionArgs());
-		Timber.v("updated " + count + " rows");
+		Timber.v("updated %,d rows", count);
 		return count;
 	}
 
@@ -262,14 +262,14 @@ public class SelectionBuilder {
 	 */
 	public int delete(SQLiteDatabase db) {
 		assertTable();
-		Timber.v("DELETE: " + this);
+		Timber.v("DELETE: %s", this);
 		String selection = getSelection();
 		if (TextUtils.isEmpty(selection)) {
 			// this forces delete to return the count
 			selection = "1";
 		}
 		int count = db.delete(tableName, selection, getSelectionArgs());
-		Timber.v("deleted " + count + " rows");
+		Timber.v("deleted %,d rows", count);
 		return count;
 	}
 }

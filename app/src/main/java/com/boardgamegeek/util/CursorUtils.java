@@ -184,7 +184,7 @@ public class CursorUtils {
 				Calendar calendar = getCalendar(date);
 				return DateUtils.formatDateTime(context, calendar.getTimeInMillis(), flags);
 			} catch (Exception e) {
-				Timber.e(e, "Could find a date in here: " + date);
+				Timber.e(e, "Could find a date in here: %s", date);
 			}
 		}
 		return "";

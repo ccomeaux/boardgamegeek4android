@@ -74,49 +74,49 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private static final int PLAY_QUERY_TOKEN = 0x01;
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
 
-	private boolean mSyncing;
-	private int mPlayId = BggContract.INVALID_ID;
-	private Play mPlay = new Play();
-	private String mThumbnailUrl;
-	private String mImageUrl;
+	private boolean isSyncing;
+	private int playId = BggContract.INVALID_ID;
+	private Play play = new Play();
+	private String thumbnailUrl;
+	private String imageUrl;
 
 	private Unbinder unbinder;
-	@BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
-	@BindView(R.id.progress) View mProgressContainer;
-	@BindView(R.id.list_container) View mListContainer;
-	@BindView(R.id.empty) TextView mEmpty;
-	@BindView(R.id.thumbnail) ImageView mThumbnailView;
-	@BindView(R.id.header) TextView mGameName;
-	@BindView(R.id.play_date) TextView mDate;
-	@BindView(R.id.play_quantity) TextView mQuantity;
-	@BindView(R.id.length_root) View mLengthRoot;
-	@BindView(R.id.play_length) TextView mLength;
-	@BindView(R.id.timer_root) View mTimerRoot;
-	@BindView(R.id.timer) Chronometer mTimer;
-	@BindView(R.id.location_root) View mLocationRoot;
-	@BindView(R.id.play_location) TextView mLocation;
-	@BindView(R.id.play_incomplete) View mIncomplete;
-	@BindView(R.id.play_no_win_stats) View mNoWinStats;
-	@BindView(R.id.play_comments) TextView mComments;
-	@BindView(R.id.play_comments_label) View mCommentsLabel;
-	@BindView(R.id.play_players_label) View mPlayersLabel;
-	@BindView(R.id.updated) TimestampView mUpdated;
-	@BindView(R.id.play_id) TextView mPlayIdView;
-	@BindView(R.id.play_saved) TimestampView mSavedTimeStamp;
-	@BindView(R.id.play_unsynced_message) TextView mUnsyncedMessage;
-	private PlayerAdapter mAdapter;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.progress) View progressContainer;
+	@BindView(R.id.list_container) View listContainer;
+	@BindView(R.id.empty) TextView emptyView;
+	@BindView(R.id.thumbnail) ImageView thumbnailView;
+	@BindView(R.id.header) TextView gameNameView;
+	@BindView(R.id.play_date) TextView dateView;
+	@BindView(R.id.play_quantity) TextView quantityView;
+	@BindView(R.id.length_root) View lengthContainer;
+	@BindView(R.id.play_length) TextView lengthView;
+	@BindView(R.id.timer_root) View timerContainer;
+	@BindView(R.id.timer) Chronometer timerView;
+	@BindView(R.id.location_root) View locationContainer;
+	@BindView(R.id.play_location) TextView locationView;
+	@BindView(R.id.play_incomplete) View incompleteView;
+	@BindView(R.id.play_no_win_stats) View noWinStatsView;
+	@BindView(R.id.play_comments) TextView commentsView;
+	@BindView(R.id.play_comments_label) View commentsLabel;
+	@BindView(R.id.play_players_label) View playersLabel;
+	@BindView(R.id.updated) TimestampView updatedTimestampView;
+	@BindView(R.id.play_id) TextView playIdView;
+	@BindView(R.id.play_saved) TimestampView savedTimestampView;
+	@BindView(R.id.play_unsynced_message) TextView notSyncedMessageView;
+	private PlayerAdapter adapter;
 	@State boolean hasBeenNotified;
 
-	final private OnScrollListener mOnScrollListener = new OnScrollListener() {
+	final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 		}
 
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			if (mSwipeRefreshLayout != null) {
+			if (swipeRefreshLayout != null) {
 				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
-				mSwipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+				swipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
 			}
 		}
 	};
@@ -129,17 +129,17 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mPlayId = intent.getIntExtra(PlayActivity.KEY_PLAY_ID, BggContract.INVALID_ID);
+		playId = intent.getIntExtra(PlayActivity.KEY_PLAY_ID, BggContract.INVALID_ID);
 
-		if (mPlayId == BggContract.INVALID_ID) {
+		if (playId == BggContract.INVALID_ID) {
 			return;
 		}
 
-		mPlay = new Play(mPlayId, intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID),
+		play = new Play(playId, intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID),
 			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
 
-		mThumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
-		mImageUrl = intent.getStringExtra(PlayActivity.KEY_IMAGE_URL);
+		thumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
+		imageUrl = intent.getStringExtra(PlayActivity.KEY_IMAGE_URL);
 	}
 
 	@Override
@@ -155,13 +155,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		unbinder = ButterKnife.bind(this, rootView);
 
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.setOnRefreshListener(this);
-			mSwipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.setOnRefreshListener(this);
+			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 		}
 
-		mAdapter = new PlayerAdapter();
-		playersView.setAdapter(mAdapter);
+		adapter = new PlayerAdapter();
+		playersView.setAdapter(adapter);
 
 		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
 
@@ -171,7 +171,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		getListView().setOnScrollListener(mOnScrollListener);
+		getListView().setOnScrollListener(onScrollListener);
 	}
 
 	@DebugLog
@@ -184,8 +184,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (mPlay != null && mPlay.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+		if (play != null && play.hasStarted()) {
+			NotificationUtils.launchPlayingNotification(getActivity(), play, thumbnailUrl, imageUrl);
 			hasBeenNotified = true;
 		}
 	}
@@ -216,12 +216,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_send).setVisible(mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
+		menu.findItem(R.id.menu_send).setVisible(play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		MenuItem menuItem = menu.findItem(R.id.menu_discard);
 		if (menuItem != null) {
-			menuItem.setVisible(mPlay.hasBeenSynced() && mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
+			menuItem.setVisible(play.hasBeenSynced() && play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		}
-		menu.findItem(R.id.menu_share).setEnabled(mPlay.syncStatus == Play.SYNC_STATUS_SYNCED);
+		menu.findItem(R.id.menu_share).setEnabled(play.syncStatus == Play.SYNC_STATUS_SYNCED);
 
 		super.onPrepareOptionsMenu(menu);
 	}
@@ -233,14 +233,14 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							PlayManipulationEvent.log("Discard", mPlay.gameName);
+							PlayManipulationEvent.log("Discard", play.gameName);
 							save(Play.SYNC_STATUS_SYNCED);
 						}
 					}).show();
 				return true;
 			case R.id.menu_edit:
-				PlayManipulationEvent.log("Edit", mPlay.gameName);
-				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
+				PlayManipulationEvent.log("Edit", play.gameName);
+				ActivityUtils.editPlay(getActivity(), play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
@@ -250,10 +250,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							if (mPlay.hasStarted()) {
+							if (play.hasStarted()) {
 								cancelNotification();
 							}
-							mPlay.end(); // this prevents the timer from reappearing
+							play.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
 							EventBus.getDefault().post(new PlayDeletedEvent());
 						}
@@ -261,16 +261,16 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			}
 			case R.id.menu_rematch:
-				PlayManipulationEvent.log("Rematch", mPlay.gameName);
-				ActivityUtils.rematch(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
+				PlayManipulationEvent.log("Rematch", play.gameName);
+				ActivityUtils.rematch(getActivity(), play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()), mPlay.toLongDescription(getActivity()), R.string.share_play_title);
+				ActivityUtils.share(getActivity(), play.toShortDescription(getActivity()), play.toLongDescription(getActivity()), R.string.share_play_title);
 				Answers.getInstance().logShare(new ShareEvent()
 					.putContentType("Play")
-					.putContentName(mPlay.toShortDescription(getActivity()))
-					.putContentId(String.valueOf(mPlay.playId)));
+					.putContentName(play.toShortDescription(getActivity()))
+					.putContentId(String.valueOf(play.playId)));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -287,7 +287,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateEvent event) {
 		if (event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) {
-			mSyncing = true;
+			isSyncing = true;
 			updateRefreshStatus();
 		}
 	}
@@ -296,18 +296,18 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateCompleteEvent event) {
-		mSyncing = false;
+		isSyncing = false;
 		updateRefreshStatus();
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	private void updateRefreshStatus() {
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.post(new Runnable() {
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					if (mSwipeRefreshLayout != null) mSwipeRefreshLayout.setRefreshing(mSyncing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
@@ -315,12 +315,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@OnClick(R.id.header_container)
 	void viewGame() {
-		ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
+		ActivityUtils.launchGame(getActivity(), play.gameId, play.gameName);
 	}
 
 	@OnClick(R.id.timer_end)
 	void onTimerClick() {
-		ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
+		ActivityUtils.endPlay(getActivity(), play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 	}
 
 	@Override
@@ -328,10 +328,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		CursorLoader loader = null;
 		switch (id) {
 			case PLAY_QUERY_TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(mPlayId), PlayBuilder.PLAY_PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(playId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 				break;
 			case PLAYER_QUERY_TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(mPlayId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(playId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 				break;
 		}
 		if (loader != null) {
@@ -353,9 +353,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				}
 				break;
 			case PLAYER_QUERY_TOKEN:
-				PlayBuilder.addPlayers(cursor, mPlay);
-				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
-				mAdapter.notifyDataSetChanged();
+				PlayBuilder.addPlayers(cursor, play);
+				playersLabel.setVisibility(play.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
+				adapter.notifyDataSetChanged();
 				maybeShowNotification();
 				showList();
 				break;
@@ -368,10 +368,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void showList() {
-		mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		mProgressContainer.setVisibility(View.GONE);
-		mListContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-		mListContainer.setVisibility(View.VISIBLE);
+		progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		progressContainer.setVisibility(View.GONE);
+		listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		listContainer.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -379,7 +379,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	public void setNewPlayId(int playId) {
-		mPlayId = playId;
+		this.playId = playId;
 		if (isAdded()) {
 			getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
 		}
@@ -390,22 +390,22 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	 */
 	private boolean onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			int newPlayId = PreferencesUtils.getNewPlayId(getActivity(), mPlayId);
+			int newPlayId = PreferencesUtils.getNewPlayId(getActivity(), playId);
 			if (newPlayId != BggContract.INVALID_ID) {
 				setNewPlayId(newPlayId);
 				return false;
 			}
-			mEmpty.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(mPlayId)));
-			mEmpty.setVisibility(View.VISIBLE);
+			emptyView.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(playId)));
+			emptyView.setVisibility(View.VISIBLE);
 			return true;
 		}
-		mEmpty.setVisibility(View.GONE);
+		emptyView.setVisibility(View.GONE);
 
-		ImageUtils.safelyLoadImage(mThumbnailView, mImageUrl, new Callback() {
+		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, new Callback() {
 			@Override
 			public void onSuccessfulImageLoad(Palette palette) {
-				if (mGameName != null && isAdded()) {
-					mGameName.setBackgroundResource(R.color.black_overlay_light);
+				if (gameNameView != null && isAdded()) {
+					gameNameView.setBackgroundResource(R.color.black_overlay_light);
 				}
 			}
 
@@ -414,75 +414,75 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			}
 		});
 
-		List<Player> players = mPlay.getPlayers();
-		mPlay = PlayBuilder.fromCursor(cursor);
-		mPlay.setPlayers(players);
+		List<Player> players = play.getPlayers();
+		play = PlayBuilder.fromCursor(cursor);
+		play.setPlayers(players);
 
-		mGameName.setText(mPlay.gameName);
+		gameNameView.setText(play.gameName);
 
-		mDate.setText(mPlay.getDateForDisplay(getActivity()));
+		dateView.setText(play.getDateForDisplay(getActivity()));
 
-		mQuantity.setText(getString(R.string.times_suffix, mPlay.quantity));
-		mQuantity.setVisibility((mPlay.quantity == 1) ? View.GONE : View.VISIBLE);
+		quantityView.setText(getString(R.string.times_suffix, play.quantity));
+		quantityView.setVisibility((play.quantity == 1) ? View.GONE : View.VISIBLE);
 
-		if (mPlay.length > 0) {
-			mLengthRoot.setVisibility(View.VISIBLE);
-			mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.length));
-			mLength.setVisibility(View.VISIBLE);
-			mTimerRoot.setVisibility(View.GONE);
-			mTimer.stop();
-		} else if (mPlay.hasStarted()) {
-			mLengthRoot.setVisibility(View.VISIBLE);
-			mLength.setVisibility(View.GONE);
-			mTimerRoot.setVisibility(View.VISIBLE);
-			UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
+		if (play.length > 0) {
+			lengthContainer.setVisibility(View.VISIBLE);
+			lengthView.setText(DateTimeUtils.describeMinutes(getActivity(), play.length));
+			lengthView.setVisibility(View.VISIBLE);
+			timerContainer.setVisibility(View.GONE);
+			timerView.stop();
+		} else if (play.hasStarted()) {
+			lengthContainer.setVisibility(View.VISIBLE);
+			lengthView.setVisibility(View.GONE);
+			timerContainer.setVisibility(View.VISIBLE);
+			UIUtils.startTimerWithSystemTime(timerView, play.startTime);
 		} else {
-			mLengthRoot.setVisibility(View.GONE);
+			lengthContainer.setVisibility(View.GONE);
 		}
 
-		mLocation.setText(mPlay.location);
-		mLocationRoot.setVisibility(TextUtils.isEmpty(mPlay.location) ? View.GONE : View.VISIBLE);
+		locationView.setText(play.location);
+		locationContainer.setVisibility(TextUtils.isEmpty(play.location) ? View.GONE : View.VISIBLE);
 
-		mIncomplete.setVisibility(mPlay.Incomplete() ? View.VISIBLE : View.GONE);
-		mNoWinStats.setVisibility(mPlay.NoWinStats() ? View.VISIBLE : View.GONE);
+		incompleteView.setVisibility(play.Incomplete() ? View.VISIBLE : View.GONE);
+		noWinStatsView.setVisibility(play.NoWinStats() ? View.VISIBLE : View.GONE);
 
-		mComments.setText(mPlay.comments);
-		mComments.setVisibility(TextUtils.isEmpty(mPlay.comments) ? View.GONE : View.VISIBLE);
-		mCommentsLabel.setVisibility(TextUtils.isEmpty(mPlay.comments) ? View.GONE : View.VISIBLE);
+		commentsView.setText(play.comments);
+		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
+		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 
-		mUpdated.setVisibility((mPlay.updated == 0) ? View.GONE : View.VISIBLE);
-		mUpdated.setTimestamp(mPlay.updated);
+		updatedTimestampView.setVisibility((play.updated == 0) ? View.GONE : View.VISIBLE);
+		updatedTimestampView.setTimestamp(play.updated);
 
-		if (mPlay.hasBeenSynced()) {
-			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(mPlay.playId)));
+		if (play.hasBeenSynced()) {
+			playIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(play.playId)));
 		}
 
-		if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
-			mUnsyncedMessage.setVisibility(View.VISIBLE);
-			mSavedTimeStamp.setVisibility(View.VISIBLE);
-			mSavedTimeStamp.setTimestamp(mPlay.saved);
+		if (play.syncStatus != Play.SYNC_STATUS_SYNCED) {
+			notSyncedMessageView.setVisibility(View.VISIBLE);
+			savedTimestampView.setVisibility(View.VISIBLE);
+			savedTimestampView.setTimestamp(play.saved);
 
-			if (mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-				if (mPlay.hasBeenSynced()) {
-					mUnsyncedMessage.setText(R.string.sync_editing);
+			if (play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+				if (play.hasBeenSynced()) {
+					notSyncedMessageView.setText(R.string.sync_editing);
 				} else {
-					mUnsyncedMessage.setText(R.string.sync_draft);
+					notSyncedMessageView.setText(R.string.sync_draft);
 				}
-			} else if (mPlay.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
-				mUnsyncedMessage.setText(R.string.sync_pending_update);
-			} else if (mPlay.syncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
-				mUnsyncedMessage.setText(R.string.sync_pending_delete);
+			} else if (play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
+				notSyncedMessageView.setText(R.string.sync_pending_update);
+			} else if (play.syncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
+				notSyncedMessageView.setText(R.string.sync_pending_delete);
 			}
 		} else {
-			mUnsyncedMessage.setVisibility(View.GONE);
-			mSavedTimeStamp.setVisibility(View.GONE);
+			notSyncedMessageView.setVisibility(View.GONE);
+			savedTimestampView.setVisibility(View.GONE);
 		}
 
 		getActivity().supportInvalidateOptionsMenu();
 		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
-		if (mPlay.hasBeenSynced()
-			&& (mPlay.updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.updated) > AGE_IN_DAYS_TO_REFRESH)) {
+		if (play.hasBeenSynced()
+			&& (play.updated == 0 || DateTimeUtils.howManyDaysOld(play.updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 
@@ -490,19 +490,19 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void maybeShowNotification() {
-		if (mPlay.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+		if (play.hasStarted()) {
+			NotificationUtils.launchPlayingNotification(getActivity(), play, thumbnailUrl, imageUrl);
 		} else if (hasBeenNotified) {
 			cancelNotification();
 		}
 	}
 
 	private void cancelNotification() {
-		NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, mPlayId);
+		NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, playId);
 	}
 
 	private void triggerRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.gameId);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, play.gameId);
 	}
 
 	private void save(int status) {
@@ -512,9 +512,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
 			action = "SaveDraft";
 		}
-		PlayManipulationEvent.log(action, mPlay.gameName);
-		mPlay.syncStatus = status;
-		new PlayPersister(getActivity()).save(mPlay);
+		PlayManipulationEvent.log(action, play.gameName);
+		play.syncStatus = status;
+		new PlayPersister(getActivity()).save(play);
 		triggerRefresh();
 	}
 
@@ -526,12 +526,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		@Override
 		public int getCount() {
-			return mPlay.getPlayerCount();
+			return play.getPlayerCount();
 		}
 
 		@Override
 		public Object getItem(int position) {
-			return mPlay.getPlayers().get(position);
+			return play.getPlayers().get(position);
 		}
 
 		@Override

@@ -6,7 +6,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 
 public class Player {
 
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		PlayPlayers._ID,
 		PlayPlayers.NAME,
 		PlayPlayers.USER_NAME,

@@ -20,8 +20,8 @@ import java.util.Locale;
 public class GeekListItem {
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
-	private long mPostDateTime = DateTimeUtils.UNPARSED_DATE;
-	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long editDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute private String id;
 
@@ -89,15 +89,15 @@ public class GeekListItem {
 	@Attribute private String postdate;
 
 	public long getPostDate() {
-		mPostDateTime = DateTimeUtils.tryParseDate(mPostDateTime, postdate, FORMAT);
-		return mPostDateTime;
+		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);
+		return postDateTime;
 	}
 
 	@Attribute private String editdate;
 
 	public long getEditDate() {
-		mEditDateTime = DateTimeUtils.tryParseDate(mEditDateTime, editdate, FORMAT);
-		return mEditDateTime;
+		editDateTime = DateTimeUtils.tryParseDate(editDateTime, editdate, FORMAT);
+		return editDateTime;
 	}
 
 	@Attribute private String subtype;

@@ -14,9 +14,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class PollKeyRow extends LinearLayout {
-	@BindView(R.id.row_poll_key_view) View mView;
-	@BindView(R.id.row_poll_key_text) TextView mTextView;
-	@BindView(R.id.row_poll_key_info) TextView mInfoView;
+	@BindView(R.id.row_poll_key_view) View colorView;
+	@BindView(R.id.row_poll_key_text) TextView textView;
+	@BindView(R.id.row_poll_key_info) TextView infoView;
 
 	public PollKeyRow(Context context) {
 		this(context, null);
@@ -34,14 +34,14 @@ public class PollKeyRow extends LinearLayout {
 	}
 
 	public void setColor(int color) {
-		ColorUtils.setViewBackground(mView, color);
+		ColorUtils.setViewBackground(colorView, color);
 	}
 
 	public void setText(CharSequence text) {
-		mTextView.setText(text);
+		textView.setText(text);
 	}
 
 	public void setInfo(CharSequence text) {
-		mInfoView.setText(text);
+		infoView.setText(text);
 	}
 }

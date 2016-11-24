@@ -390,7 +390,7 @@
 	<string name="play_description_players_segment">\u0020with %,d players</string>
 	<string name="play_description_game_url_segment">www.boardgamegeek.com/play/%s</string>
 	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
-	<string name="player_description_starting_position_segment">%s)\u0020</string>
+	<string name="player_description_starting_position_segment">%d)\u0020</string>
 	<string name="player_description_username_segment">\u0020(%s)</string>
 	<string name="player_description_new_segment">\u0020(new)</string>
 	<string name="player_description_color_segment">\u0020as %s</string>
@@ -415,8 +415,8 @@
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
 	<string name="votes_suffix"><b>%,d</b> votes</string>
-	<string name="items_suffix">%s items</string>
-	<string name="thumbs_suffix">%s thumbs</string>
+	<string name="items_suffix">%,d items</string>
+	<string name="thumbs_suffix">%,d thumbs</string>
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>

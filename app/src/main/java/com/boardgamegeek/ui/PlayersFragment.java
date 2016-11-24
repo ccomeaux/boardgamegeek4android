@@ -136,7 +136,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			EventBus.getDefault().postSticky(new PlayersCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
 		}
 	}

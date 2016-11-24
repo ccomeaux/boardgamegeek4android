@@ -124,11 +124,7 @@ public class PlayStatView extends TableRow {
 		}
 
 		public Builder value(double value) {
-			return value(value, DOUBLE_FORMAT);
-		}
-
-		public Builder value(double value, DecimalFormat format) {
-			this.value = format.format(value);
+			this.value = DOUBLE_FORMAT.format(value);
 			return this;
 		}
 
@@ -138,11 +134,7 @@ public class PlayStatView extends TableRow {
 		}
 
 		public Builder valueAsPercentage(double value) {
-			return valueAsPercentage(value, PERCENTAGE_FORMAT);
-		}
-
-		public Builder valueAsPercentage(double value, DecimalFormat format) {
-			this.value = format.format(value * 100) + "%";
+			this.value = PERCENTAGE_FORMAT.format(value * 100) + "%";
 			return this;
 		}
 
@@ -162,12 +154,6 @@ public class PlayStatView extends TableRow {
 		public Builder infoId(@StringRes int id) {
 			this.infoId = id;
 			this.infoText = "";
-			return this;
-		}
-
-		public Builder infoText(String text) {
-			this.infoText = text;
-			this.infoId = 0;
 			return this;
 		}
 

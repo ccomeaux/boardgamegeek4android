@@ -43,23 +43,19 @@ import java.util.Set;
  */
 public class MultiSelectListPreference extends DialogPreference {
 	private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
-	private CharSequence[] mEntries;
-	private CharSequence[] mEntryValues;
-	private final Set<String> mValues = new HashSet<>();
-	private final Set<String> mNewValues = new HashSet<>();
-	private boolean mPreferenceChanged;
+	private CharSequence[] entries;
+	private CharSequence[] entryValues;
+	private final Set<String> values = new HashSet<>();
+	private final Set<String> newValues = new HashSet<>();
+	private boolean hasPreferenceChanged;
 
 	public MultiSelectListPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
 		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MultiSelectListPreference, 0, 0);
-		mEntries = a.getTextArray(R.styleable.MultiSelectListPreference_android_entries);
-		mEntryValues = a.getTextArray(R.styleable.MultiSelectListPreference_android_entryValues);
+		entries = a.getTextArray(R.styleable.MultiSelectListPreference_android_entries);
+		entryValues = a.getTextArray(R.styleable.MultiSelectListPreference_android_entryValues);
 		a.recycle();
-	}
-
-	public MultiSelectListPreference(Context context) {
-		this(context, null);
 	}
 
 	/**
@@ -71,7 +67,7 @@ public class MultiSelectListPreference extends DialogPreference {
 	 * @see #setEntryValues(CharSequence[])
 	 */
 	public void setEntries(CharSequence[] entries) {
-		mEntries = entries;
+		this.entries = entries;
 	}
 
 	/**
@@ -88,7 +84,7 @@ public class MultiSelectListPreference extends DialogPreference {
 	 * @return The list as an array.
 	 */
 	public CharSequence[] getEntries() {
-		return mEntries;
+		return entries;
 	}
 
 	/**
@@ -98,7 +94,7 @@ public class MultiSelectListPreference extends DialogPreference {
 	 * @param entryValues The array to be used as values to save for the preference.
 	 */
 	public void setEntryValues(CharSequence[] entryValues) {
-		mEntryValues = entryValues;
+		this.entryValues = entryValues;
 	}
 
 	/**
@@ -115,7 +111,7 @@ public class MultiSelectListPreference extends DialogPreference {
 	 * @return The array of values.
 	 */
 	public CharSequence[] getEntryValues() {
-		return mEntryValues;
+		return entryValues;
 	}
 
 	/**
@@ -124,22 +120,22 @@ public class MultiSelectListPreference extends DialogPreference {
 	 * @param values The values to set for the key.
 	 */
 	public void setValues(Set<String> values) {
-		mValues.clear();
-		mValues.addAll(values);
+		this.values.clear();
+		this.values.addAll(values);
 
 		persistStringSetCustom(values);
 	}
 
-	private boolean persistStringSetCustom(Set<String> values) {
+	private void persistStringSetCustom(Set<String> values) {
 		String value = buildString(values);
-		return persistString(value);
+		persistString(value);
 	}
 
 	/**
 	 * Retrieves the current value of the key.
 	 */
 	public Set<String> getValues() {
-		return mValues;
+		return values;
 	}
 
 	/**
@@ -149,9 +145,9 @@ public class MultiSelectListPreference extends DialogPreference {
 	 * @return The index of the value, or -1 if not found.
 	 */
 	public int findIndexOfValue(String value) {
-		if (value != null && mEntryValues != null) {
-			for (int i = mEntryValues.length - 1; i >= 0; i--) {
-				if (mEntryValues[i].equals(value)) {
+		if (value != null && entryValues != null) {
+			for (int i = entryValues.length - 1; i >= 0; i--) {
+				if (entryValues[i].equals(value)) {
 					return i;
 				}
 			}
@@ -161,16 +157,16 @@ public class MultiSelectListPreference extends DialogPreference {
 
 	@Override
 	public CharSequence getSummary() {
-		if (mValues == null || mValues.size() == 0) {
+		if (values == null || values.size() == 0) {
 			return getContext().getString(R.string.pref_list_empty);
 		}
 
 		StringBuilder sb = new StringBuilder();
-		for (CharSequence value : mValues) {
-			for (int i = 0; i < mEntryValues.length; i++) {
-				CharSequence entry = mEntryValues[i];
+		for (CharSequence value : values) {
+			for (int i = 0; i < entryValues.length; i++) {
+				CharSequence entry = entryValues[i];
 				if (entry.equals(value)) {
-					sb.append(mEntries[i]).append(", ");
+					sb.append(entries[i]).append(", ");
 					break;
 				}
 			}
@@ -186,29 +182,29 @@ public class MultiSelectListPreference extends DialogPreference {
 	protected void onPrepareDialogBuilder(Builder builder) {
 		super.onPrepareDialogBuilder(builder);
 
-		if (mEntries == null || mEntryValues == null) {
+		if (entries == null || entryValues == null) {
 			throw new IllegalStateException("MultiSelectListPreference requires an entries array and "
 				+ "an entryValues array.");
 		}
 
 		boolean[] checkedItems = getSelectedItems();
-		builder.setMultiChoiceItems(mEntries, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+		builder.setMultiChoiceItems(entries, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
 			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 				if (isChecked) {
-					mPreferenceChanged |= mNewValues.add(mEntryValues[which].toString());
+					hasPreferenceChanged |= newValues.add(entryValues[which].toString());
 				} else {
-					mPreferenceChanged |= mNewValues.remove(mEntryValues[which].toString());
+					hasPreferenceChanged |= newValues.remove(entryValues[which].toString());
 				}
 			}
 		});
-		mNewValues.clear();
-		mNewValues.addAll(mValues);
+		newValues.clear();
+		newValues.addAll(values);
 	}
 
 	private boolean[] getSelectedItems() {
-		final CharSequence[] entries = mEntryValues;
+		final CharSequence[] entries = entryValues;
 		final int entryCount = entries.length;
-		final Set<String> values = mValues;
+		final Set<String> values = this.values;
 		boolean[] result = new boolean[entryCount];
 
 		for (int i = 0; i < entryCount; i++) {
@@ -222,15 +218,15 @@ public class MultiSelectListPreference extends DialogPreference {
 	protected void onDialogClosed(boolean positiveResult) {
 		super.onDialogClosed(positiveResult);
 
-		if (positiveResult && mPreferenceChanged) {
+		if (positiveResult && hasPreferenceChanged) {
 			notifyChanged();
 
-			final Set<String> values = mNewValues;
+			final Set<String> values = newValues;
 			if (callChangeListener(values)) {
 				setValues(values);
 			}
 		}
-		mPreferenceChanged = false;
+		hasPreferenceChanged = false;
 	}
 
 	@Override
@@ -248,7 +244,7 @@ public class MultiSelectListPreference extends DialogPreference {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-		setValues(restoreValue ? getPersistedStringSetCustom(mValues) : (Set<String>) defaultValue);
+		setValues(restoreValue ? getPersistedStringSetCustom(values) : (Set<String>) defaultValue);
 	}
 
 	private Set<String> getPersistedStringSetCustom(Set<String> defaultReturnValue) {

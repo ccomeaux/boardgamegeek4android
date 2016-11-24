@@ -23,6 +23,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
@@ -56,7 +59,7 @@ public class ForegroundImageView extends ImageView {
 		final Drawable d = a.getDrawable(R.styleable.ForegroundImageView_android_foreground);
 		foregroundPadding = a.getBoolean(R.styleable.ForegroundImageView_android_foregroundInsidePadding, false);
 
-		// Apply foreground padding for ninepatches automatically
+		// Apply foreground padding for nine patches automatically
 		if (!foregroundPadding && getBackground() instanceof NinePatchDrawable) {
 			final NinePatchDrawable npd = (NinePatchDrawable) getBackground();
 			if (npd != null && npd.getPadding(rectPadding)) {
@@ -117,7 +120,7 @@ public class ForegroundImageView extends ImageView {
 	}
 
 	@Override
-	protected boolean verifyDrawable(Drawable who) {
+	protected boolean verifyDrawable(@NonNull Drawable who) {
 		return super.verifyDrawable(who) || (who == foreground);
 	}
 
@@ -175,7 +178,7 @@ public class ForegroundImageView extends ImageView {
 	@Override
 	public void drawableHotspotChanged(float x, float y) {
 		super.drawableHotspotChanged(x, y);
-		if (foreground != null) {
+		if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP && foreground != null) {
 			foreground.setHotspot(x, y);
 		}
 	}

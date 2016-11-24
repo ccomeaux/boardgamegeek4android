@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 
 public class PlayerColor {
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		PlayerColors._ID,
 		PlayerColors.PLAYER_COLOR,
 		PlayerColors.PLAYER_COLOR_SORT_ORDER
@@ -15,7 +15,7 @@ public class PlayerColor {
 	private static final int PLAYER_COLOR = 1;
 	private static final int SORT_ORDER = 2;
 
-	private String color;
+	private final String color;
 
 	private int sortOrder;
 

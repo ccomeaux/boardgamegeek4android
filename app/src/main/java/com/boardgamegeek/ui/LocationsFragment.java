@@ -54,6 +54,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		EventBus.getDefault().postSticky(new LocationSelectedEvent(name));
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(sticky = true)
 	public void onEvent(LocationSelectedEvent event) {
@@ -63,6 +64,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
 	public void onEvent(LocationSortChangedEvent event) {
@@ -106,7 +108,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			EventBus.getDefault().postSticky(new LocationsCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
 		}
 	}
@@ -117,18 +119,18 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	}
 
 	public class LocationsAdapter extends CursorAdapter implements StickyListHeadersAdapter {
-		private LayoutInflater mInflater;
+		private final LayoutInflater inflater;
 
 		@DebugLog
 		public LocationsAdapter(Context context) {
 			super(context, null, false);
-			mInflater = LayoutInflater.from(context);
+			inflater = LayoutInflater.from(context);
 		}
 
 		@DebugLog
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_text_2, parent, false);
+			View row = inflater.inflate(R.layout.row_text_2, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -165,7 +167,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			HeaderViewHolder holder;
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
-				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				convertView = inflater.inflate(R.layout.row_header, parent, false);
 				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {

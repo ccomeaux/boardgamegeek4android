@@ -282,7 +282,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 							row.setNotRecommended(votes);
 							break;
 						default:
-							Timber.w("Bad key: " + value);
+							Timber.w("Bad key: %s", value);
 							break;
 					}
 				}

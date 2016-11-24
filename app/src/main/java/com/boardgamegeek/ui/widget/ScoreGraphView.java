@@ -120,7 +120,7 @@ public class ScoreGraphView extends View {
 		canvas.drawLine(left, y, right, y, barPaint);
 
 		// ticks
-		int tickSpacing = 10;
+		int tickSpacing;
 		final double scoreSpread = highScore - lowScore;
 		if (scoreSpread <= 20) {
 			tickSpacing = 1;

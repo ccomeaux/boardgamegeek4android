@@ -7,17 +7,17 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdExpansionsIdProvider extends BaseProvider {
-	GamesIdExpansionsProvider mProvider = new GamesIdExpansionsProvider();
+	final GamesIdExpansionsProvider provider = new GamesIdExpansionsProvider();
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		long expansionId = ContentUris.parseId(uri);
-		return mProvider.buildSimpleSelection(uri).whereEquals(GamesExpansions.EXPANSION_ID, expansionId);
+		return provider.buildSimpleSelection(uri).whereEquals(GamesExpansions.EXPANSION_ID, expansionId);
 	}
 
 	@Override
 	protected String getPath() {
-		return addIdToPath(mProvider.getPath());
+		return addIdToPath(provider.getPath());
 	}
 
 	@Override
