@@ -1,18 +1,18 @@
 package com.boardgamegeek.model;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import com.boardgamegeek.util.DateTimeUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
-import com.boardgamegeek.util.DateTimeUtils;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 @Root(name = "forum")
 public class Forum {
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
-	private long mLastPostDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long lastPostDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute
 	public int id;
@@ -43,8 +43,8 @@ public class Forum {
 	}
 
 	public long lastPostDate() {
-		mLastPostDateTime = DateTimeUtils.tryParseDate(mLastPostDateTime, lastpostdate, FORMAT);
-		return mLastPostDateTime;
+		lastPostDateTime = DateTimeUtils.tryParseDate(lastPostDateTime, lastpostdate, FORMAT);
+		return lastPostDateTime;
 	}
 
 	@Override
