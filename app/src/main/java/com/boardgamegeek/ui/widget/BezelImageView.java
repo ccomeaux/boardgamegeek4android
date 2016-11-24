@@ -45,22 +45,22 @@ import com.boardgamegeek.R;
  * flexible enough for use with other desired aesthetics.
  */
 public class BezelImageView extends ImageView {
-	private final Paint mBlackPaint;
-	private final Paint mMaskedPaint;
+	private final Paint blackPaint;
+	private final Paint maskedPaint;
 
-	private Rect mBounds;
-	private RectF mBoundsF;
+	private Rect bounds;
+	private RectF boundsF;
 
-	private final Drawable mBorderDrawable;
-	private final Drawable mMaskDrawable;
+	private final Drawable borderDrawable;
+	private final Drawable maskDrawable;
 
-	private ColorMatrixColorFilter mDesaturateColorFilter;
-	private boolean mDesaturateOnPress = false;
+	private ColorMatrixColorFilter desaturateColorFilter;
+	private boolean shouldDesaturateOnPress = false;
 
-	private boolean mCacheValid = false;
-	private Bitmap mCacheBitmap;
-	private int mCachedWidth;
-	private int mCachedHeight;
+	private boolean isCacheValid = false;
+	private Bitmap cacheBitmap;
+	private int cachedWidth;
+	private int cachedHeight;
 
 	public BezelImageView(Context context) {
 		this(context, null);
@@ -76,54 +76,54 @@ public class BezelImageView extends ImageView {
 		// Attribute initialization
 		final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BezelImageView, defStyle, 0);
 
-		mMaskDrawable = a.getDrawable(R.styleable.BezelImageView_maskDrawable);
-		if (mMaskDrawable != null) {
-			mMaskDrawable.setCallback(this);
+		maskDrawable = a.getDrawable(R.styleable.BezelImageView_maskDrawable);
+		if (maskDrawable != null) {
+			maskDrawable.setCallback(this);
 		}
 
-		mBorderDrawable = a.getDrawable(R.styleable.BezelImageView_borderDrawable);
-		if (mBorderDrawable != null) {
-			mBorderDrawable.setCallback(this);
+		borderDrawable = a.getDrawable(R.styleable.BezelImageView_borderDrawable);
+		if (borderDrawable != null) {
+			borderDrawable.setCallback(this);
 		}
 
-		mDesaturateOnPress = a.getBoolean(R.styleable.BezelImageView_desaturateOnPress,
-			mDesaturateOnPress);
+		shouldDesaturateOnPress = a.getBoolean(R.styleable.BezelImageView_desaturateOnPress,
+			shouldDesaturateOnPress);
 
 		a.recycle();
 
 		// Other initialization
-		mBlackPaint = new Paint();
-		mBlackPaint.setColor(0xff000000);
+		blackPaint = new Paint();
+		blackPaint.setColor(0xff000000);
 
-		mMaskedPaint = new Paint();
-		mMaskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+		maskedPaint = new Paint();
+		maskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
 		// Always want a cache allocated.
-		mCacheBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+		cacheBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
 
-		if (mDesaturateOnPress) {
+		if (shouldDesaturateOnPress) {
 			// Create a desaturate color filter for pressed state.
 			ColorMatrix cm = new ColorMatrix();
 			cm.setSaturation(0);
-			mDesaturateColorFilter = new ColorMatrixColorFilter(cm);
+			desaturateColorFilter = new ColorMatrixColorFilter(cm);
 		}
 	}
 
 	@Override
 	protected boolean setFrame(int l, int t, int r, int b) {
 		final boolean changed = super.setFrame(l, t, r, b);
-		mBounds = new Rect(0, 0, r - l, b - t);
-		mBoundsF = new RectF(mBounds);
+		bounds = new Rect(0, 0, r - l, b - t);
+		boundsF = new RectF(bounds);
 
-		if (mBorderDrawable != null) {
-			mBorderDrawable.setBounds(mBounds);
+		if (borderDrawable != null) {
+			borderDrawable.setBounds(bounds);
 		}
-		if (mMaskDrawable != null) {
-			mMaskDrawable.setBounds(mBounds);
+		if (maskDrawable != null) {
+			maskDrawable.setBounds(bounds);
 		}
 
 		if (changed) {
-			mCacheValid = false;
+			isCacheValid = false;
 		}
 
 		return changed;
@@ -131,46 +131,46 @@ public class BezelImageView extends ImageView {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		if (mBounds == null) {
+		if (bounds == null) {
 			return;
 		}
 
-		int width = mBounds.width();
-		int height = mBounds.height();
+		int width = bounds.width();
+		int height = bounds.height();
 
 		if (width == 0 || height == 0) {
 			return;
 		}
 
-		if (!mCacheValid || width != mCachedWidth || height != mCachedHeight) {
+		if (!isCacheValid || width != cachedWidth || height != cachedHeight) {
 			// Need to redraw the cache
-			if (width == mCachedWidth && height == mCachedHeight) {
+			if (width == cachedWidth && height == cachedHeight) {
 				// Have a correct-sized bitmap cache already allocated. Just erase it.
-				mCacheBitmap.eraseColor(0);
+				cacheBitmap.eraseColor(0);
 			} else {
 				// Allocate a new bitmap with the correct dimensions.
-				mCacheBitmap.recycle();
+				cacheBitmap.recycle();
 				//noinspection AndroidLintDrawAllocation
-				mCacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-				mCachedWidth = width;
-				mCachedHeight = height;
+				cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+				cachedWidth = width;
+				cachedHeight = height;
 			}
 
-			@SuppressLint("DrawAllocation") Canvas cacheCanvas = new Canvas(mCacheBitmap);
-			if (mMaskDrawable != null) {
+			@SuppressLint("DrawAllocation") Canvas cacheCanvas = new Canvas(cacheBitmap);
+			if (maskDrawable != null) {
 				int sc = cacheCanvas.save();
-				mMaskDrawable.draw(cacheCanvas);
-				mMaskedPaint.setColorFilter((mDesaturateOnPress && isPressed())
-					? mDesaturateColorFilter : null);
-				cacheCanvas.saveLayer(mBoundsF, mMaskedPaint,
+				maskDrawable.draw(cacheCanvas);
+				maskedPaint.setColorFilter((shouldDesaturateOnPress && isPressed())
+					? desaturateColorFilter : null);
+				cacheCanvas.saveLayer(boundsF, maskedPaint,
 					Canvas.HAS_ALPHA_LAYER_SAVE_FLAG | Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
 				super.onDraw(cacheCanvas);
 				cacheCanvas.restoreToCount(sc);
-			} else if (mDesaturateOnPress && isPressed()) {
+			} else if (shouldDesaturateOnPress && isPressed()) {
 				int sc = cacheCanvas.save();
-				cacheCanvas.drawRect(0, 0, mCachedWidth, mCachedHeight, mBlackPaint);
-				mMaskedPaint.setColorFilter(mDesaturateColorFilter);
-				cacheCanvas.saveLayer(mBoundsF, mMaskedPaint,
+				cacheCanvas.drawRect(0, 0, cachedWidth, cachedHeight, blackPaint);
+				maskedPaint.setColorFilter(desaturateColorFilter);
+				cacheCanvas.saveLayer(boundsF, maskedPaint,
 					Canvas.HAS_ALPHA_LAYER_SAVE_FLAG | Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
 				super.onDraw(cacheCanvas);
 				cacheCanvas.restoreToCount(sc);
@@ -178,23 +178,23 @@ public class BezelImageView extends ImageView {
 				super.onDraw(cacheCanvas);
 			}
 
-			if (mBorderDrawable != null) {
-				mBorderDrawable.draw(cacheCanvas);
+			if (borderDrawable != null) {
+				borderDrawable.draw(cacheCanvas);
 			}
 		}
 
 		// Draw from cache
-		canvas.drawBitmap(mCacheBitmap, mBounds.left, mBounds.top, null);
+		canvas.drawBitmap(cacheBitmap, bounds.left, bounds.top, null);
 	}
 
 	@Override
 	protected void drawableStateChanged() {
 		super.drawableStateChanged();
-		if (mBorderDrawable != null && mBorderDrawable.isStateful()) {
-			mBorderDrawable.setState(getDrawableState());
+		if (borderDrawable != null && borderDrawable.isStateful()) {
+			borderDrawable.setState(getDrawableState());
 		}
-		if (mMaskDrawable != null && mMaskDrawable.isStateful()) {
-			mMaskDrawable.setState(getDrawableState());
+		if (maskDrawable != null && maskDrawable.isStateful()) {
+			maskDrawable.setState(getDrawableState());
 		}
 		if (isDuplicateParentStateEnabled()) {
 			ViewCompat.postInvalidateOnAnimation(this);
@@ -203,7 +203,7 @@ public class BezelImageView extends ImageView {
 
 	@Override
 	public void invalidateDrawable(@NonNull Drawable who) {
-		if (who == mBorderDrawable || who == mMaskDrawable) {
+		if (who == borderDrawable || who == maskDrawable) {
 			invalidate();
 		} else {
 			super.invalidateDrawable(who);
@@ -212,6 +212,6 @@ public class BezelImageView extends ImageView {
 
 	@Override
 	protected boolean verifyDrawable(@NonNull Drawable who) {
-		return who == mBorderDrawable || who == mMaskDrawable || super.verifyDrawable(who);
+		return who == borderDrawable || who == maskDrawable || super.verifyDrawable(who);
 	}
 }
