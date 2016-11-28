@@ -272,7 +272,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.getTitle());
 							intent.putExtra(ActivityUtils.KEY_ORDER, order);
 							intent.putExtra(ActivityUtils.KEY_NAME, item.getObjectName());
-							intent.putExtra(ActivityUtils.KEY_TYPE, item.getObjectTypeId());
+							intent.putExtra(ActivityUtils.KEY_TYPE, context.getString(item.getObjectTypeResId()));
 							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, item.imageId());
 							intent.putExtra(ActivityUtils.KEY_USERNAME, item.username);
 							intent.putExtra(ActivityUtils.KEY_THUMBS, item.getThumbCount());

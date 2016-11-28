@@ -54,7 +54,7 @@
 
 				<TextView
 					android:id="@+id/order"
-					style="@style/Text.Title.Overlay"
+					style="@style/Text.Headline.Overlay"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					tools:text="1"/>

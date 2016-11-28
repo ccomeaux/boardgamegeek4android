@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
-	private String order;
+	private int order;
 	private String title;
 	private String type;
 	private int imageId;
@@ -78,7 +78,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		order = intent.getStringExtra(ActivityUtils.KEY_ORDER);
+		order = intent.getIntExtra(ActivityUtils.KEY_ORDER, 0);
 		title = intent.getStringExtra(ActivityUtils.KEY_NAME);
 		type = intent.getStringExtra(ActivityUtils.KEY_TYPE);
 		imageId = intent.getIntExtra(ActivityUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
@@ -102,7 +102,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 			vto.addOnGlobalLayoutListener(globalLayoutListener);
 		}
 
-		orderView.setText(order);
+		orderView.setText(String.valueOf(order));
 		titleView.setText(title);
 		typeView.setText(type);
 		ImageUtils.safelyLoadImage(imageView, imageId, this);

@@ -45,7 +45,7 @@ public class GeekListItem {
 
 	@Attribute private String objecttype;
 
-	public int getObjectTypeId() {
+	public int getObjectTypeResId() {
 		if (objecttype == null) {
 			return 0;
 		}
