@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,7 +44,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 	private GeekListRecyclerViewAdapter adapter;
 
 	Unbinder unbinder;
-	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
@@ -99,19 +100,19 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 		}
 
 		if (data == null) {
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else if (data.hasParseError()) {
 			emptyView.setText(R.string.parse_error);
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else if (data.hasError()) {
 			emptyView.setText(data.getErrorMessage());
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else {
-			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+			AnimationUtils.fadeIn(recyclerView, isResumed());
 		}
-		AnimationUtils.fadeOut(progressView);
+		progressView.hide();
 	}
 
 	@Override
