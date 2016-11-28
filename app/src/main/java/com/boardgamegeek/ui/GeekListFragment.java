@@ -242,7 +242,6 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 			@BindView(R.id.thumbnail) ImageView thumbnailView;
 			@BindView(R.id.game_name) TextView itemNameView;
 			@BindView(R.id.username) TextView usernameView;
-			@BindView(R.id.type) TextView typeView;
 
 			public GeekListItemViewHolder(View itemView) {
 				super(itemView);
@@ -257,11 +256,12 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				orderView.setText(String.valueOf(order));
 				ImageUtils.loadThumbnail(item.imageId(), thumbnailView);
 				itemNameView.setText(item.getObjectName());
-				int objectTypeId = item.getObjectTypeId();
-				if (objectTypeId != 0) {
-					typeView.setText(objectTypeId);
+				if (item.username.equals(geekList.getUsername())) {
+					usernameView.setVisibility(View.GONE);
+				} else {
+					usernameView.setText(item.username);
+					usernameView.setVisibility(View.VISIBLE);
 				}
-				usernameView.setText(context.getString(R.string.by_prefix, item.username));
 
 				itemView.setOnClickListener(new OnClickListener() {
 					@Override
