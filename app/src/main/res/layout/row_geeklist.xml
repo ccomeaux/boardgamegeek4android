@@ -58,5 +58,4 @@
 			android:drawableLeft="@drawable/ic_thumbs_small"
 			tools:text="13"/>
 	</LinearLayout>
-
 </LinearLayout>
