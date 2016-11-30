@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Coming Soon
+-----------
+ * Avoid crashes when viewing some threads
+ * Bug fixes
+
 Version 6.1.6
 -------------
  * Second attempt to fix crash when viewing a play with players
