@@ -67,7 +67,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 
 			usernameView.setText(article.username);
 			editDateView.setTimestamp(article.editDate());
-			UIUtils.setTextMaybeHtml(bodyView, article.body);
+			UIUtils.setTextMaybeHtml(bodyView, article.body.trim());
 			Bundle bundle = new Bundle();
 			bundle.putString(ActivityUtils.KEY_USER, article.username);
 			bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postDate());
