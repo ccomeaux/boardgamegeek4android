@@ -53,10 +53,11 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@BindView(R.id.title) TextView titleView;
 	@BindView(R.id.type) TextView typeView;
 	@BindView(R.id.image) ImageView imageView;
-	@BindView(R.id.author_container) View authorContainer;
+	@BindView(R.id.byline_container) View bylineContainer;
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.thumbs) TextView thumbsView;
 	@BindView(R.id.posted_date) TimestampView postedDateView;
+	@BindView(R.id.datetime_divider) View datetimeDividerView;
 	@BindView(R.id.edited_date) TimestampView editedDateView;
 	@BindView(R.id.body) WebView bodyView;
 	@BindViews({
@@ -107,12 +108,18 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		typeView.setText(type);
 		ImageUtils.safelyLoadImage(imageView, imageId, this);
 		usernameView.setText(username);
-		thumbsView.setText(getString(R.string.thumbs_suffix, numberOfThumbs));
+		thumbsView.setText(String.valueOf(numberOfThumbs));
 		String content = xmlConverter.toHtml(body);
 		UIUtils.setWebViewText(bodyView, content);
 		postedDateView.setTimestamp(postedDate);
-		editedDateView.setTimestamp(editedDate);
-
+		if (editedDate == postedDate) {
+			editedDateView.setVisibility(View.GONE);
+			datetimeDividerView.setVisibility(View.GONE);
+		} else {
+			editedDateView.setVisibility(View.VISIBLE);
+			datetimeDividerView.setVisibility(View.VISIBLE);
+			editedDateView.setTimestamp(editedDate);
+		}
 		return rootView;
 	}
 
@@ -155,8 +162,8 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	}
 
 	private void applySwatch() {
-		if (authorContainer != null && swatch != null) {
-			authorContainer.setBackgroundColor(swatch.getRgb());
+		if (bylineContainer != null && swatch != null) {
+			bylineContainer.setBackgroundColor(swatch.getRgb());
 			ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		}
 	}

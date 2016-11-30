@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:app="http://schemas.android.com/apk/res-auto"
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
@@ -63,63 +62,73 @@
 		</LinearLayout>
 	</FrameLayout>
 
-	<LinearLayout
-		android:id="@+id/author_container"
-		style="@style/GeekListInfoBar"
+	<HorizontalScrollView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:fillViewport="true">
 
 		<LinearLayout
+			android:id="@+id/byline_container"
+			style="@style/GeekListInfoBar"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="bottom"
 			android:orientation="horizontal">
 
 			<TextView
 				android:id="@+id/username"
-				style="@style/Text"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:maxLines="1"
-				tools:text="by ccomeaux"/>
-
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/posted_date"
-				style="@style/Text.Footnote"
+				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				app:format="@string/posted_prefix"
-				tools:text="Posted Yesterday"/>
-		</LinearLayout>
+				android:drawableLeft="@drawable/ic_user_small"
+				tools:text="ccomeaux"/>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="top"
-			android:gravity="top"
-			android:orientation="horizontal">
+			<View
+				android:layout_width="1dp"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="@dimen/padding_standard"
+				android:layout_marginRight="@dimen/padding_standard"
+				android:background="@color/list_divider"/>
 
 			<TextView
 				android:id="@+id/thumbs"
-				style="@style/Text"
-				android:layout_width="0dp"
+				style="@style/TextWithImage.Secondary"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:maxLines="1"
-				tools:text="3 thumbs"/>
+				android:drawableLeft="@drawable/ic_thumbs_small"
+				tools:text="13"/>
+
+			<View
+				android:layout_width="1dp"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="@dimen/padding_standard"
+				android:layout_marginRight="@dimen/padding_standard"
+				android:background="@color/list_divider"/>
+
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/posted_date"
+				style="@style/TextWithImage.Secondary"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_clock_small"
+				tools:text="Yesterday"/>
+
+			<View
+				android:id="@+id/datetime_divider"
+				android:layout_width="1dp"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="@dimen/padding_standard"
+				android:layout_marginRight="@dimen/padding_standard"
+				android:background="@color/list_divider"/>
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/edited_date"
-				style="@style/Text.Footnote"
+				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				app:format="@string/edited_prefix"
-				tools:text="Edited Today"/>
+				android:drawableLeft="@drawable/ic_edit_small"
+				tools:text="2 hours ago"/>
 		</LinearLayout>
-	</LinearLayout>
+	</HorizontalScrollView>
 
 	<FrameLayout style="@style/WebViewContainer">
 
