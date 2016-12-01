@@ -250,6 +250,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 				removeAccount(context, am, account);
 			}
 		}
+		AccountUtils.clearFields(context);
 	}
 
 	@NonNull
