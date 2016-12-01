@@ -407,14 +407,26 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void onPrivateInfoClick() {
 		ensurePrivateInfoDialogFragment();
 		privateInfoDialogFragment.setPriceCurrency(String.valueOf(privateInfo.getTag(R.id.price_currency)));
-		privateInfoDialogFragment.setPrice((double) privateInfo.getTag(R.id.price));
+		privateInfoDialogFragment.setPrice(getDoubleFromTag(privateInfo, R.id.price));
 		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(privateInfo.getTag(R.id.current_value_currency)));
-		privateInfoDialogFragment.setCurrentValue((double) privateInfo.getTag(R.id.current_value));
-		privateInfoDialogFragment.setQuantity((int) privateInfo.getTag(R.id.quantity));
+		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(privateInfo, R.id.current_value));
+		privateInfoDialogFragment.setQuantity(getIntFromTag(privateInfo, R.id.quantity));
 		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(privateInfo.getTag(R.id.acquisition_date)));
 		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(privateInfo.getTag(R.id.acquired_from)));
 		privateInfoDialogFragment.setComment(privateInfoComments.getText().toString());
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
+	}
+
+	private double getDoubleFromTag(View textView, int key) {
+		final Object tag = textView.getTag(key);
+		if (tag == null) return 0.0;
+		return (double) tag;
+	}
+
+	private int getIntFromTag(View textView, int key) {
+		final Object tag = textView.getTag(key);
+		if (tag == null) return 1;
+		return (int) tag;
 	}
 
 	@DebugLog
