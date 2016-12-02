@@ -13,7 +13,6 @@
 		android:layout_gravity="center"
 		android:gravity="center"/>
 
-
 	<TextView
 		android:id="@android:id/empty"
 		style="@style/EmptyMessage"

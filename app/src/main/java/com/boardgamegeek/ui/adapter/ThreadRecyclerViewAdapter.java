@@ -47,7 +47,17 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 
 	@Override
 	public long getItemId(int position) {
-		return position;
+		Article article = articles.get(position);
+		if (article == null) return RecyclerView.NO_ID;
+		return (long) article.id;
+	}
+
+	public int getPosition(int articleId) {
+		if (articles == null) return RecyclerView.NO_POSITION;
+		for (int i = 0; i < articles.size(); i++) {
+			if (articles.get(i).id == articleId) return i;
+		}
+		return RecyclerView.NO_POSITION;
 	}
 
 	public class ArticleViewHolder extends RecyclerView.ViewHolder {

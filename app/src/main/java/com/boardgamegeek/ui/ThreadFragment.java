@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +33,7 @@ import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
@@ -50,6 +52,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	private ThreadRecyclerViewAdapter adapter;
 	private int threadId;
 	private ShowcaseView showcaseView;
+	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
 
 	Unbinder unbinder;
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
@@ -79,6 +82,17 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(LOADER_ID, null, this);
+
+		latestArticleId = PreferencesUtils.getThreadArticle(getContext(), threadId);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		if (latestArticleId != PreferencesUtils.INVALID_ARTICLE_ID) {
+			PreferencesUtils.putThreadArticle(getContext(), threadId, latestArticleId);
+		}
 	}
 
 	@Override
@@ -89,8 +103,18 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.help, menu);
+		inflater.inflate(R.menu.thread, menu);
 		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.menu_scroll_last).setVisible(
+			latestArticleId != PreferencesUtils.INVALID_ARTICLE_ID &&
+				adapter != null &&
+				adapter.getItemCount() > 0);
+		menu.findItem(R.id.menu_scroll_bottom).setVisible(adapter != null && adapter.getItemCount() > 0);
 	}
 
 	@Override
@@ -99,8 +123,25 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			case R.id.menu_help:
 				showHelp();
 				return true;
+			case R.id.menu_scroll_last:
+				scrollToLatestArticle();
+				return true;
+			case R.id.menu_scroll_bottom:
+				scrollToBottom();
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void scrollToLatestArticle() {
+		if (latestArticleId != PreferencesUtils.INVALID_ARTICLE_ID) {
+			int position = adapter.getPosition(latestArticleId);
+			if (position != RecyclerView.NO_POSITION) recyclerView.smoothScrollToPosition(position);
+		}
+	}
+
+	private void scrollToBottom() {
+		recyclerView.scrollToPosition(adapter.getItemCount() - 1);
 	}
 
 	@DebugLog
@@ -108,8 +149,20 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
-
 		recyclerView.setHasFixedSize(true);
+		recyclerView.addOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+				int position = layoutManager.findLastCompletelyVisibleItemPosition();
+				if (position != RecyclerView.NO_POSITION) {
+					long articleId = adapter.getItemId(position);
+					if (articleId > latestArticleId) {
+						latestArticleId = (int) articleId;
+					}
+				}
+			}
+		});
 	}
 
 	@DebugLog
@@ -173,6 +226,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			maybeShowHelp();
 		}
 		progressView.hide();
+
+		getActivity().invalidateOptionsMenu();
 	}
 
 	@DebugLog

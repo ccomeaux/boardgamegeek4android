@@ -339,6 +339,8 @@
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
 	<string name="menu_add_username">Add username</string>
+	<string name="menu_scroll_to_last_read">Scroll to last read</string>
+	<string name="menu_scroll_to_bottom">Scroll to bottom</string>
 	<string name="sort_description">by %s</string>
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
