@@ -4,6 +4,7 @@ Release Notes
 Coming Soon
 -----------
  * Top 100 Games
+ * While reading a thread, you can now scroll to the bottom of the list or to the last read article.
  * Avoid crashes/freezes when adding new collection items
  * Avoid crashes when viewing some threads
  * Bug fixes
