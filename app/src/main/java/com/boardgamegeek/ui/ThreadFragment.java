@@ -49,9 +49,11 @@ import hugo.weaving.DebugLog;
 public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<ThreadResponse>> {
 	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 103;
+	private static final int SMOOTH_SCROLL_THRESHOLD = 10;
 	private ThreadRecyclerViewAdapter adapter;
 	private int threadId;
 	private ShowcaseView showcaseView;
+	private int currentAdapterPosition = 0;
 	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
 
 	Unbinder unbinder;
@@ -135,13 +137,23 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	private void scrollToLatestArticle() {
 		if (latestArticleId != PreferencesUtils.INVALID_ARTICLE_ID) {
-			int position = adapter.getPosition(latestArticleId);
-			if (position != RecyclerView.NO_POSITION) recyclerView.smoothScrollToPosition(position);
+			scrollToPosition(adapter.getPosition(latestArticleId));
 		}
 	}
 
 	private void scrollToBottom() {
-		recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+		scrollToPosition(adapter.getItemCount() - 1);
+	}
+
+	private void scrollToPosition(int position) {
+		if (position != RecyclerView.NO_POSITION) {
+			int difference = Math.abs(currentAdapterPosition - position);
+			if (difference <= SMOOTH_SCROLL_THRESHOLD) {
+				recyclerView.smoothScrollToPosition(position);
+			} else {
+				recyclerView.scrollToPosition(position);
+			}
+		}
 	}
 
 	@DebugLog
@@ -154,11 +166,11 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			@Override
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
-				int position = layoutManager.findLastCompletelyVisibleItemPosition();
-				if (position != RecyclerView.NO_POSITION) {
-					long articleId = adapter.getItemId(position);
-					if (articleId > latestArticleId) {
-						latestArticleId = (int) articleId;
+				currentAdapterPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+				if (currentAdapterPosition != RecyclerView.NO_POSITION) {
+					long currentArticleId = adapter.getItemId(currentAdapterPosition);
+					if (currentArticleId > latestArticleId) {
+						latestArticleId = (int) currentArticleId;
 					}
 				}
 			}
