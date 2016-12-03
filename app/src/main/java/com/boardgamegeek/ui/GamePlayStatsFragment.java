@@ -864,7 +864,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private PlayerStats getPersonalStats() {
 			String username = AccountUtils.getUsername(getActivity());
 			for (Entry<String, PlayerStats> ps : stats.getPlayerStats()) {
-				if (username != null && username.equals(ps.getValue().getUsername())) {
+				if (username != null && username.equalsIgnoreCase(ps.getValue().getUsername())) {
 					return ps.getValue();
 				}
 			}
