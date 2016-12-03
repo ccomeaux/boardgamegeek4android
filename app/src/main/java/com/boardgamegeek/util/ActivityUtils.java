@@ -81,6 +81,9 @@ public class ActivityUtils {
 	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
+	public static final String LINK_AMAZON_COM = "www.amazon.com";
+	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";
+	public static final String LINK_AMAZON_DE = "www.amazon.de";
 	private static final String BOARDGAME_PATH = "boardgame";
 	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
 
@@ -271,11 +274,11 @@ public class ActivityUtils {
 		link(context, "http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName));
 	}
 
-	public static void linkAmazon(Context context, String gameName) {
+	public static void linkAmazon(Context context, String gameName, String domain) {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://www.amazon.com/gp/aw/s/?i=toys-and-games&keywords=" + HttpUtils.encode(gameName));
+		link(context, String.format("http://%s/gp/aw/s/?i=toys&keywords=%s", domain, HttpUtils.encode(gameName)));
 	}
 
 	public static void linkEbay(Context context, String gameName) {
