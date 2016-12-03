@@ -67,6 +67,15 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
+
+		<activity
+			android:name=".ui.TopGamesActivity"
+			android:label="@string/title_top_games">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="true"
