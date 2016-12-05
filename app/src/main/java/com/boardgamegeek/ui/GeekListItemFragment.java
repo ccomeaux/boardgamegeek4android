@@ -34,6 +34,7 @@ import butterknife.Unbinder;
 
 public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
 	private int order;
+	private String geekListTitle;
 	private String title;
 	private String type;
 	private int imageId;
@@ -50,6 +51,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@BindView(R.id.hero_container) View heroContainer;
 	@BindView(R.id.header_container) View headerContainer;
 	@BindView(R.id.order) TextView orderView;
+	@BindView(R.id.list_title) TextView geekListTitleView;
 	@BindView(R.id.title) TextView titleView;
 	@BindView(R.id.type) TextView typeView;
 	@BindView(R.id.image) ImageView imageView;
@@ -61,7 +63,10 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@BindView(R.id.edited_date) TimestampView editedDateView;
 	@BindView(R.id.body) WebView bodyView;
 	@BindViews({
+		R.id.order,
+		R.id.list_title,
 		R.id.username,
+		R.id.type,
 		R.id.thumbs,
 		R.id.posted_date,
 		R.id.edited_date
@@ -80,6 +85,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		super.onCreate(savedInstanceState);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		order = intent.getIntExtra(ActivityUtils.KEY_ORDER, 0);
+		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
 		title = intent.getStringExtra(ActivityUtils.KEY_NAME);
 		type = intent.getStringExtra(ActivityUtils.KEY_TYPE);
 		imageId = intent.getIntExtra(ActivityUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
@@ -104,6 +110,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		}
 
 		orderView.setText(String.valueOf(order));
+		geekListTitleView.setText(geekListTitle);
 		titleView.setText(title);
 		typeView.setText(type);
 		ImageUtils.safelyLoadImage(imageView, imageId, this);
@@ -162,8 +169,8 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	}
 
 	private void applySwatch() {
-		if (bylineContainer != null && swatch != null) {
-			bylineContainer.setBackgroundColor(swatch.getRgb());
+		if (swatch != null) {
+			if (bylineContainer != null) bylineContainer.setBackgroundColor(swatch.getRgb());
 			ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 		}
 	}
