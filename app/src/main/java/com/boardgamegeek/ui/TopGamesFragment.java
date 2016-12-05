@@ -103,7 +103,7 @@ public class TopGamesFragment extends Fragment {
                 game.id = getGameIdFromLink(link.attr("href"));
                 game.rank = rank;
                 game.yearPublished = 2016;
-                game.thumbnailUrl = link.child(0).attr("src");
+                game.thumbnailUrl = link.child(0).attr("src").replaceAll("\\_mt\\.", "_t.");
 
                 Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
                 game.name = gameNameElement.child(0).text();
