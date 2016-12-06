@@ -842,7 +842,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_ebay })
+	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_amazon_uk, R.id.link_amazon_de, R.id.link_ebay })
 	void onLinkClick(View view) {
 		switch (view.getId()) {
 			case R.id.link_bgg:
@@ -852,7 +852,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				ActivityUtils.linkBgPrices(getActivity(), gameName);
 				break;
 			case R.id.link_amazon:
-				ActivityUtils.linkAmazon(getActivity(), gameName);
+				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_COM);
+				break;
+			case R.id.link_amazon_uk:
+				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_UK);
+				break;
+			case R.id.link_amazon_de:
+				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_DE);
 				break;
 			case R.id.link_ebay:
 				ActivityUtils.linkEbay(getActivity(), gameName);

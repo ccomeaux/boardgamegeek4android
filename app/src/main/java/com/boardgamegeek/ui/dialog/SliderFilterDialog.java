@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.StringRes;
@@ -31,7 +32,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
+		@SuppressLint("InflateParams") View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
 		ButterKnife.bind(this, layout);
 
 		InitialValues initialValues = initValues(filter);
@@ -40,6 +41,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 		initSlider();
 
+		//noinspection ResourceType
 		checkBox.setVisibility(getCheckboxVisibility());
 		checkBox.setText(getCheckboxTextId());
 		checkBox.setChecked(initialValues.isChecked);
@@ -119,8 +121,8 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		}
 	}
 
-	private void updateRange(int leftPinIndex, int rightIndex) {
-		rangeBar.setRangePinsByIndices(leftPinIndex, rightIndex);
+	private void updateRange(int leftPinIndex, int rightPinIndex) {
+		rangeBar.setRangePinsByIndices(leftPinIndex, rightPinIndex);
 		// HACK to make the pins remain visible
 		rangeBar.setLeft(rangeBar.getLeft() + 1);
 	}
