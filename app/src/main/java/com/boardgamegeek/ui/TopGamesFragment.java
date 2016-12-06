@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -32,105 +33,99 @@ import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class TopGamesFragment extends Fragment {
-    Unbinder unbinder;
+	Unbinder unbinder;
+	TopGamesAdapter adapter;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-    @BindView(android.R.id.progress)
-    View progressView;
-    @BindView(android.R.id.empty)
-    TextView emptyView;
-    @BindView(android.R.id.list)
-    RecyclerView recyclerView;
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_top_games, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
+		setUpRecyclerView();
+		loadTopGames();
+		return rootView;
+	}
 
-    TopGamesAdapter adapter;
+	private void setUpRecyclerView() {
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+		recyclerView.setHasFixedSize(true);
+	}
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_top_games, container, false);
-        unbinder = ButterKnife.bind(this, rootView);
-        setUpRecyclerView();
-        loadTopGames();
-        return rootView;
-    }
+	private void loadTopGames() {
+		Single
+			.create(new Single.OnSubscribe<List<TopGame>>() {
+				@Override
+				public void call(SingleSubscriber<? super List<TopGame>> singleSubscriber) {
+					List<TopGame> topGames = findTopGames();
+					singleSubscriber.onSuccess(topGames);
+				}
+			})
+			.subscribeOn(Schedulers.io())
+			.observeOn(AndroidSchedulers.mainThread())
+			.subscribe(new SingleSubscriber<List<TopGame>>() {
+				@Override
+				public void onSuccess(List<TopGame> topGames) {
+					if (topGames.isEmpty()) {
+						AnimationUtils.fadeIn(emptyView);
+					} else {
+						adapter = new TopGamesAdapter(topGames);
+						recyclerView.setAdapter(adapter);
+						AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+					}
+					progressView.hide();
+				}
 
-    private void setUpRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-    }
+				@Override
+				public void onError(Throwable error) {
+					Timber.e(error, "Error loading top games");
+					AnimationUtils.fadeIn(emptyView);
+					progressView.hide();
+				}
+			});
+	}
 
-    private void loadTopGames() {
-        Single.create(new Single.OnSubscribe<List<TopGame>>() {
-            @Override
-            public void call(SingleSubscriber<? super List<TopGame>> singleSubscriber) {
-                List<TopGame> topGames = findTopGames();
-                singleSubscriber.onSuccess(topGames);
-            }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleSubscriber<List<TopGame>>() {
-                    @Override
-                    public void onSuccess(List<TopGame> topGames) {
-                        if (topGames.isEmpty()) {
-                            AnimationUtils.fadeIn(emptyView);
-                        } else {
-                            adapter = new TopGamesAdapter(topGames);
-                            recyclerView.setAdapter(adapter);
-                            AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
-                        }
+	private List<TopGame> findTopGames() {
+		List<TopGame> topGames = new ArrayList<>();
 
-                        AnimationUtils.fadeOut(progressView);
-                    }
+		try {
+			int rank = 1;
+			Document doc = Jsoup.connect("https://www.boardgamegeek.com/browse/boardgame").get();
+			Elements gameElements = doc.select("td.collection_thumbnail");
+			for (Element element : gameElements) {
+				TopGame game = new TopGame();
+				Element link = element.getElementsByTag("a").first();
+				game.id = getGameIdFromLink(link.attr("href"));
+				game.rank = rank;
+				game.yearPublished = 0;
+				game.thumbnailUrl = link.child(0).attr("src").replaceAll("_mt\\.", "_t.");
 
-                    @Override
-                    public void onError(Throwable error) {
-                        Timber.e(error, "Error loading top games");
+				Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
+				game.name = gameNameElement.child(0).text();
+				String yearPublishedText = gameNameElement.child(1).text();
+				game.yearPublished = Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1));
 
-                        AnimationUtils.fadeIn(emptyView);
-                        AnimationUtils.fadeOut(progressView);
-                    }
-                });
-    }
+				topGames.add(game);
+				rank++;
+			}
+		} catch (Throwable t) {
+			Timber.e(t, "Error loading top games");
+		}
 
-    private List<TopGame> findTopGames() {
-        List<TopGame> topGames = new ArrayList<>();
+		return topGames;
+	}
 
-        try {
-            int rank = 1;
-            Document doc = Jsoup.connect("https://www.boardgamegeek.com/browse/boardgame").get();
-            Elements gameElements = doc.select("td.collection_thumbnail");
-            for (Element element : gameElements) {
-                TopGame game = new TopGame();
-                Element link = element.getElementsByTag("a").first();
-                game.id = getGameIdFromLink(link.attr("href"));
-                game.rank = rank;
-                game.yearPublished = 2016;
-                game.thumbnailUrl = link.child(0).attr("src").replaceAll("\\_mt\\.", "_t.");
-
-                Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
-                game.name = gameNameElement.child(0).text();
-                String yearPublishedText = gameNameElement.child(1).text();
-                game.yearPublished = Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1));
-
-                topGames.add(game);
-                rank++;
-            }
-        } catch (Throwable t) {
-            Timber.e(t, "Error loading top games");
-            return topGames;
-        }
-
-        return topGames;
-    }
-
-    private int getGameIdFromLink(String href) {
-        int boardGameIndex = href.indexOf("/boardgame/");
-        String afterBoardGameString;
-        if (boardGameIndex != -1) {
-            afterBoardGameString = href.substring(boardGameIndex + 11);
-        } else {
-            int boardGameExpansionIndex = href.indexOf("/boardgameexpansion/");
-            afterBoardGameString = href.substring(boardGameExpansionIndex + 20);
-        }
-        int slashIndex = afterBoardGameString.indexOf("/");
-        return Integer.parseInt(afterBoardGameString.substring(0, slashIndex));
-    }
+	private int getGameIdFromLink(String href) {
+		int boardGameIndex = href.indexOf("/boardgame/");
+		String afterBoardGameString;
+		if (boardGameIndex != -1) {
+			afterBoardGameString = href.substring(boardGameIndex + 11);
+		} else {
+			int boardGameExpansionIndex = href.indexOf("/boardgameexpansion/");
+			afterBoardGameString = href.substring(boardGameExpansionIndex + 20);
+		}
+		int slashIndex = afterBoardGameString.indexOf("/");
+		return Integer.parseInt(afterBoardGameString.substring(0, slashIndex));
+	}
 }
