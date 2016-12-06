@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
+ * Top 100 Games
  * Avoid crashes when viewing some threads
  * Bug fixes
 
