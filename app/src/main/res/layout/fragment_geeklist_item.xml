@@ -126,7 +126,7 @@
 
 	<FrameLayout style="@style/WebViewContainer">
 
-		<WebView
+		<com.boardgamegeek.ui.widget.NestedScrollWebView
 			android:id="@+id/body"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"/>
