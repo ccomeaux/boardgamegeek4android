@@ -152,8 +152,6 @@
 
 	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
 
-	<style name="Text.Display2" parent="@style/TextAppearance.AppCompat.Display2"/>
-
 	<style name="Text.Label">
 		<item name="android:paddingTop">@dimen/padding_standard</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>

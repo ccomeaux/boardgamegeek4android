@@ -15,7 +15,7 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center_vertical"
+			android:gravity="center"
 			android:orientation="horizontal">
 
 			<TextView
@@ -24,19 +24,19 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:minWidth="48dp"
-				android:textAppearance="@style/Text.Display2"
+				android:textAppearance="@style/Text.Headline"
 				tools:text="1"/>
 
 			<TextView
 				android:id="@+id/list_title"
-				style="@style/Text.Title"
+				style="@style/Text.Primary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:ellipsize="end"
 				android:gravity="center_vertical"
 				android:maxLines="2"
-				android:minHeight="72dp"
+				android:minHeight="40dp"
 				tools:text="This is a GeekList title"/>
 		</LinearLayout>
 
@@ -44,7 +44,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"
-			android:minHeight="32dp"
+			android:minHeight="24dp"
 			android:orientation="horizontal">
 
 			<TextView
@@ -77,7 +77,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"
-			android:minHeight="32dp"
+			android:minHeight="24dp"
 			android:orientation="horizontal">
 
 			<TextView
