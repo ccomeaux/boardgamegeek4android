@@ -3,21 +3,20 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.graphics.Palette;
-import android.support.v7.graphics.Palette.Swatch;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
-public class GeekListItemActivity extends HeroActivity implements ImageUtils.Callback {
+public class GeekListItemActivity extends HeroTabActivity {
 	private int geekListId;
 	private String geekListTitle;
 	private int objectId;
@@ -48,12 +47,7 @@ public class GeekListItemActivity extends HeroActivity implements ImageUtils.Cal
 		}
 
 		ScrimUtils.applyInvertedScrim(scrimView);
-		ImageUtils.safelyLoadImage(toolbarImage, imageId, this);
-	}
-
-	@Override
-	protected Fragment onCreatePane() {
-		return new GeekListItemFragment();
+		ImageUtils.safelyLoadImage(toolbarImage, imageId, null);
 	}
 
 	@Override
@@ -88,17 +82,43 @@ public class GeekListItemActivity extends HeroActivity implements ImageUtils.Cal
 	}
 
 	@Override
-	protected boolean isRefreshable() {
-		return false;
+	protected void setUpViewPager() {
+		GeekListItemPagerAdapter adapter = new GeekListItemPagerAdapter(getSupportFragmentManager());
+		viewPager.setAdapter(adapter);
 	}
 
-	@Override
-	public void onSuccessfulImageLoad(Palette palette) {
-		Swatch swatch = PaletteUtils.getInverseSwatch(palette, ContextCompat.getColor(this, R.color.info_background));
-		((GeekListItemFragment) getFragment()).setSwatch(swatch);
-	}
+	private final class GeekListItemPagerAdapter extends FragmentPagerAdapter {
+		public GeekListItemPagerAdapter(FragmentManager fragmentManager) {
+			super(fragmentManager);
+		}
 
-	@Override
-	public void onFailedImageLoad() {
+		@Override
+		public CharSequence getPageTitle(int position) {
+			if (position == 0) return getString(R.string.title_description);
+			if (position == 1) return getString(R.string.title_comments);
+			return "";
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			if (position == 0) {
+				return Fragment.instantiate(
+					GeekListItemActivity.this,
+					GeekListItemFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+			}
+			if (position == 1) {
+				return Fragment.instantiate(
+					GeekListItemActivity.this,
+					GeekListCommentsFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+			}
+			return null;
+		}
+
+		@Override
+		public int getCount() {
+			return 2;
+		}
 	}
 }

@@ -46,7 +46,7 @@ public class GeekListComment implements Parcelable {
 		return editDateTime;
 	}
 
-	public int getThumbs() {
+	public int getNumberOfThumbs() {
 		return StringUtils.parseInt(thumbs);
 	}
 
@@ -55,7 +55,7 @@ public class GeekListComment implements Parcelable {
 	}
 
 	public String getContent() {
-		return content;
+		return content.trim();
 	}
 
 	@Override

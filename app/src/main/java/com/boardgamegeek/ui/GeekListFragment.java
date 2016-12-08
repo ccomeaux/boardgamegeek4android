@@ -131,7 +131,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 		@Override
 		public SafeResponse<GeekList> loadInBackground() {
-			return new SafeResponse<>(service.geekList(geekListId, 0));
+			return new SafeResponse<>(service.geekList(geekListId, 1));
 		}
 	}
 
@@ -282,6 +282,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 							intent.putExtra(ActivityUtils.KEY_OBJECT_URL, item.getObjectUrl());
 							intent.putExtra(ActivityUtils.KEY_OBJECT_ID, item.getObjectId());
 							intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, item.isBoardGame());
+							intent.putParcelableArrayListExtra(ActivityUtils.KEY_COMMENTS, item.getComments());
 							context.startActivity(intent);
 						}
 					}

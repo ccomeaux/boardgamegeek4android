@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -36,7 +37,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	@BindView(R.id.drawer_container) View drawerListContainer;
 	@BindView(R.id.left_drawer) LinearLayout drawerList;
 	@BindView(R.id.toolbar) Toolbar toolbar;
-	@BindView(R.id.root_container) ViewGroup rootContainer;
+	@Nullable @BindView(R.id.root_container) ViewGroup rootContainer;
 
 	protected int getDrawerResId() {
 		return 0;

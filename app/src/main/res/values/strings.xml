@@ -541,6 +541,7 @@
 	<string name="collection_status_wishlist">Wishlist</string>
 	<string name="empty_top_games">Error loading top games</string>
 	<string name="title_top_games">Top Games</string>
+	<string name="title_description">Description</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
