@@ -13,6 +13,7 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,67 +23,61 @@ public class GeekList implements Parcelable {
 	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
 	private long editDateTime = DateTimeUtils.UNPARSED_DATE;
 
+	@SuppressWarnings("unused")
 	public GeekList() {
 	}
 
 	@Attribute private int id;
+	@Element private String postdate;
+	@Element private String editdate;
+	@Element(name = "postdate_timestamp") private String postdateTimestamp;
+	@Element(name = "editdate_timestamp") private String editdateTimestamp;
+	@Element private String thumbs;
+	@Element private String numitems;
+	@Element private String username;
+	@Element private String title;
+	@Element private String description;
+	@ElementList(name = "comment", inline = true, required = false) private ArrayList<GeekListComment> comments;
+	@ElementList(name = "item", inline = true, required = false) private List<GeekListItem> items;
 
 	public int getId() {
 		return id;
 	}
-
-	@Element private String postdate;
-
-	@Element(name = "postdate_timestamp") private String postdateTimestamp;
 
 	public long getPostDate() {
 		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);
 		return postDateTime;
 	}
 
-	@Element private String editdate;
-
-	@Element(name = "editdate_timestamp") private String editdateTimestamp;
-
 	public long getEditDate() {
 		editDateTime = DateTimeUtils.tryParseDate(editDateTime, editdate, FORMAT);
 		return editDateTime;
 	}
 
-	@Element private String thumbs;
-
 	public int getThumbs() {
 		return StringUtils.parseInt(thumbs);
 	}
-
-	@Element private String numitems;
 
 	public int getNumberOfItems() {
 		return StringUtils.parseInt(numitems);
 	}
 
-	@Element private String username;
-
 	public String getUsername() {
 		return username;
 	}
-
-	@Element private String title;
 
 	public String getTitle() {
 		if (TextUtils.isEmpty(title)) return "";
 		return title.trim();
 	}
 
-	@Element private String description;
-
 	public String getDescription() {
 		return description;
 	}
 
-	@ElementList(name = "comment", inline = true, required = false) private List<GeekListComment> comments;
-
-	@ElementList(name = "item", inline = true, required = false) private List<GeekListItem> items;
+	public ArrayList<GeekListComment> getComments() {
+		return comments;
+	}
 
 	public List<GeekListItem> getItems() {
 		return items;

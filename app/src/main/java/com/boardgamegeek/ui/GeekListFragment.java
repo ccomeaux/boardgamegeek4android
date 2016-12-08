@@ -256,10 +256,10 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 				orderView.setText(String.valueOf(order));
 				ImageUtils.loadThumbnail(item.imageId(), thumbnailView);
 				itemNameView.setText(item.getObjectName());
-				if (item.username.equals(geekList.getUsername())) {
+				if (item.getUsername().equals(geekList.getUsername())) {
 					usernameView.setVisibility(View.GONE);
 				} else {
-					usernameView.setText(item.username);
+					usernameView.setText(item.getUsername());
 					usernameView.setVisibility(View.VISIBLE);
 				}
 
@@ -274,11 +274,11 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 							intent.putExtra(ActivityUtils.KEY_NAME, item.getObjectName());
 							intent.putExtra(ActivityUtils.KEY_TYPE, context.getString(item.getObjectTypeResId()));
 							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, item.imageId());
-							intent.putExtra(ActivityUtils.KEY_USERNAME, item.username);
+							intent.putExtra(ActivityUtils.KEY_USERNAME, item.getUsername());
 							intent.putExtra(ActivityUtils.KEY_THUMBS, item.getThumbCount());
 							intent.putExtra(ActivityUtils.KEY_POSTED_DATE, item.getPostDate());
 							intent.putExtra(ActivityUtils.KEY_EDITED_DATE, item.getEditDate());
-							intent.putExtra(ActivityUtils.KEY_BODY, item.body);
+							intent.putExtra(ActivityUtils.KEY_BODY, item.getBody());
 							intent.putExtra(ActivityUtils.KEY_OBJECT_URL, item.getObjectUrl());
 							intent.putExtra(ActivityUtils.KEY_OBJECT_ID, item.getObjectId());
 							intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, item.isBoardGame());
