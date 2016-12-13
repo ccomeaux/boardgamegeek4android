@@ -224,13 +224,13 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			final List<Article> articles = new ArrayList<>(apiArticles.size());
 			for (com.boardgamegeek.model.Article apiArticle : apiArticles) {
 				articles.add(Article.builder()
-					.setId(apiArticle.getId())
-					.setUsername(apiArticle.getUsername())
-					.setLink(apiArticle.getLink())
-					.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.postDate(), com.boardgamegeek.model.Article.FORMAT))
-					.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.editDate(), com.boardgamegeek.model.Article.FORMAT))
-					.setBody(apiArticle.getBody() == null ? "" : apiArticle.getBody().trim())
-					.setNumberOfEdits(apiArticle.getNumberOfEdits())
+					.setId(apiArticle.id)
+					.setUsername(apiArticle.username)
+					.setLink(apiArticle.link)
+					.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.postdate, com.boardgamegeek.model.Article.FORMAT))
+					.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.editdate, com.boardgamegeek.model.Article.FORMAT))
+					.setBody(apiArticle.body == null ? "" : apiArticle.body.trim())
+					.setNumberOfEdits(apiArticle.numedits)
 					.build());
 			}
 			adapter = new ThreadRecyclerViewAdapter(getActivity(), articles);
