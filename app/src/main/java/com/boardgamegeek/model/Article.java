@@ -1,7 +1,5 @@
 package com.boardgamegeek.model;
 
-import com.boardgamegeek.util.DateTimeUtils;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -11,34 +9,16 @@ import java.util.Locale;
 
 @Root(name = "article")
 public class Article {
-	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);
+	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);
 
-	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
-	private long editDateTime = DateTimeUtils.UNPARSED_DATE;
-
-	@Attribute
-	private int id;
-
-	@Attribute
-	private String username;
-
-	@Attribute
-	private String link;
-
-	@Attribute
-	private String postdate;
-
-	@Attribute
-	private String editdate;
-
-	@Attribute
-	private int numedits;
-
-	@Element(required = false)
-	private String subject;
-
-	@Element(required = false)
-	private String body;
+	@Attribute private int id;
+	@Attribute private String username;
+	@Attribute private String link;
+	@Attribute private String postdate;
+	@Attribute private String editdate;
+	@Attribute private int numedits;
+	@Element(required = false) private String subject;
+	@Element(required = false) private String body;
 
 	public String getUsername() {
 		return username;
@@ -57,14 +37,12 @@ public class Article {
 		return body.trim();
 	}
 
-	public long postDate() {
-		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);
-		return postDateTime;
+	public String postDate() {
+		return postdate;
 	}
 
-	public long editDate() {
-		editDateTime = DateTimeUtils.tryParseDate(editDateTime, editdate, FORMAT);
-		return editDateTime;
+	public String editDate() {
+		return editdate;
 	}
 
 	public int getNumberOfEdits() {

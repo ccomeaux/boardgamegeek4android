@@ -40,6 +40,7 @@ import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -216,10 +217,14 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		if (adapter == null) {
-			adapter = new ThreadRecyclerViewAdapter(getActivity(),
-				(data == null || data.getBody() == null) ?
-					new ArrayList<Article>(0) :
-					data.getBody().getArticles());
+			final List<Article> apiArticles = (data == null || data.getBody() == null) ?
+				new ArrayList<Article>(0) :
+				data.getBody().getArticles();
+			final List<com.boardgamegeek.ui.model.Article> articles = new ArrayList<>(apiArticles.size());
+			for (int i = 0; i < apiArticles.size(); i++) {
+				articles.add(com.boardgamegeek.ui.model.Article.fromApiModel(apiArticles.get(i)));
+			}
+			adapter = new ThreadRecyclerViewAdapter(getActivity(), articles);
 			recyclerView.setAdapter(adapter);
 		}
 

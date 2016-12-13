@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Article;
+import com.boardgamegeek.ui.model.Article;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -76,12 +76,12 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			if (article == null) return;
 
 			usernameView.setText(article.getUsername());
-			editDateView.setTimestamp(article.editDate());
+			editDateView.setTimestamp(article.getEditTicks());
 			UIUtils.setTextMaybeHtml(bodyView, article.getBody());
 			Bundle bundle = new Bundle();
 			bundle.putString(ActivityUtils.KEY_USER, article.getUsername());
-			bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postDate());
-			bundle.putLong(ActivityUtils.KEY_EDIT_DATE, article.editDate());
+			bundle.putLong(ActivityUtils.KEY_POST_DATE, article.getPostTicks());
+			bundle.putLong(ActivityUtils.KEY_EDIT_DATE, article.getEditTicks());
 			bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
 			bundle.putString(ActivityUtils.KEY_BODY, article.getBody());
 			bundle.putString(ActivityUtils.KEY_LINK, article.getLink());
