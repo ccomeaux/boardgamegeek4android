@@ -23,15 +23,16 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Article;
 import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.model.Article;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -217,12 +218,20 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		if (adapter == null) {
-			final List<Article> apiArticles = (data == null || data.getBody() == null) ?
-				new ArrayList<Article>(0) :
+			final List<com.boardgamegeek.model.Article> apiArticles = (data == null || data.getBody() == null) ?
+				new ArrayList<com.boardgamegeek.model.Article>(0) :
 				data.getBody().getArticles();
-			final List<com.boardgamegeek.ui.model.Article> articles = new ArrayList<>(apiArticles.size());
-			for (int i = 0; i < apiArticles.size(); i++) {
-				articles.add(com.boardgamegeek.ui.model.Article.fromApiModel(apiArticles.get(i)));
+			final List<Article> articles = new ArrayList<>(apiArticles.size());
+			for (com.boardgamegeek.model.Article apiArticle : apiArticles) {
+				articles.add(Article.builder()
+					.setId(apiArticle.getId())
+					.setUsername(apiArticle.getUsername())
+					.setLink(apiArticle.getLink())
+					.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.postDate(), com.boardgamegeek.model.Article.FORMAT))
+					.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.editDate(), com.boardgamegeek.model.Article.FORMAT))
+					.setBody(apiArticle.getBody() == null ? "" : apiArticle.getBody().trim())
+					.setNumberOfEdits(apiArticle.getNumberOfEdits())
+					.build());
 			}
 			adapter = new ThreadRecyclerViewAdapter(getActivity(), articles);
 			recyclerView.setAdapter(adapter);

@@ -1,58 +1,43 @@
 package com.boardgamegeek.ui.model;
 
-import com.boardgamegeek.util.DateTimeUtils;
+import com.google.auto.value.AutoValue;
 
-public class Article {
-	private int id;
-	private String username;
-	private String link;
-	private long postTicks;
-	private long editTicks;
-	private int numedits;
-	private String body;
+@AutoValue
+public abstract class Article {
+	public abstract int id();
 
-	public static Article fromApiModel(com.boardgamegeek.model.Article apiArticle) {
-		Article article = new Article();
-		article.id = apiArticle.getId();
-		article.username = apiArticle.getUsername();
-		article.link = apiArticle.getLink();
-		article.numedits = apiArticle.getNumberOfEdits();
-		final String body = apiArticle.getBody();
-		if (body == null) {
-			article.body = "";
-		} else {
-			article.body = body.trim();
-		}
-		article.postTicks = DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.postDate(), com.boardgamegeek.model.Article.FORMAT);
-		article.editTicks = DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.editDate(), com.boardgamegeek.model.Article.FORMAT);
-		return article;
+	public abstract String username();
+
+	public abstract String link();
+
+	public abstract long postTicks();
+
+	public abstract long editTicks();
+
+	public abstract int numberOfEdits();
+
+	public abstract String body();
+
+	public static Builder builder() {
+		return new AutoValue_Article.Builder();
 	}
 
-	public int getId() {
-		return id;
-	}
+	@AutoValue.Builder
+	public abstract static class Builder {
+		public abstract Builder setId(int value);
 
-	public String getUsername() {
-		return username;
-	}
+		public abstract Builder setUsername(String value);
 
-	public String getLink() {
-		return link;
-	}
+		public abstract Builder setLink(String value);
 
-	public String getBody() {
-		return body;
-	}
+		public abstract Builder setPostTicks(long value);
 
-	public long getPostTicks() {
-		return postTicks;
-	}
+		public abstract Builder setEditTicks(long value);
 
-	public long getEditTicks() {
-		return editTicks;
-	}
+		public abstract Builder setNumberOfEdits(int value);
 
-	public int getNumberOfEdits() {
-		return numedits;
+		public abstract Builder setBody(String value);
+
+		public abstract Article build();
 	}
 }
