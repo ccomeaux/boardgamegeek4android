@@ -17,13 +17,13 @@ public class Article {
 	private long editDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute
-	public int id;
+	private int id;
 
 	@Attribute
-	public String username;
+	private String username;
 
 	@Attribute
-	public String link;
+	private String link;
 
 	@Attribute
 	private String postdate;
@@ -38,7 +38,24 @@ public class Article {
 	private String subject;
 
 	@Element(required = false)
-	public String body;
+	private String body;
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getBody() {
+		if (body == null) return "";
+		return body.trim();
+	}
 
 	public long postDate() {
 		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);

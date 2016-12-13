@@ -49,13 +49,13 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 	public long getItemId(int position) {
 		Article article = articles.get(position);
 		if (article == null) return RecyclerView.NO_ID;
-		return (long) article.id;
+		return (long) article.getId();
 	}
 
 	public int getPosition(int articleId) {
 		if (articles == null) return RecyclerView.NO_POSITION;
 		for (int i = 0; i < articles.size(); i++) {
-			if (articles.get(i).id == articleId) return i;
+			if (articles.get(i).getId() == articleId) return i;
 		}
 		return RecyclerView.NO_POSITION;
 	}
@@ -75,17 +75,17 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 		public void bind(Article article) {
 			if (article == null) return;
 
-			usernameView.setText(article.username);
+			usernameView.setText(article.getUsername());
 			editDateView.setTimestamp(article.editDate());
-			UIUtils.setTextMaybeHtml(bodyView, article.body.trim());
+			UIUtils.setTextMaybeHtml(bodyView, article.getBody());
 			Bundle bundle = new Bundle();
-			bundle.putString(ActivityUtils.KEY_USER, article.username);
+			bundle.putString(ActivityUtils.KEY_USER, article.getUsername());
 			bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postDate());
 			bundle.putLong(ActivityUtils.KEY_EDIT_DATE, article.editDate());
 			bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
-			bundle.putString(ActivityUtils.KEY_BODY, article.body);
-			bundle.putString(ActivityUtils.KEY_LINK, article.link);
-			bundle.putInt(ActivityUtils.KEY_ARTICLE_ID, article.id);
+			bundle.putString(ActivityUtils.KEY_BODY, article.getBody());
+			bundle.putString(ActivityUtils.KEY_LINK, article.getLink());
+			bundle.putInt(ActivityUtils.KEY_ARTICLE_ID, article.getId());
 			viewButton.setTag(bundle);
 		}
 	}
