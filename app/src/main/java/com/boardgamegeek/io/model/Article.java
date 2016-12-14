@@ -1,4 +1,4 @@
-package com.boardgamegeek.model;
+package com.boardgamegeek.io.model;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+@SuppressWarnings("unused")
 @Root(name = "article")
 public class Article {
 	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);

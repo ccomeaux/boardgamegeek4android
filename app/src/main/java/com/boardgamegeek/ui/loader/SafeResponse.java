@@ -8,7 +8,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class SafeResponse<T> {
-	private T body;
+	protected T body;
 	private String errorMessage;
 	private boolean hasParseError;
 

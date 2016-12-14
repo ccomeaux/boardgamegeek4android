@@ -23,16 +23,13 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.ui.model.Article;
+import com.boardgamegeek.ui.loader.Threads;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -40,15 +37,12 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
-public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<ThreadResponse>> {
+public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<Threads> {
 	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 103;
 	private static final int SMOOTH_SCROLL_THRESHOLD = 10;
@@ -206,34 +200,19 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public Loader<SafeResponse<ThreadResponse>> onCreateLoader(int id, Bundle data) {
+	public Loader<Threads> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), threadId);
 	}
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<SafeResponse<ThreadResponse>> loader, SafeResponse<ThreadResponse> data) {
+	public void onLoadFinished(Loader<Threads> loader, Threads data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
-			final List<com.boardgamegeek.model.Article> apiArticles = (data == null || data.getBody() == null) ?
-				new ArrayList<com.boardgamegeek.model.Article>(0) :
-				data.getBody().getArticles();
-			final List<Article> articles = new ArrayList<>(apiArticles.size());
-			for (com.boardgamegeek.model.Article apiArticle : apiArticles) {
-				articles.add(Article.builder()
-					.setId(apiArticle.id)
-					.setUsername(apiArticle.username)
-					.setLink(apiArticle.link)
-					.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.postdate, com.boardgamegeek.model.Article.FORMAT))
-					.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, apiArticle.editdate, com.boardgamegeek.model.Article.FORMAT))
-					.setBody(apiArticle.body == null ? "" : apiArticle.body.trim())
-					.setNumberOfEdits(apiArticle.numedits)
-					.build());
-			}
-			adapter = new ThreadRecyclerViewAdapter(getActivity(), articles);
+			adapter = new ThreadRecyclerViewAdapter(getActivity(), data.getArticles());
 			recyclerView.setAdapter(adapter);
 		}
 
@@ -270,10 +249,10 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<SafeResponse<ThreadResponse>> loader) {
+	public void onLoaderReset(Loader<Threads> loader) {
 	}
 
-	private static class ThreadLoader extends BggLoader<SafeResponse<ThreadResponse>> {
+	private static class ThreadLoader extends BggLoader<Threads> {
 		private final BggService bggService;
 		private final int threadId;
 
@@ -284,8 +263,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
-		public SafeResponse<ThreadResponse> loadInBackground() {
-			return new SafeResponse<>(bggService.thread(threadId));
+		public Threads loadInBackground() {
+			return new Threads(bggService.thread(threadId));
 		}
 	}
 }
