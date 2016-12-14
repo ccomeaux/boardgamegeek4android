@@ -26,7 +26,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.Threads;
+import com.boardgamegeek.ui.loader.ThreadSafeResponse;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
@@ -42,7 +42,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
-public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<Threads> {
+public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<ThreadSafeResponse> {
 	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 103;
 	private static final int SMOOTH_SCROLL_THRESHOLD = 10;
@@ -200,13 +200,13 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public Loader<Threads> onCreateLoader(int id, Bundle data) {
+	public Loader<ThreadSafeResponse> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), threadId);
 	}
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<Threads> loader, Threads data) {
+	public void onLoadFinished(Loader<ThreadSafeResponse> loader, ThreadSafeResponse data) {
 		if (getActivity() == null) {
 			return;
 		}
@@ -249,10 +249,10 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<Threads> loader) {
+	public void onLoaderReset(Loader<ThreadSafeResponse> loader) {
 	}
 
-	private static class ThreadLoader extends BggLoader<Threads> {
+	private static class ThreadLoader extends BggLoader<ThreadSafeResponse> {
 		private final BggService bggService;
 		private final int threadId;
 
@@ -263,8 +263,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
-		public Threads loadInBackground() {
-			return new Threads(bggService.thread(threadId));
+		public ThreadSafeResponse loadInBackground() {
+			return new ThreadSafeResponse(bggService.thread(threadId));
 		}
 	}
 }

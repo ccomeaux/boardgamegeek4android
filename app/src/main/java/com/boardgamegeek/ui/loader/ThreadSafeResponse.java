@@ -10,8 +10,8 @@ import java.util.List;
 
 import retrofit2.Call;
 
-public class Threads extends SafeResponse<ThreadResponse> {
-	public Threads(Call<ThreadResponse> call) {
+public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
+	public ThreadSafeResponse(Call<ThreadResponse> call) {
 		super(call);
 	}
 
