@@ -42,7 +42,7 @@ public class BggApplication extends Application {
 		} else {
 			String username = AccountUtils.getUsername(this);
 			if (!TextUtils.isEmpty(username)) {
-				Crashlytics.setUserIdentifier(username);
+				Crashlytics.setUserIdentifier(String.valueOf(username.hashCode()));
 			}
 			Crashlytics.setString("BUILD_TIME", BuildConfig.BUILD_TIME);
 			Crashlytics.setString("GIT_SHA", BuildConfig.GIT_SHA);
