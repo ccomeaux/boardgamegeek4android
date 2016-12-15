@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Coming Soon
+-----------
+ * Bug fixes
+
 Version 6.2
 -----------
  * Top 100 Games
