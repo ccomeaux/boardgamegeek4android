@@ -77,11 +77,11 @@ public class PresentationUtils {
 			return "";
 		}
 		if (year > 0) {
-			return context.getString(R.string.year_positive, year);
+			return context.getString(R.string.year_positive, String.valueOf(year));
 		} else if (year == Constants.YEAR_UNKNOWN) {
 			return context.getString(R.string.year_zero);
 		} else {
-			return context.getString(R.string.year_negative, -year);
+			return context.getString(R.string.year_negative, String.valueOf(-year));
 		}
 	}
 

@@ -2,7 +2,7 @@ package com.boardgamegeek.ui.loader;
 
 import android.text.TextUtils;
 
-import java.io.IOException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -10,8 +10,10 @@ import retrofit2.Response;
 public class SafeResponse<T> {
 	private T body;
 	private String errorMessage;
+	private boolean hasParseError;
 
 	public SafeResponse(Call<T> call) {
+		hasParseError = false;
 		try {
 			final Response<T> response = call.execute();
 			if (response.isSuccessful()) {
@@ -19,8 +21,13 @@ public class SafeResponse<T> {
 			} else {
 				errorMessage = "Error code " + response.code();
 			}
-		} catch (IOException e) {
-			errorMessage = e.getMessage();
+		} catch (Exception e) {
+			if (e instanceof RuntimeException && e.getCause() instanceof XmlPullParserException) {
+				hasParseError = true;
+				errorMessage = e.getCause().getMessage();
+			} else {
+				errorMessage = e.getMessage();
+			}
 		}
 	}
 
@@ -30,6 +37,10 @@ public class SafeResponse<T> {
 
 	public boolean hasError() {
 		return !TextUtils.isEmpty(errorMessage);
+	}
+
+	public boolean hasParseError() {
+		return hasParseError;
 	}
 
 	public String getErrorMessage() {

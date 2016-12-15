@@ -15,9 +15,9 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 
 public class ArticleActivity extends SimpleSinglePaneActivity {
-	private String threadId;
+	private int threadId;
 	private String threadSubject;
-	private String forumId;
+	private int forumId;
 	private String forumTitle;
 	private int gameId;
 	private String gameName;
@@ -29,9 +29,9 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		threadId = intent.getStringExtra(ActivityUtils.KEY_THREAD_ID);
+		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, 0);
 		threadSubject = intent.getStringExtra(ActivityUtils.KEY_THREAD_SUBJECT);
-		forumId = intent.getStringExtra(ActivityUtils.KEY_FORUM_ID);
+		forumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, 0);
 		forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);

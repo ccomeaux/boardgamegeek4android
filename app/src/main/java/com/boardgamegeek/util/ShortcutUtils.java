@@ -111,15 +111,9 @@ public class ShortcutUtils {
 					}
 					if (bitmap != null) {
 						try {
-							OutputStream out = null;
-							try {
-								out = new BufferedOutputStream(new FileOutputStream(file));
-								bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-							} finally {
-								if (out != null) {
-									out.close();
-								}
-							}
+							OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+							bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+							out.close();
 						} catch (IOException e) {
 							Timber.e(e, "Error saving the thumbnail file.");
 						}

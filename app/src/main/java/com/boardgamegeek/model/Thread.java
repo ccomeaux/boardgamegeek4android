@@ -12,8 +12,8 @@ import java.util.Locale;
 public class Thread {
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
-	private long mPostDateTime = DateTimeUtils.UNPARSED_DATE;
-	private long mLastPostDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long lastPostDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute
 	public int id;
@@ -34,12 +34,12 @@ public class Thread {
 	private String lastpostdate;
 
 	public long postDate() {
-		mPostDateTime = DateTimeUtils.tryParseDate(mPostDateTime, postdate, FORMAT);
-		return mPostDateTime;
+		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);
+		return postDateTime;
 	}
 
 	public long lastPostDate() {
-		mLastPostDateTime = DateTimeUtils.tryParseDate(mLastPostDateTime, lastpostdate, FORMAT);
-		return mLastPostDateTime;
+		lastPostDateTime = DateTimeUtils.tryParseDate(lastPostDateTime, lastpostdate, FORMAT);
+		return lastPostDateTime;
 	}
 }

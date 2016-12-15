@@ -16,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -39,7 +40,6 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
-import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -143,7 +143,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	private void setUpRecyclerView() {
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 	}
 
 	@DebugLog

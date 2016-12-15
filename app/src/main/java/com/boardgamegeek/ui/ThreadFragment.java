@@ -158,10 +158,15 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			recyclerView.setAdapter(adapter);
 		}
 
-		if (adapter.getItemCount() == 0 || data == null) {
+		if (data == null) {
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+		} else if (data.hasParseError()) {
+			emptyView.setText(R.string.parse_error);
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else if (data.hasError()) {
 			emptyView.setText(data.getErrorMessage());
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+		} else if (adapter.getItemCount() == 0) {
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else {
 			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());

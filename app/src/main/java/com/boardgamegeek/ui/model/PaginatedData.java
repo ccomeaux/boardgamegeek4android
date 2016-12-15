@@ -10,7 +10,7 @@ public class PaginatedData<T> {
 	private int totalItemCount;
 	private int currentPageNumber;
 	private int pageSize;
-	private String errorMessage;
+	private final String errorMessage;
 
 	public PaginatedData(List<T> items, int totalItemCount, int currentPageNumber, int pageSize) {
 		this.items = items;

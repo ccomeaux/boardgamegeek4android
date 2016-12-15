@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,7 +20,6 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.ui.adapter.GeekListsRecyclerViewAdapter;
-import com.boardgamegeek.ui.decoration.VerticalDividerItemDecoration;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GeekLists;
 import com.boardgamegeek.ui.model.PaginatedData;
@@ -149,7 +149,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new VerticalDividerItemDecoration(getActivity()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override

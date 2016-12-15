@@ -6,7 +6,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 
 public class Location {
 
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		Plays._ID,
 		Plays.LOCATION,
 		Plays.SUM_QUANTITY

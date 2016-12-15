@@ -50,13 +50,9 @@ public class StatBar extends FrameLayout {
 	}
 
 	public void setBar(int id, double progress, double max) {
-		setBar(id, progress, max, 0.0);
-	}
-
-	public void setBar(int id, double progress, double max, double min) {
 		textView.setText(String.format(getContext().getResources().getString(id), FORMAT.format(progress)));
 		valueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
-			(int) ((progress - min) * 1000)));
+			(int) (progress * 1000)));
 		noValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
 			(int) ((max - progress) * 1000)));
 	}

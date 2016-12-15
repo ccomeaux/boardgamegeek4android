@@ -19,8 +19,8 @@ import java.util.Locale;
 @Root(name = "geeklist")
 public class GeekList implements Parcelable {
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
-	private long mPostDateTime = DateTimeUtils.UNPARSED_DATE;
-	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long editDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	public GeekList() {
 	}
@@ -36,8 +36,8 @@ public class GeekList implements Parcelable {
 	@Element(name = "postdate_timestamp") private String postdateTimestamp;
 
 	public long getPostDate() {
-		mPostDateTime = DateTimeUtils.tryParseDate(mPostDateTime, postdate, FORMAT);
-		return mPostDateTime;
+		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);
+		return postDateTime;
 	}
 
 	@Element private String editdate;
@@ -45,8 +45,8 @@ public class GeekList implements Parcelable {
 	@Element(name = "editdate_timestamp") private String editdateTimestamp;
 
 	public long getEditDate() {
-		mEditDateTime = DateTimeUtils.tryParseDate(mEditDateTime, editdate, FORMAT);
-		return mEditDateTime;
+		editDateTime = DateTimeUtils.tryParseDate(editDateTime, editdate, FORMAT);
+		return editDateTime;
 	}
 
 	@Element private String thumbs;

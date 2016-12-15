@@ -5,18 +5,13 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<LinearLayout
+	<android.support.v4.widget.ContentLoadingProgressBar
 		android:id="@android:id/progress"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:gravity="center"
-		android:orientation="vertical">
-
-		<ProgressBar
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
-	</LinearLayout>
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:gravity="center"/>
 
 	<TextView
 		android:id="@android:id/empty"
@@ -28,10 +23,8 @@
 
 	<android.support.v7.widget.RecyclerView
 		android:id="@android:id/list"
+		style="@style/RecyclerViewVerticalList"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:clipToPadding="false"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_standard"
 		android:visibility="gone"/>
 </android.support.design.widget.CoordinatorLayout>

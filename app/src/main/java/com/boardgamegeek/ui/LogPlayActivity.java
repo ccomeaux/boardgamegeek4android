@@ -44,7 +44,9 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -1319,6 +1321,22 @@ public class LogPlayActivity extends AppCompatActivity {
 			public LocationViewHolder(ViewGroup parent) {
 				super(inflater.inflate(R.layout.row_log_play_location, parent, false));
 				ButterKnife.bind(this, itemView);
+				locationView.addTextChangedListener(new TextWatcher() {
+					@Override
+					public void beforeTextChanged(CharSequence s, int start, int before, int count) {
+					}
+
+					@Override
+					public void onTextChanged(CharSequence s, int start, int count, int after) {
+					}
+
+					@Override
+					public void afterTextChanged(Editable s) {
+						if (canEdit) {
+							play.location = s.toString().trim();
+						}
+					}
+				});
 			}
 
 			@Override
@@ -1327,13 +1345,6 @@ public class LogPlayActivity extends AppCompatActivity {
 				if (play != null) {
 					locationView.setTextKeepState(play.location);
 					canEdit = true;
-				}
-			}
-
-			@OnFocusChange(R.id.log_play_location)
-			public void onLocationFocusChange(EditText v, boolean hasFocus) {
-				if (canEdit && !hasFocus) {
-					play.location = v.getText().toString().trim();
 				}
 			}
 		}

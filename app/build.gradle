@@ -11,9 +11,9 @@ buildscript {
 }
 
 def versionMajor = 6
-def versionMinor = 1
-def versionPatch = 6
-def versionBuild = 1
+def versionMinor = 2
+def versionPatch = 0
+def versionBuild = 2
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
@@ -48,7 +48,7 @@ def gitBranchName = { ->
 }
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion "24.0.2"
 
     defaultConfig {
@@ -90,14 +90,14 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:cardview-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    compile 'com.android.support:palette-v7:24.2.1'
-    compile 'com.android.support:percent:24.2.1'
-    compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.android.support:support-annotations:24.2.1'
-    compile 'com.google.code.gson:gson:2.7'
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:cardview-v7:25.0.1'
+    compile 'com.android.support:design:25.0.1'
+    compile 'com.android.support:palette-v7:25.0.1'
+    compile 'com.android.support:percent:25.0.1'
+    compile 'com.android.support:recyclerview-v7:25.0.1'
+    compile 'com.android.support:support-annotations:25.0.1'
+    compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile('com.squareup.retrofit2:converter-simplexml:2.1.0') {
@@ -105,19 +105,19 @@ dependencies {
         exclude group: 'stax', module: 'stax'
         exclude group: 'xpp3', module: 'xpp3'
     }
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    compile 'com.squareup.okhttp3:okhttp:3.5.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.5.0'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'se.emilsjolander:stickylistheaders:2.7.0'
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
-    compile 'com.jakewharton.timber:timber:4.3.1'
+    compile 'com.jakewharton.timber:timber:4.4.0'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
-    compile('com.mikepenz:aboutlibraries:5.8.1@aar') {
+    compile('com.mikepenz:aboutlibraries:5.9.1@aar') {
         transitive = true
     }
     compile 'org.greenrobot:eventbus:3.0.0'
@@ -128,6 +128,10 @@ dependencies {
     compile 'com.facebook.stetho:stetho:1.4.1'
     compile 'com.facebook.stetho:stetho-okhttp3:1.4.1'
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
+    compile 'org.jsoup:jsoup:1.10.1'
+
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.2.3'
 
     compile 'frankiesardo:icepick:3.2.0'
     provided 'frankiesardo:icepick-processor:3.2.0'

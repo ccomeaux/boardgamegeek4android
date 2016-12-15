@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Version 6.2
+-----------
+ * Top 100 Games
+ * Avoid crashes/freezes when adding new collection items
+ * Avoid crashes when viewing some threads
+ * Added a privacy policy
+ * Bug fixes
+
 Version 6.1.6
 -------------
  * Second attempt to fix crash when viewing a play with players

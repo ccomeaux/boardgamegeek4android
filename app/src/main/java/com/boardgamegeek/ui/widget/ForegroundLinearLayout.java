@@ -27,6 +27,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.LinearLayout;
@@ -50,14 +51,14 @@ public class ForegroundLinearLayout extends LinearLayout {
 
 		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundLinearLayout, 0, 0);
 		try {
-			foregroundGravity = a.getInt(R.styleable.ForegroundLinearLayout_android_foregroundGravity, foregroundGravity);
+			foregroundGravity = a.getInt(R.styleable.BggForegroundLinearLayout_android_foregroundGravity, foregroundGravity);
 
-			final Drawable drawable = a.getDrawable(R.styleable.ForegroundLinearLayout_android_foreground);
+			final Drawable drawable = a.getDrawable(R.styleable.BggForegroundLinearLayout_android_foreground);
 			if (drawable != null) {
 				setForeground(drawable);
 			}
 
-			isForegroundInPadding = a.getBoolean(R.styleable.ForegroundLinearLayout_android_foregroundInsidePadding, true);
+			isForegroundInPadding = a.getBoolean(R.styleable.BggForegroundLinearLayout_android_foregroundInsidePadding, true);
 		} finally {
 			a.recycle();
 		}
@@ -101,7 +102,7 @@ public class ForegroundLinearLayout extends LinearLayout {
 	}
 
 	@Override
-	protected boolean verifyDrawable(Drawable who) {
+	protected boolean verifyDrawable(@NonNull Drawable who) {
 		return super.verifyDrawable(who) || (who == foregroundDrawable);
 	}
 

@@ -9,7 +9,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
 
 public class PlayModel {
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		Plays._ID,
 		Plays.PLAY_ID,
 		Plays.DATE,

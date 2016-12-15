@@ -231,6 +231,7 @@
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
+	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_dates">Dates</string>
 	<string name="title_play_time">Play Time</string>
@@ -258,7 +259,9 @@
 	<string name="links">Links</string>
 	<string name="link_bgg">BoardGameGeek</string>
 	<string name="link_bg_prices">Board Game Prices</string>
-	<string name="link_amazon">Amazon</string>
+	<string name="link_amazon">Amazon.com</string>
+	<string name="link_amazon_uk">Amazon.co.uk</string>
+	<string name="link_amazon_de">Amazon.de</string>
 	<string name="link_ebay">eBay</string>
 	<string name="menu_share">Share</string>
 	<string name="menu_sort">Sort</string>
@@ -390,7 +393,7 @@
 	<string name="play_description_players_segment">\u0020with %,d players</string>
 	<string name="play_description_game_url_segment">www.boardgamegeek.com/play/%s</string>
 	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
-	<string name="player_description_starting_position_segment">%s)\u0020</string>
+	<string name="player_description_starting_position_segment">%d)\u0020</string>
 	<string name="player_description_username_segment">\u0020(%s)</string>
 	<string name="player_description_new_segment">\u0020(new)</string>
 	<string name="player_description_color_segment">\u0020as %s</string>
@@ -415,8 +418,8 @@
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
 	<string name="votes_suffix"><b>%,d</b> votes</string>
-	<string name="items_suffix">%s items</string>
-	<string name="thumbs_suffix">%s thumbs</string>
+	<string name="items_suffix">%,d items</string>
+	<string name="thumbs_suffix">%,d thumbs</string>
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>
@@ -538,6 +541,8 @@
 	<string name="collection_status_want_to_buy">Want to Buy</string>
 	<string name="collection_status_want_preordered">Pre-ordered</string>
 	<string name="collection_status_wishlist">Wishlist</string>
+	<string name="empty_top_games">Error loading top games</string>
+	<string name="title_top_games">Top Games</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

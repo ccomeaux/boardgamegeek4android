@@ -152,10 +152,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ createJoinSuffix(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID)
 			+ createJoinSuffix(PLAY_PLAYERS, PLAY_ITEMS, Plays.PLAY_ID)
 			+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
-		String PLAY_ITEMS_JOIN_PLAYS_JOIN_PLAYERS = Tables.PLAY_ITEMS
-			+ createJoinSuffix(PLAY_ITEMS, PLAYS, PlayItems.PLAY_ID)
-			+ createJoinSuffix(PLAY_ITEMS, PLAY_PLAYERS, PlayItems.PLAY_ID)
-			+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
+		// String PLAY_ITEMS_JOIN_PLAYS_JOIN_PLAYERS = Tables.PLAY_ITEMS
+		// 	+ createJoinSuffix(PLAY_ITEMS, PLAYS, PlayItems.PLAY_ID)
+		//	+ createJoinSuffix(PLAY_ITEMS, PLAY_PLAYERS, PlayItems.PLAY_ID)
+		//	+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
 		String COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS = createJoin(COLLECTION_VIEWS, COLLECTION_VIEW_FILTERS,
 			CollectionViews._ID, CollectionViewFilters.VIEW_ID);
 		String POLLS_RESULTS_RESULT_JOIN_POLLS_RESULTS_JOIN_POLLS = createJoin(GAME_POLL_RESULTS_RESULT,
@@ -514,7 +514,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	@SuppressWarnings("UnusedAssignment")
 	@Override
 	public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
-		Timber.d("Upgrading database from " + oldVersion + " to " + newVersion);
+		Timber.d("Upgrading database from %s to %s", oldVersion, newVersion);
 
 		// NOTE: This switch statement is designed to handle cascading database
 		// updates, starting at the current version and falling through to all
@@ -710,7 +710,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		try {
 			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
 		} catch (SQLException e) {
-			Timber.w("Probably just trying to add an existing column.\n" + e.toString());
+			Timber.w(e, "Probably just trying to add an existing column.");
 		}
 	}
 }

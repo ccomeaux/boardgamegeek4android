@@ -21,6 +21,7 @@
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/app_name"
 		android:logo="@drawable/title_logo"
+		android:roundIcon="@mipmap/ic_launcher_round"
 		android:supportsRtl="false"
 		android:theme="@style/Theme.bgglight.NavDrawer">
 		<activity
@@ -66,6 +67,15 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
+
+		<activity
+			android:name=".ui.TopGamesActivity"
+			android:label="@string/title_top_games">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="true"

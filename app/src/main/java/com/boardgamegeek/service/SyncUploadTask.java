@@ -40,7 +40,6 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	@DebugLog
 	protected void notifyUser(final CharSequence title, final CharSequence message, final int id, String imageUrl, final String thumbnailUrl) {
-		buildAndNotify(title, message, id, null);
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {
@@ -49,7 +48,7 @@ public abstract class SyncUploadTask extends SyncTask {
 
 			@Override
 			public void onFailedIconLoad() {
-				// oh well!
+				buildAndNotify(title, message, id, null);
 			}
 		});
 		loader.executeInBackground();

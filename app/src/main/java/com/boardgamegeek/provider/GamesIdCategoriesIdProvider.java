@@ -8,17 +8,17 @@ import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdCategoriesIdProvider extends BaseProvider {
-	GamesIdCategoriesProvider mProvider = new GamesIdCategoriesProvider();
+	final GamesIdCategoriesProvider provider = new GamesIdCategoriesProvider();
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		long categoryId = ContentUris.parseId(uri);
-		return mProvider.buildSimpleSelection(uri).whereEquals(GamesCategories.CATEGORY_ID, categoryId);
+		return provider.buildSimpleSelection(uri).whereEquals(GamesCategories.CATEGORY_ID, categoryId);
 	}
 
 	@Override
 	protected String getPath() {
-		return addIdToPath(mProvider.getPath());
+		return addIdToPath(provider.getPath());
 	}
 
 	@Override

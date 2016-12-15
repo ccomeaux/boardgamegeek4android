@@ -80,22 +80,22 @@ public class Player implements Parcelable {
 		new_ = value ? 1 : 0;
 	}
 
-	private int mSeat = SEAT_UNPARSED;
+	private int seat = SEAT_UNPARSED;
 
 	public String getStartingPosition() {
 		return startposition;
 	}
 
 	public void setStartingPosition(String value) {
-		mSeat = SEAT_UNPARSED;
+		seat = SEAT_UNPARSED;
 		startposition = value;
 	}
 
 	public int getSeat() {
-		if (mSeat == SEAT_UNPARSED) {
-			mSeat = StringUtils.parseInt(startposition, SEAT_UNKNOWN);
+		if (seat == SEAT_UNPARSED) {
+			seat = StringUtils.parseInt(startposition, SEAT_UNKNOWN);
 		}
-		return mSeat;
+		return seat;
 	}
 
 	public void setSeat(int value) {

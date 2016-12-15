@@ -72,51 +72,56 @@ public class LogPlayerActivity extends AppCompatActivity {
 	private static final int HELP_VERSION = 2;
 	private static final int TOKEN_COLORS = 1;
 
-	private String mGameName;
+	private String gameName;
 
-	@State Player mPlayer;
-	private Player mOriginalPlayer;
+	@State Player player;
+	private Player originalPlayer;
 
-	@BindView(R.id.scroll_container) ScrollView mScrollContainer;
-	@BindView(R.id.header) TextView mHeader;
-	@BindView(R.id.two_line_container) View mTwoLineContainer;
-	@BindView(R.id.header2) TextView mHeader2;
-	@BindView(R.id.subheader) TextView mSubheader;
-	@BindView(R.id.log_player_username) AutoCompleteTextView mUsername;
-	@BindView(R.id.log_player_name) AutoCompleteTextView mName;
-	@BindView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
-	@BindView(R.id.color_view) ImageView mColorView;
-	@BindView(R.id.log_player_position) EditText mPosition;
-	@BindView(R.id.log_player_position_button) Button mPositionButton;
-	@BindView(R.id.log_player_score) EditText mScore;
-	@BindView(R.id.log_player_score_button) Button mScoreButton;
-	@BindView(R.id.log_player_rating) EditText mRating;
-	@BindView(R.id.log_player_new) SwitchCompat mNew;
-	@BindView(R.id.log_player_win) SwitchCompat mWin;
-	@BindView(R.id.fab) FloatingActionButton mFab;
-	@BindView(R.id.fab_buffer) View mFabBuffer;
+	@BindView(R.id.scroll_container) ScrollView scrollContainer;
+	@BindView(R.id.header) TextView headerView;
+	@BindView(R.id.two_line_container) View twoLineContainer;
+	@BindView(R.id.header2) TextView titleView;
+	@BindView(R.id.subheader) TextView subtitleView;
+	@BindView(R.id.log_player_username) AutoCompleteTextView usernameView;
+	@BindView(R.id.log_player_name) AutoCompleteTextView nameView;
+	@BindView(R.id.log_player_team_color) AutoCompleteTextView teamColorView;
+	@BindView(R.id.color_view) ImageView colorView;
+	@BindView(R.id.log_player_position) EditText positionView;
+	@BindView(R.id.log_player_position_button) Button positionButton;
+	@BindView(R.id.log_player_score) EditText scoreView;
+	@BindView(R.id.log_player_score_button) Button scoreButton;
+	@BindView(R.id.log_player_rating) EditText ratingView;
+	@BindView(R.id.log_player_new) SwitchCompat newView;
+	@BindView(R.id.log_player_win) SwitchCompat winView;
+	@BindView(R.id.fab) FloatingActionButton fab;
+	@BindView(R.id.fab_buffer) View fabBuffer;
 	private ShowcaseViewWizard showcaseWizard;
 
-	private boolean mPrefShowTeamColor;
-	private boolean mPrefShowPosition;
-	private boolean mPrefShowScore;
-	private boolean mPrefShowRating;
-	private boolean mPrefShowNew;
-	private boolean mPrefShowWin;
-	@State boolean mUserShowTeamColor;
-	@State boolean mUserShowPosition;
-	@State boolean mUserShowScore;
-	@State boolean mUserShowRating;
-	@State boolean mUserShowNew;
-	@State boolean mUserShowWin;
-	private int mAutoPosition;
-	private ArrayList<String> mUsedColors;
-	private ArrayList<String> mColors;
+	private boolean preferToShowTeamColor;
+	private boolean preferToShowPosition;
+	private boolean preferToShowScore;
+	private boolean preferToShowRating;
+	private boolean preferToShowNew;
+	private boolean preferToShowWin;
+	@State boolean userHasShownTeamColor;
+	@State boolean userHasShownPosition;
+	@State boolean userHasShownScore;
+	@State boolean userHasShownRating;
+	@State boolean userHasShownNew;
+	@State boolean userHasShownWin;
+	private int autoPosition;
+	private ArrayList<String> usedColors;
+	private ArrayList<String> colors;
 
-	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
+	private final View.OnClickListener actionBarListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			onActionBarItemSelected(v.getId());
+			switch (v.getId()) {
+				case R.id.menu_done:
+					save();
+				case R.id.menu_cancel:
+					cancel();
+			}
 		}
 	};
 
@@ -145,9 +150,9 @@ public class LogPlayerActivity extends AppCompatActivity {
 					}
 					try {
 						if (cursor.moveToFirst()) {
-							mColors = new ArrayList<>();
+							colors = new ArrayList<>();
 							do {
-								mColors.add(cursor.getString(0));
+								colors.add(cursor.getString(0));
 							} while (cursor.moveToNext());
 						}
 					} finally {
@@ -169,39 +174,39 @@ public class LogPlayerActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_logplayer);
 		ButterKnife.bind(this);
 
-		mName.setOnItemClickListener(nameClickListener());
+		nameView.setOnItemClickListener(nameClickListener());
 
-		ToolbarUtils.setDoneCancelActionBarView(this, mActionBarListener);
+		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 
 		final Intent intent = getIntent();
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(KEY_GAME_NAME);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
-		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
+		autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		String[] usedColors = intent.getStringArrayExtra(KEY_USED_COLORS);
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
-			mUserShowScore = true;
-			mScore.requestFocus();
+			userHasShownScore = true;
+			scoreView.requestFocus();
 		}
-		mFab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent))));
+		fab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent))));
 
 		if (savedInstanceState == null) {
-			mPlayer = intent.getParcelableExtra(KEY_PLAYER);
-			if (mPlayer == null) {
-				mPlayer = new Player();
+			player = intent.getParcelableExtra(KEY_PLAYER);
+			if (player == null) {
+				player = new Player();
 			}
 			if (hasAutoPosition()) {
-				mPlayer.setSeat(mAutoPosition);
+				player.setSeat(autoPosition);
 			}
-			mOriginalPlayer = new Player(mPlayer);
+			originalPlayer = new Player(player);
 		} else {
 			Icepick.restoreInstanceState(this, savedInstanceState);
 		}
 
-		mUsedColors = (usedColors == null) ?
+		this.usedColors = (usedColors == null) ?
 			new ArrayList<String>() :
 			new ArrayList<>(Arrays.asList(usedColors));
-		mUsedColors.remove(mPlayer.color);
+		this.usedColors.remove(player.color);
 
 		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
 		bindUi();
@@ -209,9 +214,9 @@ public class LogPlayerActivity extends AppCompatActivity {
 		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),
 			new String[] { GameColors.COLOR }, null, null, null);
 
-		mName.setAdapter(new PlayerNameAdapter(this));
-		mUsername.setAdapter(new BuddyNameAdapter(this));
-		mTeamColor.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
+		nameView.setAdapter(new PlayerNameAdapter(this));
+		usernameView.setAdapter(new BuddyNameAdapter(this));
+		teamColorView.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
 
 		setUpShowcaseViewWizard();
 		showcaseWizard.maybeShowHelp();
@@ -221,12 +226,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mPrefShowTeamColor = PreferencesUtils.showLogPlayerTeamColor(this);
-		mPrefShowPosition = PreferencesUtils.showLogPlayerPosition(this);
-		mPrefShowScore = PreferencesUtils.showLogPlayerScore(this);
-		mPrefShowRating = PreferencesUtils.showLogPlayerRating(this);
-		mPrefShowNew = PreferencesUtils.showLogPlayerNew(this);
-		mPrefShowWin = PreferencesUtils.showLogPlayerWin(this);
+		preferToShowTeamColor = PreferencesUtils.showLogPlayerTeamColor(this);
+		preferToShowPosition = PreferencesUtils.showLogPlayerPosition(this);
+		preferToShowScore = PreferencesUtils.showLogPlayerScore(this);
+		preferToShowRating = PreferencesUtils.showLogPlayerRating(this);
+		preferToShowNew = PreferencesUtils.showLogPlayerNew(this);
+		preferToShowWin = PreferencesUtils.showLogPlayerWin(this);
 		setViewVisibility();
 	}
 
@@ -248,7 +253,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		return new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				mUsername.setText((String) view.getTag());
+				usernameView.setText((String) view.getTag());
 			}
 		};
 	}
@@ -257,12 +262,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@OnClick(R.id.color_view)
 	public void onColorClick() {
 		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, null, 4);
+			ColorUtils.getColorList(), colors, teamColorView.getText().toString(), usedColors, null, 4);
 
 		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
 			public void onColorSelected(String description, int color) {
-				mTeamColor.setText(description);
+				teamColorView.setText(description);
 			}
 
 		});
@@ -274,17 +279,17 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@OnTextChanged(R.id.log_player_team_color)
 	public void afterTextChanged(Editable text) {
 		int color = ColorUtils.parseColor(text.toString());
-		ColorUtils.setColorViewValue(mColorView, color);
+		ColorUtils.setColorViewValue(colorView, color);
 	}
 
 	@DebugLog
 	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
 	public void onNumberToTextClick(Button button) {
 		EditText editText = null;
-		if (button == mPositionButton) {
-			editText = mPosition;
-		} else if (button == mScoreButton) {
-			editText = mScore;
+		if (button == positionButton) {
+			editText = positionView;
+		} else if (button == scoreButton) {
+			editText = scoreView;
 		}
 		if (editText == null) {
 			return;
@@ -311,25 +316,25 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@DebugLog
 	private void bindUi() {
 		if (hasAutoPosition()) {
-			mHeader2.setText(mGameName);
-			mSubheader.setText(getString(R.string.title_player) + " #" + mAutoPosition);
-			mHeader.setVisibility(View.GONE);
-			mTwoLineContainer.setVisibility(View.VISIBLE);
+			titleView.setText(gameName);
+			subtitleView.setText(getString(R.string.title_player) + " #" + autoPosition);
+			headerView.setVisibility(View.GONE);
+			twoLineContainer.setVisibility(View.VISIBLE);
 		} else {
-			mHeader.setText(mGameName);
-			mHeader.setVisibility(View.VISIBLE);
-			mTwoLineContainer.setVisibility(View.GONE);
+			headerView.setText(gameName);
+			headerView.setVisibility(View.VISIBLE);
+			twoLineContainer.setVisibility(View.GONE);
 		}
-		mName.setTextKeepState(mPlayer.name);
-		mUsername.setTextKeepState(mPlayer.username);
-		mTeamColor.setTextKeepState(mPlayer.color);
-		if (mPlayer.getStartingPosition() != null) {
-			mPosition.setTextKeepState(mPlayer.getStartingPosition());
+		nameView.setTextKeepState(player.name);
+		usernameView.setTextKeepState(player.username);
+		teamColorView.setTextKeepState(player.color);
+		if (player.getStartingPosition() != null) {
+			positionView.setTextKeepState(player.getStartingPosition());
 		}
-		mScore.setTextKeepState(mPlayer.score);
-		mRating.setTextKeepState((mPlayer.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.rating));
-		mNew.setChecked(mPlayer.New());
-		mWin.setChecked(mPlayer.Win());
+		scoreView.setTextKeepState(player.score);
+		ratingView.setTextKeepState((player.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(player.rating));
+		newView.setChecked(player.New());
+		winView.setChecked(player.Win());
 	}
 
 	@DebugLog
@@ -341,10 +346,10 @@ public class LogPlayerActivity extends AppCompatActivity {
 		}
 		enableButton |= hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container));
 		enableButton |= hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container));
-		enableButton |= hideRow(shouldHideNew(), mNew);
-		enableButton |= hideRow(shouldHideWin(), mWin);
-		mFab.setVisibility(enableButton ? View.VISIBLE : View.GONE);
-		mFabBuffer.setVisibility(enableButton ? View.VISIBLE : View.GONE);
+		enableButton |= hideRow(shouldHideNew(), newView);
+		enableButton |= hideRow(shouldHideWin(), winView);
+		fab.setVisibility(enableButton ? View.VISIBLE : View.GONE);
+		fabBuffer.setVisibility(enableButton ? View.VISIBLE : View.GONE);
 	}
 
 	@DebugLog
@@ -359,50 +364,37 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean shouldHideTeamColor() {
-		return !mPrefShowTeamColor && !mUserShowTeamColor && TextUtils.isEmpty(mPlayer.color);
+		return !preferToShowTeamColor && !userHasShownTeamColor && TextUtils.isEmpty(player.color);
 	}
 
 	@DebugLog
 	private boolean shouldHidePosition() {
-		return !mPrefShowPosition && !mUserShowPosition && TextUtils.isEmpty(mPlayer.getStartingPosition());
+		return !preferToShowPosition && !userHasShownPosition && TextUtils.isEmpty(player.getStartingPosition());
 	}
 
 	@DebugLog
 	private boolean hasAutoPosition() {
-		return mAutoPosition != Player.SEAT_UNKNOWN;
+		return autoPosition != Player.SEAT_UNKNOWN;
 	}
 
 	@DebugLog
 	private boolean shouldHideScore() {
-		return !mPrefShowScore && !mUserShowScore && TextUtils.isEmpty(mPlayer.score);
+		return !preferToShowScore && !userHasShownScore && TextUtils.isEmpty(player.score);
 	}
 
 	@DebugLog
 	private boolean shouldHideRating() {
-		return !mPrefShowRating && !mUserShowRating && !(mPlayer.rating > 0);
+		return !preferToShowRating && !userHasShownRating && !(player.rating > 0);
 	}
 
 	@DebugLog
 	private boolean shouldHideNew() {
-		return !mPrefShowNew && !mUserShowNew && !mPlayer.New();
+		return !preferToShowNew && !userHasShownNew && !player.New();
 	}
 
 	@DebugLog
 	private boolean shouldHideWin() {
-		return !mPrefShowWin && !mUserShowWin && !mPlayer.Win();
-	}
-
-	@DebugLog
-	private boolean onActionBarItemSelected(int itemId) {
-		switch (itemId) {
-			case R.id.menu_done:
-				save();
-				return true;
-			case R.id.menu_cancel:
-				cancel();
-				return true;
-		}
-		return false;
+		return !preferToShowWin && !userHasShownWin && !player.Win();
 	}
 
 	@DebugLog
@@ -422,31 +414,31 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 					String selection = array[which].toString();
 					if (selection.equals(r.getString(R.string.team_color))) {
-						mUserShowTeamColor = true;
-						viewToFocus = mTeamColor;
+						userHasShownTeamColor = true;
+						viewToFocus = teamColorView;
 						viewToScroll = findViewById(R.id.log_player_team_color_container);
 					} else if (selection.equals(r.getString(R.string.starting_position))) {
-						mUserShowPosition = true;
-						viewToFocus = mPosition;
+						userHasShownPosition = true;
+						viewToFocus = positionView;
 						viewToScroll = findViewById(R.id.log_player_position_container);
 					} else if (selection.equals(r.getString(R.string.score))) {
-						mUserShowScore = true;
-						viewToFocus = mScore;
+						userHasShownScore = true;
+						viewToFocus = scoreView;
 						viewToScroll = findViewById(R.id.log_player_score_container);
 					} else if (selection.equals(r.getString(R.string.rating))) {
-						mUserShowRating = true;
-						viewToFocus = mRating;
+						userHasShownRating = true;
+						viewToFocus = ratingView;
 						viewToScroll = findViewById(R.id.log_player_rating);
 					} else if (selection.equals(r.getString(R.string.new_label))) {
-						mUserShowNew = true;
-						mNew.setChecked(true);
-						viewToScroll = mNew;
-						viewToFocus = mNew;
+						userHasShownNew = true;
+						newView.setChecked(true);
+						viewToScroll = newView;
+						viewToFocus = newView;
 					} else if (selection.equals(r.getString(R.string.win))) {
-						mUserShowWin = true;
-						mWin.setChecked(true);
-						viewToScroll = mWin;
-						viewToFocus = mWin;
+						userHasShownWin = true;
+						winView.setChecked(true);
+						viewToScroll = winView;
+						viewToFocus = winView;
 					}
 					AddFieldEvent.log("Player", selection);
 					setViewVisibility();
@@ -455,10 +447,10 @@ public class LogPlayerActivity extends AppCompatActivity {
 					}
 					if (viewToScroll != null) {
 						final View finalView = viewToScroll;
-						mScrollContainer.post(new Runnable() {
+						scrollContainer.post(new Runnable() {
 							@Override
 							public void run() {
-								mScrollContainer.smoothScrollTo(0, finalView.getBottom());
+								scrollContainer.smoothScrollTo(0, finalView.getBottom());
 							}
 						});
 					}
@@ -499,7 +491,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	private void save() {
 		captureForm();
 		Intent intent = new Intent();
-		intent.putExtra(KEY_PLAYER, mPlayer);
+		intent.putExtra(KEY_PLAYER, player);
 		setResult(RESULT_OK, intent);
 		finish();
 	}
@@ -507,7 +499,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@DebugLog
 	private void cancel() {
 		captureForm();
-		if (mPlayer.equals(mOriginalPlayer)) {
+		if (player.equals(originalPlayer)) {
 			setResult(RESULT_CANCELED);
 			finish();
 		} else {
@@ -517,13 +509,13 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void captureForm() {
-		mPlayer.name = mName.getText().toString().trim();
-		mPlayer.username = mUsername.getText().toString().trim();
-		mPlayer.color = mTeamColor.getText().toString().trim();
-		mPlayer.setStartingPosition(mPosition.getText().toString().trim());
-		mPlayer.score = mScore.getText().toString().trim();
-		mPlayer.rating = StringUtils.parseDouble(mRating.getText().toString().trim());
-		mPlayer.New(mNew.isChecked());
-		mPlayer.Win(mWin.isChecked());
+		player.name = nameView.getText().toString().trim();
+		player.username = usernameView.getText().toString().trim();
+		player.color = teamColorView.getText().toString().trim();
+		player.setStartingPosition(positionView.getText().toString().trim());
+		player.score = scoreView.getText().toString().trim();
+		player.rating = StringUtils.parseDouble(ratingView.getText().toString().trim());
+		player.New(newView.isChecked());
+		player.Win(winView.isChecked());
 	}
 }

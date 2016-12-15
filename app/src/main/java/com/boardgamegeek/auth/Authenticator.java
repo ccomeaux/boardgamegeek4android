@@ -45,7 +45,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	@NonNull
 	@Override
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-		Timber.v("Adding account: accountType=" + accountType + ", authTokenType=" + authTokenType);
+		Timber.v("Adding account: accountType=%s, authTokenType=%s", accountType, authTokenType);
 		return createLoginIntent(response, null);
 	}
 
@@ -250,6 +250,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 				removeAccount(context, am, account);
 			}
 		}
+		AccountUtils.clearFields(context);
 	}
 
 	@NonNull

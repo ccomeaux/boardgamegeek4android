@@ -13,8 +13,8 @@ import java.util.Locale;
 public class Article {
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);
 
-	private long mPostDateTime = DateTimeUtils.UNPARSED_DATE;
-	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long editDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute
 	public int id;
@@ -41,13 +41,13 @@ public class Article {
 	public String body;
 
 	public long postDate() {
-		mPostDateTime = DateTimeUtils.tryParseDate(mPostDateTime, postdate, FORMAT);
-		return mPostDateTime;
+		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);
+		return postDateTime;
 	}
 
 	public long editDate() {
-		mEditDateTime = DateTimeUtils.tryParseDate(mEditDateTime, editdate, FORMAT);
-		return mEditDateTime;
+		editDateTime = DateTimeUtils.tryParseDate(editDateTime, editdate, FORMAT);
+		return editDateTime;
 	}
 
 	public int getNumberOfEdits() {

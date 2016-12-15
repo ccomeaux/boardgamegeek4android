@@ -16,6 +16,12 @@ public class AccountUtils {
 	private AccountUtils() {
 	}
 
+	public static void clearFields(final Context context) {
+		setUsername(context, null);
+		setFullName(context, null);
+		setAvatarUrl(context, null);
+	}
+
 	public static void setUsername(final Context context, final String username) {
 		setString(context, username, KEY_USERNAME);
 		Crashlytics.setUserIdentifier(username);

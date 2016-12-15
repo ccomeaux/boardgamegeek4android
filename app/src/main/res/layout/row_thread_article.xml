@@ -67,6 +67,7 @@
 			android:paddingBottom="@dimen/padding_standard"
 			android:paddingLeft="@dimen/material_margin_horizontal_card_contents"
 			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
+			android:paddingTop="@dimen/padding_standard"
 			tools:text="This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text."/>
 	</LinearLayout>
 </android.support.v7.widget.CardView>

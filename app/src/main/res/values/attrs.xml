@@ -18,7 +18,7 @@
 		<attr name="borderDrawable" format="reference"/>
 		<attr name="desaturateOnPress" format="boolean"/>
 	</declare-styleable>
-	<declare-styleable name="ForegroundLinearLayout">
+	<declare-styleable name="BggForegroundLinearLayout">
 		<attr name="android:foreground"/>
 		<attr name="android:foregroundInsidePadding"/>
 		<attr name="android:foregroundGravity"/>

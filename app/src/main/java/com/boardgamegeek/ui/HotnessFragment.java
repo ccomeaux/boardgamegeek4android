@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
@@ -52,7 +53,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	private ActionMode actionMode;
 	private Unbinder unbinder;
 	@BindView(R.id.root_container) CoordinatorLayout containerView;
-	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
@@ -78,7 +79,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	}
 
 	private void setUpRecyclerView() {
-		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 		recyclerView.setHasFixedSize(true);
 	}
 
@@ -143,7 +144,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 			AnimationUtils.fadeOut(emptyView);
 			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		}
-		AnimationUtils.fadeOut(progressView);
+		progressView.hide();
 	}
 
 	@Override

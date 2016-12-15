@@ -42,11 +42,11 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 	}
 
 	private class ClearTask extends AsyncDialogPreference.Task {
-		private ContentResolver mResolver;
+		private ContentResolver resolver;
 
 		@Override
 		protected void onPreExecute() {
-			mResolver = getContext().getContentResolver();
+			resolver = getContext().getContentResolver();
 		}
 
 		@Override
@@ -68,15 +68,15 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			Timber.i("Removed %d records", count);
 
 			count = 0;
-			count += mResolver.delete(Thumbnails.CONTENT_URI, null, null);
-			count += mResolver.delete(Avatars.CONTENT_URI, null, null);
+			count += resolver.delete(Thumbnails.CONTENT_URI, null, null);
+			count += resolver.delete(Avatars.CONTENT_URI, null, null);
 			Timber.i("Removed %d files", count);
 
 			return success;
 		}
 
 		private int delete(Uri uri) {
-			int count = mResolver.delete(uri, null, null);
+			int count = resolver.delete(uri, null, null);
 			Timber.i("Removed %1$d %2$s", count, uri.getLastPathSegment());
 			return count;
 		}

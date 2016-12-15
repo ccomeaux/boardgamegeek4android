@@ -123,10 +123,9 @@ public class PlayPersister {
 			}
 			ResolverUtils.applyBatch(context, batch);
 		}
-		Timber.i(String.format(
-			"Updated %1$s, inserted %2$s, %8$s unchanged, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
+		Timber.i("Updated %1$s, inserted %2$s, %8$s unchanged, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
 			updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
-			pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount, unchangedCount));
+			pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount, unchangedCount);
 	}
 
 	/*
@@ -192,7 +191,7 @@ public class PlayPersister {
 		}
 
 		ResolverUtils.applyBatch(context, batch, debugMessage);
-		Timber.i("Saved play ID=" + play.playId);
+		Timber.i("Saved play ID=%s", play.playId);
 	}
 
 	private boolean shouldSave(Play play) {
@@ -240,7 +239,7 @@ public class PlayPersister {
 					status = STATUS_ERROR;
 					Timber.e("Unknown sync status!");
 				}
-				Timber.i("Not saving during the sync due to status=" + status);
+				Timber.i("Not saving during the sync due to status=%s", status);
 			} else {
 				int oldSyncHashCode = ResolverUtils.queryInt(resolver, play.uri(), Plays.SYNC_HASH_CODE);
 				int newSyncHashCode = generateSyncHashCode(play);

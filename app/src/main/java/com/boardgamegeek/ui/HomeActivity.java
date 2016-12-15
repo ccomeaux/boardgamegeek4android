@@ -23,7 +23,7 @@ public class HomeActivity extends TopLevelActivity {
 				if (statuses != null && statuses.length > 0) {
 					intent = new Intent(this, CollectionActivity.class);
 				} else if (PreferencesUtils.getSyncPlays(this)) {
-					intent = new Intent(this, PlaysActivity.class);
+					intent = new Intent(this, PlaysSummaryActivity.class);
 				} else if (PreferencesUtils.getSyncBuddies(this)) {
 					intent = new Intent(this, BuddiesActivity.class);
 				}
