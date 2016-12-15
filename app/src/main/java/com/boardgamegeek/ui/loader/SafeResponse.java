@@ -18,6 +18,7 @@ public class SafeResponse<T> {
 			final Response<T> response = call.execute();
 			if (response.isSuccessful()) {
 				body = response.body();
+				mapBody(body);
 			} else {
 				errorMessage = "Error code " + response.code();
 			}
@@ -29,6 +30,9 @@ public class SafeResponse<T> {
 				errorMessage = e.getMessage();
 			}
 		}
+	}
+
+	protected void mapBody(T body) {
 	}
 
 	public T getBody() {

@@ -9,7 +9,7 @@ import java.util.Locale;
 
 @SuppressWarnings("unused")
 @Root(name = "article")
-public class Article {
+public class ArticleElement {
 	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);
 
 	@Attribute public int id;
