@@ -1,11 +1,12 @@
 Release Notes
 =============
 
-Coming Soon
+Version 6.2
 -----------
  * Top 100 Games
  * Avoid crashes/freezes when adding new collection items
  * Avoid crashes when viewing some threads
+ * Added a privacy policy
  * Bug fixes
 
 Version 6.1.6
