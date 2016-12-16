@@ -131,7 +131,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	@Subscribe
 	public void onEvent(GameShortcutCreatedEvent event) {
-		Intent intent = ShortcutUtils.createIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
+		Intent intent = ShortcutUtils.createGameIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		setResult(RESULT_OK, intent);
 		finish();
 	}

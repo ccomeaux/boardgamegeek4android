@@ -126,7 +126,7 @@ public class GameActivity extends HeroActivity implements Callback {
 				ActivityUtils.shareGame(this, gameId, gameName, "Game");
 				return true;
 			case R.id.menu_shortcut:
-				ShortcutUtils.createShortcut(this, gameId, gameName, thumbnailUrl);
+				ShortcutUtils.createGameShortcut(this, gameId, gameName, thumbnailUrl);
 				return true;
 			case R.id.menu_log_play_quick:
 				Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show();
