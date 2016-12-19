@@ -37,7 +37,7 @@
 		</activity>
 		<activity
 			android:name=".ui.CollectionActivity"
-			android:exported="false"
+			android:exported="true"
 			android:label="@string/title_collection"
 			android:uiOptions="splitActionBarWhenNarrow">
 			<meta-data

@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.shortcut.CollectionShortcutTask;
 import com.boardgamegeek.util.shortcut.GameShortcutTask;
 
 import java.io.File;
@@ -17,6 +18,11 @@ import java.io.File;
  */
 public class ShortcutUtils {
 	private ShortcutUtils() {
+	}
+
+	public static void createCollectionShortcut(Context context, long viewId, String viewName, String thumbnailUrl) {
+		CollectionShortcutTask task = new CollectionShortcutTask(context, viewId, viewName, thumbnailUrl);
+		TaskUtils.executeAsyncTask(task);
 	}
 
 	public static void createGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
@@ -50,7 +56,7 @@ public class ShortcutUtils {
 	}
 
 	@NonNull
-	private static Intent createShortcutIntent(Context context, String shortcutName, Intent intent) {
+	public static Intent createShortcutIntent(Context context, String shortcutName, Intent intent) {
 		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);

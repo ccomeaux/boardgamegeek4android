@@ -66,6 +66,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -278,10 +279,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final Menu menu = footerToolbar.getMenu();
 		if (isCreatingShortcut) {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
+			menu.findItem(R.id.menu_create_shortcut).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
 		} else {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(true);
+			menu.findItem(R.id.menu_create_shortcut).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
@@ -305,6 +308,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+					return true;
+				case R.id.menu_create_shortcut:
+					ShortcutUtils.createCollectionShortcut(getContext(), viewId, viewName, null);
 					return true;
 				case R.id.menu_collection_view_save:
 					SaveView.createDialog(getActivity(), CollectionFragment.this, viewName, sorter, filters);

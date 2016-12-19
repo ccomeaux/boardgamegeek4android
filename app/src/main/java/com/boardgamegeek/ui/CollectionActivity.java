@@ -39,6 +39,7 @@ import icepick.Icepick;
 import icepick.State;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor> {
+	public static final String KEY_VIEW_ID = "VIEW_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	@State int viewIndex;
@@ -50,7 +51,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-		viewId = savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this);
+
+		viewId = getIntent().getLongExtra(KEY_VIEW_ID, savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this));
 
 		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
