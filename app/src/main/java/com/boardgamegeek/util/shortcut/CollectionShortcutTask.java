@@ -3,6 +3,7 @@ package com.boardgamegeek.util.shortcut;
 import android.content.Context;
 import android.content.Intent;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
@@ -19,6 +20,6 @@ public class CollectionShortcutTask extends ShortcutTask {
 	@Override
 	protected Intent createIntent() {
 		Intent intent = ActivityUtils.createCollectionIntent(context, viewId);
-		return ShortcutUtils.createShortcutIntent(context, viewName, intent);
+		return ShortcutUtils.createShortcutIntent(context, viewName, intent, R.drawable.ic_collection);
 	}
 }

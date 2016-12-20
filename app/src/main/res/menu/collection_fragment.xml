@@ -33,7 +33,7 @@
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_create_shortcut"
-		android:title="@string/menu_create_shortcut"
+		android:title="@string/menu_create_shortcut_collection"
 		app:showAsAction="never"/>
 
 </menu>
