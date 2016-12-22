@@ -22,8 +22,8 @@ import java.io.InputStreamReader;
 import timber.log.Timber;
 
 public class JsonImportTask extends ImporterExporterTask {
-	public JsonImportTask(Context context, boolean isAutoBackupMode) {
-		super(context, isAutoBackupMode);
+	public JsonImportTask(Context context) {
+		super(context);
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class JsonImportTask extends ImporterExporterTask {
 		// TODO: Ensure no large database ops are running?
 
 		// Ensure the export directory exists
-		File importPath = FileUtils.getExportPath(isAutoBackupMode);
+		File importPath = FileUtils.getExportPath();
 		if (!importPath.exists()) {
 			return ERROR_STORAGE_ACCESS;
 		}

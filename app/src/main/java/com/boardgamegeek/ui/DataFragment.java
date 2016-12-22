@@ -62,9 +62,9 @@ public class DataFragment extends Fragment {
 
 		unbinder = ButterKnife.bind(this, root);
 
-		fileLocationView.setText(FileUtils.getExportPath(false).getPath());
+		fileLocationView.setText(FileUtils.getExportPath().getPath());
 
-		task = new ImporterExporterTask(getActivity(), false);
+		task = new ImporterExporterTask(getActivity());
 		for (Step step : task.getSteps()) {
 			TextView textView = new TextView(getActivity());
 			textView.setText(getString(R.string.backup_description, step.getDescription(getActivity()), step.getFileName()));
@@ -137,7 +137,7 @@ public class DataFragment extends Fragment {
 	@DebugLog
 	private void export() {
 		initProgressBar();
-		TaskUtils.executeAsyncTask(new JsonExportTask(getContext(), false));
+		TaskUtils.executeAsyncTask(new JsonExportTask(getContext()));
 	}
 
 	@DebugLog
@@ -147,7 +147,7 @@ public class DataFragment extends Fragment {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				initProgressBar();
-				TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), false));
+				TaskUtils.executeAsyncTask(new JsonImportTask(getContext()));
 				Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME)
 					.putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Import"));
 			}

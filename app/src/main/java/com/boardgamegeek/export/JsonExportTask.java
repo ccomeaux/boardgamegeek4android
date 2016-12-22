@@ -27,8 +27,8 @@ import java.io.OutputStreamWriter;
 import timber.log.Timber;
 
 public class JsonExportTask extends ImporterExporterTask {
-	public JsonExportTask(Context context, boolean isAutoBackupMode) {
-		super(context, isAutoBackupMode);
+	public JsonExportTask(Context context) {
+		super(context);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		}
 
 		// Ensure the export directory exists
-		File exportPath = FileUtils.getExportPath(isAutoBackupMode);
+		File exportPath = FileUtils.getExportPath();
 		if (!exportPath.exists()) {
 			if (!exportPath.mkdirs()) {
 				Timber.i("Export path %s can't be created", exportPath);

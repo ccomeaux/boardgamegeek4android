@@ -21,12 +21,10 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 	private static final int PROGRESS_STEP = 2;
 
 	protected final Context context;
-	protected final boolean isAutoBackupMode;
 	protected final List<Step> steps = new ArrayList<>();
 
-	public ImporterExporterTask(@NonNull Context context, boolean isAutoBackupMode) {
+	public ImporterExporterTask(@NonNull Context context) {
 		this.context = context.getApplicationContext();
-		this.isAutoBackupMode = isAutoBackupMode;
 
 		steps.clear();
 		steps.add(new CollectionViewStep());

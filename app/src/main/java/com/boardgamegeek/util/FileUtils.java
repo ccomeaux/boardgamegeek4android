@@ -11,7 +11,6 @@ import java.io.IOException;
 
 public class FileUtils {
 	private static final String EXPORT_FOLDER = "bgg4android-export";
-	private static final String EXPORT_FOLDER_AUTO = EXPORT_FOLDER + File.separator + "AutoBackup";
 
 	private FileUtils() {
 	}
@@ -83,9 +82,7 @@ public class FileUtils {
 		return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
 	}
 
-	public static File getExportPath(boolean isAutoBackupMode) {
-		return new File(
-			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-			isAutoBackupMode ? EXPORT_FOLDER_AUTO : EXPORT_FOLDER);
+	public static File getExportPath() {
+		return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), EXPORT_FOLDER);
 	}
 }
