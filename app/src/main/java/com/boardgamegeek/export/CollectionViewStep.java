@@ -25,7 +25,7 @@ public class CollectionViewStep implements Step {
 	@NonNull
 	@Override
 	public String getFileName() {
-		return "collection-views.json";
+		return "bgg4a-collection-views.json";
 	}
 
 	@NonNull

@@ -25,7 +25,7 @@ public class UserStep implements Step {
 	@NonNull
 	@Override
 	public String getFileName() {
-		return "users.json";
+		return "bgg4a-users.json";
 	}
 
 	@NonNull

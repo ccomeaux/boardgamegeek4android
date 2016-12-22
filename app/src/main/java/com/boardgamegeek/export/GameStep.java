@@ -26,7 +26,7 @@ public class GameStep implements Step {
 	@NonNull
 	@Override
 	public String getFileName() {
-		return "games.json";
+		return "bgg4a-games.json";
 	}
 
 	@NonNull

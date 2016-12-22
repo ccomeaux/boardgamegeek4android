@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileUtils {
-	private static final String EXPORT_FOLDER = "bgg4android-export";
-
 	private FileUtils() {
 	}
 
@@ -83,6 +81,6 @@ public class FileUtils {
 	}
 
 	public static File getExportPath() {
-		return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), EXPORT_FOLDER);
+		return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 	}
 }
