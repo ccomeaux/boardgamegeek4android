@@ -48,18 +48,16 @@ public class PresentationUtils {
 	/**
 	 * Formats the date for display in the forums (based on the users selected preference.
 	 */
-	public static CharSequence formatTimestamp(Context context, long date, boolean isForumTimestamp) {
+	public static CharSequence formatTimestamp(Context context, long date, boolean isForumTimestamp, boolean includeTime) {
+		int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH;
+		if (includeTime) flags |= DateUtils.FORMAT_SHOW_TIME;
 		if (isForumTimestamp && PreferencesUtils.getForumDates(context)) {
-			return DateUtils.formatDateTime(context, date,
-				DateUtils.FORMAT_SHOW_DATE |
-					DateUtils.FORMAT_SHOW_YEAR |
-					DateUtils.FORMAT_ABBREV_MONTH |
-					DateUtils.FORMAT_SHOW_TIME);
+			return DateUtils.formatDateTime(context, date, flags);
 		} else {
 			if (date == 0) {
 				return context.getString(R.string.text_unknown);
 			}
-			return DateUtils.getRelativeTimeSpanString(date);
+			return DateUtils.getRelativeTimeSpanString(date, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, flags);
 		}
 	}
 

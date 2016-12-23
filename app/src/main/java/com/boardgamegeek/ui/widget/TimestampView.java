@@ -22,6 +22,7 @@ public class TimestampView extends TextView {
 	private Runnable timeHintUpdateRunnable = null;
 
 	private boolean isForumTimeStamp;
+	private boolean includeTime;
 	private String defaultMessage;
 	private boolean hideWhenEmpty;
 	@State CharSequence format;
@@ -69,6 +70,7 @@ public class TimestampView extends TextView {
 		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, 0);
 		try {
 			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
+			includeTime = a.getBoolean(R.styleable.TimestampView_includeTime, false);
 			format = a.getText(R.styleable.TimestampView_format);
 			defaultMessage = a.getString(R.styleable.TimestampView_emptyMessage);
 			hideWhenEmpty = a.getBoolean(R.styleable.TimestampView_hideWhenEmpty, false);
@@ -107,7 +109,7 @@ public class TimestampView extends TextView {
 					if (!ViewCompat.isAttachedToWindow(TimestampView.this)) {
 						return;
 					}
-					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp);
+					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp, includeTime);
 					if (!TextUtils.isEmpty(format)) {
 						setText(Html.fromHtml(String.format(Html.toHtml(new SpannedString(format)), formattedTimestamp, formatArg)));
 					} else {
