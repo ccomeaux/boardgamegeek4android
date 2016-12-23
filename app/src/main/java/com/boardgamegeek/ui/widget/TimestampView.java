@@ -44,6 +44,12 @@ public class TimestampView extends TextView {
 	}
 
 	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		post(timeHintUpdateRunnable);
+	}
+
+	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
 		removeCallbacks(timeHintUpdateRunnable);
