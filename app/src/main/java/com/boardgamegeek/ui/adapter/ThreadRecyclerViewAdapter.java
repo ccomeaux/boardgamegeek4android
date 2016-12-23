@@ -52,6 +52,8 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 
 	public class ArticleViewHolder extends RecyclerView.ViewHolder {
 		@BindView(R.id.username) TextView usernameView;
+		@BindView(R.id.post_date) TimestampView postDateView;
+		@BindView(R.id.date_divider) View dateDivider;
 		@BindView(R.id.edit_date) TimestampView editDateView;
 		@BindView(R.id.body) TextView bodyView;
 		@BindView(R.id.view_button) View viewButton;
@@ -66,7 +68,15 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			if (article == null) return;
 
 			usernameView.setText(article.username);
-			editDateView.setTimestamp(article.editDate());
+			postDateView.setTimestamp(article.postDate());
+			if (article.editDate() != article.postDate()) {
+				editDateView.setTimestamp(article.editDate());
+				editDateView.setVisibility(View.VISIBLE);
+				dateDivider.setVisibility(View.VISIBLE);
+			} else {
+				editDateView.setVisibility(View.GONE);
+				dateDivider.setVisibility(View.GONE);
+			}
 			UIUtils.setTextMaybeHtml(bodyView, article.body.trim());
 			Bundle bundle = new Bundle();
 			bundle.putString(ActivityUtils.KEY_USER, article.username);

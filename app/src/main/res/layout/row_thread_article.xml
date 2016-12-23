@@ -32,15 +32,46 @@
 				android:ellipsize="end"
 				tools:text="ccomeaux"/>
 
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/edit_date"
-				style="@style/TextWithImage.Secondary"
+			<HorizontalScrollView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/username"
-				android:drawableLeft="@drawable/ic_clock_small"
-				app:isForumTimestamp="true"
-				tools:text="Yesterday"/>
+				android:layout_toLeftOf="@+id/view_button">
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+
+					<com.boardgamegeek.ui.widget.TimestampView
+						android:id="@+id/post_date"
+						style="@style/TextWithImage.Secondary"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:drawableLeft="@drawable/ic_clock_small"
+						app:isForumTimestamp="true"
+						tools:text="2 days ago"/>
+
+					<View
+						android:id="@+id/date_divider"
+						android:layout_width="1dp"
+						android:layout_height="match_parent"
+						android:layout_marginLeft="@dimen/padding_standard"
+						android:layout_marginRight="@dimen/padding_standard"
+						android:background="@color/list_divider"/>
+
+					<com.boardgamegeek.ui.widget.TimestampView
+						android:id="@+id/edit_date"
+						style="@style/TextWithImage.Secondary"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_below="@+id/username"
+						android:drawableLeft="@drawable/ic_edit_small"
+						app:isForumTimestamp="true"
+						tools:text="Yesterday"/>
+				</LinearLayout>
+			</HorizontalScrollView>
 
 			<ImageView
 				android:id="@+id/view_button"

@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
+ * Improved forum timestamps
  * Bug fixes
 
 Version 6.2
