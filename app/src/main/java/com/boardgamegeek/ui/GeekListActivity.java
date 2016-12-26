@@ -4,9 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
@@ -17,10 +18,11 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
-public class GeekListActivity extends SimpleSinglePaneActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekList>> {
+public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekList>> {
 	private static final int LOADER_ID = 1;
 	private int geekListId;
 	private String geekListTitle;
@@ -31,10 +33,7 @@ public class GeekListActivity extends SimpleSinglePaneActivity implements Loader
 		final Intent intent = getIntent();
 		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
 		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
-		final ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setTitle(geekListTitle);
-		}
+		safelySetTitle(geekListTitle);
 
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent()
@@ -48,11 +47,6 @@ public class GeekListActivity extends SimpleSinglePaneActivity implements Loader
 	public void onResume() {
 		super.onResume();
 		getSupportLoaderManager().initLoader(LOADER_ID, null, this);
-	}
-
-	@Override
-	protected Fragment onCreatePane(Intent intent) {
-		return new GeekListFragment();
 	}
 
 	@Override
@@ -74,13 +68,56 @@ public class GeekListActivity extends SimpleSinglePaneActivity implements Loader
 	}
 
 	@Override
+	protected void setUpViewPager() {
+		GeekListPagerAdapter adapter = new GeekListPagerAdapter(getSupportFragmentManager());
+		viewPager.setAdapter(adapter);
+	}
+
+	private final class GeekListPagerAdapter extends FragmentPagerAdapter {
+		private Fragment fragment;
+
+		public GeekListPagerAdapter(FragmentManager fragmentManager) {
+			super(fragmentManager);
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			if (position == 0) return getString(R.string.title_geeklist);
+			return "";
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			if (position == 0) {
+				fragment = Fragment.instantiate(
+					GeekListActivity.this,
+					GeekListFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+				return fragment;
+			}
+			return null;
+		}
+
+		@Override
+		public int getCount() {
+			return 1;
+		}
+
+		public Fragment getFragment() {
+			return fragment;
+		}
+	}
+
+	@Override
 	public Loader<SafeResponse<GeekList>> onCreateLoader(int id, Bundle data) {
 		return new GeekListLoader(this, geekListId);
 	}
 
 	@Override
 	public void onLoadFinished(Loader<SafeResponse<GeekList>> loader, SafeResponse<GeekList> data) {
-		GeekListFragment fragment = ((GeekListFragment) getFragment());
+		if (viewPager == null) return;
+		if (viewPager.getAdapter() == null) return;
+		GeekListFragment fragment = ((GeekListFragment) ((GeekListPagerAdapter) viewPager.getAdapter()).getFragment());
 		fragment.setData(data);
 	}
 
