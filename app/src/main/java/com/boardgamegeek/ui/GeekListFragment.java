@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,12 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
@@ -38,8 +33,7 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeResponse<GeekList>> {
-	private static final int LOADER_ID = 1;
+public class GeekListFragment extends Fragment {
 	private int geekListId;
 	private GeekListRecyclerViewAdapter adapter;
 
@@ -65,13 +59,6 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		// If this is called in onActivityCreated as recommended, the loader is finished twice
-		getLoaderManager().initLoader(LOADER_ID, null, this);
-	}
-
-	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		if (unbinder != null) unbinder.unbind();
@@ -83,17 +70,7 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 		recyclerView.setHasFixedSize(true);
 	}
 
-	@Override
-	public Loader<SafeResponse<GeekList>> onCreateLoader(int id, Bundle data) {
-		return new GeekListLoader(getActivity(), geekListId);
-	}
-
-	@Override
-	public void onLoadFinished(Loader<SafeResponse<GeekList>> loader, SafeResponse<GeekList> data) {
-		if (getActivity() == null) {
-			return;
-		}
-
+	public void setData(SafeResponse<GeekList> data) {
 		if (adapter == null) {
 			adapter = new GeekListRecyclerViewAdapter(getActivity(), data == null ? null : data.getBody());
 			recyclerView.setAdapter(adapter);
@@ -113,26 +90,6 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 			AnimationUtils.fadeIn(recyclerView, isResumed());
 		}
 		progressView.hide();
-	}
-
-	@Override
-	public void onLoaderReset(Loader<SafeResponse<GeekList>> loader) {
-	}
-
-	private static class GeekListLoader extends BggLoader<SafeResponse<GeekList>> {
-		private final BggService service;
-		private final int geekListId;
-
-		public GeekListLoader(Context context, int geekListId) {
-			super(context);
-			service = Adapter.createForXml();
-			this.geekListId = geekListId;
-		}
-
-		@Override
-		public SafeResponse<GeekList> loadInBackground() {
-			return new SafeResponse<>(service.geekList(geekListId, 1));
-		}
 	}
 
 	public static class GeekListRecyclerViewAdapter extends RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListViewHolder> {
