@@ -101,7 +101,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 			if (position == 1) {
 				itemsFragment = Fragment.instantiate(
 					GeekListActivity.this,
-					GeekListFragment.class.getName(),
+					GeekListItemsFragment.class.getName(),
 					UIUtils.intentToFragmentArguments(getIntent()));
 				return itemsFragment;
 			}
@@ -138,7 +138,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		GeekListDescriptionFragment descriptionFragment = ((GeekListDescriptionFragment) adapter.getHeaderFragment());
 		if (descriptionFragment != null) descriptionFragment.setData(data.getBody());
 
-		GeekListFragment itemsFragment = ((GeekListFragment) adapter.getItemsFragment());
+		GeekListItemsFragment itemsFragment = ((GeekListItemsFragment) adapter.getItemsFragment());
 		if (itemsFragment != null) itemsFragment.setData(data);
 	}
 

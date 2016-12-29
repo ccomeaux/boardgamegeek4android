@@ -19,13 +19,9 @@ import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.XmlConverter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,22 +29,13 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GeekListFragment extends Fragment {
-	private int geekListId;
+public class GeekListItemsFragment extends Fragment {
 	private GeekListRecyclerViewAdapter adapter;
 
 	Unbinder unbinder;
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,22 +80,18 @@ public class GeekListFragment extends Fragment {
 	}
 
 	public static class GeekListRecyclerViewAdapter extends RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListViewHolder> {
-		private static final int VIEW_TYPE_HEADER = R.layout.header_geeklist;
-		private static final int VIEW_TYPE_ITEM = R.layout.row_geeklist_item;
 		private final LayoutInflater inflater;
 		private final GeekList geekList;
-		private final XmlConverter xmlConverter;
 
 		public GeekListRecyclerViewAdapter(Context context, GeekList geekList) {
 			inflater = LayoutInflater.from(context);
 			this.geekList = geekList;
 			setHasStableIds(true);
-			xmlConverter = new XmlConverter();
 		}
 
 		@Override
 		public int getItemCount() {
-			return (geekList == null || geekList.getItems() == null) ? 0 : geekList.getItems().size() + 1;
+			return (geekList == null || geekList.getItems() == null) ? 0 : geekList.getItems().size();
 		}
 
 		@Override
@@ -117,80 +100,24 @@ public class GeekListFragment extends Fragment {
 		}
 
 		@Override
-		public int getItemViewType(int position) {
-			if (position == 0) {
-				return VIEW_TYPE_HEADER;
-			} else {
-				return VIEW_TYPE_ITEM;
-			}
-		}
-
-		@Override
 		public GeekListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			View itemView = inflater.inflate(viewType, parent, false);
-			if (viewType == VIEW_TYPE_HEADER) {
-				return new GeekListHeaderViewHolder(itemView);
-			} else if (viewType == VIEW_TYPE_ITEM) {
-				return new GeekListItemViewHolder(itemView);
-			}
-			return null;
+			View itemView = inflater.inflate(R.layout.row_geeklist_item, parent, false);
+			return new GeekListItemViewHolder(itemView);
 		}
 
 		@Override
 		public void onBindViewHolder(GeekListViewHolder holder, int position) {
-			if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
-				((GeekListHeaderViewHolder) holder).bind(geekList, xmlConverter);
-			} else if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-				try {
-					GeekListItem item = geekList.getItems().get(position - 1);
-					((GeekListItemViewHolder) holder).bind(item, position);
-				} catch (ArrayIndexOutOfBoundsException e) {
-					Timber.w(e, "Didn't find a GeekList item as expected");
-				}
+			try {
+				GeekListItem item = geekList.getItems().get(position);
+				((GeekListItemViewHolder) holder).bind(item, position + 1);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				Timber.w(e, "Didn't find a GeekList item as expected");
 			}
 		}
 
 		public abstract class GeekListViewHolder extends RecyclerView.ViewHolder {
 			public GeekListViewHolder(View itemView) {
 				super(itemView);
-			}
-		}
-
-		public class GeekListHeaderViewHolder extends GeekListViewHolder {
-			@BindView(R.id.username) TextView usernameView;
-			@BindView(R.id.description) TextView descriptionView;
-			@BindView(R.id.items) TextView numberOfItemsView;
-			@BindView(R.id.thumbs) TextView numberOfThumbsView;
-			@BindView(R.id.posted_date) TimestampView postDateView;
-			@BindView(R.id.edited_date) TimestampView editDateView;
-
-			public GeekListHeaderViewHolder(View itemView) {
-				super(itemView);
-				ButterKnife.bind(this, itemView);
-			}
-
-			public void bind(final GeekList geekList, XmlConverter xmlConverter) {
-				if (geekList != null) {
-					final Context context = itemView.getContext();
-
-					usernameView.setText(geekList.getUsername());
-					PresentationUtils.setTextOrHide(descriptionView, xmlConverter.strip(geekList.getDescription()));
-					numberOfItemsView.setText(String.valueOf(geekList.getNumberOfItems()));
-					numberOfThumbsView.setText(String.valueOf(geekList.getThumbs()));
-					postDateView.setTimestamp(geekList.getPostDate());
-					editDateView.setTimestamp(geekList.getEditDate());
-
-					itemView.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Intent intent = new Intent(context, GeekListDescriptionActivity.class);
-							intent.putExtra(ActivityUtils.KEY_ID, geekList.getId());
-							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.getTitle());
-							intent.putExtra(ActivityUtils.KEY_GEEK_LIST, geekList);
-							context.startActivity(intent);
-						}
-					});
-				}
 			}
 		}
 
