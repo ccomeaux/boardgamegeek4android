@@ -1,8 +1,8 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
@@ -23,21 +22,20 @@ import hugo.weaving.DebugLog;
 
 public class GeekListDescriptionFragment extends Fragment {
 	private Unbinder unbinder;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressBar;
+	@BindView(R.id.container) View container;
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.items) TextView itemCountView;
 	@BindView(R.id.thumbs) TextView thumbCountView;
 	@BindView(R.id.posted_date) TimestampView postedDateView;
 	@BindView(R.id.edited_date) TimestampView editedDateView;
 	@BindView(R.id.body) WebView bodyView;
-	private GeekList geekList;
 	private XmlConverter xmlConverter;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		geekList = intent.getParcelableExtra(ActivityUtils.KEY_GEEK_LIST);
 		xmlConverter = new XmlConverter();
 	}
 
@@ -58,12 +56,14 @@ public class GeekListDescriptionFragment extends Fragment {
 	}
 
 	public void setData(GeekList geekList) {
-		this.geekList = geekList;
 		usernameView.setText(geekList.getUsername());
 		itemCountView.setText(String.valueOf(geekList.getNumberOfItems()));
 		thumbCountView.setText(String.valueOf(geekList.getThumbs()));
 		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.getDescription()));
 		postedDateView.setTimestamp(geekList.getPostDate());
 		editedDateView.setTimestamp(geekList.getEditDate());
+
+		container.setVisibility(View.VISIBLE);
+		progressBar.hide();
 	}
 }

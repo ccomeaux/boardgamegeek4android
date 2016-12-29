@@ -3,8 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.graphics.Palette;
-import android.support.v7.graphics.Palette.Swatch;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +12,6 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
@@ -34,7 +31,6 @@ public class GeekListItemFragment extends Fragment {
 	private long postedDate;
 	private long editedDate;
 	private String body;
-	private Palette.Swatch swatch;
 	private XmlConverter xmlConverter;
 
 	private Unbinder unbinder;
@@ -78,8 +74,6 @@ public class GeekListItemFragment extends Fragment {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
-		applySwatch();
-
 		orderView.setText(String.valueOf(order));
 		geekListTitleView.setText(geekListTitle);
 		typeView.setText(type);
@@ -103,17 +97,5 @@ public class GeekListItemFragment extends Fragment {
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
-	}
-
-	public void setSwatch(Swatch swatch) {
-		this.swatch = swatch;
-		applySwatch();
-	}
-
-	private void applySwatch() {
-		if (swatch != null) {
-			if (bylineContainer != null) bylineContainer.setBackgroundColor(swatch.getRgb());
-			ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
-		}
 	}
 }
