@@ -10,7 +10,7 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.GeekList;
+import com.boardgamegeek.ui.model.GeekListValue;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
@@ -55,13 +55,13 @@ public class GeekListDescriptionFragment extends Fragment {
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	public void setData(GeekList geekList) {
-		usernameView.setText(geekList.getUsername());
-		itemCountView.setText(String.valueOf(geekList.getNumberOfItems()));
-		thumbCountView.setText(String.valueOf(geekList.getThumbs()));
-		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.getDescription()));
-		postedDateView.setTimestamp(geekList.getPostDate());
-		editedDateView.setTimestamp(geekList.getEditDate());
+	public void setData(GeekListValue geekList) {
+		usernameView.setText(geekList.username());
+		itemCountView.setText(String.valueOf(geekList.numberOfItems()));
+		thumbCountView.setText(String.valueOf(geekList.numberOfThumbs()));
+		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.description()));
+		postedDateView.setTimestamp(geekList.postTicks());
+		editedDateView.setTimestamp(geekList.editTicks());
 
 		container.setVisibility(View.VISIBLE);
 		progressBar.hide();

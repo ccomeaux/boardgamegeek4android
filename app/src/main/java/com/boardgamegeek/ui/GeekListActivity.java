@@ -18,7 +18,10 @@ import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.model.GeekListValue;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -136,7 +139,18 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		if (adapter == null) return;
 
 		GeekListDescriptionFragment descriptionFragment = ((GeekListDescriptionFragment) adapter.getHeaderFragment());
-		if (descriptionFragment != null) descriptionFragment.setData(data.getBody());
+		if (descriptionFragment != null) {
+			GeekList body = data.getBody();
+			GeekListValue glv = GeekListValue.builder()
+				.setUsername(body.username)
+				.setDescription(body.description)
+				.setNumberOfItems(StringUtils.parseInt(body.numitems))
+				.setNumberOfThumbs(StringUtils.parseInt(body.thumbs))
+				.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekList.FORMAT))
+				.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekList.FORMAT))
+				.build();
+			descriptionFragment.setData(glv);
+		}
 
 		GeekListItemsFragment itemsFragment = ((GeekListItemsFragment) adapter.getItemsFragment());
 		if (itemsFragment != null) itemsFragment.setData(data);

@@ -140,7 +140,7 @@ public class GeekListItemsFragment extends Fragment {
 				orderView.setText(String.valueOf(order));
 				ImageUtils.loadThumbnail(item.imageId(), thumbnailView);
 				itemNameView.setText(item.getObjectName());
-				if (item.getUsername().equals(geekList.getUsername())) {
+				if (item.getUsername().equals(geekList.username)) {
 					usernameView.setVisibility(View.GONE);
 				} else {
 					usernameView.setText(item.getUsername());
