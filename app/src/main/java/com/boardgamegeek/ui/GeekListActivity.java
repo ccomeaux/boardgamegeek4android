@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -74,7 +75,8 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	private final class GeekListPagerAdapter extends FragmentPagerAdapter {
-		private Fragment fragment;
+		private Fragment headerFragment;
+		private Fragment itemsFragment;
 
 		public GeekListPagerAdapter(FragmentManager fragmentManager) {
 			super(fragmentManager);
@@ -82,29 +84,43 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			if (position == 0) return getString(R.string.title_geeklist);
+			if (position == 0) return getString(R.string.title_description);
+			if (position == 1) return getString(R.string.title_items);
 			return "";
 		}
 
 		@Override
 		public Fragment getItem(int position) {
 			if (position == 0) {
-				fragment = Fragment.instantiate(
+				headerFragment = Fragment.instantiate(
+					GeekListActivity.this,
+					GeekListDescriptionFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+				return headerFragment;
+			}
+			if (position == 1) {
+				itemsFragment = Fragment.instantiate(
 					GeekListActivity.this,
 					GeekListFragment.class.getName(),
 					UIUtils.intentToFragmentArguments(getIntent()));
-				return fragment;
+				return itemsFragment;
 			}
 			return null;
 		}
 
 		@Override
 		public int getCount() {
-			return 1;
+			return 2;
 		}
 
-		public Fragment getFragment() {
-			return fragment;
+		@Nullable
+		public Fragment getHeaderFragment() {
+			return headerFragment;
+		}
+
+		@Nullable
+		public Fragment getItemsFragment() {
+			return itemsFragment;
 		}
 	}
 
@@ -116,9 +132,14 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	@Override
 	public void onLoadFinished(Loader<SafeResponse<GeekList>> loader, SafeResponse<GeekList> data) {
 		if (viewPager == null) return;
-		if (viewPager.getAdapter() == null) return;
-		GeekListFragment fragment = ((GeekListFragment) ((GeekListPagerAdapter) viewPager.getAdapter()).getFragment());
-		fragment.setData(data);
+		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
+		if (adapter == null) return;
+
+		GeekListDescriptionFragment descriptionFragment = ((GeekListDescriptionFragment) adapter.getHeaderFragment());
+		if (descriptionFragment != null) descriptionFragment.setData(data.getBody());
+
+		GeekListFragment itemsFragment = ((GeekListFragment) adapter.getItemsFragment());
+		if (itemsFragment != null) itemsFragment.setData(data);
 	}
 
 	@Override

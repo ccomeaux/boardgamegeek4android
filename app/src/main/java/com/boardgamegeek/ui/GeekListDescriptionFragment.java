@@ -46,16 +46,8 @@ public class GeekListDescriptionFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
-
 		//noinspection deprecation
 		rootView.setBackgroundDrawable(null);
-		usernameView.setText(geekList.getUsername());
-		itemCountView.setText(String.valueOf(geekList.getNumberOfItems()));
-		thumbCountView.setText(String.valueOf(geekList.getThumbs()));
-		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.getDescription()));
-		postedDateView.setTimestamp(geekList.getPostDate());
-		editedDateView.setTimestamp(geekList.getEditDate());
-
 		return rootView;
 	}
 
@@ -63,5 +55,15 @@ public class GeekListDescriptionFragment extends Fragment {
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
+	}
+
+	public void setData(GeekList geekList) {
+		this.geekList = geekList;
+		usernameView.setText(geekList.getUsername());
+		itemCountView.setText(String.valueOf(geekList.getNumberOfItems()));
+		thumbCountView.setText(String.valueOf(geekList.getThumbs()));
+		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.getDescription()));
+		postedDateView.setTimestamp(geekList.getPostDate());
+		editedDateView.setTimestamp(geekList.getEditDate());
 	}
 }
