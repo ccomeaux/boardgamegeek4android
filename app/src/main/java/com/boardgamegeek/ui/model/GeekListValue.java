@@ -4,6 +4,10 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class GeekListValue {
+	public abstract int id();
+
+	public abstract String title();
+
 	public abstract String username();
 
 	public abstract int numberOfItems();
@@ -22,6 +26,10 @@ public abstract class GeekListValue {
 
 	@AutoValue.Builder
 	public abstract static class Builder {
+		public abstract GeekListValue.Builder setId(int value);
+
+		public abstract GeekListValue.Builder setTitle(String value);
+
 		public abstract GeekListValue.Builder setUsername(String value);
 
 		public abstract GeekListValue.Builder setNumberOfItems(int value);

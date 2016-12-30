@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
@@ -138,22 +139,33 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
 
+		GeekList body = data.getBody();
+		GeekListValue glv = GeekListValue.builder()
+			.setId(body.id)
+			.setTitle(TextUtils.isEmpty(body.title) ? "" : body.title.trim())
+			.setUsername(body.username)
+			.setDescription(body.description)
+			.setNumberOfItems(StringUtils.parseInt(body.numitems))
+			.setNumberOfThumbs(StringUtils.parseInt(body.thumbs))
+			.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekList.FORMAT))
+			.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekList.FORMAT))
+			.build();
+
 		GeekListDescriptionFragment descriptionFragment = ((GeekListDescriptionFragment) adapter.getHeaderFragment());
-		if (descriptionFragment != null) {
-			GeekList body = data.getBody();
-			GeekListValue glv = GeekListValue.builder()
-				.setUsername(body.username)
-				.setDescription(body.description)
-				.setNumberOfItems(StringUtils.parseInt(body.numitems))
-				.setNumberOfThumbs(StringUtils.parseInt(body.thumbs))
-				.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekList.FORMAT))
-				.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekList.FORMAT))
-				.build();
-			descriptionFragment.setData(glv);
-		}
+		if (descriptionFragment != null) descriptionFragment.setData(glv);
 
 		GeekListItemsFragment itemsFragment = ((GeekListItemsFragment) adapter.getItemsFragment());
-		if (itemsFragment != null) itemsFragment.setData(data);
+		if (itemsFragment != null) {
+			if (data.hasParseError()) {
+				itemsFragment.setError(R.string.parse_error);
+			} else if (data.hasError()) {
+				itemsFragment.setError(data.getErrorMessage());
+			} else if (glv.numberOfItems() == 0 || body.getItems().size() == 0) {
+				itemsFragment.setError();
+			} else {
+				itemsFragment.setData(glv, body.getItems());
+			}
+		}
 	}
 
 	@Override
