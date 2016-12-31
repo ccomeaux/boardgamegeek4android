@@ -1,4 +1,7 @@
-package com.boardgamegeek.model;
+package com.boardgamegeek.io.model;
+
+import com.boardgamegeek.model.GeekListComment;
+import com.boardgamegeek.model.GeekListItem;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -11,11 +14,11 @@ import java.util.List;
 import java.util.Locale;
 
 @Root(name = "geeklist")
-public class GeekList {
+public class GeekListResponse {
 	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
 	@SuppressWarnings("unused")
-	public GeekList() {
+	public GeekListResponse() {
 	}
 
 	@Attribute public int id;

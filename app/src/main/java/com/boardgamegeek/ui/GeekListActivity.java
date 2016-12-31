@@ -15,11 +15,11 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.GeekList;
+import com.boardgamegeek.io.model.GeekListResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.ui.model.GeekListValue;
+import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -27,7 +27,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
-public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekList>> {
+public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekListResponse>> {
 	private static final int LOADER_ID = 1;
 	private int geekListId;
 	private String geekListTitle;
@@ -129,30 +129,30 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
-	public Loader<SafeResponse<GeekList>> onCreateLoader(int id, Bundle data) {
+	public Loader<SafeResponse<GeekListResponse>> onCreateLoader(int id, Bundle data) {
 		return new GeekListLoader(this, geekListId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<SafeResponse<GeekList>> loader, SafeResponse<GeekList> data) {
+	public void onLoadFinished(Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
 		if (viewPager == null) return;
 		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
 
-		GeekList body = data.getBody();
-		GeekListValue glv = GeekListValue.builder()
+		GeekListResponse body = data.getBody();
+		GeekList geekList = GeekList.builder()
 			.setId(body.id)
 			.setTitle(TextUtils.isEmpty(body.title) ? "" : body.title.trim())
 			.setUsername(body.username)
 			.setDescription(body.description)
 			.setNumberOfItems(StringUtils.parseInt(body.numitems))
 			.setNumberOfThumbs(StringUtils.parseInt(body.thumbs))
-			.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekList.FORMAT))
-			.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekList.FORMAT))
+			.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekListResponse.FORMAT))
+			.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekListResponse.FORMAT))
 			.build();
 
 		GeekListDescriptionFragment descriptionFragment = ((GeekListDescriptionFragment) adapter.getHeaderFragment());
-		if (descriptionFragment != null) descriptionFragment.setData(glv);
+		if (descriptionFragment != null) descriptionFragment.setData(geekList);
 
 		GeekListItemsFragment itemsFragment = ((GeekListItemsFragment) adapter.getItemsFragment());
 		if (itemsFragment != null) {
@@ -160,19 +160,19 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 				itemsFragment.setError(R.string.parse_error);
 			} else if (data.hasError()) {
 				itemsFragment.setError(data.getErrorMessage());
-			} else if (glv.numberOfItems() == 0 || body.getItems().size() == 0) {
+			} else if (geekList.numberOfItems() == 0 || body.getItems().size() == 0) {
 				itemsFragment.setError();
 			} else {
-				itemsFragment.setData(glv, body.getItems());
+				itemsFragment.setData(geekList, body.getItems());
 			}
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<SafeResponse<GeekList>> loader) {
+	public void onLoaderReset(Loader<SafeResponse<GeekListResponse>> loader) {
 	}
 
-	private static class GeekListLoader extends BggLoader<SafeResponse<GeekList>> {
+	private static class GeekListLoader extends BggLoader<SafeResponse<GeekListResponse>> {
 		private final BggService service;
 		private final int geekListId;
 
@@ -183,7 +183,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		}
 
 		@Override
-		public SafeResponse<GeekList> loadInBackground() {
+		public SafeResponse<GeekListResponse> loadInBackground() {
 			return new SafeResponse<>(service.geekList(geekListId, 1));
 		}
 	}

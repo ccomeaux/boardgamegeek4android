@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.model.GeekListValue;
+import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -59,9 +59,9 @@ public class GeekListItemsFragment extends Fragment {
 		recyclerView.setHasFixedSize(true);
 	}
 
-	public void setData(GeekListValue geekListValue, List<GeekListItem> geekListItems) {
+	public void setData(GeekList geekList, List<GeekListItem> geekListItems) {
 		if (adapter == null) {
-			adapter = new GeekListRecyclerViewAdapter(getActivity(), geekListValue, geekListItems);
+			adapter = new GeekListRecyclerViewAdapter(getActivity(), geekList, geekListItems);
 			recyclerView.setAdapter(adapter);
 		}
 		AnimationUtils.fadeIn(recyclerView, isResumed());
@@ -84,13 +84,13 @@ public class GeekListItemsFragment extends Fragment {
 
 	public static class GeekListRecyclerViewAdapter extends RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListViewHolder> {
 		private final LayoutInflater inflater;
-		private final GeekListValue geekListValue;
+		private final GeekList geekList;
 		private final List<GeekListItem> geekListItems;
 
-		public GeekListRecyclerViewAdapter(Context context, GeekListValue geekListValue, List<GeekListItem> geekListItems) {
+		public GeekListRecyclerViewAdapter(Context context, GeekList geekList, List<GeekListItem> geekListItems) {
 			inflater = LayoutInflater.from(context);
 			this.geekListItems = geekListItems;
-			this.geekListValue = geekListValue;
+			this.geekList = geekList;
 			setHasStableIds(true);
 		}
 
@@ -145,7 +145,7 @@ public class GeekListItemsFragment extends Fragment {
 				orderView.setText(String.valueOf(order));
 				ImageUtils.loadThumbnail(item.imageId(), thumbnailView);
 				itemNameView.setText(item.getObjectName());
-				if (item.getUsername().equals(geekListValue.username())) {
+				if (item.getUsername().equals(geekList.username())) {
 					usernameView.setVisibility(View.GONE);
 				} else {
 					usernameView.setText(item.getUsername());
@@ -157,8 +157,8 @@ public class GeekListItemsFragment extends Fragment {
 					public void onClick(View v) {
 						if (item.getObjectId() != BggContract.INVALID_ID) {
 							Intent intent = new Intent(context, GeekListItemActivity.class);
-							intent.putExtra(ActivityUtils.KEY_ID, geekListValue.id());
-							intent.putExtra(ActivityUtils.KEY_TITLE, geekListValue.title());
+							intent.putExtra(ActivityUtils.KEY_ID, geekList.id());
+							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.title());
 							intent.putExtra(ActivityUtils.KEY_ORDER, order);
 							intent.putExtra(ActivityUtils.KEY_NAME, item.getObjectName());
 							intent.putExtra(ActivityUtils.KEY_TYPE, context.getString(item.getObjectTypeResId()));
