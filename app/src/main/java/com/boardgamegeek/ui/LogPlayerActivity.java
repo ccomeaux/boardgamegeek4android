@@ -119,8 +119,10 @@ public class LogPlayerActivity extends AppCompatActivity {
 			switch (v.getId()) {
 				case R.id.menu_done:
 					save();
+					break;
 				case R.id.menu_cancel:
 					cancel();
+					break;
 			}
 		}
 	};
