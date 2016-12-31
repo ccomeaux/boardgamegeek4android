@@ -60,6 +60,7 @@ import com.boardgamegeek.ui.dialog.SaveView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -320,7 +321,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 							}
 						});
 					sortFragment.setSelection(sorter.getType());
-					sortFragment.show(getFragmentManager(), "sort");
+					DialogUtils.show(sortFragment, getFragmentManager(), "sort");
 					return true;
 				case R.id.menu_collection_filter:
 					final CollectionFilterDialogFragment filterFragment =
@@ -333,7 +334,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					for (CollectionFilterer filter : filters) {
 						filterFragment.addEnabledFilter(filter.getType());
 					}
-					filterFragment.show(getFragmentManager(), "filter");
+					DialogUtils.show(filterFragment, getFragmentManager(), "filter");
 					return true;
 			}
 			return launchFilterDialog(item.getItemId());
