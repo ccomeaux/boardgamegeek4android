@@ -121,7 +121,8 @@ import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity {
 	private static final int HELP_VERSION = 3;
-	private static final int REQUEST_ADD_PLAYER = 999;
+	private static final int REQUEST_ADD_PLAYER = 1;
+	private static final int REQUEST_EDIT_PLAYER = 2;
 
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
@@ -548,14 +549,21 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		if (resultCode == RESULT_OK) {
 			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
+			int position = data.getIntExtra(LogPlayerActivity.KEY_POSITION, LogPlayerActivity.INVALID_POSITION);
 			if (requestCode == REQUEST_ADD_PLAYER) {
 				play.addPlayer(player);
 				maybeShowNotification();
 				addNewPlayer();
+			} else if (requestCode == REQUEST_EDIT_PLAYER) {
+				if (position == LogPlayerActivity.INVALID_POSITION) {
+					Timber.w("Invalid player position after edit");
 			} else {
-				play.replaceOrAddPlayer(player, requestCode);
-				playAdapter.notifyPlayerChanged(requestCode);
-				recyclerView.smoothScrollToPosition(requestCode);
+					play.replaceOrAddPlayer(player, position);
+					playAdapter.notifyPlayerChanged(position);
+					recyclerView.smoothScrollToPosition(position);
+				}
+			} else {
+				Timber.w("Received invalid request code: %d", requestCode);
 			}
 		} else if (resultCode == RESULT_CANCELED) {
 			playAdapter.notifyPlayersChanged();
@@ -1033,7 +1041,8 @@ public class LogPlayActivity extends AppCompatActivity {
 		if (!arePlayersCustomSorted && player != null) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 		}
-		editPlayer(intent, position);
+		intent.putExtra(LogPlayerActivity.KEY_POSITION, position);
+		editPlayer(intent, REQUEST_EDIT_PLAYER);
 		playAdapter.notifyPlayerChanged(position);
 	}
 
