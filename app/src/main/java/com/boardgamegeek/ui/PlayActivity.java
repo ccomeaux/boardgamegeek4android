@@ -14,6 +14,7 @@ import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
@@ -26,11 +27,6 @@ import icepick.Icepick;
 import icepick.State;
 
 public class PlayActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_PLAY_ID = "PLAY_ID";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private BroadcastReceiver broadcastReceiver;
 	@State int playId = BggContract.INVALID_ID;
 
@@ -65,7 +61,7 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 		if (playId != BggContract.INVALID_ID) {
 			return playId;
 		}
-		return getIntent().getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
+		return getIntent().getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
 	}
 
 	@Override

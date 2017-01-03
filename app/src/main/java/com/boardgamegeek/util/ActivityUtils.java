@@ -195,11 +195,11 @@ public class ActivityUtils {
 
 	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
-		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
-		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(PlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(PlayActivity.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(ActivityUtils.KEY_PLAY_ID, playId);
+		intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 
