@@ -557,7 +557,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			} else if (requestCode == REQUEST_EDIT_PLAYER) {
 				if (position == LogPlayerActivity.INVALID_POSITION) {
 					Timber.w("Invalid player position after edit");
-			} else {
+				} else {
 					play.replaceOrAddPlayer(player, position);
 					playAdapter.notifyPlayerChanged(position);
 					recyclerView.smoothScrollToPosition(position);
@@ -1303,11 +1303,14 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@OnClick(R.id.log_play_date)
 			public void onDateClick() {
+				final FragmentManager fragmentManager = getSupportFragmentManager();
+				datePickerFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
+
 				if (datePickerFragment == null) {
 					datePickerFragment = new DatePickerDialogFragment();
 					datePickerFragment.setOnDateSetListener(this);
 				}
-				final FragmentManager fragmentManager = getSupportFragmentManager();
+
 				fragmentManager.executePendingTransactions();
 				datePickerFragment.setCurrentDateInMillis(play.getDateInMillis());
 				datePickerFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
