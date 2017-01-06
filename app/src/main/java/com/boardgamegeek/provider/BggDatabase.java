@@ -22,7 +22,6 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -74,7 +73,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_DIRTY_TIMESTAMP = 31;
 	private static final int VER_COLLECTION_DELETE_TIMESTAMP = 32;
 	private static final int VER_COLLECTION_TIMESTAMPS = 33;
-	private static final int DATABASE_VERSION = VER_COLLECTION_TIMESTAMPS;
+	private static final int VER_PLAY_ITEMS_COLLAPSE = 34;
+	private static final int DATABASE_VERSION = VER_PLAY_ITEMS_COLLAPSE;
 
 	private final Context context;
 
@@ -124,7 +124,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAME_POLL_RESULTS_RESULT = "game_poll_results_result";
 		String GAME_COLORS = "game_colors";
 		String PLAYS = "plays";
-		String PLAY_ITEMS = "play_items";
 		String PLAY_PLAYERS = "play_players";
 		String COLLECTION_VIEWS = "collection_filters";
 		String COLLECTION_VIEW_FILTERS = "collection_filters_details";
@@ -143,19 +142,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String POLL_RESULTS_JOIN_POLL_RESULTS_RESULT = createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT,
 			GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
 		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
-		String PLAY_ITEMS_JOIN_PLAYS = createJoin(PLAY_ITEMS, PLAYS, Plays.PLAY_ID);
-		String PLAY_ITEMS_JOIN_PLAYS_JOIN_GAMES = Tables.PLAY_ITEMS
-			+ createJoinSuffix(PLAY_ITEMS, PLAYS, Plays.PLAY_ID)
-			+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
+		String PLAYS_JOIN_GAMES = Tables.PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS = Tables.PLAY_PLAYERS
 			+ createJoinSuffix(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID)
-			+ createJoinSuffix(PLAY_PLAYERS, PLAY_ITEMS, Plays.PLAY_ID)
-			+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
-		// String PLAY_ITEMS_JOIN_PLAYS_JOIN_PLAYERS = Tables.PLAY_ITEMS
-		// 	+ createJoinSuffix(PLAY_ITEMS, PLAYS, PlayItems.PLAY_ID)
-		//	+ createJoinSuffix(PLAY_ITEMS, PLAY_PLAYERS, PlayItems.PLAY_ID)
-		//	+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
+			+ createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
 		String COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS = createJoin(COLLECTION_VIEWS, COLLECTION_VIEW_FILTERS,
 			CollectionViews._ID, CollectionViewFilters.VIEW_ID);
 		String POLLS_RESULTS_RESULT_JOIN_POLLS_RESULTS_JOIN_POLLS = createJoin(GAME_POLL_RESULTS_RESULT,
@@ -218,7 +209,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 		buildGameColorsTable().create(db);
 
 		buildPlaysTable().create(db);
-		buildPlayItemsTable().create(db);
 		buildPlayPlayersTable().create(db);
 
 		buildCollectionTable().create(db);
@@ -466,14 +456,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
-	}
-
-	private TableBuilder buildPlayItemsTable() {
-		return new TableBuilder().setTable(Tables.PLAY_ITEMS).useDefaultPrimaryKey()
-			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PLAYS, Plays.PLAY_ID, true)
-			.addColumn(PlayItems.OBJECT_ID, COLUMN_TYPE.INTEGER, true, true)
-			.addColumn(PlayItems.NAME, COLUMN_TYPE.TEXT, true);
+			.addColumn(Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
+			.addColumn(Plays.ITEM_NAME, COLUMN_TYPE.TEXT, true)
+			.addColumn(Plays.OBJECT_ID, COLUMN_TYPE.INTEGER, true);
 	}
 
 	private TableBuilder buildPlayPlayersTable() {
@@ -539,7 +524,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 				version = VER_VARIOUS;
 			case VER_VARIOUS:
 				buildPlaysTable().create(db);
-				buildPlayItemsTable().create(db);
 				buildPlayPlayersTable().create(db);
 				version = VER_PLAYS;
 			case VER_PLAYS:
@@ -568,7 +552,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 				buildGamePollResultsTable().replace(db);
 				buildGamePollResultsResultTable().replace(db);
 				buildGameColorsTable().replace(db);
-				buildPlayItemsTable().replace(db);
 				buildPlayPlayersTable().replace(db);
 				buildCollectionViewFiltersTable().replace(db);
 				version = VER_CASCADING_DELETE;
@@ -667,6 +650,16 @@ public class BggDatabase extends SQLiteOpenHelper {
 				addColumn(db, Tables.COLLECTION, Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
 				addColumn(db, Tables.COLLECTION, Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
 				version = VER_COLLECTION_TIMESTAMPS;
+			case VER_COLLECTION_TIMESTAMPS:
+				addColumn(db, Tables.PLAYS, Plays.ITEM_NAME, COLUMN_TYPE.TEXT);
+				addColumn(db, Tables.PLAYS, Plays.OBJECT_ID, COLUMN_TYPE.INTEGER);
+				String playItemsTableName = "play_items";
+				String sql = String.format(
+					"UPDATE %1$s SET %4$s = (SELECT %2$s.object_id FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s), %5$s = (SELECT %2$s.name FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s)",
+					Tables.PLAYS, playItemsTableName, Plays.PLAY_ID, Plays.OBJECT_ID, Plays.ITEM_NAME);
+				db.execSQL(sql);
+				dropTable(db, playItemsTableName);
+				version = VER_PLAY_ITEMS_COLLAPSE;
 		}
 
 		if (version != DATABASE_VERSION) {
@@ -692,7 +685,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 			dropTable(db, Tables.GAME_POLL_RESULTS_RESULT);
 			dropTable(db, Tables.GAME_COLORS);
 			dropTable(db, Tables.PLAYS);
-			dropTable(db, Tables.PLAY_ITEMS);
 			dropTable(db, Tables.PLAY_PLAYERS);
 			dropTable(db, Tables.COLLECTION_VIEWS);
 			dropTable(db, Tables.COLLECTION_VIEW_FILTERS);

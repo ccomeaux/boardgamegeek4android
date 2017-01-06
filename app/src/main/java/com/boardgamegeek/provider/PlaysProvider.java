@@ -14,12 +14,13 @@ public class PlaysProvider extends BasicProvider {
 		SelectionBuilder builder = new SelectionBuilder();
 
 		if (BggContract.FRAGMENT_SIMPLE.equals(uri.getFragment())) {
-			builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS);
+			builder.table(Tables.PLAYS);
 		} else {
-			builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS_JOIN_GAMES);
+			builder.table(Tables.PLAYS_JOIN_GAMES);
 		}
 
-		builder.mapToTable(Plays._ID, getTable())
+		builder
+			.mapToTable(Plays._ID, getTable())
 			.mapToTable(Plays.PLAY_ID, getTable())
 			.mapToTable(Plays.UPDATED, Tables.PLAYS)
 			.mapToTable(Plays.UPDATED_LIST, Tables.PLAYS)

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
 
@@ -13,8 +12,8 @@ public class PlayModel {
 		Plays._ID,
 		Plays.PLAY_ID,
 		Plays.DATE,
-		PlayItems.NAME,
-		PlayItems.OBJECT_ID,
+		Plays.ITEM_NAME,
+		Plays.OBJECT_ID,
 		Plays.LOCATION,
 		Plays.QUANTITY,
 		Plays.LENGTH,

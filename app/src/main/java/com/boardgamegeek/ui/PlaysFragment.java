@@ -43,7 +43,6 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -450,7 +449,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 					return Plays.SYNC_STATUS + "=?";
 				}
 			case MODE_GAME:
-				return PlayItems.OBJECT_ID + "=?";
+				return Plays.OBJECT_ID + "=?";
 			case MODE_BUDDY:
 				return PlayPlayers.USER_NAME + "=?";
 			case MODE_PLAYER:

@@ -168,20 +168,6 @@ public class Play {
 	}
 
 	/**
-	 * @return plays/#/items
-	 */
-	public Uri itemUri() {
-		return Plays.buildItemUri(playId);
-	}
-
-	/**
-	 * @return plays/#/items/#
-	 */
-	public Uri itemIdUri() {
-		return Plays.buildItemUri(playId, gameId);
-	}
-
-	/**
 	 * @return plays/#/players
 	 */
 	public Uri playerUri() {

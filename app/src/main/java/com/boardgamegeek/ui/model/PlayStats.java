@@ -20,7 +20,7 @@ import java.util.Stack;
 public class PlayStats {
 	public static final String[] PROJECTION = {
 		Plays.SUM_QUANTITY,
-		Games.GAME_NAME,
+		Plays.ITEM_NAME,
 		Games.GAME_RANK
 	};
 
@@ -118,7 +118,7 @@ public class PlayStats {
 	@NonNull
 	public static Uri getUri() {
 		return Plays.CONTENT_URI.buildUpon()
-			.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.PlayItems.OBJECT_ID)
+			.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.Plays.OBJECT_ID)
 			.build();
 	}
 

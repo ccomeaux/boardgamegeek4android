@@ -35,7 +35,6 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.IntegerYAxisValueFormatter;
@@ -189,7 +188,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI,
 					PlayQuery.PROJECTION,
-					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
+					Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 					Plays.DATE + " ASC");
 				loader.setUpdateThrottle(5000);
@@ -198,7 +197,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				loader = new CursorLoader(getActivity(),
 					Plays.buildPlayersUri(),
 					PlayerQuery.PROJECTION,
-					PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
+					Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 					null);
 				loader.setUpdateThrottle(5000);
@@ -1131,7 +1130,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface PlayQuery {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
+		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, Plays.ITEM_NAME, Plays.OBJECT_ID,
 			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
 			Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.SYNC_STATUS };
 		int PLAY_ID = 1;

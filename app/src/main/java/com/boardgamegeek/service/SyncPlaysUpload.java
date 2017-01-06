@@ -28,7 +28,6 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.ActivityUtils;
@@ -254,7 +253,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		try {
 			cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
 				new String[] { Plays.SUM_QUANTITY },
-				PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
+				Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(play.gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 				null);
 			if (cursor != null && cursor.moveToFirst()) {

@@ -14,7 +14,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.ResolverUtils;
@@ -154,7 +153,6 @@ public class PlayPersister {
 			debugMessage = "Updating play ID " + play.playId;
 			deletePlayerWithNullUserId(play);
 			playerUserIds = determineUniqueUserIds(play);
-			itemObjectIds = ResolverUtils.queryInts(resolver, play.itemUri(), PlayItems.OBJECT_ID);
 			batch.add(ContentProviderOperation.newUpdate(play.uri()).withValues(values).build());
 		} else if (status == STATUS_INSERT) {
 			if (!play.hasBeenSynced()) {
@@ -180,9 +178,7 @@ public class PlayPersister {
 			batch.add(ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build());
 		}
 
-		updateOrInsertItem(play, itemObjectIds);
 		updateOrInsertPlayers(play, playerUserIds);
-		removeUnusedItems(play, itemObjectIds);
 		removeUnusedPlayers(play, playerUserIds);
 		if (play.syncStatus == Play.SYNC_STATUS_SYNCED || play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 			updateGameSortOrder(play);
@@ -298,6 +294,8 @@ public class PlayPersister {
 	private static ContentValues createContentValues(Play play) {
 		ContentValues values = new ContentValues();
 		values.put(Plays.DATE, play.getDate());
+		values.put(Plays.ITEM_NAME, play.gameName);
+		values.put(Plays.OBJECT_ID, play.gameId);
 		values.put(Plays.QUANTITY, play.quantity);
 		values.put(Plays.LENGTH, play.length);
 		values.put(Plays.INCOMPLETE, play.Incomplete());
@@ -345,26 +343,7 @@ public class PlayPersister {
 
 		return uniqueIds;
 	}
-
-	private void updateOrInsertItem(Play play, List<Integer> itemObjectIds) {
-		int objectId = play.gameId;
-
-		if (TextUtils.isEmpty(play.gameName)){
-			Timber.w("Missing game name for play ID %s; skipping insert/update", objectId);
-			return;
-		}
-
-		ContentValues values = new ContentValues();
-		values.put(PlayItems.NAME, play.gameName);
-
-		if (itemObjectIds != null && itemObjectIds.remove(Integer.valueOf(objectId))) {
-			batch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
-		} else {
-			values.put(PlayItems.OBJECT_ID, objectId);
-			batch.add(ContentProviderOperation.newInsert(play.itemUri()).withValues(values).build());
-		}
-	}
-
+	
 	private void updateOrInsertPlayers(Play play, List<Integer> playerUserIds) {
 		ContentValues values = new ContentValues();
 		for (Player player : play.getPlayers()) {
@@ -388,14 +367,6 @@ public class PlayPersister {
 			} else {
 				values.put(PlayPlayers.USER_ID, userId);
 				batch.add(ContentProviderOperation.newInsert(play.playerUri()).withValues(values).build());
-			}
-		}
-	}
-
-	private void removeUnusedItems(Play play, List<Integer> itemObjectIds) {
-		if (itemObjectIds != null) {
-			for (Integer itemObjectId : itemObjectIds) {
-				batch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.playId, itemObjectId)).build());
 			}
 		}
 	}

@@ -8,7 +8,6 @@ import android.os.Parcelable;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
@@ -18,8 +17,8 @@ import java.util.ArrayList;
 public class PlayBuilder {
 	public static final String[] PLAY_PROJECTION = {
 		Plays.PLAY_ID,
-		PlayItems.NAME,
-		PlayItems.OBJECT_ID,
+		Plays.ITEM_NAME,
+		Plays.OBJECT_ID,
 		Plays.DATE,
 		Plays.LOCATION,
 		Plays.LENGTH,
@@ -64,8 +63,8 @@ public class PlayBuilder {
 	public static Play fromCursor(Cursor cursor) {
 		Play play = new Play();
 		play.playId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
-		play.gameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
-		play.gameName = CursorUtils.getString(cursor, PlayItems.NAME);
+		play.gameId = CursorUtils.getInt(cursor, Plays.OBJECT_ID, BggContract.INVALID_ID);
+		play.gameName = CursorUtils.getString(cursor, Plays.ITEM_NAME);
 		play.setDate(CursorUtils.getString(cursor, Plays.DATE));
 		play.quantity = CursorUtils.getInt(cursor, Plays.QUANTITY, Play.QUANTITY_DEFAULT);
 		play.length = CursorUtils.getInt(cursor, Plays.LENGTH, Play.LENGTH_DEFAULT);

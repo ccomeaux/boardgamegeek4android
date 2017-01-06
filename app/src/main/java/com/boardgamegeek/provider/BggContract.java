@@ -199,14 +199,11 @@ public class BggContract {
 		String START_TIME = "start_time";
 		String PLAYER_COUNT = "player_count";
 		String SYNC_HASH_CODE = "sync_hash_code";
+		String ITEM_NAME = "item_name";
+		String OBJECT_ID = "object_id";
 		String SUM_QUANTITY = "sum_quantity";
 		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";
-	}
-
-	interface PlayItemsColumns {
-		String NAME = "name";
-		String OBJECT_ID = "object_id";
 	}
 
 	interface PlayPlayersColumns {
@@ -259,7 +256,6 @@ public class BggContract {
 	public static final String PATH_COLORS = "colors";
 	public static final String PATH_PLAYER_COLORS = "playercolors";
 	public static final String PATH_PLAYS = "plays";
-	private static final String PATH_ITEMS = "items";
 	public static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
@@ -798,15 +794,6 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
 		}
 
-		public static Uri buildItemUri(int playId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_ITEMS).build();
-		}
-
-		public static Uri buildItemUri(int playId, int objectId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_ITEMS)
-				.appendPath(String.valueOf(objectId)).build();
-		}
-
 		public static Uri buildPlayerUri(int playId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_PLAYERS).build();
 		}
@@ -846,17 +833,6 @@ public class BggContract {
 
 		public static int getPlayId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
-		}
-	}
-
-	public static final class PlayItems implements PlayItemsColumns, PlaysColumns, BaseColumns {
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playitem";
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playitem";
-
-		public static final String DEFAULT_SORT = NAME + COLLATE_NOCASE + " ASC";
-
-		public static int getPlayItemId(Uri uri) {
-			return StringUtils.parseInt(uri.getLastPathSegment());
 		}
 	}
 

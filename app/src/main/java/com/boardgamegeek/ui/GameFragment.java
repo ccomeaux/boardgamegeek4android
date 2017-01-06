@@ -51,7 +51,6 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
@@ -355,7 +354,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case PlaysQuery._TOKEN:
-				String selection = PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?";
+				String selection = Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?";
 				if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
 					selection += " AND " + Plays.INCOMPLETE + "!=1";
 				}
