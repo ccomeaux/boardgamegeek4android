@@ -251,7 +251,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 			AnimationUtils.fadeIn(emptyView);
 			AnimationUtils.fadeOut(recyclerView);
 		} else if (data.hasError()) {
-			emptyView.setText(data.getErrorMessage());
+			emptyView.setText(getString(R.string.empty_http_error, data.getErrorMessage()));
 			AnimationUtils.fadeIn(emptyView);
 			AnimationUtils.fadeOut(recyclerView);
 		} else if (data.getCount() == 0) {

@@ -20,6 +20,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +59,12 @@ public class TopGamesFragment extends Fragment {
 			.create(new Single.OnSubscribe<List<TopGame>>() {
 				@Override
 				public void call(SingleSubscriber<? super List<TopGame>> singleSubscriber) {
-					List<TopGame> topGames = findTopGames();
-					singleSubscriber.onSuccess(topGames);
+					try {
+						List<TopGame> topGames = findTopGames();
+						singleSubscriber.onSuccess(topGames);
+					} catch (Throwable t) {
+						singleSubscriber.onError(t);
+					}
 				}
 			})
 			.subscribeOn(Schedulers.io())
@@ -80,39 +85,35 @@ public class TopGamesFragment extends Fragment {
 				@Override
 				public void onError(Throwable error) {
 					Timber.e(error, "Error loading top games");
+					emptyView.setText(getString(R.string.empty_http_error, error.getLocalizedMessage()));
 					AnimationUtils.fadeIn(emptyView);
 					progressView.hide();
 				}
 			});
 	}
 
-	private List<TopGame> findTopGames() {
+	private List<TopGame> findTopGames() throws IOException {
 		List<TopGame> topGames = new ArrayList<>();
 
-		try {
-			int rank = 1;
-			Document doc = Jsoup.connect("https://www.boardgamegeek.com/browse/boardgame").get();
-			Elements gameElements = doc.select("td.collection_thumbnail");
-			for (Element element : gameElements) {
-				TopGame game = new TopGame();
-				Element link = element.getElementsByTag("a").first();
-				game.id = getGameIdFromLink(link.attr("href"));
-				game.rank = rank;
-				game.yearPublished = 0;
-				game.thumbnailUrl = link.child(0).attr("src").replaceAll("_mt\\.", "_t.");
+		int rank = 1;
+		Document doc = Jsoup.connect("https://www.boardgamegeek.com/browse/boardgame").get();
+		Elements gameElements = doc.select("td.collection_thumbnail");
+		for (Element element : gameElements) {
+			TopGame game = new TopGame();
+			Element link = element.getElementsByTag("a").first();
+			game.id = getGameIdFromLink(link.attr("href"));
+			game.rank = rank;
+			game.yearPublished = 0;
+			game.thumbnailUrl = link.child(0).attr("src").replaceAll("_mt\\.", "_t.");
 
-				Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
-				game.name = gameNameElement.child(0).text();
-				String yearPublishedText = gameNameElement.child(1).text();
-				game.yearPublished = Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1));
+			Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
+			game.name = gameNameElement.child(0).text();
+			String yearPublishedText = gameNameElement.child(1).text();
+			game.yearPublished = Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1));
 
-				topGames.add(game);
-				rank++;
-			}
-		} catch (Throwable t) {
-			Timber.e(t, "Error loading top games");
+			topGames.add(game);
+			rank++;
 		}
-
 		return topGames;
 	}
 
