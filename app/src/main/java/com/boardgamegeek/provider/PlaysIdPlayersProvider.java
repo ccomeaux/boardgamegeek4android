@@ -15,7 +15,9 @@ public class PlaysIdPlayersProvider extends BaseProvider {
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		int playId = Plays.getPlayId(uri);
-		return new SelectionBuilder().table(Tables.PLAY_PLAYERS).whereEquals(PlayPlayers.PLAY_ID, playId);
+		return new SelectionBuilder()
+			.table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+			.whereEquals(Plays.PLAY_ID, playId);
 	}
 
 	@Override
