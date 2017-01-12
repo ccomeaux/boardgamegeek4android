@@ -180,8 +180,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public void onListItemClick(View view, int position, long id) {
 		Cursor cursor = (Cursor) adapter.getItem(position);
 		if (cursor != null) {
+			long internalId = cursor.getInt(cursor.getColumnIndex(Plays._ID));
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			EventBus.getDefault().postSticky(new PlaySelectedEvent(play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
+			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
 		}
 	}
 

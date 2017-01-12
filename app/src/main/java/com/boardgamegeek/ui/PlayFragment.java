@@ -75,6 +75,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
 
 	private boolean isSyncing;
+	private long internalId = BggContract.INVALID_ID;
 	private int playId = BggContract.INVALID_ID;
 	private Play play = new Play();
 	private String thumbnailUrl;
@@ -129,6 +130,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
 		playId = intent.getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
 
 		if (playId == BggContract.INVALID_ID) {
@@ -185,7 +187,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onResume() {
 		super.onResume();
 		if (play != null && play.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(getActivity(), play, thumbnailUrl, imageUrl);
+			showNotification();
 			hasBeenNotified = true;
 		}
 	}
@@ -487,10 +489,14 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void maybeShowNotification() {
 		if (play.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(getActivity(), play, thumbnailUrl, imageUrl);
+			showNotification();
 		} else if (hasBeenNotified) {
 			cancelNotification();
 		}
+	}
+
+	private void showNotification() {
+		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl); // TODO: 1/11/17
 	}
 
 	private void cancelNotification() {

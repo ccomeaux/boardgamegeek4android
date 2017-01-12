@@ -1068,7 +1068,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(this, play, thumbnailUrl, imageUrl);
+			NotificationUtils.launchPlayingNotification(this, 0, play, thumbnailUrl, imageUrl); // TODO: 1/11/17
 		}
 	}
 

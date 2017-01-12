@@ -190,12 +190,13 @@ public class ActivityUtils {
 	}
 
 	public static void startPlayActivity(Context context, PlaySelectedEvent event) {
-		Intent intent = createPlayIntent(context, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
+		Intent intent = createPlayIntent(context, event.getInternalId(), event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 		context.startActivity(intent);
 	}
 
-	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static Intent createPlayIntent(Context context, long internalId, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
+		intent.putExtra(KEY_ID, internalId);
 		intent.putExtra(KEY_PLAY_ID, playId);
 		intent.putExtra(KEY_GAME_ID, gameId);
 		intent.putExtra(KEY_GAME_NAME, gameName);

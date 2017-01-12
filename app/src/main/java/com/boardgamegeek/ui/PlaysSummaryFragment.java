@@ -218,9 +218,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void addPlayToContainer(Cursor cursor, LinearLayout container) {
+		long internalId = cursor.getLong(cursor.getColumnIndex(Plays._ID));
 		PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
+		view.setTag(R.id.id, internalId);
 		view.setTag(R.id.play_id, play.getPlayId());
 		view.setTag(R.id.game_info_id, play.getGameId());
 		view.setTag(R.id.game_name, play.getName());
@@ -231,6 +233,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			@Override
 			public void onClick(View v) {
 				EventBus.getDefault().postSticky(new PlaySelectedEvent(
+					(long) v.getTag(R.id.id),
 					(int) v.getTag(R.id.play_id),
 					(int) v.getTag(R.id.game_info_id),
 					(String) v.getTag(R.id.game_name),

@@ -85,25 +85,25 @@ public class NotificationUtils {
 	/**
 	 * Launch the "Playing" notification.
 	 */
-	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
+	public static void launchPlayingNotification(final Context context, final long internalId, final Play play, final String thumbnailUrl, final String imageUrl) {
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {
-				buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
+				buildAndNotify(context, internalId, play, thumbnailUrl, imageUrl, bitmap);
 			}
 
 			@Override
 			public void onFailedIconLoad() {
-				buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
+				buildAndNotify(context, internalId, play, thumbnailUrl, imageUrl, null);
 			}
 		});
 		loader.executeOnMainThread();
 	}
 
-	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
+	private static void buildAndNotify(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName);
 
-		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		Intent intent = ActivityUtils.createPlayIntent(context, internalId, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, play.playId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
