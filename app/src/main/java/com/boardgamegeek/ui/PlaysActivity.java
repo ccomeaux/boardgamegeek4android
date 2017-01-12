@@ -57,7 +57,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
+		ActivityUtils.startPlayActivity(this, event);
 	}
 
 	@SuppressWarnings("unused")

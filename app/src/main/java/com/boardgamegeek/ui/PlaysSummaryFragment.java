@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
@@ -37,6 +38,8 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -227,12 +230,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ActivityUtils.startPlayActivity(getActivity(),
+				EventBus.getDefault().postSticky(new PlaySelectedEvent(
 					(int) v.getTag(R.id.play_id),
 					(int) v.getTag(R.id.game_info_id),
 					(String) v.getTag(R.id.game_name),
 					(String) v.getTag(R.id.thumbnail),
-					(String) v.getTag(R.id.account_image));
+					(String) v.getTag(R.id.account_image)));
 			}
 		});
 	}

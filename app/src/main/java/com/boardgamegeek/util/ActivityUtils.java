@@ -15,6 +15,7 @@ import android.util.Pair;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
@@ -188,18 +189,18 @@ public class ActivityUtils {
 			.putContentId(String.valueOf(id)));
 	}
 
-	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static void startPlayActivity(Context context, PlaySelectedEvent event) {
+		Intent intent = createPlayIntent(context, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 		context.startActivity(intent);
 	}
 
 	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
-		intent.putExtra(ActivityUtils.KEY_PLAY_ID, playId);
-		intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_PLAY_ID, playId);
+		intent.putExtra(KEY_GAME_ID, gameId);
+		intent.putExtra(KEY_GAME_NAME, gameName);
+		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 
