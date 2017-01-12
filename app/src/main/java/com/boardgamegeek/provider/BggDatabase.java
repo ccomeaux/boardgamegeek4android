@@ -34,8 +34,6 @@ import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -76,8 +74,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_DELETE_TIMESTAMP = 32;
 	private static final int VER_COLLECTION_TIMESTAMPS = 33;
 	private static final int VER_PLAY_ITEMS_COLLAPSE = 34;
-	private static final int VER_PLAY_PLAYERS_KEY = 36;
-	private static final int DATABASE_VERSION = VER_PLAY_PLAYERS_KEY;
+	private static final int DATABASE_VERSION = VER_PLAY_ITEMS_COLLAPSE;
 
 	private final Context context;
 
@@ -146,9 +143,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
 		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
 		String PLAYS_JOIN_GAMES = Tables.PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
-		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID);
+		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS = Tables.PLAY_PLAYERS
-			+ createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID)
+			+ createJoinSuffix(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID)
 			+ createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
 		String COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS = createJoin(COLLECTION_VIEWS, COLLECTION_VIEW_FILTERS,
 			CollectionViews._ID, CollectionViewFilters.VIEW_ID);
@@ -474,7 +471,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		return new TableBuilder()
 			.setTable(Tables.PLAY_PLAYERS)
 			.useDefaultPrimaryKey()
-			.addColumn(PlayPlayers._PLAY_ID, COLUMN_TYPE.INTEGER, true, false, Tables.PLAYS, Plays._ID, true)
+			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, false, Tables.PLAYS, Plays.PLAY_ID, true)
 			.addColumn(PlayPlayers.USER_NAME, COLUMN_TYPE.TEXT)
 			.addColumn(PlayPlayers.USER_ID, COLUMN_TYPE.INTEGER)
 			.addColumn(PlayPlayers.NAME, COLUMN_TYPE.TEXT)
@@ -678,11 +675,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 				db.execSQL(sql);
 				dropTable(db, playItemsTableName);
 				version = VER_PLAY_ITEMS_COLLAPSE;
-			case VER_PLAY_ITEMS_COLLAPSE:
-				Map<String, String> columnMap = new HashMap<>();
-				columnMap.put(PlayPlayers._PLAY_ID, String.format("%s.%s", Tables.PLAYS, Plays._ID));
-				buildPlayPlayersTable().replace(db, columnMap, Tables.PLAYS, Plays.PLAY_ID);
-				version = VER_PLAY_PLAYERS_KEY;
 		}
 
 		if (version != DATABASE_VERSION) {

@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -37,13 +36,9 @@ public class TableBuilder {
 		if (primaryKey == null) {
 			throw new IllegalStateException("Primary key not specified");
 		}
+		String table = isFtsTable ? "CREATE VIRTUAL TABLE " + tableName + " USING fts3" : "CREATE TABLE " + tableName;
 		StringBuilder sb = new StringBuilder();
-		if (isFtsTable) {
-			sb.append("CREATE VIRTUAL TABLE ").append(tableName).append(" USING fts3");
-		} else {
-			sb.append("CREATE TABLE ").append(tableName);
-		}
-		sb.append(" (").append(primaryKey.build()).append(" PRIMARY KEY AUTOINCREMENT,");
+		sb.append(table).append(" (").append(primaryKey.build()).append(" PRIMARY KEY AUTOINCREMENT,");
 		for (Column column : columns) {
 			sb.append(column.build()).append(",");
 		}
@@ -66,10 +61,6 @@ public class TableBuilder {
 	}
 
 	public void replace(SQLiteDatabase db) {
-		replace(db, null, null, null);
-	}
-
-	public void replace(SQLiteDatabase db, Map<String, String> columnMap, String joinTable, String joinColumn) {
 		if (TextUtils.isEmpty(tableName)) {
 			throw new IllegalStateException("Table not specified");
 		}
@@ -77,7 +68,7 @@ public class TableBuilder {
 		try {
 			rename(db);
 			create(db);
-			copy(db, columnMap, joinTable, joinColumn);
+			copy(db);
 			dropTemp(db);
 			db.setTransactionSuccessful();
 		} finally {
@@ -93,26 +84,16 @@ public class TableBuilder {
 		db.execSQL("ALTER TABLE " + tableName + " RENAME TO " + tempTable());
 	}
 
-	private void copy(SQLiteDatabase db, Map<String, String> columnMap, String joinTable, String joinColumn) {
-		StringBuilder sourceColumns = new StringBuilder();
-		StringBuilder destinationColumns = new StringBuilder();
+	private void copy(SQLiteDatabase db) {
+		StringBuilder sb = new StringBuilder();
 		for (Column column : columns) {
-			if (destinationColumns.length() > 0) destinationColumns.append(",");
-			destinationColumns.append(column.name);
-
-			if (sourceColumns.length() > 0) sourceColumns.append(",");
-			String c = columnMap == null ? null : columnMap.get(column.name);
-			if (TextUtils.isEmpty(c)) {
-				sourceColumns.append(column.name);
-			} else {
-				sourceColumns.append(c);
+			if (sb.length() > 0) {
+				sb.append(",");
 			}
+			sb.append(column.name);
 		}
-		String destinationTable = tempTable();
-		if (!TextUtils.isEmpty(joinTable) && !TextUtils.isEmpty(joinColumn))
-			destinationTable += String.format(" INNER JOIN %1$s ON %1$s.%3$s=%2$s.%3$s", joinTable, tempTable(), joinColumn);
-		String sql = String.format("INSERT INTO %s(%s) SELECT %s FROM %s",
-			tableName, destinationColumns.toString(), sourceColumns.toString(), destinationTable);
+		String sql = "INSERT INTO " + tableName + "(" + sb.toString() + ") SELECT " + sb.toString() + " FROM "
+			+ tempTable();
 		Timber.d(sql);
 		db.execSQL(sql);
 	}

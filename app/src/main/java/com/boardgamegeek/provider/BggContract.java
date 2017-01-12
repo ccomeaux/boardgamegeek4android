@@ -207,7 +207,6 @@ public class BggContract {
 	}
 
 	interface PlayPlayersColumns {
-		String _PLAY_ID = "_play_id";
 		String USER_NAME = "user_name";
 		String USER_ID = "user_id";
 		String NAME = "name";
