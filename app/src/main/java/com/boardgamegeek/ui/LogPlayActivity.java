@@ -129,8 +129,9 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final int TOKEN_ID = 1 << 2;
 	private static final int TOKEN_COLORS = 1 << 3;
 	private static final int TOKEN_UNINITIALIZED = 1 << 31;
-	private static final String[] ID_PROJECTION = { "MAX(plays." + Plays.PLAY_ID + ")" };
+	private static final String[] ID_PROJECTION = { "MAX(plays." + Plays.PLAY_ID + ")", Plays._ID };
 
+	@State long internalId;
 	private int playId;
 	private int gameId;
 	private String gameName;
@@ -246,6 +247,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					try {
 						int lastId = 0;
 						if (cursor.getCount() == 1 && cursor.moveToFirst()) {
+							internalId = cursor.getInt(1);
 							lastId = cursor.getInt(0);
 						}
 						if (lastId >= id) {
@@ -298,8 +300,9 @@ public class LogPlayActivity extends AppCompatActivity {
 					}
 				}
 				if (isRequestingRematch) {
-					play.playId = playId;
 					play = PlayBuilder.rematch(play);
+					// when copying below, keep the new play ID not the original rematch ID
+					play.playId = playId;
 				}
 				originalPlay = PlayBuilder.copy(play);
 				finishDataLoad();
@@ -462,6 +465,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		queryHandler = new QueryHandler(getContentResolver());
 
 		final Intent intent = getIntent();
+		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
 		playId = intent.getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
@@ -1067,8 +1071,8 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void maybeShowNotification() {
-		if (play != null && play.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(this, 0, play, thumbnailUrl, imageUrl); // TODO: 1/11/17
+		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
+			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl); // TODO: 1/11/17
 		}
 	}
 

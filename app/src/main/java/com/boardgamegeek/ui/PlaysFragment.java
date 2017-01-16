@@ -51,6 +51,7 @@ import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -561,7 +562,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	protected void onFabClicked() {
-		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), 0, gameId, gameName, thumbnailUrl, imageUrl);
+		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		startActivity(intent);
 	}
@@ -770,8 +771,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case R.id.menu_edit:
 				mode.finish();
 				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
+				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-				ActivityUtils.editPlay(getActivity(), play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
+				ActivityUtils.editPlay(getActivity(), internalId, play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
 				return true;
 			case R.id.menu_delete:
 				mode.finish();

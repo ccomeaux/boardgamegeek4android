@@ -205,37 +205,42 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static void editPlay(Context context, long internalId, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		PlayManipulationEvent.log("Edit", gameName);
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+		Intent intent = createEditPlayIntent(context, internalId, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static void endPlay(Context context, long internalId, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createEditPlayIntent(context, internalId, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createRematchIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static void rematch(Context context, long internalId, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createRematchIntent(context, internalId, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createRematchIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static Intent createRematchIntent(Context context, long internalId, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createEditPlayIntent(context, internalId, playId, gameId, gameName, thumbnailUrl, imageUrl); // TODO: 1/11/17
 		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
 
 	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
-		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
+		Intent intent = createEditPlayIntent(context, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
-	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static Intent createEditPlayIntent(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		return createEditPlayIntent(context, 0, 0, gameId, gameName, thumbnailUrl, imageUrl);
+	}
+
+	public static Intent createEditPlayIntent(Context context, long internalId, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
+		intent.putExtra(KEY_ID, internalId);
 		intent.putExtra(KEY_PLAY_ID, playId);
 		intent.putExtra(KEY_GAME_ID, gameId);
 		intent.putExtra(KEY_GAME_NAME, gameName);

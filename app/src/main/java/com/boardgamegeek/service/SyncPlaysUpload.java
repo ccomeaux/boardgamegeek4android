@@ -31,6 +31,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -51,6 +52,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private OkHttpClient httpClient;
 	private LocalBroadcastManager broadcastManager;
 	private PlayPersister persister;
+	private long currentInternalIdForMessage;
 	private int currentPlayIdForMessage;
 	private int currentGameIdForMessage;
 	private String currentGameNameForMessage;
@@ -125,6 +127,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (isCancelled()) {
 					break;
 				}
+
+				currentInternalIdForMessage = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
 				Cursor playerCursor = PlayBuilder.queryPlayers(context, play);
 				try {
@@ -369,6 +373,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	protected Action createMessageAction() {
 		if (currentPlayIdForMessage != BggContract.INVALID_ID) {
 			Intent intent = ActivityUtils.createRematchIntent(context,
+				currentInternalIdForMessage,
 				currentPlayIdForMessage,
 				currentGameIdForMessage,
 				currentGameNameForMessage, null, null);
