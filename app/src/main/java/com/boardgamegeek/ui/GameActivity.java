@@ -69,6 +69,7 @@ public class GameActivity extends HeroActivity implements Callback {
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
+				if (gameUri == null) return;
 				ContentValues values = new ContentValues();
 				values.put(Games.LAST_VIEWED, System.currentTimeMillis());
 				getContentResolver().update(gameUri, values, null, null);
