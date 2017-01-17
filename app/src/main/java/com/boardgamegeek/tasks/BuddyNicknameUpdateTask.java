@@ -1,11 +1,9 @@
 package com.boardgamegeek.tasks;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -19,6 +17,7 @@ import com.boardgamegeek.util.ResolverUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +29,14 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private final String username;
 	private final String nickname;
 	private final boolean shouldUpdatePlays;
+	private ArrayList<ContentProviderOperation> batch;
 
 	public BuddyNicknameUpdateTask(Context context, String username, String nickname, boolean shouldUpdatePlays) {
 		this.context = (context == null ? null : context.getApplicationContext());
 		this.username = username;
 		this.nickname = nickname;
 		this.shouldUpdatePlays = shouldUpdatePlays;
+		this.batch = new ArrayList<>();
 	}
 
 	@Override
@@ -45,7 +46,8 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 		}
 
 		String result;
-		updateNickname(Buddies.buildBuddyUri(username));
+		batch.clear();
+		updateNickname();
 		if (shouldUpdatePlays) {
 			if (TextUtils.isEmpty(nickname)) {
 				result = context.getString(R.string.msg_missing_nickname);
@@ -55,12 +57,12 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 					updatePlayers();
 					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 				}
-				result = context.getResources().getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, count,
-					count, username, nickname);
+				result = context.getResources().getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, count, count, username, nickname);
 			}
 		} else {
 			result = context.getString(R.string.msg_updated_nickname, nickname);
 		}
+		ResolverUtils.applyBatch(context, batch);
 		return result;
 	}
 
@@ -69,30 +71,33 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 		EventBus.getDefault().post(new Event(result));
 	}
 
-	private void updateNickname(@NonNull final Uri uri) {
-		ContentValues values = new ContentValues(1);
-		values.put(Buddies.PLAY_NICKNAME, nickname);
-		context.getContentResolver().update(uri, values, null, null);
+	private void updateNickname() {
+		batch.add(ContentProviderOperation
+			.newUpdate(Buddies.buildBuddyUri(username))
+			.withValue(Buddies.PLAY_NICKNAME, nickname)
+			.build());
 	}
 
 	private int updatePlays() {
-		// TODO: 1/16/17 use a batch
-		ContentValues values = new ContentValues(1);
-		values.put(BggContract.Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
 		final ContentResolver resolver = context.getContentResolver();
 		List<Long> internalIds = ResolverUtils.queryLongs(resolver, Plays.buildPlayersByPlayUri(), Plays._ID, SELECTION, new String[] { username, nickname });
 		for (Long internalId : internalIds) {
 			if (internalId != BggContract.INVALID_ID) {
-				resolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null);
+				batch.add(ContentProviderOperation
+					.newUpdate(Plays.buildPlayUri(internalId))
+					.withValue(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE)
+					.build());
 			}
 		}
 		return internalIds.size();
 	}
 
 	private void updatePlayers() {
-		ContentValues values = new ContentValues(1);
-		values.put(BggContract.PlayPlayers.NAME, nickname);
-		context.getContentResolver().update(BggContract.Plays.buildPlayersByPlayUri(), values, SELECTION, new String[] { username, nickname });
+		batch.add(ContentProviderOperation
+			.newUpdate(Plays.buildPlayersByPlayUri())
+			.withSelection(SELECTION, new String[] { username, nickname })
+			.withValue(PlayPlayers.NAME, nickname)
+			.build());
 	}
 
 	public class Event {
