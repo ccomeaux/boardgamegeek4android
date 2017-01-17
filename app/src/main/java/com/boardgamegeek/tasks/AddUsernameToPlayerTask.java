@@ -4,7 +4,6 @@ import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
@@ -65,17 +64,17 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private void updatePlays(ArrayList<ContentProviderOperation> batch) {
-		List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(),
+		List<Long> internalIds = ResolverUtils.queryLongs(context.getContentResolver(),
 			Plays.buildPlayersByPlayUri(),
-			Plays.PLAY_ID, Plays.SYNC_STATUS + "=? AND (" + SELECTION + ")",
+			Plays._ID,
+			Plays.SYNC_STATUS + "=? AND (" + SELECTION + ")",
 			new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), playerName, "" });
-		if (playIds.size() > 0) {
+		if (internalIds.size() > 0) {
 			ContentValues values = new ContentValues();
 			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-			for (Integer playId : playIds) {
-				if (playId != BggContract.INVALID_ID) {
-					Uri uri = Plays.buildPlayUri(playId);
-					batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+			for (Long internalId : internalIds) {
+				if (internalId != BggContract.INVALID_ID) {
+					batch.add(ContentProviderOperation.newUpdate(Plays.buildPlayUri(internalId)).withValues(values).build());
 				}
 			}
 		}

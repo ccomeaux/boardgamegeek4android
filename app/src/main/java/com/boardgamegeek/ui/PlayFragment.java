@@ -326,7 +326,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		CursorLoader loader = null;
 		switch (id) {
 			case PLAY_QUERY_TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(playId), PlayBuilder.PLAY_PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 				break;
 			case PLAYER_QUERY_TOKEN:
 				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(playId), PlayBuilder.PLAYER_PROJECTION, null, null, null);

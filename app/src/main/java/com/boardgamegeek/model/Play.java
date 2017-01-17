@@ -110,7 +110,7 @@ public class Play {
 
 	@Path("item")
 	@Attribute
-	public String objecttype;
+	private String objecttype;
 
 	@Path("item")
 	@ElementList
@@ -159,13 +159,6 @@ public class Play {
 	}
 
 	// URI
-
-	/**
-	 * @return plays/#
-	 */
-	public Uri uri() {
-		return Plays.buildPlayUri(playId);
-	}
 
 	/**
 	 * @return plays/#/players

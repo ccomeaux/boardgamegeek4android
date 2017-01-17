@@ -10,10 +10,10 @@ public class PlaysIdProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		int playId = Plays.getPlayId(uri);
+		long internalId = Plays.getInternalId(uri);
 		return new SelectionBuilder()
 			.table(Tables.PLAYS)
-			.whereEquals(Plays.PLAY_ID, String.valueOf(playId));
+			.whereEquals(Plays._ID, String.valueOf(internalId));
 	}
 
 	@Override

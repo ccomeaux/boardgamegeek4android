@@ -1,5 +1,6 @@
 package com.boardgamegeek.tasks;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
@@ -75,15 +76,17 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private int updatePlays() {
+		// TODO: 1/16/17 use a batch
 		ContentValues values = new ContentValues(1);
 		values.put(BggContract.Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-		List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(), Plays.buildPlayersByPlayUri(), Plays.PLAY_ID, SELECTION, new String[] { username, nickname });
-		for (Integer playId : playIds) {
-			if (playId != BggContract.INVALID_ID) {
-				context.getContentResolver().update(BggContract.Plays.buildPlayUri(playId), values, null, null);
+		final ContentResolver resolver = context.getContentResolver();
+		List<Long> internalIds = ResolverUtils.queryLongs(resolver, Plays.buildPlayersByPlayUri(), Plays._ID, SELECTION, new String[] { username, nickname });
+		for (Long internalId : internalIds) {
+			if (internalId != BggContract.INVALID_ID) {
+				resolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null);
 			}
 		}
-		return playIds.size();
+		return internalIds.size();
 	}
 
 	private void updatePlayers() {

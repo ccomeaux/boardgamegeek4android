@@ -40,11 +40,6 @@ public class PlaysProvider extends BasicProvider {
 	}
 
 	@Override
-	protected String getInsertedIdColumn() {
-		return Plays.PLAY_ID;
-	}
-
-	@Override
 	protected String getPath() {
 		return BggContract.PATH_PLAYS;
 	}

@@ -637,7 +637,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			finishDataLoad();
 		} else {
 			outstandingQueries = TOKEN_COLORS;
-			if (playId > 0) {
+			if (internalId > 0) {
 				// Editing or copying an existing play, so retrieve it
 				shouldDeletePlayOnActivityCancel = false;
 				outstandingQueries |= TOKEN_PLAY | TOKEN_PLAYERS;
@@ -645,7 +645,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					shouldDeletePlayOnActivityCancel = true;
 					outstandingQueries |= TOKEN_ID;
 				}
-				queryHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(playId), PlayBuilder.PLAY_PROJECTION, null, null, null);
+				queryHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 			} else {
 				// Starting a new play
 				shouldDeletePlayOnActivityCancel = true;

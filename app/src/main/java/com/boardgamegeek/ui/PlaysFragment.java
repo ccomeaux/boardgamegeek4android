@@ -795,10 +795,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		ContentResolver resolver = getActivity().getContentResolver();
 		ContentValues values = new ContentValues();
 		values.put(Plays.SYNC_STATUS, status);
+		// TODO: 1/16/17 create a resolver batch 
 		for (int position : selectedPlaysPositions) {
 			Cursor cursor = (Cursor) adapter.getItem(position);
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			resolver.update(Plays.buildPlayUri(play.getPlayId()), values, null, null);
+			long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
+			if (internalId != BggContract.INVALID_ID) resolver.update(Plays.buildPlayUri(internalId), values, null, null);
 		}
 		selectedPlaysPositions.clear();
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);

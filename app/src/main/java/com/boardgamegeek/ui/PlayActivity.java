@@ -12,11 +12,9 @@ import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -80,14 +78,6 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	protected void onStop() {
 		LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
 		super.onStop();
-	}
-
-	@Override
-	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
-		if (playId != BggContract.INVALID_ID) {
-			arguments = UIUtils.replaceData(arguments, Plays.buildPlayUri(playId));
-		}
-		return arguments;
 	}
 
 	private void newPlayId(int playId) {

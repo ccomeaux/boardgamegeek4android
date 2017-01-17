@@ -790,8 +790,8 @@ public class BggContract {
 		/**
 		 * content://com.boardgamegeek/plays/#
 		 */
-		public static Uri buildPlayUri(int playId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
+		public static Uri buildPlayUri(long internalId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(internalId)).build();
 		}
 
 		public static Uri buildPlayerUri(int playId) {
@@ -833,6 +833,10 @@ public class BggContract {
 
 		public static int getPlayId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static long getInternalId(Uri uri) {
+			return StringUtils.parseLong(uri.getPathSegments().get(1));
 		}
 	}
 

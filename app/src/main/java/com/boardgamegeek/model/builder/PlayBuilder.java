@@ -11,6 +11,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
 
@@ -32,6 +33,9 @@ public class PlayBuilder {
 		Plays.START_TIME,
 		Plays.PLAYER_COUNT
 	};
+
+	public static final String[] PLAY_PROJECTION_WITH_ID = StringUtils.concatenate(
+		new String[] { Plays._ID }, PLAY_PROJECTION);
 
 	public static final String[] PLAYER_PROJECTION = {
 		PlayPlayers.USER_NAME,

@@ -115,7 +115,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
-				null,
+				PlayBuilder.PLAY_PROJECTION_WITH_ID,
 				Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) },
 				null);
@@ -154,7 +154,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 
 					if (newPlayId != oldPlayId) {
-						deletePlay(play);
+						deletePlay(currentInternalIdForMessage);
 
 						PreferencesUtils.putNewPlayId(context, oldPlayId, newPlayId);
 						Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
@@ -206,7 +206,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
-				PlayBuilder.PLAY_PROJECTION,
+				PlayBuilder.PLAY_PROJECTION_WITH_ID,
 				Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
 				null);
@@ -218,6 +218,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (isCancelled()) {
 					break;
 				}
+				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.hasBeenSynced()) {
 					PlayDeleteResponse response = postPlayDelete(play.playId);
@@ -225,11 +226,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						syncResult.stats.numIoExceptions++;
 						notifyUploadError(context.getString(R.string.msg_play_update_null_response));
 					} else if (response.isSuccessful()) {
-						deletePlay(play);
+						deletePlay(internalId);
 						updateGamePlayCount(play);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
-						deletePlay(play);
+						deletePlay(internalId);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
@@ -239,7 +240,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						notifyUploadError(response.getErrorMessage());
 					}
 				} else {
-					deletePlay(play);
+					deletePlay(internalId);
 					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
 				}
 			}
@@ -341,8 +342,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	 * Deletes the specified play from the content provider
 	 */
 	@DebugLog
-	private void deletePlay(Play play) {
-		persister.delete(play);
+	private void deletePlay(long internalId) {
+		persister.delete(internalId);
 	}
 
 	@DebugLog
