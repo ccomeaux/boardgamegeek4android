@@ -145,8 +145,8 @@ public class PlayPersister {
 		}
 
 		// Players
-		deletePlayerWithNullUserIdInBatch(play);
-		List<Integer> existingPlayerIds = removeDuplicateUserIdsFromBatch(play);
+		deletePlayerWithEmptyUserNameInBatch(play);
+		List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(play);
 		addPlayersToBatch(play, existingPlayerIds);
 		removeUnusedPlayersFromBatch(play, existingPlayerIds);
 
@@ -240,52 +240,52 @@ public class PlayPersister {
 		return values;
 	}
 
-	private void deletePlayerWithNullUserIdInBatch(Play play) {
+	private void deletePlayerWithEmptyUserNameInBatch(Play play) {
 		batch.add(ContentProviderOperation
 			.newDelete(play.playerUri())
-			.withSelection(PlayPlayers.USER_ID + " IS NULL", null)
+			.withSelection(String.format("%1$s IS NULL OR %1$s=''", PlayPlayers.USER_NAME), null)
 			.build());
 	}
 
-	private List<Integer> removeDuplicateUserIdsFromBatch(Play play) {
-		List<Integer> ids = ResolverUtils.queryInts(resolver, play.playerUri(), PlayPlayers.USER_ID);
+	private List<String> removeDuplicateUserNamesFromBatch(Play play) {
+		List<String> userNames = ResolverUtils.queryStrings(resolver, play.playerUri(), PlayPlayers.USER_NAME);
 
-		if (ids == null || ids.size() == 0) {
+		if (userNames == null || userNames.size() == 0) {
 			return new ArrayList<>();
 		}
 
-		List<Integer> uniqueIds = new ArrayList<>();
-		List<Integer> idsToDelete = new ArrayList<>();
+		List<String> uniqueUserNames = new ArrayList<>();
+		List<String> userNamesToDelete = new ArrayList<>();
 
-		for (int i = 0; i < ids.size(); i++) {
-			Integer id = ids.get(i);
-			if (id != null) {
-				if (uniqueIds.contains(id)) {
-					idsToDelete.add(id);
+		for (int i = 0; i < userNames.size(); i++) {
+			String userName = userNames.get(i);
+			if (!TextUtils.isEmpty(userName)) {
+				if (uniqueUserNames.contains(userName)) {
+					userNamesToDelete.add(userName);
 				} else {
-					uniqueIds.add(id);
+					uniqueUserNames.add(userName);
 				}
 			}
 		}
 
-		for (Integer id : idsToDelete) {
+		for (String userName : userNamesToDelete) {
 			batch.add(ContentProviderOperation
 				.newDelete(play.playerUri())
-				.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(id) })
+				.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { userName })
 				.build());
-			uniqueIds.remove(id);
+			uniqueUserNames.remove(userName);
 		}
 
-		return uniqueIds;
+		return uniqueUserNames;
 	}
 
-	private void addPlayersToBatch(Play play, List<Integer> playerUserIds) {
+	private void addPlayersToBatch(Play play, List<String> playerUserNames) {
 		for (Player player : play.getPlayers()) {
 
-			int userId = player.userid;
+			String userName = player.username;
 			ContentValues values = new ContentValues();
-			values.put(PlayPlayers.USER_ID, userId);
-			values.put(PlayPlayers.USER_NAME, player.username);
+			values.put(PlayPlayers.USER_ID, player.userid);
+			values.put(PlayPlayers.USER_NAME, userName);
 			values.put(PlayPlayers.NAME, player.name);
 			values.put(PlayPlayers.START_POSITION, player.getStartingPosition());
 			values.put(PlayPlayers.COLOR, player.color);
@@ -294,13 +294,13 @@ public class PlayPersister {
 			values.put(PlayPlayers.RATING, player.rating);
 			values.put(PlayPlayers.WIN, player.Win());
 
-			if (playerUserIds != null && playerUserIds.remove(Integer.valueOf(userId))) {
+			if (playerUserNames != null && playerUserNames.remove(userName)) {
 				batch.add(ContentProviderOperation
 					.newUpdate(play.playerUri())
-					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(userId) })
+					.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { userName })
 					.withValues(values).build());
 			} else {
-				values.put(PlayPlayers.USER_ID, userId);
+				values.put(PlayPlayers.USER_NAME, userName);
 				batch.add(ContentProviderOperation
 					.newInsert(play.playerUri())
 					.withValues(values)
@@ -309,12 +309,12 @@ public class PlayPersister {
 		}
 	}
 
-	private void removeUnusedPlayersFromBatch(Play play, List<Integer> playerUserIds) {
-		if (playerUserIds != null) {
-			for (Integer playerUserId : playerUserIds) {
+	private void removeUnusedPlayersFromBatch(Play play, List<String> playerUserNames) {
+		if (playerUserNames != null) {
+			for (String playerUserName : playerUserNames) {
 				batch.add(ContentProviderOperation
 					.newDelete(play.playerUri())
-					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(playerUserId) })
+					.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { playerUserName })
 					.build());
 			}
 		}
