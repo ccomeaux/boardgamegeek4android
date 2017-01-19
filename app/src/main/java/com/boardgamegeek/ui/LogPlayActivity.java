@@ -682,8 +682,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void logPlay() {
 		if (save(Play.SYNC_STATUS_PENDING_UPDATE)) {
-			if (!play.hasBeenSynced()
-				&& DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
+			if (!play.hasBeenSynced() && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, play.location);
 				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());

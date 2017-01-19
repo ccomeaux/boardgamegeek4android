@@ -38,6 +38,7 @@ public class PlayBuilder {
 		new String[] { Plays._ID }, PLAY_PROJECTION);
 
 	public static final String[] PLAYER_PROJECTION = {
+		PlayPlayers.USER_ID,
 		PlayPlayers.USER_NAME,
 		PlayPlayers.NAME,
 		PlayPlayers.START_POSITION,
