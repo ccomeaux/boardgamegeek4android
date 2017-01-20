@@ -11,10 +11,12 @@ public class PlaysIdPlayersIdProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		int playId = Plays.getPlayId(uri);
+		long internalId = Plays.getInternalId(uri);
 		long rowId = PlayPlayers.getPlayPlayerId(uri);
-		return new SelectionBuilder().table(Tables.PLAY_PLAYERS).whereEquals(PlayPlayers.PLAY_ID, playId)
-				.whereEquals(PlayPlayers._ID, rowId);
+		return new SelectionBuilder()
+			.table(Tables.PLAY_PLAYERS)
+			.whereEquals(PlayPlayers._PLAY_ID, internalId)
+			.whereEquals(PlayPlayers._ID, rowId);
 	}
 
 	@Override

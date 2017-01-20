@@ -207,6 +207,7 @@ public class BggContract {
 	}
 
 	interface PlayPlayersColumns {
+		String _PLAY_ID = "_play_id";
 		String USER_NAME = "user_name";
 		String USER_ID = "user_id";
 		String NAME = "name";
@@ -794,13 +795,25 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(internalId)).build();
 		}
 
-		public static Uri buildPlayerUri(int playId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_PLAYERS).build();
+		public static Uri buildPlayerUri() {
+			return CONTENT_URI.buildUpon()
+				.appendPath(PATH_PLAYERS)
+				.build();
 		}
 
-		public static Uri buildPlayerUri(int playId, long rowId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_PLAYERS)
-				.appendPath(String.valueOf(rowId)).build();
+		public static Uri buildPlayerUri(long internalId) {
+			return CONTENT_URI.buildUpon()
+				.appendPath(String.valueOf(internalId))
+				.appendPath(PATH_PLAYERS)
+				.build();
+		}
+
+		public static Uri buildPlayerUri(long internalId, long rowId) {
+			return CONTENT_URI.buildUpon()
+				.appendPath(String.valueOf(internalId))
+				.appendPath(PATH_PLAYERS)
+				.appendPath(String.valueOf(rowId))
+				.build();
 		}
 
 		public static Uri buildLocationsUri() {
@@ -829,10 +842,6 @@ public class BggContract {
 
 		public static Uri buildPlayersByColor() {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_COLOR).build();
-		}
-
-		public static int getPlayId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 
 		public static long getInternalId(Uri uri) {

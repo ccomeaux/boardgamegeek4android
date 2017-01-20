@@ -222,7 +222,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						play.end();
 					}
 					if ((outstandingQueries & TOKEN_PLAYERS) != 0) {
-						queryHandler.startQuery(TOKEN_PLAYERS, null, Plays.buildPlayerUri(playId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
+						queryHandler.startQuery(TOKEN_PLAYERS, null, Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 					}
 					setModelIfDone(token);
 					break;
@@ -1071,7 +1071,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
-			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl); // TODO: 1/11/17
+			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl);
 		}
 	}
 

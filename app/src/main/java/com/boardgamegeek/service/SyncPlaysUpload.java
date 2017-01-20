@@ -130,7 +130,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 				currentInternalIdForMessage = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
-				Cursor playerCursor = PlayBuilder.queryPlayers(context, play);
+				Cursor playerCursor = PlayBuilder.queryPlayers(context, currentInternalIdForMessage);
 				try {
 					PlayBuilder.addPlayers(playerCursor, play);
 				} finally {

@@ -145,10 +145,11 @@ public class PlayPersister {
 		}
 
 		// Players
-		deletePlayerWithEmptyUserNameInBatch(play);
-		List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(play);
-		addPlayersToBatch(play, existingPlayerIds);
-		removeUnusedPlayersFromBatch(play, existingPlayerIds);
+		// TODO: 1/18/17 replace internal ID with back reference on insert 
+		deletePlayerWithEmptyUserNameInBatch(internalId);
+		List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId);
+		addPlayersToBatch(play, existingPlayerIds, internalId);
+		removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
 
 		if (play.syncStatus == Play.SYNC_STATUS_SYNCED || play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 			saveGamePlayerSortOrderToBatch(play);
@@ -240,15 +241,17 @@ public class PlayPersister {
 		return values;
 	}
 
-	private void deletePlayerWithEmptyUserNameInBatch(Play play) {
+	private void deletePlayerWithEmptyUserNameInBatch(long internalId) {
+		if (internalId == BggContract.INVALID_ID) return;
 		batch.add(ContentProviderOperation
-			.newDelete(play.playerUri())
+			.newDelete(Plays.buildPlayerUri(internalId))
 			.withSelection(String.format("%1$s IS NULL OR %1$s=''", PlayPlayers.USER_NAME), null)
 			.build());
 	}
 
-	private List<String> removeDuplicateUserNamesFromBatch(Play play) {
-		List<String> userNames = ResolverUtils.queryStrings(resolver, play.playerUri(), PlayPlayers.USER_NAME);
+	private List<String> removeDuplicateUserNamesFromBatch(long internalId) {
+		if (internalId == BggContract.INVALID_ID) return new ArrayList<>(0);
+		List<String> userNames = ResolverUtils.queryStrings(resolver, Plays.buildPlayerUri(internalId), PlayPlayers.USER_NAME);
 
 		if (userNames == null || userNames.size() == 0) {
 			return new ArrayList<>();
@@ -270,7 +273,7 @@ public class PlayPersister {
 
 		for (String userName : userNamesToDelete) {
 			batch.add(ContentProviderOperation
-				.newDelete(play.playerUri())
+				.newDelete(Plays.buildPlayerUri(internalId))
 				.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { userName })
 				.build());
 			uniqueUserNames.remove(userName);
@@ -279,7 +282,7 @@ public class PlayPersister {
 		return uniqueUserNames;
 	}
 
-	private void addPlayersToBatch(Play play, List<String> playerUserNames) {
+	private void addPlayersToBatch(Play play, List<String> playerUserNames, long internalId) {
 		for (Player player : play.getPlayers()) {
 
 			String userName = player.username;
@@ -296,24 +299,33 @@ public class PlayPersister {
 
 			if (playerUserNames != null && playerUserNames.remove(userName)) {
 				batch.add(ContentProviderOperation
-					.newUpdate(play.playerUri())
+					.newUpdate(Plays.buildPlayerUri(internalId))
 					.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { userName })
 					.withValues(values).build());
 			} else {
 				values.put(PlayPlayers.USER_NAME, userName);
-				batch.add(ContentProviderOperation
-					.newInsert(play.playerUri())
-					.withValues(values)
-					.build());
+				if (internalId == BggContract.INVALID_ID) {
+					batch.add(ContentProviderOperation
+						.newInsert(Plays.buildPlayerUri())
+						.withValueBackReference(PlayPlayers._PLAY_ID, 0)
+						.withValues(values)
+						.build());
+				} else {
+					batch.add(ContentProviderOperation
+						.newInsert(Plays.buildPlayerUri(internalId))
+						.withValues(values)
+						.build());
+				}
 			}
 		}
 	}
 
-	private void removeUnusedPlayersFromBatch(Play play, List<String> playerUserNames) {
+	private void removeUnusedPlayersFromBatch(long internalId, List<String> playerUserNames) {
+		if (internalId == BggContract.INVALID_ID) return;
 		if (playerUserNames != null) {
 			for (String playerUserName : playerUserNames) {
 				batch.add(ContentProviderOperation
-					.newDelete(play.playerUri())
+					.newDelete(Plays.buildPlayerUri(internalId))
 					.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { playerUserName })
 					.build());
 			}

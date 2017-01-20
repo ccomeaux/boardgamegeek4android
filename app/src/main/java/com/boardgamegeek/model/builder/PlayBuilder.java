@@ -99,8 +99,8 @@ public class PlayBuilder {
 		return player;
 	}
 
-	public static Cursor queryPlayers(Context context, Play play) {
-		return context.getContentResolver().query(play.playerUri(), null, null, null, null);
+	public static Cursor queryPlayers(Context context, long internalId) {
+		return context.getContentResolver().query(Plays.buildPlayerUri(internalId), null, null, null, null);
 	}
 
 	public static void addPlayers(Cursor cursor, Play play) {

@@ -2,13 +2,11 @@ package com.boardgamegeek.model;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -156,15 +154,6 @@ public class Play {
 		comments = "";
 		startTime = 0;
 		players = new ArrayList<>();
-	}
-
-	// URI
-
-	/**
-	 * @return plays/#/players
-	 */
-	public Uri playerUri() {
-		return Plays.buildPlayerUri(playId);
 	}
 
 	// DATE
