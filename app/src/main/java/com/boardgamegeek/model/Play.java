@@ -27,14 +27,6 @@ import java.util.Locale;
 @Root(name = "play")
 public class Play {
 	/**
-	 * Used for filtering to include all plays
-	 */
-	public static final int SYNC_STATUS_ALL = -2;
-	/**
-	 * The play has not been synced and isn't stored in the database
-	 */
-	public static final int SYNC_STATUS_NOT_STORED = -1;
-	/**
 	 * The play has been synced with the 'Geek
 	 */
 	public static final int SYNC_STATUS_SYNCED = 0;
@@ -50,10 +42,6 @@ public class Play {
 	 * The play is ready to be deleted
 	 */
 	public static final int SYNC_STATUS_PENDING_DELETE = 3;
-	/**
-	 * The play is ready to be updated or deleted
-	 */
-	public static final int SYNC_STATUS_PENDING = 4;
 
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;

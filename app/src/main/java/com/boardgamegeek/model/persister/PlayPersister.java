@@ -26,6 +26,7 @@ import java.util.List;
 import timber.log.Timber;
 
 public class PlayPersister {
+	public static final int SYNC_STATUS_NOT_STORED = -1;
 	private final Context context;
 	private final ContentResolver resolver;
 	private final ArrayList<ContentProviderOperation> batch;
@@ -73,7 +74,7 @@ public class PlayPersister {
 							Timber.i("Not saving during the sync due to dirty status=%s", candidate.getSyncStatus());
 							dirtyCount++;
 							break;
-						case Play.SYNC_STATUS_NOT_STORED:
+						case SYNC_STATUS_NOT_STORED:
 						default:
 							Timber.e("Unknown sync status=%s", candidate.getSyncStatus());
 							errorCount++;
@@ -399,7 +400,7 @@ public class PlayPersister {
 
 			@Override
 			public int getSyncStatus() {
-				return Play.SYNC_STATUS_NOT_STORED;
+				return SYNC_STATUS_NOT_STORED;
 			}
 
 			@Override
@@ -438,7 +439,7 @@ public class PlayPersister {
 		public static PlaySyncCandidate fromCursor(Cursor cursor) {
 			PlaySyncCandidate psc = new PlaySyncCandidate();
 			psc.internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-			psc.syncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
+			psc.syncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS, SYNC_STATUS_NOT_STORED);
 			psc.syncHashCode = CursorUtils.getInt(cursor, Plays.SYNC_HASH_CODE);
 			return psc;
 		}

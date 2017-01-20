@@ -81,6 +81,8 @@ import timber.log.Timber;
 
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
 	public static final String KEY_MODE = "MODE";
+	public static final int FILTER_TYPE_STATUS_ALL = -2;
+	public static final int FILTER_TYPE_STATUS_PENDING = 4;
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
 	public static final int MODE_BUDDY = 2;
@@ -98,7 +100,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String buddyName;
 	private String playerName;
 	private String locationName;
-	private int filterType = Play.SYNC_STATUS_ALL;
+	private int filterType = FILTER_TYPE_STATUS_ALL;
 	private Sorter sorter;
 	private boolean hasAutoSyncTriggered;
 	private int mode = MODE_ALL;
@@ -193,10 +195,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case Play.SYNC_STATUS_IN_PROGRESS:
 				UIUtils.checkMenuItem(menu, R.id.menu_filter_in_progress);
 				break;
-			case Play.SYNC_STATUS_PENDING:
+			case FILTER_TYPE_STATUS_PENDING:
 				UIUtils.checkMenuItem(menu, R.id.menu_filter_pending);
 				break;
-			case Play.SYNC_STATUS_ALL:
+			case FILTER_TYPE_STATUS_ALL:
 			default:
 				UIUtils.checkMenuItem(menu, R.id.menu_filter_all);
 				break;
@@ -240,13 +242,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				setSort(PlaysSorterFactory.TYPE_PLAY_LENGTH);
 				return true;
 			case R.id.menu_filter_all:
-				filter(Play.SYNC_STATUS_ALL, title);
+				filter(FILTER_TYPE_STATUS_ALL, title);
 				return true;
 			case R.id.menu_filter_in_progress:
 				filter(Play.SYNC_STATUS_IN_PROGRESS, title);
 				return true;
 			case R.id.menu_filter_pending:
-				filter(Play.SYNC_STATUS_PENDING, title);
+				filter(FILTER_TYPE_STATUS_PENDING, title);
 				return true;
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
@@ -397,9 +399,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 						return R.string.empty_plays_update;
 					case Play.SYNC_STATUS_PENDING_DELETE:
 						return R.string.empty_plays_delete;
-					case Play.SYNC_STATUS_PENDING:
+					case FILTER_TYPE_STATUS_PENDING:
 						return R.string.empty_plays_pending;
-					case Play.SYNC_STATUS_ALL:
+					case FILTER_TYPE_STATUS_ALL:
 					default:
 						if (PreferencesUtils.getSyncPlays(getActivity())) {
 							return R.string.empty_plays_sync_off;
@@ -443,9 +445,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String selection() {
 		switch (mode) {
 			case MODE_ALL:
-				if (filterType == Play.SYNC_STATUS_ALL) {
+				if (filterType == FILTER_TYPE_STATUS_ALL) {
 					return null;
-				} else if (filterType == Play.SYNC_STATUS_PENDING) {
+				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
 					return Plays.SYNC_STATUS + "=? OR " + Plays.SYNC_STATUS + "=?";
 				} else {
 					return Plays.SYNC_STATUS + "=?";
@@ -465,9 +467,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String[] selectionArgs() {
 		switch (mode) {
 			case MODE_ALL:
-				if (filterType == Play.SYNC_STATUS_ALL) {
+				if (filterType == FILTER_TYPE_STATUS_ALL) {
 					return null;
-				} else if (filterType == Play.SYNC_STATUS_PENDING) {
+				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
 					return new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
 						String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) };
 				} else {
