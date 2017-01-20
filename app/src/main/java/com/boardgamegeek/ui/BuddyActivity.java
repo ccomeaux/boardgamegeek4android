@@ -20,6 +20,7 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -67,11 +68,8 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem item = menu.findItem(R.id.add_username);
-		if (item != null) {
-			item.setVisible(TextUtils.isEmpty(username));
-		}
-		return true;
+		UIUtils.showMenuItem(menu, R.id.add_username, TextUtils.isEmpty(username));
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override

@@ -190,43 +190,36 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public void onPrepareOptionsMenu(Menu menu) {
 		switch (filterType) {
 			case Play.SYNC_STATUS_IN_PROGRESS:
-				checkMenuItemSafely(menu, R.id.menu_filter_in_progress);
+				UIUtils.checkMenuItem(menu, R.id.menu_filter_in_progress);
 				break;
 			case Play.SYNC_STATUS_PENDING:
-				checkMenuItemSafely(menu, R.id.menu_filter_pending);
+				UIUtils.checkMenuItem(menu, R.id.menu_filter_pending);
 				break;
 			case Play.SYNC_STATUS_ALL:
 			default:
-				checkMenuItemSafely(menu, R.id.menu_filter_all);
+				UIUtils.checkMenuItem(menu, R.id.menu_filter_all);
 				break;
 		}
 		if (sorter != null) {
 			switch (sorter.getType()) {
 				case PlaysSorterFactory.TYPE_PLAY_DATE:
-					checkMenuItemSafely(menu, R.id.menu_sort_date);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_date);
 					break;
 				case PlaysSorterFactory.TYPE_PLAY_GAME:
-					checkMenuItemSafely(menu, R.id.menu_sort_game);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_game);
 					break;
 				case PlaysSorterFactory.TYPE_PLAY_LENGTH:
-					checkMenuItemSafely(menu, R.id.menu_sort_length);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_length);
 					break;
 				case PlaysSorterFactory.TYPE_PLAY_LOCATION:
-					checkMenuItemSafely(menu, R.id.menu_sort_location);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_location);
 					break;
 				default:
-					checkMenuItemSafely(menu, R.id.menu_sort_date);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_date);
 					break;
 			}
 		}
 		super.onPrepareOptionsMenu(menu);
-	}
-
-	private static void checkMenuItemSafely(Menu menu, int resourceId) {
-		MenuItem menuItem = menu.findItem(resourceId);
-		if (menuItem != null) {
-			menuItem.setChecked(true);
-		}
 	}
 
 	@Override

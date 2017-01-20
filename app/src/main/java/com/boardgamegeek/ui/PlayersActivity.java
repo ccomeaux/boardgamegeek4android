@@ -12,6 +12,7 @@ import com.boardgamegeek.events.PlayersCountChangedEvent;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -55,14 +56,14 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 		if (fragment != null) {
 			switch (fragment.getSort()) {
 				case PlayersSorterFactory.TYPE_QUANTITY:
-					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_quantity);
 					break;
 				case PlayersSorterFactory.TYPE_WINS:
-					menu.findItem(R.id.menu_sort_wins).setChecked(true);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_wins);
 					break;
 				case PlayersSorterFactory.TYPE_NAME:
 				default:
-					menu.findItem(R.id.menu_sort_name).setChecked(true);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_name);
 					break;
 			}
 		}

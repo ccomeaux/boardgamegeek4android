@@ -9,6 +9,8 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
@@ -140,5 +142,23 @@ public class UIUtils {
 		editText.requestFocus();
 		((InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
 			.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+	}
+
+	public static void showMenuItem(Menu menu, int itemId, boolean visible) {
+		MenuItem menuItem = menu.findItem(itemId);
+		if (menuItem == null) return;
+		menuItem.setVisible(visible);
+	}
+
+	public static void enableMenuItem(Menu menu, int itemId, boolean enabled) {
+		MenuItem menuItem = menu.findItem(itemId);
+		if (menuItem == null) return;
+		menuItem.setEnabled(enabled);
+	}
+
+	public static void checkMenuItem(Menu menu, int itemId) {
+		MenuItem menuItem = menu.findItem(itemId);
+		if (menuItem == null) return;
+		menuItem.setChecked(true);
 	}
 }
