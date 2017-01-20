@@ -66,6 +66,6 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(BuddySelectedEvent event) {
-		ActivityUtils.startBuddyActivity(this, event.getBuddyName(), null);
+		ActivityUtils.startBuddyActivity(this, event.getBuddyName(), event.getBuddyFullName());
 	}
 }
