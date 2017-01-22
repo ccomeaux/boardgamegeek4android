@@ -681,7 +681,8 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void logPlay() {
-		if (save(Play.SYNC_STATUS_PENDING_UPDATE)) {
+		play.syncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
+		if (save()) {
 			if (!play.hasBeenSynced() && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, play.location);
@@ -697,21 +698,21 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void saveDraft(boolean showToast) {
-		if (save(Play.SYNC_STATUS_IN_PROGRESS)) {
+		play.syncStatus = Play.SYNC_STATUS_IN_PROGRESS;
+		if (save()) {
 			if (showToast) {
 				Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
 
-	private boolean save(int syncStatus) {
+	private boolean save() {
 		if (play == null) {
 			return false;
 		}
 		shouldSaveOnPause = false;
 		final View focusedView = recyclerView.findFocus();
 		if (focusedView != null) focusedView.clearFocus();
-		play.syncStatus = syncStatus;
 		new PlayPersister(this).save(play);
 		return true;
 	}
@@ -721,7 +722,8 @@ public class LogPlayActivity extends AppCompatActivity {
 		shouldSaveOnPause = false;
 		if (play == null || play.equals(originalPlay)) {
 			if (shouldDeletePlayOnActivityCancel) {
-				if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
+				play.deleteTimestamp = System.currentTimeMillis();
+				if (save()) {
 					triggerUpload();
 				}
 			}
@@ -732,7 +734,8 @@ public class LogPlayActivity extends AppCompatActivity {
 				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
+							play.deleteTimestamp = System.currentTimeMillis();
+							if (save()) {
 								triggerUpload();
 								cancelNotification();
 							}

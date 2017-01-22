@@ -31,7 +31,8 @@ public class PlayBuilder {
 		Plays.SYNC_STATUS,
 		Plays.UPDATED,
 		Plays.START_TIME,
-		Plays.PLAYER_COUNT
+		Plays.PLAYER_COUNT,
+		Plays.DELETE_TIMESTAMP
 	};
 
 	public static final String[] PLAY_PROJECTION_WITH_ID = StringUtils.concatenate(
@@ -64,6 +65,7 @@ public class PlayBuilder {
 	public static final String KEY_SYNC_STATUS = "SYNC_STATUS";
 	public static final String KEY_SAVED = "SAVED";
 	public static final String KEY_START_TIME = "START_TIME";
+	public static final String KEY_DELETE_TIMESTAMP = "DELETE_TIMESTAMP";
 
 	public static Play fromCursor(Cursor cursor) {
 		Play play = new Play();
@@ -82,6 +84,7 @@ public class PlayBuilder {
 		play.saved = CursorUtils.getLong(cursor, Plays.UPDATED);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
 		play.playerCount = CursorUtils.getInt(cursor, Plays.PLAYER_COUNT);
+		play.deleteTimestamp = CursorUtils.getLong(cursor, Plays.DELETE_TIMESTAMP);
 		return play;
 	}
 
@@ -173,6 +176,7 @@ public class PlayBuilder {
 		bundle.putInt(prefix + KEY_SYNC_STATUS, play.syncStatus);
 		bundle.putLong(prefix + KEY_SAVED, play.saved);
 		bundle.putLong(prefix + KEY_START_TIME, play.startTime);
+		bundle.putLong(prefix + KEY_DELETE_TIMESTAMP, play.deleteTimestamp);
 		bundle.putParcelableArrayList(prefix + KEY_PLAYERS, (ArrayList<? extends Parcelable>) play.getPlayers());
 	}
 
@@ -192,6 +196,7 @@ public class PlayBuilder {
 		play.syncStatus = bundle.getInt(prefix + KEY_SYNC_STATUS);
 		play.saved = bundle.getLong(prefix + KEY_SAVED);
 		play.startTime = bundle.getLong(prefix + KEY_START_TIME);
+		play.deleteTimestamp = bundle.getLong(prefix + KEY_DELETE_TIMESTAMP);
 		ArrayList<Player> players = bundle.getParcelableArrayList(prefix + KEY_PLAYERS);
 		play.setPlayers(players);
 		return play;

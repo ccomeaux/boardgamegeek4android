@@ -252,7 +252,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 								cancelNotification();
 							}
 							play.end(); // this prevents the timer from reappearing
-							save(Play.SYNC_STATUS_PENDING_DELETE);
+							play.deleteTimestamp = System.currentTimeMillis();
+							save("Delete");
 							EventBus.getDefault().post(new PlayDeletedEvent());
 						}
 					}).show();
@@ -455,7 +456,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			playIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(play.playId)));
 		}
 
-		if (play.syncStatus != Play.SYNC_STATUS_SYNCED) {
+		if (play.deleteTimestamp > 0) {
+			notSyncedMessageView.setText(R.string.sync_pending_delete);
+		} else if (play.syncStatus != Play.SYNC_STATUS_SYNCED) {
 			notSyncedMessageView.setVisibility(View.VISIBLE);
 			savedTimestampView.setVisibility(View.VISIBLE);
 			savedTimestampView.setTimestamp(play.saved);
@@ -468,8 +471,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				}
 			} else if (play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 				notSyncedMessageView.setText(R.string.sync_pending_update);
-			} else if (play.syncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
-				notSyncedMessageView.setText(R.string.sync_pending_delete);
 			}
 		} else {
 			notSyncedMessageView.setVisibility(View.GONE);
@@ -509,13 +510,15 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void save(int status) {
 		String action = "Save";
-		if (status == Play.SYNC_STATUS_PENDING_DELETE) {
-			action = "Delete";
-		} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
+		if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
 			action = "SaveDraft";
 		}
-		PlayManipulationEvent.log(action, play.gameName);
 		play.syncStatus = status;
+		save(action);
+	}
+
+	private void save(String action) {
+		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
 		new PlayPersister(getActivity()).save(play);
 		triggerRefresh();
 	}

@@ -60,7 +60,10 @@ public class PlayPersister {
 				} else {
 					switch (candidate.getSyncStatus()) {
 						case Play.SYNC_STATUS_SYNCED:
-							if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
+							if (candidate.getDeleteTimestamp() > 0) {
+								Timber.i("Not saving during the sync; set to delete.");
+								dirtyCount++;
+							} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
 								updateSyncTimestamp(candidate.getInternalId(), startTime);
 								unchangedCount++;
 							} else {
@@ -70,7 +73,6 @@ public class PlayPersister {
 							break;
 						case Play.SYNC_STATUS_IN_PROGRESS:
 						case Play.SYNC_STATUS_PENDING_UPDATE:
-						case Play.SYNC_STATUS_PENDING_DELETE:
 							Timber.i("Not saving during the sync due to dirty status=%s", candidate.getSyncStatus());
 							dirtyCount++;
 							break;
@@ -121,8 +123,7 @@ public class PlayPersister {
 		} else {
 			if (!play.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as draft
-				if (play.syncStatus != Play.SYNC_STATUS_PENDING_UPDATE &&
-					play.syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
+				if (play.syncStatus != Play.SYNC_STATUS_PENDING_UPDATE) {
 					play.syncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 				}
 			} else {
@@ -412,12 +413,14 @@ public class PlayPersister {
 		public static final String[] PROJECTION = {
 			Plays._ID,
 			Plays.SYNC_STATUS,
-			Plays.SYNC_HASH_CODE
+			Plays.SYNC_HASH_CODE,
+			Plays.DELETE_TIMESTAMP
 		};
 
 		private long internalId;
 		private int syncStatus;
 		private int syncHashCode;
+		private long deleteTimestamp;
 
 		public static PlaySyncCandidate find(ContentResolver resolver, int playId) {
 			Cursor cursor = resolver.query(Plays.CONTENT_URI,
@@ -441,6 +444,7 @@ public class PlayPersister {
 			psc.internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 			psc.syncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS, SYNC_STATUS_NOT_STORED);
 			psc.syncHashCode = CursorUtils.getInt(cursor, Plays.SYNC_HASH_CODE);
+			psc.deleteTimestamp = CursorUtils.getLong(cursor, Plays.DELETE_TIMESTAMP);
 			return psc;
 		}
 
@@ -454,6 +458,10 @@ public class PlayPersister {
 
 		public int getSyncHashCode() {
 			return syncHashCode;
+		}
+
+		public long getDeleteTimestamp() {
+			return deleteTimestamp;
 		}
 	}
 }

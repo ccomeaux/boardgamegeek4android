@@ -40,7 +40,6 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -74,6 +73,7 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -354,15 +354,17 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case PlaysQuery._TOKEN:
-				String selection = Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + " !=?";
+				// retrieve plays that aren't pending delete (optionally only completed plays)
+				String selection = String.format("%s=? AND %s", Plays.OBJECT_ID, SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
 				if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
-					selection += " AND " + Plays.INCOMPLETE + "!=1";
+					selection += String.format(" AND %s!=1", Plays.INCOMPLETE);
 				}
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI,
 					PlaysQuery.PROJECTION,
 					selection,
-					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
+					new String[] { String.valueOf(gameId) },
+					null);
 				break;
 			case ColorQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId), GameColorAdapter.PROJECTION, null, null, null);
@@ -692,15 +694,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
 			long date = CursorUtils.getDateInMillis(cursor, PlaysQuery.MAX_DATE);
 
-			if (sum > 0) {
-				String description = PresentationUtils.describePlayCount(getActivity(), sum);
-				if (!TextUtils.isEmpty(description)) {
-					description = " (" + description + ")";
-				}
-				playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, sum, sum, description));
-			} else {
-				playsLabel.setText(getResources().getString(R.string.no_plays));
+			//if (sum > 0) {
+			String description = PresentationUtils.describePlayCount(getActivity(), sum);
+			if (!TextUtils.isEmpty(description)) {
+				description = " (" + description + ")";
 			}
+			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, sum, sum, description));
+			//} else {
+			//	playsLabel.setText(getResources().getString(R.string.no_plays));
+			//}
 
 			if (date > 0) {
 				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(date)));

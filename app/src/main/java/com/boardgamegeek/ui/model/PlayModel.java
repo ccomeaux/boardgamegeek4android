@@ -21,7 +21,8 @@ public class PlayModel {
 		Plays.PLAYER_COUNT,
 		Games.THUMBNAIL_URL,
 		Games.IMAGE_URL,
-		Plays.COMMENTS
+		Plays.COMMENTS,
+		Plays.DELETE_TIMESTAMP
 	};
 
 	private static final int PLAY_ID = 1;
@@ -36,6 +37,7 @@ public class PlayModel {
 	private static final int THUMBNAIL_URL = 10;
 	private static final int IMAGE_URL = 11;
 	private static final int COMMENTS = 12;
+	private static final int DELETE_TIMESTAMP = 13;
 
 	private int playId;
 	private int gameId;
@@ -49,6 +51,7 @@ public class PlayModel {
 	private int status;
 	private String thumbnailUrl;
 	private String imageUrl;
+	private long deleteTimetamp;
 
 	public static PlayModel fromCursor(Cursor cursor, Context context) {
 		PlayModel play = new PlayModel();
@@ -64,6 +67,7 @@ public class PlayModel {
 		play.status = cursor.getInt(SYNC_STATUS);
 		play.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
 		play.imageUrl = cursor.getString(IMAGE_URL);
+		play.deleteTimetamp = cursor.getLong(DELETE_TIMESTAMP);
 		return play;
 	}
 
@@ -113,5 +117,9 @@ public class PlayModel {
 
 	public String getImageUrl() {
 		return imageUrl;
+	}
+
+	public long getDeleteTimetamp() {
+		return deleteTimetamp;
 	}
 }

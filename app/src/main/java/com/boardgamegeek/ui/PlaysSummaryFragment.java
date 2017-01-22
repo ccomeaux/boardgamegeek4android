@@ -30,14 +30,15 @@ import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.sorter.PlaysSorter;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
-import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.ui.model.Player;
+import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -120,8 +121,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.PARAM_LIMIT, "3").build(),
 					PlayModel.PROJECTION,
-					Plays.SYNC_STATUS + "!=? AND " + Plays.SYNC_STATUS + "!=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
+					Plays.SYNC_STATUS + "!=? AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
+					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) },
 					playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:

@@ -7,11 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +124,7 @@ public class PlayStats {
 
 	@NonNull
 	public static String getSelection(Context context) {
-		String selection = Plays.SYNC_STATUS + "!=?";
+		String selection = SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
 
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
 			selection += " AND " + Plays.INCOMPLETE + "!=?";
@@ -137,15 +137,13 @@ public class PlayStats {
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
 			selection += " AND (" + Games.SUBTYPE + "!=? OR " + Games.SUBTYPE + " IS NULL)";
 		}
-		
+
 		return selection;
 	}
 
 	@NonNull
 	public static String[] getSelectionArgs(Context context) {
 		List<String> args = new ArrayList<>();
-
-		args.add(String.valueOf(Play.SYNC_STATUS_PENDING_DELETE));
 
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
 			args.add("1");

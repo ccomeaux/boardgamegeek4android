@@ -77,7 +77,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_TIMESTAMPS = 33;
 	private static final int VER_PLAY_ITEMS_COLLAPSE = 34;
 	private static final int VER_PLAY_PLAYERS_KEY = 36;
-	private static final int DATABASE_VERSION = VER_PLAY_PLAYERS_KEY;
+	private static final int VER_PLAY_DELETE_TIMESTAMP = 37;
+	private static final int DATABASE_VERSION = VER_PLAY_DELETE_TIMESTAMP;
 
 	private final Context context;
 
@@ -467,7 +468,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.ITEM_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Plays.OBJECT_ID, COLUMN_TYPE.INTEGER, true);
+			.addColumn(Plays.OBJECT_ID, COLUMN_TYPE.INTEGER, true)
+			.addColumn(Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER, true);
 	}
 
 	private TableBuilder buildPlayPlayersTable() {
@@ -683,6 +685,16 @@ public class BggDatabase extends SQLiteOpenHelper {
 				columnMap.put(PlayPlayers._PLAY_ID, String.format("%s.%s", Tables.PLAYS, Plays._ID));
 				buildPlayPlayersTable().replace(db, columnMap, Tables.PLAYS, Plays.PLAY_ID);
 				version = VER_PLAY_PLAYERS_KEY;
+			case VER_PLAY_PLAYERS_KEY:
+				addColumn(db, Tables.PLAYS, Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
+				db.execSQL(String.format("UPDATE %s SET %s=%s, %s=0 WHERE %s=%s",
+					Tables.PLAYS,
+					Plays.DELETE_TIMESTAMP,
+					System.currentTimeMillis(),
+					Plays.SYNC_STATUS,
+					Plays.SYNC_STATUS,
+					"3")); // 3 = deleted sync status
+				version = VER_PLAY_DELETE_TIMESTAMP;
 		}
 
 		if (version != DATABASE_VERSION) {

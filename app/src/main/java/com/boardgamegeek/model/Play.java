@@ -38,10 +38,6 @@ public class Play {
 	 * The play is currently being edited and will not sync until the user manually tries to sync it
 	 */
 	public static final int SYNC_STATUS_IN_PROGRESS = 2;
-	/**
-	 * The play is ready to be deleted
-	 */
-	public static final int SYNC_STATUS_PENDING_DELETE = 3;
 
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;
@@ -116,6 +112,7 @@ public class Play {
 	public long saved;
 	public long startTime;
 	public int playerCount;
+	public long deleteTimestamp;
 
 	@ElementList(required = false)
 	private List<Player> players;

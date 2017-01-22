@@ -272,4 +272,8 @@ public class SelectionBuilder {
 		Timber.v("deleted %,d rows", count);
 		return count;
 	}
+
+	public static String whereZeroOrNull(String columnName) {
+		return String.format("(%1$s=0 OR %1$s IS NULL)", columnName);
+	}
 }
