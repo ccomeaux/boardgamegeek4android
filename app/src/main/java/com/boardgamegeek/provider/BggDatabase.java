@@ -469,7 +469,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.ITEM_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Plays.OBJECT_ID, COLUMN_TYPE.INTEGER, true)
-			.addColumn(Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER, true);
+			.addColumn(Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPlayPlayersTable() {
