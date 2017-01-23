@@ -1070,7 +1070,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
 			location = cursor.getString(PlayQuery.LOCATION);
 			syncStatus = cursor.getInt(PlayQuery.SYNC_STATUS);
-			deleteTimestamp = cursor.getInt(PlayQuery.DELETE_TIMESTAMP);
+			deleteTimestamp = cursor.getLong(PlayQuery.DELETE_TIMESTAMP);
 			players.clear();
 		}
 

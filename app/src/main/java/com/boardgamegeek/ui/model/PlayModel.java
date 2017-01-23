@@ -51,7 +51,7 @@ public class PlayModel {
 	private int status;
 	private String thumbnailUrl;
 	private String imageUrl;
-	private long deleteTimetamp;
+	private long deleteTimestamp;
 
 	public static PlayModel fromCursor(Cursor cursor, Context context) {
 		PlayModel play = new PlayModel();
@@ -67,7 +67,7 @@ public class PlayModel {
 		play.status = cursor.getInt(SYNC_STATUS);
 		play.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
 		play.imageUrl = cursor.getString(IMAGE_URL);
-		play.deleteTimetamp = cursor.getLong(DELETE_TIMESTAMP);
+		play.deleteTimestamp = cursor.getLong(DELETE_TIMESTAMP);
 		return play;
 	}
 
@@ -119,7 +119,7 @@ public class PlayModel {
 		return imageUrl;
 	}
 
-	public long getDeleteTimetamp() {
-		return deleteTimetamp;
+	public long getDeleteTimestamp() {
+		return deleteTimestamp;
 	}
 }

@@ -207,8 +207,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
 				PlayBuilder.PLAY_PROJECTION_WITH_ID,
-				Plays.SYNC_STATUS + "=?",
-				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
+				Plays.DELETE_TIMESTAMP + ">0",
+				null,
 				null);
 			String detail = String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);

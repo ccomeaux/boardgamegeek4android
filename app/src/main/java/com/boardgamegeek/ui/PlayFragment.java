@@ -457,6 +457,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		if (play.deleteTimestamp > 0) {
+			notSyncedMessageView.setVisibility(View.VISIBLE);
 			notSyncedMessageView.setText(R.string.sync_pending_delete);
 		} else if (play.syncStatus != Play.SYNC_STATUS_SYNCED) {
 			notSyncedMessageView.setVisibility(View.VISIBLE);
