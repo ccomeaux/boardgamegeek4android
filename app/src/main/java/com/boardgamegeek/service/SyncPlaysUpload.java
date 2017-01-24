@@ -116,8 +116,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
 				PlayBuilder.PLAY_PROJECTION_WITH_ID,
-				Plays.SYNC_STATUS + "=?",
-				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) },
+				Plays.UPDATE_TIMESTAMP + ">0",
+				null,
 				null);
 			String detail = String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0);
 			Timber.i(detail);
@@ -165,6 +165,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					Pair<String, String> imageUrls = queryGameImageUrls(play);
 					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
 					play.syncStatus = Play.SYNC_STATUS_SYNCED;
+					play.updateTimestamp = 0;
 					persister.save(play);
 
 					updateGamePlayCount(play);
@@ -258,8 +259,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		try {
 			cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
 				new String[] { Plays.SUM_QUANTITY },
-				Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
-				new String[] { String.valueOf(play.gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
+				Plays.OBJECT_ID + "=? AND " + Plays.DELETE_TIMESTAMP + "=0",
+				new String[] { String.valueOf(play.gameId) },
 				null);
 			if (cursor != null && cursor.moveToFirst()) {
 				int newPlayCount = cursor.getInt(0);

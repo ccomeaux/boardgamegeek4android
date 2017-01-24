@@ -1058,6 +1058,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final String location;
 		final int syncStatus;
 		final long deleteTimestamp;
+		final long updateTimestamp;
 		final List<PlayerModel> players = new ArrayList<>();
 
 		PlayModel(Cursor cursor) {
@@ -1071,6 +1072,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			location = cursor.getString(PlayQuery.LOCATION);
 			syncStatus = cursor.getInt(PlayQuery.SYNC_STATUS);
 			deleteTimestamp = cursor.getLong(PlayQuery.DELETE_TIMESTAMP);
+			updateTimestamp = cursor.getLong(PlayQuery.UPDATE_TIMESTAMP);
 			players.clear();
 		}
 
@@ -1097,7 +1099,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (players == null || players.isEmpty()) {
 				return false;
 			}
-			if (syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
+			if (updateTimestamp > 0) {
 				return true;
 			}
 			if (playId > 0 && playId < Play.UNSYNCED_PLAY_ID && deleteTimestamp == 0) {
@@ -1134,7 +1136,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, Plays.ITEM_NAME, Plays.OBJECT_ID,
 			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
-			Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.SYNC_STATUS, Plays.DELETE_TIMESTAMP };
+			Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.SYNC_STATUS, Plays.DELETE_TIMESTAMP, Plays.UPDATE_TIMESTAMP };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int LOCATION = 5;
@@ -1145,6 +1147,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int NO_WIN_STATS = 12;
 		int SYNC_STATUS = 13;
 		int DELETE_TIMESTAMP = 14;
+		int UPDATE_TIMESTAMP = 15;
 	}
 
 	private interface PlayerQuery {

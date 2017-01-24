@@ -3,8 +3,6 @@ package com.boardgamegeek.ui;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -85,6 +83,7 @@ import timber.log.Timber;
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
 	public static final String KEY_MODE = "MODE";
 	public static final int FILTER_TYPE_STATUS_ALL = -2;
+	public static final int FILTER_TYPE_STATUS_UPDATE = 1;
 	public static final int FILTER_TYPE_STATUS_DELETE = 3;
 	public static final int FILTER_TYPE_STATUS_PENDING = 4;
 	private static final int MODE_ALL = 0;
@@ -399,7 +398,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				switch (filterType) {
 					case Play.SYNC_STATUS_IN_PROGRESS:
 						return R.string.empty_plays_draft;
-					case Play.SYNC_STATUS_PENDING_UPDATE:
+					case FILTER_TYPE_STATUS_UPDATE:
 						return R.string.empty_plays_update;
 					case FILTER_TYPE_STATUS_DELETE:
 						return R.string.empty_plays_delete;
@@ -450,7 +449,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				if (filterType == FILTER_TYPE_STATUS_ALL) {
 					return null;
 				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
-					return Plays.SYNC_STATUS + "=? OR " + Plays.DELETE_TIMESTAMP + ">0";
+					return String.format("%s>0 OR %s>0", Plays.DELETE_TIMESTAMP, Plays.UPDATE_TIMESTAMP);
 				} else {
 					return Plays.SYNC_STATUS + "=?";
 				}
@@ -472,7 +471,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				if (filterType == FILTER_TYPE_STATUS_ALL) {
 					return null;
 				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
-					return new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) };
+					return null;
 				} else {
 					return new String[] { String.valueOf(filterType) };
 				}
@@ -628,17 +627,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 			int statusMessageId = 0;
 			int status = play.getStatus();
-			if (play.getDeleteTimetamp() > 0) {
+			if (play.getDeleteTimestamp() > 0) {
 				statusMessageId = R.string.sync_pending_delete;
-			} else if (status != Play.SYNC_STATUS_SYNCED) {
-				if (status == Play.SYNC_STATUS_IN_PROGRESS) {
-					if (Play.hasBeenSynced(play.getPlayId())) {
-						statusMessageId = R.string.sync_editing;
-					} else {
-						statusMessageId = R.string.sync_draft;
-					}
-				} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
-					statusMessageId = R.string.sync_pending_update;
+			} else if (play.getUpdateTimestamp() > 0) {
+				statusMessageId = R.string.sync_pending_update;
+			} else if (status == Play.SYNC_STATUS_IN_PROGRESS) {
+				if (Play.hasBeenSynced(play.getPlayId())) {
+					statusMessageId = R.string.sync_editing;
+				} else {
+					statusMessageId = R.string.sync_draft;
 				}
 			}
 			if (statusMessageId == 0) {
@@ -767,7 +764,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 					getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()),
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							updateSyncStatus(Play.SYNC_STATUS_PENDING_UPDATE);
+							updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
 						}
 					}).show();
 				return true;
@@ -786,7 +783,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 						.getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()),
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							deleteSelectedPlays(System.currentTimeMillis());
+							updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
 						}
 					}).show();
 				return true;
@@ -794,22 +791,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		return false;
 	}
 
-	private void updateSyncStatus(int status) {
-		ContentResolver resolver = getActivity().getContentResolver();
-		ContentValues values = new ContentValues();
-		values.put(Plays.SYNC_STATUS, status);
-		// TODO: 1/16/17 create a resolver batch 
-		for (int position : selectedPlaysPositions) {
-			Cursor cursor = (Cursor) adapter.getItem(position);
-			long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-			if (internalId != BggContract.INVALID_ID)
-				resolver.update(Plays.buildPlayUri(internalId), values, null, null);
-		}
-		selectedPlaysPositions.clear();
-		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-	}
-
-	private void deleteSelectedPlays(long value) {
+	private void updateSelectedPlays(String key, long value) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		for (int position : selectedPlaysPositions) {
 			Cursor cursor = (Cursor) adapter.getItem(position);
@@ -817,7 +799,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			if (internalId != BggContract.INVALID_ID)
 				batch.add(ContentProviderOperation
 					.newUpdate(Plays.buildPlayUri(internalId))
-					.withValue(Plays.DELETE_TIMESTAMP, value)
+					.withValue(key, value)
 					.build());
 		}
 		ResolverUtils.applyBatch(getActivity(), batch);

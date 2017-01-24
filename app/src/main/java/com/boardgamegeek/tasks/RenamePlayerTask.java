@@ -1,7 +1,6 @@
 package com.boardgamegeek.tasks;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -32,11 +31,13 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	private final Context context;
 	private final String oldName;
 	private final String newName;
+	private final long startTime;
 
 	public RenamePlayerTask(Context context, String oldName, String newName) {
 		this.context = (context == null ? null : context.getApplicationContext());
 		this.oldName = oldName;
 		this.newName = newName;
+		this.startTime = System.currentTimeMillis();
 	}
 
 	@NonNull
@@ -64,11 +65,12 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 			Plays.SYNC_STATUS + "=? AND (" + SELECTION + ")",
 			new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), oldName, "" });
 		if (internalIds.size() > 0) {
-			ContentValues values = new ContentValues();
-			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
 			for (Long internalId : internalIds) {
 				if (internalId != BggContract.INVALID_ID) {
-					batch.add(ContentProviderOperation.newUpdate(Plays.buildPlayUri(internalId)).withValues(values).build());
+					batch.add(ContentProviderOperation
+						.newUpdate(Plays.buildPlayUri(internalId))
+						.withValue(Plays.UPDATE_TIMESTAMP, startTime)
+						.build());
 				}
 			}
 		}

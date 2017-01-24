@@ -202,6 +202,7 @@ public class BggContract {
 		String ITEM_NAME = "item_name";
 		String OBJECT_ID = "object_id";
 		String DELETE_TIMESTAMP = "delete_timestamp";
+		String UPDATE_TIMESTAMP = "update_timestamp";
 		String SUM_QUANTITY = "sum_quantity";
 		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";

@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -30,6 +29,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private final String nickname;
 	private final boolean shouldUpdatePlays;
 	private ArrayList<ContentProviderOperation> batch;
+	private final long startTime;
 
 	public BuddyNicknameUpdateTask(Context context, String username, String nickname, boolean shouldUpdatePlays) {
 		this.context = (context == null ? null : context.getApplicationContext());
@@ -37,6 +37,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 		this.nickname = nickname;
 		this.shouldUpdatePlays = shouldUpdatePlays;
 		this.batch = new ArrayList<>();
+		this.startTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -85,7 +86,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 			if (internalId != BggContract.INVALID_ID) {
 				batch.add(ContentProviderOperation
 					.newUpdate(Plays.buildPlayUri(internalId))
-					.withValue(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE)
+					.withValue(Plays.UPDATE_TIMESTAMP, startTime)
 					.build());
 			}
 		}

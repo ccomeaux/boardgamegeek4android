@@ -241,7 +241,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				ActivityUtils.editPlay(getActivity(), internalId, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				return true;
 			case R.id.menu_send:
-				save(Play.SYNC_STATUS_PENDING_UPDATE);
+				play.updateTimestamp = System.currentTimeMillis();
+				save("Save");
 				EventBus.getDefault().post(new PlaySentEvent());
 				return true;
 			case R.id.menu_delete: {
@@ -459,6 +460,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		if (play.deleteTimestamp > 0) {
 			notSyncedMessageView.setVisibility(View.VISIBLE);
 			notSyncedMessageView.setText(R.string.sync_pending_delete);
+		} else if (play.updateTimestamp > 0) {
+			notSyncedMessageView.setVisibility(View.VISIBLE);
+			notSyncedMessageView.setText(R.string.sync_pending_update);
 		} else if (play.syncStatus != Play.SYNC_STATUS_SYNCED) {
 			notSyncedMessageView.setVisibility(View.VISIBLE);
 			savedTimestampView.setVisibility(View.VISIBLE);
@@ -470,8 +474,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				} else {
 					notSyncedMessageView.setText(R.string.sync_draft);
 				}
-			} else if (play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
-				notSyncedMessageView.setText(R.string.sync_pending_update);
 			}
 		} else {
 			notSyncedMessageView.setVisibility(View.GONE);
@@ -511,9 +513,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void save(int status) {
 		String action = "Save";
-		if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
-			action = "SaveDraft";
-		}
 		play.syncStatus = status;
 		save(action);
 	}

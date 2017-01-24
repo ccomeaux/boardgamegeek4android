@@ -31,10 +31,6 @@ public class Play {
 	 */
 	public static final int SYNC_STATUS_SYNCED = 0;
 	/**
-	 * The play is ready to be synced, but doesn't exist on the 'Geek, or has local modifications?
-	 */
-	public static final int SYNC_STATUS_PENDING_UPDATE = 1;
-	/**
 	 * The play is currently being edited and will not sync until the user manually tries to sync it
 	 */
 	public static final int SYNC_STATUS_IN_PROGRESS = 2;
@@ -113,6 +109,7 @@ public class Play {
 	public long startTime;
 	public int playerCount;
 	public long deleteTimestamp;
+	public long updateTimestamp;
 
 	@ElementList(required = false)
 	private List<Player> players;

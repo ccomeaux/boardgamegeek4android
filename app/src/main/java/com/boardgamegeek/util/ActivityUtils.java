@@ -262,7 +262,7 @@ public class ActivityUtils {
 	public static void logQuickPlay(Context context, int gameId, String gameName) {
 		Play play = new Play(gameId, gameName);
 		play.setCurrentDate();
-		play.syncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
+		play.updateTimestamp = System.currentTimeMillis();
 		new PlayPersister(context).save(play);
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
