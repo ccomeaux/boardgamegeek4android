@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.UserRequest;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -17,6 +16,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -33,30 +33,30 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	private final String username;
 	private final long startTime;
 	private boolean wasSuccessful;
+	private ArrayList<ContentProviderOperation> batch;
 
 	public AddUsernameToPlayerTask(Context context, String playerName, String username) {
 		this.context = context.getApplicationContext();
 		this.playerName = playerName;
 		this.username = username;
 		startTime = System.currentTimeMillis();
+		batch = new ArrayList<>();
 	}
 
 	@NonNull
 	@Override
 	protected String doInBackground(Void... params) {
-		if (context == null) {
-			return "";
-		}
+		if (context == null) return "";
 
 		User user = new UserRequest(Adapter.createForXml(), username).execute();
 		if (user == null || user.getId() == BggContract.INVALID_ID) {
 			return context.getString(R.string.msg_invalid_username, username);
 		}
 
-		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		updatePlays(batch);
-		updatePlayers(batch);
-		updateColors(batch);
+		batch.clear();
+		updatePlays();
+		updatePlayers();
+		updateColors();
 		ResolverUtils.applyBatch(context, batch);
 
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
@@ -64,12 +64,15 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 		return context.getString(R.string.msg_player_add_username, username, playerName);
 	}
 
-	private void updatePlays(ArrayList<ContentProviderOperation> batch) {
+	private void updatePlays() {
 		List<Long> internalIds = ResolverUtils.queryLongs(context.getContentResolver(),
 			Plays.buildPlayersByPlayUri(),
 			Plays._ID,
-			Plays.SYNC_STATUS + "=? AND (" + SELECTION + ")",
-			new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), playerName, "" });
+			"(" + SELECTION + ") AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
+			new String[] { playerName, "" });
 		if (internalIds.size() > 0) {
 			for (Long internalId : internalIds) {
 				if (internalId != BggContract.INVALID_ID) {
@@ -82,7 +85,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 		}
 	}
 
-	private void updatePlayers(ArrayList<ContentProviderOperation> batch) {
+	private void updatePlayers() {
 		batch.add(ContentProviderOperation
 			.newUpdate(Plays.buildPlayersByPlayUri())
 			.withValue(PlayPlayers.USER_NAME, username)
@@ -90,7 +93,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 			.build());
 	}
 
-	private void updateColors(ArrayList<ContentProviderOperation> batch) {
+	private void updateColors() {
 		Cursor cursor = context.getContentResolver().query(PlayerColors.buildPlayerUri(playerName),
 			new String[] { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER },
 			null, null, null);
@@ -108,9 +111,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 				Timber.i("No colors to update");
 			}
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			if (cursor != null) cursor.close();
 		}
 		batch.add(ContentProviderOperation.newDelete(PlayerColors.buildPlayerUri(playerName)).build());
 	}

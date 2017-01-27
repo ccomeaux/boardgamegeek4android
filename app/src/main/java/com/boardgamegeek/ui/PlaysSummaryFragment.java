@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.PlaySelectedEvent;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -112,8 +111,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI,
 					PlayModel.PROJECTION,
-					Plays.SYNC_STATUS + "=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) },
+					Plays.DIRTY_TIMESTAMP + ">0",
+					null,
 					playsSorter.getOrderByClause());
 				break;
 			case PLAYS_TOKEN:
@@ -121,8 +120,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.PARAM_LIMIT, "3").build(),
 					PlayModel.PROJECTION,
-					Plays.SYNC_STATUS + "!=? AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
-					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) },
+					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
+					null,
 					playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:

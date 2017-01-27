@@ -195,7 +195,6 @@ public class BggContract {
 		String NO_WIN_STATS = "no_win_stats";
 		String LOCATION = "location";
 		String COMMENTS = "comments";
-		String SYNC_STATUS = "sync_status";
 		String START_TIME = "start_time";
 		String PLAYER_COUNT = "player_count";
 		String SYNC_HASH_CODE = "sync_hash_code";
@@ -203,6 +202,7 @@ public class BggContract {
 		String OBJECT_ID = "object_id";
 		String DELETE_TIMESTAMP = "delete_timestamp";
 		String UPDATE_TIMESTAMP = "update_timestamp";
+		String DIRTY_TIMESTAMP = "dirty_timestamp";
 		String SUM_QUANTITY = "sum_quantity";
 		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";
@@ -780,7 +780,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = COLOR + COLLATE_NOCASE + " ASC";
 	}
 
-	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
+	public static final class Plays implements PlaysColumns, SyncListColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
 		public static final Uri CONTENT_SIMPLE_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build();
 

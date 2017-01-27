@@ -164,7 +164,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					}
 					Pair<String, String> imageUrls = queryGameImageUrls(play);
 					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
-					play.syncStatus = Play.SYNC_STATUS_SYNCED;
+					play.dirtyTimestamp = 0;
 					play.updateTimestamp = 0;
 					persister.save(play);
 

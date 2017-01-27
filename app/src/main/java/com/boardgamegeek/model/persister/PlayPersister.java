@@ -26,7 +26,6 @@ import java.util.List;
 import timber.log.Timber;
 
 public class PlayPersister {
-	public static final int SYNC_STATUS_NOT_STORED = -1;
 	private final Context context;
 	private final ContentResolver resolver;
 	private final ArrayList<ContentProviderOperation> batch;
@@ -49,7 +48,6 @@ public class PlayPersister {
 		int insertCount = 0;
 		int unchangedCount = 0;
 		int dirtyCount = 0;
-		int errorCount = 0;
 		if (plays != null) {
 			for (Play play : plays) {
 				play.updated = startTime;
@@ -58,38 +56,27 @@ public class PlayPersister {
 					insert(play);
 					insertCount++;
 				} else {
-					switch (candidate.getSyncStatus()) {
-						case Play.SYNC_STATUS_SYNCED:
-							if (candidate.getDeleteTimestamp() > 0) {
-								Timber.i("Not saving during the sync; set to delete.");
-								dirtyCount++;
-							} else if (candidate.getUpdateTimestamp() > 0) {
-								Timber.i("Not saving during the sync; set to update.");
-								dirtyCount++;
-							} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
-								updateSyncTimestamp(candidate.getInternalId(), startTime);
-								unchangedCount++;
-							} else {
-								update(play, candidate.getInternalId());
-								updateCount++;
-							}
-							break;
-						case Play.SYNC_STATUS_IN_PROGRESS:
-							Timber.i("Not saving during the sync due to dirty status=%s", candidate.getSyncStatus());
-							dirtyCount++;
-							break;
-						case SYNC_STATUS_NOT_STORED:
-						default:
-							Timber.e("Unknown sync status=%s", candidate.getSyncStatus());
-							errorCount++;
-							break;
+					if (candidate.getDirtyTimestamp() > 0) {
+						Timber.i("Not saving during the sync; modification in progress.");
+						dirtyCount++;
+					} else if (candidate.getDeleteTimestamp() > 0) {
+						Timber.i("Not saving during the sync; set to delete.");
+						dirtyCount++;
+					} else if (candidate.getUpdateTimestamp() > 0) {
+						Timber.i("Not saving during the sync; set to update.");
+						dirtyCount++;
+					} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
+						updateSyncTimestamp(candidate.getInternalId(), startTime);
+						unchangedCount++;
+					} else {
+						update(play, candidate.getInternalId());
+						updateCount++;
 					}
 				}
 			}
 		}
 
-		Timber.i("Updated %1$s, inserted %2$s, %6$s unchanged, skipped %3$s (%4$s dirty, %5$s errors)",
-			updateCount, insertCount, (dirtyCount + errorCount), dirtyCount, errorCount, unchangedCount);
+		Timber.i("Updated %1$s, inserted %2$s, %3$s unchanged, %4$s dirty", updateCount, insertCount, unchangedCount, dirtyCount);
 	}
 
 	/*
@@ -123,16 +110,6 @@ public class PlayPersister {
 				.withValues(values)
 				.build());
 		} else {
-			if (!play.hasBeenSynced()) {
-				// If a sync isn't pending, mark it as draft
-				if (play.updateTimestamp == 0 && play.deleteTimestamp == 0) {
-					play.syncStatus = Play.SYNC_STATUS_IN_PROGRESS;
-				}
-			} else {
-				play.syncStatus = Play.SYNC_STATUS_SYNCED;
-			}
-			values.put(Plays.SYNC_STATUS, play.syncStatus);
-
 			if (play.playId == BggContract.INVALID_ID) {
 				play.playId = getTemporaryId();
 			}
@@ -149,13 +126,12 @@ public class PlayPersister {
 		}
 
 		// Players
-		// TODO: 1/18/17 replace internal ID with back reference on insert 
 		deletePlayerWithEmptyUserNameInBatch(internalId);
 		List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId);
 		addPlayersToBatch(play, existingPlayerIds, internalId);
 		removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
 
-		if (play.syncStatus == Play.SYNC_STATUS_SYNCED || play.updateTimestamp > 0) {
+		if (Play.hasBeenSynced(play.playId) || play.updateTimestamp > 0) {
 			saveGamePlayerSortOrderToBatch(play);
 			updateColorsInBatch(play);
 			saveBuddyNicknamesToBatch(play);
@@ -169,7 +145,6 @@ public class PlayPersister {
 		batch.clear();
 		ContentProviderOperation.Builder builder = ContentProviderOperation
 			.newUpdate(Plays.buildPlayUri(internalId))
-			.withValue(Plays.UPDATED, startTime)
 			.withValue(Plays.UPDATED_LIST, startTime);
 		batch.add(builder.build());
 		ResolverUtils.applyBatch(context, batch);
@@ -237,13 +212,12 @@ public class PlayPersister {
 		if (play.updated > 0) {
 			values.put(Plays.UPDATED_LIST, play.updated);
 		}
-		values.put(Plays.SYNC_STATUS, play.syncStatus);
 		// only store start time if there's no length
 		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime);
-		values.put(Plays.UPDATED, System.currentTimeMillis());
 		values.put(Plays.SYNC_HASH_CODE, generateSyncHashCode(play));
 		values.put(Plays.DELETE_TIMESTAMP, play.deleteTimestamp);
 		values.put(Plays.UPDATE_TIMESTAMP, play.updateTimestamp);
+		values.put(Plays.DIRTY_TIMESTAMP, play.dirtyTimestamp);
 		return values;
 	}
 
@@ -404,29 +378,39 @@ public class PlayPersister {
 			}
 
 			@Override
-			public int getSyncStatus() {
-				return SYNC_STATUS_NOT_STORED;
+			public int getSyncHashCode() {
+				return 0;
 			}
 
 			@Override
-			public int getSyncHashCode() {
+			public long getDeleteTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getDirtyTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getUpdateTimestamp() {
 				return 0;
 			}
 		};
 
 		public static final String[] PROJECTION = {
 			Plays._ID,
-			Plays.SYNC_STATUS,
 			Plays.SYNC_HASH_CODE,
 			Plays.DELETE_TIMESTAMP,
-			Plays.UPDATE_TIMESTAMP
+			Plays.UPDATE_TIMESTAMP,
+			Plays.DIRTY_TIMESTAMP
 		};
 
 		private long internalId;
-		private int syncStatus;
 		private int syncHashCode;
 		private long deleteTimestamp;
 		private long updateTimestamp;
+		private long dirtyTimestamp;
 
 		public static PlaySyncCandidate find(ContentResolver resolver, int playId) {
 			Cursor cursor = resolver.query(Plays.CONTENT_URI,
@@ -448,19 +432,15 @@ public class PlayPersister {
 		public static PlaySyncCandidate fromCursor(Cursor cursor) {
 			PlaySyncCandidate psc = new PlaySyncCandidate();
 			psc.internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-			psc.syncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS, SYNC_STATUS_NOT_STORED);
 			psc.syncHashCode = CursorUtils.getInt(cursor, Plays.SYNC_HASH_CODE);
 			psc.deleteTimestamp = CursorUtils.getLong(cursor, Plays.DELETE_TIMESTAMP);
 			psc.updateTimestamp = CursorUtils.getLong(cursor, Plays.UPDATE_TIMESTAMP);
+			psc.dirtyTimestamp = CursorUtils.getLong(cursor, Plays.DIRTY_TIMESTAMP);
 			return psc;
 		}
 
 		public long getInternalId() {
 			return internalId;
-		}
-
-		public int getSyncStatus() {
-			return syncStatus;
 		}
 
 		public int getSyncHashCode() {
@@ -473,6 +453,10 @@ public class PlayPersister {
 
 		public long getUpdateTimestamp() {
 			return updateTimestamp;
+		}
+
+		public long getDirtyTimestamp() {
+			return dirtyTimestamp;
 		}
 	}
 }

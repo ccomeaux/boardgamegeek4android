@@ -7,10 +7,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -50,8 +50,8 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 			.newUpdate(Plays.CONTENT_URI)
 			.withValues(values)
 			.withSelection(
-				Plays.LOCATION + "=? AND (" + Plays.UPDATE_TIMESTAMP + ">0 OR " + Plays.SYNC_STATUS + "=?)",
-				new String[] { oldLocationName, String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) });
+				Plays.LOCATION + "=? AND (" + Plays.UPDATE_TIMESTAMP + ">0 OR " + Plays.DIRTY_TIMESTAMP + ">0)",
+				new String[] { oldLocationName });
 		batch.add(cpo.build());
 
 		values.put(Plays.UPDATE_TIMESTAMP, startTime);
@@ -59,8 +59,11 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 			.newUpdate(Plays.CONTENT_URI)
 			.withValues(values)
 			.withSelection(
-				Plays.LOCATION + "=? AND " + Plays.SYNC_STATUS + "=?",
-				new String[] { oldLocationName, String.valueOf(Play.SYNC_STATUS_SYNCED) });
+				Plays.LOCATION + "=? AND " +
+					SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
+					SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
+					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
+				new String[] { oldLocationName });
 		batch.add(cpo.build());
 
 		ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);

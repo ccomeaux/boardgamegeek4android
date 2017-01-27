@@ -26,15 +26,6 @@ import java.util.Locale;
 
 @Root(name = "play")
 public class Play {
-	/**
-	 * The play has been synced with the 'Geek
-	 */
-	public static final int SYNC_STATUS_SYNCED = 0;
-	/**
-	 * The play is currently being edited and will not sync until the user manually tries to sync it
-	 */
-	public static final int SYNC_STATUS_IN_PROGRESS = 2;
-
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
@@ -104,12 +95,11 @@ public class Play {
 	public String comments;
 
 	public long updated;
-	public int syncStatus;
-	public long saved;
 	public long startTime;
 	public int playerCount;
 	public long deleteTimestamp;
 	public long updateTimestamp;
+	public long dirtyTimestamp;
 
 	@ElementList(required = false)
 	private List<Player> players;
@@ -521,9 +511,6 @@ public class Play {
 		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
 		long u = Double.doubleToLongBits(updated);
 		result = prime * result + (int) (u ^ (u >>> 32));
-		result = prime * result + syncStatus;
-		long s = Double.doubleToLongBits(saved);
-		result = prime * result + (int) (s ^ (s >>> 32));
 		long t = Double.doubleToLongBits(startTime);
 		result = prime * result + (int) (t ^ (t >>> 32));
 		return result;

@@ -218,9 +218,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		UIUtils.showMenuItem(menu, R.id.menu_send, play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		UIUtils.showMenuItem(menu, R.id.menu_discard, play.hasBeenSynced() && play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		UIUtils.enableMenuItem(menu, R.id.menu_share, play.syncStatus == Play.SYNC_STATUS_SYNCED);
+		UIUtils.showMenuItem(menu, R.id.menu_send, play.dirtyTimestamp > 0);
+		UIUtils.showMenuItem(menu, R.id.menu_discard, Play.hasBeenSynced(playId) && play.dirtyTimestamp > 0);
+		UIUtils.enableMenuItem(menu, R.id.menu_share, Play.hasBeenSynced(playId));
 		super.onPrepareOptionsMenu(menu);
 	}
 
@@ -231,8 +231,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							PlayManipulationEvent.log("Discard", play.gameName);
-							save(Play.SYNC_STATUS_SYNCED);
+							play.dirtyTimestamp = 0;
+							play.updateTimestamp = 0;
+							play.deleteTimestamp = 0;
+							save("Discard");
 						}
 					}).show();
 				return true;
@@ -463,18 +465,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		} else if (play.updateTimestamp > 0) {
 			notSyncedMessageView.setVisibility(View.VISIBLE);
 			notSyncedMessageView.setText(R.string.sync_pending_update);
-		} else if (play.syncStatus != Play.SYNC_STATUS_SYNCED) {
+		} else if (play.dirtyTimestamp > 0) {
 			notSyncedMessageView.setVisibility(View.VISIBLE);
+			notSyncedMessageView.setText(play.hasBeenSynced() ? R.string.sync_editing : R.string.sync_draft);
 			savedTimestampView.setVisibility(View.VISIBLE);
-			savedTimestampView.setTimestamp(play.saved);
-
-			if (play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-				if (play.hasBeenSynced()) {
-					notSyncedMessageView.setText(R.string.sync_editing);
-				} else {
-					notSyncedMessageView.setText(R.string.sync_draft);
-				}
-			}
+			savedTimestampView.setTimestamp(play.dirtyTimestamp);
 		} else {
 			notSyncedMessageView.setVisibility(View.GONE);
 			savedTimestampView.setVisibility(View.GONE);
@@ -509,12 +504,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void triggerRefresh() {
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, play.gameId);
-	}
-
-	private void save(int status) {
-		String action = "Save";
-		play.syncStatus = status;
-		save(action);
 	}
 
 	private void save(String action) {

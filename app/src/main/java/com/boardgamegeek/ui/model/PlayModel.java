@@ -17,13 +17,13 @@ public class PlayModel {
 		Plays.LOCATION,
 		Plays.QUANTITY,
 		Plays.LENGTH,
-		Plays.SYNC_STATUS,
 		Plays.PLAYER_COUNT,
 		Games.THUMBNAIL_URL,
 		Games.IMAGE_URL,
 		Plays.COMMENTS,
 		Plays.DELETE_TIMESTAMP,
-		Plays.UPDATE_TIMESTAMP
+		Plays.UPDATE_TIMESTAMP,
+		Plays.DIRTY_TIMESTAMP
 	};
 
 	private static final int PLAY_ID = 1;
@@ -33,13 +33,13 @@ public class PlayModel {
 	private static final int LOCATION = 5;
 	private static final int QUANTITY = 6;
 	private static final int LENGTH = 7;
-	private static final int SYNC_STATUS = 8;
-	private static final int PLAYER_COUNT = 9;
-	private static final int THUMBNAIL_URL = 10;
-	private static final int IMAGE_URL = 11;
-	private static final int COMMENTS = 12;
-	private static final int DELETE_TIMESTAMP = 13;
-	private static final int UPDATE_TIMESTAMP = 14;
+	private static final int PLAYER_COUNT = 8;
+	private static final int THUMBNAIL_URL = 9;
+	private static final int IMAGE_URL = 10;
+	private static final int COMMENTS = 11;
+	private static final int DELETE_TIMESTAMP = 12;
+	private static final int UPDATE_TIMESTAMP = 13;
+	private static final int DIRTY_TIMESTAMP = 14;
 
 	private int playId;
 	private int gameId;
@@ -50,11 +50,11 @@ public class PlayModel {
 	private int length;
 	private int playerCount;
 	private String comments;
-	private int status;
 	private String thumbnailUrl;
 	private String imageUrl;
 	private long deleteTimestamp;
 	private long updateTimestamp;
+	private long dirtyTimestamp;
 
 	public static PlayModel fromCursor(Cursor cursor, Context context) {
 		PlayModel play = new PlayModel();
@@ -67,11 +67,11 @@ public class PlayModel {
 		play.length = cursor.getInt(LENGTH);
 		play.playerCount = cursor.getInt(PLAYER_COUNT);
 		play.comments = CursorUtils.getString(cursor, COMMENTS).trim();
-		play.status = cursor.getInt(SYNC_STATUS);
 		play.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
 		play.imageUrl = cursor.getString(IMAGE_URL);
 		play.deleteTimestamp = cursor.getLong(DELETE_TIMESTAMP);
 		play.updateTimestamp = cursor.getLong(UPDATE_TIMESTAMP);
+		play.dirtyTimestamp = cursor.getLong(DIRTY_TIMESTAMP);
 		return play;
 	}
 
@@ -107,10 +107,6 @@ public class PlayModel {
 		return comments;
 	}
 
-	public int getStatus() {
-		return status;
-	}
-
 	public int getGameId() {
 		return gameId;
 	}
@@ -129,5 +125,9 @@ public class PlayModel {
 
 	public long getUpdateTimestamp() {
 		return updateTimestamp;
+	}
+
+	public long getDirtyTimestamp() {
+		return dirtyTimestamp;
 	}
 }

@@ -698,7 +698,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void saveDraft(boolean showToast) {
-		play.syncStatus = Play.SYNC_STATUS_IN_PROGRESS;
+		play.dirtyTimestamp = System.currentTimeMillis();
 		if (save()) {
 			if (showToast) {
 				Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();

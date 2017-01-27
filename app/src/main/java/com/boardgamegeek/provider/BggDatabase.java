@@ -79,7 +79,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAY_PLAYERS_KEY = 36;
 	private static final int VER_PLAY_DELETE_TIMESTAMP = 37;
 	private static final int VER_PLAY_UPDATE_TIMESTAMP = 38;
-	private static final int DATABASE_VERSION = VER_PLAY_UPDATE_TIMESTAMP;
+	private static final int VER_PLAY_DIRTY_TIMESTAMP = 39;
+	private static final int DATABASE_VERSION = VER_PLAY_DIRTY_TIMESTAMP;
 
 	private final Context context;
 
@@ -463,15 +464,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Plays.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.LOCATION, COLUMN_TYPE.TEXT)
 			.addColumn(Plays.COMMENTS, COLUMN_TYPE.TEXT)
-			.addColumn(Plays.SYNC_STATUS, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.ITEM_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Plays.OBJECT_ID, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER);
+			.addColumn(Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER)
+			.addColumn(Plays.DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPlayPlayersTable() {
@@ -552,8 +552,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 				addColumn(db, Tables.BUDDIES, Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT);
 				version = VER_PLAY_NICKNAME;
 			case VER_PLAY_NICKNAME:
-				addColumn(db, Tables.PLAYS, Plays.SYNC_STATUS, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.PLAYS, Plays.UPDATED, COLUMN_TYPE.INTEGER);
+				addColumn(db, Tables.PLAYS, "sync_status", COLUMN_TYPE.INTEGER);
+				addColumn(db, Tables.PLAYS, "updated", COLUMN_TYPE.INTEGER);
 				version = VER_PLAY_SYNC_STATUS;
 			case VER_PLAY_SYNC_STATUS:
 				buildCollectionViewsTable().create(db);
@@ -689,24 +689,26 @@ public class BggDatabase extends SQLiteOpenHelper {
 				version = VER_PLAY_PLAYERS_KEY;
 			case VER_PLAY_PLAYERS_KEY:
 				addColumn(db, Tables.PLAYS, Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				db.execSQL(String.format("UPDATE %s SET %s=%s, %s=0 WHERE %s=%s",
+				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=3",
 					Tables.PLAYS,
 					Plays.DELETE_TIMESTAMP,
-					System.currentTimeMillis(),
-					Plays.SYNC_STATUS,
-					Plays.SYNC_STATUS,
-					"3")); // 3 = deleted sync status
+					System.currentTimeMillis())); // 3 = deleted sync status
 				version = VER_PLAY_DELETE_TIMESTAMP;
 			case VER_PLAY_DELETE_TIMESTAMP:
 				addColumn(db, Tables.PLAYS, Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				db.execSQL(String.format("UPDATE %s SET %s=%s, %s=0 WHERE %s=%s",
+				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=1",
 					Tables.PLAYS,
+					"updated",
 					Plays.UPDATE_TIMESTAMP,
-					System.currentTimeMillis(),
-					Plays.SYNC_STATUS,
-					Plays.SYNC_STATUS,
-					"1")); // 3 = update sync status
+					System.currentTimeMillis())); // 1 = update sync status
 				version = VER_PLAY_UPDATE_TIMESTAMP;
+			case VER_PLAY_UPDATE_TIMESTAMP:
+				addColumn(db, Tables.PLAYS, Plays.DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=2",
+					Tables.PLAYS,
+					Plays.DIRTY_TIMESTAMP,
+					"updated")); // 2 = in progress
+				version = VER_PLAY_DIRTY_TIMESTAMP;
 		}
 
 		if (version != DATABASE_VERSION) {

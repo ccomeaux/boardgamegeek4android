@@ -47,6 +47,7 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.mikephil.charting.animation.Easing.EasingOption;
@@ -174,32 +175,19 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
+		String playSelection = Plays.OBJECT_ID + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
+		String[] selectionArgs = { String.valueOf(gameId) };
 		switch (id) {
 			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Collection.CONTENT_URI,
-					GameQuery.PROJECTION,
-					"collection." + Collection.GAME_ID + "=?",
-					new String[] { String.valueOf(gameId) },
-					null);
+				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", selectionArgs, null);
 				loader.setUpdateThrottle(5000);
 				break;
 			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Plays.CONTENT_URI,
-					PlayQuery.PROJECTION,
-					Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
-					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
-					Plays.DATE + " ASC");
+				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlayQuery.PROJECTION, playSelection, selectionArgs, Plays.DATE + " ASC");
 				loader.setUpdateThrottle(5000);
 				break;
 			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Plays.buildPlayersUri(),
-					PlayerQuery.PROJECTION,
-					Plays.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
-					new String[] { String.valueOf(gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
-					null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayersUri(), PlayerQuery.PROJECTION, playSelection, selectionArgs, null);
 				loader.setUpdateThrottle(5000);
 				break;
 		}
@@ -1056,7 +1044,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final int playerCount;
 		final boolean noWinStats;
 		final String location;
-		final int syncStatus;
 		final long deleteTimestamp;
 		final long updateTimestamp;
 		final List<PlayerModel> players = new ArrayList<>();
@@ -1070,7 +1057,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
 			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
 			location = cursor.getString(PlayQuery.LOCATION);
-			syncStatus = cursor.getInt(PlayQuery.SYNC_STATUS);
 			deleteTimestamp = cursor.getLong(PlayQuery.DELETE_TIMESTAMP);
 			updateTimestamp = cursor.getLong(PlayQuery.UPDATE_TIMESTAMP);
 			players.clear();
@@ -1135,25 +1121,24 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private interface PlayQuery {
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, Plays.ITEM_NAME, Plays.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
-			Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.SYNC_STATUS, Plays.DELETE_TIMESTAMP, Plays.UPDATE_TIMESTAMP };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
+			Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.DELETE_TIMESTAMP, Plays.UPDATE_TIMESTAMP };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int LOCATION = 5;
 		int QUANTITY = 6;
 		int LENGTH = 7;
-		int PLAYER_COUNT = 9;
-		int INCOMPLETE = 11;
-		int NO_WIN_STATS = 12;
-		int SYNC_STATUS = 13;
-		int DELETE_TIMESTAMP = 14;
-		int UPDATE_TIMESTAMP = 15;
+		int PLAYER_COUNT = 8;
+		int INCOMPLETE = 10;
+		int NO_WIN_STATS = 11;
+		int DELETE_TIMESTAMP = 12;
+		int UPDATE_TIMESTAMP = 13;
 	}
 
 	private interface PlayerQuery {
 		int _TOKEN = 0x03;
-		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN, PlayPlayers.SCORE,
-			PlayPlayers.NAME };
+		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN,
+			PlayPlayers.SCORE, PlayPlayers.NAME };
 		int PLAY_ID = 1;
 		int USER_NAME = 2;
 		int WIN = 3;

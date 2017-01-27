@@ -84,6 +84,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public static final String KEY_MODE = "MODE";
 	public static final int FILTER_TYPE_STATUS_ALL = -2;
 	public static final int FILTER_TYPE_STATUS_UPDATE = 1;
+	public static final int FILTER_TYPE_STATUS_DIRTY = 2;
 	public static final int FILTER_TYPE_STATUS_DELETE = 3;
 	public static final int FILTER_TYPE_STATUS_PENDING = 4;
 	private static final int MODE_ALL = 0;
@@ -195,7 +196,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		switch (filterType) {
-			case Play.SYNC_STATUS_IN_PROGRESS:
+			case FILTER_TYPE_STATUS_DIRTY:
 				UIUtils.checkMenuItem(menu, R.id.menu_filter_in_progress);
 				break;
 			case FILTER_TYPE_STATUS_PENDING:
@@ -248,7 +249,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				filter(FILTER_TYPE_STATUS_ALL, title);
 				return true;
 			case R.id.menu_filter_in_progress:
-				filter(Play.SYNC_STATUS_IN_PROGRESS, title);
+				filter(FILTER_TYPE_STATUS_DIRTY, title);
 				return true;
 			case R.id.menu_filter_pending:
 				filter(FILTER_TYPE_STATUS_PENDING, title);
@@ -396,7 +397,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case MODE_ALL:
 			default:
 				switch (filterType) {
-					case Play.SYNC_STATUS_IN_PROGRESS:
+					case FILTER_TYPE_STATUS_DIRTY:
 						return R.string.empty_plays_draft;
 					case FILTER_TYPE_STATUS_UPDATE:
 						return R.string.empty_plays_update;
@@ -451,7 +452,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
 					return String.format("%s>0 OR %s>0", Plays.DELETE_TIMESTAMP, Plays.UPDATE_TIMESTAMP);
 				} else {
-					return Plays.SYNC_STATUS + "=?";
+					return String.format("%s>0", Plays.DIRTY_TIMESTAMP);
 				}
 			case MODE_GAME:
 				return Plays.OBJECT_ID + "=?";
@@ -473,7 +474,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
 					return null;
 				} else {
-					return new String[] { String.valueOf(filterType) };
+					return null;
 				}
 			case MODE_GAME:
 				return new String[] { String.valueOf(gameId) };
@@ -626,12 +627,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			}
 
 			int statusMessageId = 0;
-			int status = play.getStatus();
 			if (play.getDeleteTimestamp() > 0) {
 				statusMessageId = R.string.sync_pending_delete;
 			} else if (play.getUpdateTimestamp() > 0) {
 				statusMessageId = R.string.sync_pending_update;
-			} else if (status == Play.SYNC_STATUS_IN_PROGRESS) {
+			} else if (play.getDirtyTimestamp() > 0) {
 				if (Play.hasBeenSynced(play.getPlayId())) {
 					statusMessageId = R.string.sync_editing;
 				} else {
@@ -744,7 +744,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		for (int pos : selectedPlaysPositions) {
 			Cursor cursor = (Cursor) adapter.getItem(pos);
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			boolean pending = play.getStatus() == Play.SYNC_STATUS_IN_PROGRESS;
+			boolean pending = play.getDirtyTimestamp() > 0;
 			allPending = allPending && pending;
 		}
 

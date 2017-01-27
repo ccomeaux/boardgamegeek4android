@@ -13,6 +13,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -81,7 +82,14 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 
 	private int updatePlays() {
 		final ContentResolver resolver = context.getContentResolver();
-		List<Long> internalIds = ResolverUtils.queryLongs(resolver, Plays.buildPlayersByPlayUri(), Plays._ID, SELECTION, new String[] { username, nickname });
+		List<Long> internalIds = ResolverUtils.queryLongs(resolver,
+			Plays.buildPlayersByPlayUri(),
+			Plays._ID,
+			"(" + SELECTION + ") AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
+			new String[] { username, nickname });
 		for (Long internalId : internalIds) {
 			if (internalId != BggContract.INVALID_ID) {
 				batch.add(ContentProviderOperation

@@ -7,13 +7,13 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -32,25 +32,25 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	private final String oldName;
 	private final String newName;
 	private final long startTime;
+	private ArrayList<ContentProviderOperation> batch;
 
 	public RenamePlayerTask(Context context, String oldName, String newName) {
 		this.context = (context == null ? null : context.getApplicationContext());
 		this.oldName = oldName;
 		this.newName = newName;
-		this.startTime = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
+		batch = new ArrayList<>();
 	}
 
 	@NonNull
 	@Override
 	protected String doInBackground(Void... params) {
-		if (context == null) {
-			return "";
-		}
+		if (context == null) return "";
 
-		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		updatePlays(batch);
-		updatePlayers(batch);
-		updateColors(batch);
+		batch.clear();
+		updatePlays();
+		updatePlayers();
+		updateColors();
 		ResolverUtils.applyBatch(context, batch);
 
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
@@ -58,12 +58,15 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 		return context.getString(R.string.msg_play_player_change, oldName, newName);
 	}
 
-	private void updatePlays(ArrayList<ContentProviderOperation> batch) {
+	private void updatePlays() {
 		List<Long> internalIds = ResolverUtils.queryLongs(context.getContentResolver(),
 			Plays.buildPlayersByPlayUri(),
 			Plays._ID,
-			Plays.SYNC_STATUS + "=? AND (" + SELECTION + ")",
-			new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), oldName, "" });
+			"(" + SELECTION + ") AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
+			new String[] { oldName, "" });
 		if (internalIds.size() > 0) {
 			for (Long internalId : internalIds) {
 				if (internalId != BggContract.INVALID_ID) {
@@ -76,7 +79,7 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 		}
 	}
 
-	private void updatePlayers(ArrayList<ContentProviderOperation> batch) {
+	private void updatePlayers() {
 		batch.add(ContentProviderOperation
 			.newUpdate(Plays.buildPlayersByPlayUri())
 			.withValue(PlayPlayers.NAME, newName)
@@ -84,7 +87,7 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 			.build());
 	}
 
-	private void updateColors(ArrayList<ContentProviderOperation> batch) {
+	private void updateColors() {
 		Cursor cursor = context.getContentResolver().query(PlayerColors.buildPlayerUri(oldName),
 			new String[] { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER },
 			null, null, null);
@@ -102,9 +105,7 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 				Timber.i("No colors to update");
 			}
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			if (cursor != null) cursor.close();
 		}
 		batch.add(ContentProviderOperation.newDelete(PlayerColors.buildPlayerUri(oldName)).build());
 	}
