@@ -495,11 +495,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void showNotification() {
-		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl); // TODO: 1/11/17
+		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl);
 	}
 
 	private void cancelNotification() {
-		NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, playId);
+		NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, internalId);
 	}
 
 	private void triggerRefresh() {

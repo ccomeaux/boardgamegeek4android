@@ -77,9 +77,16 @@ public class NotificationUtils {
 	/**
 	 * Cancel the notification by a unique ID.
 	 */
-	public static void cancel(Context context, String tag, int id) {
+	public static void cancel(Context context, String tag) {
+		cancel(context, tag, 0L);
+	}
+
+	/**
+	 * Cancel the notification by a unique ID.
+	 */
+	public static void cancel(Context context, String tag, long id) {
 		NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-		nm.cancel(tag, id);
+		nm.cancel(tag, getIntegerId(id));
 	}
 
 	/**
@@ -105,7 +112,7 @@ public class NotificationUtils {
 
 		Intent intent = ActivityUtils.createPlayIntent(context, internalId, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, play.playId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		String info = "";
 		if (!TextUtils.isEmpty(play.location)) {
@@ -126,7 +133,14 @@ public class NotificationUtils {
 		if (largeIcon != null) {
 			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
 		}
+		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, getIntegerId(internalId), builder);
+	}
 
-		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, play.playId, builder);
+	private static int getIntegerId(long id) {
+		if (id < Integer.MAX_VALUE) {
+			return (int) id;
+		} else {
+			return (int) (id % Integer.MAX_VALUE);
+		}
 	}
 }

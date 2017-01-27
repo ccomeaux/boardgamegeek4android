@@ -1080,7 +1080,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void cancelNotification() {
-		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, playId);
+		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, internalId);
 	}
 
 	public class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.PlayViewHolder> {
