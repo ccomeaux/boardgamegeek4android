@@ -17,7 +17,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -612,18 +611,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			} else {
 				holder.title.setText(play.getDate());
 			}
-			if (TextUtils.isEmpty(info)) {
-				holder.text1.setVisibility(View.GONE);
-			} else {
-				holder.text1.setVisibility(View.VISIBLE);
-				holder.text1.setText(info);
-			}
-			if (TextUtils.isEmpty(play.getComments())) {
-				holder.text2.setVisibility(View.GONE);
-			} else {
-				holder.text2.setVisibility(View.VISIBLE);
-				holder.text2.setText(play.getComments());
-			}
+			PresentationUtils.setTextOrHide(holder.text1, info);
+			PresentationUtils.setTextOrHide(holder.text2, play.getComments());
 
 			int statusMessageId = 0;
 			if (play.getDeleteTimestamp() > 0) {
