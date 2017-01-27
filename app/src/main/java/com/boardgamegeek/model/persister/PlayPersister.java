@@ -131,7 +131,7 @@ public class PlayPersister {
 		addPlayersToBatch(play, existingPlayerIds, internalId);
 		removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
 
-		if (Play.hasBeenSynced(play.playId) || play.updateTimestamp > 0) {
+		if (play.playId > 0 || play.updateTimestamp > 0) {
 			saveGamePlayerSortOrderToBatch(play);
 			updateColorsInBatch(play);
 			saveBuddyNicknamesToBatch(play);

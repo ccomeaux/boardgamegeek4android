@@ -38,7 +38,6 @@ import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -632,7 +631,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			} else if (play.getUpdateTimestamp() > 0) {
 				statusMessageId = R.string.sync_pending_update;
 			} else if (play.getDirtyTimestamp() > 0) {
-				if (Play.hasBeenSynced(play.getPlayId())) {
+				if (play.getPlayId() > 0) {
 					statusMessageId = R.string.sync_editing;
 				} else {
 					statusMessageId = R.string.sync_draft;

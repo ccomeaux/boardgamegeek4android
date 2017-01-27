@@ -683,7 +683,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private void logPlay() {
 		play.updateTimestamp = System.currentTimeMillis();
 		if (save()) {
-			if (!play.hasBeenSynced() && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
+			if (play.playId == 0 && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, play.location);
 				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());

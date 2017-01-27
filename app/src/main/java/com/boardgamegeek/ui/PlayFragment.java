@@ -219,8 +219,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		UIUtils.showMenuItem(menu, R.id.menu_send, play.dirtyTimestamp > 0);
-		UIUtils.showMenuItem(menu, R.id.menu_discard, Play.hasBeenSynced(playId) && play.dirtyTimestamp > 0);
-		UIUtils.enableMenuItem(menu, R.id.menu_share, Play.hasBeenSynced(playId));
+		UIUtils.showMenuItem(menu, R.id.menu_discard, playId > 0 && play.dirtyTimestamp > 0);
+		UIUtils.enableMenuItem(menu, R.id.menu_share, playId > 0);
 		super.onPrepareOptionsMenu(menu);
 	}
 
@@ -455,7 +455,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		updatedTimestampView.setVisibility((play.updated == 0) ? View.GONE : View.VISIBLE);
 		updatedTimestampView.setTimestamp(play.updated);
 
-		if (play.hasBeenSynced()) {
+		if (play.playId > 0) {
 			playIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(play.playId)));
 		}
 
@@ -467,7 +467,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			notSyncedMessageView.setText(R.string.sync_pending_update);
 		} else if (play.dirtyTimestamp > 0) {
 			notSyncedMessageView.setVisibility(View.VISIBLE);
-			notSyncedMessageView.setText(play.hasBeenSynced() ? R.string.sync_editing : R.string.sync_draft);
+			notSyncedMessageView.setText(play.playId > 0 ? R.string.sync_editing : R.string.sync_draft);
 			savedTimestampView.setVisibility(View.VISIBLE);
 			savedTimestampView.setTimestamp(play.dirtyTimestamp);
 		} else {
@@ -478,8 +478,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		getActivity().supportInvalidateOptionsMenu();
 		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
-		if (play.hasBeenSynced()
-			&& (play.updated == 0 || DateTimeUtils.howManyDaysOld(play.updated) > AGE_IN_DAYS_TO_REFRESH)) {
+		if (play.playId > 0 &&
+			(play.updated == 0 || DateTimeUtils.howManyDaysOld(play.updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 

@@ -392,7 +392,7 @@
 	<string name="play_description_date_segment">\u0020on %s</string>
 	<string name="play_description_location_segment">\u0020at %s</string>
 	<string name="play_description_players_segment">\u0020with %,d players</string>
-	<string name="play_description_game_url_segment">www.boardgamegeek.com/play/%s</string>
+	<string name="play_description_game_url_segment">www.boardgamegeek.com/game/%s</string>
 	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
 	<string name="player_description_starting_position_segment">%d)\u0020</string>
 	<string name="player_description_username_segment">\u0020(%s)</string>

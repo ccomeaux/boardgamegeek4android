@@ -149,7 +149,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
 
-					CharSequence message = play.hasBeenSynced() ?
+					CharSequence message = play.playId > 0 ?
 						PresentationUtils.getText(context, R.string.msg_play_updated) :
 						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 
@@ -221,7 +221,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				}
 				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
-				if (play.hasBeenSynced()) {
+				if (play.playId > 0) {
 					PlayDeleteResponse response = postPlayDelete(play.playId);
 					if (response == null) {
 						syncResult.stats.numIoExceptions++;
@@ -283,7 +283,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 			.add("action", "save")
 			.add("version", "2")
 			.add("objecttype", "thing");
-		if (play.hasBeenSynced()) {
+		if (play.playId > 0) {
 			builder.add("playid", String.valueOf(play.playId));
 		}
 		builder.add("objectid", String.valueOf(play.gameId))

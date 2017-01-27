@@ -432,17 +432,6 @@ public class Play {
 	}
 
 	/**
-	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
-	 */
-	public boolean hasBeenSynced() {
-		return Play.hasBeenSynced(playId);
-	}
-
-	public static boolean hasBeenSynced(int playId) {
-		return (playId > 0 && playId < UNSYNCED_PLAY_ID);
-	}
-
-	/**
 	 * Determines if this play appears to have started.
 	 *
 	 * @return true, if it's not ended and the start time has been set.
@@ -546,7 +535,7 @@ public class Play {
 		if (!TextUtils.isEmpty(comments)) {
 			sb.append("\n").append(comments);
 		}
-		if (hasBeenSynced()) {
+		if (playId > 0) {
 			sb.append("\n").append(resources.getString(R.string.play_description_play_url_segment, String.valueOf(playId)).trim());
 		} else {
 			sb.append("\n").append(resources.getString(R.string.play_description_game_url_segment, String.valueOf(gameId)).trim());
