@@ -698,7 +698,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 				addColumn(db, Tables.PLAYS, Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER);
 				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=1",
 					Tables.PLAYS,
-					"updated",
 					Plays.UPDATE_TIMESTAMP,
 					System.currentTimeMillis())); // 1 = update sync status
 				version = VER_PLAY_UPDATE_TIMESTAMP;
@@ -707,7 +706,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=2",
 					Tables.PLAYS,
 					Plays.DIRTY_TIMESTAMP,
-					"updated")); // 2 = in progress
+					System.currentTimeMillis())); // 2 = in progress
 				version = VER_PLAY_DIRTY_TIMESTAMP;
 		}
 
