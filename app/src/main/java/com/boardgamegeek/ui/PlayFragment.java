@@ -48,7 +48,6 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
@@ -380,24 +379,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	public void setNewPlayId(int playId) {
-		this.playId = playId;
-		if (isAdded()) {
-			getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
-		}
-	}
-
 	/**
 	 * @return true if the we're done loading
 	 */
 	private boolean onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			int newPlayId = PreferencesUtils.getNewPlayId(getActivity(), playId);
-			if (newPlayId != BggContract.INVALID_ID) {
-				setNewPlayId(newPlayId);
-				return false;
-			}
-			emptyView.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(playId)));
+			emptyView.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(internalId)));
 			emptyView.setVisibility(View.VISIBLE);
 			return true;
 		}

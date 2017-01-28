@@ -13,7 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
 import com.boardgamegeek.R;
@@ -34,7 +33,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -50,7 +48,6 @@ import timber.log.Timber;
 public class SyncPlaysUpload extends SyncUploadTask {
 	public static final String GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php";
 	private OkHttpClient httpClient;
-	private LocalBroadcastManager broadcastManager;
 	private PlayPersister persister;
 	private long currentInternalIdForMessage;
 	private int currentPlayIdForMessage;
@@ -96,7 +93,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
 		httpClient = HttpUtils.getHttpClientWithAuth(context);
-		broadcastManager = LocalBroadcastManager.getInstance(context);
 		persister = new PlayPersister(context);
 
 		updatePendingPlays(syncResult);
@@ -155,11 +151,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 					if (newPlayId != oldPlayId) {
 						deletePlay(currentInternalIdForMessage);
-
-						PreferencesUtils.putNewPlayId(context, oldPlayId, newPlayId);
-						Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
-						broadcastManager.sendBroadcast(intent);
-
 						play.playId = newPlayId;
 					}
 					Pair<String, String> imageUrls = queryGameImageUrls(play);

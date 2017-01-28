@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.PlaysActivity;
 
@@ -201,21 +200,6 @@ public class PreferencesUtils {
 
 	public static boolean getAvoidBatching(Context context) {
 		return getBoolean(context, "advancedDebugInsert", false);
-	}
-
-	public static int getNewPlayId(Context context, int oldPlayId) {
-		return getInt(context, "playId" + oldPlayId, BggContract.INVALID_ID);
-	}
-
-	public static void putNewPlayId(Context context, int oldPlayId, int newPlayId) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		Editor editor = sharedPreferences.edit();
-		if (newPlayId == BggContract.INVALID_ID) {
-			editor.remove("playId" + oldPlayId);
-		} else {
-			editor.putInt("playId" + oldPlayId, newPlayId);
-		}
-		editor.apply();
 	}
 
 	public static int getHIndex(Context context) {
