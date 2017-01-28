@@ -80,7 +80,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAY_DELETE_TIMESTAMP = 37;
 	private static final int VER_PLAY_UPDATE_TIMESTAMP = 38;
 	private static final int VER_PLAY_DIRTY_TIMESTAMP = 39;
-	private static final int DATABASE_VERSION = VER_PLAY_DIRTY_TIMESTAMP;
+	private static final int VER_PLAY_PLAY_ID_NOT_REQUIRED = 40;
+	private static final int DATABASE_VERSION = VER_PLAY_PLAY_ID_NOT_REQUIRED;
 
 	private final Context context;
 
@@ -456,7 +457,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private TableBuilder buildPlaysTable() {
 		return new TableBuilder().setTable(Tables.PLAYS).useDefaultPrimaryKey()
 			.addColumn(Plays.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
-			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, true)
+			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.DATE, COLUMN_TYPE.TEXT, true)
 			.addColumn(Plays.QUANTITY, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.LENGTH, COLUMN_TYPE.INTEGER, true)
@@ -708,6 +709,22 @@ public class BggDatabase extends SQLiteOpenHelper {
 					Plays.DIRTY_TIMESTAMP,
 					System.currentTimeMillis())); // 2 = in progress
 				version = VER_PLAY_DIRTY_TIMESTAMP;
+			case VER_PLAY_DIRTY_TIMESTAMP:
+				buildPlaysTable().replace(db);
+				db.execSQL(String.format("UPDATE %s SET %s=null WHERE %s>=100000000 AND (%s>0 OR %s>0 OR %s>0)",
+					Tables.PLAYS,
+					Plays.PLAY_ID,
+					Plays.PLAY_ID,
+					Plays.DIRTY_TIMESTAMP,
+					Plays.UPDATE_TIMESTAMP,
+					Plays.DELETE_TIMESTAMP));
+				db.execSQL(String.format("UPDATE %s SET %s=%s, %s=null WHERE %s>=100000000",
+					Tables.PLAYS,
+					Plays.DIRTY_TIMESTAMP,
+					System.currentTimeMillis(),
+					Plays.PLAY_ID,
+					Plays.PLAY_ID));
+				version = VER_PLAY_PLAY_ID_NOT_REQUIRED;
 		}
 
 		if (version != DATABASE_VERSION) {
