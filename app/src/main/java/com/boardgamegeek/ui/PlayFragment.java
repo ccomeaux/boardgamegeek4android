@@ -75,7 +75,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private boolean isSyncing;
 	private long internalId = BggContract.INVALID_ID;
-	private int playId = BggContract.INVALID_ID;
 	private Play play = new Play();
 	private String thumbnailUrl;
 	private String imageUrl;
@@ -130,13 +129,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		playId = intent.getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
+		if (internalId == BggContract.INVALID_ID) return;
 
-		if (playId == BggContract.INVALID_ID) {
-			return;
-		}
-
-		play = new Play(playId, intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID),
+		play = new Play(intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID),
 			intent.getStringExtra(ActivityUtils.KEY_GAME_NAME));
 
 		thumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);

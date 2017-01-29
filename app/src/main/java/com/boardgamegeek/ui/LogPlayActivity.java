@@ -126,13 +126,10 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
-	private static final int TOKEN_ID = 1 << 2;
-	private static final int TOKEN_COLORS = 1 << 3;
+	private static final int TOKEN_COLORS = 1 << 2;
 	private static final int TOKEN_UNINITIALIZED = 1 << 31;
-	private static final String[] ID_PROJECTION = { "MAX(plays." + Plays.PLAY_ID + ")", Plays._ID };
 
-	@State long internalId;
-	private int playId;
+	@State long internalId = BggContract.INVALID_ID;
 	private int gameId;
 	private String gameName;
 	private boolean isRequestingToEndPlay;
@@ -237,26 +234,6 @@ public class LogPlayActivity extends AppCompatActivity {
 					} else {
 						arePlayersCustomSorted = getIntent().getBooleanExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, false);
 					}
-					if ((outstandingQueries & TOKEN_ID) != 0) {
-						queryHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
-					}
-					setModelIfDone(token);
-					break;
-				case TOKEN_ID:
-					int id = Play.UNSYNCED_PLAY_ID;
-					try {
-						int lastId = 0;
-						if (cursor.getCount() == 1 && cursor.moveToFirst()) {
-							internalId = cursor.getInt(1);
-							lastId = cursor.getInt(0);
-						}
-						if (lastId >= id) {
-							id = lastId + 1;
-						}
-					} finally {
-						cursor.close();
-					}
-					playId = id;
 					setModelIfDone(token);
 					break;
 				case TOKEN_COLORS:
@@ -289,7 +266,8 @@ public class LogPlayActivity extends AppCompatActivity {
 			outstandingQueries &= ~queryType;
 			if (outstandingQueries == 0) {
 				if (play == null) {
-					play = new Play(playId, gameId, gameName);
+					// create a new play
+					play = new Play(gameId, gameName);
 					play.setCurrentDate();
 
 					long lastPlay = PreferencesUtils.getLastPlayTime(this);
@@ -301,8 +279,6 @@ public class LogPlayActivity extends AppCompatActivity {
 				}
 				if (isRequestingRematch) {
 					play = PlayBuilder.rematch(play);
-					// when copying below, keep the new play ID not the original rematch ID
-					play.playId = playId;
 				}
 				originalPlay = PlayBuilder.copy(play);
 				finishDataLoad();
@@ -322,7 +298,6 @@ public class LogPlayActivity extends AppCompatActivity {
 		playAdapter.refresh();
 		progressView.hide();
 		recyclerView.setVisibility(View.VISIBLE);
-		maybeShowNotification();
 	}
 
 	@DebugLog
@@ -466,7 +441,6 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		final Intent intent = getIntent();
 		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		playId = intent.getIntExtra(ActivityUtils.KEY_PLAY_ID, BggContract.INVALID_ID);
 		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 		isRequestingToEndPlay = intent.getBooleanExtra(ActivityUtils.KEY_END_PLAY, false);
@@ -637,21 +611,18 @@ public class LogPlayActivity extends AppCompatActivity {
 			finishDataLoad();
 		} else {
 			outstandingQueries = TOKEN_COLORS;
-			if (internalId > 0) {
+			if (internalId != BggContract.INVALID_ID) {
 				// Editing or copying an existing play, so retrieve it
 				shouldDeletePlayOnActivityCancel = false;
 				outstandingQueries |= TOKEN_PLAY | TOKEN_PLAYERS;
 				if (isRequestingRematch) {
 					shouldDeletePlayOnActivityCancel = true;
-					outstandingQueries |= TOKEN_ID;
 				}
 				queryHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 			} else {
 				// Starting a new play
 				shouldDeletePlayOnActivityCancel = true;
 				arePlayersCustomSorted = getIntent().getBooleanExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, false);
-				outstandingQueries |= TOKEN_ID;
-				queryHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
 			}
 			queryHandler.startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId), new String[] { GameColors.COLOR }, null, null, null);
 		}
@@ -720,7 +691,10 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void cancel() {
 		shouldSaveOnPause = false;
-		if (play == null || play.equals(originalPlay)) {
+		if (play == null) {
+			setResult(RESULT_CANCELED);
+			finish();
+		} else if (play.equals(originalPlay)) {
 			if (shouldDeletePlayOnActivityCancel) {
 				play.deleteTimestamp = System.currentTimeMillis();
 				if (save()) {

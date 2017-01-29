@@ -235,7 +235,7 @@ public class ActivityUtils {
 	}
 
 	public static Intent createEditPlayIntent(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		return createEditPlayIntent(context, 0, 0, gameId, gameName, thumbnailUrl, imageUrl);
+		return createEditPlayIntent(context, BggContract.INVALID_ID, BggContract.INVALID_ID, gameId, gameName, thumbnailUrl, imageUrl);
 	}
 
 	public static Intent createEditPlayIntent(Context context, long internalId, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {

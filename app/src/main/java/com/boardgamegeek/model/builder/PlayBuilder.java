@@ -120,7 +120,7 @@ public class PlayBuilder {
 	 * Copy the semantic play information to a new play. Does not include data related to syncing.
 	 */
 	public static Play copy(Play play) {
-		Play copy = new Play(play.playId, play.gameId, play.gameName);
+		Play copy = new Play(play.gameId, play.gameName);
 		copy.setDate(play.getDate());
 		copy.quantity = play.quantity;
 		copy.length = play.length;

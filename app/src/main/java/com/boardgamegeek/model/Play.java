@@ -105,19 +105,14 @@ public class Play {
 	private List<Player> players;
 
 	public Play() {
-		init(BggContract.INVALID_ID, BggContract.INVALID_ID, "");
+		init(BggContract.INVALID_ID, "");
 	}
 
 	public Play(int gameId, String gameName) {
-		init(BggContract.INVALID_ID, gameId, gameName);
+		init(gameId, gameName);
 	}
 
-	public Play(int playId, int gameId, String gameName) {
-		init(playId, gameId, gameName);
-	}
-
-	private void init(int playId, int gameId, String gameName) {
-		this.playId = playId;
+	private void init(int gameId, String gameName) {
 		this.gameId = gameId;
 		this.gameName = gameName;
 		quantity = QUANTITY_DEFAULT;
