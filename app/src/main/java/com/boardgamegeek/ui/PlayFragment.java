@@ -234,7 +234,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_edit:
 				PlayManipulationEvent.log("Edit", play.gameName);
-				ActivityUtils.editPlay(getActivity(), internalId, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				ActivityUtils.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				return true;
 			case R.id.menu_send:
 				play.updateTimestamp = System.currentTimeMillis();
@@ -258,7 +258,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			}
 			case R.id.menu_rematch:
 				PlayManipulationEvent.log("Rematch", play.gameName);
-				ActivityUtils.rematch(getActivity(), internalId, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				ActivityUtils.rematch(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -316,7 +316,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@OnClick(R.id.timer_end)
 	void onTimerClick() {
-		ActivityUtils.endPlay(getActivity(), internalId, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		ActivityUtils.endPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 	}
 
 	@Override

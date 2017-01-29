@@ -110,7 +110,7 @@ public class NotificationUtils {
 	private static void buildAndNotify(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName);
 
-		Intent intent = ActivityUtils.createPlayIntent(context, internalId, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		Intent intent = ActivityUtils.createPlayIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 

@@ -50,7 +50,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private OkHttpClient httpClient;
 	private PlayPersister persister;
 	private long currentInternalIdForMessage;
-	private int currentPlayIdForMessage;
 	private int currentGameIdForMessage;
 	private String currentGameNameForMessage;
 
@@ -141,7 +140,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					final int newPlayId = response.getPlayId();
 					final int oldPlayId = play.playId;
 
-					currentPlayIdForMessage = newPlayId;
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
 
@@ -364,10 +362,9 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	protected Action createMessageAction() {
-		if (currentPlayIdForMessage != BggContract.INVALID_ID) {
+		if (currentInternalIdForMessage != BggContract.INVALID_ID) {
 			Intent intent = ActivityUtils.createRematchIntent(context,
 				currentInternalIdForMessage,
-				currentPlayIdForMessage,
 				currentGameIdForMessage,
 				currentGameNameForMessage, null, null);
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

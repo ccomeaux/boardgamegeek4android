@@ -106,7 +106,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private Sorter sorter;
 	private boolean hasAutoSyncTriggered;
 	private int mode = MODE_ALL;
-	private int selectedPlayId;
 	private final LinkedHashSet<Integer> selectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem sendMenuItem;
 	private MenuItem editMenuItem;
@@ -187,7 +186,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (cursor != null) {
 			long internalId = cursor.getInt(cursor.getColumnIndex(Plays._ID));
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
+			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
 		}
 	}
 
@@ -271,7 +270,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		selectedPlayId = event.getPlayId();
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
@@ -600,8 +598,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 
-			UIUtils.setActivatedCompat(view, play.getPlayId() == selectedPlayId);
-
 			String info = PresentationUtils.describePlayDetails(getActivity(),
 				mode != MODE_GAME ? play.getDate() : null,
 				play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount());
@@ -761,7 +757,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
 				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-				ActivityUtils.editPlay(getActivity(), internalId, play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
+				ActivityUtils.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
 				return true;
 			case R.id.menu_delete:
 				mode.finish();
