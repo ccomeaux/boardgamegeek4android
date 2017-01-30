@@ -171,6 +171,7 @@ public class PlayPersister {
 
 	private static ContentValues createContentValues(Play play) {
 		ContentValues values = new ContentValues();
+		values.put(Plays.PLAY_ID, play.playId);
 		values.put(Plays.DATE, play.getDate());
 		values.put(Plays.ITEM_NAME, play.gameName);
 		values.put(Plays.OBJECT_ID, play.gameId);
