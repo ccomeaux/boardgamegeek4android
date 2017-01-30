@@ -490,7 +490,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void save(String action) {
 		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
-		new PlayPersister(getActivity()).save(play);
+		new PlayPersister(getActivity()).save(play, internalId);
 		triggerRefresh();
 	}
 

@@ -155,7 +155,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
 					play.dirtyTimestamp = 0;
 					play.updateTimestamp = 0;
-					persister.save(play);
+					persister.update(play, currentInternalIdForMessage);
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {

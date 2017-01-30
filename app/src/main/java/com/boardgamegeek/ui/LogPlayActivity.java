@@ -684,7 +684,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		shouldSaveOnPause = false;
 		final View focusedView = recyclerView.findFocus();
 		if (focusedView != null) focusedView.clearFocus();
-		new PlayPersister(this).save(play);
+		new PlayPersister(this).save(play, internalId);
 		return true;
 	}
 

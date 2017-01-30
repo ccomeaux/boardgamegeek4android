@@ -79,23 +79,15 @@ public class PlayPersister {
 		Timber.i("Updated %1$s, inserted %2$s, %3$s unchanged, %4$s dirty", updateCount, insertCount, unchangedCount, dirtyCount);
 	}
 
-	/*
-	 * Save the play while not syncing.
-	 */
-	public void save(Play play) {
-		PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
-		save(play, candidate.getInternalId());
-	}
-
-	private void insert(Play play) {
+	public void insert(Play play) {
 		save(play, BggContract.INVALID_ID);
 	}
 
-	private void update(Play play, long internalId) {
+	public void update(Play play, long internalId) {
 		save(play, internalId);
 	}
 
-	private void save(Play play, long internalId) {
+	public void save(Play play, long internalId) {
 		if (play == null) return;
 		if (!isBoardgameSubtype(play)) return;
 
