@@ -104,21 +104,13 @@ public class PlayPersister {
 
 		String debugMessage;
 		if (internalId != BggContract.INVALID_ID) {
-			debugMessage = "Updating play ID " + play.playId;
+			debugMessage = "Updating play _ID " + internalId;
 			batch.add(ContentProviderOperation
 				.newUpdate(Plays.buildPlayUri(internalId))
 				.withValues(values)
 				.build());
 		} else {
-			if (play.playId == BggContract.INVALID_ID) {
-				play.playId = getTemporaryId();
-			}
-			values.put(Plays.PLAY_ID, play.playId);
-			debugMessage = "Inserting play ID " + play.playId;
-
-			if (!values.containsKey(Plays.UPDATED_LIST)) {
-				values.put(Plays.UPDATED_LIST, play.updated);
-			}
+			debugMessage = "Inserting new play";
 			batch.add(ContentProviderOperation
 				.newInsert(Plays.CONTENT_URI)
 				.withValues(values)
@@ -162,18 +154,6 @@ public class PlayPersister {
 		return false;
 	}
 
-	/*
-	 * Gets an ID to use as a temporary placeholder until the game is synced with the 'Geek.
-	 */
-	private int getTemporaryId() {
-		int id = Play.UNSYNCED_PLAY_ID;
-		int lastId = ResolverUtils.queryInt(resolver, Plays.CONTENT_SIMPLE_URI, "MAX(plays." + Plays.PLAY_ID + ")");
-		if (lastId >= id) {
-			id = lastId + 1;
-		}
-		return id;
-	}
-
 	private static int generateSyncHashCode(Play play) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(play.getDate()).append("\n");
@@ -209,11 +189,8 @@ public class PlayPersister {
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
 		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
-		if (play.updated > 0) {
-			values.put(Plays.UPDATED_LIST, play.updated);
-		}
-		// only store start time if there's no length
-		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime);
+		values.put(Plays.UPDATED_LIST, play.updated);
+		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime); // only store start time if there's no length
 		values.put(Plays.SYNC_HASH_CODE, generateSyncHashCode(play));
 		values.put(Plays.DELETE_TIMESTAMP, play.deleteTimestamp);
 		values.put(Plays.UPDATE_TIMESTAMP, play.updateTimestamp);
