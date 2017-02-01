@@ -43,7 +43,6 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Request.Builder;
-import timber.log.Timber;
 
 public class SyncPlaysUpload extends SyncUploadTask {
 	public static final String GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php";
@@ -113,10 +112,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				PlayBuilder.PLAY_PROJECTION_WITH_ID,
 				Plays.UPDATE_TIMESTAMP + ">0",
 				null,
-				null);
-			String detail = String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0);
-			Timber.i(detail);
-			updateProgressNotification(detail);
+				Plays.UPDATE_TIMESTAMP);
+			updateProgressNotification(String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0));
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
@@ -136,25 +133,22 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (response == null) {
 					syncResult.stats.numIoExceptions++;
 					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
+				} else if (response.getPlayCount() <= 0) {
+					syncResult.stats.numIoExceptions++;
+					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
 				} else if (!response.hasError()) {
-					final int newPlayId = response.getPlayId();
-					final int oldPlayId = play.playId;
-
-					currentGameIdForMessage = play.gameId;
-					currentGameNameForMessage = play.gameName;
-
 					CharSequence message = play.playId > 0 ?
 						PresentationUtils.getText(context, R.string.msg_play_updated) :
 						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
 
-					if (newPlayId != oldPlayId) {
-						deletePlay(currentInternalIdForMessage);
-						play.playId = newPlayId;
-					}
-					Pair<String, String> imageUrls = queryGameImageUrls(play);
-					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
+					play.playId = response.getPlayId();
 					play.dirtyTimestamp = 0;
 					play.updateTimestamp = 0;
+					currentGameIdForMessage = play.gameId;
+					currentGameNameForMessage = play.gameName;
+
+					Pair<String, String> imageUrls = queryGameImageUrls(play);
+					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
 					persister.update(play, currentInternalIdForMessage);
 
 					updateGamePlayCount(play);
@@ -199,10 +193,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				PlayBuilder.PLAY_PROJECTION_WITH_ID,
 				Plays.DELETE_TIMESTAMP + ">0",
 				null,
-				null);
-			String detail = String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0);
-			Timber.i(detail);
-			updateProgressNotification(detail);
+				Plays.DELETE_TIMESTAMP);
+			updateProgressNotification(String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0));
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) {
