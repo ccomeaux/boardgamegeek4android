@@ -147,14 +147,12 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
 
-					Pair<String, String> imageUrls = queryGameImageUrls(play);
-					notifyUser(play.gameName, message, play.playId, imageUrls.first, imageUrls.second);
+					notifyUser(play, message);
 					persister.update(play, currentInternalIdForMessage);
 
 					updateGamePlayCount(play);
 				} else if (response.hasInvalidIdError()) {
-					Pair<String, String> imageUrls = queryGameImageUrls(play);
-					notifyUser(play.gameName, PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId), play.playId, imageUrls.first, imageUrls.second);
+					notifyUser(play, PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId));
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
@@ -169,6 +167,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				cursor.close();
 			}
 		}
+	}
+
+	private void notifyUser(Play play, CharSequence message) {
+		Pair<String, String> imageUrls = queryGameImageUrls(play);
+		notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalIdForMessage), imageUrls.first, imageUrls.second);
 	}
 
 	private Pair<String, String> queryGameImageUrls(Play play) {
@@ -200,7 +203,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (isCancelled()) {
 					break;
 				}
-				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
+				currentInternalIdForMessage = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.playId > 0) {
 					PlayDeleteResponse response = postPlayDelete(play.playId);
@@ -208,11 +211,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						syncResult.stats.numIoExceptions++;
 						notifyUploadError(context.getString(R.string.msg_play_update_null_response));
 					} else if (response.isSuccessful()) {
-						deletePlay(internalId);
+						deletePlay(currentInternalIdForMessage);
 						updateGamePlayCount(play);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
-						deletePlay(internalId);
+						deletePlay(currentInternalIdForMessage);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
@@ -222,7 +225,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						notifyUploadError(response.getErrorMessage());
 					}
 				} else {
-					deletePlay(internalId);
+					deletePlay(currentInternalIdForMessage);
 					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
 				}
 			}
@@ -347,8 +350,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	private void notifyUserOfDelete(@StringRes int messageId, Play play) {
-		Pair<String, String> imageUrls = queryGameImageUrls(play);
-		notifyUser(play.gameName, PresentationUtils.getText(context, messageId, play.gameName), play.playId, imageUrls.first, imageUrls.second);
+		notifyUser(play, PresentationUtils.getText(context, messageId, play.gameName));
 	}
 
 	@DebugLog

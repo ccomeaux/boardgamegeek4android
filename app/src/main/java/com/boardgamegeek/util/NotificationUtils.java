@@ -136,7 +136,7 @@ public class NotificationUtils {
 		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, getIntegerId(internalId), builder);
 	}
 
-	private static int getIntegerId(long id) {
+	public static int getIntegerId(long id) {
 		if (id < Integer.MAX_VALUE) {
 			return (int) id;
 		} else {
