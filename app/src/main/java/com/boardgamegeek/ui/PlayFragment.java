@@ -100,10 +100,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.play_comments) TextView commentsView;
 	@BindView(R.id.play_comments_label) View commentsLabel;
 	@BindView(R.id.play_players_label) View playersLabel;
-	@BindView(R.id.updated) TimestampView updatedTimestampView;
 	@BindView(R.id.play_id) TextView playIdView;
-	@BindView(R.id.play_saved) TimestampView savedTimestampView;
-	@BindView(R.id.play_unsynced_message) TextView notSyncedMessageView;
+	@BindView(R.id.pending_timestamp) TimestampView pendingTimestampView;
+	@BindView(R.id.dirty_timestamp) TimestampView dirtyTimestampView;
+	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 	private PlayerAdapter adapter;
 	@State boolean hasBeenNotified;
 
@@ -435,34 +435,36 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 
-		updatedTimestampView.setVisibility((play.updated == 0) ? View.GONE : View.VISIBLE);
-		updatedTimestampView.setTimestamp(play.updated);
+		if (play.deleteTimestamp > 0) {
+			pendingTimestampView.setVisibility(View.VISIBLE);
+			pendingTimestampView.setFormat(R.string.delete_pending_prefix);
+			pendingTimestampView.setTimestamp(play.deleteTimestamp);
+		} else if (play.updateTimestamp > 0) {
+			pendingTimestampView.setVisibility(View.VISIBLE);
+			pendingTimestampView.setFormat(R.string.update_pending_prefix);
+			pendingTimestampView.setTimestamp(play.deleteTimestamp);
+		} else {
+			pendingTimestampView.setVisibility(View.GONE);
+		}
+
+		if (play.dirtyTimestamp > 0) {
+			dirtyTimestampView.setFormat(getString(play.playId > 0 ? R.string.editing_prefix : R.string.draft_prefix));
+			dirtyTimestampView.setTimestamp(play.dirtyTimestamp);
+		} else {
+			dirtyTimestampView.setVisibility(View.GONE);
+		}
 
 		if (play.playId > 0) {
-			playIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(play.playId)));
+			playIdView.setText(String.format(getResources().getString(R.string.play_id_prefix), String.valueOf(play.playId)));
 		}
 
-		if (play.deleteTimestamp > 0) {
-			notSyncedMessageView.setVisibility(View.VISIBLE);
-			notSyncedMessageView.setText(R.string.sync_pending_delete);
-		} else if (play.updateTimestamp > 0) {
-			notSyncedMessageView.setVisibility(View.VISIBLE);
-			notSyncedMessageView.setText(R.string.sync_pending_update);
-		} else if (play.dirtyTimestamp > 0) {
-			notSyncedMessageView.setVisibility(View.VISIBLE);
-			notSyncedMessageView.setText(play.playId > 0 ? R.string.sync_editing : R.string.sync_draft);
-			savedTimestampView.setVisibility(View.VISIBLE);
-			savedTimestampView.setTimestamp(play.dirtyTimestamp);
-		} else {
-			notSyncedMessageView.setVisibility(View.GONE);
-			savedTimestampView.setVisibility(View.GONE);
-		}
+		syncTimestampView.setTimestamp(play.syncTimestamp);
 
 		getActivity().supportInvalidateOptionsMenu();
 		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
 		if (play.playId > 0 &&
-			(play.updated == 0 || DateTimeUtils.howManyDaysOld(play.updated) > AGE_IN_DAYS_TO_REFRESH)) {
+			(play.syncTimestamp == 0 || DateTimeUtils.howManyDaysOld(play.syncTimestamp) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 

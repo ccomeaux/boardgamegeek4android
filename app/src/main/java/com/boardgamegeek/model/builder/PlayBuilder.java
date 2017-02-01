@@ -61,7 +61,7 @@ public class PlayBuilder {
 	public static final String KEY_NOWINSTATS = "NO_WIN_STATS";
 	public static final String KEY_COMMENTS = "COMMENTS";
 	public static final String KEY_PLAYERS = "PLAYERS";
-	public static final String KEY_UPDATED = "UPDATED";
+	public static final String KEY_SYNC_TIMESTAMP = "UPDATED";
 	public static final String KEY_START_TIME = "START_TIME";
 	public static final String KEY_DELETE_TIMESTAMP = "DELETE_TIMESTAMP";
 	public static final String KEY_UPDATE_TIMESTAMP = "UPDATE_TIMESTAMP";
@@ -79,7 +79,7 @@ public class PlayBuilder {
 		play.setIncomplete(CursorUtils.getBoolean(cursor, Plays.INCOMPLETE));
 		play.setNoWinStats(CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS));
 		play.comments = CursorUtils.getString(cursor, Plays.COMMENTS);
-		play.updated = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
+		play.syncTimestamp = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
 		play.playerCount = CursorUtils.getInt(cursor, Plays.PLAYER_COUNT);
 		play.deleteTimestamp = CursorUtils.getLong(cursor, Plays.DELETE_TIMESTAMP);
@@ -172,7 +172,7 @@ public class PlayBuilder {
 		bundle.putBoolean(prefix + KEY_INCOMPLETE, play.Incomplete());
 		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.NoWinStats());
 		bundle.putString(prefix + KEY_COMMENTS, play.comments);
-		bundle.putLong(prefix + KEY_UPDATED, play.updated);
+		bundle.putLong(prefix + KEY_SYNC_TIMESTAMP, play.syncTimestamp);
 		bundle.putLong(prefix + KEY_START_TIME, play.startTime);
 		bundle.putLong(prefix + KEY_DELETE_TIMESTAMP, play.deleteTimestamp);
 		bundle.putLong(prefix + KEY_UPDATE_TIMESTAMP, play.updateTimestamp);
@@ -192,7 +192,7 @@ public class PlayBuilder {
 		play.setIncomplete(bundle.getBoolean(prefix + KEY_INCOMPLETE));
 		play.setNoWinStats(bundle.getBoolean(prefix + KEY_NOWINSTATS));
 		play.comments = getString(bundle, prefix + KEY_COMMENTS);
-		play.updated = bundle.getLong(prefix + KEY_UPDATED);
+		play.syncTimestamp = bundle.getLong(prefix + KEY_SYNC_TIMESTAMP);
 		play.startTime = bundle.getLong(prefix + KEY_START_TIME);
 		play.deleteTimestamp = bundle.getLong(prefix + KEY_DELETE_TIMESTAMP);
 		play.updateTimestamp = bundle.getLong(prefix + KEY_UPDATE_TIMESTAMP);

@@ -52,7 +52,7 @@ public class PlayPersister {
 		int dirtyCount = 0;
 		if (plays != null) {
 			for (Play play : plays) {
-				play.updated = startTime;
+				play.syncTimestamp = startTime;
 				PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
 				if (candidate.getInternalId() == BggContract.INVALID_ID) {
 					save(play, BggContract.INVALID_ID, true);
@@ -185,7 +185,7 @@ public class PlayPersister {
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
 		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
-		values.put(Plays.UPDATED_LIST, play.updated);
+		values.put(Plays.UPDATED_LIST, play.syncTimestamp);
 		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime); // only store start time if there's no length
 		values.put(Plays.SYNC_HASH_CODE, generateSyncHashCode(play));
 		values.put(Plays.DELETE_TIMESTAMP, play.deleteTimestamp);

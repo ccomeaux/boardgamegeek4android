@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcelable;
+import android.support.annotation.StringRes;
 import android.support.v4.view.ViewCompat;
 import android.text.Html;
 import android.text.SpannedString;
@@ -78,6 +79,11 @@ public class TimestampView extends TextView {
 			a.recycle();
 		}
 		setMaxLines(1);
+	}
+
+	public void setFormat(@StringRes int formatResId) {
+		this.format = getContext().getString(formatResId);
+		setTimestampText();
 	}
 
 	public void setFormat(String format) {

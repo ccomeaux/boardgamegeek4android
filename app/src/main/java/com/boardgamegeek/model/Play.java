@@ -93,7 +93,7 @@ public class Play {
 	@Element(required = false)
 	public String comments;
 
-	public long updated;
+	public long syncTimestamp;
 	public long startTime;
 	public int playerCount;
 	public long deleteTimestamp;
@@ -492,7 +492,7 @@ public class Play {
 		result = prime * result + incomplete;
 		result = prime * result + nowinstats;
 		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
-		long u = Double.doubleToLongBits(updated);
+		long u = Double.doubleToLongBits(syncTimestamp);
 		result = prime * result + (int) (u ^ (u >>> 32));
 		long t = Double.doubleToLongBits(startTime);
 		result = prime * result + (int) (t ^ (t >>> 32));
