@@ -32,7 +32,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -1088,7 +1087,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (updateTimestamp > 0) {
 				return true;
 			}
-			if (playId > 0 && playId < Play.UNSYNCED_PLAY_ID && deleteTimestamp == 0) {
+			if (playId > 0 && deleteTimestamp == 0) {
 				return true;
 			}
 			return false;

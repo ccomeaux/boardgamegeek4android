@@ -214,8 +214,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		UIUtils.showMenuItem(menu, R.id.menu_send, play.dirtyTimestamp > 0);
-		UIUtils.showMenuItem(menu, R.id.menu_discard, playId > 0 && play.dirtyTimestamp > 0);
-		UIUtils.enableMenuItem(menu, R.id.menu_share, playId > 0);
+		UIUtils.showMenuItem(menu, R.id.menu_discard, play.playId > 0 && play.dirtyTimestamp > 0);
+		UIUtils.enableMenuItem(menu, R.id.menu_share, play.playId > 0);
 		super.onPrepareOptionsMenu(menu);
 	}
 
