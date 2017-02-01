@@ -29,7 +29,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private final String username;
 	private final String nickname;
 	private final boolean shouldUpdatePlays;
-	private ArrayList<ContentProviderOperation> batch;
+	private final ArrayList<ContentProviderOperation> batch;
 	private final long startTime;
 
 	public BuddyNicknameUpdateTask(Context context, String username, String nickname, boolean shouldUpdatePlays) {

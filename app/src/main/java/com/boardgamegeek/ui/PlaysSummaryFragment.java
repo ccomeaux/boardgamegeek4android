@@ -113,7 +113,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					PlayModel.PROJECTION,
 					Plays.DIRTY_TIMESTAMP + ">0",
 					null,
-					playsSorter.getOrderByClause());
+					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAYS_TOKEN:
 				playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
@@ -122,7 +122,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					PlayModel.PROJECTION,
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
 					null,
-					playsSorter.getOrderByClause());
+					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:
 				loader = new CursorLoader(getActivity(),

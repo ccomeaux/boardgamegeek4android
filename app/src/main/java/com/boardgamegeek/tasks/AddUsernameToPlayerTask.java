@@ -33,7 +33,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	private final String username;
 	private final long startTime;
 	private boolean wasSuccessful;
-	private ArrayList<ContentProviderOperation> batch;
+	private final ArrayList<ContentProviderOperation> batch;
 
 	public AddUsernameToPlayerTask(Context context, String playerName, String username) {
 		this.context = context.getApplicationContext();

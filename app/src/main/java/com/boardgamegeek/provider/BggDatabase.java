@@ -172,11 +172,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 	}
 
 	@NonNull
-	private static String createJoinSuffix(String table1, String table2, String column) {
-		return createJoinSuffix(table1, table2, column, column);
-	}
-
-	@NonNull
 	private static String createJoinSuffix(String table1, String table2, String column1, String column2) {
 		return " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
 	}

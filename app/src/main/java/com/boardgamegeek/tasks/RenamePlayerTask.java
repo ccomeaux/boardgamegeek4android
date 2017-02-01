@@ -32,7 +32,7 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	private final String oldName;
 	private final String newName;
 	private final long startTime;
-	private ArrayList<ContentProviderOperation> batch;
+	private final ArrayList<ContentProviderOperation> batch;
 
 	public RenamePlayerTask(Context context, String oldName, String newName) {
 		this.context = (context == null ? null : context.getApplicationContext());
