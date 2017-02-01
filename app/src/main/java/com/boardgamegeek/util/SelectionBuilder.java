@@ -72,14 +72,6 @@ public class SelectionBuilder {
 		return where(column + "=? OR " + column + " IS NULL", selectionArg);
 	}
 
-	public SelectionBuilder whereEqualsOrNull(String column, int selectionArg) {
-		return where(column + "=? OR " + column + " IS NULL", String.valueOf(selectionArg));
-	}
-
-	public SelectionBuilder whereEqualsOrNull(String column, long selectionArg) {
-		return where(column + "=? OR " + column + " IS NULL", String.valueOf(selectionArg));
-	}
-
 	/**
 	 * Append the given selection clause to the internal state. Each clause is surrounded with parenthesis and combined
 	 * using {@code AND}.
@@ -271,5 +263,9 @@ public class SelectionBuilder {
 		int count = db.delete(tableName, selection, getSelectionArgs());
 		Timber.v("deleted %,d rows", count);
 		return count;
+	}
+
+	public static String whereZeroOrNull(String columnName) {
+		return String.format("(%1$s=0 OR %1$s IS NULL)", columnName);
 	}
 }

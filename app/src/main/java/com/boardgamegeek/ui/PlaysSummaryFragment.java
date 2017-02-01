@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.model.Play;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -29,14 +29,17 @@ import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.sorter.PlaysSorter;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
-import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.ui.model.Player;
+import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.SelectionBuilder;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -108,18 +111,18 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI,
 					PlayModel.PROJECTION,
-					Plays.SYNC_STATUS + "=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) },
-					playsSorter.getOrderByClause());
+					Plays.DIRTY_TIMESTAMP + ">0",
+					null,
+					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAYS_TOKEN:
 				playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.PARAM_LIMIT, "3").build(),
 					PlayModel.PROJECTION,
-					Plays.SYNC_STATUS + "!=? AND " + Plays.SYNC_STATUS + "!=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_IN_PROGRESS), String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) },
-					playsSorter.getOrderByClause());
+					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
+					null,
+					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:
 				loader = new CursorLoader(getActivity(),
@@ -215,10 +218,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void addPlayToContainer(Cursor cursor, LinearLayout container) {
+		long internalId = cursor.getLong(cursor.getColumnIndex(Plays._ID));
 		PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
-		view.setTag(R.id.play_id, play.getPlayId());
+		view.setTag(R.id.id, internalId);
 		view.setTag(R.id.game_info_id, play.getGameId());
 		view.setTag(R.id.game_name, play.getName());
 		view.setTag(R.id.thumbnail, play.getThumbnailUrl());
@@ -227,12 +231,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ActivityUtils.startPlayActivity(getActivity(),
-					(int) v.getTag(R.id.play_id),
+				EventBus.getDefault().postSticky(new PlaySelectedEvent(
+					(long) v.getTag(R.id.id),
 					(int) v.getTag(R.id.game_info_id),
 					(String) v.getTag(R.id.game_name),
 					(String) v.getTag(R.id.thumbnail),
-					(String) v.getTag(R.id.account_image));
+					(String) v.getTag(R.id.account_image)));
 			}
 		});
 	}

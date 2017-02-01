@@ -11,6 +11,7 @@
 	<string name="wanting_meter_text">%s Wanting</string>
 	<string name="wishing_meter_text">%s Wishing</string>
 	<string name="id_list_text">ID: %s</string>
+	<string name="play_id_prefix">Play ID: %s</string>
 	<string name="designers">Designers</string>
 	<string name="artists">Artists</string>
 	<string name="publishers">Publishers</string>
@@ -24,6 +25,10 @@
 	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_draft">Draft</string>
 	<string name="sync_editing">Editing</string>
+	<string name="delete_pending_prefix">Delete pending as of %s</string>
+	<string name="update_pending_prefix">Update pending as of %s</string>
+	<string name="draft_prefix">Draft, last saved %s</string>
+	<string name="editing_prefix">Editing, last saved %s</string>
 	<string name="quantity">Quantity</string>
 	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
@@ -221,7 +226,7 @@
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play_stats">You have no plays that can be analyzed.</string>
-	<string name="empty_play">No play ID %s."</string>
+	<string name="empty_play">No play found (ID=%s)."</string>
 	<string name="empty_geeklists">Error loading GeekLists.</string>
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
@@ -392,7 +397,7 @@
 	<string name="play_description_date_segment">\u0020on %s</string>
 	<string name="play_description_location_segment">\u0020at %s</string>
 	<string name="play_description_players_segment">\u0020with %,d players</string>
-	<string name="play_description_game_url_segment">www.boardgamegeek.com/play/%s</string>
+	<string name="play_description_game_url_segment">www.boardgamegeek.com/game/%s</string>
 	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
 	<string name="player_description_starting_position_segment">%d)\u0020</string>
 	<string name="player_description_username_segment">\u0020(%s)</string>
@@ -414,6 +419,7 @@
 	<string name="updated">Updated</string>
 	<string name="updated_prefix">Updated %s</string>
 	<string name="saved_prefix">Saved %s</string>
+	<string name="synced_prefix">Synced %s</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>

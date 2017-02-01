@@ -11,7 +11,6 @@ import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.crashlytics.android.answers.Answers;
@@ -57,7 +56,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event.getPlayId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
+		ActivityUtils.startPlayActivity(this, event);
 	}
 
 	@SuppressWarnings("unused")
@@ -74,7 +73,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 	public void onEvent(PlaysFilterChangedEvent event) {
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			if (event.getType() == Play.SYNC_STATUS_ALL) {
+			if (event.getType() == PlaysFragment.FILTER_TYPE_STATUS_ALL) {
 				actionBar.setSubtitle("");
 			} else {
 				actionBar.setSubtitle(event.getDescription());

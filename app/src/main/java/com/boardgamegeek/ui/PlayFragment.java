@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -48,7 +49,6 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
@@ -75,7 +75,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
 
 	private boolean isSyncing;
-	private int playId = BggContract.INVALID_ID;
+	private long internalId = BggContract.INVALID_ID;
 	private Play play = new Play();
 	private String thumbnailUrl;
 	private String imageUrl;
@@ -100,10 +100,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.play_comments) TextView commentsView;
 	@BindView(R.id.play_comments_label) View commentsLabel;
 	@BindView(R.id.play_players_label) View playersLabel;
-	@BindView(R.id.updated) TimestampView updatedTimestampView;
 	@BindView(R.id.play_id) TextView playIdView;
-	@BindView(R.id.play_saved) TimestampView savedTimestampView;
-	@BindView(R.id.play_unsynced_message) TextView notSyncedMessageView;
+	@BindView(R.id.pending_timestamp) TimestampView pendingTimestampView;
+	@BindView(R.id.dirty_timestamp) TimestampView dirtyTimestampView;
+	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 	private PlayerAdapter adapter;
 	@State boolean hasBeenNotified;
 
@@ -129,17 +129,14 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		playId = intent.getIntExtra(PlayActivity.KEY_PLAY_ID, BggContract.INVALID_ID);
+		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		if (internalId == BggContract.INVALID_ID) return;
 
-		if (playId == BggContract.INVALID_ID) {
-			return;
-		}
+		play = new Play(intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID),
+			intent.getStringExtra(ActivityUtils.KEY_GAME_NAME));
 
-		play = new Play(playId, intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID),
-			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
-
-		thumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
-		imageUrl = intent.getStringExtra(PlayActivity.KEY_IMAGE_URL);
+		thumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);
+		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
 	}
 
 	@Override
@@ -185,7 +182,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onResume() {
 		super.onResume();
 		if (play != null && play.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(getActivity(), play, thumbnailUrl, imageUrl);
+			showNotification();
 			hasBeenNotified = true;
 		}
 	}
@@ -216,9 +213,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		UIUtils.showMenuItem(menu, R.id.menu_send, play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		UIUtils.showMenuItem(menu, R.id.menu_discard, play.hasBeenSynced() && play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		UIUtils.enableMenuItem(menu, R.id.menu_share, play.syncStatus == Play.SYNC_STATUS_SYNCED);
+		UIUtils.showMenuItem(menu, R.id.menu_send, play.dirtyTimestamp > 0);
+		UIUtils.showMenuItem(menu, R.id.menu_discard, play.playId > 0 && play.dirtyTimestamp > 0);
+		UIUtils.enableMenuItem(menu, R.id.menu_share, play.playId > 0);
 		super.onPrepareOptionsMenu(menu);
 	}
 
@@ -227,30 +224,34 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
-					new DialogInterface.OnClickListener() {
+					new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							PlayManipulationEvent.log("Discard", play.gameName);
-							save(Play.SYNC_STATUS_SYNCED);
+							play.dirtyTimestamp = 0;
+							play.updateTimestamp = 0;
+							play.deleteTimestamp = 0;
+							save("Discard");
 						}
 					}).show();
 				return true;
 			case R.id.menu_edit:
 				PlayManipulationEvent.log("Edit", play.gameName);
-				ActivityUtils.editPlay(getActivity(), play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				ActivityUtils.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				return true;
 			case R.id.menu_send:
-				save(Play.SYNC_STATUS_PENDING_UPDATE);
+				play.updateTimestamp = System.currentTimeMillis();
+				save("Save");
 				EventBus.getDefault().post(new PlaySentEvent());
 				return true;
 			case R.id.menu_delete: {
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
-					new DialogInterface.OnClickListener() {
+					new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (play.hasStarted()) {
 								cancelNotification();
 							}
 							play.end(); // this prevents the timer from reappearing
-							save(Play.SYNC_STATUS_PENDING_DELETE);
+							play.deleteTimestamp = System.currentTimeMillis();
+							save("Delete");
 							EventBus.getDefault().post(new PlayDeletedEvent());
 						}
 					}).show();
@@ -258,7 +259,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			}
 			case R.id.menu_rematch:
 				PlayManipulationEvent.log("Rematch", play.gameName);
-				ActivityUtils.rematch(getActivity(), play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				ActivityUtils.rematch(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -316,7 +317,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@OnClick(R.id.timer_end)
 	void onTimerClick() {
-		ActivityUtils.endPlay(getActivity(), play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		ActivityUtils.endPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 	}
 
 	@Override
@@ -324,10 +325,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		CursorLoader loader = null;
 		switch (id) {
 			case PLAY_QUERY_TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(playId), PlayBuilder.PLAY_PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 				break;
 			case PLAYER_QUERY_TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(playId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 				break;
 		}
 		if (loader != null) {
@@ -374,24 +375,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	public void setNewPlayId(int playId) {
-		this.playId = playId;
-		if (isAdded()) {
-			getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
-		}
-	}
-
 	/**
 	 * @return true if the we're done loading
 	 */
 	private boolean onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			int newPlayId = PreferencesUtils.getNewPlayId(getActivity(), playId);
-			if (newPlayId != BggContract.INVALID_ID) {
-				setNewPlayId(newPlayId);
-				return false;
-			}
-			emptyView.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(playId)));
+			emptyView.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(internalId)));
 			emptyView.setVisibility(View.VISIBLE);
 			return true;
 		}
@@ -446,39 +435,36 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 
-		updatedTimestampView.setVisibility((play.updated == 0) ? View.GONE : View.VISIBLE);
-		updatedTimestampView.setTimestamp(play.updated);
-
-		if (play.hasBeenSynced()) {
-			playIdView.setText(String.format(getResources().getString(R.string.id_list_text), String.valueOf(play.playId)));
-		}
-
-		if (play.syncStatus != Play.SYNC_STATUS_SYNCED) {
-			notSyncedMessageView.setVisibility(View.VISIBLE);
-			savedTimestampView.setVisibility(View.VISIBLE);
-			savedTimestampView.setTimestamp(play.saved);
-
-			if (play.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-				if (play.hasBeenSynced()) {
-					notSyncedMessageView.setText(R.string.sync_editing);
-				} else {
-					notSyncedMessageView.setText(R.string.sync_draft);
-				}
-			} else if (play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
-				notSyncedMessageView.setText(R.string.sync_pending_update);
-			} else if (play.syncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
-				notSyncedMessageView.setText(R.string.sync_pending_delete);
-			}
+		if (play.deleteTimestamp > 0) {
+			pendingTimestampView.setVisibility(View.VISIBLE);
+			pendingTimestampView.setFormat(R.string.delete_pending_prefix);
+			pendingTimestampView.setTimestamp(play.deleteTimestamp);
+		} else if (play.updateTimestamp > 0) {
+			pendingTimestampView.setVisibility(View.VISIBLE);
+			pendingTimestampView.setFormat(R.string.update_pending_prefix);
+			pendingTimestampView.setTimestamp(play.deleteTimestamp);
 		} else {
-			notSyncedMessageView.setVisibility(View.GONE);
-			savedTimestampView.setVisibility(View.GONE);
+			pendingTimestampView.setVisibility(View.GONE);
 		}
+
+		if (play.dirtyTimestamp > 0) {
+			dirtyTimestampView.setFormat(getString(play.playId > 0 ? R.string.editing_prefix : R.string.draft_prefix));
+			dirtyTimestampView.setTimestamp(play.dirtyTimestamp);
+		} else {
+			dirtyTimestampView.setVisibility(View.GONE);
+		}
+
+		if (play.playId > 0) {
+			playIdView.setText(String.format(getResources().getString(R.string.play_id_prefix), String.valueOf(play.playId)));
+		}
+
+		syncTimestampView.setTimestamp(play.syncTimestamp);
 
 		getActivity().supportInvalidateOptionsMenu();
 		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
-		if (play.hasBeenSynced()
-			&& (play.updated == 0 || DateTimeUtils.howManyDaysOld(play.updated) > AGE_IN_DAYS_TO_REFRESH)) {
+		if (play.playId > 0 &&
+			(play.syncTimestamp == 0 || DateTimeUtils.howManyDaysOld(play.syncTimestamp) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 
@@ -487,30 +473,27 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void maybeShowNotification() {
 		if (play.hasStarted()) {
-			NotificationUtils.launchPlayingNotification(getActivity(), play, thumbnailUrl, imageUrl);
+			showNotification();
 		} else if (hasBeenNotified) {
 			cancelNotification();
 		}
 	}
 
+	private void showNotification() {
+		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl);
+	}
+
 	private void cancelNotification() {
-		NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, playId);
+		NotificationUtils.cancel(getActivity(), NotificationUtils.TAG_PLAY_TIMER, internalId);
 	}
 
 	private void triggerRefresh() {
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, play.gameId);
 	}
 
-	private void save(int status) {
-		String action = "Save";
-		if (status == Play.SYNC_STATUS_PENDING_DELETE) {
-			action = "Delete";
-		} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
-			action = "SaveDraft";
-		}
-		PlayManipulationEvent.log(action, play.gameName);
-		play.syncStatus = status;
-		new PlayPersister(getActivity()).save(play);
+	private void save(String action) {
+		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
+		new PlayPersister(getActivity()).save(play, internalId, false);
 		triggerRefresh();
 	}
 

@@ -108,7 +108,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 		toggleReceiver(false);
-		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS, 0);
+		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
 	}
 
 	@DebugLog

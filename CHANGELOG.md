@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
+ * Under-the-hood improvements to play logging
  * Improved forum timestamps
  * Bug fixes
 

@@ -47,16 +47,14 @@ public abstract class SyncTask extends ServiceTask {
 	}
 
 	protected void updateProgressNotification(String detail) {
-		if (!shouldShowNotifications) {
-			return;
-		}
+		Timber.i(detail);
+		if (!shouldShowNotifications) return;
 
 		String message = "";
 		if (getNotificationSummaryMessageId() != NO_NOTIFICATION) {
 			message = context.getString(getNotificationSummaryMessageId());
 		}
 
-		Timber.i(detail);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title)
