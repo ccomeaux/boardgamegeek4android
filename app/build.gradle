@@ -114,7 +114,7 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'com.jakewharton.timber:timber:4.5.1'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
         transitive = true;
     }
     compile('com.mikepenz:aboutlibraries:5.9.1@aar') {
