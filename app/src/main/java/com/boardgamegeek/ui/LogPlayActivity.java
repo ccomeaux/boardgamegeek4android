@@ -674,6 +674,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			if (showToast) {
 				Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
 			}
+			maybeShowNotification();
 		}
 	}
 
@@ -684,7 +685,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		shouldSaveOnPause = false;
 		final View focusedView = recyclerView.findFocus();
 		if (focusedView != null) focusedView.clearFocus();
-		new PlayPersister(this).save(play, internalId, true);
+		internalId = new PlayPersister(this).save(play, internalId, true);
 		return true;
 	}
 

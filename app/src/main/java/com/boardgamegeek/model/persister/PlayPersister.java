@@ -1,6 +1,7 @@
 package com.boardgamegeek.model.persister;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -19,6 +20,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,9 +81,9 @@ public class PlayPersister {
 		Timber.i("Updated %1$s, inserted %2$s, %3$s unchanged, %4$s dirty", updateCount, insertCount, unchangedCount, dirtyCount);
 	}
 
-	public void save(Play play, long internalId, boolean includePlayers) {
-		if (play == null) return;
-		if (!isBoardgameSubtype(play)) return;
+	public long save(Play play, long internalId, boolean includePlayers) {
+		if (play == null) return BggContract.INVALID_ID;
+		if (!isBoardgameSubtype(play)) return BggContract.INVALID_ID;
 
 		batch.clear();
 		ContentValues values = createContentValues(play);
@@ -93,6 +95,9 @@ public class PlayPersister {
 				.newUpdate(Plays.buildPlayUri(internalId))
 				.withValues(values)
 				.build());
+		} else if (play.deleteTimestamp > 0) {
+			Timber.i("Skipping inserting a deleted play");
+			return BggContract.INVALID_ID;
 		} else {
 			debugMessage = "Inserting new play";
 			batch.add(ContentProviderOperation
@@ -106,7 +111,7 @@ public class PlayPersister {
 			List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId);
 			addPlayersToBatch(play, existingPlayerIds, internalId);
 			removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
-			
+
 			if (play.playId > 0 || play.updateTimestamp > 0) {
 				saveGamePlayerSortOrderToBatch(play);
 				updateColorsInBatch(play);
@@ -114,8 +119,13 @@ public class PlayPersister {
 			}
 		}
 
-		ResolverUtils.applyBatch(context, batch, debugMessage);
-		Timber.i("Saved play ID=%s", play.playId);
+		ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch, debugMessage);
+		long insertedId = internalId;
+		if (insertedId == BggContract.INVALID_ID && results != null && results.length > 0) {
+			insertedId = StringUtils.parseLong(results[0].uri.getLastPathSegment(), BggContract.INVALID_ID);
+		}
+		Timber.i("Saved play ID=%s", insertedId);
+		return insertedId;
 	}
 
 	private void updateSyncTimestamp(long internalId, long startTime) {
