@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -223,7 +224,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
-					new DialogInterface.OnClickListener() {
+					new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							play.dirtyTimestamp = 0;
 							play.updateTimestamp = 0;
@@ -243,7 +244,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_delete: {
 				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
-					new DialogInterface.OnClickListener() {
+					new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (play.hasStarted()) {
 								cancelNotification();
@@ -490,7 +491,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void save(String action) {
 		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
-		new PlayPersister(getActivity()).save(play, internalId);
+		new PlayPersister(getActivity()).save(play, internalId, false);
 		triggerRefresh();
 	}
 

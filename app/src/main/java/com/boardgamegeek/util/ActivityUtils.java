@@ -260,7 +260,7 @@ public class ActivityUtils {
 		Play play = new Play(gameId, gameName);
 		play.setCurrentDate();
 		play.updateTimestamp = System.currentTimeMillis();
-		new PlayPersister(context).insert(play);
+		new PlayPersister(context).save(play, BggContract.INVALID_ID, false);
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 

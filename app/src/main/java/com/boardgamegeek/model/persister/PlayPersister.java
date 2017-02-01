@@ -53,7 +53,7 @@ public class PlayPersister {
 				play.updated = startTime;
 				PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
 				if (candidate.getInternalId() == BggContract.INVALID_ID) {
-					insert(play);
+					save(play, BggContract.INVALID_ID, true);
 					insertCount++;
 				} else {
 					if (candidate.getDirtyTimestamp() > 0) {
@@ -69,7 +69,7 @@ public class PlayPersister {
 						updateSyncTimestamp(candidate.getInternalId(), startTime);
 						unchangedCount++;
 					} else {
-						update(play, candidate.getInternalId());
+						save(play, candidate.getInternalId(), true);
 						updateCount++;
 					}
 				}
@@ -79,15 +79,7 @@ public class PlayPersister {
 		Timber.i("Updated %1$s, inserted %2$s, %3$s unchanged, %4$s dirty", updateCount, insertCount, unchangedCount, dirtyCount);
 	}
 
-	public void insert(Play play) {
-		save(play, BggContract.INVALID_ID);
-	}
-
-	public void update(Play play, long internalId) {
-		save(play, internalId);
-	}
-
-	public void save(Play play, long internalId) {
+	public void save(Play play, long internalId, boolean includePlayers) {
 		if (play == null) return;
 		if (!isBoardgameSubtype(play)) return;
 
@@ -109,16 +101,17 @@ public class PlayPersister {
 				.build());
 		}
 
-		// Players
-		deletePlayerWithEmptyUserNameInBatch(internalId);
-		List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId);
-		addPlayersToBatch(play, existingPlayerIds, internalId);
-		removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
-
-		if (play.playId > 0 || play.updateTimestamp > 0) {
-			saveGamePlayerSortOrderToBatch(play);
-			updateColorsInBatch(play);
-			saveBuddyNicknamesToBatch(play);
+		if (includePlayers) {
+			deletePlayerWithEmptyUserNameInBatch(internalId);
+			List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId);
+			addPlayersToBatch(play, existingPlayerIds, internalId);
+			removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
+			
+			if (play.playId > 0 || play.updateTimestamp > 0) {
+				saveGamePlayerSortOrderToBatch(play);
+				updateColorsInBatch(play);
+				saveBuddyNicknamesToBatch(play);
+			}
 		}
 
 		ResolverUtils.applyBatch(context, batch, debugMessage);
@@ -234,7 +227,6 @@ public class PlayPersister {
 
 	private void addPlayersToBatch(Play play, List<String> playerUserNames, long internalId) {
 		for (Player player : play.getPlayers()) {
-
 			String userName = player.username;
 			ContentValues values = new ContentValues();
 			values.put(PlayPlayers.USER_ID, player.userid);
@@ -272,13 +264,12 @@ public class PlayPersister {
 
 	private void removeUnusedPlayersFromBatch(long internalId, List<String> playerUserNames) {
 		if (internalId == BggContract.INVALID_ID) return;
-		if (playerUserNames != null) {
-			for (String playerUserName : playerUserNames) {
-				batch.add(ContentProviderOperation
-					.newDelete(Plays.buildPlayerUri(internalId))
-					.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { playerUserName })
-					.build());
-			}
+		if (playerUserNames == null) return;
+		for (String playerUserName : playerUserNames) {
+			batch.add(ContentProviderOperation
+				.newDelete(Plays.buildPlayerUri(internalId))
+				.withSelection(PlayPlayers.USER_NAME + "=?", new String[] { playerUserName })
+				.build());
 		}
 	}
 
