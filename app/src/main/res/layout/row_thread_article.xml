@@ -40,7 +40,7 @@
 				android:layout_toLeftOf="@+id/view_button">
 
 				<LinearLayout
-					android:layout_width="match_parent"
+					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:orientation="horizontal">
 
@@ -66,7 +66,6 @@
 						style="@style/TextWithImage.Secondary"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:layout_below="@+id/username"
 						android:drawableLeft="@drawable/ic_edit_small"
 						app:isForumTimestamp="true"
 						tools:text="Yesterday"/>
