@@ -105,7 +105,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@BindView(android.R.id.empty) TextView emptyTextView;
 	@BindView(R.id.empty_button) Button emptyButton;
 	@BindView(R.id.progressContainer) View progressContainer;
-	@BindView(R.id.listContainer) View listContainer;
+	@BindView(R.id.list_container) View listContainer;
 	@BindView(R.id.fab) FloatingActionButton fabView;
 	private StickyListHeadersListView listView;
 	private StickyListHeadersAdapter adapter;
