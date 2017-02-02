@@ -19,7 +19,7 @@ public class InvalidUpdateTask extends UpdateTask {
 	@NonNull
 	@Override
 	public String getDescription(Context context) {
-		return context.getString(R.string.sync_update_invalid_sync_type, syncType);
+		return context.getString(R.string.sync_update_invalid_sync_type, String.valueOf(syncType));
 	}
 
 	@Override

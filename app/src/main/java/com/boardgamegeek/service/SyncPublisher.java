@@ -28,7 +28,7 @@ public class SyncPublisher extends UpdateTask {
 	@Override
 	public String getDescription(Context context) {
 		if (isValid()) {
-			return context.getString(R.string.sync_msg_publisher_valid, publisherId);
+			return context.getString(R.string.sync_msg_publisher_valid, String.valueOf(publisherId));
 		}
 		return context.getString(R.string.sync_msg_publisher_invalid);
 	}

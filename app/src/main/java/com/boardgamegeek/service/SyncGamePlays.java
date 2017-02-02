@@ -30,7 +30,7 @@ public class SyncGamePlays extends UpdateTask {
 	@Override
 	public String getDescription(Context context) {
 		if (isValid()) {
-			return context.getString(R.string.sync_msg_game_plays_valid, gameId);
+			return context.getString(R.string.sync_msg_game_plays_valid, String.valueOf(gameId));
 		}
 		return context.getString(R.string.sync_msg_game_plays_invalid);
 	}
