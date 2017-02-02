@@ -23,7 +23,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:ellipsize="end"
-				android:singleLine="true"
+				android:maxLines="1"
 				tools:text="Horus Heresy"/>
 
 			<TextView
@@ -39,7 +39,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="marquee"
-			android:singleLine="true"
+			android:maxLines="1"
 			tools:text="at Home for 3.5 hours"/>
 
 		<TextView
@@ -48,7 +48,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:singleLine="true"
+			android:maxLines="1"
 			tools:text="That was a fun time. A REAL fun time."/>
 
 	</LinearLayout>
