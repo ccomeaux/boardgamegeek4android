@@ -56,7 +56,6 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
-	<string name="no_plays">No plays</string>
 	<string name="played">Played</string>
 	<string name="rated">Rated</string>
 	<string name="commented">Commented</string>
@@ -78,9 +77,10 @@
 	<string name="my_rating">My Rating</string>
 	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
-	<string name="average_win">Average win</string>
-	<string name="high">High</string>
-	<string name="low">Low</string>
+	<string name="high_score">High Score</string>
+	<string name="low_score">Low Score</string>
+	<string name="average_score">Average Score</string>
+	<string name="average_winning_score">Average Winning Score</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -104,10 +104,8 @@
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Are you sure you want to discard local changes?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
-	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
-	<string name="are_you_sure_players_clear">Are you sure you want to clear all of the players from this play?</string>
 	<string name="are_you_sure_timer_reset">Are you sure you want to reset the timer and lose the current length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
@@ -174,8 +172,6 @@
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
-	<string name="title_personal">Personal</string>
-	<string name="title_charts">Charts</string>
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
@@ -416,7 +412,6 @@
 	<string name="age_suffix">+</string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
-	<string name="updated">Updated</string>
 	<string name="updated_prefix">Updated %s</string>
 	<string name="saved_prefix">Saved %s</string>
 	<string name="synced_prefix">Synced %s</string>
@@ -466,7 +461,6 @@
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
 	<string name="forum_last_post_in">Last post <b>%1$s</b> in <b>%2$s</b></string>
-	<string name="last_modified">Last modified</string>
 	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="private_info">Private Info</string>
@@ -499,7 +493,6 @@
 	<string name="title_win_skill">Skill</string>
 	<string name="winnable">Winnable</string>
 	<string name="all">All</string>
-	<string name="play_stat_win_skill_info">How skilled are you at winning this game?\n\n0 = you never win\n100 = you win as much as you should\nEverything else scales from these numbers</string>
 	<string name="play_stat_average_play_time">Average play time</string>
 	<string name="play_stat_average_play_time_faster">Faster than advertised</string>
 	<string name="play_stat_average_play_time_slower">Slower than advertised</string>

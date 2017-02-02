@@ -16,7 +16,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:drawableTint="@color/score_low"
 		android:gravity="center_vertical"
-		android:text="Low Score"
+		android:text="@string/low_score"
 		android:textAppearance="@style/Text"/>
 
 	<TextView
@@ -27,7 +27,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:drawableTint="@color/score_average"
 		android:gravity="center_vertical"
-		android:text="Average Score"
+		android:text="@string/average_score"
 		android:textAppearance="@style/Text"/>
 
 	<TextView
@@ -38,7 +38,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:drawableTint="@color/score_average_win"
 		android:gravity="center_vertical"
-		android:text="Average Winning Score"
+		android:text="@string/average_winning_score"
 		android:textAppearance="@style/Text"/>
 
 	<TextView
@@ -50,7 +50,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:drawableTint="@color/score_high"
 		android:gravity="center_vertical"
-		android:text="High Score"
+		android:text="@string/high_score"
 		android:textAppearance="@style/Text"/>
 
 </LinearLayout>
