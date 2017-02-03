@@ -66,10 +66,10 @@ public interface BggService {
 	Call<ThingResponse> thingWithRatings(@Query("id") int gameId, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
+	Call<PlaysResponse> playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> playsByGame(@Query("username") String username, @Query("id") int gameId);
+	Call<PlaysResponse> playsByGame(@Query("username") String username, @Query("id") int gameId, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
 	Call<PlaysResponse> plays(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate, @Query("page") int page);
