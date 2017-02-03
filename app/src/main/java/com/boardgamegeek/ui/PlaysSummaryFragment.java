@@ -342,21 +342,15 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void onColorsQueryComplete(Cursor cursor) {
-		if (cursor == null) {
-			return;
-		}
+		if (cursor == null) return;
 
 		colorContainer.removeAllViews();
 		if (cursor.getCount() > 0) {
-			for (int i = 0; i < 5; i++) {
-				if (cursor.moveToNext()) {
-					ImageView view = createViewToBeColored();
-					PlayerColor color = PlayerColor.fromCursor(cursor);
-					ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
-					colorContainer.addView(view);
-				} else {
-					return;
-				}
+			while (cursor.moveToNext()) {
+				ImageView view = createViewToBeColored();
+				PlayerColor color = PlayerColor.fromCursor(cursor);
+				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
+				colorContainer.addView(view);
 			}
 		}
 		colorsHint.setVisibility(cursor.getCount() == 0 ? View.VISIBLE : View.GONE);
