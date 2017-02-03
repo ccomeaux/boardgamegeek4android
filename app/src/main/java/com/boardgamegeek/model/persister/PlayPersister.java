@@ -50,35 +50,42 @@ public class PlayPersister {
 		int insertCount = 0;
 		int unchangedCount = 0;
 		int dirtyCount = 0;
+		int errorCount = 0;
 		if (plays != null) {
 			for (Play play : plays) {
-				play.syncTimestamp = startTime;
-				PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
-				if (candidate.getInternalId() == BggContract.INVALID_ID) {
-					save(play, BggContract.INVALID_ID, true);
-					insertCount++;
+				if (play.playId <= 0) {
+					Timber.i("Can't sync a play without a play ID.");
+					errorCount++;
 				} else {
-					if (candidate.getDirtyTimestamp() > 0) {
-						Timber.i("Not saving during the sync; modification in progress.");
-						dirtyCount++;
-					} else if (candidate.getDeleteTimestamp() > 0) {
-						Timber.i("Not saving during the sync; set to delete.");
-						dirtyCount++;
-					} else if (candidate.getUpdateTimestamp() > 0) {
-						Timber.i("Not saving during the sync; set to update.");
-						dirtyCount++;
-					} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
-						updateSyncTimestamp(candidate.getInternalId(), startTime);
-						unchangedCount++;
+					play.syncTimestamp = startTime;
+					PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
+					if (candidate.getInternalId() == BggContract.INVALID_ID) {
+						save(play, BggContract.INVALID_ID, true);
+						insertCount++;
 					} else {
-						save(play, candidate.getInternalId(), true);
-						updateCount++;
+						if (candidate.getDirtyTimestamp() > 0) {
+							Timber.i("Not saving during the sync; modification in progress.");
+							dirtyCount++;
+						} else if (candidate.getDeleteTimestamp() > 0) {
+							Timber.i("Not saving during the sync; set to delete.");
+							dirtyCount++;
+						} else if (candidate.getUpdateTimestamp() > 0) {
+							Timber.i("Not saving during the sync; set to update.");
+							dirtyCount++;
+						} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
+							updateSyncTimestamp(candidate.getInternalId(), startTime);
+							unchangedCount++;
+						} else {
+							save(play, candidate.getInternalId(), true);
+							updateCount++;
+						}
 					}
 				}
 			}
 		}
 
-		Timber.i("Updated %1$s, inserted %2$s, %3$s unchanged, %4$s dirty", updateCount, insertCount, unchangedCount, dirtyCount);
+		Timber.i("Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d",
+			updateCount, insertCount, unchangedCount, dirtyCount, errorCount);
 	}
 
 	public long save(Play play, long internalId, boolean includePlayers) {
