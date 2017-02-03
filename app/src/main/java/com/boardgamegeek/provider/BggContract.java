@@ -272,7 +272,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String QUERY_VALUE_PLAY = "play";
 	public static final String FRAGMENT_SIMPLE = "simple";
-	public static final String PARAM_LIMIT = "limit";
+	public static final String QUERY_KEY_LIMIT = "limit";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -456,7 +456,7 @@ public class BggContract {
 		private static Builder getLimitedUriBuilder(int gameId, String path, int limit) {
 			Builder builder = CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
 			if (limit > 0) {
-				builder.appendQueryParameter(PARAM_LIMIT, String.valueOf(limit));
+				builder.appendQueryParameter(QUERY_KEY_LIMIT, String.valueOf(limit));
 			}
 			return builder;
 		}

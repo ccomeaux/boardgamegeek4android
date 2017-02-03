@@ -118,7 +118,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case PLAYS_TOKEN:
 				playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getActivity(),
-					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.PARAM_LIMIT, "3").build(),
+					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, "3").build(),
 					PlayModel.PROJECTION,
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
 					null,
@@ -131,18 +131,16 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					null, null, null);
 				break;
 			case PLAYERS_TOKEN:
-				// TODO limit to 4 players
 				PlayersSorter playersSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_QUANTITY);
 				loader = new CursorLoader(getActivity(),
-					Plays.buildPlayersByUniquePlayerUri(),
+					Plays.buildPlayersByUniquePlayerUri().buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, "4").build(),
 					Player.PROJECTION,
 					null, null, playersSorter.getOrderByClause());
 				break;
 			case LOCATIONS_TOKEN:
-				// TODO limit to 4 locations
 				LocationsSorter locationsSorter = LocationsSorterFactory.create(getActivity(), LocationsSorterFactory.TYPE_QUANTITY);
 				loader = new CursorLoader(getActivity(),
-					Plays.buildLocationsUri(),
+					Plays.buildLocationsUri().buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, "4").build(),
 					Location.PROJECTION,
 					null, null, locationsSorter.getOrderByClause());
 				break;
