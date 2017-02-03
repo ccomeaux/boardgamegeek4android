@@ -12,8 +12,8 @@ import timber.log.Timber;
 
 public class UpdateCollectionItemTextTask extends UpdateCollectionItemTask {
 	private final String text;
-	private String textColumn;
-	private String timestampColumn;
+	private final String textColumn;
+	private final String timestampColumn;
 
 	@DebugLog
 	public UpdateCollectionItemTextTask(Context context, int gameId, int collectionId, long internalId, String text, String textColumn, String timestampColumn) {
