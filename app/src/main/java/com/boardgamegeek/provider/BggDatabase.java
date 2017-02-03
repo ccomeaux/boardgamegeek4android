@@ -451,7 +451,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private TableBuilder buildPlaysTable() {
 		return new TableBuilder().setTable(Tables.PLAYS).useDefaultPrimaryKey()
-			.addColumn(Plays.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
+			.addColumn(Plays.SYNC_TIMESTAMP, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER)
 			.addColumn(Plays.DATE, COLUMN_TYPE.TEXT, true)
 			.addColumn(Plays.QUANTITY, COLUMN_TYPE.INTEGER, true)

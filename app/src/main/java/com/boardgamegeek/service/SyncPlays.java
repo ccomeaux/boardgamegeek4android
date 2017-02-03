@@ -148,7 +148,7 @@ public class SyncPlays extends SyncTask {
 	}
 
 	private void deleteUnupdatedPlays(long time, final String dateComparator) {
-		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + dateComparator + "? AND " +
+		deletePlays(Plays.SYNC_TIMESTAMP + "<? AND " + Plays.DATE + dateComparator + "? AND " +
 				SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
 				SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
 				SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),

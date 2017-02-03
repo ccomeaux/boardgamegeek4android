@@ -27,7 +27,7 @@ public class PlayBuilder {
 		Plays.INCOMPLETE,
 		Plays.NO_WIN_STATS,
 		Plays.COMMENTS,
-		Plays.UPDATED_LIST,
+		Plays.SYNC_TIMESTAMP,
 		Plays.START_TIME,
 		Plays.PLAYER_COUNT,
 		Plays.DELETE_TIMESTAMP,
@@ -61,7 +61,7 @@ public class PlayBuilder {
 	public static final String KEY_NOWINSTATS = "NO_WIN_STATS";
 	public static final String KEY_COMMENTS = "COMMENTS";
 	public static final String KEY_PLAYERS = "PLAYERS";
-	public static final String KEY_SYNC_TIMESTAMP = "UPDATED";
+	public static final String KEY_SYNC_TIMESTAMP = "SYNC_TIMESTAMP";
 	public static final String KEY_START_TIME = "START_TIME";
 	public static final String KEY_DELETE_TIMESTAMP = "DELETE_TIMESTAMP";
 	public static final String KEY_UPDATE_TIMESTAMP = "UPDATE_TIMESTAMP";
@@ -79,7 +79,7 @@ public class PlayBuilder {
 		play.setIncomplete(CursorUtils.getBoolean(cursor, Plays.INCOMPLETE));
 		play.setNoWinStats(CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS));
 		play.comments = CursorUtils.getString(cursor, Plays.COMMENTS);
-		play.syncTimestamp = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
+		play.syncTimestamp = CursorUtils.getLong(cursor, Plays.SYNC_TIMESTAMP);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
 		play.playerCount = CursorUtils.getInt(cursor, Plays.PLAYER_COUNT);
 		play.deleteTimestamp = CursorUtils.getLong(cursor, Plays.DELETE_TIMESTAMP);

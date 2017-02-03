@@ -132,7 +132,7 @@ public class PlayPersister {
 		batch.clear();
 		ContentProviderOperation.Builder builder = ContentProviderOperation
 			.newUpdate(Plays.buildPlayUri(internalId))
-			.withValue(Plays.UPDATED_LIST, startTime);
+			.withValue(Plays.SYNC_TIMESTAMP, startTime);
 		batch.add(builder.build());
 		ResolverUtils.applyBatch(context, batch);
 	}
@@ -185,7 +185,7 @@ public class PlayPersister {
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
 		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
-		values.put(Plays.UPDATED_LIST, play.syncTimestamp);
+		values.put(Plays.SYNC_TIMESTAMP, play.syncTimestamp);
 		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime); // only store start time if there's no length
 		values.put(Plays.SYNC_HASH_CODE, generateSyncHashCode(play));
 		values.put(Plays.DELETE_TIMESTAMP, play.deleteTimestamp);

@@ -203,6 +203,7 @@ public class BggContract {
 		String DELETE_TIMESTAMP = "delete_timestamp";
 		String UPDATE_TIMESTAMP = "update_timestamp";
 		String DIRTY_TIMESTAMP = "dirty_timestamp";
+		String SYNC_TIMESTAMP = "updated_list";
 		String SUM_QUANTITY = "sum_quantity";
 		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";
@@ -780,7 +781,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = COLOR + COLLATE_NOCASE + " ASC";
 	}
 
-	public static final class Plays implements PlaysColumns, SyncListColumns, BaseColumns {
+	public static final class Plays implements PlaysColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
 		public static final Uri CONTENT_SIMPLE_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build();
 
