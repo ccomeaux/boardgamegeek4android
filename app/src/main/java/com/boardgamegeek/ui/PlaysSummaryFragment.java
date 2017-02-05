@@ -8,6 +8,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,10 +20,12 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.sorter.LocationsSorter;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.sorter.PlayersSorter;
@@ -69,13 +72,31 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@BindView(R.id.colors_hint) View colorsHint;
 	@BindView(R.id.color_container) LinearLayout colorContainer;
 	@BindView(R.id.h_index) TextView hIndexView;
+	@BindView(R.id.sync_status) TextView syncStatusView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
+
 		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
+
+		long oldestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
+		long newestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
+		if (oldestDate == 0 && newestDate == 0) {
+			syncStatusView.setText(R.string.plays_sync_status_none);
+		} else if (oldestDate == 0) {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_new),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else if (newestDate == 0) {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_old),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_range),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		}
 
 		return rootView;
 	}

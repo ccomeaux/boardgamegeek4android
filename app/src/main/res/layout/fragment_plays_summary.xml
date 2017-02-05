@@ -223,5 +223,14 @@
 					android:text="@string/card_footer_stats"/>
 			</LinearLayout>
 		</android.support.v7.widget.CardView>
+
+		<TextView
+			android:id="@+id/sync_status"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:paddingLeft="@dimen/activity_horizontal_margin"
+			android:paddingRight="@dimen/activity_horizontal_margin"
+			android:paddingTop="@dimen/padding_standard"/>
 	</LinearLayout>
 </ScrollView>
