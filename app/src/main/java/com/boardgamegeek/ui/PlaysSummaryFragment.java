@@ -63,10 +63,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@BindView(R.id.card_footer_plays) TextView playsFooter;
 	@BindView(R.id.card_players) View playersCard;
 	@BindView(R.id.players_container) LinearLayout playersContainer;
-	@BindView(R.id.card_footer_players) TextView playersFooter;
 	@BindView(R.id.card_locations) View locationsCard;
 	@BindView(R.id.locations_container) LinearLayout locationsContainer;
-	@BindView(R.id.card_footer_locations) TextView locationsFooter;
 	@BindView(R.id.card_colors) View colorsCard;
 	@BindView(R.id.colors_hint) View colorsHint;
 	@BindView(R.id.color_container) LinearLayout colorContainer;
@@ -254,7 +252,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
-		setQuantityTextView(playersFooter, R.plurals.players_suffix, cursor.getCount());
 		String accountUsername = AccountUtils.getUsername(getActivity());
 		int count = 0;
 		playersContainer.removeAllViews();
@@ -293,7 +290,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			return;
 		}
 
-		setQuantityTextView(locationsFooter, R.plurals.locations_suffix, cursor.getCount());
 		int count = 0;
 		locationsContainer.removeAllViews();
 		while (cursor.moveToNext()) {
