@@ -43,8 +43,8 @@ public class GeekListsRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<G
 			Context context = itemView.getContext();
 			title.setText(geekListEntry.getTitle());
 			creator.setText(context.getString(R.string.by_prefix, geekListEntry.getAuthor()));
-			numItems.setText(context.getString(R.string.items_suffix, geekListEntry.getNumberOfItems()));
-			numThumbs.setText(context.getString(R.string.thumbs_suffix, geekListEntry.getNumberOfThumbs()));
+			numItems.setText(context.getResources().getQuantityString(R.plurals.items_suffix, geekListEntry.getNumberOfItems(), geekListEntry.getNumberOfItems()));
+			numThumbs.setText(context.getResources().getQuantityString(R.plurals.thumbs_suffix, geekListEntry.getNumberOfThumbs(), geekListEntry.getNumberOfThumbs()));
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

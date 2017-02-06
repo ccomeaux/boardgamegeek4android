@@ -542,7 +542,7 @@ public class Play {
 		Resources resources = context.getResources();
 		sb.append(resources.getString(R.string.play_description_game_segment, gameName));
 		if (quantity > 1) {
-			sb.append(resources.getString(R.string.play_description_quantity_segment, quantity));
+			sb.append(resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity));
 		}
 		if (length > 0) {
 			sb.append(resources.getString(R.string.play_description_length_segment, DateTimeUtils.describeMinutes(context, length)));

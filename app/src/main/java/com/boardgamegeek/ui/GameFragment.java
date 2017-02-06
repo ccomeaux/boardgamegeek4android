@@ -541,12 +541,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		ratingsLabel.setText(PresentationUtils.getText(getActivity(),
 			R.string.average_rating_prefix, PresentationUtils.describeAverageRating(getActivity(), game.Rating)));
-		ratingsVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.UsersRated));
+		ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
 		ratingsStandardDeviation.setText(getString(R.string.standard_deviation_prefix, PresentationUtils.describeAverageRating(getActivity(), game.StandardDeviation)));
 
 		weightRoot.setVisibility(game.NumberWeights > 0 ? View.VISIBLE : View.GONE);
 		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
-		weightVotes.setText(PresentationUtils.getText(getActivity(), R.string.votes_suffix, game.NumberWeights));
+		weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
 
 		final int maxUsers = game.getMaxUsers();
 		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));

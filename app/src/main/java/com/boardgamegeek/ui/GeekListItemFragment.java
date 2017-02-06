@@ -107,7 +107,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		typeView.setText(type);
 		ImageUtils.safelyLoadImage(imageView, imageId, this);
 		usernameView.setText(username);
-		thumbsView.setText(getString(R.string.thumbs_suffix, numberOfThumbs));
+		thumbsView.setText(getResources().getQuantityString(R.plurals.thumbs_suffix, numberOfThumbs, numberOfThumbs));
 		String content = xmlConverter.toHtml(body);
 		UIUtils.setWebViewText(bodyView, content);
 		postedDateView.setTimestamp(postedDate);

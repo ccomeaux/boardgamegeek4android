@@ -50,8 +50,8 @@ public class GeekListDescriptionFragment extends Fragment {
 		//noinspection deprecation
 		rootView.setBackgroundDrawable(null);
 		usernameView.setText(getString(R.string.by_prefix, geekList.getUsername()));
-		itemCountView.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
-		thumbCountView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
+		itemCountView.setText(getResources().getQuantityString(R.plurals.items_suffix, geekList.getNumberOfItems(), geekList.getNumberOfItems()));
+		thumbCountView.setText(getResources().getQuantityString(R.plurals.thumbs_suffix, geekList.getThumbs(), geekList.getThumbs()));
 		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.getDescription()));
 		postedDateView.setTimestamp(geekList.getPostDate());
 		editedDateView.setTimestamp(geekList.getEditDate());

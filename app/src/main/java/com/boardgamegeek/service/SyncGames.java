@@ -40,7 +40,7 @@ public abstract class SyncGames extends SyncTask {
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
 					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
-					String detail = context.getString(R.string.sync_notification_games, fetchSize, gameIdDescription);
+					String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, fetchSize, fetchSize, gameIdDescription);
 					if (numberOfFetches > 1) {
 						detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches);
 					}
@@ -71,24 +71,8 @@ public abstract class SyncGames extends SyncTask {
 	}
 
 	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
-//		while (true) {
-//			try {
 		String ids = TextUtils.join(",", gameIds);
 		return new ThingRequest(service, ids).execute();
-//			} catch (Exception e) {
-//				if (e.getCause() instanceof SocketTimeoutException) {
-//					if (fetchSize == 1) {
-//						Timber.i("...timeout with only 1 game; aborting.");
-//						break;
-//					}
-//					fetchSize = fetchSize / 2;
-//					Timber.i("...timeout - reducing games per fetch to " + fetchSize);
-//				} else {
-//					throw e;
-//				}
-//			}
-//		}
-//		return new ThingResponse();
 	}
 
 	@NonNull

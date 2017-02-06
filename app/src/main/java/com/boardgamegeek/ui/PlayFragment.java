@@ -407,7 +407,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		dateView.setText(play.getDateForDisplay(getActivity()));
 
-		quantityView.setText(getString(R.string.times_suffix, play.quantity));
+		quantityView.setText(getResources().getQuantityString(R.plurals.times_suffix, play.quantity, play.quantity));
 		quantityView.setVisibility((play.quantity == 1) ? View.GONE : View.VISIBLE);
 
 		if (play.length > 0) {

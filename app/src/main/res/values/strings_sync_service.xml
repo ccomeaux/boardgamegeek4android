@@ -13,7 +13,6 @@
 	<string name="sync_notification_collection_accessories">Syncing collection accessories with status of "%s"</string>
 	<string name="sync_notification_games_oldest">Refreshing stale games</string>
 	<string name="sync_notification_games_unupdated">Getting the details of newly added games</string>
-	<string name="sync_notification_games">Syncing %1$,d games: %2$s</string>
 	<string name="sync_notification_collection_missing">Removing items not in your collection</string>
 	<string name="sync_notification_buddies_list">Syncing list of GeekBuddies</string>
 	<string name="sync_notification_buddies_oldest">Refreshing stale buddies</string>
@@ -63,6 +62,10 @@
 	<plurals name="sync_notification_collection_uploading">
 		<item quantity="one">Uploading %,d collection item.</item>
 		<item quantity="other">Uploading %,d collection items.</item>
+	</plurals>
+	<plurals name="sync_notification_games">
+		<item quantity="one">Syncing %1$,d game: %2$s</item>
+		<item quantity="other">Syncing %1$,d games: %2$s</item>
 	</plurals>
 
 </resources>

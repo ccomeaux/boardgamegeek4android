@@ -374,7 +374,6 @@
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
 	<string name="times">times</string>
-	<string name="times_suffix">%,d times</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
 	<string name="with">with</string>
@@ -388,11 +387,9 @@
 	<string name="text_unknown">\?</string>
 	<string name="ages">Ages</string>
 	<string name="play_description_game_segment">Played %s</string>
-	<string name="play_description_quantity_segment">\u0020%,d times</string>
 	<string name="play_description_length_segment">\u0020for %s</string>
 	<string name="play_description_date_segment">\u0020on %s</string>
 	<string name="play_description_location_segment">\u0020at %s</string>
-	<string name="play_description_players_segment">\u0020with %,d players</string>
 	<string name="play_description_game_url_segment">www.boardgamegeek.com/game/%s</string>
 	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
 	<string name="player_description_starting_position_segment">%d)\u0020</string>
@@ -419,9 +416,6 @@
 	<string name="create">Create</string>
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
-	<string name="votes_suffix"><b>%,d</b> votes</string>
-	<string name="items_suffix">%,d items</string>
-	<string name="thumbs_suffix">%,d thumbs</string>
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>
@@ -627,5 +621,29 @@
 	<plurals name="edit_timestamp">
 		<item quantity="one">%1$s (%2$s edit)</item>
 		<item quantity="other">%1$s (%2$s edits)</item>
+	</plurals>
+	<plurals name="items_suffix">
+		<item quantity="one">%,d item</item>
+		<item quantity="other">%,d items</item>
+	</plurals>
+	<plurals name="thumbs_suffix">
+		<item quantity="one">%,d thumb</item>
+		<item quantity="other">%,d thumbs</item>
+	</plurals>
+	<plurals name="times_suffix">
+		<item quantity="one">%,d time</item>
+		<item quantity="other">%,d times</item>
+	</plurals>
+	<plurals name="votes_suffix">
+		<item quantity="one"><b>%,d</b> vote</item>
+		<item quantity="other"><b>%,d</b> votes</item>
+	</plurals>
+	<plurals name="play_description_quantity_segment">
+		<item quantity="one">\u0020%,d time</item>
+		<item quantity="other">\u0020%,d times</item>
+	</plurals>
+	<plurals name="play_description_players_segment">
+		<item quantity="one">\u0020with %,d player</item>
+		<item quantity="other">\u0020with %,d players</item>
 	</plurals>
 </resources>

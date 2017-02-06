@@ -217,8 +217,8 @@ public class GeekListFragment extends Fragment implements LoaderCallbacks<SafeRe
 
 					usernameView.setText(context.getString(R.string.by_prefix, geekList.getUsername()));
 					PresentationUtils.setTextOrHide(descriptionView, xmlConverter.strip(geekList.getDescription()));
-					numberOfItemsView.setText(context.getString(R.string.items_suffix, geekList.getNumberOfItems()));
-					numberOfThumbsView.setText(context.getString(R.string.thumbs_suffix, geekList.getThumbs()));
+					numberOfItemsView.setText(context.getResources().getQuantityString(R.plurals.items_suffix, geekList.getNumberOfItems(), geekList.getNumberOfItems()));
+					numberOfThumbsView.setText(context.getResources().getQuantityString(R.plurals.thumbs_suffix, geekList.getThumbs(), geekList.getThumbs()));
 					postDateView.setTimestamp(geekList.getPostDate());
 					editDateView.setTimestamp(geekList.getEditDate());
 
