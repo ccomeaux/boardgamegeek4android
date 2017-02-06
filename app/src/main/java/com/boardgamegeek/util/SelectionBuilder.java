@@ -105,11 +105,12 @@ public class SelectionBuilder {
 	}
 
 	public SelectionBuilder limit(String rowCount) {
-		int count = StringUtils.parseInt(rowCount, 0);
-		if (count > 0) {
-			limit = rowCount;
-		} else {
-			limit = null;
+		limit = null;
+		if (rowCount != null) {
+			int count = StringUtils.parseInt(rowCount, 0);
+			if (count > 0) {
+				limit = rowCount;
+			}
 		}
 		return this;
 	}

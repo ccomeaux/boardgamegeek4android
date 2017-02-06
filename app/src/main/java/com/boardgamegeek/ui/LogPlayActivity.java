@@ -279,6 +279,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				}
 				if (isRequestingRematch) {
 					play = PlayBuilder.rematch(play);
+					internalId = BggContract.INVALID_ID;
 				}
 				originalPlay = PlayBuilder.copy(play);
 				finishDataLoad();

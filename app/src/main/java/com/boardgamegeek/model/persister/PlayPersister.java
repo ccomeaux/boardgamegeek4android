@@ -50,35 +50,42 @@ public class PlayPersister {
 		int insertCount = 0;
 		int unchangedCount = 0;
 		int dirtyCount = 0;
+		int errorCount = 0;
 		if (plays != null) {
 			for (Play play : plays) {
-				play.syncTimestamp = startTime;
-				PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
-				if (candidate.getInternalId() == BggContract.INVALID_ID) {
-					save(play, BggContract.INVALID_ID, true);
-					insertCount++;
+				if (play.playId <= 0) {
+					Timber.i("Can't sync a play without a play ID.");
+					errorCount++;
 				} else {
-					if (candidate.getDirtyTimestamp() > 0) {
-						Timber.i("Not saving during the sync; modification in progress.");
-						dirtyCount++;
-					} else if (candidate.getDeleteTimestamp() > 0) {
-						Timber.i("Not saving during the sync; set to delete.");
-						dirtyCount++;
-					} else if (candidate.getUpdateTimestamp() > 0) {
-						Timber.i("Not saving during the sync; set to update.");
-						dirtyCount++;
-					} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
-						updateSyncTimestamp(candidate.getInternalId(), startTime);
-						unchangedCount++;
+					play.syncTimestamp = startTime;
+					PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
+					if (candidate.getInternalId() == BggContract.INVALID_ID) {
+						save(play, BggContract.INVALID_ID, true);
+						insertCount++;
 					} else {
-						save(play, candidate.getInternalId(), true);
-						updateCount++;
+						if (candidate.getDirtyTimestamp() > 0) {
+							Timber.i("Not saving during the sync; modification in progress.");
+							dirtyCount++;
+						} else if (candidate.getDeleteTimestamp() > 0) {
+							Timber.i("Not saving during the sync; set to delete.");
+							dirtyCount++;
+						} else if (candidate.getUpdateTimestamp() > 0) {
+							Timber.i("Not saving during the sync; set to update.");
+							dirtyCount++;
+						} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
+							updateSyncTimestamp(candidate.getInternalId(), startTime);
+							unchangedCount++;
+						} else {
+							save(play, candidate.getInternalId(), true);
+							updateCount++;
+						}
 					}
 				}
 			}
 		}
 
-		Timber.i("Updated %1$s, inserted %2$s, %3$s unchanged, %4$s dirty", updateCount, insertCount, unchangedCount, dirtyCount);
+		Timber.i("Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d",
+			updateCount, insertCount, unchangedCount, dirtyCount, errorCount);
 	}
 
 	public long save(Play play, long internalId, boolean includePlayers) {
@@ -132,7 +139,7 @@ public class PlayPersister {
 		batch.clear();
 		ContentProviderOperation.Builder builder = ContentProviderOperation
 			.newUpdate(Plays.buildPlayUri(internalId))
-			.withValue(Plays.UPDATED_LIST, startTime);
+			.withValue(Plays.SYNC_TIMESTAMP, startTime);
 		batch.add(builder.build());
 		ResolverUtils.applyBatch(context, batch);
 	}
@@ -185,7 +192,7 @@ public class PlayPersister {
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
 		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
-		values.put(Plays.UPDATED_LIST, play.syncTimestamp);
+		values.put(Plays.SYNC_TIMESTAMP, play.syncTimestamp);
 		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime); // only store start time if there's no length
 		values.put(Plays.SYNC_HASH_CODE, generateSyncHashCode(play));
 		values.put(Plays.DELETE_TIMESTAMP, play.deleteTimestamp);

@@ -148,12 +148,11 @@ public class SyncPlays extends SyncTask {
 	}
 
 	private void deleteUnupdatedPlays(long time, final String dateComparator) {
-		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + dateComparator + "? AND " +
+		deletePlays(Plays.SYNC_TIMESTAMP + "<? AND " + Plays.DATE + dateComparator + "? AND " +
 				SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
 				SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
 				SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
 			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) });
-		// TODO: 1/24/17 make sure it's been synced according to the play ID
 	}
 
 	private void deletePlays(String selection, String[] selectionArgs) {

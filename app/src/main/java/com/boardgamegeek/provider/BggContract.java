@@ -203,6 +203,7 @@ public class BggContract {
 		String DELETE_TIMESTAMP = "delete_timestamp";
 		String UPDATE_TIMESTAMP = "update_timestamp";
 		String DIRTY_TIMESTAMP = "dirty_timestamp";
+		String SYNC_TIMESTAMP = "updated_list";
 		String SUM_QUANTITY = "sum_quantity";
 		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";
@@ -271,7 +272,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String QUERY_VALUE_PLAY = "play";
 	public static final String FRAGMENT_SIMPLE = "simple";
-	public static final String PARAM_LIMIT = "limit";
+	public static final String QUERY_KEY_LIMIT = "limit";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -455,7 +456,7 @@ public class BggContract {
 		private static Builder getLimitedUriBuilder(int gameId, String path, int limit) {
 			Builder builder = CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
 			if (limit > 0) {
-				builder.appendQueryParameter(PARAM_LIMIT, String.valueOf(limit));
+				builder.appendQueryParameter(QUERY_KEY_LIMIT, String.valueOf(limit));
 			}
 			return builder;
 		}
@@ -780,7 +781,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = COLOR + COLLATE_NOCASE + " ASC";
 	}
 
-	public static final class Plays implements PlaysColumns, SyncListColumns, BaseColumns {
+	public static final class Plays implements PlaysColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
 		public static final Uri CONTENT_SIMPLE_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build();
 
