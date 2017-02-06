@@ -27,10 +27,12 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.ResetPlaysTask;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
 import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE;
 import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
+import com.boardgamegeek.util.TaskUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +83,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAY_UPDATE_TIMESTAMP = 38;
 	private static final int VER_PLAY_DIRTY_TIMESTAMP = 39;
 	private static final int VER_PLAY_PLAY_ID_NOT_REQUIRED = 40;
-	private static final int DATABASE_VERSION = VER_PLAY_PLAY_ID_NOT_REQUIRED;
+	private static final int VER_PLAYS_RESET = 41;
+	private static final int DATABASE_VERSION = VER_PLAYS_RESET;
 
 	private final Context context;
 
@@ -720,6 +723,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 					Plays.PLAY_ID,
 					Plays.PLAY_ID));
 				version = VER_PLAY_PLAY_ID_NOT_REQUIRED;
+			case VER_PLAY_PLAY_ID_NOT_REQUIRED:
+				TaskUtils.executeAsyncTask(new ResetPlaysTask(context));
+				version = VER_PLAYS_RESET;
 		}
 
 		if (version != DATABASE_VERSION) {
