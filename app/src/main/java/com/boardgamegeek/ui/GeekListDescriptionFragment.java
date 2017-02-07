@@ -56,6 +56,7 @@ public class GeekListDescriptionFragment extends Fragment {
 	}
 
 	public void setData(GeekList geekList) {
+		if (geekList == null) return;
 		usernameView.setText(geekList.username());
 		itemCountView.setText(String.valueOf(geekList.numberOfItems()));
 		thumbCountView.setText(String.valueOf(geekList.numberOfThumbs()));

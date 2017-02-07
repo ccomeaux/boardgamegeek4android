@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -60,6 +59,7 @@ public class GeekListItemsFragment extends Fragment {
 	}
 
 	public void setData(GeekList geekList, List<GeekListItem> geekListItems) {
+		if (geekList == null || geekListItems == null) return;
 		if (adapter == null) {
 			adapter = new GeekListRecyclerViewAdapter(getActivity(), geekList, geekListItems);
 			recyclerView.setAdapter(adapter);
@@ -69,11 +69,7 @@ public class GeekListItemsFragment extends Fragment {
 	}
 
 	public void setError() {
-		setError(R.string.empty_geeklist);
-	}
-
-	public void setError(@StringRes int messageResId) {
-		setError(getString(messageResId));
+		setError(getString(R.string.empty_geeklist));
 	}
 
 	public void setError(String message) {
@@ -89,8 +85,8 @@ public class GeekListItemsFragment extends Fragment {
 
 		public GeekListRecyclerViewAdapter(Context context, GeekList geekList, List<GeekListItem> geekListItems) {
 			inflater = LayoutInflater.from(context);
-			this.geekListItems = geekListItems;
 			this.geekList = geekList;
+			this.geekListItems = geekListItems;
 			setHasStableIds(true);
 		}
 

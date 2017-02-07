@@ -11,11 +11,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.model.GeekListResponse;
+import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
@@ -27,10 +29,15 @@ import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import java.util.List;
+
 public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekListResponse>> {
 	private static final int LOADER_ID = 1;
 	private int geekListId;
 	private String geekListTitle;
+	private GeekList geekList;
+	private List<GeekListItem> geekListItems;
+	private String errorMessage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,20 +103,34 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		@Override
 		public Fragment getItem(int position) {
 			if (position == 0) {
-				headerFragment = Fragment.instantiate(
+				return Fragment.instantiate(
 					GeekListActivity.this,
 					GeekListDescriptionFragment.class.getName(),
 					UIUtils.intentToFragmentArguments(getIntent()));
-				return headerFragment;
 			}
 			if (position == 1) {
-				itemsFragment = Fragment.instantiate(
+				return Fragment.instantiate(
 					GeekListActivity.this,
 					GeekListItemsFragment.class.getName(),
 					UIUtils.intentToFragmentArguments(getIntent()));
-				return itemsFragment;
 			}
 			return null;
+		}
+
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+			switch (position) {
+				case 0:
+					headerFragment = createdFragment;
+					setDescription();
+					break;
+				case 1:
+					itemsFragment = createdFragment;
+					setItems();
+					break;
+			}
+			return createdFragment;
 		}
 
 		@Override
@@ -135,12 +156,8 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 
 	@Override
 	public void onLoadFinished(Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
-		if (viewPager == null) return;
-		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
-		if (adapter == null) return;
-
 		GeekListResponse body = data.getBody();
-		GeekList geekList = GeekList.builder()
+		geekList = GeekList.builder()
 			.setId(body.id)
 			.setTitle(TextUtils.isEmpty(body.title) ? "" : body.title.trim())
 			.setUsername(body.username)
@@ -150,20 +167,44 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 			.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekListResponse.FORMAT))
 			.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekListResponse.FORMAT))
 			.build();
+		geekListItems = body.getItems();
+
+		if (data.hasParseError()) {
+			errorMessage = getString(R.string.parse_error);
+		} else if (data.hasError()) {
+			errorMessage = data.getErrorMessage();
+		} else {
+			errorMessage = "";
+		}
+
+		setDescription();
+		setItems();
+	}
+
+	private void setDescription() {
+		if (viewPager == null) return;
+		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
+		if (adapter == null) return;
 
 		GeekListDescriptionFragment descriptionFragment = ((GeekListDescriptionFragment) adapter.getHeaderFragment());
 		if (descriptionFragment != null) descriptionFragment.setData(geekList);
+	}
+
+	private void setItems() {
+		if (geekList == null || geekListItems == null) return;
+
+		if (viewPager == null) return;
+		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
+		if (adapter == null) return;
 
 		GeekListItemsFragment itemsFragment = ((GeekListItemsFragment) adapter.getItemsFragment());
 		if (itemsFragment != null) {
-			if (data.hasParseError()) {
-				itemsFragment.setError(R.string.parse_error);
-			} else if (data.hasError()) {
-				itemsFragment.setError(data.getErrorMessage());
-			} else if (geekList.numberOfItems() == 0 || body.getItems().size() == 0) {
+			if (!TextUtils.isEmpty(errorMessage)) {
+				itemsFragment.setError(errorMessage);
+			} else if (geekList.numberOfItems() == 0 || geekListItems.size() == 0) {
 				itemsFragment.setError();
 			} else {
-				itemsFragment.setData(geekList, body.getItems());
+				itemsFragment.setData(geekList, geekListItems);
 			}
 		}
 	}
