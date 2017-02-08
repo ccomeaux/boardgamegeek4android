@@ -3,7 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -29,6 +29,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekListResponse>> {
@@ -38,6 +39,8 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	private GeekList geekList;
 	private List<GeekListItem> geekListItems;
 	private String errorMessage;
+	private String descriptionFragmentTag;
+	private String itemsFragmentTag;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,71 +84,84 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 
 	@Override
 	protected void setUpViewPager() {
-		GeekListPagerAdapter adapter = new GeekListPagerAdapter(getSupportFragmentManager());
+		GeekListPagerAdapter adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
 		viewPager.setAdapter(adapter);
+		adapter.addTab(GeekListDescriptionFragment.class, UIUtils.intentToFragmentArguments(getIntent()), R.string.title_description, new ItemInstantiatedCallback() {
+			@Override
+			public void itemInstantiated(String tag) {
+				descriptionFragmentTag = tag;
+				setDescription();
+			}
+		});
+		adapter.addTab(GeekListItemsFragment.class, UIUtils.intentToFragmentArguments(getIntent()), R.string.title_items, new ItemInstantiatedCallback() {
+			@Override
+			public void itemInstantiated(String tag) {
+				itemsFragmentTag = tag;
+				setItems();
+			}
+		});
 	}
 
-	private final class GeekListPagerAdapter extends FragmentPagerAdapter {
-		private Fragment headerFragment;
-		private Fragment itemsFragment;
+	private interface ItemInstantiatedCallback {
+		void itemInstantiated(String tag);
+	}
 
-		public GeekListPagerAdapter(FragmentManager fragmentManager) {
+	private final static class GeekListPagerAdapter extends FragmentPagerAdapter {
+		static final class TabInfo {
+			private final Class<?> fragmentClass;
+			private final Bundle args;
+			@StringRes private final int titleRes;
+			private final ItemInstantiatedCallback callback;
+
+			TabInfo(Class<?> fragmentClass, Bundle args, int titleRes, ItemInstantiatedCallback callback) {
+				this.fragmentClass = fragmentClass;
+				this.args = args;
+				this.titleRes = titleRes;
+				this.callback = callback;
+			}
+		}
+
+		private final Context context;
+		private final ArrayList<TabInfo> tabs = new ArrayList<>();
+
+		public GeekListPagerAdapter(FragmentManager fragmentManager, Context context) {
 			super(fragmentManager);
+			this.context = context;
+			tabs.clear();
+		}
+
+		public void addTab(Class<?> fragmentClass, Bundle args, @StringRes int titleRes, ItemInstantiatedCallback callback) {
+			tabs.add(new TabInfo(fragmentClass, args, titleRes, callback));
+			notifyDataSetChanged();
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			if (position == 0) return getString(R.string.title_description);
-			if (position == 1) return getString(R.string.title_items);
-			return "";
+			TabInfo tabInfo = tabs.get(position);
+			if (tabInfo == null) return "";
+			return context.getString(tabInfo.titleRes);
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			if (position == 0) {
-				return Fragment.instantiate(
-					GeekListActivity.this,
-					GeekListDescriptionFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
-			}
-			if (position == 1) {
-				return Fragment.instantiate(
-					GeekListActivity.this,
-					GeekListItemsFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
-			}
-			return null;
+			TabInfo tabInfo = tabs.get(position);
+			if (tabInfo == null) return null;
+			return Fragment.instantiate(context, tabInfo.fragmentClass.getName(), tabInfo.args);
 		}
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
 			Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-			switch (position) {
-				case 0:
-					headerFragment = createdFragment;
-					setDescription();
-					break;
-				case 1:
-					itemsFragment = createdFragment;
-					setItems();
-					break;
+			TabInfo tabInfo = tabs.get(position);
+			if (tabInfo != null) {
+				tabInfo.callback.itemInstantiated(createdFragment.getTag());
 			}
 			return createdFragment;
 		}
 
 		@Override
 		public int getCount() {
-			return 2;
-		}
-
-		@Nullable
-		public Fragment getHeaderFragment() {
-			return headerFragment;
-		}
-
-		@Nullable
-		public Fragment getItemsFragment() {
-			return itemsFragment;
+			return tabs.size();
 		}
 	}
 
@@ -186,18 +202,17 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
 
-		GeekListDescriptionFragment descriptionFragment = ((GeekListDescriptionFragment) adapter.getHeaderFragment());
+		GeekListDescriptionFragment descriptionFragment = (GeekListDescriptionFragment) getSupportFragmentManager().findFragmentByTag(descriptionFragmentTag);
 		if (descriptionFragment != null) descriptionFragment.setData(geekList);
 	}
 
 	private void setItems() {
 		if (geekList == null || geekListItems == null) return;
-
 		if (viewPager == null) return;
 		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
 
-		GeekListItemsFragment itemsFragment = ((GeekListItemsFragment) adapter.getItemsFragment());
+		GeekListItemsFragment itemsFragment = (GeekListItemsFragment) getSupportFragmentManager().findFragmentByTag(itemsFragmentTag);
 		if (itemsFragment != null) {
 			if (!TextUtils.isEmpty(errorMessage)) {
 				itemsFragment.setError(errorMessage);
