@@ -227,7 +227,6 @@
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
 	<string name="empty_thread">No posts in this thread.</string>
-	<string name="empty_geeklist">No items in this GeekList.</string>
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
@@ -609,14 +608,6 @@
 	<plurals name="plays_suffix">
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
-	</plurals>
-	<plurals name="players_suffix">
-		<item quantity="one">%1$s player</item>
-		<item quantity="other">%1$s players</item>
-	</plurals>
-	<plurals name="locations_suffix">
-		<item quantity="one">%1$s location</item>
-		<item quantity="other">%1$s locations</item>
 	</plurals>
 	<plurals name="wins_suffix">
 		<item quantity="one"><b>%,d</b> win</item>
