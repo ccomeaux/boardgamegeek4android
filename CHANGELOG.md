@@ -3,10 +3,17 @@ Release Notes
 
 Coming Soon
 -----------
+ * Under-the-hood improvements to play logging
+ * Improved forum timestamps
+ * Bug fixes
+
+Version 6.2
+-----------
  * Top 100 Games
  * While reading a thread, you can now scroll to the bottom of the list or to the last read article.
  * Avoid crashes/freezes when adding new collection items
  * Avoid crashes when viewing some threads
+ * Added a privacy policy
  * Bug fixes
 
 Version 6.1.6

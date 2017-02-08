@@ -137,7 +137,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 			AnimationUtils.fadeOut(recyclerView);
 			AnimationUtils.fadeIn(emptyView);
 		} else if (data.hasError()) {
-			emptyView.setText(data.getErrorMessage());
+			emptyView.setText(getString(R.string.empty_http_error, data.getErrorMessage()));
 			AnimationUtils.fadeOut(recyclerView);
 			AnimationUtils.fadeIn(emptyView);
 		} else {

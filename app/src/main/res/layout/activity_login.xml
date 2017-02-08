@@ -1,6 +1,6 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	tools:context=".ui.LoginActivity" >
+	   xmlns:tools="http://schemas.android.com/tools"
+	   tools:context=".ui.LoginActivity">
 
 	<!-- Login progress -->
 
@@ -12,13 +12,13 @@
 		android:gravity="center_horizontal"
 		android:minWidth="240dp"
 		android:orientation="vertical"
-		android:visibility="gone" >
+		android:visibility="gone">
 
 		<ProgressBar
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/padding_standard" />
+			android:layout_marginBottom="@dimen/padding_standard"/>
 
 		<TextView
 			android:id="@+id/login_status_message"
@@ -26,7 +26,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/padding_extra"
 			android:text="@string/login_progress_signing_in"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceMedium"/>
 	</LinearLayout>
 
 	<!-- Login form -->
@@ -34,11 +34,11 @@
 	<ScrollView
 		android:id="@+id/login_form"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent" >
+		android:layout_height="match_parent">
 
 		<LinearLayout
 			style="@style/LoginFormContainer"
-			android:orientation="vertical" >
+			android:orientation="vertical">
 
 			<EditText
 				android:id="@+id/username"
@@ -47,7 +47,7 @@
 				android:hint="@string/prompt_username"
 				android:inputType="textNoSuggestions"
 				android:maxLines="1"
-				android:singleLine="true" />
+				/>
 
 			<EditText
 				android:id="@+id/password"
@@ -58,14 +58,13 @@
 				android:imeActionLabel="@string/action_sign_in"
 				android:imeOptions="actionUnspecified"
 				android:inputType="textPassword"
-				android:maxLines="1"
-				android:singleLine="true" />
+				android:maxLines="1"/>
 
 			<CheckBox
 				android:id="@+id/show_password"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/show_password" />
+				android:text="@string/show_password"/>
 
 			<Button
 				android:id="@+id/sign_in_button"
@@ -75,7 +74,7 @@
 				android:layout_marginTop="@dimen/padding_extra"
 				android:paddingLeft="48dp"
 				android:paddingRight="48dp"
-				android:text="@string/action_sign_in" />
+				android:text="@string/action_sign_in"/>
 		</LinearLayout>
 	</ScrollView>
 

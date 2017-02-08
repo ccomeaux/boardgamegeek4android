@@ -175,7 +175,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 			} else {
 				totalVoteCount = 0;
 			}
-			totalVoteView.setText(getResources().getString(R.string.votes_suffix, totalVoteCount));
+			totalVoteView.setText(getResources().getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount));
 			totalVoteView.setVisibility(!isBarChart ? View.GONE : View.VISIBLE);
 
 			pieChart.setVisibility((totalVoteCount == 0 || isBarChart) ? View.GONE : View.VISIBLE);
@@ -313,7 +313,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 		PieData data = new PieData(labels, dataSet);
 		pieChart.setData(data);
-		pieChart.setCenterText(getResources().getString(R.string.votes_suffix, voteCount));
+		pieChart.setCenterText(getResources().getQuantityString(R.plurals.votes_suffix, voteCount, voteCount));
 
 		pieChart.animateY(1000, EasingOption.EaseOutCubic);
 	}

@@ -2,13 +2,11 @@ package com.boardgamegeek.model;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -28,36 +26,6 @@ import java.util.Locale;
 
 @Root(name = "play")
 public class Play {
-	/**
-	 * Used for filtering to include all plays
-	 */
-	public static final int SYNC_STATUS_ALL = -2;
-	/**
-	 * The play has not been synced and isn't stored in the database
-	 */
-	public static final int SYNC_STATUS_NOT_STORED = -1;
-	/**
-	 * The play has been synced with the 'Geek
-	 */
-	public static final int SYNC_STATUS_SYNCED = 0;
-	/**
-	 * The play is ready to be synced, but doesn't exist on the 'Geek, or has local modifications?
-	 */
-	public static final int SYNC_STATUS_PENDING_UPDATE = 1;
-	/**
-	 * The play is currently being edited and will not sync until the user manually tries to sync it
-	 */
-	public static final int SYNC_STATUS_IN_PROGRESS = 2;
-	/**
-	 * The play is ready to be deleted
-	 */
-	public static final int SYNC_STATUS_PENDING_DELETE = 3;
-	/**
-	 * The play is ready to be updated or deleted
-	 */
-	public static final int SYNC_STATUS_PENDING = 4;
-
-	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -110,7 +78,7 @@ public class Play {
 
 	@Path("item")
 	@Attribute
-	public String objecttype;
+	private String objecttype;
 
 	@Path("item")
 	@ElementList
@@ -125,29 +93,25 @@ public class Play {
 	@Element(required = false)
 	public String comments;
 
-	public long updated;
-	public int syncStatus;
-	public long saved;
+	public long syncTimestamp;
 	public long startTime;
 	public int playerCount;
+	public long deleteTimestamp;
+	public long updateTimestamp;
+	public long dirtyTimestamp;
 
 	@ElementList(required = false)
 	private List<Player> players;
 
 	public Play() {
-		init(BggContract.INVALID_ID, BggContract.INVALID_ID, "");
+		init(BggContract.INVALID_ID, "");
 	}
 
 	public Play(int gameId, String gameName) {
-		init(BggContract.INVALID_ID, gameId, gameName);
+		init(gameId, gameName);
 	}
 
-	public Play(int playId, int gameId, String gameName) {
-		init(playId, gameId, gameName);
-	}
-
-	private void init(int playId, int gameId, String gameName) {
-		this.playId = playId;
+	private void init(int gameId, String gameName) {
 		this.gameId = gameId;
 		this.gameName = gameName;
 		quantity = QUANTITY_DEFAULT;
@@ -156,36 +120,6 @@ public class Play {
 		comments = "";
 		startTime = 0;
 		players = new ArrayList<>();
-	}
-
-	// URI
-
-	/**
-	 * @return plays/#
-	 */
-	public Uri uri() {
-		return Plays.buildPlayUri(playId);
-	}
-
-	/**
-	 * @return plays/#/items
-	 */
-	public Uri itemUri() {
-		return Plays.buildItemUri(playId);
-	}
-
-	/**
-	 * @return plays/#/items/#
-	 */
-	public Uri itemIdUri() {
-		return Plays.buildItemUri(playId, gameId);
-	}
-
-	/**
-	 * @return plays/#/players
-	 */
-	public Uri playerUri() {
-		return Plays.buildPlayerUri(playId);
 	}
 
 	// DATE
@@ -492,17 +426,6 @@ public class Play {
 	}
 
 	/**
-	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
-	 */
-	public boolean hasBeenSynced() {
-		return Play.hasBeenSynced(playId);
-	}
-
-	public static boolean hasBeenSynced(int playId) {
-		return (playId > 0 && playId < UNSYNCED_PLAY_ID);
-	}
-
-	/**
 	 * Determines if this play appears to have started.
 	 *
 	 * @return true, if it's not ended and the start time has been set.
@@ -569,11 +492,8 @@ public class Play {
 		result = prime * result + incomplete;
 		result = prime * result + nowinstats;
 		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
-		long u = Double.doubleToLongBits(updated);
+		long u = Double.doubleToLongBits(syncTimestamp);
 		result = prime * result + (int) (u ^ (u >>> 32));
-		result = prime * result + syncStatus;
-		long s = Double.doubleToLongBits(saved);
-		result = prime * result + (int) (s ^ (s >>> 32));
 		long t = Double.doubleToLongBits(startTime);
 		result = prime * result + (int) (t ^ (t >>> 32));
 		return result;
@@ -609,7 +529,7 @@ public class Play {
 		if (!TextUtils.isEmpty(comments)) {
 			sb.append("\n").append(comments);
 		}
-		if (hasBeenSynced()) {
+		if (playId > 0) {
 			sb.append("\n").append(resources.getString(R.string.play_description_play_url_segment, String.valueOf(playId)).trim());
 		} else {
 			sb.append("\n").append(resources.getString(R.string.play_description_game_url_segment, String.valueOf(gameId)).trim());
@@ -622,7 +542,7 @@ public class Play {
 		Resources resources = context.getResources();
 		sb.append(resources.getString(R.string.play_description_game_segment, gameName));
 		if (quantity > 1) {
-			sb.append(resources.getString(R.string.play_description_quantity_segment, quantity));
+			sb.append(resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity));
 		}
 		if (length > 0) {
 			sb.append(resources.getString(R.string.play_description_length_segment, DateTimeUtils.describeMinutes(context, length)));

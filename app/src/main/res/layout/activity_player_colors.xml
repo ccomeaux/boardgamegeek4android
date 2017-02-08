@@ -52,19 +52,13 @@
 				android:text="@string/empty_player_colors"
 				android:textAppearance="@style/Text.Big"/>
 
-			<TextView
+			<Button
 				android:id="@+id/empty_button"
+				style="@style/Widget.AppCompat.Button.Colored"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/padding_extra"
-				android:background="?attr/selectableItemBackground"
-				android:gravity="center"
-				android:paddingBottom="@dimen/material_margin_vertical"
-				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/material_margin_vertical"
-				android:text="@string/empty_player_colors_button"
-				android:textAppearance="@style/Text.Header"/>
+				android:text="@string/empty_player_colors_button"/>
 		</LinearLayout>
 
 		<android.support.design.widget.FloatingActionButton

@@ -28,7 +28,7 @@ public class SyncDesigner extends UpdateTask {
 	@Override
 	public String getDescription(Context context) {
 		if (isValid()) {
-			return context.getString(R.string.sync_msg_designer_valid, designerId);
+			return context.getString(R.string.sync_msg_designer_valid, String.valueOf(designerId));
 		}
 		return context.getString(R.string.sync_msg_designer_invalid);
 	}

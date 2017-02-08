@@ -28,7 +28,7 @@ public class SyncArtist extends UpdateTask {
 	@Override
 	public String getDescription(Context context) {
 		if (isValid()) {
-			return context.getString(R.string.sync_msg_artist_valid, artistId);
+			return context.getString(R.string.sync_msg_artist_valid, String.valueOf( artistId));
 		}
 		return context.getString(R.string.sync_msg_artist_invalid);
 	}

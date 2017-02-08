@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.adapter;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +63,8 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 
 	public class ArticleViewHolder extends RecyclerView.ViewHolder {
 		@BindView(R.id.username) TextView usernameView;
+		@BindView(R.id.post_date) TimestampView postDateView;
+		@BindView(R.id.date_divider) View dateDivider;
 		@BindView(R.id.edit_date) TimestampView editDateView;
 		@BindView(R.id.body) TextView bodyView;
 		@BindView(R.id.view_button) View viewButton;
@@ -77,7 +80,21 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 
 			usernameView.setText(article.username());
 			editDateView.setTimestamp(article.editTicks());
+			postDateView.setTimestamp(article.postTicks());
 			UIUtils.setTextMaybeHtml(bodyView, article.body());
+			if (article.editTicks() != article.postTicks()) {
+				editDateView.setTimestamp(article.editTicks());
+				editDateView.setVisibility(View.VISIBLE);
+				dateDivider.setVisibility(View.VISIBLE);
+			} else {
+				editDateView.setVisibility(View.GONE);
+				dateDivider.setVisibility(View.GONE);
+			}
+			if (TextUtils.isEmpty(article.body())) {
+				bodyView.setText("");
+			} else {
+				UIUtils.setTextMaybeHtml(bodyView, article.body().trim());
+			}
 			Bundle bundle = new Bundle();
 			bundle.putString(ActivityUtils.KEY_USER, article.username());
 			bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postTicks());

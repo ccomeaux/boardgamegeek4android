@@ -39,7 +39,6 @@ import android.view.ViewGroup;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter;
@@ -349,7 +348,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			Cursor cursor = null;
 			try {
 				cursor = getActivity().getContentResolver().query(Plays.buildPlayersByColor(),
-					new String[] { PlayPlayers.COLOR }, PlayItems.OBJECT_ID + "=?",
+					new String[] { PlayPlayers.COLOR }, Plays.OBJECT_ID + "=?",
 					new String[] { String.valueOf(gameId) }, null);
 				if (cursor != null && cursor.moveToFirst()) {
 					List<ContentValues> values = new ArrayList<>();

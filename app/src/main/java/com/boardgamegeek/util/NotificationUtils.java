@@ -77,35 +77,42 @@ public class NotificationUtils {
 	/**
 	 * Cancel the notification by a unique ID.
 	 */
-	public static void cancel(Context context, String tag, int id) {
+	public static void cancel(Context context, String tag) {
+		cancel(context, tag, 0L);
+	}
+
+	/**
+	 * Cancel the notification by a unique ID.
+	 */
+	public static void cancel(Context context, String tag, long id) {
 		NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-		nm.cancel(tag, id);
+		nm.cancel(tag, getIntegerId(id));
 	}
 
 	/**
 	 * Launch the "Playing" notification.
 	 */
-	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
+	public static void launchPlayingNotification(final Context context, final long internalId, final Play play, final String thumbnailUrl, final String imageUrl) {
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {
-				buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
+				buildAndNotify(context, internalId, play, thumbnailUrl, imageUrl, bitmap);
 			}
 
 			@Override
 			public void onFailedIconLoad() {
-				buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
+				buildAndNotify(context, internalId, play, thumbnailUrl, imageUrl, null);
 			}
 		});
 		loader.executeOnMainThread();
 	}
 
-	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
+	private static void buildAndNotify(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName);
 
-		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		Intent intent = ActivityUtils.createPlayIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, play.playId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		String info = "";
 		if (!TextUtils.isEmpty(play.location)) {
@@ -126,7 +133,14 @@ public class NotificationUtils {
 		if (largeIcon != null) {
 			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
 		}
+		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, getIntegerId(internalId), builder);
+	}
 
-		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, play.playId, builder);
+	public static int getIntegerId(long id) {
+		if (id < Integer.MAX_VALUE) {
+			return (int) id;
+		} else {
+			return (int) (id % Integer.MAX_VALUE);
+		}
 	}
 }

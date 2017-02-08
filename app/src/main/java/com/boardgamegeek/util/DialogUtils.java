@@ -1,6 +1,5 @@
 package com.boardgamegeek.util;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -23,7 +22,12 @@ public class DialogUtils {
 	private DialogUtils() {
 	}
 
-	@SuppressLint("CommitTransaction")
+	public static void show(DialogFragment fragment, FragmentManager manager, String tag) {
+		FragmentTransaction ft = manager.beginTransaction();
+		ft.add(fragment, tag);
+		ft.commitAllowingStateLoss();
+	}
+
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
 		FragmentTransaction ft = host.getFragmentManager().beginTransaction();
 		Fragment prev = host.getFragmentManager().findFragmentByTag(tag);
@@ -34,7 +38,8 @@ public class DialogUtils {
 
 		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
 		dialog.setArguments(arguments);
-		dialog.show(ft, tag);
+		ft.add(dialog, tag);
+		ft.commitAllowingStateLoss();
 	}
 
 	public static Dialog createCancelDialog(final Activity activity) {

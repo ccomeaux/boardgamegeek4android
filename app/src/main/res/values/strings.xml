@@ -11,6 +11,7 @@
 	<string name="wanting_meter_text">%s Wanting</string>
 	<string name="wishing_meter_text">%s Wishing</string>
 	<string name="id_list_text">ID: %s</string>
+	<string name="play_id_prefix">Play ID: %s</string>
 	<string name="designers">Designers</string>
 	<string name="artists">Artists</string>
 	<string name="publishers">Publishers</string>
@@ -24,6 +25,10 @@
 	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_draft">Draft</string>
 	<string name="sync_editing">Editing</string>
+	<string name="delete_pending_prefix">Delete pending as of %s</string>
+	<string name="update_pending_prefix">Update pending as of %s</string>
+	<string name="draft_prefix">Draft, last saved %s</string>
+	<string name="editing_prefix">Editing, last saved %s</string>
 	<string name="quantity">Quantity</string>
 	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
@@ -51,7 +56,6 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
-	<string name="no_plays">No plays</string>
 	<string name="played">Played</string>
 	<string name="rated">Rated</string>
 	<string name="commented">Commented</string>
@@ -73,9 +77,10 @@
 	<string name="my_rating">My Rating</string>
 	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
-	<string name="average_win">Average win</string>
-	<string name="high">High</string>
-	<string name="low">Low</string>
+	<string name="high_score">High Score</string>
+	<string name="low_score">Low Score</string>
+	<string name="average_score">Average Score</string>
+	<string name="average_winning_score">Average Winning Score</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -99,10 +104,8 @@
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Are you sure you want to discard local changes?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
-	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
-	<string name="are_you_sure_players_clear">Are you sure you want to clear all of the players from this play?</string>
 	<string name="are_you_sure_timer_reset">Are you sure you want to reset the timer and lose the current length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
@@ -170,8 +173,6 @@
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
-	<string name="title_personal">Personal</string>
-	<string name="title_charts">Charts</string>
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
@@ -222,7 +223,7 @@
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play_stats">You have no plays that can be analyzed.</string>
-	<string name="empty_play">No play ID %s."</string>
+	<string name="empty_play">No play found (ID=%s)."</string>
 	<string name="empty_geeklists">Error loading GeekLists.</string>
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
@@ -232,6 +233,7 @@
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
+	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website it up and you still see this message, please let us know about the error below. Otherwise, please check back here later.\n\n%s</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_dates">Dates</string>
@@ -375,7 +377,6 @@
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
 	<string name="times">times</string>
-	<string name="times_suffix">%,d times</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
 	<string name="with">with</string>
@@ -389,12 +390,10 @@
 	<string name="text_unknown">\?</string>
 	<string name="ages">Ages</string>
 	<string name="play_description_game_segment">Played %s</string>
-	<string name="play_description_quantity_segment">\u0020%,d times</string>
 	<string name="play_description_length_segment">\u0020for %s</string>
 	<string name="play_description_date_segment">\u0020on %s</string>
 	<string name="play_description_location_segment">\u0020at %s</string>
-	<string name="play_description_players_segment">\u0020with %,d players</string>
-	<string name="play_description_game_url_segment">www.boardgamegeek.com/play/%s</string>
+	<string name="play_description_game_url_segment">www.boardgamegeek.com/game/%s</string>
 	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
 	<string name="player_description_starting_position_segment">%d)\u0020</string>
 	<string name="player_description_username_segment">\u0020(%s)</string>
@@ -413,14 +412,13 @@
 	<string name="age_suffix">+</string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
-	<string name="updated">Updated</string>
 	<string name="updated_prefix">Updated %s</string>
 	<string name="saved_prefix">Saved %s</string>
+	<string name="synced_prefix">Synced %s</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
-	<string name="votes_suffix"><b>%,d</b> votes</string>
 	<string name="by_prefix">by %s</string>
 	<string name="add">Add</string>
 	<string name="add_field">Add field…</string>
@@ -458,7 +456,6 @@
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
 	<string name="forum_last_post_in">Last post <b>%1$s</b> in <b>%2$s</b></string>
-	<string name="last_modified">Last modified</string>
 	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="private_info">Private Info</string>
@@ -491,7 +488,6 @@
 	<string name="title_win_skill">Skill</string>
 	<string name="winnable">Winnable</string>
 	<string name="all">All</string>
-	<string name="play_stat_win_skill_info">How skilled are you at winning this game?\n\n0 = you never win\n100 = you win as much as you should\nEverything else scales from these numbers</string>
 	<string name="play_stat_average_play_time">Average play time</string>
 	<string name="play_stat_average_play_time_faster">Faster than advertised</string>
 	<string name="play_stat_average_play_time_slower">Slower than advertised</string>
@@ -543,6 +539,10 @@
 	<string name="empty_top_games">Error loading top games</string>
 	<string name="title_top_games">Top Games</string>
 	<string name="title_description">Description</string>
+	<string name="plays_sync_status_none">Plays have never been synced.</string>
+	<string name="plays_sync_status_new">Played have been synced through %s.</string>
+	<string name="plays_sync_status_old">Played have been synced since %s.</string>
+	<string name="plays_sync_status_range">Played have been synced between %1$s and %2$s.</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -612,14 +612,6 @@
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
 	</plurals>
-	<plurals name="players_suffix">
-		<item quantity="one">%1$s player</item>
-		<item quantity="other">%1$s players</item>
-	</plurals>
-	<plurals name="locations_suffix">
-		<item quantity="one">%1$s location</item>
-		<item quantity="other">%1$s locations</item>
-	</plurals>
 	<plurals name="wins_suffix">
 		<item quantity="one"><b>%,d</b> win</item>
 		<item quantity="other"><b>%,d</b> wins</item>
@@ -627,5 +619,21 @@
 	<plurals name="edit_timestamp">
 		<item quantity="one">%1$s (%2$s edit)</item>
 		<item quantity="other">%1$s (%2$s edits)</item>
+	</plurals>
+	<plurals name="times_suffix">
+		<item quantity="one">%,d time</item>
+		<item quantity="other">%,d times</item>
+	</plurals>
+	<plurals name="votes_suffix">
+		<item quantity="one"><b>%,d</b> vote</item>
+		<item quantity="other"><b>%,d</b> votes</item>
+	</plurals>
+	<plurals name="play_description_quantity_segment">
+		<item quantity="one">\u0020%,d time</item>
+		<item quantity="other">\u0020%,d times</item>
+	</plurals>
+	<plurals name="play_description_players_segment">
+		<item quantity="one">\u0020with %,d player</item>
+		<item quantity="other">\u0020with %,d players</item>
 	</plurals>
 </resources>
