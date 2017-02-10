@@ -26,7 +26,6 @@ import timber.log.Timber;
 
 public class CollectionPersister {
 	private static final int NOT_DIRTY = 0;
-	private static final int MAXIMUM_BATCH_SIZE = 100;
 	private final Context context;
 	private final ContentResolver resolver;
 	private final long updateTime;
@@ -51,6 +50,7 @@ public class CollectionPersister {
 		@DebugLog
 		public Builder brief() {
 			isBriefSync = true;
+			validStatusesOnly = false; // requires non-brief sync to fetch number of plays
 			return this;
 		}
 
@@ -69,6 +69,7 @@ public class CollectionPersister {
 		@DebugLog
 		public Builder validStatusesOnly() {
 			validStatusesOnly = true;
+			isBriefSync = false; // we need to fetch the number of plays
 			return this;
 		}
 
@@ -139,19 +140,16 @@ public class CollectionPersister {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			persistedGameIds.clear();
 			for (CollectionItem item : items) {
-				if (isSetToSync(item)) {
+				batch.clear();
+				if (isItemStatusSetToSync(item)) {
 					saveGame(toGameValues(item), batch);
 					saveCollectionItem(toCollectionValues(item), batch);
-					Timber.d("Batched game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
-				} else {
-					Timber.d("Skipped invalid game %s [%s]; collection [%s]", item.gameName(), item.gameId, item.collectionId());
-				}
-				// To prevent timing out during a sync, periodically save the batch
-				if (batch.size() >= MAXIMUM_BATCH_SIZE) {
 					recordCount += processBatch(batch, context);
+					Timber.d("Saved game '%s' [ID=%s, collection ID=%s]", item.gameName(), item.gameId, item.collectionId());
+				} else {
+					Timber.d("Skipped game '%s' [ID=%s, collection ID=%s] - collection status not synced", item.gameName(), item.gameId, item.collectionId());
 				}
 			}
-			recordCount += processBatch(batch, context);
 			Timber.i("Saved %,d collection items", items.size());
 			return recordCount;
 		}
@@ -172,36 +170,22 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private boolean isSetToSync(CollectionItem item) {
-		if (statusesToSync == null) {
-			return true;
-		}
-		if (item.own.equals("1") && statusesToSync.contains("own")) {
-			return true;
-		}
-		if (item.prevowned.equals("1") && statusesToSync.contains("prevowned")) {
-			return true;
-		}
-		if (item.fortrade.equals("1") && statusesToSync.contains("fortrade")) {
-			return true;
-		}
-		if (item.want.equals("1") && statusesToSync.contains("want")) {
-			return true;
-		}
-		if (item.wanttoplay.equals("1") && statusesToSync.contains("wanttoplay")) {
-			return true;
-		}
-		if (item.wanttobuy.equals("1") && statusesToSync.contains("wanttobuy")) {
-			return true;
-		}
-		if (item.wishlist.equals("1") && statusesToSync.contains("wishlist")) {
-			return true;
-		}
-		//noinspection RedundantIfStatement
-		if (item.preordered.equals("1") && statusesToSync.contains("preordered")) {
-			return true;
-		}
+	private boolean isItemStatusSetToSync(CollectionItem item) {
+		if (statusesToSync == null) return true; // null means we should always sync
+		if (isStatusSetToSync(item.own, "own")) return true;
+		if (isStatusSetToSync(item.prevowned, "prevowned")) return true;
+		if (isStatusSetToSync(item.fortrade, "fortrade")) return true;
+		if (isStatusSetToSync(item.want, "want")) return true;
+		if (isStatusSetToSync(item.wanttoplay, "wanttoplay")) return true;
+		if (isStatusSetToSync(item.wanttobuy, "wanttobuy")) return true;
+		if (isStatusSetToSync(item.wishlist, "wishlist")) return true;
+		if (isStatusSetToSync(item.preordered, "preordered")) return true;
+		if (item.numplays > 0 && statusesToSync.contains("played")) return true;
 		return false;
+	}
+
+	private boolean isStatusSetToSync(String status, String setting) {
+		return status.equals("1") && statusesToSync.contains(setting);
 	}
 
 	@DebugLog
@@ -274,7 +258,7 @@ public class CollectionPersister {
 	private void saveGame(ContentValues values, ArrayList<ContentProviderOperation> batch) {
 		int gameId = values.getAsInteger(Games.GAME_ID);
 		if (persistedGameIds.contains(gameId)) {
-			Timber.i("Already saved game [ID=%s; NAME=%s]", gameId, values.getAsString(Games.GAME_NAME));
+			Timber.i("Already saved game [ID=%s; NAME=%s] during this sync", gameId, values.getAsString(Games.GAME_NAME));
 		} else {
 			ContentProviderOperation.Builder cpo;
 			Uri uri = Games.buildGameUri(gameId);
@@ -313,6 +297,7 @@ public class CollectionPersister {
 		batch.add(operation.withValues(values).withYieldAllowed(true).build());
 	}
 
+	@DebugLog
 	private ContentProviderOperation.Builder createUpdateOperation(ContentValues values, ArrayList<ContentProviderOperation> batch, long internalId) {
 		removeDirtyValues(values, internalId);
 		Uri uri = Collection.buildUri(internalId);
