@@ -99,7 +99,7 @@ public class SyncCollectionComplete extends SyncTask {
 	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		CollectionResponse response = new CollectionRequest(service, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
-			int rows = persister.save(response.items);
+			int rows = persister.save(response.items).getRecordCount();
 			syncResult.stats.numEntries += response.items.size();
 			Timber.i("...saved " + rows + " records for " + response.items.size() + " collection items");
 		} else {

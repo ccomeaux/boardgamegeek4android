@@ -74,7 +74,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		CollectionResponse response;
 		response = new CollectionRequest(service, username, options).execute();
 		if (response.items != null && response.items.size() > 0) {
-			int count = persister.save(response.items);
+			int count = persister.save(response.items).getRecordCount();
 			syncResult.stats.numUpdates += response.items.size();
 			Timber.i("...saved " + count + " records for " + response.items.size() + " collection items");
 		} else {

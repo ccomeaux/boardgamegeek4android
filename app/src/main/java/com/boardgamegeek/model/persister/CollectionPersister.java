@@ -84,6 +84,22 @@ public class CollectionPersister {
 		}
 	}
 
+	public static class SaveResults {
+		private int recordCount;
+
+		public SaveResults() {
+			recordCount = 0;
+		}
+
+		public void increaseRecordCount(int count) {
+			recordCount += count;
+		}
+
+		public int getRecordCount() {
+			return recordCount;
+		}
+	}
+
 	@DebugLog
 	private CollectionPersister(Context context, boolean isBriefSync, boolean includePrivateInfo, boolean includeStats, List<String> statusesToSync) {
 		this.context = context;
@@ -134,9 +150,9 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	public int save(List<CollectionItem> items) {
+	public SaveResults save(List<CollectionItem> items) {
+		SaveResults results = new SaveResults();
 		if (items != null && items.size() > 0) {
-			int recordCount = 0;
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			persistedGameIds.clear();
 			for (CollectionItem item : items) {
@@ -144,16 +160,15 @@ public class CollectionPersister {
 				if (isItemStatusSetToSync(item)) {
 					saveGame(toGameValues(item), batch);
 					saveCollectionItem(toCollectionValues(item), batch);
-					recordCount += processBatch(batch, context);
+					results.increaseRecordCount(processBatch(batch, context));
 					Timber.d("Saved game '%s' [ID=%s, collection ID=%s]", item.gameName(), item.gameId, item.collectionId());
 				} else {
 					Timber.d("Skipped game '%s' [ID=%s, collection ID=%s] - collection status not synced", item.gameName(), item.gameId, item.collectionId());
 				}
 			}
 			Timber.i("Saved %,d collection items", items.size());
-			return recordCount;
 		}
-		return 0;
+		return results;
 	}
 
 	private int processBatch(ArrayList<ContentProviderOperation> batch, Context context) {
