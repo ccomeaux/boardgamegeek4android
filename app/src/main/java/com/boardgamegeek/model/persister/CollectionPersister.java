@@ -1,7 +1,6 @@
 package com.boardgamegeek.model.persister;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentProviderOperation.Builder;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -31,15 +30,66 @@ public class CollectionPersister {
 	private final Context context;
 	private final ContentResolver resolver;
 	private final long updateTime;
-	private boolean isBriefSync;
-	private boolean includePrivateInfo;
-	private boolean includeStats;
+	private final boolean isBriefSync;
+	private final boolean includePrivateInfo;
+	private final boolean includeStats;
 	private final List<Integer> persistedGameIds;
-	private List<String> statusesToSync;
+	private final List<String> statusesToSync;
+
+	public static class Builder {
+		private final Context context;
+		private boolean isBriefSync;
+		private boolean includePrivateInfo;
+		private boolean includeStats;
+		private boolean validStatusesOnly;
+
+		@DebugLog
+		public Builder(Context context) {
+			this.context = context;
+		}
+
+		@DebugLog
+		public Builder brief() {
+			isBriefSync = true;
+			return this;
+		}
+
+		@DebugLog
+		public Builder includePrivateInfo() {
+			includePrivateInfo = true;
+			return this;
+		}
+
+		@DebugLog
+		public Builder includeStats() {
+			includeStats = true;
+			return this;
+		}
+
+		@DebugLog
+		public Builder validStatusesOnly() {
+			validStatusesOnly = true;
+			return this;
+		}
+
+		@DebugLog
+		public CollectionPersister build() {
+			List<String> statuses = null;
+			if (validStatusesOnly) {
+				String[] syncStatuses = PreferencesUtils.getSyncStatuses(context);
+				statuses = syncStatuses != null ? Arrays.asList(syncStatuses) : new ArrayList<String>(0);
+			}
+			return new CollectionPersister(context, isBriefSync, includePrivateInfo, includeStats, statuses);
+		}
+	}
 
 	@DebugLog
-	public CollectionPersister(Context context) {
+	private CollectionPersister(Context context, boolean isBriefSync, boolean includePrivateInfo, boolean includeStats, List<String> statusesToSync) {
 		this.context = context;
+		this.isBriefSync = isBriefSync;
+		this.includePrivateInfo = includePrivateInfo;
+		this.includeStats = includeStats;
+		this.statusesToSync = statusesToSync;
 		resolver = this.context.getContentResolver();
 		updateTime = System.currentTimeMillis();
 		persistedGameIds = new ArrayList<>();
@@ -48,31 +98,6 @@ public class CollectionPersister {
 	@DebugLog
 	public long getInitialTimestamp() {
 		return updateTime;
-	}
-
-	@DebugLog
-	public CollectionPersister brief() {
-		isBriefSync = true;
-		return this;
-	}
-
-	@DebugLog
-	public CollectionPersister includePrivateInfo() {
-		includePrivateInfo = true;
-		return this;
-	}
-
-	@DebugLog
-	public CollectionPersister includeStats() {
-		includeStats = true;
-		return this;
-	}
-
-	@DebugLog
-	public CollectionPersister validStatusesOnly() {
-		String[] syncStatuses = PreferencesUtils.getSyncStatuses(context);
-		statusesToSync = Arrays.asList(syncStatuses);
-		return this;
 	}
 
 	/**
@@ -251,7 +276,7 @@ public class CollectionPersister {
 		if (persistedGameIds.contains(gameId)) {
 			Timber.i("Already saved game [ID=%s; NAME=%s]", gameId, values.getAsString(Games.GAME_NAME));
 		} else {
-			Builder cpo;
+			ContentProviderOperation.Builder cpo;
 			Uri uri = Games.buildGameUri(gameId);
 			if (ResolverUtils.rowExists(resolver, uri)) {
 				values.remove(Games.GAME_ID);
@@ -273,7 +298,7 @@ public class CollectionPersister {
 			values.remove(Collection.COLLECTION_ID);
 		}
 
-		Builder operation;
+		ContentProviderOperation.Builder operation;
 		long internalId = getCollectionItemInternalIdToUpdate(collectionId, gameId);
 		if (internalId != BggContract.INVALID_ID) {
 			operation = createUpdateOperation(values, batch, internalId);
@@ -288,10 +313,10 @@ public class CollectionPersister {
 		batch.add(operation.withValues(values).withYieldAllowed(true).build());
 	}
 
-	private Builder createUpdateOperation(ContentValues values, ArrayList<ContentProviderOperation> batch, long internalId) {
+	private ContentProviderOperation.Builder createUpdateOperation(ContentValues values, ArrayList<ContentProviderOperation> batch, long internalId) {
 		removeDirtyValues(values, internalId);
 		Uri uri = Collection.buildUri(internalId);
-		Builder operation = ContentProviderOperation.newUpdate(uri);
+		ContentProviderOperation.Builder operation = ContentProviderOperation.newUpdate(uri);
 		maybeDeleteThumbnail(values, uri, batch);
 		return operation;
 	}

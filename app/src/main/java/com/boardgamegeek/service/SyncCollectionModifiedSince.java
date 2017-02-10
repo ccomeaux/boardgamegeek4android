@@ -38,7 +38,11 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
-			CollectionPersister persister = new CollectionPersister(context).includeStats().includePrivateInfo().validStatusesOnly();
+			CollectionPersister persister = new CollectionPersister.Builder(context)
+				.includeStats()
+				.includePrivateInfo()
+				.validStatusesOnly()
+				.build();
 			ArrayMap<String, String> options = new ArrayMap<>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 

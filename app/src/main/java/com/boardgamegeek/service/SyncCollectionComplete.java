@@ -41,7 +41,7 @@ public class SyncCollectionComplete extends SyncTask {
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing full collection list...");
 		try {
-			CollectionPersister persister = new CollectionPersister(context).brief();
+			CollectionPersister persister = new CollectionPersister.Builder(context).brief().build();
 
 			statuses = getSyncableStatuses();
 

@@ -40,7 +40,10 @@ public class SyncCollectionUnupdated extends SyncTask {
 		Timber.i("Syncing unupdated collection list...");
 		try {
 			int numberOfFetches = 0;
-			CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
+			CollectionPersister persister = new CollectionPersister.Builder(context)
+				.includePrivateInfo()
+				.includeStats()
+				.build();
 			ArrayMap<String, String> options = new ArrayMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");

@@ -43,16 +43,17 @@ public class SyncGameCollection extends UpdateTask {
 	@Override
 	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
-		if (account == null) {
-			return;
-		}
+		if (account == null) return;
+
+		CollectionPersister persister = new CollectionPersister.Builder(context)
+			.includePrivateInfo()
+			.includeStats()
+			.build();
 
 		List<CollectionItem> items = request(context, account);
-		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 		persister.save(items);
 		Timber.i("Synced %,d collection item(s) for game ID=%s", items == null ? 0 : items.size(), gameId);
 
-		// XXX: this deleted more games that I expected. need to rework
 		int deleteCount = persister.delete(items, gameId);
 		Timber.i("Removed %,d collection item(s) for game ID=%s", deleteCount, gameId);
 	}
