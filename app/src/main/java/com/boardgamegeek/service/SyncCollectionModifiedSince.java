@@ -34,52 +34,55 @@ public class SyncCollectionModifiedSince extends SyncTask {
 	@Override
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		AccountManager accountManager = AccountManager.get(context);
-		long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 
-		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
+			if (isCancelled()) return;
+
 			CollectionPersister persister = new CollectionPersister.Builder(context)
 				.includeStats()
 				.includePrivateInfo()
 				.validStatusesOnly()
 				.build();
-			ArrayMap<String, String> options = new ArrayMap<>();
+			long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
-			if (isCancelled()) {
-				return;
-			}
-
 			updateProgressNotification(String.format("Syncing collection items modified since %s", modifiedSince));
+			ArrayMap<String, String> options = new ArrayMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
-			requestAndPersist(account.name, persister, options, syncResult);
 
-			if (isCancelled()) {
+			CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
+			if (response.hasError()) {
+				Timber.w("Error encountered during sync: %s", response.getError());
 				return;
+			} else if (response.getNumberOfItems() > 0) {
+				int count = persister.save(response.getItems()).getRecordCount();
+				syncResult.stats.numUpdates += response.getNumberOfItems();
+				Timber.i("...saved %,d records for %,d collection items", count, response.getNumberOfItems());
+			} else {
+				Timber.i("...no new collection modifications");
 			}
+
+			if (isCancelled()) return;
 
 			updateProgressNotification(String.format("Syncing collection accessories modified since %s", modifiedSince));
 			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-			requestAndPersist(account.name, persister, options, syncResult);
+			response = new CollectionRequest(service, account.name, options).execute();
+			if (response.hasError()) {
+				Timber.w("Error encountered during sync: %s", response.getError());
+				return;
+			} else if (response.getNumberOfItems() > 0) {
+				int count = persister.save(response.getItems()).getRecordCount();
+				syncResult.stats.numUpdates += response.getNumberOfItems();
+				Timber.i("...saved %,d records for %,d collection accessories", count, response.getNumberOfItems());
+			} else {
+				Timber.i("...no new collection modifications");
+			}
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getInitialTimestamp());
 		} finally {
 			Timber.i("...complete!");
-		}
-	}
-
-	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
-		CollectionResponse response = new CollectionRequest(service, username, options).execute();
-		if (response.hasError()) {
-			throw new RuntimeException("Failed to get a response from the 'Geek");
-		} else if (response.getNumberOfItems() > 0) {
-			int count = persister.save(response.getItems()).getRecordCount();
-			syncResult.stats.numUpdates += response.getNumberOfItems();
-			Timber.i("...saved %,d records for %,d collection items", count, response.getNumberOfItems());
-		} else {
-			Timber.i("...no new collection modifications");
 		}
 	}
 

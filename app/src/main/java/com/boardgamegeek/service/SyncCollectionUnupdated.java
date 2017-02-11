@@ -49,9 +49,8 @@ public class SyncCollectionUnupdated extends SyncTask {
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 
 			do {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
+
 				numberOfFetches++;
 				List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(),
 					Collection.CONTENT_URI,
@@ -72,8 +71,13 @@ public class SyncCollectionUnupdated extends SyncTask {
 					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
 					boolean success = requestAndPersist(account.name, persister, options, syncResult);
 
+					if (!success) {
+						Timber.i("...unsuccessful sync; breaking out of fetch loop");
+						break;
+					}
+
 					options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-					success |= requestAndPersist(account.name, persister, options, syncResult);
+					success = requestAndPersist(account.name, persister, options, syncResult);
 
 					if (!success) {
 						Timber.i("...unsuccessful sync; breaking out of fetch loop");
@@ -102,7 +106,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 			return true;
 		} else {
 			Timber.i("...no collection items found for these games");
-			return false;
+			return true;
 		}
 	}
 

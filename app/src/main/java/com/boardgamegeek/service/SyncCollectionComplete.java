@@ -60,11 +60,31 @@ public class SyncCollectionComplete extends SyncTask {
 
 				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, status));
 				ArrayMap<String, String> options = createOptions(i, status);
-				requestAndPersist(account.name, persister, options, syncResult);
+				CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
+				if (response.hasError()) {
+					Timber.w("Error encountered during sync: %s", response.getError());
+					return;
+				} else if (response.getNumberOfItems() > 0) {
+					int rows = persister.save(response.getItems()).getRecordCount();
+					syncResult.stats.numEntries += response.getNumberOfItems();
+					Timber.i("...saved %,d records for %,d collection items", rows, response.getNumberOfItems());
+				} else {
+					Timber.i("...no collection items to save");
+				}
 
 				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, status));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-				requestAndPersist(account.name, persister, options, syncResult);
+				response = new CollectionRequest(service, account.name, options).execute();
+				if (response.hasError()) {
+					Timber.w("Error encountered during sync: %s", response.getError());
+					return;
+				} else if (response.getNumberOfItems() > 0) {
+					int rows = persister.save(response.getItems()).getRecordCount();
+					syncResult.stats.numEntries += response.getNumberOfItems();
+					Timber.i("...saved %,d records for %,d collection items", rows, response.getNumberOfItems());
+				} else {
+					Timber.i("...no collection items to save");
+				}
 			}
 
 			final long initialTimestamp = persister.getInitialTimestamp();
@@ -94,19 +114,6 @@ public class SyncCollectionComplete extends SyncTask {
 			options.put(statuses.get(j), "0");
 		}
 		return options;
-	}
-
-	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
-		CollectionResponse response = new CollectionRequest(service, username, options).execute();
-		if (response.hasError()) {
-			Timber.w(response.getError());
-		} else if (response.getNumberOfItems() > 0) {
-			int rows = persister.save(response.getItems()).getRecordCount();
-			syncResult.stats.numEntries += response.getNumberOfItems();
-			Timber.i("...saved %,d records for %,d collection items", rows, response.getNumberOfItems());
-		} else {
-			Timber.i("...no collection items to save");
-		}
 	}
 
 	private void deleteUnusedItems(long initialTimestamp) {
