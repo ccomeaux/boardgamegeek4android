@@ -13,6 +13,7 @@
 	<string name="sync_notification_collection_accessories">Syncing \"%s\" collection accessories</string>
 	<string name="sync_notification_collection_items_since">Syncing collection items modified since %s</string>
 	<string name="sync_notification_collection_accessories_since">Syncing collection accessories modified since %s</string>
+	<string name="sync_notification_collection_update_games">Updating %1$,d games [%2$s]</string>
 	<string name="sync_notification_games_oldest">Refreshing stale games</string>
 	<string name="sync_notification_games_unupdated">Getting the details of newly added games</string>
 	<string name="sync_notification_collection_missing">Removing items not in your collection</string>
