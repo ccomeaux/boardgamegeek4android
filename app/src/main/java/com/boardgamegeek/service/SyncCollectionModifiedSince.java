@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
+import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -43,10 +44,12 @@ public class SyncCollectionModifiedSince extends SyncTask {
 				.includePrivateInfo()
 				.validStatusesOnly()
 				.build();
+
 			long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
-			updateProgressNotification(String.format("Syncing collection items modified since %s", modifiedSince));
+			updateProgressNotification(context.getString(R.string.sync_notification_collection_items_since,
+				DateUtils.formatDateTime(context, date, DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME)));
 			ArrayMap<String, String> options = new ArrayMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
@@ -66,7 +69,8 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 			if (isCancelled()) return;
 
-			updateProgressNotification(String.format("Syncing collection accessories modified since %s", modifiedSince));
+			updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories_since,
+				DateUtils.formatDateTime(context, date, DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME)));
 			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 			response = new CollectionRequest(service, account.name, options).execute();
 			if (response.hasError()) {

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
@@ -27,22 +28,31 @@ import timber.log.Timber;
  */
 public class SyncCollectionComplete extends SyncTask {
 	private List<String> statuses;
+	private String[] statusEntries;
+	private String[] statusValues;
 
+	@DebugLog
 	public SyncCollectionComplete(Context context, BggService service) {
 		super(context, service);
 	}
 
+	@DebugLog
 	@Override
 	public int getSyncType() {
 		return SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD;
 	}
 
+	@DebugLog
 	@Override
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing full collection list...");
 		try {
-			CollectionPersister persister = new CollectionPersister.Builder(context).brief().build();
+			CollectionPersister persister = new CollectionPersister.Builder(context)
+				.brief()
+				.build();
 
+			statusEntries = context.getResources().getStringArray(R.array.pref_sync_status_entries);
+			statusValues = context.getResources().getStringArray(R.array.pref_sync_status_values);
 			statuses = getSyncableStatuses();
 
 			for (int i = 0; i < statuses.size(); i++) {
@@ -56,9 +66,11 @@ public class SyncCollectionComplete extends SyncTask {
 					Timber.i("...skipping blank status");
 					continue;
 				}
-				Timber.i("...syncing status [" + status + "]");
+				Timber.i("...syncing status [%s]", status);
 
-				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, status));
+				String statusDescription = getStatusDescription(status);
+
+				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, statusDescription));
 				ArrayMap<String, String> options = createOptions(i, status);
 				CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 				if (response.hasError()) {
@@ -72,7 +84,7 @@ public class SyncCollectionComplete extends SyncTask {
 					Timber.i("...no collection items to save");
 				}
 
-				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, status));
+				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, statusDescription));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 				response = new CollectionRequest(service, account.name, options).execute();
 				if (response.hasError()) {
@@ -95,6 +107,7 @@ public class SyncCollectionComplete extends SyncTask {
 		}
 	}
 
+	@DebugLog
 	@NonNull
 	private List<String> getSyncableStatuses() {
 		List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
@@ -105,6 +118,17 @@ public class SyncCollectionComplete extends SyncTask {
 		return statuses;
 	}
 
+	@DebugLog
+	private String getStatusDescription(String status) {
+		for (int i = 0; i < statusEntries.length; i++) {
+			if (statusValues[i].equalsIgnoreCase(status)) {
+				return statusEntries[i];
+			}
+		}
+		return status;
+	}
+
+	@DebugLog
 	@NonNull
 	private ArrayMap<String, String> createOptions(int i, String status) {
 		ArrayMap<String, String> options = new ArrayMap<>();
@@ -116,6 +140,7 @@ public class SyncCollectionComplete extends SyncTask {
 		return options;
 	}
 
+	@DebugLog
 	private void deleteUnusedItems(long initialTimestamp) {
 		Timber.i("...deleting old collection entries");
 		int count = context.getContentResolver().delete(
@@ -127,6 +152,7 @@ public class SyncCollectionComplete extends SyncTask {
 		// TODO: delete thumbnail images associated with this list (both collection and game)
 	}
 
+	@DebugLog
 	private void updateTimestamps(long initialTimestamp) {
 		Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, initialTimestamp);
 		Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, initialTimestamp);
