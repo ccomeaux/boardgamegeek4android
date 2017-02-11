@@ -11,7 +11,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
-import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -98,10 +98,12 @@ public class SyncCollectionComplete extends SyncTask {
 
 	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		CollectionResponse response = new CollectionRequest(service, username, options).execute();
-		if (response.items != null && response.items.size() > 0) {
-			int rows = persister.save(response.items).getRecordCount();
-			syncResult.stats.numEntries += response.items.size();
-			Timber.i("...saved " + rows + " records for " + response.items.size() + " collection items");
+		if (response.hasError()) {
+			Timber.w(response.getError());
+		} else if (response.getNumberOfItems() > 0) {
+			int rows = persister.save(response.getItems()).getRecordCount();
+			syncResult.stats.numEntries += response.getNumberOfItems();
+			Timber.i("...saved %,d records for %,d collection items", rows, response.getNumberOfItems());
 		} else {
 			Timber.i("...no collection items to save");
 		}

@@ -10,11 +10,12 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
+import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.CollectionItem;
-import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -51,8 +52,13 @@ public class SyncGameCollection extends UpdateTask {
 			.build();
 
 		List<CollectionItem> items = request(context, account);
+		if (items == null) {
+			Timber.w("Didn't find any items for game ID=%s", gameId);
+			return;
+		}
+
 		persister.save(items);
-		Timber.i("Synced %,d collection item(s) for game ID=%s", items == null ? 0 : items.size(), gameId);
+		Timber.i("Synced %,d collection item(s) for game ID=%s", items.size(), gameId);
 
 		int deleteCount = persister.delete(items, gameId);
 		Timber.i("Removed %,d collection item(s) for game ID=%s", deleteCount, gameId);
@@ -69,28 +75,20 @@ public class SyncGameCollection extends UpdateTask {
 		List<CollectionItem> items;
 
 		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
+		if (items != null && items.size() > 0) return items;
 
 		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
 		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
+		if (items != null && items.size() > 0) return items;
 
 		options.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED);
 		options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
+		if (items != null && items.size() > 0) return items;
 
 		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
 		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
+		if (items != null && items.size() > 0) return items;
 
 		Timber.i("No collection items for game ID=%s", gameId);
 		return null;
@@ -98,11 +96,14 @@ public class SyncGameCollection extends UpdateTask {
 
 	private List<CollectionItem> requestItems(@NonNull Account account, BggService service, ArrayMap<String, String> options) {
 		CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
-		if (response == null || response.items == null || response.items.size() == 0) {
-			Timber.i("No collection items for game ID=%d with options=%s", gameId, options);
+		if (response.hasError()) {
+			Timber.w("Failed to get a response from the 'Geek - %s", response.getError());
 			return null;
+		} else if (response.getNumberOfItems() == 0) {
+			Timber.i("No collection items for game ID=%d with options=%s", gameId, options);
+			return new ArrayList<>(0);
 		} else {
-			return response.items;
+			return response.getItems();
 		}
 	}
 }

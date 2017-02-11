@@ -11,7 +11,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
-import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 
 import java.util.Date;
@@ -71,12 +71,13 @@ public class SyncCollectionModifiedSince extends SyncTask {
 	}
 
 	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
-		CollectionResponse response;
-		response = new CollectionRequest(service, username, options).execute();
-		if (response.items != null && response.items.size() > 0) {
-			int count = persister.save(response.items).getRecordCount();
-			syncResult.stats.numUpdates += response.items.size();
-			Timber.i("...saved " + count + " records for " + response.items.size() + " collection items");
+		CollectionResponse response = new CollectionRequest(service, username, options).execute();
+		if (response.hasError()) {
+			throw new RuntimeException("Failed to get a response from the 'Geek");
+		} else if (response.getNumberOfItems() > 0) {
+			int count = persister.save(response.getItems()).getRecordCount();
+			syncResult.stats.numUpdates += response.getNumberOfItems();
+			Timber.i("...saved %,d records for %,d collection items", count, response.getNumberOfItems());
 		} else {
 			Timber.i("...no new collection modifications");
 		}

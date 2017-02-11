@@ -10,7 +10,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
-import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
@@ -92,10 +92,13 @@ public class SyncCollectionUnupdated extends SyncTask {
 	private boolean requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		Timber.i("..requesting collection items with options %s", options);
 		CollectionResponse response = new CollectionRequest(service, username, options).execute();
-		if (response.items != null && response.items.size() > 0) {
-			int count = persister.save(response.items).getRecordCount();
-			syncResult.stats.numUpdates += response.items.size();
-			Timber.i("...saved " + count + " records for " + response.items.size() + " collection items");
+		if (response.hasError()) {
+			Timber.w(response.getError());
+			return false;
+		} else if (response.getNumberOfItems() > 0) {
+			int count = persister.save(response.getItems()).getRecordCount();
+			syncResult.stats.numUpdates += response.getNumberOfItems();
+			Timber.i("...saved %,d records for %,d collection items", count, response.getNumberOfItems());
 			return true;
 		} else {
 			Timber.i("...no collection items found for these games");
