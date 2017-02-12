@@ -6,9 +6,7 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.ResolverUtils;
-
-import java.util.List;
+import com.boardgamegeek.util.SelectionBuilder;
 
 /**
  * Syncs all games in the collection that have not been updated completely.
@@ -37,10 +35,8 @@ public class SyncGamesUnupdated extends SyncGames {
 	}
 
 	@Override
-	protected List<String> getGameIds(int gamesPerFetch) {
-		return ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
-			Games.GAME_ID, "games." + Games.UPDATED + "=0 OR games." + Games.UPDATED + " IS NULL", null,
-			"games." + Games.UPDATED_LIST + " DESC LIMIT " + gamesPerFetch);
+	protected String getSelection() {
+		return SelectionBuilder.whereZeroOrNull("games." + Games.UPDATED);
 	}
 
 	@Override

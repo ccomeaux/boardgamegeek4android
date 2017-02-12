@@ -12,6 +12,8 @@ import com.boardgamegeek.io.ThingRequest;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
@@ -78,5 +80,16 @@ public abstract class SyncGames extends SyncTask {
 	@NonNull
 	protected abstract String getExitLogMessage();
 
-	protected abstract List<String> getGameIds(int gamesPerFetch);
+	private List<String> getGameIds(int gamesPerFetch) {
+		return ResolverUtils.queryStrings(context.getContentResolver(),
+			Games.CONTENT_URI,
+			Games.GAME_ID,
+			getSelection(),
+			null,
+			String.format("games.%s LIMIT %s", Games.UPDATED_LIST, gamesPerFetch));
+	}
+
+	protected String getSelection() {
+		return null;
+	}
 }
