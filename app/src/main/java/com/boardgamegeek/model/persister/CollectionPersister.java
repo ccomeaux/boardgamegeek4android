@@ -32,7 +32,6 @@ public class CollectionPersister {
 	private final boolean isBriefSync;
 	private final boolean includePrivateInfo;
 	private final boolean includeStats;
-	private final List<Integer> persistedGameIds;
 	private final List<String> statusesToSync;
 
 	public static class Builder {
@@ -86,17 +85,37 @@ public class CollectionPersister {
 
 	public static class SaveResults {
 		private int recordCount;
+		private final List<Integer> savedCollectionIds;
+		private final List<Integer> savedGameIds;
 
 		public SaveResults() {
 			recordCount = 0;
+			savedCollectionIds = new ArrayList<>();
+			savedGameIds = new ArrayList<>();
 		}
 
 		public void increaseRecordCount(int count) {
 			recordCount += count;
 		}
 
+		public void addSavedCollectionId(int id) {
+			savedCollectionIds.add(id);
+		}
+
+		public void addSavedGameId(int id) {
+			savedGameIds.add(id);
+		}
+
+		public boolean hasGameBeenSaved(int gameId) {
+			return savedGameIds.contains(gameId);
+		}
+
 		public int getRecordCount() {
 			return recordCount;
+		}
+
+		public List<Integer> getSavedCollectionIds() {
+			return savedCollectionIds;
 		}
 	}
 
@@ -109,7 +128,6 @@ public class CollectionPersister {
 		this.statusesToSync = statusesToSync;
 		resolver = this.context.getContentResolver();
 		updateTime = System.currentTimeMillis();
-		persistedGameIds = new ArrayList<>();
 	}
 
 	@DebugLog
@@ -120,7 +138,7 @@ public class CollectionPersister {
 	/**
 	 * Remove all collection items belonging to a game, except the ones in the specified list.
 	 *
-	 * @param gameId       delete collection items with this game ID.
+	 * @param gameId                 delete collection items with this game ID.
 	 * @param protectedCollectionIds list of collection IDs not to delete.
 	 * @return the number or rows deleted.
 	 */
@@ -153,37 +171,32 @@ public class CollectionPersister {
 
 	@DebugLog
 	public SaveResults save(List<CollectionItem> items) {
-		SaveResults results = new SaveResults();
+		SaveResults saveResults = new SaveResults();
 		if (items != null && items.size() > 0) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-			persistedGameIds.clear();
 			for (CollectionItem item : items) {
 				batch.clear();
 				if (isItemStatusSetToSync(item)) {
-					saveGame(toGameValues(item), batch);
-					saveCollectionItem(toCollectionValues(item), batch);
-					results.increaseRecordCount(processBatch(batch, context));
-					Timber.d("Saved game '%s' [ID=%s, collection ID=%s]", item.gameName(), item.gameId, item.collectionId());
+					if (saveResults.hasGameBeenSaved(item.gameId)) {
+						Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", item.gameName(), item.gameId);
+					} else {
+						addGameToBatch(item, batch);
+						saveResults.addSavedGameId(item.gameId);
+					}
+					addItemToBatch(item, batch);
+					ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
+					Timber.d("Saved a batch of %,d record(s)", results.length);
+
+					saveResults.increaseRecordCount(results.length);
+					saveResults.addSavedCollectionId(item.collectionId());
+					Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.gameName(), item.gameId, item.collectionId());
 				} else {
-					Timber.d("Skipped game '%s' [ID=%s, collection ID=%s] - collection status not synced", item.gameName(), item.gameId, item.collectionId());
+					Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", item.gameName(), item.gameId, item.collectionId());
 				}
 			}
-			Timber.i("Saved %,d collection items", items.size());
+			Timber.i("Processed %,d collection item(s)", items.size());
 		}
-		return results;
-	}
-
-	private int processBatch(ArrayList<ContentProviderOperation> batch, Context context) {
-		if (batch != null && batch.size() > 0) {
-			ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
-			Timber.i("Saved a batch of %d records", results.length);
-			batch.clear();
-			persistedGameIds.clear();
-			return results.length;
-		} else {
-			Timber.i("No batch to save");
-		}
-		return 0;
+		return saveResults;
 	}
 
 	@DebugLog
@@ -197,6 +210,7 @@ public class CollectionPersister {
 		if (isStatusSetToSync(item.wanttobuy, "wanttobuy")) return true;
 		if (isStatusSetToSync(item.wishlist, "wishlist")) return true;
 		if (isStatusSetToSync(item.preordered, "preordered")) return true;
+		//noinspection RedundantIfStatement
 		if (item.numplays > 0 && statusesToSync.contains("played")) return true;
 		return false;
 	}
@@ -232,7 +246,9 @@ public class CollectionPersister {
 		}
 		values.put(Collection.UPDATED_LIST, updateTime);
 		values.put(Collection.GAME_ID, item.gameId);
-		values.put(Collection.COLLECTION_ID, item.collectionId());
+		if (item.collectionId() != BggContract.INVALID_ID) {
+			values.put(Collection.COLLECTION_ID, item.collectionId());
+		}
 		values.put(Collection.COLLECTION_NAME, item.collectionName());
 		values.put(Collection.COLLECTION_SORT_NAME, item.collectionSortName());
 		values.put(Collection.STATUS_OWN, item.own);
@@ -272,46 +288,35 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void saveGame(ContentValues values, ArrayList<ContentProviderOperation> batch) {
-		int gameId = values.getAsInteger(Games.GAME_ID);
-		if (persistedGameIds.contains(gameId)) {
-			Timber.i("Already saved game [ID=%s; NAME=%s] during this sync", gameId, values.getAsString(Games.GAME_NAME));
+	private void addGameToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch) {
+		ContentProviderOperation.Builder cpo;
+		Uri uri = Games.buildGameUri(item.gameId);
+		ContentValues values = toGameValues(item);
+		if (ResolverUtils.rowExists(resolver, uri)) {
+			values.remove(Games.GAME_ID);
+			cpo = ContentProviderOperation.newUpdate(uri);
 		} else {
-			ContentProviderOperation.Builder cpo;
-			Uri uri = Games.buildGameUri(gameId);
-			if (ResolverUtils.rowExists(resolver, uri)) {
-				values.remove(Games.GAME_ID);
-				cpo = ContentProviderOperation.newUpdate(uri);
-			} else {
-				cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
-			}
-			batch.add(cpo.withValues(values).build());
-			persistedGameIds.add(gameId);
+			cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 		}
+		batch.add(cpo.withValues(values).build());
 	}
 
 	@DebugLog
-	private void saveCollectionItem(ContentValues values, ArrayList<ContentProviderOperation> batch) {
-		int collectionId = values.getAsInteger(Collection.COLLECTION_ID);
-		int gameId = values.getAsInteger(Collection.GAME_ID);
-
-		if (collectionId == BggContract.INVALID_ID) {
-			values.remove(Collection.COLLECTION_ID);
-		}
-
-		ContentProviderOperation.Builder operation;
-		long internalId = getCollectionItemInternalIdToUpdate(collectionId, gameId);
+	private void addItemToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch) {
+		ContentValues values = toCollectionValues(item);
+		ContentProviderOperation.Builder cpo;
+		long internalId = getCollectionItemInternalIdToUpdate(item.collectionId(), item.gameId);
 		if (internalId != BggContract.INVALID_ID) {
-			operation = createUpdateOperation(values, batch, internalId);
+			cpo = createUpdateOperation(values, batch, internalId);
 		} else {
-			internalId = getCollectionItemInternalIdToUpdate(gameId);
+			internalId = getCollectionItemInternalIdToUpdate(item.gameId);
 			if (internalId != BggContract.INVALID_ID) {
-				operation = createUpdateOperation(values, batch, internalId);
+				cpo = createUpdateOperation(values, batch, internalId);
 			} else {
-				operation = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
+				cpo = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
 			}
 		}
-		batch.add(operation.withValues(values).withYieldAllowed(true).build());
+		batch.add(cpo.withValues(values).build());
 	}
 
 	@DebugLog
