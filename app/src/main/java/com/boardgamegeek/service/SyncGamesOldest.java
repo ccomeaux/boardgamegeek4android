@@ -25,8 +25,8 @@ public class SyncGamesOldest extends SyncGames {
 
 	@NonNull
 	@Override
-	protected String getIntroLogMessage() {
-		return "Syncing oldest games in the collection...";
+	protected String getIntroLogMessage(int gamesPerFetch) {
+		return String.format("Syncing %,d oldest games in the collection...", gamesPerFetch);
 	}
 
 	@NonNull

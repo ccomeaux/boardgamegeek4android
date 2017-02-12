@@ -27,34 +27,31 @@ public abstract class SyncGames extends SyncTask {
 
 	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
-		Timber.i(getIntroLogMessage());
+		Timber.i(getIntroLogMessage(GAMES_PER_FETCH));
 		try {
-			int fetchSize = GAMES_PER_FETCH;
 			int numberOfFetches = 0;
 			do {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
+
 				numberOfFetches++;
-				List<String> gameIds = getGameIds(fetchSize);
+				List<String> gameIds = getGameIds(GAMES_PER_FETCH);
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
-					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
-					String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, fetchSize, fetchSize, gameIdDescription);
+					Timber.i("...found %,d games to update [%s]", gameIds.size(), gameIdDescription);
+					String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, GAMES_PER_FETCH, GAMES_PER_FETCH, gameIdDescription);
 					if (numberOfFetches > 1) {
 						detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches);
 					}
 					updateProgressNotification(detail);
 
-					GamePersister persister = new GamePersister(context);
 					ThingResponse response = getThingResponse(service, gameIds);
 					final List<Game> games = response.getGames();
 					if (games != null && games.size() > 0) {
-						int count = persister.save(games, detail);
+						int count = new GamePersister(context).save(games, detail);
 						syncResult.stats.numUpdates += games.size();
-						Timber.i("...saved " + count + " rows for " + games.size() + " games");
+						Timber.i("...saved %,d rows for %,d games", count, games.size());
 					} else {
-						Timber.i("...no games returned (shouldn't happen)");
+						Timber.i("...no games returned ");
 					}
 				} else {
 					Timber.i(getExitLogMessage());
@@ -76,7 +73,7 @@ public abstract class SyncGames extends SyncTask {
 	}
 
 	@NonNull
-	protected abstract String getIntroLogMessage();
+	protected abstract String getIntroLogMessage(int gamesPerFetch);
 
 	@NonNull
 	protected abstract String getExitLogMessage();

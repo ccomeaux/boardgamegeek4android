@@ -148,8 +148,7 @@ public class SyncCollectionComplete extends SyncTask {
 			Collection.CONTENT_URI,
 			Collection.UPDATED_LIST + "<?",
 			new String[] { String.valueOf(initialTimestamp) });
-		Timber.i("...deleted " + count + " old collection entries");
-		// TODO: delete games as well?!
+		Timber.i("...deleted %,d old collection entries", count);
 		// TODO: delete thumbnail images associated with this list (both collection and game)
 	}
 

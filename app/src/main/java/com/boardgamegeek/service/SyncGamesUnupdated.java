@@ -26,8 +26,8 @@ public class SyncGamesUnupdated extends SyncGames {
 
 	@NonNull
 	@Override
-	protected String getIntroLogMessage() {
-		return "Syncing unupdated games in the collection...";
+	protected String getIntroLogMessage(int gamesPerFetch) {
+		return String.format("Syncing %,d unupdated games in the collection...", gamesPerFetch);
 	}
 
 	@NonNull
