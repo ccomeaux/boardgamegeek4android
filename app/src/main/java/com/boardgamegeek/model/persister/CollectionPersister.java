@@ -120,25 +120,27 @@ public class CollectionPersister {
 	/**
 	 * Remove all collection items belonging to a game, except the ones in the specified list.
 	 *
-	 * @param items  list of collection items not to delete.
-	 * @param gameId delete collection items with this game ID.
+	 * @param gameId       delete collection items with this game ID.
+	 * @param protectedCollectionIds list of collection IDs not to delete.
 	 * @return the number or rows deleted.
 	 */
 	@DebugLog
-	public int delete(List<CollectionItem> items, int gameId) {
+	public int delete(int gameId, List<Integer> protectedCollectionIds) {
 		// determine the collection IDs that are no longer in the collection
-		List<Integer> collectionIds = ResolverUtils.queryInts(resolver, Collection.CONTENT_URI,
-			Collection.COLLECTION_ID, "collection." + Collection.GAME_ID + "=?",
+		List<Integer> collectionIdsToDelete = ResolverUtils.queryInts(resolver,
+			Collection.CONTENT_URI,
+			Collection.COLLECTION_ID,
+			String.format("collection.%s=?", Collection.GAME_ID),
 			new String[] { String.valueOf(gameId) });
-		if (items != null) {
-			for (CollectionItem item : items) {
-				collectionIds.remove(Integer.valueOf(item.collectionId()));
+		if (protectedCollectionIds != null) {
+			for (Integer id : protectedCollectionIds) {
+				collectionIdsToDelete.remove(id);
 			}
 		}
 		// remove them
-		if (collectionIds.size() > 0) {
+		if (collectionIdsToDelete.size() > 0) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-			for (Integer collectionId : collectionIds) {
+			for (Integer collectionId : collectionIdsToDelete) {
 				batch.add(ContentProviderOperation.newDelete(Collection.CONTENT_URI)
 					.withSelection(Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collectionId) })
 					.build());
@@ -146,7 +148,7 @@ public class CollectionPersister {
 			ResolverUtils.applyBatch(context, batch);
 		}
 
-		return collectionIds.size();
+		return collectionIdsToDelete.size();
 	}
 
 	@DebugLog
