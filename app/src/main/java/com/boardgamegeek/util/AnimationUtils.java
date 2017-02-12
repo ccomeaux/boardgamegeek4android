@@ -16,8 +16,11 @@ public class AnimationUtils {
 	}
 
 	public static void fadeIn(final View view) {
-		if (view == null) return;
 		fadeIn(view.getContext(), view, true);
+	}
+
+	public static void fadeIn(final View view, boolean animate) {
+		fadeIn(view.getContext(), view, animate);
 	}
 
 	public static void fadeIn(Context context, final View view, boolean animate) {
@@ -35,7 +38,7 @@ public class AnimationUtils {
 		fadeOut(view.getContext(), view, true);
 	}
 
-	public static void fadeOut(Context context, final View view, boolean animate) {
+	private static void fadeOut(Context context, final View view, boolean animate) {
 		if (view == null || view.getVisibility() != View.VISIBLE) {
 			return;
 		}

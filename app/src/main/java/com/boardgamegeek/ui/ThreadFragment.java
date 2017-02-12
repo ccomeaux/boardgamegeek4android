@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,34 +23,34 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Article;
-import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.loader.ThreadSafeResponse;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
-public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<ThreadResponse>> {
+public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<ThreadSafeResponse> {
 	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 103;
+	private static final int SMOOTH_SCROLL_THRESHOLD = 10;
 	private ThreadRecyclerViewAdapter adapter;
 	private int threadId;
 	private ShowcaseView showcaseView;
+	private int currentAdapterPosition = 0;
+	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
 
 	Unbinder unbinder;
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
@@ -79,6 +80,17 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(LOADER_ID, null, this);
+
+		latestArticleId = PreferencesUtils.getThreadArticle(getContext(), threadId);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		if (latestArticleId != PreferencesUtils.INVALID_ARTICLE_ID) {
+			PreferencesUtils.putThreadArticle(getContext(), threadId, latestArticleId);
+		}
 	}
 
 	@Override
@@ -89,8 +101,18 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.help, menu);
+		inflater.inflate(R.menu.thread, menu);
 		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.menu_scroll_last).setVisible(
+			latestArticleId != PreferencesUtils.INVALID_ARTICLE_ID &&
+				adapter != null &&
+				adapter.getItemCount() > 0);
+		menu.findItem(R.id.menu_scroll_bottom).setVisible(adapter != null && adapter.getItemCount() > 0);
 	}
 
 	@Override
@@ -99,8 +121,35 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			case R.id.menu_help:
 				showHelp();
 				return true;
+			case R.id.menu_scroll_last:
+				scrollToLatestArticle();
+				return true;
+			case R.id.menu_scroll_bottom:
+				scrollToBottom();
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void scrollToLatestArticle() {
+		if (latestArticleId != PreferencesUtils.INVALID_ARTICLE_ID) {
+			scrollToPosition(adapter.getPosition(latestArticleId));
+		}
+	}
+
+	private void scrollToBottom() {
+		scrollToPosition(adapter.getItemCount() - 1);
+	}
+
+	private void scrollToPosition(int position) {
+		if (position != RecyclerView.NO_POSITION) {
+			int difference = Math.abs(currentAdapterPosition - position);
+			if (difference <= SMOOTH_SCROLL_THRESHOLD) {
+				recyclerView.smoothScrollToPosition(position);
+			} else {
+				recyclerView.scrollToPosition(position);
+			}
+		}
 	}
 
 	@DebugLog
@@ -108,8 +157,20 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
-
 		recyclerView.setHasFixedSize(true);
+		recyclerView.addOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+				currentAdapterPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+				if (currentAdapterPosition != RecyclerView.NO_POSITION) {
+					long currentArticleId = adapter.getItemId(currentAdapterPosition);
+					if (currentArticleId > latestArticleId) {
+						latestArticleId = (int) currentArticleId;
+					}
+				}
+			}
+		});
 	}
 
 	@DebugLog
@@ -139,22 +200,19 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public Loader<SafeResponse<ThreadResponse>> onCreateLoader(int id, Bundle data) {
+	public Loader<ThreadSafeResponse> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), threadId);
 	}
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<SafeResponse<ThreadResponse>> loader, SafeResponse<ThreadResponse> data) {
+	public void onLoadFinished(Loader<ThreadSafeResponse> loader, ThreadSafeResponse data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
-			adapter = new ThreadRecyclerViewAdapter(getActivity(),
-				(data == null || data.getBody() == null) ?
-					new ArrayList<Article>(0) :
-					data.getBody().getArticles());
+			adapter = new ThreadRecyclerViewAdapter(getActivity(), data.getArticles());
 			recyclerView.setAdapter(adapter);
 		}
 
@@ -173,6 +231,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 			maybeShowHelp();
 		}
 		progressView.hide();
+
+		getActivity().invalidateOptionsMenu();
 	}
 
 	@DebugLog
@@ -189,10 +249,10 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<SafeResponse<ThreadResponse>> loader) {
+	public void onLoaderReset(Loader<ThreadSafeResponse> loader) {
 	}
 
-	private static class ThreadLoader extends BggLoader<SafeResponse<ThreadResponse>> {
+	private static class ThreadLoader extends BggLoader<ThreadSafeResponse> {
 		private final BggService bggService;
 		private final int threadId;
 
@@ -203,8 +263,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
-		public SafeResponse<ThreadResponse> loadInBackground() {
-			return new SafeResponse<>(bggService.thread(threadId));
+		public ThreadSafeResponse loadInBackground() {
+			return new ThreadSafeResponse(bggService.thread(threadId));
 		}
 	}
 }

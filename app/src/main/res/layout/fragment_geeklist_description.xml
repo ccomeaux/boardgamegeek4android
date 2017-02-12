@@ -1,18 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:background="#fff"
-			  android:orientation="vertical">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			 xmlns:tools="http://schemas.android.com/tools"
+			 android:layout_width="match_parent"
+			 android:layout_height="match_parent">
 
-	<include layout="@layout/header_geeklist"/>
+	<android.support.v4.widget.ContentLoadingProgressBar
+		android:id="@android:id/progress"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:gravity="center"/>
 
-	<FrameLayout style="@style/WebViewContainer">
+	<LinearLayout
+		android:id="@id/container"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="#fff"
+		android:orientation="vertical"
+		android:visibility="gone"
+		tools:visibility="visible">
 
-		<WebView
-			android:id="@+id/body"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"/>
-	</FrameLayout>
+		<include layout="@layout/header_geeklist"/>
 
-</LinearLayout>
+		<FrameLayout style="@style/WebViewContainer">
+
+			<WebView
+				android:id="@+id/body"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"/>
+		</FrameLayout>
+	</LinearLayout>
+</FrameLayout>

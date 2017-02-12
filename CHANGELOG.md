@@ -4,6 +4,8 @@ Release Notes
 Coming Soon
 -----------
  * Under-the-hood improvements to play logging and collection syncing
+ * Improved GeekList UI
+ * While reading a thread, you can now scroll to the bottom of the list or to the last read article.
  * Improved forum timestamps
  * Bug fixes
 

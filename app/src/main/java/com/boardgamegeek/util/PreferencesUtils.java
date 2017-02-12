@@ -26,6 +26,7 @@ import java.util.List;
 public class PreferencesUtils {
 	public static final long VIEW_ID_COLLECTION = -1;
 	public static final int INVALID_H_INDEX = -1;
+	public static final int INVALID_ARTICLE_ID = -1;
 
 	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
 	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
@@ -298,6 +299,19 @@ public class PreferencesUtils {
 
 	public static boolean getHapticFeedback(Context context) {
 		return getBoolean(context, KEY_HAPTIC_FEEDBACK, true);
+	}
+
+	public static boolean putThreadArticle(Context context, int threadId, int articleId) {
+		return putInt(context, getThreadKey(threadId), articleId);
+	}
+
+	public static int getThreadArticle(Context context, int threadId) {
+		return getInt(context, getThreadKey(threadId), INVALID_ARTICLE_ID);
+	}
+
+	@NonNull
+	private static String getThreadKey(long threadId) {
+		return "THREAD-" + String.valueOf(threadId);
 	}
 
 	private static boolean remove(Context context, String key) {
