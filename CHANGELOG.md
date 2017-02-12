@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Coming Soon
+Version 6.3
 -----------
  * Under-the-hood improvements to play logging and collection syncing
  * Improved GeekList UI
