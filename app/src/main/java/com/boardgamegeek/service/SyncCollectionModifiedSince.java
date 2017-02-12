@@ -20,7 +20,7 @@ import java.util.Date;
 import timber.log.Timber;
 
 /**
- * Syncs the user's collection modified since the date stored in the sync service, one collection status at a time.
+ * Syncs the user's collection modified since the date stored in the sync service.
  */
 public class SyncCollectionModifiedSince extends SyncTask {
 	public SyncCollectionModifiedSince(Context context, BggService service) {

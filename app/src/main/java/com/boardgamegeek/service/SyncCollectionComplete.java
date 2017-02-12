@@ -24,7 +24,8 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
- * Syncs the user's collection in brief mode, one collection status at a time.
+ * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
+ * database that weren't synced.
  */
 public class SyncCollectionComplete extends SyncTask {
 	private List<String> statuses;

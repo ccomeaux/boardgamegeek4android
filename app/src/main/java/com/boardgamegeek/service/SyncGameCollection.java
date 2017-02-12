@@ -20,6 +20,9 @@ import java.util.List;
 
 import timber.log.Timber;
 
+/***
+ * Syncs the user's collection for the specified game, deleting items that fall outside the selected statuses to sync.
+ */
 public class SyncGameCollection extends UpdateTask {
 	private final int gameId;
 

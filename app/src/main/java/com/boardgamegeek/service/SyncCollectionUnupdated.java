@@ -22,7 +22,7 @@ import java.util.List;
 import timber.log.Timber;
 
 /**
- * Syncs a limited number of collection items that have not yet been updated completely.
+ * Syncs collection items that have not yet been updated completely with stats and private info (in batches of 25).
  */
 public class SyncCollectionUnupdated extends SyncTask {
 	private static final int GAME_PER_FETCH = 25;
