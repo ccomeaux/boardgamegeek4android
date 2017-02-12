@@ -6,7 +6,6 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -14,10 +13,7 @@ import com.boardgamegeek.io.CollectionRequest;
 import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.boardgamegeek.service.model.GameList;
 
 import timber.log.Timber;
 
@@ -85,33 +81,6 @@ public class SyncCollectionUnupdated extends SyncTask {
 			} while (numberOfFetches < 100);
 		} finally {
 			Timber.i("...complete!");
-		}
-	}
-
-	private static class GameList {
-		private final List<Integer> gameIds;
-		private final List<String> gameNames;
-
-		public GameList(int count) {
-			gameIds = new ArrayList<>(count);
-			gameNames = new ArrayList<>(count);
-		}
-
-		public void addGame(int id, String name) {
-			gameIds.add(id);
-			gameNames.add(name);
-		}
-
-		public int getSize() {
-			return gameIds.size();
-		}
-
-		public String getDescription() {
-			return StringUtils.formatList(gameNames);
-		}
-
-		public String getIds() {
-			return TextUtils.join(",", gameIds);
 		}
 	}
 
