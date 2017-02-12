@@ -9,13 +9,10 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.ThingRequest;
-import com.boardgamegeek.model.Game;
-import com.boardgamegeek.model.ThingResponse;
+import com.boardgamegeek.io.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.model.GameList;
-
-import java.util.List;
 
 import timber.log.Timber;
 
@@ -45,11 +42,13 @@ public abstract class SyncGames extends SyncTask {
 					updateProgressNotification(detail);
 
 					ThingResponse response = new ThingRequest(service, gameList.getIds()).execute();
-					final List<Game> games = response.getGames();
-					if (games != null && games.size() > 0) {
-						int count = new GamePersister(context).save(games, detail);
-						syncResult.stats.numUpdates += games.size();
-						Timber.i("...saved %,d rows for %,d games", count, games.size());
+					if (response.hasError()) {
+						Timber.w("Error encountered during sync: %s", response.getError());
+						break;
+					} else if (response.getNumberOfGames() > 0) {
+						int count = new GamePersister(context).save(response.getGames(), detail);
+						syncResult.stats.numUpdates += response.getNumberOfGames();
+						Timber.i("...saved %,d rows for %,d games", count, response.getNumberOfGames());
 					} else {
 						Timber.i("...no games returned ");
 					}
