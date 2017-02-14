@@ -3,8 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
-import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -81,6 +79,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -296,7 +295,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-	@NonNull OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
+	@NonNull
+	final OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
 		@DebugLog
 		@Override
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
@@ -360,7 +360,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (id == Query._TOKEN) {
 			StringBuilder where = new StringBuilder();
 			String[] args = {};
-			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
 			if (viewId == 0 && filters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
@@ -376,14 +375,15 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					}
 				}
 			}
-			Uri mUri = uriBuilder.build();
-			loader = new CursorLoader(getActivity(), mUri, sorter == null ? Query.PROJECTION : StringUtils.unionArrays(
-				Query.PROJECTION, sorter.getColumns()), where.toString(), args, sorter == null ? null
-				: sorter.getOrderByClause());
+			loader = new CursorLoader(getActivity(),
+				Collection.CONTENT_URI,
+				sorter == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, sorter.getColumns()),
+				where.toString(),
+				args,
+				sorter == null ? null : sorter.getOrderByClause());
 		} else if (id == ViewQuery._TOKEN) {
 			if (viewId > 0) {
-				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(viewId),
-					ViewQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(viewId), ViewQuery.PROJECTION, null, null, null);
 			}
 		}
 		return loader;
@@ -473,7 +473,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			final int rowCount = cursor.getCount();
 			final String sortDescription = sorter == null ? "" :
 				String.format(getActivity().getString(R.string.sort_description), sorter.getDescription());
-			rowCountView.setText(String.format("%,d", rowCount));
+			rowCountView.setText(String.format(Locale.getDefault(), "%,d", rowCount));
 			sortDescriptionView.setText(sortDescription);
 			EventBus.getDefault().post(new CollectionCountChangedEvent(rowCount));
 			EventBus.getDefault().post(new CollectionSortChangedEvent(sortDescription));
