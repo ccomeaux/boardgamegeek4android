@@ -131,18 +131,18 @@ public class SelectionBuilder {
 		if (column.equals(BaseColumns._ID)) {
 			return mapToTable(column, table, column);
 		} else {
-			projectionMap.put(column, table + "." + column);
+			projectionMap.put(column, String.format("%s.%s", table, column));
 		}
 		return this;
 	}
 
-	public SelectionBuilder mapToTable(String column, String table, String fromColumn) {
-		projectionMap.put(column, table + "." + column + " AS " + fromColumn);
+	public SelectionBuilder mapToTable(String column, String table, String alias) {
+		projectionMap.put(column, String.format("%s.%s AS %s", table, column, alias));
 		return this;
 	}
 
-	public SelectionBuilder mapToTable(String column, String table, String fromColumn, String nullDefault) {
-		projectionMap.put(column, "IFNULL(" + table + "." + column + "," + nullDefault + ") AS " + fromColumn);
+	public SelectionBuilder mapIfNullToTable(String column, String table, String nullDefault) {
+		projectionMap.put(column, String.format("IFNULL(%s.%s,%s) AS %s", table, column, nullDefault, column));
 		return this;
 	}
 
@@ -155,7 +155,7 @@ public class SelectionBuilder {
 	}
 
 	public SelectionBuilder map(String fromColumn, String toClause) {
-		projectionMap.put(fromColumn, toClause + " AS " + fromColumn);
+		projectionMap.put(fromColumn, String.format("%s AS %s", toClause, fromColumn));
 		return this;
 	}
 
