@@ -146,6 +146,14 @@ public class SelectionBuilder {
 		return this;
 	}
 
+	public SelectionBuilder mapAsSum(String aliasColumn, String sumColumn) {
+		return map(aliasColumn, String.format("SUM(%s)", sumColumn));
+	}
+
+	public SelectionBuilder mapAsMax(String aliasColumn, String maxColumn) {
+		return map(aliasColumn, String.format("MAX(%s)", maxColumn));
+	}
+
 	public SelectionBuilder map(String fromColumn, String toClause) {
 		projectionMap.put(fromColumn, toClause + " AS " + fromColumn);
 		return this;

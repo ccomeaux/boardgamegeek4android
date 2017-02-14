@@ -11,7 +11,10 @@ public class PlaysLocationsProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		return new SelectionBuilder().table(Tables.PLAYS).groupBy(Plays.LOCATION).map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")");
+		return new SelectionBuilder()
+			.table(Tables.PLAYS)
+			.groupBy(Plays.LOCATION)
+			.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY);
 	}
 
 	@Override
