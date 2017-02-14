@@ -141,6 +141,11 @@ public class SelectionBuilder {
 		return this;
 	}
 
+	public SelectionBuilder mapIfNull(String column, String nullDefault) {
+		projectionMap.put(column, String.format("IFNULL(%s,%s) AS %s", column, nullDefault, column));
+		return this;
+	}
+
 	public SelectionBuilder mapIfNullToTable(String column, String table, String nullDefault) {
 		projectionMap.put(column, String.format("IFNULL(%s.%s,%s) AS %s", table, column, nullDefault, column));
 		return this;
