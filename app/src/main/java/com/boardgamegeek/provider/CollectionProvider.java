@@ -13,7 +13,7 @@ public class CollectionProvider extends BasicProvider {
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		SelectionBuilder builder = new SelectionBuilder()
-			.table(Tables.COLLECTION_JOIN_GAMES)
+			.table(Tables.COLLECTION_JOIN_GAMES_JOIN_PLAYS)
 			.mapToTable(Collection._ID, Tables.COLLECTION)
 			.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED, Tables.COLLECTION)
@@ -23,6 +23,8 @@ public class CollectionProvider extends BasicProvider {
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {
 			builder.groupBy(groupBy);
+		} else {
+			builder.groupBy(Collection.COLLECTION_ID);
 		}
 		return builder;
 	}
