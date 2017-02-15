@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
@@ -18,7 +19,8 @@ public class CollectionProvider extends BasicProvider {
 			.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
-			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE));
+			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
+			.mapAsMax(Plays.MAX_DATE, Plays.DATE);
 
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {

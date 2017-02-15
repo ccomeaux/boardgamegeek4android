@@ -285,6 +285,7 @@
 	<string name="collection_sort_my_rating">My Rating</string>
 	<string name="collection_sort_play_count_asc">Least Played</string>
 	<string name="collection_sort_play_count_desc">Most Played</string>
+	<string name="collection_sort_play_date_max">Last Played On</string>
 	<string name="collection_sort_play_time">Play Time</string>
 	<string name="collection_sort_rank">Rank</string>
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
