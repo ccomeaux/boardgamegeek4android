@@ -11,7 +11,7 @@ buildscript {
 }
 
 def versionMajor = 6
-def versionMinor = 3
+def versionMinor = 4
 def versionPatch = 0
 def versionBuild = 1
 

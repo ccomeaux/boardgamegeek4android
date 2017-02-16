@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Coming Soon...
+--------------
+ * Bug fixes
+
 Version 6.3
 -----------
  * Under-the-hood improvements to play logging and collection syncing
