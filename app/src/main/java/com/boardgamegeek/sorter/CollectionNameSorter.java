@@ -16,7 +16,12 @@ public class CollectionNameSorter extends CollectionSorter {
 	public CollectionNameSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = Collection.DEFAULT_SORT;
-		descriptionId = R.string.collection_sort_collection_name;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_collection_name;
 	}
 
 	@StringRes

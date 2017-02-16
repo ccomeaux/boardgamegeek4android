@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -16,10 +17,15 @@ public class PlaysLengthSorter extends PlaysSorter {
 	public PlaysLengthSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Plays.LENGTH, true);
-		descriptionId = R.string.menu_plays_sort_length;
 		noLength = context.getString(R.string.no_length);
 		hoursSuffix = context.getString(R.string.hours_abbr);
 		minutesSuffix = context.getString(R.string.minutes_abbr);
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.menu_plays_sort_length;
 	}
 
 	@Override

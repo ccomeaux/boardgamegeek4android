@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
 import java.text.DecimalFormat;
@@ -13,19 +14,21 @@ import java.util.Locale;
 public abstract class Sorter {
 	@NonNull protected final Context context;
 	protected String orderByClause;
-	protected int descriptionId;
 	private final DecimalFormat doubleFormat = new DecimalFormat("#.0");
 
 	public Sorter(@NonNull Context context) {
 		this.context = context;
 	}
 
+	@StringRes
+	protected abstract int getDescriptionId();
+
 	/**
 	 * Gets the description to display in the UI when this sort is applied. Subclasses should set descriptionId
 	 * to control this value.
 	 */
 	public String getDescription() {
-		return context.getString(descriptionId);
+		return context.getString(getDescriptionId());
 	}
 
 	/**

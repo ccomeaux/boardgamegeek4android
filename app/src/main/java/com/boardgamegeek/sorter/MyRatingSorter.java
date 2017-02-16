@@ -17,7 +17,12 @@ public class MyRatingSorter extends CollectionSorter {
 	public MyRatingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Collection.RATING, true);
-		descriptionId = R.string.collection_sort_my_rating;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_my_rating;
 	}
 
 	@StringRes

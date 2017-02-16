@@ -15,8 +15,13 @@ public class AcquiredFromSorter extends CollectionSorter {
 	public AcquiredFromSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = column;
-		descriptionId = R.string.collection_sort_acquired_from;
 		nowhere = context.getString(R.string.nowhere_in_angle_brackets);
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_acquired_from;
 	}
 
 	@StringRes

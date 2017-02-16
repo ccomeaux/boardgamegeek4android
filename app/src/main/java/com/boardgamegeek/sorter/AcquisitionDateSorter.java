@@ -22,8 +22,13 @@ public class AcquisitionDateSorter extends CollectionSorter {
 	public AcquisitionDateSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(COLUMN_NAME, true);
-		descriptionId = R.string.collection_sort_acquisition_date;
 		defaultValue = context.getString(R.string.text_unknown);
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_acquisition_date;
 	}
 
 	@StringRes

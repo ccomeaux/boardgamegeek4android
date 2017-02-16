@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -11,7 +12,12 @@ public class PlayersWinSorter extends PlayersSorter {
 	public PlayersWinSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Plays.SUM_WINS, true);
-		descriptionId = R.string.menu_sort_wins;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.menu_sort_wins;
 	}
 
 	@Override

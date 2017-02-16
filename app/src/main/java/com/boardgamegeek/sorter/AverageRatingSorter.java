@@ -18,7 +18,12 @@ public class AverageRatingSorter extends CollectionSorter {
 	public AverageRatingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(COLUMN, true);
-		descriptionId = R.string.collection_sort_average_rating;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_average_rating;
 	}
 
 	@StringRes

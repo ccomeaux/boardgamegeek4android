@@ -14,9 +14,14 @@ public class LastViewedSorter extends CollectionSorter {
 
 	public LastViewedSorter(@NonNull Context context) {
 		super(context);
-		descriptionId = R.string.collection_sort_last_viewed;
 		orderByClause = getClause(Games.LAST_VIEWED, true);
 		never = context.getString(R.string.never);
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_last_viewed;
 	}
 
 	@StringRes

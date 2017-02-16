@@ -18,7 +18,12 @@ public class GeekRatingSorter extends CollectionSorter {
 	public GeekRatingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(COLUMN, true);
-		descriptionId = R.string.collection_sort_geek_rating;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_geek_rating;
 	}
 
 	@StringRes

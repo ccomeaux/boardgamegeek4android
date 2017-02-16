@@ -15,7 +15,12 @@ public class WishlistPrioritySorter extends CollectionSorter {
 		super(context);
 		priorityText = context.getResources().getStringArray(R.array.wishlist_priority);
 		orderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
-		descriptionId = R.string.collection_sort_wishlist_priority;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_wishlist_priority;
 	}
 
 	@StringRes
