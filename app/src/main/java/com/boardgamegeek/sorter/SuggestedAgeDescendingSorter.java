@@ -11,12 +11,17 @@ public class SuggestedAgeDescendingSorter extends SuggestedAgeSorter {
 	public SuggestedAgeDescendingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Collection.MINIMUM_AGE, true);
-		subDescriptionId = R.string.oldest;
 	}
 
 	@StringRes
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_suggested_age_desc;
+	}
+
+	@StringRes
+	@Override
+	public int getSubDescriptionId() {
+		return R.string.oldest;
 	}
 }

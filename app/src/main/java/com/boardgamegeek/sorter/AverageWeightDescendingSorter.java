@@ -11,12 +11,17 @@ public class AverageWeightDescendingSorter extends AverageWeightSorter {
 	public AverageWeightDescendingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Collection.STATS_AVERAGE_WEIGHT, true);
-		subDescriptionId = R.string.heaviest;
 	}
 
 	@StringRes
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_average_weight_desc;
+	}
+
+	@StringRes
+	@Override
+	public int getSubDescriptionId() {
+		return R.string.heaviest;
 	}
 }

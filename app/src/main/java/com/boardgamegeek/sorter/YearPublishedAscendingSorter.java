@@ -11,12 +11,17 @@ public class YearPublishedAscendingSorter extends YearPublishedSorter {
 	public YearPublishedAscendingSorter(@NonNull Context context) {
 		super(context);
 		orderByClause = getClause(Collection.YEAR_PUBLISHED, false);
-		subDescriptionId = R.string.oldest;
 	}
 
 	@StringRes
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_year_published_asc;
+	}
+
+	@StringRes
+	@Override
+	public int getSubDescriptionId() {
+		return R.string.oldest;
 	}
 }
