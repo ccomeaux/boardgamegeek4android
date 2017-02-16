@@ -149,11 +149,9 @@ public class PlayerColorsActivity extends BaseActivity {
 
 		if (savedInstanceState == null) {
 			final ContentViewEvent event = new ContentViewEvent()
-				.putContentType("PlayerColors")
-				.putContentName(playerName);
-			if (!TextUtils.isEmpty(buddyName)) {
-				event.putContentId(String.valueOf(buddyName));
-			}
+				.putContentType("PlayerColors");
+			if (!TextUtils.isEmpty(buddyName)) event.putContentId(buddyName);
+			if (!TextUtils.isEmpty(playerName)) event.putContentName(playerName);
 			Answers.getInstance().logContentView(event);
 		}
 	}

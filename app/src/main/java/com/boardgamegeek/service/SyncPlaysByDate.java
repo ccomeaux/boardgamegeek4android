@@ -46,9 +46,13 @@ public class SyncPlaysByDate extends UpdateTask {
 		PlayPersister persister = new PlayPersister(context);
 		PlaysResponse response;
 		try {
-			long startTime = System.currentTimeMillis();
-			response = service.playsByDate(account.name, date, date).execute().body();
-			persister.save(response.plays, startTime);
+			final long startTime = System.currentTimeMillis();
+			int page = 1;
+			do {
+				response = service.playsByDate(account.name, date, date, page).execute().body();
+				persister.save(response.plays, startTime);
+				page++;
+			} while (response.hasMorePages());
 			SyncService.hIndex(context);
 			Timber.i("Synced plays for date " + date);
 		} catch (Exception e) {

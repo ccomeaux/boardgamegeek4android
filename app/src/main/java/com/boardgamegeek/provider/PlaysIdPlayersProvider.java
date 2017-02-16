@@ -14,8 +14,18 @@ public class PlaysIdPlayersProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		int playId = Plays.getPlayId(uri);
-		return new SelectionBuilder().table(Tables.PLAY_PLAYERS).whereEquals(PlayPlayers.PLAY_ID, playId);
+		long internalId = Plays.getInternalId(uri);
+		return new SelectionBuilder()
+			.table(Tables.PLAY_PLAYERS)
+			.whereEquals(PlayPlayers._PLAY_ID, internalId);
+	}
+
+	@Override
+	protected SelectionBuilder buildExpandedSelection(Uri uri) {
+		long internalId = Plays.getInternalId(uri);
+		return new SelectionBuilder()
+			.table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+			.whereEquals(PlayPlayers._PLAY_ID, internalId);
 	}
 
 	@Override
@@ -35,9 +45,9 @@ public class PlaysIdPlayersProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
-		int playId = Plays.getPlayId(uri);
-		values.put(PlayPlayers.PLAY_ID, playId);
+		long internalId = Plays.getInternalId(uri);
+		values.put(PlayPlayers._PLAY_ID, internalId);
 		long rowId = db.insertOrThrow(Tables.PLAY_PLAYERS, null, values);
-		return Plays.buildPlayerUri(playId, rowId);
+		return Plays.buildPlayerUri(internalId, rowId);
 	}
 }

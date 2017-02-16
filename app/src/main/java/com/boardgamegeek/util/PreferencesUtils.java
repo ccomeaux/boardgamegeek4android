@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.PlaysActivity;
 
@@ -27,6 +26,7 @@ import java.util.List;
 public class PreferencesUtils {
 	public static final long VIEW_ID_COLLECTION = -1;
 	public static final int INVALID_H_INDEX = -1;
+	public static final int INVALID_ARTICLE_ID = -1;
 
 	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
 	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
@@ -203,21 +203,6 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedDebugInsert", false);
 	}
 
-	public static int getNewPlayId(Context context, int oldPlayId) {
-		return getInt(context, "playId" + oldPlayId, BggContract.INVALID_ID);
-	}
-
-	public static void putNewPlayId(Context context, int oldPlayId, int newPlayId) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		Editor editor = sharedPreferences.edit();
-		if (newPlayId == BggContract.INVALID_ID) {
-			editor.remove("playId" + oldPlayId);
-		} else {
-			editor.putInt("playId" + oldPlayId, newPlayId);
-		}
-		editor.apply();
-	}
-
 	public static int getHIndex(Context context) {
 		return getInt(context, "hIndex", 0);
 	}
@@ -314,6 +299,19 @@ public class PreferencesUtils {
 
 	public static boolean getHapticFeedback(Context context) {
 		return getBoolean(context, KEY_HAPTIC_FEEDBACK, true);
+	}
+
+	public static boolean putThreadArticle(Context context, int threadId, int articleId) {
+		return putInt(context, getThreadKey(threadId), articleId);
+	}
+
+	public static int getThreadArticle(Context context, int threadId) {
+		return getInt(context, getThreadKey(threadId), INVALID_ARTICLE_ID);
+	}
+
+	@NonNull
+	private static String getThreadKey(long threadId) {
+		return "THREAD-" + String.valueOf(threadId);
 	}
 
 	private static boolean remove(Context context, String key) {

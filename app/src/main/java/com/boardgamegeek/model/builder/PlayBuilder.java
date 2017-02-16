@@ -8,18 +8,18 @@ import android.os.Parcelable;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
 
 public class PlayBuilder {
 	public static final String[] PLAY_PROJECTION = {
 		Plays.PLAY_ID,
-		PlayItems.NAME,
-		PlayItems.OBJECT_ID,
+		Plays.ITEM_NAME,
+		Plays.OBJECT_ID,
 		Plays.DATE,
 		Plays.LOCATION,
 		Plays.LENGTH,
@@ -27,14 +27,19 @@ public class PlayBuilder {
 		Plays.INCOMPLETE,
 		Plays.NO_WIN_STATS,
 		Plays.COMMENTS,
-		Plays.UPDATED_LIST,
-		Plays.SYNC_STATUS,
-		Plays.UPDATED,
+		Plays.SYNC_TIMESTAMP,
 		Plays.START_TIME,
-		Plays.PLAYER_COUNT
+		Plays.PLAYER_COUNT,
+		Plays.DELETE_TIMESTAMP,
+		Plays.UPDATE_TIMESTAMP,
+		Plays.DIRTY_TIMESTAMP
 	};
 
+	public static final String[] PLAY_PROJECTION_WITH_ID = StringUtils.concatenate(
+		new String[] { Plays._ID }, PLAY_PROJECTION);
+
 	public static final String[] PLAYER_PROJECTION = {
+		PlayPlayers.USER_ID,
 		PlayPlayers.USER_NAME,
 		PlayPlayers.NAME,
 		PlayPlayers.START_POSITION,
@@ -56,16 +61,17 @@ public class PlayBuilder {
 	public static final String KEY_NOWINSTATS = "NO_WIN_STATS";
 	public static final String KEY_COMMENTS = "COMMENTS";
 	public static final String KEY_PLAYERS = "PLAYERS";
-	public static final String KEY_UPDATED = "UPDATED";
-	public static final String KEY_SYNC_STATUS = "SYNC_STATUS";
-	public static final String KEY_SAVED = "SAVED";
+	public static final String KEY_SYNC_TIMESTAMP = "SYNC_TIMESTAMP";
 	public static final String KEY_START_TIME = "START_TIME";
+	public static final String KEY_DELETE_TIMESTAMP = "DELETE_TIMESTAMP";
+	public static final String KEY_UPDATE_TIMESTAMP = "UPDATE_TIMESTAMP";
+	public static final String KEY_DIRTY_TIMESTAMP = "DIRTY_TIMESTAMP";
 
 	public static Play fromCursor(Cursor cursor) {
 		Play play = new Play();
 		play.playId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
-		play.gameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
-		play.gameName = CursorUtils.getString(cursor, PlayItems.NAME);
+		play.gameId = CursorUtils.getInt(cursor, Plays.OBJECT_ID, BggContract.INVALID_ID);
+		play.gameName = CursorUtils.getString(cursor, Plays.ITEM_NAME);
 		play.setDate(CursorUtils.getString(cursor, Plays.DATE));
 		play.quantity = CursorUtils.getInt(cursor, Plays.QUANTITY, Play.QUANTITY_DEFAULT);
 		play.length = CursorUtils.getInt(cursor, Plays.LENGTH, Play.LENGTH_DEFAULT);
@@ -73,11 +79,12 @@ public class PlayBuilder {
 		play.setIncomplete(CursorUtils.getBoolean(cursor, Plays.INCOMPLETE));
 		play.setNoWinStats(CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS));
 		play.comments = CursorUtils.getString(cursor, Plays.COMMENTS);
-		play.updated = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
-		play.syncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS);
-		play.saved = CursorUtils.getLong(cursor, Plays.UPDATED);
+		play.syncTimestamp = CursorUtils.getLong(cursor, Plays.SYNC_TIMESTAMP);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
 		play.playerCount = CursorUtils.getInt(cursor, Plays.PLAYER_COUNT);
+		play.deleteTimestamp = CursorUtils.getLong(cursor, Plays.DELETE_TIMESTAMP);
+		play.updateTimestamp = CursorUtils.getLong(cursor, Plays.UPDATE_TIMESTAMP);
+		play.dirtyTimestamp = CursorUtils.getLong(cursor, Plays.DIRTY_TIMESTAMP);
 		return play;
 	}
 
@@ -95,8 +102,8 @@ public class PlayBuilder {
 		return player;
 	}
 
-	public static Cursor queryPlayers(Context context, Play play) {
-		return context.getContentResolver().query(play.playerUri(), null, null, null, null);
+	public static Cursor queryPlayers(Context context, long internalId) {
+		return context.getContentResolver().query(Plays.buildPlayerUri(internalId), null, null, null, null);
 	}
 
 	public static void addPlayers(Cursor cursor, Play play) {
@@ -113,7 +120,7 @@ public class PlayBuilder {
 	 * Copy the semantic play information to a new play. Does not include data related to syncing.
 	 */
 	public static Play copy(Play play) {
-		Play copy = new Play(play.playId, play.gameId, play.gameName);
+		Play copy = new Play(play.gameId, play.gameName);
 		copy.setDate(play.getDate());
 		copy.quantity = play.quantity;
 		copy.length = play.length;
@@ -165,10 +172,11 @@ public class PlayBuilder {
 		bundle.putBoolean(prefix + KEY_INCOMPLETE, play.Incomplete());
 		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.NoWinStats());
 		bundle.putString(prefix + KEY_COMMENTS, play.comments);
-		bundle.putLong(prefix + KEY_UPDATED, play.updated);
-		bundle.putInt(prefix + KEY_SYNC_STATUS, play.syncStatus);
-		bundle.putLong(prefix + KEY_SAVED, play.saved);
+		bundle.putLong(prefix + KEY_SYNC_TIMESTAMP, play.syncTimestamp);
 		bundle.putLong(prefix + KEY_START_TIME, play.startTime);
+		bundle.putLong(prefix + KEY_DELETE_TIMESTAMP, play.deleteTimestamp);
+		bundle.putLong(prefix + KEY_UPDATE_TIMESTAMP, play.updateTimestamp);
+		bundle.putLong(prefix + KEY_DELETE_TIMESTAMP, play.dirtyTimestamp);
 		bundle.putParcelableArrayList(prefix + KEY_PLAYERS, (ArrayList<? extends Parcelable>) play.getPlayers());
 	}
 
@@ -184,10 +192,11 @@ public class PlayBuilder {
 		play.setIncomplete(bundle.getBoolean(prefix + KEY_INCOMPLETE));
 		play.setNoWinStats(bundle.getBoolean(prefix + KEY_NOWINSTATS));
 		play.comments = getString(bundle, prefix + KEY_COMMENTS);
-		play.updated = bundle.getLong(prefix + KEY_UPDATED);
-		play.syncStatus = bundle.getInt(prefix + KEY_SYNC_STATUS);
-		play.saved = bundle.getLong(prefix + KEY_SAVED);
+		play.syncTimestamp = bundle.getLong(prefix + KEY_SYNC_TIMESTAMP);
 		play.startTime = bundle.getLong(prefix + KEY_START_TIME);
+		play.deleteTimestamp = bundle.getLong(prefix + KEY_DELETE_TIMESTAMP);
+		play.updateTimestamp = bundle.getLong(prefix + KEY_UPDATE_TIMESTAMP);
+		play.dirtyTimestamp = bundle.getLong(prefix + KEY_DIRTY_TIMESTAMP);
 		ArrayList<Player> players = bundle.getParcelableArrayList(prefix + KEY_PLAYERS);
 		play.setPlayers(players);
 		return play;

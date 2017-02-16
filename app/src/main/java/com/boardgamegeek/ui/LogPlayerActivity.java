@@ -68,11 +68,14 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_FAB_COLOR = "FAB_COLOR";
+	public static final String KEY_POSITION = "POSITION";
+	public static final int INVALID_POSITION = -1;
 
 	private static final int HELP_VERSION = 2;
 	private static final int TOKEN_COLORS = 1;
 
 	private String gameName;
+	private int position;
 
 	@State Player player;
 	private Player originalPlayer;
@@ -119,8 +122,10 @@ public class LogPlayerActivity extends AppCompatActivity {
 			switch (v.getId()) {
 				case R.id.menu_done:
 					save();
+					break;
 				case R.id.menu_cancel:
 					cancel();
+					break;
 			}
 		}
 	};
@@ -180,6 +185,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 		final Intent intent = getIntent();
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION);
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
@@ -492,6 +498,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		captureForm();
 		Intent intent = new Intent();
 		intent.putExtra(KEY_PLAYER, player);
+		intent.putExtra(KEY_POSITION, position);
 		setResult(RESULT_OK, intent);
 		finish();
 	}

@@ -11,8 +11,8 @@ import com.boardgamegeek.service.UpdateService;
 
 public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	private final Context context;
-	private long internalId;
-	private int gameId;
+	private final long internalId;
+	private final int gameId;
 
 	public ResetCollectionItemTask(Context context, long internalId, int gameId) {
 		this.context = context.getApplicationContext();

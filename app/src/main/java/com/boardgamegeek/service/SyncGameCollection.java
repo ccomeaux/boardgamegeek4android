@@ -10,15 +10,19 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
+import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.CollectionItem;
-import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
+import com.boardgamegeek.model.persister.CollectionPersister.SaveResults;
 import com.boardgamegeek.provider.BggContract;
 
 import java.util.List;
 
 import timber.log.Timber;
 
+/***
+ * Syncs the user's collection for the specified game, deleting items that fall outside the selected statuses to sync.
+ */
 public class SyncGameCollection extends UpdateTask {
 	private final int gameId;
 
@@ -43,65 +47,48 @@ public class SyncGameCollection extends UpdateTask {
 	@Override
 	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
-		if (account == null) {
-			return;
-		}
+		if (account == null) return;
 
-		List<CollectionItem> items = request(context, account);
-		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
-		persister.save(items);
-		Timber.i("Synced %,d collection item(s) for game ID=%s", items == null ? 0 : items.size(), gameId);
+		CollectionPersister persister = new CollectionPersister.Builder(context)
+			.includePrivateInfo()
+			.includeStats()
+			.validStatusesOnly()
+			.build();
 
-		// XXX: this deleted more games that I expected. need to rework
-		int deleteCount = persister.delete(items, gameId);
-		Timber.i("Removed %,d collection item(s) for game ID=%s", deleteCount, gameId);
-	}
-
-	private List<CollectionItem> request(Context context, @NonNull Account account) {
-		// Only one of these requests will return results
 		BggService service = Adapter.createForXmlWithAuth(context);
 
 		ArrayMap<String, String> options = new ArrayMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(gameId));
+
 		List<CollectionItem> items;
-
-		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
-
-		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
-		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
-
-		options.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED);
-		options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
-
-		options.put(BggService.COLLECTION_QUERY_STATUS_PLAYED, "1");
-		items = requestItems(account, service, options);
-		if (items != null) {
-			return items;
-		}
-
-		Timber.i("No collection items for game ID=%s", gameId);
-		return null;
-	}
-
-	private List<CollectionItem> requestItems(@NonNull Account account, BggService service, ArrayMap<String, String> options) {
 		CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
-		if (response == null || response.items == null || response.items.size() == 0) {
-			Timber.i("No collection items for game ID=%d with options=%s", gameId, options);
-			return null;
+		if (response.hasError()) {
+			Timber.w("Failed to get a response from the 'Geek - %s", response.getError());
+			return;
+		} else if (response.getNumberOfItems() > 0) {
+			items = response.getItems();
 		} else {
-			return response.items;
+			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+			response = new CollectionRequest(service, account.name, options).execute();
+			if (response.hasError()) {
+				Timber.w("Failed to get a response from the 'Geek - %s", response.getError());
+				return;
+			} else {
+				items = response.getItems();
+			}
 		}
+
+		if (items == null) {
+			Timber.w("Didn't find any items for game ID=%s", gameId);
+			return;
+		}
+
+		SaveResults results = persister.save(items);
+		Timber.i("Synced %,d collection item(s) for game ID=%s", items.size(), gameId);
+
+		int deleteCount = persister.delete(gameId, results.getSavedCollectionIds());
+		Timber.i("Removed %,d collection item(s) for game ID=%s", deleteCount, gameId);
 	}
 }

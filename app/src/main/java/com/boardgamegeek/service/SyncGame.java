@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.ThingRequest;
-import com.boardgamegeek.model.ThingResponse;
+import com.boardgamegeek.io.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract;
 
@@ -23,7 +23,7 @@ public class SyncGame extends UpdateTask {
 	@Override
 	public String getDescription(Context context) {
 		if (isValid()) {
-			return context.getString(R.string.sync_msg_game_valid, gameId);
+			return context.getString(R.string.sync_msg_game_valid, String.valueOf(gameId));
 		}
 		return context.getString(R.string.sync_msg_game_invalid);
 	}
@@ -36,8 +36,11 @@ public class SyncGame extends UpdateTask {
 	@Override
 	public void execute(Context context) {
 		ThingResponse response = new ThingRequest(Adapter.createForXml(), gameId).execute();
-		GamePersister gp = new GamePersister(context);
-		gp.save(response.getGames(), "Game " + gameId);
-		Timber.i("Synced Game " + gameId);
+		if (response.hasError()) {
+			Timber.w("Failed syncing game ID=%s", gameId);
+		} else {
+			int rowCount = new GamePersister(context).save(response.getGames(), "Game " + gameId);
+			Timber.i("Synced game ID=%s (%,d rows)", gameId, rowCount);
+		}
 	}
 }

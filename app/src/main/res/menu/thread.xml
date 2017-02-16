@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item
+		android:id="@+id/menu_scroll_last"
+		android:icon="@drawable/menu_scroll_down"
+		android:title="@string/menu_scroll_to_last_read"
+		app:showAsAction="ifRoom"/>
+
+	<item
+		android:id="@+id/menu_scroll_bottom"
+		android:icon="@drawable/menu_scroll_bottom"
+		android:title="@string/menu_scroll_to_bottom"
+		app:showAsAction="ifRoom"/>
+
+	<item
+		android:id="@+id/menu_help"
+		android:orderInCategory="99"
+		android:title="@string/help_title"
+		app:showAsAction="never"/>
+
+</menu>

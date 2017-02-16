@@ -47,6 +47,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	}
 
 	private ViewGroup root;
+	private DatePickerDialogFragment datePickerDialogFragment;
 	private PrivateInfoDialogListener listener;
 	@BindView(R.id.price_currency) Spinner priceCurrencyView;
 	@BindView(R.id.price) EditText priceView;
@@ -155,8 +156,11 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@DebugLog
 	@OnClick(R.id.acquisition_date)
 	public void onDateClick() {
-		DatePickerDialogFragment datePicker = new DatePickerDialogFragment();
-		datePicker.setOnDateSetListener(new OnDateSetListener() {
+		final FragmentManager fragmentManager = getFragmentManager();
+		datePickerDialogFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
+
+		datePickerDialogFragment = new DatePickerDialogFragment();
+		datePickerDialogFragment.setOnDateSetListener(new OnDateSetListener() {
 			@Override
 			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 				acquisitionDate = DateTimeUtils.formatDateForApi(year, monthOfYear, dayOfMonth);
@@ -166,10 +170,10 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 				showOrHideAcquisitionDateLabel();
 			}
 		});
-		final FragmentManager fragmentManager = getFragmentManager();
+
 		fragmentManager.executePendingTransactions();
-		datePicker.setCurrentDateInMillis(DateTimeUtils.getMillisFromApiDate(acquisitionDate, System.currentTimeMillis()));
-		datePicker.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
+		datePickerDialogFragment.setCurrentDateInMillis(DateTimeUtils.getMillisFromApiDate(acquisitionDate, System.currentTimeMillis()));
+		datePickerDialogFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
 	}
 
 	@DebugLog

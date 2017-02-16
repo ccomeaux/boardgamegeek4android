@@ -3,18 +3,16 @@ package com.boardgamegeek.service;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.ThingRequest;
-import com.boardgamegeek.model.Game;
-import com.boardgamegeek.model.ThingResponse;
+import com.boardgamegeek.io.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
-import com.boardgamegeek.util.StringUtils;
-
-import java.util.List;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.service.model.GameList;
 
 import timber.log.Timber;
 
@@ -27,34 +25,32 @@ public abstract class SyncGames extends SyncTask {
 
 	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
-		Timber.i(getIntroLogMessage());
+		Timber.i(getIntroLogMessage(GAMES_PER_FETCH));
 		try {
-			int fetchSize = GAMES_PER_FETCH;
 			int numberOfFetches = 0;
 			do {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
+
 				numberOfFetches++;
-				List<String> gameIds = getGameIds(fetchSize);
-				if (gameIds.size() > 0) {
-					String gameIdDescription = StringUtils.formatList(gameIds);
-					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
-					String detail = context.getString(R.string.sync_notification_games, fetchSize, gameIdDescription);
+				GameList gameList = getGameIds(GAMES_PER_FETCH);
+				if (gameList.getSize() > 0) {
+					Timber.i("...found %,d games to update [%s]", gameList.getSize(), gameList.getDescription());
+					String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, GAMES_PER_FETCH, GAMES_PER_FETCH, gameList.getDescription());
 					if (numberOfFetches > 1) {
 						detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches);
 					}
 					updateProgressNotification(detail);
 
-					GamePersister persister = new GamePersister(context);
-					ThingResponse response = getThingResponse(service, gameIds);
-					final List<Game> games = response.getGames();
-					if (games != null && games.size() > 0) {
-						int count = persister.save(games, detail);
-						syncResult.stats.numUpdates += games.size();
-						Timber.i("...saved " + count + " rows for " + games.size() + " games");
+					ThingResponse response = new ThingRequest(service, gameList.getIds()).execute();
+					if (response.hasError()) {
+						Timber.w("Error encountered during sync: %s", response.getError());
+						break;
+					} else if (response.getNumberOfGames() > 0) {
+						int count = new GamePersister(context).save(response.getGames(), detail);
+						syncResult.stats.numUpdates += response.getNumberOfGames();
+						Timber.i("...saved %,d rows for %,d games", count, response.getNumberOfGames());
 					} else {
-						Timber.i("...no games returned (shouldn't happen)");
+						Timber.i("...no games returned ");
 					}
 				} else {
 					Timber.i(getExitLogMessage());
@@ -70,32 +66,30 @@ public abstract class SyncGames extends SyncTask {
 		return 1;
 	}
 
-	private ThingResponse getThingResponse(BggService service, List<String> gameIds) {
-//		while (true) {
-//			try {
-		String ids = TextUtils.join(",", gameIds);
-		return new ThingRequest(service, ids).execute();
-//			} catch (Exception e) {
-//				if (e.getCause() instanceof SocketTimeoutException) {
-//					if (fetchSize == 1) {
-//						Timber.i("...timeout with only 1 game; aborting.");
-//						break;
-//					}
-//					fetchSize = fetchSize / 2;
-//					Timber.i("...timeout - reducing games per fetch to " + fetchSize);
-//				} else {
-//					throw e;
-//				}
-//			}
-//		}
-//		return new ThingResponse();
-	}
-
 	@NonNull
-	protected abstract String getIntroLogMessage();
+	protected abstract String getIntroLogMessage(int gamesPerFetch);
 
 	@NonNull
 	protected abstract String getExitLogMessage();
 
-	protected abstract List<String> getGameIds(int gamesPerFetch);
+	private GameList getGameIds(int gamesPerFetch) {
+		GameList list = new GameList(gamesPerFetch);
+		Cursor cursor = context.getContentResolver().query(Games.CONTENT_URI,
+			new String[] { Games.GAME_ID, Games.GAME_NAME },
+			getSelection(),
+			null,
+			String.format("games.%s LIMIT %s", Games.UPDATED_LIST, gamesPerFetch));
+		try {
+			while (cursor != null && cursor.moveToNext()) {
+				list.addGame(cursor.getInt(0), cursor.getString(1));
+			}
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+		return list;
+	}
+
+	protected String getSelection() {
+		return null;
+	}
 }

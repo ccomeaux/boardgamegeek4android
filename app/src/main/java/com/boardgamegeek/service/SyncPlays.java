@@ -9,12 +9,12 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import java.io.IOException;
 
@@ -140,20 +140,25 @@ public class SyncPlays extends SyncTask {
 	}
 
 	private void deleteUnupdatedPlaysSince(long time) {
-		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED,
-			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) });
+		deleteUnupdatedPlays(time, ">=");
 	}
 
 	private void deleteUnupdatedPlaysBefore(long time) {
-		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED,
+		deleteUnupdatedPlays(time, "<=");
+	}
+
+	private void deleteUnupdatedPlays(long time, final String dateComparator) {
+		deletePlays(Plays.SYNC_TIMESTAMP + "<? AND " + Plays.DATE + dateComparator + "? AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
 			new String[] { String.valueOf(startTime), DateTimeUtils.formatDateForApi(time) });
 	}
 
 	private void deletePlays(String selection, String[] selectionArgs) {
 		int count = context.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
-		// TODO: verify this number is correct
 		syncResult.stats.numDeletes += count;
-		Timber.i("...deleted " + count + " unupdated plays");
+		Timber.i("...deleted %,d unupdated plays", count);
 	}
 
 	private void updateTimeStamps(@NonNull PlaysResponse response) {

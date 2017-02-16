@@ -73,7 +73,7 @@ public class SettingsActivity extends DrawerActivity {
 		args.putString(KEY_SETTINGS_FRAGMENT, key);
 		Fragment fragment = new PrefFragment();
 		fragment.setArguments(args);
-		getFragmentManager().beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commit();
+		getFragmentManager().beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss();
 	}
 
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {

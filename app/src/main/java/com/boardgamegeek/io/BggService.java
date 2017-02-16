@@ -1,17 +1,17 @@
 package com.boardgamegeek.io;
 
+import com.boardgamegeek.io.model.GeekListResponse;
+import com.boardgamegeek.io.model.ThreadResponse;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
-import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
-import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.model.User;
 
 import java.text.SimpleDateFormat;
@@ -66,10 +66,10 @@ public interface BggService {
 	Call<ThingResponse> thingWithRatings(@Query("id") int gameId, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate);
+	Call<PlaysResponse> playsByDate(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
-	Call<PlaysResponse> playsByGame(@Query("username") String username, @Query("id") int gameId);
+	Call<PlaysResponse> playsByGame(@Query("username") String username, @Query("id") int gameId, @Query("page") int page);
 
 	@GET("/xmlapi2/plays")
 	Call<PlaysResponse> plays(@Query("username") String username, @Query("mindate") String minDate, @Query("maxdate") String maxDate, @Query("page") int page);
@@ -130,5 +130,5 @@ public interface BggService {
 	Call<GeekListsResponse> geekLists(@Query("pageid") int page, @Query("sort") String sort);
 
 	@GET("/xmlapi/geeklist/{id}")
-	Call<GeekList> geekList(@Path("id") int id, @Query("comments") int comments);
+	Call<GeekListResponse> geekList(@Path("id") int id, @Query("comments") int comments);
 }

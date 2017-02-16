@@ -2,6 +2,7 @@ package com.boardgamegeek.tasks;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -298,27 +299,29 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	@DebugLog
 	private void populatePlayerColorChoices() {
 		for (PlayerColorChoices player : playersNeedingColor) {
-			// TODO - support the other player type
-			if (player.type == TYPE_PLAYER_USER) {
-				Cursor cursor = null;
-				try {
-					cursor = context.getContentResolver().query(
-						PlayerColors.buildUserUri(player.name),
-						new String[] { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER },
-						null, null, null);
-					while (cursor != null && cursor.moveToNext()) {
-						String color = cursor.getString(0);
-						if (colorsAvailable.contains(color)) {
-							player.colors.add(new ColorChoice(color, cursor.getInt(1)));
-						}
-					}
-				} catch (Exception e) {
-					Timber.w(e, "Couldn't get the colors for %s", player);
-				} finally {
-					if (cursor != null) {
-						cursor.close();
+			Cursor cursor = null;
+			try {
+				Uri uri = null;
+				if (player.type == TYPE_PLAYER_USER) {
+					uri = PlayerColors.buildUserUri(player.name);
+				} else if (player.type == TYPE_PLAYER_NON_USER) {
+					uri = PlayerColors.buildPlayerUri(player.name);
+				}
+				if (uri == null) return;
+
+				final String[] projection = { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER };
+				cursor = context.getContentResolver().query(uri, projection, null, null, null);
+				while (cursor != null && cursor.moveToNext()) {
+					String color = cursor.getString(0);
+					int sortOrder = cursor.getInt(1);
+					if (colorsAvailable.contains(color)) {
+						player.colors.add(new ColorChoice(color, sortOrder));
 					}
 				}
+			} catch (Exception e) {
+				Timber.w(e, "Couldn't get the colors for %s", player);
+			} finally {
+				if (cursor != null) cursor.close();
 			}
 		}
 	}

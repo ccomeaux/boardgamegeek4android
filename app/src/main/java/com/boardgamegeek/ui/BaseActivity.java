@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.UpdateErrorEvent;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -69,10 +70,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		final MenuItem item = menu.findItem(R.id.menu_cancel_sync);
-		if (item != null) {
-			item.setVisible(SyncService.isActiveOrPending(this));
-		}
+		UIUtils.showMenuItem(menu, R.id.menu_cancel_sync, SyncService.isActiveOrPending(this));
 		return super.onPrepareOptionsMenu(menu);
 	}
 

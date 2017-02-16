@@ -29,10 +29,10 @@ public class RetryInterceptor implements Interceptor {
 			responseCode = response.code();
 			if (responseCode == COLLECTION_REQUEST_PROCESSING ||
 				responseCode == API_RATE_EXCEEDED) {
-				Timber.i("Retry-able response code %s", responseCode);
+				Timber.d("Retry-able response code %s", responseCode);
 				numberOfRetries++;
 				wait(numberOfRetries);
-				Timber.i("...retrying");
+				Timber.d("...retrying");
 			} else {
 				return response;
 			}
@@ -43,7 +43,7 @@ public class RetryInterceptor implements Interceptor {
 
 	private void wait(int numberOfRetries) {
 		long waitTime = calculateWaitTime(numberOfRetries);
-		Timber.i("...retry #%1$,d in %2$,dms...", numberOfRetries, waitTime);
+		Timber.d("...retry #%1$,d in %2$,dms...", numberOfRetries, waitTime);
 		try {
 			Thread.sleep(waitTime);
 		} catch (InterruptedException e) {

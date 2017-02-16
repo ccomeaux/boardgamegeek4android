@@ -1,46 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/footer"
-				xmlns:android="http://schemas.android.com/apk/res/android"
-				xmlns:app="http://schemas.android.com/apk/res-auto"
-				xmlns:tools="http://schemas.android.com/tools"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="@dimen/material_margin_horizontal">
-
-	<TextView
-		android:id="@+id/play_unsynced_message"
-		style="@style/Text.Footnote2"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		tools:text="Unsynced"/>
+<LinearLayout android:id="@+id/footer"
+			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:app="http://schemas.android.com/apk/res-auto"
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="wrap_content"
+			  android:orientation="vertical"
+			  android:padding="@dimen/material_margin_horizontal">
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/play_saved"
+		android:id="@+id/pending_timestamp"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_below="@+id/play_unsynced_message"
 		app:format="@string/saved_prefix"
-		tools:text="1 hour ago"/>
+		tools:text="Updated pending as of 1 hour ago"/>
+
+	<com.boardgamegeek.ui.widget.TimestampView
+		android:id="@+id/dirty_timestamp"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:format="@string/saved_prefix"
+		app:hideWhenEmpty="true"
+		tools:text="Editing, last saved 1 hour ago"/>
 
 	<TextView
 		android:id="@+id/play_id"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentRight="true"
-		tools:text="123456789"/>
+		tools:text="Play ID: 123456789"/>
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/updated"
+		android:id="@+id/sync_timestamp"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentRight="true"
-		android:layout_below="@+id/play_id"
-		app:format="@string/updated_prefix"
-		tools:text="Yesterday"/>
+		app:format="@string/synced_prefix"
+		app:hideWhenEmpty="true"
+		tools:text="Synced Yesterday"/>
 
-</RelativeLayout>
+</LinearLayout>

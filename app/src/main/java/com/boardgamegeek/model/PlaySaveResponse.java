@@ -18,6 +18,7 @@ public class PlaySaveResponse extends PlayPostResponse {
 	protected void saveContent(String content) {
 		Gson gson = new Gson();
 		playSave = gson.fromJson(content, PlaySave.class);
+		error = playSave.error;
 	}
 
 	public int getPlayCount() {
@@ -40,6 +41,7 @@ public class PlaySaveResponse extends PlayPostResponse {
 		@SuppressWarnings("unused") private int playid;
 		@SuppressWarnings("unused") private int numplays;
 		@SuppressWarnings("unused") private String html;
+		@SuppressWarnings("unused") private String error;
 
 		public int getPlayId() {
 			return playid;

@@ -13,6 +13,7 @@ import com.boardgamegeek.events.LocationsCountChangedEvent;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -50,9 +51,9 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_sort).setVisible(true);
 		if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
-			menu.findItem(R.id.menu_sort_quantity).setChecked(true);
+			UIUtils.checkMenuItem(menu, R.id.menu_sort_quantity);
 		} else {
-			menu.findItem(R.id.menu_sort_name).setChecked(true);
+			UIUtils.checkMenuItem(menu, R.id.menu_sort_name);
 		}
 		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, locationCount <= 0 ? "" : String.format("%,d", locationCount));
 		return super.onPrepareOptionsMenu(menu);

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,7 +47,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	private GeekListsRecyclerViewAdapter adapter;
 
 	Unbinder unbinder;
-	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
@@ -204,11 +205,11 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 		}
 
 		if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else {
-			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+			AnimationUtils.fadeIn(recyclerView, isResumed());
 		}
-		AnimationUtils.fadeOut(progressView);
+		progressView.hide();
 	}
 
 	@Override

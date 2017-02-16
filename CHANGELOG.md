@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 6.3
+-----------
+ * Under-the-hood improvements to play logging and collection syncing
+ * Improved GeekList UI
+ * While reading a thread, you can now scroll to the bottom of the list or to the last read article.
+ * Improved forum timestamps
+ * Link to the privacy policy
+ * Bug fixes
+
 Version 6.2
 -----------
  * Top 100 Games

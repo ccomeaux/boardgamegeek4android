@@ -15,6 +15,7 @@ import android.util.Pair;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
@@ -44,7 +45,6 @@ public class ActivityUtils {
 	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_END_PLAY = "END_PLAY";
 	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
@@ -81,6 +81,7 @@ public class ActivityUtils {
 	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
+	public static final String KEY_COMMENTS = "COMMENTS";
 	public static final String LINK_AMAZON_COM = "www.amazon.com";
 	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";
 	public static final String LINK_AMAZON_DE = "www.amazon.de";
@@ -188,53 +189,57 @@ public class ActivityUtils {
 			.putContentId(String.valueOf(id)));
 	}
 
-	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static void startPlayActivity(Context context, PlaySelectedEvent event) {
+		Intent intent = createPlayIntent(context, event.getInternalId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
 		context.startActivity(intent);
 	}
 
-	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static Intent createPlayIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
-		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
-		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(PlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(PlayActivity.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_ID, internalId);
+		intent.putExtra(KEY_GAME_ID, gameId);
+		intent.putExtra(KEY_GAME_NAME, gameName);
+		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 
-	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static void editPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		PlayManipulationEvent.log("Edit", gameName);
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+		Intent intent = createEditPlayIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static void endPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createEditPlayIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createRematchIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createRematchIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createEditPlayIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
 
 	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
-		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
+		Intent intent = createEditPlayIntent(context, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
-	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static Intent createEditPlayIntent(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		return createEditPlayIntent(context, BggContract.INVALID_ID, gameId, gameName, thumbnailUrl, imageUrl);
+	}
+
+	public static Intent createEditPlayIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.putExtra(KEY_PLAY_ID, playId);
+		intent.putExtra(KEY_ID, internalId);
 		intent.putExtra(KEY_GAME_ID, gameId);
 		intent.putExtra(KEY_GAME_NAME, gameName);
 		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
@@ -255,8 +260,8 @@ public class ActivityUtils {
 	public static void logQuickPlay(Context context, int gameId, String gameName) {
 		Play play = new Play(gameId, gameName);
 		play.setCurrentDate();
-		play.syncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
-		new PlayPersister(context).save(play);
+		play.updateTimestamp = System.currentTimeMillis();
+		new PlayPersister(context).save(play, BggContract.INVALID_ID, false);
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 

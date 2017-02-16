@@ -15,6 +15,9 @@
 		android:summary="@string/pref_about_contact_us_summary"
 		android:title="@string/pref_about_contact_us"/>
 	<com.boardgamegeek.pref.LinkPreference
+		android:summary="https://github.com/ccomeaux/boardgamegeek4android/wiki/Privacy-Policy"
+		android:title="@string/pref_about_privacy_policy"/>
+	<com.boardgamegeek.pref.LinkPreference
 		android:summary="https://plus.google.com/communities/109617005048169697217"
 		android:title="@string/pref_about_google_plus_community"/>
 	<com.boardgamegeek.pref.LinkPreference

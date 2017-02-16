@@ -2,8 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
+import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,11 +37,9 @@ import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -52,11 +48,13 @@ import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
@@ -69,6 +67,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 
@@ -81,6 +80,11 @@ import timber.log.Timber;
 
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
 	public static final String KEY_MODE = "MODE";
+	public static final int FILTER_TYPE_STATUS_ALL = -2;
+	public static final int FILTER_TYPE_STATUS_UPDATE = 1;
+	public static final int FILTER_TYPE_STATUS_DIRTY = 2;
+	public static final int FILTER_TYPE_STATUS_DELETE = 3;
+	public static final int FILTER_TYPE_STATUS_PENDING = 4;
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
 	public static final int MODE_BUDDY = 2;
@@ -98,11 +102,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String buddyName;
 	private String playerName;
 	private String locationName;
-	private int filterType = Play.SYNC_STATUS_ALL;
+	private int filterType = FILTER_TYPE_STATUS_ALL;
 	private Sorter sorter;
 	private boolean hasAutoSyncTriggered;
 	private int mode = MODE_ALL;
-	private int selectedPlayId;
 	private final LinkedHashSet<Integer> selectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem sendMenuItem;
 	private MenuItem editMenuItem;
@@ -181,52 +184,46 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public void onListItemClick(View view, int position, long id) {
 		Cursor cursor = (Cursor) adapter.getItem(position);
 		if (cursor != null) {
+			long internalId = cursor.getInt(cursor.getColumnIndex(Plays._ID));
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			EventBus.getDefault().postSticky(new PlaySelectedEvent(play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
+			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
 		}
 	}
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		switch (filterType) {
-			case Play.SYNC_STATUS_IN_PROGRESS:
-				checkMenuItemSafely(menu, R.id.menu_filter_in_progress);
+			case FILTER_TYPE_STATUS_DIRTY:
+				UIUtils.checkMenuItem(menu, R.id.menu_filter_in_progress);
 				break;
-			case Play.SYNC_STATUS_PENDING:
-				checkMenuItemSafely(menu, R.id.menu_filter_pending);
+			case FILTER_TYPE_STATUS_PENDING:
+				UIUtils.checkMenuItem(menu, R.id.menu_filter_pending);
 				break;
-			case Play.SYNC_STATUS_ALL:
+			case FILTER_TYPE_STATUS_ALL:
 			default:
-				checkMenuItemSafely(menu, R.id.menu_filter_all);
+				UIUtils.checkMenuItem(menu, R.id.menu_filter_all);
 				break;
 		}
 		if (sorter != null) {
 			switch (sorter.getType()) {
 				case PlaysSorterFactory.TYPE_PLAY_DATE:
-					checkMenuItemSafely(menu, R.id.menu_sort_date);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_date);
 					break;
 				case PlaysSorterFactory.TYPE_PLAY_GAME:
-					checkMenuItemSafely(menu, R.id.menu_sort_game);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_game);
 					break;
 				case PlaysSorterFactory.TYPE_PLAY_LENGTH:
-					checkMenuItemSafely(menu, R.id.menu_sort_length);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_length);
 					break;
 				case PlaysSorterFactory.TYPE_PLAY_LOCATION:
-					checkMenuItemSafely(menu, R.id.menu_sort_location);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_location);
 					break;
 				default:
-					checkMenuItemSafely(menu, R.id.menu_sort_date);
+					UIUtils.checkMenuItem(menu, R.id.menu_sort_date);
 					break;
 			}
 		}
 		super.onPrepareOptionsMenu(menu);
-	}
-
-	private static void checkMenuItemSafely(Menu menu, int resourceId) {
-		MenuItem menuItem = menu.findItem(resourceId);
-		if (menuItem != null) {
-			menuItem.setChecked(true);
-		}
 	}
 
 	@Override
@@ -246,13 +243,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				setSort(PlaysSorterFactory.TYPE_PLAY_LENGTH);
 				return true;
 			case R.id.menu_filter_all:
-				filter(Play.SYNC_STATUS_ALL, title);
+				filter(FILTER_TYPE_STATUS_ALL, title);
 				return true;
 			case R.id.menu_filter_in_progress:
-				filter(Play.SYNC_STATUS_IN_PROGRESS, title);
+				filter(FILTER_TYPE_STATUS_DIRTY, title);
 				return true;
 			case R.id.menu_filter_pending:
-				filter(Play.SYNC_STATUS_PENDING, title);
+				filter(FILTER_TYPE_STATUS_PENDING, title);
 				return true;
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
@@ -273,7 +270,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		selectedPlayId = event.getPlayId();
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
@@ -397,15 +393,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case MODE_ALL:
 			default:
 				switch (filterType) {
-					case Play.SYNC_STATUS_IN_PROGRESS:
+					case FILTER_TYPE_STATUS_DIRTY:
 						return R.string.empty_plays_draft;
-					case Play.SYNC_STATUS_PENDING_UPDATE:
+					case FILTER_TYPE_STATUS_UPDATE:
 						return R.string.empty_plays_update;
-					case Play.SYNC_STATUS_PENDING_DELETE:
+					case FILTER_TYPE_STATUS_DELETE:
 						return R.string.empty_plays_delete;
-					case Play.SYNC_STATUS_PENDING:
+					case FILTER_TYPE_STATUS_PENDING:
 						return R.string.empty_plays_pending;
-					case Play.SYNC_STATUS_ALL:
+					case FILTER_TYPE_STATUS_ALL:
 					default:
 						if (PreferencesUtils.getSyncPlays(getActivity())) {
 							return R.string.empty_plays_sync_off;
@@ -428,12 +424,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				sorter == null ? null : sorter.getOrderByClause());
 			loader.setUpdateThrottle(2000);
 		} else if (id == GameQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), GameQuery.PROJECTION, null, null,
-				null);
+			loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), GameQuery.PROJECTION, null, null, null);
 			loader.setUpdateThrottle(0);
 		} else if (id == SumQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(),
-				selectionArgs(), null);
+			loader = new CursorLoader(getActivity(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(), selectionArgs(), null);
 			loader.setUpdateThrottle(0);
 		} else if (id == PlayerSumQuery._TOKEN) {
 			Uri uri = Plays.buildPlayersByUniquePlayerUri();
@@ -449,15 +443,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String selection() {
 		switch (mode) {
 			case MODE_ALL:
-				if (filterType == Play.SYNC_STATUS_ALL) {
+				if (filterType == FILTER_TYPE_STATUS_ALL) {
 					return null;
-				} else if (filterType == Play.SYNC_STATUS_PENDING) {
-					return Plays.SYNC_STATUS + "=? OR " + Plays.SYNC_STATUS + "=?";
+				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
+					return String.format("%s>0 OR %s>0", Plays.DELETE_TIMESTAMP, Plays.UPDATE_TIMESTAMP);
 				} else {
-					return Plays.SYNC_STATUS + "=?";
+					return String.format("%s>0", Plays.DIRTY_TIMESTAMP);
 				}
 			case MODE_GAME:
-				return PlayItems.OBJECT_ID + "=?";
+				return Plays.OBJECT_ID + "=?";
 			case MODE_BUDDY:
 				return PlayPlayers.USER_NAME + "=?";
 			case MODE_PLAYER:
@@ -471,13 +465,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String[] selectionArgs() {
 		switch (mode) {
 			case MODE_ALL:
-				if (filterType == Play.SYNC_STATUS_ALL) {
+				if (filterType == FILTER_TYPE_STATUS_ALL) {
 					return null;
-				} else if (filterType == Play.SYNC_STATUS_PENDING) {
-					return new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
-						String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) };
+				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
+					return null;
 				} else {
-					return new String[] { String.valueOf(filterType) };
+					return null;
 				}
 			case MODE_GAME:
 				return new String[] { String.valueOf(gameId) };
@@ -568,7 +561,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	protected void onFabClicked() {
-		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), 0, gameId, gameName, thumbnailUrl, imageUrl);
+		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		startActivity(intent);
 	}
@@ -605,50 +598,35 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
 
-			UIUtils.setActivatedCompat(view, play.getPlayId() == selectedPlayId);
-
 			String info = PresentationUtils.describePlayDetails(getActivity(),
 				mode != MODE_GAME ? play.getDate() : null,
 				play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount());
-
-			int messageId = 0;
-			int status = play.getStatus();
-			if (status != Play.SYNC_STATUS_SYNCED) {
-				if (status == Play.SYNC_STATUS_IN_PROGRESS) {
-					if (Play.hasBeenSynced(play.getPlayId())) {
-						messageId = R.string.sync_editing;
-					} else {
-						messageId = R.string.sync_draft;
-					}
-				} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
-					messageId = R.string.sync_pending_update;
-				} else if (status == Play.SYNC_STATUS_PENDING_DELETE) {
-					messageId = R.string.sync_pending_delete;
-				}
-			}
 
 			if (mode != MODE_GAME) {
 				holder.title.setText(play.getName());
 			} else {
 				holder.title.setText(play.getDate());
 			}
-			if (TextUtils.isEmpty(info)) {
-				holder.text1.setVisibility(View.GONE);
-			} else {
-				holder.text1.setVisibility(View.VISIBLE);
-				holder.text1.setText(info);
+			PresentationUtils.setTextOrHide(holder.text1, info);
+			PresentationUtils.setTextOrHide(holder.text2, play.getComments());
+
+			int statusMessageId = 0;
+			if (play.getDeleteTimestamp() > 0) {
+				statusMessageId = R.string.sync_pending_delete;
+			} else if (play.getUpdateTimestamp() > 0) {
+				statusMessageId = R.string.sync_pending_update;
+			} else if (play.getDirtyTimestamp() > 0) {
+				if (play.getPlayId() > 0) {
+					statusMessageId = R.string.sync_editing;
+				} else {
+					statusMessageId = R.string.sync_draft;
+				}
 			}
-			if (TextUtils.isEmpty(play.getComments())) {
-				holder.text2.setVisibility(View.GONE);
-			} else {
-				holder.text2.setVisibility(View.VISIBLE);
-				holder.text2.setText(play.getComments());
-			}
-			if (messageId == 0) {
+			if (statusMessageId == 0) {
 				holder.status.setVisibility(View.GONE);
 			} else {
 				holder.status.setVisibility(View.VISIBLE);
-				holder.status.setText(messageId);
+				holder.status.setText(statusMessageId);
 			}
 		}
 
@@ -750,7 +728,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		for (int pos : selectedPlaysPositions) {
 			Cursor cursor = (Cursor) adapter.getItem(pos);
 			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			boolean pending = play.getStatus() == Play.SYNC_STATUS_IN_PROGRESS;
+			boolean pending = play.getDirtyTimestamp() > 0;
 			allPending = allPending && pending;
 		}
 
@@ -770,15 +748,16 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 					getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()),
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							updateSyncStatus(Play.SYNC_STATUS_PENDING_UPDATE);
+							updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
 						}
 					}).show();
 				return true;
 			case R.id.menu_edit:
 				mode.finish();
 				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
+				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-				ActivityUtils.editPlay(getActivity(), play.getPlayId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
+				ActivityUtils.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
 				return true;
 			case R.id.menu_delete:
 				mode.finish();
@@ -788,7 +767,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 						.getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()),
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							updateSyncStatus(Play.SYNC_STATUS_PENDING_DELETE);
+							updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
 						}
 					}).show();
 				return true;
@@ -796,16 +775,19 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		return false;
 	}
 
-	private void updateSyncStatus(int status) {
-		ContentResolver resolver = getActivity().getContentResolver();
-		ContentValues values = new ContentValues();
-		values.put(Plays.SYNC_STATUS, status);
+	private void updateSelectedPlays(String key, long value) {
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		for (int position : selectedPlaysPositions) {
 			Cursor cursor = (Cursor) adapter.getItem(position);
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			resolver.update(Plays.buildPlayUri(play.getPlayId()), values, null, null);
+			long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
+			if (internalId != BggContract.INVALID_ID)
+				batch.add(ContentProviderOperation
+					.newUpdate(Plays.buildPlayUri(internalId))
+					.withValue(key, value)
+					.build());
 		}
-		selectedPlaysPositions.clear();
+		ResolverUtils.applyBatch(getActivity(), batch);
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
+		selectedPlaysPositions.clear();
 	}
 }

@@ -195,21 +195,22 @@ public class BggContract {
 		String NO_WIN_STATS = "no_win_stats";
 		String LOCATION = "location";
 		String COMMENTS = "comments";
-		String SYNC_STATUS = "sync_status";
 		String START_TIME = "start_time";
 		String PLAYER_COUNT = "player_count";
 		String SYNC_HASH_CODE = "sync_hash_code";
+		String ITEM_NAME = "item_name";
+		String OBJECT_ID = "object_id";
+		String DELETE_TIMESTAMP = "delete_timestamp";
+		String UPDATE_TIMESTAMP = "update_timestamp";
+		String DIRTY_TIMESTAMP = "dirty_timestamp";
+		String SYNC_TIMESTAMP = "updated_list";
 		String SUM_QUANTITY = "sum_quantity";
 		String SUM_WINS = "sum_wins";
 		String MAX_DATE = "max_date";
 	}
 
-	interface PlayItemsColumns {
-		String NAME = "name";
-		String OBJECT_ID = "object_id";
-	}
-
 	interface PlayPlayersColumns {
+		String _PLAY_ID = "_play_id";
 		String USER_NAME = "user_name";
 		String USER_ID = "user_id";
 		String NAME = "name";
@@ -259,7 +260,6 @@ public class BggContract {
 	public static final String PATH_COLORS = "colors";
 	public static final String PATH_PLAYER_COLORS = "playercolors";
 	public static final String PATH_PLAYS = "plays";
-	private static final String PATH_ITEMS = "items";
 	public static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
@@ -272,7 +272,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String QUERY_VALUE_PLAY = "play";
 	public static final String FRAGMENT_SIMPLE = "simple";
-	public static final String PARAM_LIMIT = "limit";
+	public static final String QUERY_KEY_LIMIT = "limit";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -456,7 +456,7 @@ public class BggContract {
 		private static Builder getLimitedUriBuilder(int gameId, String path, int limit) {
 			Builder builder = CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
 			if (limit > 0) {
-				builder.appendQueryParameter(PARAM_LIMIT, String.valueOf(limit));
+				builder.appendQueryParameter(QUERY_KEY_LIMIT, String.valueOf(limit));
 			}
 			return builder;
 		}
@@ -781,7 +781,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = COLOR + COLLATE_NOCASE + " ASC";
 	}
 
-	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
+	public static final class Plays implements PlaysColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
 		public static final Uri CONTENT_SIMPLE_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build();
 
@@ -794,26 +794,29 @@ public class BggContract {
 		/**
 		 * content://com.boardgamegeek/plays/#
 		 */
-		public static Uri buildPlayUri(int playId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
+		public static Uri buildPlayUri(long internalId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(internalId)).build();
 		}
 
-		public static Uri buildItemUri(int playId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_ITEMS).build();
+		public static Uri buildPlayerUri() {
+			return CONTENT_URI.buildUpon()
+				.appendPath(PATH_PLAYERS)
+				.build();
 		}
 
-		public static Uri buildItemUri(int playId, int objectId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_ITEMS)
-				.appendPath(String.valueOf(objectId)).build();
+		public static Uri buildPlayerUri(long internalId) {
+			return CONTENT_URI.buildUpon()
+				.appendPath(String.valueOf(internalId))
+				.appendPath(PATH_PLAYERS)
+				.build();
 		}
 
-		public static Uri buildPlayerUri(int playId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_PLAYERS).build();
-		}
-
-		public static Uri buildPlayerUri(int playId, long rowId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_PLAYERS)
-				.appendPath(String.valueOf(rowId)).build();
+		public static Uri buildPlayerUri(long internalId, long rowId) {
+			return CONTENT_URI.buildUpon()
+				.appendPath(String.valueOf(internalId))
+				.appendPath(PATH_PLAYERS)
+				.appendPath(String.valueOf(rowId))
+				.build();
 		}
 
 		public static Uri buildLocationsUri() {
@@ -844,19 +847,8 @@ public class BggContract {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_COLOR).build();
 		}
 
-		public static int getPlayId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
-		}
-	}
-
-	public static final class PlayItems implements PlayItemsColumns, PlaysColumns, BaseColumns {
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playitem";
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playitem";
-
-		public static final String DEFAULT_SORT = NAME + COLLATE_NOCASE + " ASC";
-
-		public static int getPlayItemId(Uri uri) {
-			return StringUtils.parseInt(uri.getLastPathSegment());
+		public static long getInternalId(Uri uri) {
+			return StringUtils.parseLong(uri.getPathSegments().get(1));
 		}
 	}
 

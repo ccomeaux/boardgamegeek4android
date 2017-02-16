@@ -5,10 +5,6 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.ResolverUtils;
-
-import java.util.List;
 
 /**
  * Syncs a number of games that haven't been updated in a long time.
@@ -25,8 +21,8 @@ public class SyncGamesOldest extends SyncGames {
 
 	@NonNull
 	@Override
-	protected String getIntroLogMessage() {
-		return "Syncing oldest games in the collection...";
+	protected String getIntroLogMessage(int gamesPerFetch) {
+		return String.format("Syncing %,d oldest games in the collection...", gamesPerFetch);
 	}
 
 	@NonNull
@@ -34,13 +30,6 @@ public class SyncGamesOldest extends SyncGames {
 	protected String getExitLogMessage() {
 		return "...found no old games to update (this should only happen with empty collections)";
 	}
-
-	@Override
-	protected List<String> getGameIds(int gamesPerFetch) {
-		return ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
-			Games.GAME_ID, null, null, "games." + Games.UPDATED + " LIMIT " + gamesPerFetch);
-	}
-
 	@Override
 	public int getNotificationSummaryMessageId() {
 		return R.string.sync_notification_games_oldest;

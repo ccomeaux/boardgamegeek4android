@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcelable;
+import android.support.annotation.StringRes;
 import android.support.v4.view.ViewCompat;
 import android.text.Html;
 import android.text.SpannedString;
@@ -22,6 +23,7 @@ public class TimestampView extends TextView {
 	private Runnable timeHintUpdateRunnable = null;
 
 	private boolean isForumTimeStamp;
+	private boolean includeTime;
 	private String defaultMessage;
 	private boolean hideWhenEmpty;
 	@State CharSequence format;
@@ -44,6 +46,12 @@ public class TimestampView extends TextView {
 	}
 
 	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		post(timeHintUpdateRunnable);
+	}
+
+	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
 		removeCallbacks(timeHintUpdateRunnable);
@@ -63,6 +71,7 @@ public class TimestampView extends TextView {
 		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, 0);
 		try {
 			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
+			includeTime = a.getBoolean(R.styleable.TimestampView_includeTime, false);
 			format = a.getText(R.styleable.TimestampView_format);
 			defaultMessage = a.getString(R.styleable.TimestampView_emptyMessage);
 			hideWhenEmpty = a.getBoolean(R.styleable.TimestampView_hideWhenEmpty, false);
@@ -70,6 +79,11 @@ public class TimestampView extends TextView {
 			a.recycle();
 		}
 		setMaxLines(1);
+	}
+
+	public void setFormat(@StringRes int formatResId) {
+		this.format = getContext().getString(formatResId);
+		setTimestampText();
 	}
 
 	public void setFormat(String format) {
@@ -101,7 +115,7 @@ public class TimestampView extends TextView {
 					if (!ViewCompat.isAttachedToWindow(TimestampView.this)) {
 						return;
 					}
-					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp);
+					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp, includeTime);
 					if (!TextUtils.isEmpty(format)) {
 						setText(Html.fromHtml(String.format(Html.toHtml(new SpannedString(format)), formattedTimestamp, formatArg)));
 					} else {
