@@ -7,6 +7,7 @@ Version 6.3
  * Improved GeekList UI
  * While reading a thread, you can now scroll to the bottom of the list or to the last read article.
  * Improved forum timestamps
+ * Link to the privacy policy
  * Bug fixes
 
 Version 6.2
