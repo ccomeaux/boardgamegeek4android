@@ -1,7 +1,18 @@
-Privacy Policy
-==============
+# Privacy Policy
 
-*BoardGameGeek for Android* collects your BoardGameGeek username and password to authenticate to the BoardGameGeek website.
+## Data Use
+
+*BoardGameGeek for Android* (the application) does not share, in any way, personal information about you with other people or companies. You will not get on a spammer's list because of your interactions with this application.
+
+Since this application is primarily an interface for the BoardGameGeek.com website (the website), it is import to review their [privacy policy](https://www.boardgamegeek.com/privacy).
+The application collects data publicly available from the website. If you authenticate with the website through the application, it also collects the private information from your collection.
+By authenticating, the application also sends collection and play data to the website.
+
+All communication with the website, including authenticating, is done securely over HTTPS.
+
+### Authentication
+
+The application collects your BoardGameGeek username and password to authenticate to the BoardGameGeek website.
 Providing this information allows this application to upload information to your account on BoardGameGeek, namely logged plays and collection items.
 
 Your BoardGameGeek username and password are stored locally on your device, but they are only visible to this application.
@@ -11,11 +22,53 @@ The password is stored so that the user doens't have to provide their password e
 The password is kept in memory only as long as necessary.
 The password is never logged to any file, database, etc., other than the [AccountManager](https://developer.android.com/reference/android/accounts/AccountManager.html).
 
-[Fabric](https://fabric.io)
------------
-*BoardGameGeek for Android* uses the Crashlytics and Answers kits for Fabric.
-These collect and transmit information about your device, log information, and user activity.
+### [Fabric](https://fabric.io)
+
+The application uses the Crashlytics and Answers kits for Fabric.
+These libraries collect and transmit information about your device, log information, and user activity.
 This data is anonymized; we don't collect or transmit any personally identifiable information.
 
 * [Crashlytics Privacy Policy](http://try.crashlytics.com/terms/)
 * [Answers Privacy Policy](https://answers.io/img/privacy.pdf)
+
+## Application Permissions
+
+The application asks for the following permissions. Here's why...
+
+### Your accounts
+
+* **Use accounts on the device**
+* **Add or remove accounts**
+* **Create accounts and set passwords**
+* **Find accounts on the device**
+
+The application creates an account to integrate with the Android sync framework and to store your BoardGameGeek credentials. You can see the created account in Android Settings > Accounts.
+
+### Network communication
+
+**Full network access**
+
+The application needs to be able to send and receive data over the network to sync with the website.
+
+**View network connections**
+
+The application inspects the network before attempting to sync to respect the option to sync only over Wi-Fi.
+
+### Sync Settings
+
+* **Read sync statistics**
+* **Toggle sync on and off**
+
+The application integrates with the Android sync framework to provide content updates
+
+### Storage
+
+**Modify or delete the contents of your SD card**
+
+Allows the application to write to the SD card, typically to store the images of games.
+
+### System Tools
+
+**Install shortcuts**
+
+Allows the application to add Homescreen shortcuts upon request.
