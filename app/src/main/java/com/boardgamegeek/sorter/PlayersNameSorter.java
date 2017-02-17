@@ -26,11 +26,6 @@ public class PlayersNameSorter extends PlayersSorter {
 	}
 
 	@Override
-	protected String getSortColumn() {
-		return PlayPlayers.NAME;
-	}
-
-	@Override
 	public String[] getColumns() {
 		return new String[] { PlayPlayers.NAME, PlayPlayers.SUM_QUANTITY };
 	}

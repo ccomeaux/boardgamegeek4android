@@ -33,11 +33,6 @@ public class PlaysDateSorter extends PlaysSorter {
 	}
 
 	@Override
-	protected String getSortColumn() {
-		return ""; // use default
-	}
-
-	@Override
 	public String[] getColumns() {
 		return new String[] { Plays.DATE };
 	}

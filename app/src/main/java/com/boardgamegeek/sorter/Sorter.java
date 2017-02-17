@@ -41,7 +41,9 @@ public abstract class Sorter {
 		return getSortColumn() + (isSortDescending() ? " DESC, " : " ASC, ") + getDefaultSort();
 	}
 
-	protected abstract String getSortColumn();
+	protected String getSortColumn() {
+		return "";
+	}
 
 	protected boolean isSortDescending() {
 		return false;
@@ -54,6 +56,7 @@ public abstract class Sorter {
 	 */
 	@Nullable
 	public String[] getColumns() {
+		if (TextUtils.isEmpty(getSortColumn())) return null;
 		return new String[] { getSortColumn() };
 	}
 

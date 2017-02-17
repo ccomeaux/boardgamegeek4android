@@ -25,11 +25,6 @@ public class LocationsNameSorter extends LocationsSorter {
 	}
 
 	@Override
-	protected String getSortColumn() {
-		return Plays.LOCATION;
-	}
-
-	@Override
 	public String[] getColumns() {
 		return new String[] { Plays.LOCATION };
 	}

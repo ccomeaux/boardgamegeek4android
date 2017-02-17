@@ -30,11 +30,6 @@ public class CollectionNameSorter extends CollectionSorter {
 	}
 
 	@Override
-	protected String getSortColumn() {
-		return ""; // use deafult
-	}
-
-	@Override
 	public String[] getColumns() {
 		return new String[] { Collection.COLLECTION_SORT_NAME, Collection.STATS_AVERAGE };
 	}
