@@ -24,11 +24,6 @@ public abstract class PlayTimeSorter extends CollectionSorter {
 		return Collection.PLAYING_TIME;
 	}
 
-	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.PLAYING_TIME };
-	}
-
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {

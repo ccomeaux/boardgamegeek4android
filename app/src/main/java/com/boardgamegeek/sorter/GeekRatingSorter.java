@@ -42,11 +42,6 @@ public class GeekRatingSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { COLUMN_NAME };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		return getInfo(cursor, null);
 	}

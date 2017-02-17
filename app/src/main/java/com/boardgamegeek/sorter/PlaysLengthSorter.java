@@ -42,11 +42,6 @@ public class PlaysLengthSorter extends PlaysSorter {
 		return true;
 	}
 
-	@Override
-	public String[] getColumns() {
-		return new String[] { Plays.LENGTH };
-	}
-
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {

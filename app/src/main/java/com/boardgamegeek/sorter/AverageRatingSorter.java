@@ -41,12 +41,6 @@ public class AverageRatingSorter extends CollectionSorter {
 		return true;
 	}
 
-	@NonNull
-	@Override
-	public String[] getColumns() {
-		return new String[] { COLUMN_NAME };
-	}
-
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		return getInfo(cursor, null);

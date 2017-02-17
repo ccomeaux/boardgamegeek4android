@@ -38,11 +38,6 @@ public class RankSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Games.GAME_RANK };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		int rank = getInt(cursor, Games.GAME_RANK, Integer.MAX_VALUE);
 		for (int i = 0; i < RANKS.size(); i++) {

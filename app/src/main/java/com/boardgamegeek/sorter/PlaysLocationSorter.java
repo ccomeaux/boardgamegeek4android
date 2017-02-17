@@ -33,11 +33,6 @@ public class PlaysLocationSorter extends PlaysSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Plays.LOCATION };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		return getString(cursor, Plays.LOCATION, noLocation);
 	}

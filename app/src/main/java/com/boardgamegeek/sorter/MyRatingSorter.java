@@ -41,11 +41,6 @@ public class MyRatingSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.RATING };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		return getInfo(cursor, null);
 	}

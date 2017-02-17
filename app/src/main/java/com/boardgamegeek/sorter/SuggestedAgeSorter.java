@@ -27,11 +27,6 @@ public abstract class SuggestedAgeSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.MINIMUM_AGE };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		return getIntAsString(cursor, Collection.MINIMUM_AGE, DEFAULT_VALUE, true);
 	}

@@ -25,11 +25,6 @@ public abstract class YearPublishedSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.YEAR_PUBLISHED };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		return getIntAsString(cursor, Collection.YEAR_PUBLISHED, "?");
 	}

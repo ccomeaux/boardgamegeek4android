@@ -40,11 +40,6 @@ public class LastPlayDateSorter extends CollectionSorter {
 		return true;
 	}
 
-	@Override
-	public String[] getColumns() {
-		return new String[] { COLUMN_NAME };
-	}
-
 	@StringRes
 	@Override
 	public int getTypeResource() {

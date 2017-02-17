@@ -34,11 +34,6 @@ public class AcquiredFromSorter extends CollectionSorter {
 		return COLUMN_NAME;
 	}
 
-	@Override
-	public String[] getColumns() {
-		return new String[] { COLUMN_NAME };
-	}
-
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {

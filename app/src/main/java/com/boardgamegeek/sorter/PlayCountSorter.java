@@ -18,11 +18,6 @@ public abstract class PlayCountSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.NUM_PLAYS };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		return getIntAsString(cursor, Collection.NUM_PLAYS, "0");
 	}

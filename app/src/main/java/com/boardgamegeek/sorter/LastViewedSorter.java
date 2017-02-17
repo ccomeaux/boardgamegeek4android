@@ -39,11 +39,6 @@ public class LastViewedSorter extends CollectionSorter {
 		return true;
 	}
 
-	@Override
-	public String[] getColumns() {
-		return new String[] { Games.LAST_VIEWED };
-	}
-
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {

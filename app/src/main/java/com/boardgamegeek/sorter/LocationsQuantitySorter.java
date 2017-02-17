@@ -34,11 +34,6 @@ public class LocationsQuantitySorter extends LocationsSorter {
 		return true;
 	}
 
-	@Override
-	public String[] getColumns() {
-		return new String[] { Plays.SUM_QUANTITY };
-	}
-
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {

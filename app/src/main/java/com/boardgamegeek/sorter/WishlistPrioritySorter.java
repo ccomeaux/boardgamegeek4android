@@ -34,11 +34,6 @@ public class WishlistPrioritySorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.STATUS_WISHLIST_PRIORITY };
-	}
-
-	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		int level = getInt(cursor, Collection.STATUS_WISHLIST_PRIORITY);
 		if (level >= priorityText.length) {

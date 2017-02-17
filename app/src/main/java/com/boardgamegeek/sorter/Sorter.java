@@ -54,7 +54,7 @@ public abstract class Sorter {
 	 */
 	@Nullable
 	public String[] getColumns() {
-		return null;
+		return new String[] { getSortColumn() };
 	}
 
 	/**

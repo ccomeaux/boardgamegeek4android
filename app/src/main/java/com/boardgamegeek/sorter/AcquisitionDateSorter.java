@@ -46,12 +46,6 @@ public class AcquisitionDateSorter extends CollectionSorter {
 		return true;
 	}
 
-	@NonNull
-	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.PRIVATE_INFO_ACQUISITION_DATE };
-	}
-
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
 		long time = getTime(cursor);
