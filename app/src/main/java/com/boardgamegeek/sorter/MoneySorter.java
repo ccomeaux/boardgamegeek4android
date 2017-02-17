@@ -13,7 +13,16 @@ public abstract class MoneySorter extends CollectionSorter {
 
 	public MoneySorter(Context context) {
 		super(context);
-		orderByClause = getCurrencyColumnName() + " DESC, " + getAmountColumnName() + " DESC";
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return getCurrencyColumnName() + " DESC, " + getAmountColumnName();
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@NonNull

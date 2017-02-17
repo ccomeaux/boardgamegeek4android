@@ -12,7 +12,6 @@ import com.boardgamegeek.provider.BggContract.Plays;
 public class PlayersNameSorter extends PlayersSorter {
 	public PlayersNameSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(PlayPlayers.NAME, false);
 	}
 
 	@StringRes
@@ -24,6 +23,11 @@ public class PlayersNameSorter extends PlayersSorter {
 	@Override
 	public int getType() {
 		return PlayersSorterFactory.TYPE_NAME;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return PlayPlayers.NAME;
 	}
 
 	@Override

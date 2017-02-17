@@ -5,18 +5,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Collection;
 
 public class YearPublishedDescendingSorter extends YearPublishedSorter {
 	public YearPublishedDescendingSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Collection.YEAR_PUBLISHED, true);
 	}
 
 	@StringRes
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_year_published_desc;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@StringRes

@@ -14,7 +14,6 @@ public class LastViewedSorter extends CollectionSorter {
 
 	public LastViewedSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Games.LAST_VIEWED, true);
 		never = context.getString(R.string.never);
 	}
 
@@ -28,6 +27,16 @@ public class LastViewedSorter extends CollectionSorter {
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_last_viewed;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return Games.LAST_VIEWED;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@Override

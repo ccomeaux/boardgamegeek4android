@@ -16,7 +16,6 @@ public class MyRatingSorter extends CollectionSorter {
 
 	public MyRatingSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Collection.RATING, true);
 	}
 
 	@StringRes
@@ -29,6 +28,16 @@ public class MyRatingSorter extends CollectionSorter {
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_my_rating;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return Collection.RATING;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@Override

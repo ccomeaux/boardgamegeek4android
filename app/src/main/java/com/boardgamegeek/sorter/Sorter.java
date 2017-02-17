@@ -13,7 +13,6 @@ import java.util.Locale;
 
 public abstract class Sorter {
 	@NonNull protected final Context context;
-	protected String orderByClause;
 	private final DecimalFormat doubleFormat = new DecimalFormat("#.0");
 
 	public Sorter(@NonNull Context context) {
@@ -35,8 +34,20 @@ public abstract class Sorter {
 	 * Gets the sort order clause to use in the query.
 	 */
 	public String getOrderByClause() {
-		return orderByClause;
+		if (TextUtils.isEmpty(getSortColumn())) {
+			return getDefaultSort();
+		}
+		// TODO: 2/16/17 only append default sort if it's not in the column above
+		return getSortColumn() + (isSortDescending() ? " DESC, " : " ASC, ") + getDefaultSort();
 	}
+
+	protected abstract String getSortColumn();
+
+	protected boolean isSortDescending() {
+		return false;
+	}
+
+	protected abstract String getDefaultSort();
 
 	/**
 	 * Get the names of the columns to add to the select projection.
@@ -94,15 +105,6 @@ public abstract class Sorter {
 	 * Get the unique type
 	 */
 	public abstract int getType();
-
-	protected String getClause(String columnName, boolean isDescending) {
-		if (TextUtils.isEmpty(columnName)) {
-			return getDefaultSort();
-		}
-		return columnName + (isDescending ? " DESC, " : " ASC, ") + getDefaultSort();
-	}
-
-	protected abstract String getDefaultSort();
 
 	protected long getLong(@NonNull Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);

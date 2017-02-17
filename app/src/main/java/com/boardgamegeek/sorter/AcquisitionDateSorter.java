@@ -21,7 +21,6 @@ public class AcquisitionDateSorter extends CollectionSorter {
 
 	public AcquisitionDateSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(COLUMN_NAME, true);
 		defaultValue = context.getString(R.string.text_unknown);
 	}
 
@@ -35,6 +34,16 @@ public class AcquisitionDateSorter extends CollectionSorter {
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_acquisition_date;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return COLUMN_NAME;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@NonNull

@@ -11,7 +11,6 @@ import com.boardgamegeek.provider.BggContract.Plays;
 public class PlayersWinSorter extends PlayersSorter {
 	public PlayersWinSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Plays.SUM_WINS, true);
 	}
 
 	@StringRes
@@ -23,6 +22,16 @@ public class PlayersWinSorter extends PlayersSorter {
 	@Override
 	public int getType() {
 		return PlayersSorterFactory.TYPE_WINS;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return Plays.SUM_WINS;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@Override

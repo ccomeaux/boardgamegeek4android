@@ -16,7 +16,6 @@ public class PlaysLengthSorter extends PlaysSorter {
 
 	public PlaysLengthSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Plays.LENGTH, true);
 		noLength = context.getString(R.string.no_length);
 		hoursSuffix = context.getString(R.string.hours_abbr);
 		minutesSuffix = context.getString(R.string.minutes_abbr);
@@ -31,6 +30,16 @@ public class PlaysLengthSorter extends PlaysSorter {
 	@Override
 	public int getType() {
 		return PlaysSorterFactory.TYPE_PLAY_LENGTH;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return Plays.LENGTH;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@Override

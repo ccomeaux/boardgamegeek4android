@@ -19,7 +19,6 @@ public class PlaysDateSorter extends PlaysSorter {
 
 	public PlaysDateSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = Plays.DEFAULT_SORT;
 	}
 
 	@StringRes
@@ -31,6 +30,11 @@ public class PlaysDateSorter extends PlaysSorter {
 	@Override
 	public int getType() {
 		return PlaysSorterFactory.TYPE_PLAY_DATE;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return ""; // use default
 	}
 
 	@Override

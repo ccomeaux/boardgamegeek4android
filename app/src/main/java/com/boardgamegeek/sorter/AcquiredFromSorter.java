@@ -9,12 +9,11 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class AcquiredFromSorter extends CollectionSorter {
-	private final String column = Collection.PRIVATE_INFO_ACQUIRED_FROM;
+	private static final String COLUMN_NAME = Collection.PRIVATE_INFO_ACQUIRED_FROM;
 	@NonNull private final String nowhere;
 
 	public AcquiredFromSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = column;
 		nowhere = context.getString(R.string.nowhere_in_angle_brackets);
 	}
 
@@ -31,13 +30,18 @@ public class AcquiredFromSorter extends CollectionSorter {
 	}
 
 	@Override
+	protected String getSortColumn() {
+		return COLUMN_NAME;
+	}
+
+	@Override
 	public String[] getColumns() {
-		return new String[] { column };
+		return new String[] { COLUMN_NAME };
 	}
 
 	@NonNull
 	@Override
 	public String getHeaderText(@NonNull Cursor cursor) {
-		return getString(cursor, column, nowhere);
+		return getString(cursor, COLUMN_NAME, nowhere);
 	}
 }

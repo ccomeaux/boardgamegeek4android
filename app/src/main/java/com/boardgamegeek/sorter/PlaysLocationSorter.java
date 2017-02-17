@@ -13,7 +13,6 @@ public class PlaysLocationSorter extends PlaysSorter {
 
 	public PlaysLocationSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Plays.LOCATION, false);
 		noLocation = context.getString(R.string.no_location);
 	}
 
@@ -26,6 +25,11 @@ public class PlaysLocationSorter extends PlaysSorter {
 	@Override
 	public int getType() {
 		return PlaysSorterFactory.TYPE_PLAY_LOCATION;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return Plays.LOCATION;
 	}
 
 	@Override

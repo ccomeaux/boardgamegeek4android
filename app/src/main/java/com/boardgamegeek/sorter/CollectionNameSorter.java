@@ -15,7 +15,6 @@ public class CollectionNameSorter extends CollectionSorter {
 
 	public CollectionNameSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = Collection.DEFAULT_SORT;
 	}
 
 	@StringRes
@@ -28,6 +27,11 @@ public class CollectionNameSorter extends CollectionSorter {
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_collection_name;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return ""; // use deafult
 	}
 
 	@Override

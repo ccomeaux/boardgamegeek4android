@@ -21,7 +21,6 @@ public class LastPlayDateSorter extends CollectionSorter {
 
 	public LastPlayDateSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(COLUMN_NAME, true);
 		defaultValue = context.getString(R.string.text_unknown);
 	}
 
@@ -29,6 +28,16 @@ public class LastPlayDateSorter extends CollectionSorter {
 	@Override
 	protected int getDescriptionId() {
 		return R.string.collection_sort_play_date_max;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return COLUMN_NAME;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@Override

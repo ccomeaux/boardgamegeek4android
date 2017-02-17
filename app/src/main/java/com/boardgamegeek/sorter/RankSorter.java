@@ -16,7 +16,6 @@ public class RankSorter extends CollectionSorter {
 
 	public RankSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Games.GAME_RANK, false);
 		defaultHeaderText = context.getResources().getString(R.string.unranked);
 		defaultText = context.getResources().getString(R.string.text_not_available);
 	}
@@ -27,24 +26,15 @@ public class RankSorter extends CollectionSorter {
 		return R.string.collection_sort_rank;
 	}
 
-	@NonNull
-	private static SparseArray<String> buildRanks() {
-		SparseArray<String> ranks = new SparseArray<>();
-		ranks.put(100, "1 - 100");
-		ranks.put(250, "101 - 250");
-		ranks.put(500, "251 - 500");
-		ranks.put(1000, "501 - 1000");
-		ranks.put(2500, "1001 - 2500");
-		ranks.put(5000, "2501 - 5000");
-		ranks.put(10000, "5001 - 10000");
-		ranks.put(Integer.MAX_VALUE, "10001+");
-		return ranks;
-	}
-
 	@StringRes
 	@Override
 	public int getTypeResource() {
 		return R.string.collection_sort_type_rank;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return Games.GAME_RANK;
 	}
 
 	@Override
@@ -72,5 +62,19 @@ public class RankSorter extends CollectionSorter {
 			return defaultText;
 		}
 		return String.valueOf(rank);
+	}
+
+	@NonNull
+	private static SparseArray<String> buildRanks() {
+		SparseArray<String> ranks = new SparseArray<>();
+		ranks.put(100, "1 - 100");
+		ranks.put(250, "101 - 250");
+		ranks.put(500, "251 - 500");
+		ranks.put(1000, "501 - 1000");
+		ranks.put(2500, "1001 - 2500");
+		ranks.put(5000, "2501 - 5000");
+		ranks.put(10000, "5001 - 10000");
+		ranks.put(Integer.MAX_VALUE, "10001+");
+		return ranks;
 	}
 }

@@ -11,13 +11,12 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import java.text.DecimalFormat;
 
 public class AverageRatingSorter extends CollectionSorter {
-	private static final String COLUMN = Collection.STATS_AVERAGE;
+	private static final String COLUMN_NAME = Collection.STATS_AVERAGE;
 	private static final String DEFAULT_VALUE = "?";
 	private final DecimalFormat displayFormat = new DecimalFormat("0.00");
 
 	public AverageRatingSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(COLUMN, true);
 	}
 
 	@StringRes
@@ -32,10 +31,20 @@ public class AverageRatingSorter extends CollectionSorter {
 		return R.string.collection_sort_type_average_rating;
 	}
 
+	@Override
+	protected String getSortColumn() {
+		return COLUMN_NAME;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
+	}
+
 	@NonNull
 	@Override
 	public String[] getColumns() {
-		return new String[] { COLUMN };
+		return new String[] { COLUMN_NAME };
 	}
 
 	@Override
@@ -49,6 +58,6 @@ public class AverageRatingSorter extends CollectionSorter {
 	}
 
 	private String getInfo(@NonNull Cursor cursor, DecimalFormat format) {
-		return getDoubleAsString(cursor, COLUMN, DEFAULT_VALUE, true, format);
+		return getDoubleAsString(cursor, COLUMN_NAME, DEFAULT_VALUE, true, format);
 	}
 }

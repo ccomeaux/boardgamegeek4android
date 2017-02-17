@@ -20,6 +20,11 @@ public abstract class YearPublishedSorter extends CollectionSorter {
 	}
 
 	@Override
+	protected String getSortColumn() {
+		return Collection.YEAR_PUBLISHED;
+	}
+
+	@Override
 	public String[] getColumns() {
 		return new String[] { Collection.YEAR_PUBLISHED };
 	}

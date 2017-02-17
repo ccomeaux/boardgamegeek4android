@@ -25,6 +25,11 @@ public abstract class AverageWeightSorter extends CollectionSorter {
 	}
 
 	@Override
+	protected String getSortColumn() {
+		return Collection.STATS_AVERAGE_WEIGHT;
+	}
+
+	@Override
 	public String[] getColumns() {
 		return new String[] { Collection.STATS_AVERAGE_WEIGHT };
 	}

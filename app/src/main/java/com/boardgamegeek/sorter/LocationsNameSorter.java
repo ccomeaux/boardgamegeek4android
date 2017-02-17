@@ -11,7 +11,6 @@ import com.boardgamegeek.provider.BggContract.Plays;
 public class LocationsNameSorter extends LocationsSorter {
 	public LocationsNameSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Plays.LOCATION, false);
 	}
 
 	@StringRes
@@ -23,6 +22,11 @@ public class LocationsNameSorter extends LocationsSorter {
 	@Override
 	public int getType() {
 		return LocationsSorterFactory.TYPE_NAME;
+	}
+
+	@Override
+	protected String getSortColumn() {
+		return Plays.LOCATION;
 	}
 
 	@Override
