@@ -1,7 +1,6 @@
 package com.boardgamegeek.sorter;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
@@ -10,10 +9,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 
 import java.text.DecimalFormat;
 
-public class GeekRatingSorter extends CollectionSorter {
-	private static final String COLUMN_NAME = Collection.STATS_BAYES_AVERAGE;
-	private static final String DEFAULT_VALUE = "?";
-	private final DecimalFormat displayFormat = new DecimalFormat("0.000");
+public class GeekRatingSorter extends RatingSorter {
+	private static final DecimalFormat DISPLAY_FORMAT = new DecimalFormat("0.000");
 
 	public GeekRatingSorter(@NonNull Context context) {
 		super(context);
@@ -33,25 +30,11 @@ public class GeekRatingSorter extends CollectionSorter {
 
 	@Override
 	protected String getSortColumn() {
-		return COLUMN_NAME;
+		return Collection.STATS_BAYES_AVERAGE;
 	}
 
 	@Override
-	protected boolean isSortDescending() {
-		return true;
-	}
-
-	@Override
-	public String getHeaderText(@NonNull Cursor cursor) {
-		return getInfo(cursor, null);
-	}
-
-	@Override
-	public String getDisplayInfo(@NonNull Cursor cursor) {
-		return getInfo(cursor, displayFormat);
-	}
-
-	private String getInfo(@NonNull Cursor cursor, DecimalFormat format) {
-		return getDoubleAsString(cursor, COLUMN_NAME, DEFAULT_VALUE, true, format);
+	protected DecimalFormat getDisplayFormat() {
+		return DISPLAY_FORMAT;
 	}
 }

@@ -13,7 +13,7 @@ import java.util.Locale;
 
 public abstract class Sorter {
 	@NonNull protected final Context context;
-	private final DecimalFormat doubleFormat = new DecimalFormat("#.0");
+	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("#.0");
 
 	public Sorter(@NonNull Context context) {
 		this.context = context;
@@ -147,10 +147,6 @@ public abstract class Sorter {
 		return String.valueOf(value);
 	}
 
-	protected String getDoubleAsString(@NonNull Cursor cursor, String columnName, String defaultValue) {
-		return getDoubleAsString(cursor, columnName, defaultValue, false, doubleFormat);
-	}
-
 	protected String getDoubleAsString(@NonNull Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull, @Nullable DecimalFormat format) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
@@ -163,7 +159,7 @@ public abstract class Sorter {
 		}
 
 		if (format == null) {
-			return doubleFormat.format(value);
+			return DOUBLE_FORMAT.format(value);
 		} else {
 			return format.format(value);
 		}
