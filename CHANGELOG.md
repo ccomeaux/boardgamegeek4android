@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon...
 --------------
+ * Sort collection by last played date
  * Bug fixes
 
 Version 6.3
