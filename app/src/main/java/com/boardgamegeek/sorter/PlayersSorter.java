@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 
 public abstract class PlayersSorter extends Sorter {
@@ -14,7 +15,7 @@ public abstract class PlayersSorter extends Sorter {
 
 	@Override
 	protected String getDefaultSort() {
-		return PlayPlayers.NAME;
+		return PlayPlayers.NAME + BggContract.COLLATE_NOCASE;
 	}
 
 	public String getDisplayInfo(Cursor cursor) {

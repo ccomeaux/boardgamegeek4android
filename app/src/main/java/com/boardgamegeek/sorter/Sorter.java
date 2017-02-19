@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
 import java.text.DecimalFormat;
@@ -12,35 +13,51 @@ import java.util.Locale;
 
 public abstract class Sorter {
 	@NonNull protected final Context context;
-	protected String orderByClause;
-	protected int descriptionId;
-	private final DecimalFormat doubleFormat = new DecimalFormat("#.0");
+	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("#.0");
 
 	public Sorter(@NonNull Context context) {
 		this.context = context;
 	}
+
+	@StringRes
+	protected abstract int getDescriptionId();
 
 	/**
 	 * Gets the description to display in the UI when this sort is applied. Subclasses should set descriptionId
 	 * to control this value.
 	 */
 	public String getDescription() {
-		return context.getString(descriptionId);
+		return context.getString(getDescriptionId());
 	}
 
 	/**
 	 * Gets the sort order clause to use in the query.
 	 */
 	public String getOrderByClause() {
-		return orderByClause;
+		if (TextUtils.isEmpty(getSortColumn())) {
+			return getDefaultSort();
+		}
+		// TODO: 2/16/17 only append default sort if it's not in the column above
+		return getSortColumn() + (isSortDescending() ? " DESC, " : " ASC, ") + getDefaultSort();
 	}
+
+	protected String getSortColumn() {
+		return "";
+	}
+
+	protected boolean isSortDescending() {
+		return false;
+	}
+
+	protected abstract String getDefaultSort();
 
 	/**
 	 * Get the names of the columns to add to the select projection.
 	 */
 	@Nullable
 	public String[] getColumns() {
-		return null;
+		if (TextUtils.isEmpty(getSortColumn())) return null;
+		return new String[] { getSortColumn() };
 	}
 
 	/**
@@ -92,15 +109,6 @@ public abstract class Sorter {
 	 */
 	public abstract int getType();
 
-	protected String getClause(String columnName, boolean isDescending) {
-		if (TextUtils.isEmpty(columnName)) {
-			return getDefaultSort();
-		}
-		return columnName + (isDescending ? " DESC, " : " ASC, ") + getDefaultSort();
-	}
-
-	protected abstract String getDefaultSort();
-
 	protected long getLong(@NonNull Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
@@ -139,10 +147,6 @@ public abstract class Sorter {
 		return String.valueOf(value);
 	}
 
-	protected String getDoubleAsString(@NonNull Cursor cursor, String columnName, String defaultValue) {
-		return getDoubleAsString(cursor, columnName, defaultValue, false, doubleFormat);
-	}
-
 	protected String getDoubleAsString(@NonNull Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull, @Nullable DecimalFormat format) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1 || index >= cursor.getColumnCount()) {
@@ -155,7 +159,7 @@ public abstract class Sorter {
 		}
 
 		if (format == null) {
-			return doubleFormat.format(value);
+			return DOUBLE_FORMAT.format(value);
 		} else {
 			return format.format(value);
 		}
