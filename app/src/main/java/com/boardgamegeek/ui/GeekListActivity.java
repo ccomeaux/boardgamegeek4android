@@ -173,6 +173,18 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	@Override
 	public void onLoadFinished(Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
 		GeekListResponse body = data.getBody();
+		if (body == null) {
+			errorMessage = getString(R.string.empty_geeklist);
+		} else if (data.hasParseError()) {
+			errorMessage = getString(R.string.parse_error);
+		} else if (data.hasError()) {
+			errorMessage = data.getErrorMessage();
+		} else {
+			errorMessage = "";
+		}
+
+		if (body == null) return;
+
 		geekList = GeekList.builder()
 			.setId(body.id)
 			.setTitle(TextUtils.isEmpty(body.title) ? "" : body.title.trim())
@@ -184,14 +196,6 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 			.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekListResponse.FORMAT))
 			.build();
 		geekListItems = body.getItems();
-
-		if (data.hasParseError()) {
-			errorMessage = getString(R.string.parse_error);
-		} else if (data.hasError()) {
-			errorMessage = data.getErrorMessage();
-		} else {
-			errorMessage = "";
-		}
 
 		setDescription();
 		setItems();
