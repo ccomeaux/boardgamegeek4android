@@ -202,7 +202,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		isSyncing(false);
 	}
 
-	@DebugLog
 	protected int getSyncType() {
 		return SyncService.FLAG_SYNC_NONE;
 	}
