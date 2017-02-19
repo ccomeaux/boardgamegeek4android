@@ -670,6 +670,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void saveDraft(boolean showToast) {
+		if (play == null) return;
 		play.dirtyTimestamp = System.currentTimeMillis();
 		if (save()) {
 			if (showToast) {
@@ -680,9 +681,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	}
 
 	private boolean save() {
-		if (play == null) {
-			return false;
-		}
+		if (play == null) return false;
 		shouldSaveOnPause = false;
 		final View focusedView = recyclerView.findFocus();
 		if (focusedView != null) focusedView.clearFocus();
