@@ -106,7 +106,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		Timber.i("..requesting collection items with options %s", options);
 		CollectionResponse response = new CollectionRequest(service, username, options).execute();
 		if (response.hasError()) {
-			Timber.w(response.getError());
+			showError(response.getError());
 			return false;
 		} else if (response.getNumberOfItems() > 0) {
 			int count = persister.save(response.getItems()).getRecordCount();

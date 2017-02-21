@@ -43,7 +43,7 @@ public abstract class SyncGames extends SyncTask {
 
 					ThingResponse response = new ThingRequest(service, gameList.getIds()).execute();
 					if (response.hasError()) {
-						Timber.w("Error encountered during sync: %s", response.getError());
+						showError(response.getError());
 						break;
 					} else if (response.getNumberOfGames() > 0) {
 						int count = new GamePersister(context).save(response.getGames(), detail);

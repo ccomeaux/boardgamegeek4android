@@ -70,4 +70,16 @@ public abstract class SyncTask extends ServiceTask {
 		}
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
+
+	protected void showError(String message) {
+		Timber.w(message);
+
+		NotificationCompat.Builder builder = NotificationUtils
+			.createNotificationBuilder(context, R.string.sync_notification_title_error)
+			.setContentText(message)
+			.setPriority(NotificationCompat.PRIORITY_HIGH)
+			.setCategory(NotificationCompat.CATEGORY_ERROR);
+
+		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
+	}
 }
