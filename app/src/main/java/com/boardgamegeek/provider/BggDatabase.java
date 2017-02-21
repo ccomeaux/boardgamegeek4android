@@ -528,236 +528,244 @@ public class BggDatabase extends SQLiteOpenHelper {
 		// recreate the entire database.
 		int version = oldVersion;
 
-		switch (version) {
-			case VER_INITIAL:
-				addColumn(db, Tables.COLLECTION, Collection.STATUS_WISHLIST_PRIORITY, COLUMN_TYPE.INTEGER);
-				version = VER_WISHLIST_PRIORITY;
-			case VER_WISHLIST_PRIORITY:
-				buildGameColorsTable().create(db);
-				version = VER_GAME_COLORS;
-			case VER_GAME_COLORS:
-				buildGameExpansionsTable().create(db);
-				version = VER_EXPANSIONS;
-			case VER_EXPANSIONS:
-				addColumn(db, Tables.COLLECTION, Collection.LAST_MODIFIED, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.GAMES, Games.LAST_VIEWED, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.GAMES, Games.STARRED, COLUMN_TYPE.INTEGER);
-				version = VER_VARIOUS;
-			case VER_VARIOUS:
-				buildPlaysTable().create(db);
-				buildPlayPlayersTable().create(db);
-				version = VER_PLAYS;
-			case VER_PLAYS:
-				addColumn(db, Tables.BUDDIES, Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT);
-				version = VER_PLAY_NICKNAME;
-			case VER_PLAY_NICKNAME:
-				addColumn(db, Tables.PLAYS, "sync_status", COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.PLAYS, "updated", COLUMN_TYPE.INTEGER);
-				version = VER_PLAY_SYNC_STATUS;
-			case VER_PLAY_SYNC_STATUS:
-				buildCollectionViewsTable().create(db);
-				buildCollectionViewFiltersTable().create(db);
-				version = VER_COLLECTION_VIEWS;
-			case VER_COLLECTION_VIEWS:
-				addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER);
-				version = VER_COLLECTION_VIEWS_SORT;
-			case VER_COLLECTION_VIEWS_SORT:
-				buildGameRanksTable().replace(db);
-				buildGamesDesignersTable().replace(db);
-				buildGamesArtistsTable().replace(db);
-				buildGamesPublishersTable().replace(db);
-				buildGamesMechanicsTable().replace(db);
-				buildGamesCategoriesTable().replace(db);
-				buildGameExpansionsTable().replace(db);
-				buildGamePollsTable().replace(db);
-				buildGamePollResultsTable().replace(db);
-				buildGamePollResultsResultTable().replace(db);
-				buildGameColorsTable().replace(db);
-				buildPlayPlayersTable().replace(db);
-				buildCollectionViewFiltersTable().replace(db);
-				version = VER_CASCADING_DELETE;
-			case VER_CASCADING_DELETE:
-				// remove the old cache directory
-				try {
-					File oldCacheDirectory = new File(Environment.getExternalStorageDirectory(),
-						BggContract.CONTENT_AUTHORITY);
-					FileUtils.deleteContents(oldCacheDirectory);
-					boolean success = oldCacheDirectory.delete();
-					if (!success) {
-						Timber.i("Unable to delete old cache directory");
+		try {
+			switch (version) {
+				case VER_INITIAL:
+					addColumn(db, Tables.COLLECTION, Collection.STATUS_WISHLIST_PRIORITY, COLUMN_TYPE.INTEGER);
+					version = VER_WISHLIST_PRIORITY;
+				case VER_WISHLIST_PRIORITY:
+					buildGameColorsTable().create(db);
+					version = VER_GAME_COLORS;
+				case VER_GAME_COLORS:
+					buildGameExpansionsTable().create(db);
+					version = VER_EXPANSIONS;
+				case VER_EXPANSIONS:
+					addColumn(db, Tables.COLLECTION, Collection.LAST_MODIFIED, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.LAST_VIEWED, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.STARRED, COLUMN_TYPE.INTEGER);
+					version = VER_VARIOUS;
+				case VER_VARIOUS:
+					buildPlaysTable().create(db);
+					buildPlayPlayersTable().create(db);
+					version = VER_PLAYS;
+				case VER_PLAYS:
+					addColumn(db, Tables.BUDDIES, Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT);
+					version = VER_PLAY_NICKNAME;
+				case VER_PLAY_NICKNAME:
+					addColumn(db, Tables.PLAYS, "sync_status", COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.PLAYS, "updated", COLUMN_TYPE.INTEGER);
+					version = VER_PLAY_SYNC_STATUS;
+				case VER_PLAY_SYNC_STATUS:
+					buildCollectionViewsTable().create(db);
+					buildCollectionViewFiltersTable().create(db);
+					version = VER_COLLECTION_VIEWS;
+				case VER_COLLECTION_VIEWS:
+					addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER);
+					version = VER_COLLECTION_VIEWS_SORT;
+				case VER_COLLECTION_VIEWS_SORT:
+					buildGameRanksTable().replace(db);
+					buildGamesDesignersTable().replace(db);
+					buildGamesArtistsTable().replace(db);
+					buildGamesPublishersTable().replace(db);
+					buildGamesMechanicsTable().replace(db);
+					buildGamesCategoriesTable().replace(db);
+					buildGameExpansionsTable().replace(db);
+					buildGamePollsTable().replace(db);
+					buildGamePollResultsTable().replace(db);
+					buildGamePollResultsResultTable().replace(db);
+					buildGameColorsTable().replace(db);
+					buildPlayPlayersTable().replace(db);
+					buildCollectionViewFiltersTable().replace(db);
+					version = VER_CASCADING_DELETE;
+				case VER_CASCADING_DELETE:
+					// remove the old cache directory
+					try {
+						File oldCacheDirectory = new File(Environment.getExternalStorageDirectory(),
+							BggContract.CONTENT_AUTHORITY);
+						FileUtils.deleteContents(oldCacheDirectory);
+						boolean success = oldCacheDirectory.delete();
+						if (!success) {
+							Timber.i("Unable to delete old cache directory");
+						}
+					} catch (IOException e) {
+						Timber.e(e, "Error clearing the cache");
 					}
-				} catch (IOException e) {
-					Timber.e(e, "Error clearing the cache");
-				}
-				version = VER_IMAGE_CACHE;
-			case VER_IMAGE_CACHE:
-				addColumn(db, Tables.GAMES, Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER);
-				version = VER_GAMES_UPDATED_PLAYS;
-			case VER_GAMES_UPDATED_PLAYS:
-				addColumn(db, Tables.COLLECTION, Collection.CONDITION, COLUMN_TYPE.TEXT);
-				addColumn(db, Tables.COLLECTION, Collection.HASPARTS_LIST, COLUMN_TYPE.TEXT);
-				addColumn(db, Tables.COLLECTION, Collection.WANTPARTS_LIST, COLUMN_TYPE.TEXT);
-				addColumn(db, Tables.COLLECTION, Collection.WISHLIST_COMMENT, COLUMN_TYPE.TEXT);
-				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_YEAR_PUBLISHED, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.COLLECTION, Collection.RATING, COLUMN_TYPE.REAL);
-				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
-				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT);
-				buildCollectionTable().replace(db);
-				version = VER_COLLECTION;
-			case VER_COLLECTION:
-				addColumn(db, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT);
-				addColumn(db, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER);
-				buildGamesTable().replace(db);
-				dropTable(db, Tables.COLLECTION);
-				buildCollectionTable().create(db);
-				SyncService.clearCollection(context);
-				SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION);
-				version = VER_GAME_COLLECTION_CONFLICT;
-			case VER_GAME_COLLECTION_CONFLICT:
-				addColumn(db, Tables.PLAYS, Plays.START_TIME, COLUMN_TYPE.INTEGER);
-				version = VER_PLAYS_START_TIME;
-			case VER_PLAYS_START_TIME:
-				addColumn(db, Tables.PLAYS, Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER);
-				db.execSQL("UPDATE " + Tables.PLAYS + " SET " + Plays.PLAYER_COUNT + "= (SELECT COUNT("
-					+ PlayPlayers.USER_ID + ")" + " FROM " + Tables.PLAY_PLAYERS + " WHERE " + Tables.PLAYS + "."
-					+ Plays.PLAY_ID + "=" + Tables.PLAY_PLAYERS + "." + PlayPlayers.PLAY_ID + ")");
-				version = VER_PLAYS_PLAYER_COUNT;
-			case VER_PLAYS_PLAYER_COUNT:
-				addColumn(db, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT);
-				version = VER_GAMES_SUBTYPE;
-			case VER_GAMES_SUBTYPE:
-				buildCollectionTable().replace(db);
-				version = VER_COLLECTION_ID_NULLABLE;
-			case VER_COLLECTION_ID_NULLABLE:
-				addColumn(db, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER);
-				version = VER_GAME_CUSTOM_PLAYER_SORT;
-			case VER_GAME_CUSTOM_PLAYER_SORT:
-				addColumn(db, Tables.BUDDIES, Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER);
-				version = VER_BUDDY_FLAG;
-			case VER_BUDDY_FLAG:
-				addColumn(db, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER);
-				version = VER_GAME_RANK;
-			case VER_GAME_RANK:
-				addColumn(db, Tables.BUDDIES, Buddies.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
-				version = VER_BUDDY_SYNC_HASH_CODE;
-			case VER_BUDDY_SYNC_HASH_CODE:
-				addColumn(db, Tables.PLAYS, Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
-				version = VER_PLAY_SYNC_HASH_CODE;
-			case VER_PLAY_SYNC_HASH_CODE:
-				buildPlayerColorsTable().create(db);
-				version = VER_PLAYER_COLORS;
-			case VER_PLAYER_COLORS:
-				addColumn(db, Tables.COLLECTION, Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				version = VER_RATING_DIRTY_TIMESTAMP;
-			case VER_RATING_DIRTY_TIMESTAMP:
-				addColumn(db, Tables.COLLECTION, Collection.COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				version = VER_COMMENT_DIRTY_TIMESTAMP;
-			case VER_COMMENT_DIRTY_TIMESTAMP:
-				addColumn(db, Tables.COLLECTION, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				version = VER_PRIVATE_INFO_DIRTY_TIMESTAMP;
-			case VER_PRIVATE_INFO_DIRTY_TIMESTAMP:
-				addColumn(db, Tables.COLLECTION, Collection.STATUS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				version = VER_STATUS_DIRTY_TIMESTAMP;
-			case VER_STATUS_DIRTY_TIMESTAMP:
-				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				version = VER_COLLECTION_DIRTY_TIMESTAMP;
-			case VER_COLLECTION_DIRTY_TIMESTAMP:
-				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				version = VER_COLLECTION_DELETE_TIMESTAMP;
-			case VER_COLLECTION_DELETE_TIMESTAMP:
-				addColumn(db, Tables.COLLECTION, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.COLLECTION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.COLLECTION, Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				addColumn(db, Tables.COLLECTION, Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				version = VER_COLLECTION_TIMESTAMPS;
-			case VER_COLLECTION_TIMESTAMPS:
-				addColumn(db, Tables.PLAYS, Plays.ITEM_NAME, COLUMN_TYPE.TEXT);
-				addColumn(db, Tables.PLAYS, Plays.OBJECT_ID, COLUMN_TYPE.INTEGER);
-				String playItemsTableName = "play_items";
-				String sql = String.format(
-					"UPDATE %1$s SET %4$s = (SELECT %2$s.object_id FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s), %5$s = (SELECT %2$s.name FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s)",
-					Tables.PLAYS, playItemsTableName, Plays.PLAY_ID, Plays.OBJECT_ID, Plays.ITEM_NAME);
-				db.execSQL(sql);
-				dropTable(db, playItemsTableName);
-				version = VER_PLAY_ITEMS_COLLAPSE;
-			case VER_PLAY_ITEMS_COLLAPSE:
-				Map<String, String> columnMap = new HashMap<>();
-				columnMap.put(PlayPlayers._PLAY_ID, String.format("%s.%s", Tables.PLAYS, Plays._ID));
-				buildPlayPlayersTable().replace(db, columnMap, Tables.PLAYS, Plays.PLAY_ID);
-				version = VER_PLAY_PLAYERS_KEY;
-			case VER_PLAY_PLAYERS_KEY:
-				addColumn(db, Tables.PLAYS, Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=3",
-					Tables.PLAYS,
-					Plays.DELETE_TIMESTAMP,
-					System.currentTimeMillis())); // 3 = deleted sync status
-				version = VER_PLAY_DELETE_TIMESTAMP;
-			case VER_PLAY_DELETE_TIMESTAMP:
-				addColumn(db, Tables.PLAYS, Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=1",
-					Tables.PLAYS,
-					Plays.UPDATE_TIMESTAMP,
-					System.currentTimeMillis())); // 1 = update sync status
-				version = VER_PLAY_UPDATE_TIMESTAMP;
-			case VER_PLAY_UPDATE_TIMESTAMP:
-				addColumn(db, Tables.PLAYS, Plays.DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-				db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=2",
-					Tables.PLAYS,
-					Plays.DIRTY_TIMESTAMP,
-					System.currentTimeMillis())); // 2 = in progress
-				version = VER_PLAY_DIRTY_TIMESTAMP;
-			case VER_PLAY_DIRTY_TIMESTAMP:
-				buildPlaysTable().replace(db);
-				db.execSQL(String.format("UPDATE %s SET %s=null WHERE %s>=100000000 AND (%s>0 OR %s>0 OR %s>0)",
-					Tables.PLAYS,
-					Plays.PLAY_ID,
-					Plays.PLAY_ID,
-					Plays.DIRTY_TIMESTAMP,
-					Plays.UPDATE_TIMESTAMP,
-					Plays.DELETE_TIMESTAMP));
-				db.execSQL(String.format("UPDATE %s SET %s=%s, %s=null WHERE %s>=100000000",
-					Tables.PLAYS,
-					Plays.DIRTY_TIMESTAMP,
-					System.currentTimeMillis(),
-					Plays.PLAY_ID,
-					Plays.PLAY_ID));
-				version = VER_PLAY_PLAY_ID_NOT_REQUIRED;
-			case VER_PLAY_PLAY_ID_NOT_REQUIRED:
-				TaskUtils.executeAsyncTask(new ResetPlaysTask(context));
-				version = VER_PLAYS_RESET;
+					version = VER_IMAGE_CACHE;
+				case VER_IMAGE_CACHE:
+					addColumn(db, Tables.GAMES, Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER);
+					version = VER_GAMES_UPDATED_PLAYS;
+				case VER_GAMES_UPDATED_PLAYS:
+					addColumn(db, Tables.COLLECTION, Collection.CONDITION, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.COLLECTION, Collection.HASPARTS_LIST, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.COLLECTION, Collection.WANTPARTS_LIST, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.COLLECTION, Collection.WISHLIST_COMMENT, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_YEAR_PUBLISHED, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.COLLECTION, Collection.RATING, COLUMN_TYPE.REAL);
+					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT);
+					buildCollectionTable().replace(db);
+					version = VER_COLLECTION;
+				case VER_COLLECTION:
+					addColumn(db, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER);
+					buildGamesTable().replace(db);
+					dropTable(db, Tables.COLLECTION);
+					buildCollectionTable().create(db);
+					SyncService.clearCollection(context);
+					SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION);
+					version = VER_GAME_COLLECTION_CONFLICT;
+				case VER_GAME_COLLECTION_CONFLICT:
+					addColumn(db, Tables.PLAYS, Plays.START_TIME, COLUMN_TYPE.INTEGER);
+					version = VER_PLAYS_START_TIME;
+				case VER_PLAYS_START_TIME:
+					addColumn(db, Tables.PLAYS, Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER);
+					db.execSQL("UPDATE " + Tables.PLAYS + " SET " + Plays.PLAYER_COUNT + "= (SELECT COUNT("
+						+ PlayPlayers.USER_ID + ")" + " FROM " + Tables.PLAY_PLAYERS + " WHERE " + Tables.PLAYS + "."
+						+ Plays.PLAY_ID + "=" + Tables.PLAY_PLAYERS + "." + PlayPlayers.PLAY_ID + ")");
+					version = VER_PLAYS_PLAYER_COUNT;
+				case VER_PLAYS_PLAYER_COUNT:
+					addColumn(db, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT);
+					version = VER_GAMES_SUBTYPE;
+				case VER_GAMES_SUBTYPE:
+					buildCollectionTable().replace(db);
+					version = VER_COLLECTION_ID_NULLABLE;
+				case VER_COLLECTION_ID_NULLABLE:
+					addColumn(db, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER);
+					version = VER_GAME_CUSTOM_PLAYER_SORT;
+				case VER_GAME_CUSTOM_PLAYER_SORT:
+					addColumn(db, Tables.BUDDIES, Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER);
+					version = VER_BUDDY_FLAG;
+				case VER_BUDDY_FLAG:
+					addColumn(db, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER);
+					version = VER_GAME_RANK;
+				case VER_GAME_RANK:
+					addColumn(db, Tables.BUDDIES, Buddies.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
+					version = VER_BUDDY_SYNC_HASH_CODE;
+				case VER_BUDDY_SYNC_HASH_CODE:
+					addColumn(db, Tables.PLAYS, Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
+					version = VER_PLAY_SYNC_HASH_CODE;
+				case VER_PLAY_SYNC_HASH_CODE:
+					buildPlayerColorsTable().create(db);
+					version = VER_PLAYER_COLORS;
+				case VER_PLAYER_COLORS:
+					addColumn(db, Tables.COLLECTION, Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_RATING_DIRTY_TIMESTAMP;
+				case VER_RATING_DIRTY_TIMESTAMP:
+					addColumn(db, Tables.COLLECTION, Collection.COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_COMMENT_DIRTY_TIMESTAMP;
+				case VER_COMMENT_DIRTY_TIMESTAMP:
+					addColumn(db, Tables.COLLECTION, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_PRIVATE_INFO_DIRTY_TIMESTAMP;
+				case VER_PRIVATE_INFO_DIRTY_TIMESTAMP:
+					addColumn(db, Tables.COLLECTION, Collection.STATUS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_STATUS_DIRTY_TIMESTAMP;
+				case VER_STATUS_DIRTY_TIMESTAMP:
+					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_COLLECTION_DIRTY_TIMESTAMP;
+				case VER_COLLECTION_DIRTY_TIMESTAMP:
+					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_COLLECTION_DELETE_TIMESTAMP;
+				case VER_COLLECTION_DELETE_TIMESTAMP:
+					addColumn(db, Tables.COLLECTION, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.COLLECTION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.COLLECTION, Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.COLLECTION, Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_COLLECTION_TIMESTAMPS;
+				case VER_COLLECTION_TIMESTAMPS:
+					addColumn(db, Tables.PLAYS, Plays.ITEM_NAME, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.PLAYS, Plays.OBJECT_ID, COLUMN_TYPE.INTEGER);
+					String playItemsTableName = "play_items";
+					String sql = String.format(
+						"UPDATE %1$s SET %4$s = (SELECT %2$s.object_id FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s), %5$s = (SELECT %2$s.name FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s)",
+						Tables.PLAYS, playItemsTableName, Plays.PLAY_ID, Plays.OBJECT_ID, Plays.ITEM_NAME);
+					db.execSQL(sql);
+					dropTable(db, playItemsTableName);
+					version = VER_PLAY_ITEMS_COLLAPSE;
+				case VER_PLAY_ITEMS_COLLAPSE:
+					Map<String, String> columnMap = new HashMap<>();
+					columnMap.put(PlayPlayers._PLAY_ID, String.format("%s.%s", Tables.PLAYS, Plays._ID));
+					buildPlayPlayersTable().replace(db, columnMap, Tables.PLAYS, Plays.PLAY_ID);
+					version = VER_PLAY_PLAYERS_KEY;
+				case VER_PLAY_PLAYERS_KEY:
+					addColumn(db, Tables.PLAYS, Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=3",
+						Tables.PLAYS,
+						Plays.DELETE_TIMESTAMP,
+						System.currentTimeMillis())); // 3 = deleted sync status
+					version = VER_PLAY_DELETE_TIMESTAMP;
+				case VER_PLAY_DELETE_TIMESTAMP:
+					addColumn(db, Tables.PLAYS, Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=1",
+						Tables.PLAYS,
+						Plays.UPDATE_TIMESTAMP,
+						System.currentTimeMillis())); // 1 = update sync status
+					version = VER_PLAY_UPDATE_TIMESTAMP;
+				case VER_PLAY_UPDATE_TIMESTAMP:
+					addColumn(db, Tables.PLAYS, Plays.DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=2",
+						Tables.PLAYS,
+						Plays.DIRTY_TIMESTAMP,
+						System.currentTimeMillis())); // 2 = in progress
+					version = VER_PLAY_DIRTY_TIMESTAMP;
+				case VER_PLAY_DIRTY_TIMESTAMP:
+					buildPlaysTable().replace(db);
+					db.execSQL(String.format("UPDATE %s SET %s=null WHERE %s>=100000000 AND (%s>0 OR %s>0 OR %s>0)",
+						Tables.PLAYS,
+						Plays.PLAY_ID,
+						Plays.PLAY_ID,
+						Plays.DIRTY_TIMESTAMP,
+						Plays.UPDATE_TIMESTAMP,
+						Plays.DELETE_TIMESTAMP));
+					db.execSQL(String.format("UPDATE %s SET %s=%s, %s=null WHERE %s>=100000000",
+						Tables.PLAYS,
+						Plays.DIRTY_TIMESTAMP,
+						System.currentTimeMillis(),
+						Plays.PLAY_ID,
+						Plays.PLAY_ID));
+					version = VER_PLAY_PLAY_ID_NOT_REQUIRED;
+				case VER_PLAY_PLAY_ID_NOT_REQUIRED:
+					TaskUtils.executeAsyncTask(new ResetPlaysTask(context));
+					version = VER_PLAYS_RESET;
+			}
+
+			if (version != DATABASE_VERSION) {
+				Timber.w("Destroying old data during upgrade");
+				recreateDatabase(db);
+			}
+		} catch (Exception e) {
+			Timber.e(e);
+			recreateDatabase(db);
 		}
+	}
 
-		if (version != DATABASE_VERSION) {
-			Timber.w("Destroying old data during upgrade");
+	private void recreateDatabase(@NonNull SQLiteDatabase db) {
+		dropTable(db, Tables.DESIGNERS);
+		dropTable(db, Tables.ARTISTS);
+		dropTable(db, Tables.PUBLISHERS);
+		dropTable(db, Tables.MECHANICS);
+		dropTable(db, Tables.CATEGORIES);
+		dropTable(db, Tables.GAMES);
+		dropTable(db, Tables.GAME_RANKS);
+		dropTable(db, Tables.GAMES_DESIGNERS);
+		dropTable(db, Tables.GAMES_ARTISTS);
+		dropTable(db, Tables.GAMES_PUBLISHERS);
+		dropTable(db, Tables.GAMES_MECHANICS);
+		dropTable(db, Tables.GAMES_CATEGORIES);
+		dropTable(db, Tables.GAMES_EXPANSIONS);
+		dropTable(db, Tables.COLLECTION);
+		dropTable(db, Tables.BUDDIES);
+		dropTable(db, Tables.GAME_POLLS);
+		dropTable(db, Tables.GAME_POLL_RESULTS);
+		dropTable(db, Tables.GAME_POLL_RESULTS_RESULT);
+		dropTable(db, Tables.GAME_COLORS);
+		dropTable(db, Tables.PLAYS);
+		dropTable(db, Tables.PLAY_PLAYERS);
+		dropTable(db, Tables.COLLECTION_VIEWS);
+		dropTable(db, Tables.COLLECTION_VIEW_FILTERS);
+		dropTable(db, Tables.PLAYER_COLORS);
 
-			dropTable(db, Tables.DESIGNERS);
-			dropTable(db, Tables.ARTISTS);
-			dropTable(db, Tables.PUBLISHERS);
-			dropTable(db, Tables.MECHANICS);
-			dropTable(db, Tables.CATEGORIES);
-			dropTable(db, Tables.GAMES);
-			dropTable(db, Tables.GAME_RANKS);
-			dropTable(db, Tables.GAMES_DESIGNERS);
-			dropTable(db, Tables.GAMES_ARTISTS);
-			dropTable(db, Tables.GAMES_PUBLISHERS);
-			dropTable(db, Tables.GAMES_MECHANICS);
-			dropTable(db, Tables.GAMES_CATEGORIES);
-			dropTable(db, Tables.GAMES_EXPANSIONS);
-			dropTable(db, Tables.COLLECTION);
-			dropTable(db, Tables.BUDDIES);
-			dropTable(db, Tables.GAME_POLLS);
-			dropTable(db, Tables.GAME_POLL_RESULTS);
-			dropTable(db, Tables.GAME_POLL_RESULTS_RESULT);
-			dropTable(db, Tables.GAME_COLORS);
-			dropTable(db, Tables.PLAYS);
-			dropTable(db, Tables.PLAY_PLAYERS);
-			dropTable(db, Tables.COLLECTION_VIEWS);
-			dropTable(db, Tables.COLLECTION_VIEW_FILTERS);
-			dropTable(db, Tables.PLAYER_COLORS);
-
-			onCreate(db);
-		}
+		onCreate(db);
 	}
 
 	private void dropTable(@NonNull SQLiteDatabase db, String tableName) {
