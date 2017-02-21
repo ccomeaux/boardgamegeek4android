@@ -57,7 +57,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 			CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 			if (response.hasError()) {
-				Timber.w("Error encountered during sync: %s", response.getError());
+				showError(response.getError());
 				return;
 			} else if (response.getNumberOfItems() > 0) {
 				int count = persister.save(response.getItems()).getRecordCount();
@@ -74,7 +74,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 			options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 			response = new CollectionRequest(service, account.name, options).execute();
 			if (response.hasError()) {
-				Timber.w("Error encountered during sync: %s", response.getError());
+				showError(response.getError());
 				return;
 			} else if (response.getNumberOfItems() > 0) {
 				int count = persister.save(response.getItems()).getRecordCount();

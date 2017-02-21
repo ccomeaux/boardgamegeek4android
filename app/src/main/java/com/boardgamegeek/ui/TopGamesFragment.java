@@ -85,7 +85,9 @@ public class TopGamesFragment extends Fragment {
 				@Override
 				public void onError(Throwable error) {
 					Timber.e(error, "Error loading top games");
-					emptyView.setText(getString(R.string.empty_http_error, error.getLocalizedMessage()));
+					if (isAdded()) {
+						emptyView.setText(getString(R.string.empty_http_error, error.getLocalizedMessage()));
+					}
 					AnimationUtils.fadeIn(emptyView);
 					progressView.hide();
 				}

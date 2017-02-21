@@ -203,10 +203,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 	@DebugLog
 	private void showError(@NonNull SyncTask task, @NonNull Throwable t) {
-		if (!shouldShowNotifications) {
-			return;
-		}
-
 		String message = t.getMessage();
 		if (TextUtils.isEmpty(message)) {
 			Throwable t1 = t.getCause();
@@ -215,17 +211,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
-		final int notification = task.getNotificationSummaryMessageId();
-		if (notification != ServiceTask.NO_NOTIFICATION) {
-			CharSequence text = context.getText(notification);
+		final int messageId = task.getNotificationSummaryMessageId();
+		if (messageId != ServiceTask.NO_NOTIFICATION) {
+			CharSequence text = context.getText(messageId);
 			NotificationCompat.Builder builder = NotificationUtils
 				.createNotificationBuilder(context, R.string.sync_notification_title_error)
 				.setContentText(text)
+				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			if (!TextUtils.isEmpty(message)) {
 				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 			}
-			NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
+			NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 		}
 	}
 

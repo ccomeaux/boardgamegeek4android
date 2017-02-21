@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 6.3.1
+-------------
+ * Always notify of sync errors
+ * Bug fixes
+
 Version 6.3
 -----------
  * Under-the-hood improvements to play logging and collection syncing
