@@ -4,6 +4,7 @@ Release Notes
 Coming Soon...
 --------------
  * Sort collection by last played date
+ * When viewing a play, players are selectable
  * Bug fixes
 
 Version 6.3.1
