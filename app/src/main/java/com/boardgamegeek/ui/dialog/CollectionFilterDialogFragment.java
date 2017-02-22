@@ -38,6 +38,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 	private Unbinder unbinder;
 	@BindView(R.id.scroll_container) ScrollView scrollContainer;
 	@BindViews({
+		R.id.collection_name,
 		R.id.collection_status,
 		R.id.subtype,
 		R.id.geek_ranking,
@@ -120,6 +121,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 
 	@DebugLog
 	@OnClick({
+		R.id.collection_name,
 		R.id.collection_status,
 		R.id.subtype,
 		R.id.geek_ranking,

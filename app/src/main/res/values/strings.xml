@@ -273,6 +273,7 @@
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status_">Collection status…</string>
 	<string name="menu_collection_status">Collection Status</string>
+	<string name="menu_collection_name">Collection Name</string>
 	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="title_add_a_copy">Add a Copy</string>
@@ -544,6 +545,7 @@
 	<string name="plays_sync_status_new">Played have been synced through %s.</string>
 	<string name="plays_sync_status_old">Played have been synced since %s.</string>
 	<string name="plays_sync_status_range">Played have been synced between %1$s and %2$s.</string>
+	<string name="starts_with">Starts with</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

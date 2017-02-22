@@ -17,6 +17,7 @@ public class CollectionFiltererFactory {
 	public CollectionFiltererFactory(@NonNull Context context) {
 		filterers = new ArrayList<>();
 		filterers.add(new CollectionStatusFilterer(context));
+		filterers.add(new CollectionNameFilter(context));
 		filterers.add(new PlayerNumberFilterer(context));
 		filterers.add(new PlayTimeFilterer(context));
 		filterers.add(new SuggestedAgeFilterer(context));
