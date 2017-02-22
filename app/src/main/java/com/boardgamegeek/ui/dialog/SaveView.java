@@ -50,9 +50,10 @@ public class SaveView {
 		}
 		setDescription(context, layout, sort, filters);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(R.string.title_save_view)
-			.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-
+		AlertDialog.Builder builder = new AlertDialog.Builder(context)
+			.setTitle(R.string.title_save_view)
+			.setView(layout)
+			.setPositiveButton(R.string.save,  new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					final String name = nameView.getText().toString().trim();

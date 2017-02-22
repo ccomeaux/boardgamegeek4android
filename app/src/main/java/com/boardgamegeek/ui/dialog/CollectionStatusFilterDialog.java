@@ -18,28 +18,34 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		init(context, (CollectionStatusFilterer) filter);
 
-		new AlertDialog.Builder(context).setTitle(R.string.menu_collection_status)
+		new AlertDialog.Builder(context)
+			.setTitle(R.string.menu_collection_status)
 			.setMultiChoiceItems(statusEntries, selectedStatuses, new DialogInterface.OnMultiChoiceClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 					selectedStatuses[which] = isChecked;
 				}
-			}).setNegativeButton(R.string.or, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, true));
-			}
-		}).setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, false));
-			}
-		}).setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				view.removeFilter(getType(context));
-			}
-		}).create().show();
+			})
+			.setNegativeButton(R.string.or, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, true));
+				}
+			})
+			.setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, false));
+				}
+			})
+			.setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					view.removeFilter(getType(context));
+				}
+			})
+			.create()
+			.show();
 	}
 
 	@Override
