@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon...
 --------------
+ * Filter collection by collection name
  * Sort collection by last played date
  * When viewing a play, players are selectable
  * Bug fixes
