@@ -28,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -208,6 +209,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_link_amazon,
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
+	@BindViews({
+		R.id.collection_add_button
+	}) List<Button> colorizedButtons;
 	@BindViews({
 		R.id.users_owning_bar,
 		R.id.users_trading_bar,
@@ -504,6 +508,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		iconColor = swatch.getRgb();
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
 
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, PaletteUtils.getHeaderSwatch(palette));
 		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));

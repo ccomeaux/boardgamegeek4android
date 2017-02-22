@@ -2,9 +2,11 @@ package com.boardgamegeek.util;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -51,6 +53,16 @@ public class PaletteUtils {
 			public void set(@NonNull ImageView view, Palette.Swatch value, int index) {
 				if (value != null) {
 					view.setColorFilter(value.getRgb());
+				}
+			}
+		};
+
+	public static final ButterKnife.Setter<Button, Palette.Swatch> colorButtonSetter =
+		new ButterKnife.Setter<Button, Palette.Swatch>() {
+			@Override
+			public void set(@NonNull Button view, Palette.Swatch value, int index) {
+				if (value != null) {
+					view.getBackground().setColorFilter(value.getRgb(), Mode.MULTIPLY);
 				}
 			}
 		};
