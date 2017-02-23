@@ -8,7 +8,5 @@ public interface CollectionView {
 
 	void addFilter(CollectionFilterer filter);
 
-	void createView(long id, String name);
-
 	void deleteView(long id);
 }

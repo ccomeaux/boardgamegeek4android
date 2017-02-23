@@ -1,8 +1,11 @@
 package com.boardgamegeek.ui;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -42,6 +45,7 @@ import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.interfaces.CollectionView;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -49,6 +53,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
+import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialog;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFactory;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
@@ -90,7 +95,7 @@ import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
+public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener, SaveView.OnViewSavedListener {
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -307,7 +312,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
 				case R.id.menu_collection_view_save:
-					new SaveView(getActivity()).createDialog(CollectionFragment.this, viewName, sorter, filters);
+					SaveView fragment = new SaveView(getActivity());
+					fragment.setOnViewSavedListener(CollectionFragment.this);
+					fragment.createDialog(viewName, createViewDescription(sorter, filters));
 					return true;
 				case R.id.menu_collection_view_delete:
 					DeleteView.createDialog(getActivity(), CollectionFragment.this);
@@ -603,7 +610,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		requery();
 	}
 
-	@Override
 	@DebugLog
 	public void createView(long id, String name) {
 		CollectionViewManipulationEvent.log("Create", name);
@@ -915,5 +921,92 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 		}
 		return false;
+	}
+
+	private String createViewDescription(Sorter sort, List<CollectionFilterer> filters) {
+		StringBuilder text = new StringBuilder();
+		for (CollectionFilterer filter : filters) {
+			if (filter != null) {
+				if (text.length() > 0) {
+					text.append("\n");
+				}
+				text.append(filter.getDisplayText());
+			}
+		}
+		if (text.length() > 0) {
+			text.append("\n");
+		}
+		text.append(getString(R.string.by_prefix, sort.getDescription()));
+		return text.toString();
+	}
+
+	@Override
+	public void onInsertRequested(String name, boolean isDefault) {
+		long id = insertView(name, sorter.getType(), filters);
+		setDefault(id, isDefault);
+		createView(id, name);
+	}
+
+	@Override
+	public void onUpdateRequested(String name, boolean isDefault, long viewId) {
+		updateView(viewId, sorter.getType(), filters);
+		setDefault(viewId, isDefault);
+		createView(viewId, name);
+	}
+
+	private void setDefault(long viewId, boolean isDefault) {
+		if (isDefault) {
+			// TODO: prompt the user if replacing a default
+			PreferencesUtils.putViewDefaultId(getActivity(), viewId);
+		} else {
+			if (viewId == PreferencesUtils.getViewDefaultId(getActivity())) {
+				PreferencesUtils.removeViewDefaultId(getActivity());
+			}
+		}
+	}
+
+	private long insertView(String name, int sortType, final List<CollectionFilterer> filters) {
+		ContentResolver resolver = getActivity().getContentResolver();
+
+		ContentValues values = new ContentValues();
+		values.put(CollectionViews.NAME, name);
+		values.put(CollectionViews.STARRED, false);
+		values.put(CollectionViews.SORT_TYPE, sortType);
+		Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
+
+		int filterId = CollectionViews.getViewId(filterUri);
+		Uri uri = CollectionViews.buildViewFilterUri(filterId);
+		insertDetails(uri, filters);
+		if (filterUri == null) {
+			return BggContract.INVALID_ID;
+		}
+		return StringUtils.parseLong(filterUri.getLastPathSegment());
+	}
+
+	private void updateView(long viewId, int sortType, final List<CollectionFilterer> filters) {
+		ContentResolver resolver = getActivity().getContentResolver();
+
+		ContentValues values = new ContentValues();
+		values.put(CollectionViews.SORT_TYPE, sortType);
+		resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
+
+		Uri uri = CollectionViews.buildViewFilterUri(viewId);
+		resolver.delete(uri, null, null);
+		insertDetails(uri, filters);
+	}
+
+	private void insertDetails(Uri viewFiltersUri, final List<CollectionFilterer> filters) {
+		List<ContentValues> cvs = new ArrayList<>(filters.size());
+		for (CollectionFilterer filter : filters) {
+			if (filter != null) {
+				ContentValues cv = new ContentValues();
+				cv.put(CollectionViewFilters.TYPE, filter.getType());
+				cv.put(CollectionViewFilters.DATA, filter.flatten());
+				cvs.add(cv);
+			}
+		}
+		if (cvs.size() > 0) {
+			getActivity().getContentResolver().bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
+		}
 	}
 }
