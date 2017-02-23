@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.3.2
+-------------
+ * Bug fixes
+
 Version 6.3.1
 -------------
  * Always notify of sync errors
