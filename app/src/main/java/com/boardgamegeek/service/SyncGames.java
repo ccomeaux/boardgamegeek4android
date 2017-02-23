@@ -35,7 +35,7 @@ public abstract class SyncGames extends SyncTask {
 				GameList gameList = getGameIds(GAMES_PER_FETCH);
 				if (gameList.getSize() > 0) {
 					Timber.i("...found %,d games to update [%s]", gameList.getSize(), gameList.getDescription());
-					String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, GAMES_PER_FETCH, GAMES_PER_FETCH, gameList.getDescription());
+					String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, gameList.getSize(), gameList.getSize(), gameList.getDescription());
 					if (numberOfFetches > 1) {
 						detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches);
 					}
