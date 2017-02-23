@@ -307,7 +307,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
 				case R.id.menu_collection_view_save:
-					SaveView.createDialog(getActivity(), CollectionFragment.this, viewName, sorter, filters);
+					new SaveView(getActivity()).createDialog(CollectionFragment.this, viewName, sorter, filters);
 					return true;
 				case R.id.menu_collection_view_delete:
 					DeleteView.createDialog(getActivity(), CollectionFragment.this);

@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,7 +7,6 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,64 +23,67 @@ import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SaveView {
+	private Context context;
+	private ContentResolver resolver;
 
-	public static void createDialog(final Context context, final CollectionView view, String name, final Sorter sort, final List<CollectionFilterer> filters) {
+	private final View layout;
+	@BindView(R.id.name) EditText nameView;
+	@BindView(R.id.default_view) CheckBox defaultView;
+	@BindView(R.id.description) TextView descriptionView;
 
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		@SuppressLint("InflateParams") View layout = inflater.inflate(R.layout.dialog_save_view, null);
+	public SaveView(Context context) {
+		this.context = context;
+		this.resolver = context.getContentResolver();
+		layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null);
+		ButterKnife.bind(this, layout);
+	}
 
-		final EditText nameView = (EditText) layout.findViewById(R.id.name);
-		final CheckBox defaultView = (CheckBox) layout.findViewById(R.id.default_view);
-
-		nameView.setText(name);
-		if (!TextUtils.isEmpty(name)) {
-			nameView.setSelection(0, name.length());
-		}
-		if (findViewId(context.getContentResolver(), name) == PreferencesUtils.getViewDefaultId(context)) {
-			defaultView.setChecked(true);
-		}
-		setDescription(context, layout, sort, filters);
+	public void createDialog(final CollectionView view, String name, final Sorter sort, final List<CollectionFilterer> filters) {
+		PresentationUtils.setAndSelectExistingText(nameView, name);
+		defaultView.setChecked(findViewId(name) == PreferencesUtils.getViewDefaultId(context));
+		descriptionView.setText(createDescription(sort, filters));
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context)
 			.setTitle(R.string.title_save_view)
 			.setView(layout)
-			.setPositiveButton(R.string.save,  new DialogInterface.OnClickListener() {
+			.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					final String name = nameView.getText().toString().trim();
 					final boolean isDefault = defaultView.isChecked();
 
-					final ContentResolver resolver = context.getContentResolver();
-
-					final long viewId = findViewId(resolver, name);
+					final long viewId = findViewId(name);
 					if (viewId > 0) {
 						new AlertDialog.Builder(context).setTitle(R.string.title_collection_view_name_in_use)
 							.setMessage(R.string.msg_collection_view_name_in_use)
 							.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									update(resolver, viewId, sort.getType(), filters);
+									update(viewId, sort.getType(), filters);
 									setDefault(viewId, isDefault);
 									view.createView(viewId, name);
 								}
 							}).setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								long id = insert(resolver, name, sort.getType(), filters);
+								long id = insert(name, sort.getType(), filters);
 								setDefault(id, isDefault);
 								view.createView(id, name);
 							}
 						}).create().show();
-
 					} else {
-						long id = insert(resolver, name, sort.getType(), filters);
+						long id = insert(name, sort.getType(), filters);
 						setDefault(id, isDefault);
 						view.createView(id, name);
 					}
@@ -99,7 +100,7 @@ public class SaveView {
 					}
 				}
 
-				private long insert(ContentResolver resolver, String name, int sortType, final List<CollectionFilterer> filters) {
+				private long insert(String name, int sortType, final List<CollectionFilterer> filters) {
 					ContentValues values = new ContentValues();
 					values.put(CollectionViews.NAME, name);
 					values.put(CollectionViews.STARRED, false);
@@ -108,24 +109,24 @@ public class SaveView {
 
 					int filterId = CollectionViews.getViewId(filterUri);
 					Uri uri = CollectionViews.buildViewFilterUri(filterId);
-					insertDetails(resolver, uri, filters);
+					insertDetails(uri, filters);
 					if (filterUri == null) {
 						return BggContract.INVALID_ID;
 					}
 					return StringUtils.parseLong(filterUri.getLastPathSegment());
 				}
 
-				private void update(ContentResolver resolver, long viewId, int sortType, final List<CollectionFilterer> filters) {
+				private void update(long viewId, int sortType, final List<CollectionFilterer> filters) {
 					ContentValues values = new ContentValues();
 					values.put(CollectionViews.SORT_TYPE, sortType);
 					resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
 
 					Uri uri = CollectionViews.buildViewFilterUri(viewId);
 					resolver.delete(uri, null, null);
-					insertDetails(resolver, uri, filters);
+					insertDetails(uri, filters);
 				}
 
-				private void insertDetails(ContentResolver resolver, Uri viewFiltersUri, final List<CollectionFilterer> filters) {
+				private void insertDetails(Uri viewFiltersUri, final List<CollectionFilterer> filters) {
 					List<ContentValues> cvs = new ArrayList<>(filters.size());
 					for (CollectionFilterer filter : filters) {
 						if (filter != null) {
@@ -151,9 +152,12 @@ public class SaveView {
 		dialog.show();
 	}
 
-	private static long findViewId(ContentResolver resolver, String name) {
-		return ResolverUtils.queryLong(resolver, CollectionViews.CONTENT_URI, CollectionViews._ID, 0,
-			CollectionViews.NAME + "=?", new String[] { name });
+	private long findViewId(String name) {
+		return ResolverUtils.queryLong(resolver,
+			CollectionViews.CONTENT_URI,
+			CollectionViews._ID, 0,
+			CollectionViews.NAME + "=?",
+			new String[] { name });
 	}
 
 	private static void enableSaveButton(final AlertDialog dialog, final EditText nameView) {
@@ -175,8 +179,7 @@ public class SaveView {
 		});
 	}
 
-	private static void setDescription(Context context, View layout, Sorter sort, List<CollectionFilterer> filters) {
-		TextView description = (TextView) layout.findViewById(R.id.description);
+	private String createDescription(Sorter sort, List<CollectionFilterer> filters) {
 		StringBuilder text = new StringBuilder();
 		for (CollectionFilterer filter : filters) {
 			if (filter != null) {
@@ -190,6 +193,6 @@ public class SaveView {
 			text.append("\n");
 		}
 		text.append(context.getString(R.string.by_prefix, sort.getDescription()));
-		description.setText(text.toString());
+		return text.toString();
 	}
 }
