@@ -3,7 +3,7 @@ Release Notes
 
 Version 6.3.2
 -------------
- * Bug fixes
+ * Bug fixes, especially around syncing
 
 Version 6.3.1
 -------------
