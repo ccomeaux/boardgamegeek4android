@@ -52,7 +52,6 @@ public class SyncGameCollection extends UpdateTask {
 		CollectionPersister persister = new CollectionPersister.Builder(context)
 			.includePrivateInfo()
 			.includeStats()
-			.validStatusesOnly()
 			.build();
 
 		BggService service = Adapter.createForXmlWithAuth(context);

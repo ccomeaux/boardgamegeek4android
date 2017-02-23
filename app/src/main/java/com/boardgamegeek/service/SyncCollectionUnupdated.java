@@ -14,6 +14,7 @@ import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.model.GameList;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import timber.log.Timber;
 
@@ -88,7 +89,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		GameList list = new GameList(GAME_PER_FETCH);
 		Cursor cursor = context.getContentResolver().query(Collection.CONTENT_URI,
 			new String[] { Collection.GAME_ID, Collection.GAME_NAME },
-			"(collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED + " IS NULL) AND " + Collection.COLLECTION_ID + " IS NOT NULL",
+			SelectionBuilder.whereZeroOrNull("collection." + Collection.UPDATED),
 			null,
 			"collection." + Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
 		try {
