@@ -94,9 +94,9 @@ public class SyncCollectionComplete extends SyncTask {
 				} else if (response.getNumberOfItems() > 0) {
 					int rows = persister.save(response.getItems()).getRecordCount();
 					syncResult.stats.numEntries += response.getNumberOfItems();
-					Timber.i("...saved %,d records for %,d collection items", rows, response.getNumberOfItems());
+					Timber.i("...saved %,d records for %,d collection accessories", rows, response.getNumberOfItems());
 				} else {
-					Timber.i("...no collection items to save");
+					Timber.i("...no collection accessories to save");
 				}
 			}
 
