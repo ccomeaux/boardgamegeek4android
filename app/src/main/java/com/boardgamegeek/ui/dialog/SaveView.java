@@ -54,7 +54,7 @@ public class SaveView {
 		defaultView.setChecked(findViewId(name) == PreferencesUtils.getViewDefaultId(context));
 		descriptionView.setText(description);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context)
+		AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
 			.setTitle(R.string.title_save_view)
 			.setView(layout)
 			.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {

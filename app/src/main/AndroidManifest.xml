@@ -40,7 +40,8 @@
 			android:name=".ui.CollectionActivity"
 			android:exported="false"
 			android:label="@string/title_collection"
-			android:uiOptions="splitActionBarWhenNarrow">
+			android:uiOptions="splitActionBarWhenNarrow"
+			android:windowSoftInputMode="adjustNothing">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
