@@ -74,6 +74,8 @@ public abstract class SyncTask extends ServiceTask {
 	protected void showError(String message) {
 		Timber.w(message);
 
+		if (!PreferencesUtils.getSyncShowErrors(context)) return;
+
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_error)
 			.setContentText(message)

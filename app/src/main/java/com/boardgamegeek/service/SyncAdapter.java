@@ -211,6 +211,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 		}
 
+		Timber.w(message);
+
+		if (!PreferencesUtils.getSyncShowErrors(context)) return;
+
 		final int messageId = task.getNotificationSummaryMessageId();
 		if (messageId != ServiceTask.NO_NOTIFICATION) {
 			CharSequence text = context.getText(messageId);

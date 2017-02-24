@@ -6,6 +6,10 @@ Coming Soon...
  * Filter collection by collection name
  * Sort collection by last played date
  * When viewing a play, players are selectable
+
+Version 6.3.3
+-------------
+ * Sync error notifications can be enabled in settings
  * Bug fixes
 
 Version 6.3.2

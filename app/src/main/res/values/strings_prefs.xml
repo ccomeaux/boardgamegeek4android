@@ -39,6 +39,7 @@
 	<string name="pref_sync_buddies">GeekBuddies</string>
 	<string name="pref_sync_plays">Plays</string>
 	<string name="pref_sync_notifications">Show progress notifications</string>
+	<string name="pref_sync_errors">Show error notifications</string>
 	<string name="pref_sync_only_charging">Only while charging</string>
 	<string name="pref_sync_only_wifi">Only on WiFi</string>
 	<string name="pref_sync_accounts">Accounts</string>

@@ -187,6 +187,10 @@ public class PreferencesUtils {
 		return getBoolean(context, "sync_notifications", false);
 	}
 
+	public static boolean getSyncShowErrors(Context context) {
+		return getBoolean(context, "sync_errors", false);
+	}
+
 	public static boolean getSyncOnlyCharging(Context context) {
 		return getBoolean(context, "sync_only_charging", false);
 	}
