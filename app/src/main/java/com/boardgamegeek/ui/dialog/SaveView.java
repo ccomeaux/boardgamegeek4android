@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -103,6 +105,7 @@ public class SaveView {
 	}
 
 	private long findViewId(String name) {
+		if (TextUtils.isEmpty(name)) return BggContract.INVALID_ID;
 		return ResolverUtils.queryLong(context.getContentResolver(),
 			CollectionViews.CONTENT_URI,
 			CollectionViews._ID, 0,
