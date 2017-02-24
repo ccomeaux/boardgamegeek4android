@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.3.4
+-------------
+ * Bug fixes
+
 Version 6.3.3
 -------------
  * Sync error notifications can be enabled in settings
