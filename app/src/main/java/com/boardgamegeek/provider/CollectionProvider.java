@@ -27,7 +27,7 @@ public class CollectionProvider extends BasicProvider {
 		if (!TextUtils.isEmpty(groupBy)) {
 			builder.groupBy(groupBy);
 		} else {
-			builder.groupBy(Collection.COLLECTION_ID);
+			builder.groupBy(Collection.GAME_ID);
 		}
 		return builder;
 	}

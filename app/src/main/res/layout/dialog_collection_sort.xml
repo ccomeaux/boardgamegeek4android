@@ -151,6 +151,12 @@
 			android:layout_height="match_parent"
 			android:tag="@string/collection_sort_type_play_date_max"/>
 
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingLeft="@dimen/material_margin_horizontal_dialog"
+			android:text="@string/msg_collection_sort_play_date"/>
+
 		<RadioButton
 			android:id="@+id/acquisition_date"
 			style="@style/DialogRadioButton"
