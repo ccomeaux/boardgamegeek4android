@@ -59,7 +59,7 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialogFactory;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteView;
-import com.boardgamegeek.ui.dialog.SaveView;
+import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
@@ -95,7 +95,7 @@ import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener, SaveView.OnViewSavedListener {
+public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener, SaveViewDialogFragment.OnViewSavedListener {
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -312,9 +312,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
 				case R.id.menu_collection_view_save:
-					SaveView fragment = new SaveView(getActivity());
-					fragment.setOnViewSavedListener(CollectionFragment.this);
-					fragment.createDialog(viewName, createViewDescription(sorter, filters));
+					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
+					dialog.setOnViewSavedListener(CollectionFragment.this);
+					dialog.show(getFragmentManager(), "save_view");
 					return true;
 				case R.id.menu_collection_view_delete:
 					DeleteView.createDialog(getActivity(), CollectionFragment.this);

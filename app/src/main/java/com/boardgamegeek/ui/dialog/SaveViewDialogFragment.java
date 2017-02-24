@@ -1,7 +1,11 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -23,20 +27,34 @@ import com.boardgamegeek.util.ResolverUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
-public class SaveView {
-	private final Context context;
+public class SaveViewDialogFragment extends DialogFragment {
+	private static final String KEY_NAME = "title_id";
+	private static final String KEY_DESCRIPTION = "color_count";
+
+	private Context context;
 	private OnViewSavedListener listener;
+	private String name;
+	private String description;
 
-	private final View layout;
+	private Unbinder unbinder;
 	@BindView(R.id.name) EditText nameView;
 	@BindView(R.id.default_view) CheckBox defaultView;
 	@BindView(R.id.description) TextView descriptionView;
 
-	public SaveView(Context context) {
-		this.context = context;
-		layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null);
-		ButterKnife.bind(this, layout);
+	public static SaveViewDialogFragment newInstance(Context context, String name, String description) {
+		SaveViewDialogFragment colorPicker = new SaveViewDialogFragment();
+		colorPicker.context = context;
+		colorPicker.setArguments(name, description);
+		return colorPicker;
+	}
+
+	public void setArguments(String name, String description) {
+		Bundle bundle = new Bundle();
+		bundle.putString(KEY_NAME, name);
+		bundle.putString(KEY_DESCRIPTION, description);
+		setArguments(bundle);
 	}
 
 	public interface OnViewSavedListener {
@@ -49,10 +67,18 @@ public class SaveView {
 		this.listener = listener;
 	}
 
-	public void createDialog(String name, String description) {
-		PresentationUtils.setAndSelectExistingText(nameView, name);
-		defaultView.setChecked(findViewId(name) == PreferencesUtils.getViewDefaultId(context));
-		descriptionView.setText(description);
+	@Override
+	@NonNull
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		View layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null);
+		unbinder = ButterKnife.bind(this, layout);
+
+		if (getArguments() != null) {
+			name = getArguments().getString(KEY_NAME);
+			description = getArguments().getString(KEY_DESCRIPTION);
+		}
+
+		tryBindUi();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
 			.setTitle(R.string.title_save_view)
@@ -65,43 +91,57 @@ public class SaveView {
 
 					final long viewId = findViewId(name);
 					if (viewId > 0) {
-						new AlertDialog.Builder(context).setTitle(R.string.title_collection_view_name_in_use)
+						new AlertDialog.Builder(context)
+							.setTitle(R.string.title_collection_view_name_in_use)
 							.setMessage(R.string.msg_collection_view_name_in_use)
 							.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									if (listener != null) {
-										listener.onUpdateRequested(name, isDefault, viewId);
-									}
+									if (listener != null) listener.onUpdateRequested(name, isDefault, viewId);
 								}
 							})
 							.setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									if (listener != null) {
-										listener.onInsertRequested(name, isDefault);
-									}
+									if (listener != null) listener.onInsertRequested(name, isDefault);
 								}
 							})
 							.create()
 							.show();
 					} else {
-						if (listener != null) {
-							listener.onInsertRequested(name, isDefault);
-						}
+						if (listener != null) listener.onInsertRequested(name, isDefault);
 					}
 				}
-			}).setNegativeButton(R.string.cancel, null).setCancelable(true);
+			})
+			.setNegativeButton(R.string.cancel, null)
+			.setCancelable(true);
 		final AlertDialog dialog = builder.create();
+		nameView.requestFocus();
 		Window window = dialog.getWindow();
-		if (window != null) window.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		if (window != null) {
+			window.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE | LayoutParams.SOFT_INPUT_ADJUST_PAN);
+		}
 		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialogInterface) {
 				enableSaveButton(dialog, nameView);
 			}
 		});
-		dialog.show();
+		return dialog;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
+	}
+
+	private void tryBindUi() {
+		if (isAdded()) {
+			PresentationUtils.setAndSelectExistingText(nameView, name);
+			defaultView.setChecked(findViewId(name) == PreferencesUtils.getViewDefaultId(context));
+			descriptionView.setText(description);
+		}
 	}
 
 	private long findViewId(String name) {
