@@ -811,11 +811,11 @@ public class BggContract {
 				.build();
 		}
 
-		public static Uri buildPlayerUri(long internalId, long rowId) {
+		public static Uri buildPlayerUri(long internalPlayId, long internalPlayerId) {
 			return CONTENT_URI.buildUpon()
-				.appendPath(String.valueOf(internalId))
+				.appendPath(String.valueOf(internalPlayId))
 				.appendPath(PATH_PLAYERS)
-				.appendPath(String.valueOf(rowId))
+				.appendPath(String.valueOf(internalPlayerId))
 				.build();
 		}
 
