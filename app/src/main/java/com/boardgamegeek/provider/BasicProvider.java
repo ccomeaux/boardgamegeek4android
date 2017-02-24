@@ -11,8 +11,6 @@ import com.boardgamegeek.util.SelectionBuilder;
 import hugo.weaving.DebugLog;
 
 public abstract class BasicProvider extends BaseProvider {
-	private long rowId;
-
 	@DebugLog
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
@@ -29,23 +27,18 @@ public abstract class BasicProvider extends BaseProvider {
 	@DebugLog
 	@Override
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
-		rowId = db.insert(getTable(), null, values);
+		long rowId = db.insert(getTable(), null, values);
 		if (rowId != -1) {
-			return insertedUri(values);
+			return insertedUri(values, rowId);
 		}
 		return null;
 	}
 
 	@DebugLog
-	protected Uri insertedUri(ContentValues values) {
-		return BggContract.buildBasicUri(getPath(), getInsertedId(values));
-	}
-
-	@DebugLog
-	private Long getInsertedId(ContentValues values) {
+	protected Uri insertedUri(ContentValues values, long rowId) {
 		if (!TextUtils.isEmpty(getInsertedIdColumn())) {
-			return values.getAsLong(getInsertedIdColumn());
+			return BggContract.buildBasicUri(getPath(), values.getAsLong(getInsertedIdColumn()));
 		}
-		return rowId;
+		return BggContract.buildBasicUri(getPath(), rowId);
 	}
 }
