@@ -36,7 +36,7 @@ public class CollectionNameFilterDialog implements CollectionFilterDialog {
 	}
 
 	private AlertDialog createAlertDialog(final Context context, final CollectionView view, View layout) {
-		return new Builder(context)
+		return new Builder(context, R.style.Theme_bgglight_Dialog_Alert)
 			.setTitle(R.string.menu_collection_name)
 			.setPositiveButton(R.string.set, new OnClickListener() {
 				@Override
