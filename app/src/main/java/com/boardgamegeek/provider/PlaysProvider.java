@@ -20,8 +20,8 @@ public class PlaysProvider extends BasicProvider {
 		}
 
 		builder
-			.mapToTable(Plays._ID, getTable())
-			.mapToTable(Plays.PLAY_ID, getTable())
+			.mapToTable(Plays._ID, Tables.PLAYS)
+			.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 			.mapToTable(Plays.SYNC_TIMESTAMP, Tables.PLAYS)
 			.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY)
 			.mapAsMax(Plays.MAX_DATE, Plays.DATE);

@@ -138,6 +138,7 @@
 	<string name="title_company">Company</string>
 	<string name="title_person">Person</string>
 	<string name="title_family">Family</string>
+	<string name="title_board_game_family">Board Game Family</string>
 	<string name="title_file">File</string>
 	<string name="title_game_shortcut">BGG Game</string>
 	<string name="title_game_detail">Game Details</string>

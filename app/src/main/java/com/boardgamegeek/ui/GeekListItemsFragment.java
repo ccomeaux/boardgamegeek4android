@@ -157,7 +157,9 @@ public class GeekListItemsFragment extends Fragment {
 							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.title());
 							intent.putExtra(ActivityUtils.KEY_ORDER, order);
 							intent.putExtra(ActivityUtils.KEY_NAME, item.getObjectName());
-							intent.putExtra(ActivityUtils.KEY_TYPE, context.getString(item.getObjectTypeResId()));
+							if (item.getObjectTypeResId() != GeekListItem.INVALID_OBJECT_TYPE_RES_ID) {
+								intent.putExtra(ActivityUtils.KEY_TYPE, context.getString(item.getObjectTypeResId()));
+							}
 							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, item.imageId());
 							intent.putExtra(ActivityUtils.KEY_USERNAME, item.getUsername());
 							intent.putExtra(ActivityUtils.KEY_THUMBS, item.getThumbCount());

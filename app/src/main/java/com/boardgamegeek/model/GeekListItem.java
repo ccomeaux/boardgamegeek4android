@@ -18,6 +18,7 @@ import java.util.Locale;
 
 @Root(name = "item")
 public class GeekListItem {
+	public static final int INVALID_OBJECT_TYPE_RES_ID = 0;
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
 	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
@@ -49,9 +50,8 @@ public class GeekListItem {
 	}
 
 	public int getObjectTypeResId() {
-		if (objecttype == null) {
-			return 0;
-		}
+		if (objecttype == null) return INVALID_OBJECT_TYPE_RES_ID;
+
 		switch (objecttype) {
 			case "thing":
 				if ("boardgame".equals(subtype)) {
@@ -71,14 +71,16 @@ public class GeekListItem {
 				}
 				return R.string.title_person;
 			case "family":
+				if ("boardgamefamily".equals(subtype)) {
+					return R.string.title_board_game_family;
+				}
 				return R.string.title_family;
-			// subtype="boardgamefamily"
 			case "filepage":
 				return R.string.title_file;
 			case "geeklist":
 				return R.string.title_geeklist;
 		}
-		return 0;
+		return INVALID_OBJECT_TYPE_RES_ID;
 	}
 
 	public boolean isBoardGame() {

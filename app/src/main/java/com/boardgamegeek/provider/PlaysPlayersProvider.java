@@ -96,8 +96,8 @@ public class PlaysPlayersProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
-		long internalId = values.getAsLong(PlayPlayers._PLAY_ID);
-		long rowId = db.insertOrThrow(Tables.PLAY_PLAYERS, null, values);
-		return Plays.buildPlayerUri(internalId, rowId);
+		long internalPlayId = values.getAsLong(PlayPlayers._PLAY_ID);
+		long internalPlayerId = db.insertOrThrow(Tables.PLAY_PLAYERS, null, values);
+		return Plays.buildPlayerUri(internalPlayId, internalPlayerId);
 	}
 }

@@ -93,8 +93,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		httpClient = HttpUtils.getHttpClientWithAuth(context);
 		persister = new PlayPersister(context);
 
-		updatePendingPlays(syncResult);
 		deletePendingPlays(syncResult);
+		updatePendingPlays(syncResult);
 		SyncService.hIndex(context);
 	}
 
@@ -144,6 +144,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					play.playId = response.getPlayId();
 					play.dirtyTimestamp = 0;
 					play.updateTimestamp = 0;
+					play.deleteTimestamp = 0;
 					currentGameIdForMessage = play.gameId;
 					currentGameNameForMessage = play.gameName;
 
