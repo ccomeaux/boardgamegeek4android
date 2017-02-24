@@ -19,6 +19,7 @@ public class CollectionProvider extends BasicProvider {
 			.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
+			.mapToTable(Collection.PRIVATE_INFO_QUANTITY, Tables.COLLECTION)
 			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
 			.mapAsMax(Plays.MAX_DATE, Plays.DATE);
 
