@@ -5,17 +5,17 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Syncs a number of buddies that haven't been updated in a while.
+ * Syncs roughly 7% of buddies that haven't been updated in the longer while.
  */
 public class SyncBuddiesDetailOldest extends SyncBuddiesDetail {
-	private static final int SYNC_LIMIT = 1;
-
 	public SyncBuddiesDetailOldest(Context context, BggService service) {
 		super(context, service);
 	}
@@ -33,12 +33,21 @@ public class SyncBuddiesDetailOldest extends SyncBuddiesDetail {
 
 	@Override
 	protected List<String> getBuddyNames() {
+		int count = ResolverUtils.queryInt(context.getContentResolver(),
+			Buddies.CONTENT_URI,
+			"count(*) AS count");
+
+		if (count == 0) return new ArrayList<>(0);
+
+		int syncLimit = count / 14; // will sync all buddies every 2 weeks
+		syncLimit = MathUtils.constrain(syncLimit, 1, 16);
+
 		return ResolverUtils.queryStrings(context.getContentResolver(),
-			BggContract.Buddies.CONTENT_URI,
-			BggContract.Buddies.BUDDY_NAME,
+			Buddies.CONTENT_URI,
+			Buddies.BUDDY_NAME,
 			null,
 			null,
-			BggContract.Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
+			Buddies.UPDATED + " LIMIT " + syncLimit);
 	}
 
 	@Override
