@@ -19,9 +19,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
-	private static final int BATCH_SIZE = 16;
 	private static final long SLEEP_MILLIS = 2000L;
-	private BuddyPersister persister;
 
 	public SyncBuddiesDetail(Context context, BggService service) {
 		super(context, service);
@@ -36,7 +34,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 				return;
 			}
 
-			persister = new BuddyPersister(context);
+			BuddyPersister persister = new BuddyPersister(context);
 			int count = 0;
 			List<String> names = getBuddyNames();
 			Timber.i("...found %,d buddies to update", names.size());
@@ -67,7 +65,8 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						break;
 					}
 
-					save(syncResult, user);
+					persister.save(user);
+					syncResult.stats.numUpdates++;
 					count++;
 
 					// pause between fetching users
@@ -85,12 +84,6 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 		} finally {
 			Timber.i("...complete!");
 		}
-	}
-
-	private void save(@NonNull SyncResult syncResult, @NonNull User user) {
-		updateProgressNotification(R.string.sync_notification_buddies_list_storing);
-		persister.save(user);
-		syncResult.stats.numUpdates++;
 	}
 
 	/**
