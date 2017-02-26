@@ -93,4 +93,14 @@ public abstract class SyncTask extends ServiceTask {
 
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 	}
+
+	protected boolean wasSleepInterrupted(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Timber.w(e, "Sleeping interrupted during sync.");
+			return true;
+		}
+		return false;
+	}
 }

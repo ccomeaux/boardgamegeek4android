@@ -69,13 +69,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 					syncResult.stats.numUpdates++;
 					count++;
 
-					// pause between fetching users
-					try {
-						Thread.sleep(SLEEP_MILLIS);
-					} catch (InterruptedException e) {
-						Timber.w(e, "Interrupted while sleeping between user fetches.");
-						break;
-					}
+					if (wasSleepInterrupted(SLEEP_MILLIS)) break;
 				}
 			} else {
 				Timber.i("...no buddies to update");
