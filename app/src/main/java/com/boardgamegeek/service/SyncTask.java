@@ -51,6 +51,10 @@ public abstract class SyncTask extends ServiceTask {
 		updateProgressNotification(context.getString(detailResId));
 	}
 
+	protected void updateProgressNotification(@StringRes int detailResId, Object... formatArgs) {
+		updateProgressNotification(context.getString(detailResId, formatArgs));
+	}
+
 	protected void updateProgressNotification(String detail) {
 		Timber.i(detail);
 		if (!shouldShowNotifications) return;

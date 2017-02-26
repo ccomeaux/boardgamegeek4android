@@ -35,7 +35,8 @@ public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
 	protected List<String> getBuddyNames() {
 		return ResolverUtils.queryStrings(context.getContentResolver(), Buddies.CONTENT_URI,
 			Buddies.BUDDY_NAME,
-			Buddies.UPDATED + "=0 OR " + Buddies.UPDATED + " IS NULL", null,
+			Buddies.UPDATED + "=0 OR " + Buddies.UPDATED + " IS NULL",
+			null,
 			Buddies.BUDDY_NAME + " LIMIT " + SYNC_LIMIT);
 	}
 

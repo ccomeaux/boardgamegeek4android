@@ -33,8 +33,11 @@ public class SyncBuddiesDetailOldest extends SyncBuddiesDetail {
 
 	@Override
 	protected List<String> getBuddyNames() {
-		return ResolverUtils.queryStrings(context.getContentResolver(), BggContract.Buddies.CONTENT_URI,
-			BggContract.Buddies.BUDDY_NAME, null, null,
+		return ResolverUtils.queryStrings(context.getContentResolver(),
+			BggContract.Buddies.CONTENT_URI,
+			BggContract.Buddies.BUDDY_NAME,
+			null,
+			null,
 			BggContract.Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
 	}
 
