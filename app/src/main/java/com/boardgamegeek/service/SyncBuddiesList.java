@@ -60,10 +60,12 @@ public class SyncBuddiesList extends SyncTask {
 				Response<User> response = call.execute();
 				if (!response.isSuccessful()) {
 					showError(String.format("Unsuccessful user fetch with code: %s", response.code()));
+					syncResult.stats.numIoExceptions++;
 				}
 				user = response.body();
 			} catch (IOException e) {
 				showError(String.format("Unsuccessful user fetch with exception: %s", e.getLocalizedMessage()));
+				syncResult.stats.numIoExceptions++;
 			}
 			if (user == null) {
 				return;
