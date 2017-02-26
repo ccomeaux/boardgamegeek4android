@@ -52,7 +52,7 @@ public class SyncBuddiesList extends SyncTask {
 				return;
 			}
 
-			updateProgressNotification(context.getString(R.string.sync_notification_buddies_list_downloading));
+			updateProgressNotification(R.string.sync_notification_buddies_list_downloading);
 
 			User user = null;
 			Call<User> call = service.user(account.name, 1, 1);
@@ -69,7 +69,7 @@ public class SyncBuddiesList extends SyncTask {
 				return;
 			}
 
-			updateProgressNotification(context.getString(R.string.sync_notification_buddies_list_storing));
+			updateProgressNotification(R.string.sync_notification_buddies_list_storing);
 
 			Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.getId());
 			AccountUtils.setUsername(context, user.name);
@@ -83,9 +83,7 @@ public class SyncBuddiesList extends SyncTask {
 			syncResult.stats.numEntries += count;
 			Timber.i("Synced %,d buddies", count);
 
-			updateProgressNotification(context.getString(R.string.sync_notification_buddies_list_pruning));
-			// TODO: delete avatar images associated with this list
-			// Actually, these are now only in the cache!
+			updateProgressNotification(R.string.sync_notification_buddies_list_pruning);
 			ContentResolver resolver = context.getContentResolver();
 			count = resolver.delete(Buddies.CONTENT_URI,
 				Buddies.UPDATED_LIST + "<?",

@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.text.TextUtils;
@@ -44,6 +45,10 @@ public abstract class SyncTask extends ServiceTask {
 
 	protected void updateProgressNotification() {
 		updateProgressNotification(null);
+	}
+
+	protected void updateProgressNotification(@StringRes int detailResId) {
+		updateProgressNotification(context.getString(detailResId));
 	}
 
 	protected void updateProgressNotification(String detail) {
