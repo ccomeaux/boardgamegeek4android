@@ -442,7 +442,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		} else if (play.updateTimestamp > 0) {
 			pendingTimestampView.setVisibility(View.VISIBLE);
 			pendingTimestampView.setFormat(R.string.update_pending_prefix);
-			pendingTimestampView.setTimestamp(play.deleteTimestamp);
+			pendingTimestampView.setTimestamp(play.updateTimestamp);
 		} else {
 			pendingTimestampView.setVisibility(View.GONE);
 		}
