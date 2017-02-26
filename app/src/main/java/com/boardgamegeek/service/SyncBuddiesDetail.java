@@ -12,7 +12,6 @@ import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.util.PreferencesUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -42,7 +41,6 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 			List<String> names = getBuddyNames();
 			Timber.i("...found %,d buddies to update", names.size());
 			if (names.size() > 0) {
-				List<User> buddies = new ArrayList<>(names.size());
 				for (String name : names) {
 					if (isCancelled()) {
 						Timber.i("...canceled while syncing buddies");
@@ -64,13 +62,13 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						showError(String.format("Unsuccessful user fetch with exception: %s", e.getLocalizedMessage()));
 						syncResult.stats.numIoExceptions++;
 					}
-					if (user != null) {
-						buddies.add(user);
-						if (buddies.size() >= BATCH_SIZE) {
-							count += save(syncResult, buddies);
-							buddies.clear();
-						}
+
+					if (user == null) {
+						break;
 					}
+
+					save(syncResult, user);
+					count++;
 
 					// pause between fetching users
 					try {
@@ -79,9 +77,6 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						Timber.w(e, "Interrupted while sleeping between user fetches.");
 						break;
 					}
-				}
-				if (buddies.size() > 0) {
-					count += save(syncResult, buddies);
 				}
 			} else {
 				Timber.i("...no buddies to update");
@@ -92,12 +87,10 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
-	private int save(@NonNull SyncResult syncResult, @NonNull List<User> buddies) {
+	private void save(@NonNull SyncResult syncResult, @NonNull User user) {
 		updateProgressNotification(R.string.sync_notification_buddies_list_storing);
-		int count = persister.save(buddies);
-		Timber.i("...saved %,d buddies", buddies.size());
-		syncResult.stats.numUpdates += buddies.size();
-		return count;
+		persister.save(user);
+		syncResult.stats.numUpdates++;
 	}
 
 	/**
