@@ -68,6 +68,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 			}
 
 			if (isCancelled()) return;
+			if (wasSleepInterrupted(2000)) return;
 
 			updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories_since,
 				DateUtils.formatDateTime(context, date, DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME)));
@@ -75,6 +76,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 			response = new CollectionRequest(service, account.name, options).execute();
 			if (response.hasError()) {
 				showError(response.getError());
+				syncResult.stats.numIoExceptions++;
 				return;
 			} else if (response.getNumberOfItems() > 0) {
 				int count = persister.save(response.getItems()).getRecordCount();
