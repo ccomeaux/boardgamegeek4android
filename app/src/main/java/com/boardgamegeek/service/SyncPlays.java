@@ -48,44 +48,20 @@ public class SyncPlays extends SyncTask {
 			this.syncResult = syncResult;
 			startTime = System.currentTimeMillis();
 			persister = new PlayPersister(context);
-			PlaysResponse response;
+
 			long newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate <= 0) {
-				int page = 1;
-				do {
-					response = executeCall(account.name, null, null, page);
-					if (isCancelled()) {
-						Timber.i("...cancelled early");
-						return;
-					}
-					page++;
-				} while (response != null && response.hasMorePages());
+				if (executeCall(account.name, null, null)) return;
 			} else {
 				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
-				int page = 1;
-				do {
-					response = executeCall(account.name, date, null, page);
-					if (isCancelled()) {
-						Timber.i("...cancelled early");
-						return;
-					}
-					page++;
-				} while (response != null && response.hasMorePages());
+				if (executeCall(account.name, date, null)) return;
 				deleteUnupdatedPlaysSince(newestSyncDate);
 			}
 
 			long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(oldestDate);
-				int page = 1;
-				do {
-					response = executeCall(account.name, null, date, page);
-					if (isCancelled()) {
-						Timber.i("...cancelled early");
-						return;
-					}
-					page++;
-				} while (response != null && response.hasMorePages());
+				if (executeCall(account.name, null, date)) return;
 				deleteUnupdatedPlaysBefore(oldestDate);
 				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
@@ -95,18 +71,36 @@ public class SyncPlays extends SyncTask {
 		}
 	}
 
-	private PlaysResponse executeCall(String username, String minDate, String maxDate, int page) throws IOException {
-		showNotification(minDate, maxDate, page);
-		Call<PlaysResponse> call = service.plays(username, minDate, maxDate, page);
-		Response<PlaysResponse> response = call.execute();
-		if (response.isSuccessful()) {
+	private boolean executeCall(String username, String minDate, String maxDate) {
+		Response<PlaysResponse> response;
+		int page = 1;
+		do {
+			if (isCancelled()) {
+				Timber.i("...cancelled early");
+				return true;
+			}
+
+			if (page != 1) if (wasSleepInterrupted(3000)) return true;
+
+			showNotification(minDate, maxDate, page);
+			Call<PlaysResponse> call = service.plays(username, minDate, maxDate, page);
+			try {
+				response = call.execute();
+				if (!response.isSuccessful()) {
+					showError(String.format("Unsuccessful plays fetch with code: %s", response.code()));
+					syncResult.stats.numIoExceptions++;
+					return true;
+				}
+			} catch (IOException e) {
+				showError(String.format("Unsuccessful plays fetch with exception: %s", e.getLocalizedMessage()));
+				syncResult.stats.numIoExceptions++;
+				return true;
+			}
 			persist(response.body());
 			updateTimeStamps(response.body());
-		} else {
-			Timber.w("Unsuccessful plays fetch with code: %s", response.code());
-			return null;
-		}
-		return response.body();
+			page++;
+		} while (response.body().hasMorePages());
+		return false;
 	}
 
 	private void showNotification(String minDate, String maxDate, int page) {

@@ -31,6 +31,8 @@ public abstract class SyncGames extends SyncTask {
 			do {
 				if (isCancelled()) break;
 
+				if (numberOfFetches > 0) if (wasSleepInterrupted(5000)) return;
+
 				numberOfFetches++;
 				GameList gameList = getGameIds(GAMES_PER_FETCH);
 				if (gameList.getSize() > 0) {
@@ -44,6 +46,7 @@ public abstract class SyncGames extends SyncTask {
 					ThingResponse response = new ThingRequest(service, gameList.getIds()).execute();
 					if (response.hasError()) {
 						showError(response.getError());
+						syncResult.stats.numIoExceptions++;
 						break;
 					} else if (response.getNumberOfGames() > 0) {
 						int count = new GamePersister(context).save(response.getGames(), detail);

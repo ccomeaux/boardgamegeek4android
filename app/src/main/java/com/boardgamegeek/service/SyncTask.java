@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.text.TextUtils;
@@ -46,6 +47,14 @@ public abstract class SyncTask extends ServiceTask {
 		updateProgressNotification(null);
 	}
 
+	protected void updateProgressNotification(@StringRes int detailResId) {
+		updateProgressNotification(context.getString(detailResId));
+	}
+
+	protected void updateProgressNotification(@StringRes int detailResId, Object... formatArgs) {
+		updateProgressNotification(context.getString(detailResId, formatArgs));
+	}
+
 	protected void updateProgressNotification(String detail) {
 		Timber.i(detail);
 		if (!shouldShowNotifications) return;
@@ -83,5 +92,15 @@ public abstract class SyncTask extends ServiceTask {
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
+	}
+
+	protected boolean wasSleepInterrupted(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Timber.w(e, "Sleeping interrupted during sync.");
+			return true;
+		}
+		return false;
 	}
 }

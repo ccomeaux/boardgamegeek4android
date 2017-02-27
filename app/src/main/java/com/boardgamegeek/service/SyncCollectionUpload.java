@@ -97,9 +97,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		try {
 			cursor = fetchDeletedCollectionItems();
 			while (cursor != null && cursor.moveToNext()) {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
+				if (wasSleepInterrupted(1000)) break;
 				processDeletedCollectionItem(cursor);
 			}
 		} finally {
@@ -112,9 +111,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		try {
 			cursor = fetchNewCollectionItems();
 			while (cursor != null && cursor.moveToNext()) {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
+				if (wasSleepInterrupted(1000)) break;
 				processNewCollectionItem(cursor);
 			}
 		} finally {
@@ -127,9 +125,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		try {
 			cursor = fetchDirtyCollectionItems();
 			while (cursor != null && cursor.moveToNext()) {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
+				if (wasSleepInterrupted(1000)) break;
 				processDirtyCollectionItem(cursor);
 			}
 		} finally {

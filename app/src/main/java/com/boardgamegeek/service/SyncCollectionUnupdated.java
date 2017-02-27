@@ -49,6 +49,8 @@ public class SyncCollectionUnupdated extends SyncTask {
 			do {
 				if (isCancelled()) break;
 
+				if (numberOfFetches > 0) if (wasSleepInterrupted(5000)) return;
+
 				numberOfFetches++;
 				GameList gameIds = queryGames();
 				if (gameIds.getSize() > 0) {
@@ -108,6 +110,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		CollectionResponse response = new CollectionRequest(service, username, options).execute();
 		if (response.hasError()) {
 			showError(response.getError());
+			syncResult.stats.numIoExceptions++;
 			return false;
 		} else if (response.getNumberOfItems() > 0) {
 			int count = persister.save(response.getItems()).getRecordCount();

@@ -7,6 +7,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.List;
 
@@ -14,8 +15,6 @@ import java.util.List;
  * Syncs all buddies that haven't been updated completely.
  */
 public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
-	private static final int SYNC_LIMIT = 250;
-
 	public SyncBuddiesDetailUnupdated(Context context, BggService service) {
 		super(context, service);
 	}
@@ -35,8 +34,9 @@ public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
 	protected List<String> getBuddyNames() {
 		return ResolverUtils.queryStrings(context.getContentResolver(), Buddies.CONTENT_URI,
 			Buddies.BUDDY_NAME,
-			Buddies.UPDATED + "=0 OR " + Buddies.UPDATED + " IS NULL", null,
-			Buddies.BUDDY_NAME + " LIMIT " + SYNC_LIMIT);
+			SelectionBuilder.whereZeroOrNull(Buddies.UPDATED),
+			null,
+			Buddies.BUDDY_NAME);
 	}
 
 	@Override
