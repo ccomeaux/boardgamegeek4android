@@ -84,7 +84,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAY_DIRTY_TIMESTAMP = 39;
 	private static final int VER_PLAY_PLAY_ID_NOT_REQUIRED = 40;
 	private static final int VER_PLAYS_RESET = 41;
-	private static final int DATABASE_VERSION = VER_PLAYS_RESET;
+	private static final int VER_PLAYS_HARD_RESET = 42;
+	private static final int DATABASE_VERSION = VER_PLAYS_HARD_RESET;
 
 	private final Context context;
 
@@ -727,6 +728,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 				case VER_PLAY_PLAY_ID_NOT_REQUIRED:
 					TaskUtils.executeAsyncTask(new ResetPlaysTask(context));
 					version = VER_PLAYS_RESET;
+				case VER_PLAYS_RESET:
+					dropTable(db, Tables.PLAYS);
+					dropTable(db, Tables.PLAY_PLAYERS);
+					buildPlaysTable().create(db);
+					buildPlayPlayersTable().create(db);
+					SyncService.clearPlays(context);
+					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS);
+					version = VER_PLAYS_HARD_RESET;
 			}
 
 			if (version != DATABASE_VERSION) {
