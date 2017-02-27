@@ -72,10 +72,14 @@ public class SyncCollectionComplete extends SyncTask {
 				String statusDescription = getStatusDescription(status);
 
 				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, statusDescription));
+
+				if (i > 0) if (wasSleepInterrupted(5000)) return;
+
 				ArrayMap<String, String> options = createOptions(i, status);
 				CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
 				if (response.hasError()) {
 					showError(response.getError());
+					syncResult.stats.numIoExceptions++;
 					return;
 				} else if (response.getNumberOfItems() > 0) {
 					int rows = persister.save(response.getItems()).getRecordCount();
@@ -85,11 +89,19 @@ public class SyncCollectionComplete extends SyncTask {
 					Timber.i("...no collection items to save");
 				}
 
+				if (isCancelled()) {
+					Timber.i("...cancelled");
+					return;
+				}
+
+				if (wasSleepInterrupted(2000)) return;
+
 				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, statusDescription));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 				response = new CollectionRequest(service, account.name, options).execute();
 				if (response.hasError()) {
 					showError(response.getError());
+					syncResult.stats.numIoExceptions++;
 					return;
 				} else if (response.getNumberOfItems() > 0) {
 					int rows = persister.save(response.getItems()).getRecordCount();

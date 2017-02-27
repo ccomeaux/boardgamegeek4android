@@ -18,8 +18,12 @@
 	<string name="sync_notification_games_unupdated">Getting the details of newly added games</string>
 	<string name="sync_notification_collection_missing">Removing items not in your collection</string>
 	<string name="sync_notification_buddies_list">Syncing list of GeekBuddies</string>
+	<string name="sync_notification_buddies_list_downloading">Downloading list of GeekBuddies</string>
+	<string name="sync_notification_buddies_list_storing">Storing list of GeekBuddies</string>
+	<string name="sync_notification_buddies_list_pruning">Pruning old of GeekBuddies</string>
 	<string name="sync_notification_buddies_oldest">Refreshing stale buddies</string>
 	<string name="sync_notification_buddies_unupdated">Updating newly added buddies</string>
+	<string name="sync_notification_buddy">Updating GeekBuddy %s</string>
 	<string name="sync_notification_plays">Downloading plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>
 	<string name="sync_notification_plays_all">Syncing all plays</string>

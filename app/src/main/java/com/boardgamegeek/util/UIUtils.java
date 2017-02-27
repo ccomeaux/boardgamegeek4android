@@ -122,6 +122,7 @@ public class UIUtils {
 
 	private static String fixInternalLinks(String text) {
 		// ensure internal, path-only links are complete with the hostname
+		if (TextUtils.isEmpty(text)) return "";
 		String fixedText = text.replaceAll("<a\\s+href=\"/", "<a href=\"https://www.boardgamegeek.com/");
 		fixedText = fixedText.replaceAll("<img\\s+src=\"//", "<img src=\"https://");
 		return fixedText;

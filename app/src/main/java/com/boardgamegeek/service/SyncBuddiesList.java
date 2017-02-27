@@ -7,16 +7,21 @@ import android.content.SyncResult;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.UserRequest;
 import com.boardgamegeek.model.Buddy;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Response;
 import timber.log.Timber;
 
 /**
@@ -47,31 +52,46 @@ public class SyncBuddiesList extends SyncTask {
 				return;
 			}
 
-			updateProgressNotification("Downloading list of GeekBuddies");
-			User user = new UserRequest(service, account.name, true).execute();
+			updateProgressNotification(R.string.sync_notification_buddies_list_downloading);
+
+			User user = null;
+			Call<User> call = service.user(account.name, 1, 1);
+			try {
+				Response<User> response = call.execute();
+				if (!response.isSuccessful()) {
+					showError(String.format("Unsuccessful user fetch with code: %s", response.code()));
+					syncResult.stats.numIoExceptions++;
+				}
+				user = response.body();
+			} catch (IOException e) {
+				showError(String.format("Unsuccessful user fetch with exception: %s", e.getLocalizedMessage()));
+				syncResult.stats.numIoExceptions++;
+			}
 			if (user == null) {
 				return;
 			}
 
-			updateProgressNotification("Storing list of GeekBuddies");
+			updateProgressNotification(R.string.sync_notification_buddies_list_storing);
 
 			Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.getId());
+			AccountUtils.setUsername(context, user.name);
+			AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName));
+			AccountUtils.setAvatarUrl(context, user.avatarUrl);
 
 			BuddyPersister persister = new BuddyPersister(context);
 			int count = 0;
 			count += persister.saveList(Buddy.fromUser(user));
 			count += persister.saveList(user.getBuddies());
 			syncResult.stats.numEntries += count;
-			Timber.i("Synced " + count + " buddies");
+			Timber.i("Synced %,d buddies", count);
 
-			updateProgressNotification("Discarding old GeekBuddies");
-			// TODO: delete avatar images associated with this list
-			// Actually, these are now only in the cache!
+			updateProgressNotification(R.string.sync_notification_buddies_list_pruning);
 			ContentResolver resolver = context.getContentResolver();
-			count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
+			count = resolver.delete(Buddies.CONTENT_URI,
+				Buddies.UPDATED_LIST + "<?",
 				new String[] { String.valueOf(persister.getTimestamp()) });
 			syncResult.stats.numDeletes += count;
-			Timber.i("Removed " + count + " people who are no longer buddies");
+			Timber.i("Pruned %,d users who are no longer buddies", count);
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
 		} finally {

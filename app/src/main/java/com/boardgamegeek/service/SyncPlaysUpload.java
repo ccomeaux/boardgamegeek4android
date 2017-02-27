@@ -116,9 +116,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 			updateProgressNotification(String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0));
 
 			while (cursor != null && cursor.moveToNext()) {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
+				if (wasSleepInterrupted(1000)) break;
 
 				currentInternalIdForMessage = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
@@ -201,12 +200,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 			updateProgressNotification(String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0));
 
 			while (cursor != null && cursor.moveToNext()) {
-				if (isCancelled()) {
-					break;
-				}
+				if (isCancelled()) break;
 				currentInternalIdForMessage = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.playId > 0) {
+					if (wasSleepInterrupted(1000)) break;
 					PlayDeleteResponse response = postPlayDelete(play.playId);
 					if (response == null) {
 						syncResult.stats.numIoExceptions++;
