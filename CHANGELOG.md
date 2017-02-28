@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.3.6
+-------------
+ * Bug fixes
+
 Version 6.3.5
 -------------
  * Clear database and re-sync play information
