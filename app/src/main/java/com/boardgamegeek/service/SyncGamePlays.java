@@ -64,7 +64,11 @@ public class SyncGamePlays extends UpdateTask {
 			} while (response.hasMorePages());
 			deleteUnupdatedPlays(context, startTime);
 			updateGameTimestamp(context);
-			SyncService.hIndex(context);
+
+			if (SyncService.isPlaysSyncUpToDate(context)) {
+				SyncService.calculateAndUpdateHIndex(context);
+			}
+
 			Timber.i("Synced plays for game id=" + gameId);
 		} catch (Exception e) {
 			// TODO bubble error up?

@@ -65,7 +65,7 @@ public class SyncPlays extends SyncTask {
 				deleteUnupdatedPlaysBefore(oldestDate);
 				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
-			SyncService.hIndex(context);
+			SyncService.calculateAndUpdateHIndex(context);
 		} finally {
 			Timber.i("...complete!");
 		}

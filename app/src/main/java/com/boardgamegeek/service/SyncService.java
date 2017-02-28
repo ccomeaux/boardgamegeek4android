@@ -114,7 +114,7 @@ public class SyncService extends Service {
 		return false;
 	}
 
-	public static void hIndex(@NonNull Context context) {
+	public static void calculateAndUpdateHIndex(@NonNull Context context) {
 		int hIndex = calculateHIndex(context);
 		PreferencesUtils.updateHIndex(context, hIndex);
 	}
@@ -138,5 +138,9 @@ public class SyncService extends Service {
 			}
 		}
 		return PreferencesUtils.INVALID_H_INDEX;
+	}
+
+	public static boolean isPlaysSyncUpToDate(Context context) {
+		return Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE) == 0;
 	}
 }
