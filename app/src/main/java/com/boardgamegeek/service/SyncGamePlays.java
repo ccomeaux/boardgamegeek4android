@@ -16,7 +16,11 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.SelectionBuilder;
 
+import java.io.IOException;
+
 import hugo.weaving.DebugLog;
+import retrofit2.Call;
+import retrofit2.Response;
 import timber.log.Timber;
 
 public class SyncGamePlays extends UpdateTask {
@@ -53,15 +57,25 @@ public class SyncGamePlays extends UpdateTask {
 
 		BggService service = Adapter.createForXml();
 		PlayPersister persister = new PlayPersister(context);
-		PlaysResponse response;
 		try {
 			final long startTime = System.currentTimeMillis();
+			Response<PlaysResponse> response;
 			int page = 1;
 			do {
-				response = service.playsByGame(account.name, gameId, page).execute().body();
-				persister.save(response.plays, startTime);
+				Call<PlaysResponse> call = service.playsByGame(account.name, gameId, page);
+				try {
+					response = call.execute();
+					if (!response.isSuccessful()) {
+						Timber.w(String.format("Unsuccessful plays fetch with code: %s", response.code()));
+						break;
+					}
+				} catch (IOException e) {
+					Timber.w(String.format("Unsuccessful plays fetch with exception: %s", e.getLocalizedMessage()));
+					break;
+				}
+				persister.save(response.body().plays, startTime);
 				page++;
-			} while (response.hasMorePages());
+			} while (response.body().hasMorePages());
 			deleteUnupdatedPlays(context, startTime);
 			updateGameTimestamp(context);
 

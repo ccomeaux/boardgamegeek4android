@@ -97,7 +97,7 @@ public class SyncPlays extends SyncTask {
 				return true;
 			}
 			persist(response.body());
-			updateTimeStamps(response.body());
+			updateTimestamps(response.body());
 			page++;
 		} while (response.body().hasMorePages());
 		return false;
@@ -155,7 +155,7 @@ public class SyncPlays extends SyncTask {
 		Timber.i("...deleted %,d unupdated plays", count);
 	}
 
-	private void updateTimeStamps(@NonNull PlaysResponse response) {
+	private void updateTimestamps(@NonNull PlaysResponse response) {
 		long newestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 		if (response.getNewestDate() > newestDate) {
 			Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.getNewestDate());
