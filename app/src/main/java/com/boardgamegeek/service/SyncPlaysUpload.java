@@ -71,8 +71,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected Class<?> getNotificationIntentClass() {
-		return PlaysActivity.class;
+	protected Intent getNotificationIntent() {
+		return new Intent(context, PlaysActivity.class);
 	}
 
 	@DebugLog
