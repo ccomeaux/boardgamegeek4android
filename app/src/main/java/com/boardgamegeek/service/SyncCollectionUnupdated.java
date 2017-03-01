@@ -63,17 +63,22 @@ public class SyncCollectionUnupdated extends SyncTask {
 
 					options.put(BggService.COLLECTION_QUERY_KEY_ID, gameIds.getIds());
 					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
-					boolean success = requestAndPersist(account.name, persister, options, syncResult);
+					int itemCount = requestAndPersist(account.name, persister, options, syncResult);
 
-					if (!success) {
+					if (itemCount < 0) {
 						Timber.i("...unsuccessful sync; breaking out of fetch loop");
 						break;
 					}
 
 					options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-					success = requestAndPersist(account.name, persister, options, syncResult);
+					int accessoryCount = requestAndPersist(account.name, persister, options, syncResult);
 
-					if (!success) {
+					if (accessoryCount < 0) {
+						Timber.i("...unsuccessful sync; breaking out of fetch loop");
+						break;
+					}
+
+					if (itemCount + accessoryCount == 0) {
 						Timber.i("...unsuccessful sync; breaking out of fetch loop");
 						break;
 					}
@@ -105,21 +110,21 @@ public class SyncCollectionUnupdated extends SyncTask {
 	}
 
 
-	private boolean requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
+	private int requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
 		Timber.i("..requesting collection items with options %s", options);
 		CollectionResponse response = new CollectionRequest(service, username, options).execute();
 		if (response.hasError()) {
 			showError(response.getError());
 			syncResult.stats.numIoExceptions++;
-			return false;
+			return -1;
 		} else if (response.getNumberOfItems() > 0) {
 			int count = persister.save(response.getItems()).getRecordCount();
 			syncResult.stats.numUpdates += response.getNumberOfItems();
 			Timber.i("...saved %,d records for %,d collection items", count, response.getNumberOfItems());
-			return true;
+			return response.getNumberOfItems();
 		} else {
 			Timber.i("...no collection items found for these games");
-			return true;
+			return 0;
 		}
 	}
 
