@@ -309,7 +309,9 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		HotGame game = adapter.getItem(adapter.getSelectedItems().get(0));
+		final List<Integer> selectedItems = adapter.getSelectedItems();
+		if (selectedItems.size() == 0) return false;
+		HotGame game = adapter.getItem(selectedItems.get(0));
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -319,7 +321,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				mode.finish();
 				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, adapter.getSelectedItemCount());
 				Snackbar.make(containerView, text, Snackbar.LENGTH_SHORT).show();
-				for (int position : adapter.getSelectedItems()) {
+				for (int position : selectedItems) {
 					HotGame g = adapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
@@ -331,7 +333,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 					ActivityUtils.shareGame(getActivity(), game.id, game.name, shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
-					for (int position : adapter.getSelectedItems()) {
+					for (int position : selectedItems) {
 						HotGame g = adapter.getItem(position);
 						games.add(Pair.create(g.id, g.name));
 					}
