@@ -81,6 +81,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String imageUrl;
 
 	private Unbinder unbinder;
+	private ListView playersView;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.progress) View progressContainer;
 	@BindView(R.id.list_container) View listContainer;
@@ -143,7 +144,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, container, false);
 
-		ListView playersView = (ListView) rootView.findViewById(android.R.id.list);
+		playersView = (ListView) rootView.findViewById(android.R.id.list);
 		playersView.setHeaderDividersEnabled(false);
 		playersView.setFooterDividersEnabled(false);
 
@@ -384,6 +385,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			emptyView.setVisibility(View.VISIBLE);
 			return true;
 		}
+		playersView.setVisibility(View.VISIBLE);
 		emptyView.setVisibility(View.GONE);
 
 		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, new Callback() {

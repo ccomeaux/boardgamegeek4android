@@ -195,41 +195,45 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
-
-		if (cursor == null || !cursor.moveToFirst()) {
-			showEmpty();
-			return;
-		}
+		if (getActivity() == null) return;
 
 		int token = loader.getId();
 		switch (token) {
 			case GameQuery._TOKEN:
-				playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-				double ratingSum = 0;
-				int ratingCount = 0;
-				do {
-					double rating = cursor.getDouble(GameQuery.RATING);
-					if (rating > 0) {
-						ratingSum += rating;
-						ratingCount++;
-					}
-				} while (cursor.moveToNext());
-				if (ratingCount == 0) {
+				if (cursor == null || !cursor.moveToFirst()) {
+					playingTime = 0;
 					personalRating = 0.0;
 				} else {
-					personalRating = ratingSum / ratingCount;
+					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
+					double ratingSum = 0;
+					int ratingCount = 0;
+					do {
+						double rating = cursor.getDouble(GameQuery.RATING);
+						if (rating > 0) {
+							ratingSum += rating;
+							ratingCount++;
+						}
+					} while (cursor.moveToNext());
+					if (ratingCount == 0) {
+						personalRating = 0.0;
+					} else {
+						personalRating = ratingSum / ratingCount;
+					}
 				}
 				getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				break;
 			case PlayQuery._TOKEN:
+				if (cursor == null || !cursor.moveToFirst()) {
+					showEmpty();
+					return;
+				}
 				stats = new Stats(cursor, personalRating);
 				getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 				break;
 			case PlayerQuery._TOKEN:
-				stats.addPlayerData(cursor);
+				if (cursor != null && cursor.moveToFirst()) {
+					stats.addPlayerData(cursor);
+				}
 				stats.calculate();
 				bindUi(stats);
 				showData();
@@ -724,11 +728,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public void addPlayerData(Cursor cursor) {
 			do {
 				PlayerModel playerModel = new PlayerModel(cursor);
-				if (!plays.containsKey(playerModel.playId)) {
-					Timber.e("Play %s not found in the play map!", playerModel.playId);
-					return;
+				if (plays.containsKey(playerModel.playId)) {
+					plays.get(playerModel.playId).addPlayer(playerModel);
+				} else {
+					Timber.w("Play %s not found in the play map!", playerModel.playId);
 				}
-				plays.get(playerModel.playId).addPlayer(playerModel);
 			} while (cursor.moveToNext());
 		}
 

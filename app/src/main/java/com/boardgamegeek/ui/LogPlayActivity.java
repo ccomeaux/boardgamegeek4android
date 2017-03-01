@@ -1259,6 +1259,12 @@ public class LogPlayActivity extends AppCompatActivity {
 						fab.show();
 					}
 				});
+				fab.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						fab.show();
+					}
+				}, 2000);
 			}
 		}
 

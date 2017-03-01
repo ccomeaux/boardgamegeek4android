@@ -53,7 +53,11 @@ public class SyncPlaysByDate extends UpdateTask {
 				persister.save(response.plays, startTime);
 				page++;
 			} while (response.hasMorePages());
-			SyncService.hIndex(context);
+
+			if (SyncService.isPlaysSyncUpToDate(context)) {
+				SyncService.calculateAndUpdateHIndex(context);
+			}
+
 			Timber.i("Synced plays for date " + date);
 		} catch (Exception e) {
 			// TODO bubble error up?

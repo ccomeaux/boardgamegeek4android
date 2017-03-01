@@ -175,6 +175,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
+				if (scrollContainer == null) return;
 				scrollContainer.scrollTo(0, (int) radioButton.getY());
 			}
 		});
