@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -32,7 +33,7 @@ public abstract class SyncUploadTask extends SyncTask {
 	@StringRes
 	protected abstract int getNotificationTitleResId();
 
-	protected abstract Class<?> getNotificationIntentClass();
+	protected abstract Intent getNotificationIntent();
 
 	protected abstract String getNotificationMessageTag();
 
@@ -112,7 +113,9 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	@DebugLog
-	protected NotificationCompat.Builder createNotificationBuilder() {
-		return NotificationUtils.createNotificationBuilder(context, getNotificationTitleResId(), getNotificationIntentClass());
+	private NotificationCompat.Builder createNotificationBuilder() {
+		return NotificationUtils.createNotificationBuilder(context,
+			context.getString(getNotificationTitleResId()),
+			getNotificationIntent());
 	}
 }

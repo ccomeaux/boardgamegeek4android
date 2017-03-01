@@ -20,12 +20,12 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";
-	public static final int FLAG_SYNC_NONE = 0x00000000;
-	public static final int FLAG_SYNC_COLLECTION_DOWNLOAD = 0x00000001;
-	public static final int FLAG_SYNC_COLLECTION_UPLOAD = 0x00000002;
-	public static final int FLAG_SYNC_BUDDIES = 0x00000004;
-	public static final int FLAG_SYNC_PLAYS_DOWNLOAD = 0x00000008;
-	public static final int FLAG_SYNC_PLAYS_UPLOAD = 0x00000016;
+	public static final int FLAG_SYNC_NONE = 0;
+	public static final int FLAG_SYNC_COLLECTION_DOWNLOAD = 1;
+	public static final int FLAG_SYNC_COLLECTION_UPLOAD = 1 << 1;
+	public static final int FLAG_SYNC_BUDDIES = 1 << 2;
+	public static final int FLAG_SYNC_PLAYS_DOWNLOAD = 1 << 3;
+	public static final int FLAG_SYNC_PLAYS_UPLOAD = 1 << 4;
 	public static final int FLAG_SYNC_COLLECTION = FLAG_SYNC_COLLECTION_DOWNLOAD | FLAG_SYNC_COLLECTION_UPLOAD;
 	public static final int FLAG_SYNC_PLAYS = FLAG_SYNC_PLAYS_DOWNLOAD | FLAG_SYNC_PLAYS_UPLOAD;
 	public static final int FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION | FLAG_SYNC_BUDDIES | FLAG_SYNC_PLAYS;
@@ -114,7 +114,7 @@ public class SyncService extends Service {
 		return false;
 	}
 
-	public static void hIndex(@NonNull Context context) {
+	public static void calculateAndUpdateHIndex(@NonNull Context context) {
 		int hIndex = calculateHIndex(context);
 		PreferencesUtils.updateHIndex(context, hIndex);
 	}
@@ -138,5 +138,9 @@ public class SyncService extends Service {
 			}
 		}
 		return PreferencesUtils.INVALID_H_INDEX;
+	}
+
+	public static boolean isPlaysSyncUpToDate(Context context) {
+		return Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE) == 0;
 	}
 }

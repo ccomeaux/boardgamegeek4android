@@ -4,8 +4,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -38,16 +40,16 @@ public class NotificationUtils {
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId) {
-		return createNotificationBuilder(context, titleId, HomeActivity.class);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId) {
+		return createNotificationBuilder(context, titleResId, HomeActivity.class);
 	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId, Class<?> cls) {
-		return createNotificationBuilder(context, context.getString(titleId), cls);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, Class<?> cls) {
+		return createNotificationBuilder(context, context.getString(titleResId), cls);
 	}
 
 	/**
@@ -55,13 +57,19 @@ public class NotificationUtils {
 	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Class<?> cls) {
-		@SuppressWarnings("deprecation")
+		return createNotificationBuilder(context, title, new Intent(context, cls));
+	}
+
+	/**
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent.
+	 */
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Intent intent) {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setSmallIcon(R.drawable.ic_stat_bgg)
-			.setColor(context.getResources().getColor(R.color.primary))
+			.setColor(ContextCompat.getColor(context, R.color.primary))
 			.setContentTitle(title)
 			.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-		Intent intent = new Intent(context, cls);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(resultPendingIntent);
 		return builder;

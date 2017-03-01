@@ -71,8 +71,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected Class<?> getNotificationIntentClass() {
-		return PlaysActivity.class;
+	protected Intent getNotificationIntent() {
+		return new Intent(context, PlaysActivity.class);
 	}
 
 	@DebugLog
@@ -95,7 +95,9 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 		deletePendingPlays(syncResult);
 		updatePendingPlays(syncResult);
-		SyncService.hIndex(context);
+		if (SyncService.isPlaysSyncUpToDate(context)) {
+			SyncService.calculateAndUpdateHIndex(context);
+		}
 	}
 
 	@DebugLog

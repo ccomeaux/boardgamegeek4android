@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
@@ -72,8 +73,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected Class<?> getNotificationIntentClass() {
-		return CollectionActivity.class;
+	protected Intent getNotificationIntent() {
+		return new Intent(context, CollectionActivity.class);
 	}
 
 	@DebugLog
