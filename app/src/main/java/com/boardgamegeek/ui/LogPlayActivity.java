@@ -1035,6 +1035,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, play.gameName);
 		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
+		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
 		if (!arePlayersCustomSorted && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, play.getPlayerCount() + 1);
 		}
