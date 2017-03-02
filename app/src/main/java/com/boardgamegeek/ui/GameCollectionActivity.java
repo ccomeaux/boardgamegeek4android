@@ -27,6 +27,7 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
@@ -71,6 +72,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 				.putContentId(String.valueOf(collectionId))
 				.putContentName(collectionName));
 		}
+		PresentationUtils.ensureFabIsShown(fab);
 	}
 
 	@Override
