@@ -44,19 +44,15 @@ public abstract class PlayPostResponse {
 	 */
 	public boolean hasAuthError() {
 		return "You must login to save plays".equalsIgnoreCase(error) ||
-			"You can't delete this play".equalsIgnoreCase(error);
+			"You can't delete this play".equalsIgnoreCase(error) ||
+			"You are not permitted to edit this play.".equalsIgnoreCase(error);
 	}
 
 	/**
 	 * Indicates the user attempted to modify a play that doesn't exist.
 	 */
 	public boolean hasInvalidIdError() {
-		if ("You are not permitted to edit this play.".equalsIgnoreCase(error)) {
-			return true;
-		} else if ("Play does not exist.".equalsIgnoreCase(error)) {
-			return true;
-		}
-		return false;
+		return "Play does not exist.".equalsIgnoreCase(error);
 	}
 
 	public String getErrorMessage() {
