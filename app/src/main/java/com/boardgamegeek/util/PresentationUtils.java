@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
+import android.support.design.widget.FloatingActionButton;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
@@ -364,5 +365,15 @@ public class PresentationUtils {
 	@DebugLog
 	public static int[] getColorSchemeResources() {
 		return new int[] { R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue };
+	}
+
+	@DebugLog
+	public static void ensureFabIsShown(final FloatingActionButton fab) {
+		fab.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				fab.show();
+			}
+		}, 2000);
 	}
 }

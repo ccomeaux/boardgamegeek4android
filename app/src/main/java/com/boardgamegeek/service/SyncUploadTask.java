@@ -8,6 +8,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -102,8 +103,9 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	@DebugLog
-	protected void notifyUploadError(String errorMessage) {
-		Timber.e(errorMessage);
+	protected void notifyUploadError(CharSequence errorMessage) {
+		if (TextUtils.isEmpty(errorMessage)) return;
+		Timber.e(errorMessage.toString());
 		NotificationCompat.Builder builder = createNotificationBuilder()
 			.setContentText(errorMessage)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
