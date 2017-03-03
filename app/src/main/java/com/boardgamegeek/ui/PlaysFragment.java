@@ -554,6 +554,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
 				break;
 			case MODE_GAME:
+				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 				UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, gameId);
 				break;
 		}

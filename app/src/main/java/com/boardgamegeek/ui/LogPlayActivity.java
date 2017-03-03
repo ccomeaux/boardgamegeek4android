@@ -90,6 +90,7 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -467,6 +468,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		setUpShowcaseViewWizard();
 		showcaseWizard.maybeShowHelp();
+		PresentationUtils.ensureFabIsShown(fab);
 	}
 
 	@DebugLog
@@ -1035,6 +1037,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, play.gameName);
 		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
+		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
 		if (!arePlayersCustomSorted && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, play.getPlayerCount() + 1);
 		}
@@ -1259,12 +1262,6 @@ public class LogPlayActivity extends AppCompatActivity {
 						fab.show();
 					}
 				});
-				fab.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						fab.show();
-					}
-				}, 2000);
 			}
 		}
 

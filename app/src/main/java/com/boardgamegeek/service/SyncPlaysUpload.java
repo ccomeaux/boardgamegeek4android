@@ -134,10 +134,18 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (response == null) {
 					syncResult.stats.numIoExceptions++;
 					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
+				} else if (response.hasAuthError()) {
+					syncResult.stats.numAuthExceptions++;
+					Authenticator.clearPassword(context);
+					break;
+				} else if (response.hasInvalidIdError()) {
+					notifyUploadError(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId));
+				} else if (response.hasError()) {
+					notifyUploadError(response.getErrorMessage());
 				} else if (response.getPlayCount() <= 0) {
 					syncResult.stats.numIoExceptions++;
 					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
-				} else if (!response.hasError()) {
+				} else {
 					CharSequence message = play.playId > 0 ?
 						PresentationUtils.getText(context, R.string.msg_play_updated) :
 						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
@@ -153,15 +161,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					persister.save(play, currentInternalIdForMessage, false);
 
 					updateGamePlayCount(play);
-				} else if (response.hasInvalidIdError()) {
-					notifyUser(play, PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId));
-				} else if (response.hasAuthError()) {
-					syncResult.stats.numAuthExceptions++;
-					Authenticator.clearPassword(context);
-					break;
-				} else {
-					syncResult.stats.numIoExceptions++;
-					notifyUploadError(response.getErrorMessage());
 				}
 			}
 		} finally {

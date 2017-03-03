@@ -68,7 +68,7 @@ public class PlayStats {
 				numberOfQuarters++;
 			} else if (playCount >= 10) {
 				numberOfDimes++;
-			} else if (playCount > 5) {
+			} else if (playCount >= 5) {
 				numberOfNickels++;
 			}
 

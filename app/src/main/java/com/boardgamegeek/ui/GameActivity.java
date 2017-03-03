@@ -28,6 +28,7 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.crashlytics.android.answers.Answers;
@@ -77,6 +78,7 @@ public class GameActivity extends HeroActivity implements Callback {
 		});
 		if (PreferencesUtils.showLogPlay(this)) {
 			fab.setImageResource(R.drawable.fab_log_play);
+			PresentationUtils.ensureFabIsShown(fab);
 		}
 
 		if (savedInstanceState == null) {

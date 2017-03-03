@@ -402,7 +402,11 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	protected void showFab(boolean show) {
 		ensureList();
-		fabView.setVisibility(show ? View.VISIBLE : View.GONE);
+		if (show) {
+			fabView.show();
+		} else {
+			fabView.hide();
+		}
 	}
 
 	@OnClick(R.id.fab)
