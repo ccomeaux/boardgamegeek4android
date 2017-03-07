@@ -51,6 +51,10 @@ android {
     compileSdkVersion 25
     buildToolsVersion '25.0.2'
 
+    lintOptions {
+        baseline file("lint-baseline.xml") // your choice of filename/path here
+    }
+
     dexOptions {
         jumboMode true
     }
