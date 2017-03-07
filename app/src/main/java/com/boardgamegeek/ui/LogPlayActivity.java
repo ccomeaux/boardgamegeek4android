@@ -656,6 +656,8 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void logPlay() {
 		play.updateTimestamp = System.currentTimeMillis();
+		play.deleteTimestamp = 0;
+		play.dirtyTimestamp = System.currentTimeMillis();
 		if (save()) {
 			if (play.playId == 0 && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
@@ -674,6 +676,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private void saveDraft(boolean showToast) {
 		if (play == null) return;
 		play.dirtyTimestamp = System.currentTimeMillis();
+		play.deleteTimestamp = 0;
 		if (save()) {
 			if (showToast) {
 				Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
@@ -699,7 +702,9 @@ public class LogPlayActivity extends AppCompatActivity {
 			finish();
 		} else if (play.equals(originalPlay)) {
 			if (shouldDeletePlayOnActivityCancel) {
+				play.updateTimestamp = 0;
 				play.deleteTimestamp = System.currentTimeMillis();
+				play.dirtyTimestamp = 0;
 				if (save()) {
 					triggerUpload();
 				}
@@ -711,7 +716,9 @@ public class LogPlayActivity extends AppCompatActivity {
 				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							play.updateTimestamp = 0;
 							play.deleteTimestamp = System.currentTimeMillis();
+							play.dirtyTimestamp = 0;
 							if (save()) {
 								triggerUpload();
 								cancelNotification();
@@ -719,7 +726,8 @@ public class LogPlayActivity extends AppCompatActivity {
 							setResult(RESULT_CANCELED);
 							finish();
 						}
-					}).show();
+					})
+					.show();
 			} else {
 				DialogUtils.createCancelDialog(this).show();
 			}
