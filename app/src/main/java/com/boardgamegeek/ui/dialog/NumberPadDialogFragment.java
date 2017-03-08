@@ -88,12 +88,14 @@ public class NumberPadDialogFragment extends DialogFragment {
 	public void onResume() {
 		super.onResume();
 		Window window = getDialog().getWindow();
-		DisplayMetrics dm = getResources().getDisplayMetrics();
-		int width = Math.min(
-			getActivity().getResources().getDimensionPixelSize(R.dimen.dialog_width),
-			dm.widthPixels * 3 / 4);
-		int height = window.getAttributes().height;
-		window.setLayout(width, height);
+		if (window != null) {
+			DisplayMetrics dm = getResources().getDisplayMetrics();
+			int width = Math.min(
+				getActivity().getResources().getDimensionPixelSize(R.dimen.dialog_width),
+				dm.widthPixels * 3 / 4);
+			int height = window.getAttributes().height;
+			window.setLayout(width, height);
+		}
 	}
 
 	@Nullable
@@ -215,14 +217,9 @@ public class NumberPadDialogFragment extends DialogFragment {
 	}
 
 	private boolean hasTwoDecimalPoints(String text) {
-		if (text == null) {
-			return false;
-		}
+		if (text == null) return false;
 		int decimalIndex = text.indexOf('.');
-		if (decimalIndex >= 0) {
-			return text.indexOf('.', decimalIndex + 1) >= 0;
-		}
-		return false;
+		return decimalIndex >= 0 && text.indexOf('.', decimalIndex + 1) >= 0;
 	}
 
 	private double parseDouble(String text) {
