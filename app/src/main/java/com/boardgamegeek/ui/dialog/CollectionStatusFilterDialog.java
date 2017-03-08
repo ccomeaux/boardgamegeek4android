@@ -7,7 +7,6 @@ import android.support.v7.app.AlertDialog;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
-import com.boardgamegeek.interfaces.CollectionView;
 
 public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 
@@ -15,7 +14,7 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 	private boolean[] selectedStatuses;
 
 	@Override
-	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
+	public void createDialog(final Context context, final OnFilterChangedListener listener, CollectionFilterer filter) {
 		init(context, (CollectionStatusFilterer) filter);
 
 		new AlertDialog.Builder(context)
@@ -29,19 +28,21 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 			.setNegativeButton(R.string.or, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, true));
+					if (listener != null)
+						listener.addFilter(new CollectionStatusFilterer(context, selectedStatuses, true));
 				}
 			})
 			.setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.addFilter(new CollectionStatusFilterer(context, selectedStatuses, false));
+					if (listener != null)
+						listener.addFilter(new CollectionStatusFilterer(context, selectedStatuses, false));
 				}
 			})
 			.setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.removeFilter(getType(context));
+					if (listener != null) listener.removeFilter(getType(context));
 				}
 			})
 			.create()

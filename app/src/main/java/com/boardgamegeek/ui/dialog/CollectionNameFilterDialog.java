@@ -15,7 +15,6 @@ import android.widget.EditText;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionNameFilter;
-import com.boardgamegeek.interfaces.CollectionView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,29 +24,30 @@ public class CollectionNameFilterDialog implements CollectionFilterDialog {
 	@BindView(R.id.starts_with) CheckBox startWithCheckBox;
 
 	@Override
-	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
+	public void createDialog(final Context context, final OnFilterChangedListener listener, CollectionFilterer filter) {
 		LayoutInflater inflater = LayoutInflater.from(context);
 		View layout = inflater.inflate(R.layout.dialog_collection_filter_name, null);
 		ButterKnife.bind(this, layout);
 		initializeUi(filter);
-		AlertDialog alertDialog = createAlertDialog(context, view, layout);
+		AlertDialog alertDialog = createAlertDialog(context, listener, layout);
 		requestFocus(alertDialog);
 		alertDialog.show();
 	}
 
-	private AlertDialog createAlertDialog(final Context context, final CollectionView view, View layout) {
+	private AlertDialog createAlertDialog(final Context context, final OnFilterChangedListener listener, View layout) {
 		return new Builder(context, R.style.Theme_bgglight_Dialog_Alert)
 			.setTitle(R.string.menu_collection_name)
 			.setPositiveButton(R.string.set, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.addFilter(new CollectionNameFilter(context, filterTextView.getText(), startWithCheckBox.isChecked()));
+					if (listener != null)
+						listener.addFilter(new CollectionNameFilter(context, filterTextView.getText(), startWithCheckBox.isChecked()));
 				}
 			})
 			.setNegativeButton(R.string.clear, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.removeFilter(new CollectionNameFilter(context).getType());
+					if (listener != null) listener.removeFilter(new CollectionNameFilter(context).getType());
 				}
 			})
 			.setView(layout)

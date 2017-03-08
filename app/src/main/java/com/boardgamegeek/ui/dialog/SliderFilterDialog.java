@@ -15,7 +15,6 @@ import com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener;
 import com.appyvet.rangebar.RangeBar.PinTextFormatter;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -30,7 +29,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	@BindView(R.id.checkbox) CheckBox checkBox;
 	@BindView(R.id.range_bar) RangeBar rangeBar;
 
-	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
+	public void createDialog(final Context context, final OnFilterChangedListener listener, CollectionFilterer filter) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		@SuppressLint("InflateParams") View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
 		ButterKnife.bind(this, layout);
@@ -52,12 +51,12 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 			.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.removeFilter(getType(context));
+					if (listener != null) listener.removeFilter(getType(context));
 				}
 			}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int id) {
-					view.addFilter(getPositiveData(context, low, high, checkBox.isChecked()));
+					if (listener != null) listener.addFilter(getPositiveData(context, low, high, checkBox.isChecked()));
 				}
 			}).setView(layout);
 
