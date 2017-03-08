@@ -44,10 +44,10 @@ public class SaveViewDialogFragment extends DialogFragment {
 	@BindView(R.id.description) TextView descriptionView;
 
 	public static SaveViewDialogFragment newInstance(Context context, String name, String description) {
-		SaveViewDialogFragment colorPicker = new SaveViewDialogFragment();
-		colorPicker.context = context;
-		colorPicker.setArguments(name, description);
-		return colorPicker;
+		SaveViewDialogFragment dialogFragment = new SaveViewDialogFragment();
+		dialogFragment.context = context;
+		dialogFragment.setArguments(name, description);
+		return dialogFragment;
 	}
 
 	public void setArguments(String name, String description) {
@@ -139,7 +139,8 @@ public class SaveViewDialogFragment extends DialogFragment {
 	private void tryBindUi() {
 		if (isAdded()) {
 			PresentationUtils.setAndSelectExistingText(nameView, name);
-			defaultView.setChecked(findViewId(name) == PreferencesUtils.getViewDefaultId(context));
+			long viewDefaultId = PreferencesUtils.getViewDefaultId(context);
+			defaultView.setChecked(viewDefaultId != -1 && findViewId(name) == viewDefaultId);
 			descriptionView.setText(description);
 		}
 	}
