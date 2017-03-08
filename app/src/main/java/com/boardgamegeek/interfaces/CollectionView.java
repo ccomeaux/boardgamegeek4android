@@ -7,6 +7,4 @@ public interface CollectionView {
 	void removeFilter(int type);
 
 	void addFilter(CollectionFilterer filter);
-
-	void deleteView(long id);
 }

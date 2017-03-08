@@ -58,7 +58,7 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialog;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFactory;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
-import com.boardgamegeek.ui.dialog.DeleteView;
+import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
@@ -95,7 +95,8 @@ import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener, SaveViewDialogFragment.OnViewSavedListener {
+public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>,
+	CollectionView, MultiChoiceModeListener, SaveViewDialogFragment.OnViewSavedListener, DeleteViewDialogFragment.OnViewDeletedListener {
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -317,7 +318,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					dialog.show(getFragmentManager(), "save_view");
 					return true;
 				case R.id.menu_collection_view_delete:
-					DeleteView.createDialog(getActivity(), CollectionFragment.this);
+					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(getActivity());
+					ddf.setOnViewDeletedListener(CollectionFragment.this);
+					ddf.show(getFragmentManager(), "delete_view");
 					return true;
 				case R.id.menu_collection_sort:
 					final CollectionSortDialogFragment sortFragment =
@@ -615,16 +618,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
 		EventBus.getDefault().post(new CollectionViewRequestedEvent(id));
-	}
-
-	@Override
-	@DebugLog
-	public void deleteView(long id) {
-		CollectionViewManipulationEvent.log("Delete");
-		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
-		if (viewId == id) {
-			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
-		}
 	}
 
 	@DebugLog
@@ -952,6 +945,15 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		updateView(viewId, sorter.getType(), filters);
 		setDefault(viewId, isDefault);
 		createView(viewId, name);
+	}
+
+	@Override
+	public void onDeleteRequested(long viewId) {
+		CollectionViewManipulationEvent.log("Delete");
+		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
+		if (viewId == this.viewId) {
+			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
+		}
 	}
 
 	private void setDefault(long viewId, boolean isDefault) {
