@@ -88,7 +88,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		populateUi();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert);
 		builder.setTitle(R.string.title_private_info);
 		builder.setView(rootView)
 			.setNegativeButton(R.string.cancel, null)

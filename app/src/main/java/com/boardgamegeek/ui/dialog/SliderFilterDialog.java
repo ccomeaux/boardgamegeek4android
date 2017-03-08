@@ -47,18 +47,21 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 		initExplanation();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(getTitleId())
+		AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
+			.setTitle(getTitleId())
 			.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (listener != null) listener.removeFilter(getType(context));
 				}
-			}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
+			})
+			.setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int id) {
 					if (listener != null) listener.addFilter(getPositiveData(context, low, high, checkBox.isChecked()));
 				}
-			}).setView(layout);
+			})
+			.setView(layout);
 
 		builder.create().show();
 	}

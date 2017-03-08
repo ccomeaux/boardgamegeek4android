@@ -17,7 +17,7 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 	public void createDialog(final Context context, final OnFilterChangedListener listener, CollectionFilterer filter) {
 		init(context, (CollectionStatusFilterer) filter);
 
-		new AlertDialog.Builder(context)
+		new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
 			.setTitle(R.string.menu_collection_status)
 			.setMultiChoiceItems(statusEntries, selectedStatuses, new DialogInterface.OnMultiChoiceClickListener() {
 				@Override

@@ -79,7 +79,7 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 
 		setAndSelectExistingText();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert);
 		if (titleResId > 0) {
 			builder.setTitle(titleResId);
 		}

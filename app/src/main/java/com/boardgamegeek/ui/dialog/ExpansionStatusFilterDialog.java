@@ -13,7 +13,7 @@ public class ExpansionStatusFilterDialog implements CollectionFilterDialog {
 
 	public void createDialog(final Context context, final OnFilterChangedListener listener, CollectionFilterer filter) {
 		init((ExpansionStatusFilterer) filter);
-		new AlertDialog.Builder(context)
+		new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
 			.setTitle(R.string.menu_expansion_status)
 			.setSingleChoiceItems(R.array.expansion_status_filter, selectedSubtype, new DialogInterface.OnClickListener() {
 				@Override

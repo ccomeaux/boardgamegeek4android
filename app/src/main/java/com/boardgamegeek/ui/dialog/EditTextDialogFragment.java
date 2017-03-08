@@ -120,7 +120,7 @@ public class EditTextDialogFragment extends DialogFragment {
 
 		PresentationUtils.setAndSelectExistingText(editText, existingText);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert);
 		if (titleResId > 0) {
 			builder.setTitle(titleResId);
 		} else if (!TextUtils.isEmpty(title)) {
