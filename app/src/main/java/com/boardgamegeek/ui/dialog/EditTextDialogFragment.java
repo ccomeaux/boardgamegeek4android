@@ -13,10 +13,10 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
 import butterknife.BindView;
@@ -146,7 +146,7 @@ public class EditTextDialogFragment extends DialogFragment {
 			inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 		}
 		editText.setInputType(editText.getInputType() | inputType);
-		requestFocus(dialog);
+		DialogUtils.requestFocus(dialog, editText);
 		return dialog;
 	}
 
@@ -158,10 +158,5 @@ public class EditTextDialogFragment extends DialogFragment {
 
 	public void setText(String text) {
 		this.existingText = text;
-	}
-
-	private void requestFocus(@NonNull AlertDialog dialog) {
-		editText.requestFocus();
-		dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
 }

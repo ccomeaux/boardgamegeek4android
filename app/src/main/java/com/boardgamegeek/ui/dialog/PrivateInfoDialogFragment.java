@@ -14,7 +14,6 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -25,6 +24,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -112,7 +112,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 			});
 
 		final AlertDialog dialog = builder.create();
-		requestFocus(dialog);
+		DialogUtils.requestFocus(dialog);
 		return dialog;
 	}
 
@@ -214,9 +214,5 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-
-	private void requestFocus(@NonNull AlertDialog dialog) {
-		dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
 }
