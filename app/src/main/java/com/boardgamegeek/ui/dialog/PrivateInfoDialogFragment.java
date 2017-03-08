@@ -47,7 +47,6 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	}
 
 	private ViewGroup root;
-	private DatePickerDialogFragment datePickerDialogFragment;
 	private PrivateInfoDialogListener listener;
 	@BindView(R.id.price_currency) Spinner priceCurrencyView;
 	@BindView(R.id.price) EditText priceView;
@@ -157,20 +156,20 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@OnClick(R.id.acquisition_date)
 	public void onDateClick() {
 		final FragmentManager fragmentManager = getFragmentManager();
-		datePickerDialogFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
-
-		datePickerDialogFragment = new DatePickerDialogFragment();
-		datePickerDialogFragment.setOnDateSetListener(new OnDateSetListener() {
-			@Override
-			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-				acquisitionDate = DateTimeUtils.formatDateForApi(year, monthOfYear, dayOfMonth);
-				Calendar calendar = Calendar.getInstance();
-				calendar.set(year, monthOfYear, dayOfMonth);
-				acquisitionDateView.setText(DateUtils.formatDateTime(getContext(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE));
-				showOrHideAcquisitionDateLabel();
-			}
-		});
-
+		DatePickerDialogFragment datePickerDialogFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
+		if (datePickerDialogFragment == null) {
+			datePickerDialogFragment = new DatePickerDialogFragment();
+			datePickerDialogFragment.setOnDateSetListener(new OnDateSetListener() {
+				@Override
+				public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+					acquisitionDate = DateTimeUtils.formatDateForApi(year, monthOfYear, dayOfMonth);
+					Calendar calendar = Calendar.getInstance();
+					calendar.set(year, monthOfYear, dayOfMonth);
+					acquisitionDateView.setText(DateUtils.formatDateTime(getContext(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE));
+					showOrHideAcquisitionDateLabel();
+				}
+			});
+		}
 		fragmentManager.executePendingTransactions();
 		datePickerDialogFragment.setCurrentDateInMillis(DateTimeUtils.getMillisFromApiDate(acquisitionDate, System.currentTimeMillis()));
 		datePickerDialogFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
