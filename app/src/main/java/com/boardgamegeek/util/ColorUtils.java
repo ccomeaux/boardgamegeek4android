@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -184,10 +185,13 @@ public class ColorUtils {
 		int darkenedColor = darkenColor(color);
 
 		backgroundDrawable.setColor(color);
-		backgroundDrawable.setStroke(
-			(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, r.getDisplayMetrics()), darkenedColor);
+		backgroundDrawable.setStroke(getStrokeWidth(r), darkenedColor);
 
-		view.setBackgroundDrawable(backgroundDrawable);
+		ViewCompat.setBackground(view, backgroundDrawable);
+	}
+
+	private static int getStrokeWidth(Resources r) {
+		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, r.getDisplayMetrics());
 	}
 
 	/**
@@ -215,7 +219,7 @@ public class ColorUtils {
 			int darkenedColor = darkenColor(color);
 
 			colorChoiceDrawable.setColor(color);
-			final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, r.getDisplayMetrics());
+			final int width = getStrokeWidth(r);
 			colorChoiceDrawable.setStroke(width, darkenedColor);
 
 			imageView.setImageDrawable(colorChoiceDrawable);
@@ -238,8 +242,8 @@ public class ColorUtils {
 
 	/**
 	 * Calculate whether a color is light or dark, based on a commonly known brightness formula.
-	 *
-	 * @see {@literal http://en.wikipedia.org/wiki/HSV_color_space%23Lightness}
+	 * <p>
+	 * {@literal http://en.wikipedia.org/wiki/HSV_color_space%23Lightness}
 	 */
 	public static boolean isColorDark(int color) {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
