@@ -128,7 +128,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_COLORS = 1 << 2;
-	private static final int TOKEN_UNINITIALIZED = 1 << 31;
+	private static final int TOKEN_UNINITIALIZED = 1 << 15;
 
 	@State long internalId = BggContract.INVALID_ID;
 	private int gameId;
