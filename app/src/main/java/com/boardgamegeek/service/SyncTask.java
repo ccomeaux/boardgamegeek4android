@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
@@ -53,6 +54,10 @@ public abstract class SyncTask extends ServiceTask {
 
 	protected void updateProgressNotification(@StringRes int detailResId, Object... formatArgs) {
 		updateProgressNotification(context.getString(detailResId, formatArgs));
+	}
+
+	protected void updateProgressNotificationAsPlural(@PluralsRes int detailResId, int quantity, Object... formatArgs) {
+		updateProgressNotification(context.getResources().getQuantityString(detailResId, quantity, formatArgs));
 	}
 
 	protected void updateProgressNotification(String detail) {

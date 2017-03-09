@@ -116,7 +116,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				Plays.UPDATE_TIMESTAMP + ">0",
 				null,
 				Plays.UPDATE_TIMESTAMP);
-			updateProgressNotification(String.format("Uploading %s play(s)", cursor != null ? cursor.getCount() : 0));
+			int playCount = cursor != null ? cursor.getCount() : 0;
+			updateProgressNotificationAsPlural(R.plurals.sync_notification_progress_update, playCount, playCount);
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) break;
@@ -199,7 +200,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				Plays.DELETE_TIMESTAMP + ">0",
 				null,
 				Plays.DELETE_TIMESTAMP);
-			updateProgressNotification(String.format("Deleting %s play(s)", cursor != null ? cursor.getCount() : 0));
+			int playCount = cursor != null ? cursor.getCount() : 0;
+			updateProgressNotificationAsPlural(R.plurals.sync_notification_progress_delete, playCount, playCount);
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) break;
