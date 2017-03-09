@@ -49,7 +49,8 @@ public class SyncCollectionComplete extends SyncTask {
 		Timber.i("Syncing full collection list...");
 		try {
 			CollectionPersister persister = new CollectionPersister.Builder(context)
-				.brief()
+				.includePrivateInfo()
+				.includeStats()
 				.build();
 
 			statusEntries = context.getResources().getStringArray(R.array.pref_sync_status_entries);
@@ -145,7 +146,8 @@ public class SyncCollectionComplete extends SyncTask {
 	@NonNull
 	private ArrayMap<String, String> createOptions(int i, String status) {
 		ArrayMap<String, String> options = new ArrayMap<>();
-		options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(status, "1");
 		for (int j = 0; j < i; j++) {
 			options.put(statuses.get(j), "0");

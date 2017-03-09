@@ -7,6 +7,7 @@ Coming Soon...
  * Sort collection by last played date
  * When viewing a play, players are selectable
  * UI improvements
+ * Syncing improvements
 
 Version 6.3.7
 -------------
