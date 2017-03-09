@@ -34,6 +34,7 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
@@ -243,7 +244,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		try {
 			cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
 				new String[] { Plays.SUM_QUANTITY },
-				Plays.OBJECT_ID + "=? AND " + Plays.DELETE_TIMESTAMP + "=0",
+				String.format("%s=? AND %s", Plays.OBJECT_ID, SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP)),
 				new String[] { String.valueOf(play.gameId) },
 				null);
 			if (cursor != null && cursor.moveToFirst()) {
