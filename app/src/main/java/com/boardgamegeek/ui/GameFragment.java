@@ -399,7 +399,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case GameQuery._TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
-				lm.restartLoader(CollectionQuery._TOKEN, null, this);
+				if (shouldShowCollection()) lm.restartLoader(CollectionQuery._TOKEN, null, this);
 				lm.restartLoader(DesignerQuery._TOKEN, null, this);
 				lm.restartLoader(ArtistQuery._TOKEN, null, this);
 				lm.restartLoader(PublisherQuery._TOKEN, null, this);
@@ -573,8 +573,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@DebugLog
+	private boolean shouldShowCollection() {
+		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncStatuses(getContext()).length > 0;
+	}
+
+	@DebugLog
 	private boolean shouldShowPlays() {
-		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity());
+		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getContext());
 	}
 
 	@DebugLog
