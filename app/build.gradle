@@ -52,7 +52,10 @@ android {
     buildToolsVersion '25.0.2'
 
     lintOptions {
-        baseline file("lint-baseline.xml") // your choice of filename/path here
+        baseline file("lint-baseline.xml")
+        checkAllWarnings true
+        warningsAsErrors true
+        abortOnError true
     }
 
     dexOptions {
