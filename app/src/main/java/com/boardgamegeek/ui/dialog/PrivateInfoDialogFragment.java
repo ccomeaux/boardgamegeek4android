@@ -14,7 +14,6 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -25,6 +24,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -47,7 +47,6 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	}
 
 	private ViewGroup root;
-	private DatePickerDialogFragment datePickerDialogFragment;
 	private PrivateInfoDialogListener listener;
 	@BindView(R.id.price_currency) Spinner priceCurrencyView;
 	@BindView(R.id.price) EditText priceView;
@@ -89,7 +88,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		populateUi();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert);
 		builder.setTitle(R.string.title_private_info);
 		builder.setView(rootView)
 			.setNegativeButton(R.string.cancel, null)
@@ -112,7 +111,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 			});
 
 		final AlertDialog dialog = builder.create();
-		requestFocus(dialog);
+		DialogUtils.requestFocus(dialog);
 		return dialog;
 	}
 
@@ -157,20 +156,20 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@OnClick(R.id.acquisition_date)
 	public void onDateClick() {
 		final FragmentManager fragmentManager = getFragmentManager();
-		datePickerDialogFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
-
-		datePickerDialogFragment = new DatePickerDialogFragment();
-		datePickerDialogFragment.setOnDateSetListener(new OnDateSetListener() {
-			@Override
-			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-				acquisitionDate = DateTimeUtils.formatDateForApi(year, monthOfYear, dayOfMonth);
-				Calendar calendar = Calendar.getInstance();
-				calendar.set(year, monthOfYear, dayOfMonth);
-				acquisitionDateView.setText(DateUtils.formatDateTime(getContext(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE));
-				showOrHideAcquisitionDateLabel();
-			}
-		});
-
+		DatePickerDialogFragment datePickerDialogFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
+		if (datePickerDialogFragment == null) {
+			datePickerDialogFragment = new DatePickerDialogFragment();
+			datePickerDialogFragment.setOnDateSetListener(new OnDateSetListener() {
+				@Override
+				public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+					acquisitionDate = DateTimeUtils.formatDateForApi(year, monthOfYear, dayOfMonth);
+					Calendar calendar = Calendar.getInstance();
+					calendar.set(year, monthOfYear, dayOfMonth);
+					acquisitionDateView.setText(DateUtils.formatDateTime(getContext(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE));
+					showOrHideAcquisitionDateLabel();
+				}
+			});
+		}
 		fragmentManager.executePendingTransactions();
 		datePickerDialogFragment.setCurrentDateInMillis(DateTimeUtils.getMillisFromApiDate(acquisitionDate, System.currentTimeMillis()));
 		datePickerDialogFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
@@ -214,9 +213,5 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-
-	private void requestFocus(@NonNull AlertDialog dialog) {
-		dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
 }

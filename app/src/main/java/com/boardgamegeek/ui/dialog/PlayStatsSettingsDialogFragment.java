@@ -50,7 +50,7 @@ public class PlayStatsSettingsDialogFragment extends DialogFragment {
 		unbinder = ButterKnife.bind(this, rootView);
 		bindUi();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert)
 			.setView(rootView)
 			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {

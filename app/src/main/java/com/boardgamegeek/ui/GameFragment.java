@@ -28,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -208,6 +209,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_link_amazon,
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
+	@BindViews({
+		R.id.collection_add_button
+	}) List<Button> colorizedButtons;
 	@BindViews({
 		R.id.users_owning_bar,
 		R.id.users_trading_bar,
@@ -395,7 +399,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case GameQuery._TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
-				lm.restartLoader(CollectionQuery._TOKEN, null, this);
+				if (shouldShowCollection()) lm.restartLoader(CollectionQuery._TOKEN, null, this);
 				lm.restartLoader(DesignerQuery._TOKEN, null, this);
 				lm.restartLoader(ArtistQuery._TOKEN, null, this);
 				lm.restartLoader(PublisherQuery._TOKEN, null, this);
@@ -504,6 +508,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		iconColor = swatch.getRgb();
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
 
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, PaletteUtils.getHeaderSwatch(palette));
 		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));
@@ -568,8 +573,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@DebugLog
+	private boolean shouldShowCollection() {
+		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncStatuses(getContext()).length > 0;
+	}
+
+	@DebugLog
 	private boolean shouldShowPlays() {
-		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity());
+		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getContext());
 	}
 
 	@DebugLog

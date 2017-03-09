@@ -20,6 +20,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -30,6 +31,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
@@ -56,6 +58,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -1222,13 +1225,27 @@ public class LogPlayActivity extends AppCompatActivity {
 		private void notifyLayoutChanged(@LayoutRes int layoutResId) {
 			for (int i = 0; i < headerResources.size(); i++) {
 				if (headerResources.get(i) == layoutResId) {
-					notifyItemChanged(i);
+					final int position = i;
+					new Handler().post(
+						new Runnable() {
+							@Override
+							public void run() {
+								notifyItemChanged(position);
+							}
+						});
 					return;
 				}
 			}
 			for (int i = 0; i < footerResources.size(); i++) {
 				if (footerResources.get(i) == layoutResId) {
-					notifyItemChanged(headerResources.size() + play.getPlayerCount() + i);
+					final int position = headerResources.size() + play.getPlayerCount() + i;
+					new Handler().post(
+						new Runnable() {
+							@Override
+							public void run() {
+								notifyItemChanged(position);
+							}
+						});
 					return;
 				}
 			}
@@ -1260,9 +1277,12 @@ public class LogPlayActivity extends AppCompatActivity {
 					@Override
 					public void onSuccessfulImageLoad(Palette palette) {
 						headerView.setBackgroundResource(R.color.black_overlay_light);
+
 						fabColor = PaletteUtils.getIconSwatch(palette).getRgb();
 						fab.setBackgroundTintList(ColorStateList.valueOf(fabColor));
 						fab.show();
+
+						notifyLayoutChanged(R.layout.row_log_play_add_player);
 					}
 
 					@Override
@@ -1526,6 +1546,8 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		public class AddPlayerViewHolder extends PlayViewHolder {
+			@BindView(R.id.add_players_button) Button addPlayersButton;
+
 			public AddPlayerViewHolder(ViewGroup parent) {
 				super(inflater.inflate(R.layout.row_log_play_add_player, parent, false));
 				ButterKnife.bind(this, itemView);
@@ -1533,7 +1555,8 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@Override
 			public void bind() {
-				// no-op
+
+				ViewCompat.setBackgroundTintList(addPlayersButton, ColorStateList.valueOf(fabColor));
 			}
 
 			@OnClick(R.id.add_players_button)

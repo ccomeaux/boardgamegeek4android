@@ -80,7 +80,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		unbinder = ButterKnife.bind(this, rootView);
 		setEnabledFilterTypes();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert).setView(rootView);
 		builder.setTitle(R.string.title_filter);
 		return builder.create();
 	}

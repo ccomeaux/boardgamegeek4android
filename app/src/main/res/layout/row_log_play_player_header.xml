@@ -14,12 +14,12 @@
 
 	<TextView
 		android:id="@+id/log_play_players_label"
-		style="@style/Text.Header.Underline"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
+		android:background="@drawable/underline"
 		android:text="@string/title_players"
-		android:textSize="16sp"/>
+		android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 	<ImageView
 		android:id="@+id/player_sort"
