@@ -49,9 +49,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	public static final String GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php";
 	private OkHttpClient httpClient;
 	private PlayPersister persister;
-	private long currentInternalIdForMessage;
-	private int currentGameIdForMessage;
-	private String currentGameNameForMessage;
+	private long currentInternalId;
+	private int currentGameIdForNotification;
+	private String currentGameNameForNotification;
+	private String currentThumbnailUrlForNotification;
+	private String currentImageUrlForNotification;
 
 	@DebugLog
 	public SyncPlaysUpload(Context context, BggService service) {
@@ -72,8 +74,19 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected Intent getNotificationIntent() {
+	protected Intent getNotificationSummaryIntent() {
 		return new Intent(context, PlaysActivity.class);
+	}
+
+	@DebugLog
+	@Override
+	protected Intent getNotificationIntent() {
+		return ActivityUtils.createPlayIntent(context,
+			currentInternalId,
+			currentGameIdForNotification,
+			currentGameNameForNotification,
+			currentThumbnailUrlForNotification,
+			currentImageUrlForNotification);
 	}
 
 	@DebugLog
@@ -123,9 +136,9 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (isCancelled()) break;
 				if (wasSleepInterrupted(1000)) break;
 
-				currentInternalIdForMessage = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
+				currentInternalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
-				Cursor playerCursor = PlayBuilder.queryPlayers(context, currentInternalIdForMessage);
+				Cursor playerCursor = PlayBuilder.queryPlayers(context, currentInternalId);
 				try {
 					PlayBuilder.addPlayers(playerCursor, play);
 				} finally {
@@ -156,11 +169,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					play.dirtyTimestamp = 0;
 					play.updateTimestamp = 0;
 					play.deleteTimestamp = 0;
-					currentGameIdForMessage = play.gameId;
-					currentGameNameForMessage = play.gameName;
+					currentGameIdForNotification = play.gameId;
+					currentGameNameForNotification = play.gameName;
 
 					notifyUser(play, message);
-					persister.save(play, currentInternalIdForMessage, false);
+					persister.save(play, currentInternalId, false);
 
 					updateGamePlayCount(play);
 				}
@@ -174,7 +187,9 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	private void notifyUser(Play play, CharSequence message) {
 		Pair<String, String> imageUrls = queryGameImageUrls(play);
-		notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalIdForMessage), imageUrls.first, imageUrls.second);
+		currentImageUrlForNotification = imageUrls.first;
+		currentThumbnailUrlForNotification = imageUrls.second;
+		notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalId), currentImageUrlForNotification, currentThumbnailUrlForNotification);
 	}
 
 	private Pair<String, String> queryGameImageUrls(Play play) {
@@ -205,7 +220,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 			while (cursor != null && cursor.moveToNext()) {
 				if (isCancelled()) break;
-				currentInternalIdForMessage = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
+				currentInternalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.playId > 0) {
 					if (wasSleepInterrupted(1000)) break;
@@ -214,11 +229,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						syncResult.stats.numIoExceptions++;
 						notifyUploadError(context.getString(R.string.msg_play_update_null_response));
 					} else if (response.isSuccessful()) {
-						deletePlay(currentInternalIdForMessage);
+						deletePlay(currentInternalId);
 						updateGamePlayCount(play);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
-						deletePlay(currentInternalIdForMessage);
+						deletePlay(currentInternalId);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
@@ -228,7 +243,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						notifyUploadError(response.getErrorMessage());
 					}
 				} else {
-					deletePlay(currentInternalIdForMessage);
+					deletePlay(currentInternalId);
 					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
 				}
 			}
@@ -359,11 +374,11 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	protected Action createMessageAction() {
-		if (currentInternalIdForMessage != BggContract.INVALID_ID) {
+		if (currentInternalId != BggContract.INVALID_ID) {
 			Intent intent = ActivityUtils.createRematchIntent(context,
-				currentInternalIdForMessage,
-				currentGameIdForMessage,
-				currentGameNameForMessage, null, null);
+				currentInternalId,
+				currentGameIdForNotification,
+				currentGameNameForNotification, null, null);
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			NotificationCompat.Action.Builder builder = new NotificationCompat.Action.Builder(
 				R.drawable.ic_replay_black_24dp,

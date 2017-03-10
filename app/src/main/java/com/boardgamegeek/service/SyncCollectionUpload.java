@@ -73,7 +73,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected Intent getNotificationIntent() {
+	protected Intent getNotificationSummaryIntent() {
 		return new Intent(context, CollectionActivity.class);
 	}
 
