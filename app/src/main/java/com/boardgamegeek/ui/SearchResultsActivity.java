@@ -120,10 +120,10 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 			Uri uri = intent.getData();
 			if (uri == null) {
 				Toast.makeText(this, R.string.search_error_no_data, Toast.LENGTH_LONG).show();
+				finish();
 			} else {
 				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
 			}
-			finish();
 		} else if (action != null &&
 			(Intent.ACTION_SEARCH.equals(action) || "com.google.android.gms.actions.SEARCH_ACTION".equals(action))) {
 			searchText = "";
