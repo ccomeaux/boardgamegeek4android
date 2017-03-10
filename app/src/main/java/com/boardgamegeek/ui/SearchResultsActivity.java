@@ -91,8 +91,10 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 					@Override
 					public boolean onQueryTextChange(@Nullable String newText) {
 						if (newText != null && newText.length() > 2) {
-							((SearchResultsFragment) getFragment()).requestQueryUpdate(newText);
-							searchText = newText;
+							if (!newText.equals(searchText)) {
+								((SearchResultsFragment) getFragment()).requestQueryUpdate(newText);
+								searchText = newText;
+							}
 						} else {
 							((SearchResultsFragment) getFragment()).requestQueryUpdate("");
 						}
