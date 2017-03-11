@@ -279,6 +279,10 @@ public class SelectionBuilder {
 		return count;
 	}
 
+	public static String whereNullOrEmpty(String columnName) {
+		return String.format("(%1$S IS NULL OR %1$S='')", columnName);
+	}
+
 	public static String whereZeroOrNull(String columnName) {
 		return String.format("(%1$s=0 OR %1$s IS NULL)", columnName);
 	}

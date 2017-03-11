@@ -20,7 +20,7 @@ import com.boardgamegeek.service.model.CollectionItem;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -148,7 +148,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private Cursor fetchNewCollectionItems() {
 		String selection = "(" + getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP)) + ") AND " +
-			ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID);
+			SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID);
 		return getCollectionItems(selection, R.plurals.sync_notification_collection_adding);
 	}
 

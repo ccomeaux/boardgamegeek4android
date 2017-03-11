@@ -16,6 +16,7 @@ import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -361,13 +362,7 @@ public class CollectionPersister {
 	private long getCollectionItemInternalIdToUpdate(int collectionId, int gameId) {
 		long internalId;
 		if (collectionId == BggContract.INVALID_ID) {
-			internalId = ResolverUtils.queryLong(resolver,
-				Collection.CONTENT_URI,
-				Collection._ID,
-				BggContract.INVALID_ID,
-				"collection." + Collection.GAME_ID + "=? AND " +
-					ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID),
-				new String[] { String.valueOf(gameId) });
+			internalId = getCollectionItemInternalIdToUpdate(gameId);
 		} else {
 			internalId = ResolverUtils.queryLong(resolver,
 				Collection.CONTENT_URI,
@@ -386,8 +381,8 @@ public class CollectionPersister {
 			Collection._ID,
 			BggContract.INVALID_ID,
 			"collection." + Collection.GAME_ID + "=? AND " +
-				ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID) + " AND " +
-				Collection.COLLECTION_DIRTY_TIMESTAMP + "=0",
+				SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID) + " AND " +
+				SelectionBuilder.whereZeroOrNull(Collection.COLLECTION_DIRTY_TIMESTAMP),
 			new String[] { String.valueOf(gameId) });
 	}
 
