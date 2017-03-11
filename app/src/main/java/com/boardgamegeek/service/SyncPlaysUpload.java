@@ -161,13 +161,16 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					Authenticator.clearPassword(context);
 					break;
 				} else if (response.hasInvalidIdError()) {
+					syncResult.stats.numConflictDetectedExceptions++;
 					notifyUploadError(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId));
 				} else if (response.hasError()) {
+					syncResult.stats.numIoExceptions++;
 					notifyUploadError(response.getErrorMessage());
 				} else if (response.getPlayCount() <= 0) {
 					syncResult.stats.numIoExceptions++;
 					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
 				} else {
+					syncResult.stats.numUpdates++;
 					CharSequence message = play.playId > 0 ?
 						PresentationUtils.getText(context, R.string.msg_play_updated) :
 						PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.getPlayCount(), play.quantity));
@@ -238,10 +241,12 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						syncResult.stats.numIoExceptions++;
 						notifyUploadError(context.getString(R.string.msg_play_update_null_response));
 					} else if (response.isSuccessful()) {
+						syncResult.stats.numDeletes++;
 						deletePlay(currentInternalId);
 						updateGamePlayCount(play);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
+						syncResult.stats.numConflictDetectedExceptions++;
 						deletePlay(currentInternalId);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
@@ -252,6 +257,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 						notifyUploadError(response.getErrorMessage());
 					}
 				} else {
+					syncResult.stats.numDeletes++;
 					deletePlay(currentInternalId);
 					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
 				}
