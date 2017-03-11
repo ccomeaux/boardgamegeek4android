@@ -81,6 +81,13 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	protected Intent getNotificationIntent() {
+		if (currentInternalId == BggContract.INVALID_ID) {
+			return ActivityUtils.createGamePlaysIntent(context,
+				Games.buildGameUri(currentGameIdForNotification),
+				currentGameNameForNotification,
+				currentImageUrlForNotification,
+				currentThumbnailUrlForNotification);
+		}
 		return ActivityUtils.createPlayIntent(context,
 			currentInternalId,
 			currentGameIdForNotification,
@@ -222,6 +229,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (isCancelled()) break;
 				currentInternalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				Play play = PlayBuilder.fromCursor(cursor);
+				currentGameIdForNotification = play.gameId;
+				currentGameNameForNotification = play.gameName;
 				if (play.playId > 0) {
 					if (wasSleepInterrupted(1000)) break;
 					PlayDeleteResponse response = postPlayDelete(play.playId);
@@ -368,6 +377,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	private void notifyUserOfDelete(@StringRes int messageId, Play play) {
+		NotificationUtils.cancel(context, getNotificationMessageTag(), NotificationUtils.getIntegerId(currentInternalId));
+		currentInternalId = BggContract.INVALID_ID;
 		notifyUser(play, PresentationUtils.getText(context, messageId, play.gameName));
 	}
 
