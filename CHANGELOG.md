@@ -8,6 +8,7 @@ Coming Soon...
  * When viewing a play, players are selectable
  * UI improvements
  * Syncing improvements
+ * Bug fixes
 
 Version 6.3.7
 -------------

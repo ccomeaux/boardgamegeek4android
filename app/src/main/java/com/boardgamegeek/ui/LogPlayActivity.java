@@ -1280,7 +1280,12 @@ public class LogPlayActivity extends AppCompatActivity {
 
 						fabColor = PaletteUtils.getIconSwatch(palette).getRgb();
 						fab.setBackgroundTintList(ColorStateList.valueOf(fabColor));
-						fab.show();
+						fab.post(new Runnable() {
+							@Override
+							public void run() {
+								fab.show();
+							}
+						});
 
 						notifyLayoutChanged(R.layout.row_log_play_add_player);
 					}
