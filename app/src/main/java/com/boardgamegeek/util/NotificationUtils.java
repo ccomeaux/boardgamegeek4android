@@ -64,6 +64,14 @@ public class NotificationUtils {
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, Intent intent) {
+		return createNotificationBuilder(context, context.getString(titleResId), intent);
+	}
+
+	/**
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent.
+	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Intent intent) {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setSmallIcon(R.drawable.ic_stat_bgg)

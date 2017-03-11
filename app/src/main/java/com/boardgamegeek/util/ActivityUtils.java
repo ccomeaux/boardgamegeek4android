@@ -23,6 +23,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
+import com.boardgamegeek.ui.GamePlaysActivity;
 import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
@@ -191,6 +192,21 @@ public class ActivityUtils {
 			.putContentType("GeekList")
 			.putContentName(title)
 			.putContentId(String.valueOf(id)));
+	}
+
+	public static Intent createGamePlaysIntent(Context context, Uri gameUri, String gameName, String imageUrl, String thumbnailUrl) {
+		return createGamePlaysIntent(context, gameUri, gameName, imageUrl, thumbnailUrl, false, 0);
+	}
+
+	public static Intent createGamePlaysIntent(Context context, Uri gameUri, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, int iconColor) {
+		Intent intent = new Intent(context, GamePlaysActivity.class);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
+		return intent;
 	}
 
 	public static void startPlayActivity(Context context, PlaySelectedEvent event) {

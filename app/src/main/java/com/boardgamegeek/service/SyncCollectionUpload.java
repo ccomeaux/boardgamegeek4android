@@ -18,6 +18,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.model.CollectionItem;
 import com.boardgamegeek.ui.CollectionActivity;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -36,6 +37,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	private final CollectionDeleteTask deleteTask;
 	private final CollectionAddTask addTask;
 	private final List<CollectionUploadTask> uploadTasks;
+	private int currentGameId;
+	private String currentGameName;
 
 	@DebugLog
 	public SyncCollectionUpload(Context context, BggService service) {
@@ -73,8 +76,17 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected Intent getNotificationIntent() {
+	protected Intent getNotificationSummaryIntent() {
 		return new Intent(context, CollectionActivity.class);
+	}
+
+	@DebugLog
+	@Override
+	protected Intent getNotificationIntent() {
+		if (currentGameId != BggContract.INVALID_ID) {
+			return ActivityUtils.createGameIntent(currentGameId, currentGameName);
+		}
+		return super.getNotificationIntent();
 	}
 
 	@DebugLog
@@ -239,6 +251,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private void notifySuccess(CollectionItem item, int id, @StringRes int messageResId) {
 		syncResult.stats.numUpdates++;
+		currentGameId = item.getGameId();
+		currentGameName = item.getCollectionName();
 		notifyUser(item.getCollectionName(), context.getString(messageResId), id, item.getImageUrl(), item.getThumbnailUrl());
 	}
 

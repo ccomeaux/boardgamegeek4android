@@ -756,13 +756,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@OnClick(R.id.plays_root)
 	@DebugLog
 	public void onPlaysClick() {
-		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
-		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
+		Intent intent = ActivityUtils.createGamePlaysIntent(getActivity(),
+			gameUri,
+			gameName,
+			imageUrl,
+			thumbnailUrl,
+			arePlayersCustomSorted,
+			iconColor);
 		startActivity(intent);
 	}
 
