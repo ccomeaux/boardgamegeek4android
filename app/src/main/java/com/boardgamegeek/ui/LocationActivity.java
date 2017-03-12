@@ -129,7 +129,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 		createFragment();
 		editTextDialogFragment = null;
 
-		if (!TextUtils.isEmpty(event.getMessage())) {
+		if (!TextUtils.isEmpty(event.getMessage()) && rootContainer != null) {
 			Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
 		}
 	}

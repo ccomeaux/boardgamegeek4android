@@ -110,6 +110,10 @@ public class PlayPersister {
 			debugMessage = "Inserting new play";
 			if (PreferencesUtils.getAvoidBatching(context)) {
 				Uri uri = resolver.insert(Plays.CONTENT_URI, values);
+				if (uri == null) {
+					Timber.w("Unable to insert new play.");
+					return BggContract.INVALID_ID;
+				}
 				internalId = StringUtils.parseInt(uri.getLastPathSegment(), BggContract.INVALID_ID);
 			} else {
 				batch.add(ContentProviderOperation

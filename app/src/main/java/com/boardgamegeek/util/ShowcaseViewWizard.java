@@ -43,13 +43,14 @@ public class ShowcaseViewWizard {
 		final Activity activity = activityWeakReference.get();
 		if (activity == null) return;
 		helpIndex = 0;
-		Builder builder = HelpUtils.getShowcaseBuilder(activity)
-			.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					showNextHelp();
-				}
-			});
+		Builder builder = HelpUtils.getShowcaseBuilder(activity);
+		if (builder == null) return;
+		builder.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showNextHelp();
+			}
+		});
 		showcaseView = builder.build();
 		showcaseView.setOnShowcaseEventListener(new OnShowcaseEventListener() {
 			@Override
@@ -59,17 +60,14 @@ public class ShowcaseViewWizard {
 
 			@Override
 			public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
-
 			}
 
 			@Override
 			public void onShowcaseViewShow(ShowcaseView showcaseView) {
-
 			}
 
 			@Override
 			public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
-
 			}
 		});
 		showcaseView.setButtonPosition(HelpUtils.getLowerLeftLayoutParams(activity));

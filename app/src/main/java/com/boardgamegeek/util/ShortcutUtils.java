@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -33,6 +34,7 @@ public class ShortcutUtils {
 
 	public static Intent createIntent(Context context, int gameId, String gameName, String thumbnailUrl) {
 		Intent shortcut = createShortcutIntent(context, gameId, gameName);
+		if (shortcut == null) return null;
 		File file = getThumbnailFile(context, thumbnailUrl);
 		if (file != null && file.exists()) {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
@@ -40,8 +42,10 @@ public class ShortcutUtils {
 		return shortcut;
 	}
 
+	@Nullable
 	private static Intent createShortcutIntent(Context context, int gameId, String gameName) {
 		Intent intent = ActivityUtils.createGameIntent(gameId, gameName);
+		if (intent == null) return null;
 		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
 
 		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
@@ -79,7 +83,7 @@ public class ShortcutUtils {
 		@Override
 		protected Void doInBackground(Void... params) {
 			Intent shortcutIntent = createShortcutIntent(context, gameId, gameName);
-			if (!TextUtils.isEmpty(thumbnailUrl)) {
+			if (shortcutIntent != null && !TextUtils.isEmpty(thumbnailUrl)) {
 				Bitmap bitmap = fetchThumbnail();
 				if (bitmap != null) {
 					shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, bitmap);
