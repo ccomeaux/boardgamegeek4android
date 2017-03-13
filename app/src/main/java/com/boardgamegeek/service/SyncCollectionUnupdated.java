@@ -45,6 +45,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 			ArrayMap<String, String> options = new ArrayMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+			GameList previousGameList = new GameList(0);
 
 			do {
 				if (isCancelled()) break;
@@ -53,6 +54,12 @@ public class SyncCollectionUnupdated extends SyncTask {
 
 				numberOfFetches++;
 				GameList gameIds = queryGames();
+				if (areGamesListsEqual(gameIds, previousGameList)) {
+					Timber.i("...didn't update any games; breaking out of fetch loop");
+					break;
+				}
+				previousGameList = gameIds;
+
 				if (gameIds.getSize() > 0) {
 					String detail = context.getString(R.string.sync_notification_collection_update_games, gameIds.getSize(), gameIds.getDescription());
 					if (numberOfFetches > 1) {
@@ -126,6 +133,16 @@ public class SyncCollectionUnupdated extends SyncTask {
 			Timber.i("...no collection items found for these games");
 			return 0;
 		}
+	}
+
+	private boolean areGamesListsEqual(@NonNull GameList gameList1, @NonNull GameList gameList2) {
+		for (Integer i : gameList1.getIdList()) {
+			if (!gameList2.getIdList().contains(i)) return false;
+		}
+		for (Integer i : gameList2.getIdList()) {
+			if (!gameList1.getIdList().contains(i)) return false;
+		}
+		return true;
 	}
 
 	@Override

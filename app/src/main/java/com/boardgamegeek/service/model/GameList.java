@@ -32,4 +32,8 @@ public class GameList {
 	public String getIds() {
 		return TextUtils.join(",", gameIds);
 	}
+
+	public List<Integer> getIdList() {
+		return gameIds;
+	}
 }
