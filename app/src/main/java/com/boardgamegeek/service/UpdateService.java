@@ -29,7 +29,6 @@ public class UpdateService extends IntentService {
 	public static final int SYNC_TYPE_GAME = 1;
 	public static final int SYNC_TYPE_GAME_PLAYS = 2;
 	public static final int SYNC_TYPE_GAME_COLLECTION = 3;
-	public static final int SYNC_TYPE_BUDDY = 4;
 	public static final int SYNC_TYPE_BUDDY_SELF = 5;
 	public static final int SYNC_TYPE_DESIGNER = 10;
 	public static final int SYNC_TYPE_ARTIST = 11;
@@ -119,9 +118,6 @@ public class UpdateService extends IntentService {
 				break;
 			case SYNC_TYPE_GAME_COLLECTION:
 				task = new SyncGameCollection(syncId);
-				break;
-			case SYNC_TYPE_BUDDY:
-				task = new SyncBuddy(syncKey);
 				break;
 			case SYNC_TYPE_BUDDY_SELF:
 				task = new SyncBuddySelf();

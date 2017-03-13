@@ -20,15 +20,13 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
+import com.boardgamegeek.tasks.SyncUserTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
@@ -161,27 +159,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		super.onDestroyView();
 	}
 
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateEvent event) {
-		isRefreshing = event.getType() == UpdateService.SYNC_TYPE_BUDDY;
-		updateRefreshStatus();
-	}
-
-	@SuppressWarnings("unused")
 	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateCompleteEvent event) {
-		isRefreshing = false;
-		updateRefreshStatus();
-	}
-
-	private void updateRefreshStatus() {
+	private void updateRefreshStatus(boolean isRefreshing) {
+		this.isRefreshing = isRefreshing;
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					swipeRefreshLayout.setRefreshing(isRefreshing);
+					swipeRefreshLayout.setRefreshing(BuddyFragment.this.isRefreshing);
 				}
 			});
 		}
@@ -377,19 +362,22 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@DebugLog
 	private void requestRefresh() {
-		if (!hasBeenRefreshed) {
+		if (!isRefreshing && !hasBeenRefreshed) {
 			forceRefresh();
-			hasBeenRefreshed = true;
+		} else {
+			updateRefreshStatus(false);
 		}
 	}
 
 	@DebugLog
 	public void forceRefresh() {
 		if (isUser()) {
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, buddyName);
+			updateRefreshStatus(true);
+			TaskUtils.executeAsyncTask(new SyncUserTask(getActivity(), buddyName));
 		} else {
 			Timber.w("Something tried to refresh a player that wasn't a user!");
 		}
+		hasBeenRefreshed = true;
 	}
 
 	@DebugLog
@@ -421,5 +409,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		});
 		editTextDialogFragment.setText(oldName);
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_player");
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncUserTask.Event event) {
+		if (event.getUsername().equals(buddyName)) {
+			updateRefreshStatus(false);
+		}
 	}
 }

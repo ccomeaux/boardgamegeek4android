@@ -15,10 +15,12 @@ import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.tasks.AddUsernameToPlayerTask;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
+import com.boardgamegeek.tasks.SyncUserTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
@@ -109,6 +111,15 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 			recreateFragment();
 		}
 		showSnackbar(event.getMessage());
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncUserTask.Event event) {
+		if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferencesUtils.getSyncShowErrors(this)) {
+			showSnackbar(event.getErrorMessage());
+		}
 	}
 
 	@SuppressWarnings("unused")
