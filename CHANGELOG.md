@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Coming Soon...
+--------------
+ * Bug fixes
+
 Version 6.4
 -----------
  * Filter collection by collection name
