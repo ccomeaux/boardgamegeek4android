@@ -29,13 +29,22 @@
 		<item name="color">@android:color/white</item>
 	</style>
 
-
 	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
 		<item name="android:windowNoTitle">false</item>
+		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primary_dark</item>
+		<item name="colorAccent">@color/accent</item>
+	</style>
+
+	<style name="Theme.bgglight.Dialog.Alert" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
+		<item name="android:windowNoTitle">true</item>
+		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primary_dark</item>
+		<item name="colorAccent">@color/accent</item>
 	</style>
 
 	<style name="Theme.bgglight.Dialog.NoTitle">
-		<item name="android:windowNoTitle">false</item>
+		<item name="android:windowNoTitle">true</item>
 	</style>
 
 </resources>

@@ -143,8 +143,11 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			final int index = RandomUtils.getRandom().nextInt(adapter.getCount());
 			if (index < adapter.getCount()) {
 				CollectionItem ci = adapter.getItem(index);
-				ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
-				return true;
+				if (ci != null) {
+					ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
+					return true;
+				}
+				return false;
 			}
 		}
 
@@ -246,8 +249,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			notifyDataSetChanged();
 		}
 
+		@NonNull
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 			BuddyGameViewHolder holder;
 			if (convertView == null) {
 				convertView = inflater.inflate(R.layout.row_text_2, parent, false);

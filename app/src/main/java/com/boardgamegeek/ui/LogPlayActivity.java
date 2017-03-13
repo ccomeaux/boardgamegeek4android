@@ -20,6 +20,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -30,6 +31,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
@@ -56,6 +58,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -128,7 +131,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_COLORS = 1 << 2;
-	private static final int TOKEN_UNINITIALIZED = 1 << 31;
+	private static final int TOKEN_UNINITIALIZED = 1 << 15;
 
 	@State long internalId = BggContract.INVALID_ID;
 	private int gameId;
@@ -656,6 +659,8 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void logPlay() {
 		play.updateTimestamp = System.currentTimeMillis();
+		play.deleteTimestamp = 0;
+		play.dirtyTimestamp = System.currentTimeMillis();
 		if (save()) {
 			if (play.playId == 0 && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
@@ -674,6 +679,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private void saveDraft(boolean showToast) {
 		if (play == null) return;
 		play.dirtyTimestamp = System.currentTimeMillis();
+		play.deleteTimestamp = 0;
 		if (save()) {
 			if (showToast) {
 				Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
@@ -699,7 +705,9 @@ public class LogPlayActivity extends AppCompatActivity {
 			finish();
 		} else if (play.equals(originalPlay)) {
 			if (shouldDeletePlayOnActivityCancel) {
+				play.updateTimestamp = 0;
 				play.deleteTimestamp = System.currentTimeMillis();
+				play.dirtyTimestamp = 0;
 				if (save()) {
 					triggerUpload();
 				}
@@ -711,7 +719,9 @@ public class LogPlayActivity extends AppCompatActivity {
 				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							play.updateTimestamp = 0;
 							play.deleteTimestamp = System.currentTimeMillis();
+							play.dirtyTimestamp = 0;
 							if (save()) {
 								triggerUpload();
 								cancelNotification();
@@ -719,7 +729,8 @@ public class LogPlayActivity extends AppCompatActivity {
 							setResult(RESULT_CANCELED);
 							finish();
 						}
-					}).show();
+					})
+					.show();
 			} else {
 				DialogUtils.createCancelDialog(this).show();
 			}
@@ -1214,13 +1225,27 @@ public class LogPlayActivity extends AppCompatActivity {
 		private void notifyLayoutChanged(@LayoutRes int layoutResId) {
 			for (int i = 0; i < headerResources.size(); i++) {
 				if (headerResources.get(i) == layoutResId) {
-					notifyItemChanged(i);
+					final int position = i;
+					new Handler().post(
+						new Runnable() {
+							@Override
+							public void run() {
+								notifyItemChanged(position);
+							}
+						});
 					return;
 				}
 			}
 			for (int i = 0; i < footerResources.size(); i++) {
 				if (footerResources.get(i) == layoutResId) {
-					notifyItemChanged(headerResources.size() + play.getPlayerCount() + i);
+					final int position = headerResources.size() + play.getPlayerCount() + i;
+					new Handler().post(
+						new Runnable() {
+							@Override
+							public void run() {
+								notifyItemChanged(position);
+							}
+						});
 					return;
 				}
 			}
@@ -1252,9 +1277,17 @@ public class LogPlayActivity extends AppCompatActivity {
 					@Override
 					public void onSuccessfulImageLoad(Palette palette) {
 						headerView.setBackgroundResource(R.color.black_overlay_light);
+
 						fabColor = PaletteUtils.getIconSwatch(palette).getRgb();
 						fab.setBackgroundTintList(ColorStateList.valueOf(fabColor));
-						fab.show();
+						fab.post(new Runnable() {
+							@Override
+							public void run() {
+								fab.show();
+							}
+						});
+
+						notifyLayoutChanged(R.layout.row_log_play_add_player);
 					}
 
 					@Override
@@ -1518,6 +1551,8 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		public class AddPlayerViewHolder extends PlayViewHolder {
+			@BindView(R.id.add_players_button) Button addPlayersButton;
+
 			public AddPlayerViewHolder(ViewGroup parent) {
 				super(inflater.inflate(R.layout.row_log_play_add_player, parent, false));
 				ButterKnife.bind(this, itemView);
@@ -1525,7 +1560,8 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@Override
 			public void bind() {
-				// no-op
+
+				ViewCompat.setBackgroundTintList(addPlayersButton, ColorStateList.valueOf(fabColor));
 			}
 
 			@OnClick(R.id.add_players_button)

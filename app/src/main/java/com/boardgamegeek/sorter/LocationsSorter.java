@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public abstract class LocationsSorter extends Sorter {
@@ -13,6 +14,6 @@ public abstract class LocationsSorter extends Sorter {
 
 	@Override
 	protected String getDefaultSort() {
-		return Plays.LOCATION;
+		return Plays.LOCATION + BggContract.COLLATE_NOCASE;
 	}
 }

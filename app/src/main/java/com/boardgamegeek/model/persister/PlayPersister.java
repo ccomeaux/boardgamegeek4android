@@ -19,6 +19,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -107,10 +108,19 @@ public class PlayPersister {
 			return BggContract.INVALID_ID;
 		} else {
 			debugMessage = "Inserting new play";
-			batch.add(ContentProviderOperation
-				.newInsert(Plays.CONTENT_URI)
-				.withValues(values)
-				.build());
+			if (PreferencesUtils.getAvoidBatching(context)) {
+				Uri uri = resolver.insert(Plays.CONTENT_URI, values);
+				if (uri == null) {
+					Timber.w("Unable to insert new play.");
+					return BggContract.INVALID_ID;
+				}
+				internalId = StringUtils.parseInt(uri.getLastPathSegment(), BggContract.INVALID_ID);
+			} else {
+				batch.add(ContentProviderOperation
+					.newInsert(Plays.CONTENT_URI)
+					.withValues(values)
+					.build());
+			}
 		}
 
 		if (includePlayers) {

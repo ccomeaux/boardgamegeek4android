@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Version 6.4
+-----------
+ * Filter collection by collection name
+ * Sort collection by last played date
+ * When viewing a play, players are selectable
+ * Clicking a notification about an uploaded play or collection item goes to something more interesting
+ * UI improvements
+ * Syncing improvements
+ * Bug fixes
+
 Version 6.3.7
 -------------
  * Bug fixes

@@ -22,6 +22,14 @@
 			android:text="@string/collection_filter_stats"/>
 
 		<CheckBox
+			android:id="@+id/collection_name"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_filter_type_collection_name"
+			android:text="@string/menu_collection_name"/>
+
+		<CheckBox
 			android:id="@+id/subtype"
 			style="@style/DialogCheckbox"
 			android:layout_width="match_parent"

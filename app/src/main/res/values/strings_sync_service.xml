@@ -70,6 +70,14 @@
 		<item quantity="one">Uploading %,d collection item.</item>
 		<item quantity="other">Uploading %,d collection items.</item>
 	</plurals>
+	<plurals name="sync_notification_progress_update">
+		<item quantity="one">Updating %,d play</item>
+		<item quantity="other">Updating %,d plays</item>
+	</plurals>
+	<plurals name="sync_notification_progress_delete">
+		<item quantity="one">Deleting %,d play</item>
+		<item quantity="other">Deleting %,d plays</item>
+	</plurals>
 	<plurals name="sync_notification_games">
 		<item quantity="one">Syncing %1$,d game: %2$s</item>
 		<item quantity="other">Syncing %1$,d games: %2$s</item>

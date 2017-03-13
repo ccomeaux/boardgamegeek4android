@@ -38,6 +38,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 	private Unbinder unbinder;
 	@BindView(R.id.scroll_container) ScrollView scrollContainer;
 	@BindViews({
+		R.id.collection_name,
 		R.id.collection_status,
 		R.id.subtype,
 		R.id.geek_ranking,
@@ -79,7 +80,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		unbinder = ButterKnife.bind(this, rootView);
 		setEnabledFilterTypes();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert).setView(rootView);
 		builder.setTitle(R.string.title_filter);
 		return builder.create();
 	}
@@ -120,6 +121,7 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 
 	@DebugLog
 	@OnClick({
+		R.id.collection_name,
 		R.id.collection_status,
 		R.id.subtype,
 		R.id.geek_ranking,

@@ -18,9 +18,10 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.model.CollectionItem;
 import com.boardgamegeek.ui.CollectionActivity;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	private final CollectionDeleteTask deleteTask;
 	private final CollectionAddTask addTask;
 	private final List<CollectionUploadTask> uploadTasks;
+	private int currentGameId;
+	private String currentGameName;
 
 	@DebugLog
 	public SyncCollectionUpload(Context context, BggService service) {
@@ -73,8 +76,17 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	protected Intent getNotificationIntent() {
+	protected Intent getNotificationSummaryIntent() {
 		return new Intent(context, CollectionActivity.class);
+	}
+
+	@DebugLog
+	@Override
+	protected Intent getNotificationIntent() {
+		if (currentGameId != BggContract.INVALID_ID) {
+			return ActivityUtils.createGameIntent(currentGameId, currentGameName);
+		}
+		return super.getNotificationIntent();
 	}
 
 	@DebugLog
@@ -148,7 +160,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private Cursor fetchNewCollectionItems() {
 		String selection = "(" + getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP)) + ") AND " +
-			ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID);
+			SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID);
 		return getCollectionItems(selection, R.plurals.sync_notification_collection_adding);
 	}
 
@@ -239,6 +251,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	private void notifySuccess(CollectionItem item, int id, @StringRes int messageResId) {
 		syncResult.stats.numUpdates++;
+		currentGameId = item.getGameId();
+		currentGameName = item.getCollectionName();
 		notifyUser(item.getCollectionName(), context.getString(messageResId), id, item.getImageUrl(), item.getThumbnailUrl());
 	}
 

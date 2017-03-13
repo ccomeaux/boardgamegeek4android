@@ -521,10 +521,17 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, final View convertView, ViewGroup parent) {
 			PlayerRow row = new PlayerRow(getActivity());
 			row.setLayoutParams(new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			row.setPlayer((Player) getItem(position));
+			final Player player = (Player) getItem(position);
+			row.setPlayer(player);
+			row.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					ActivityUtils.startBuddyActivity(getActivity(), player.username, player.name);
+				}
+			});
 			return row;
 		}
 	}

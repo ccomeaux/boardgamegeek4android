@@ -91,6 +91,7 @@ public class JsonImportTask extends ImporterExporterTask {
 
 			JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
 
+			//noinspection TryFinallyCanBeTryWithResources
 			try {
 				reader.beginArray();
 				while (reader.hasNext()) {

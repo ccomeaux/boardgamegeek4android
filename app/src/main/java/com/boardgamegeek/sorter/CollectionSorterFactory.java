@@ -27,6 +27,7 @@ public class CollectionSorterFactory {
 		sorters.add(new AverageWeightDescendingSorter(context));
 		sorters.add(new PlayCountAscendingSorter(context));
 		sorters.add(new PlayCountDescendingSorter(context));
+		sorters.add(new LastPlayDateSorter(context));
 		sorters.add(new WishlistPrioritySorter(context));
 		sorters.add(new LastViewedSorter(context));
 		sorters.add(new MyRatingSorter(context));

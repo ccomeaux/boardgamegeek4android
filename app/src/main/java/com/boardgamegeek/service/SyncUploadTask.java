@@ -34,7 +34,11 @@ public abstract class SyncUploadTask extends SyncTask {
 	@StringRes
 	protected abstract int getNotificationTitleResId();
 
-	protected abstract Intent getNotificationIntent();
+	protected abstract Intent getNotificationSummaryIntent();
+
+	protected Intent getNotificationIntent() {
+		return getNotificationSummaryIntent();
+	}
 
 	protected abstract String getNotificationMessageTag();
 
@@ -60,7 +64,9 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	private void buildAndNotify(CharSequence title, CharSequence message, int id, Bitmap largeIcon) {
-		Builder builder = createNotificationBuilder()
+		Builder builder = NotificationUtils.createNotificationBuilder(context,
+			getNotificationTitleResId(),
+			getNotificationIntent())
 			.setCategory(NotificationCompat.CATEGORY_SERVICE)
 			.setContentTitle(title)
 			.setContentText(message)
@@ -81,7 +87,9 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	@DebugLog
 	private void showNotificationSummary() {
-		Builder builder = createNotificationBuilder()
+		Builder builder = NotificationUtils.createNotificationBuilder(context,
+			getNotificationTitleResId(),
+			getNotificationSummaryIntent())
 			.setGroup(getNotificationMessageTag())
 			.setGroupSummary(true);
 		final int messageCount = notificationMessages.size();
@@ -106,18 +114,13 @@ public abstract class SyncUploadTask extends SyncTask {
 	protected void notifyUploadError(CharSequence errorMessage) {
 		if (TextUtils.isEmpty(errorMessage)) return;
 		Timber.e(errorMessage.toString());
-		NotificationCompat.Builder builder = createNotificationBuilder()
+		Builder builder = NotificationUtils.createNotificationBuilder(context,
+			getNotificationTitleResId(),
+			getNotificationSummaryIntent())
 			.setContentText(errorMessage)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(errorMessage);
 		NotificationUtils.notify(context, getNotificationErrorTag(), 0, builder);
-	}
-
-	@DebugLog
-	private NotificationCompat.Builder createNotificationBuilder() {
-		return NotificationUtils.createNotificationBuilder(context,
-			context.getString(getNotificationTitleResId()),
-			getNotificationIntent());
 	}
 }

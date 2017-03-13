@@ -139,7 +139,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	}
 
 	private void showSnackbar(String message) {
-		if (!TextUtils.isEmpty(message)) {
+		if (!TextUtils.isEmpty(message) && rootContainer != null) {
 			Snackbar.make(rootContainer, message, Snackbar.LENGTH_LONG).show();
 		}
 	}

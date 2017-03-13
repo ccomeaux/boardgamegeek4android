@@ -131,23 +131,36 @@ public class SelectionBuilder {
 		if (column.equals(BaseColumns._ID)) {
 			return mapToTable(column, table, column);
 		} else {
-			projectionMap.put(column, table + "." + column);
+			projectionMap.put(column, String.format("%s.%s", table, column));
 		}
 		return this;
 	}
 
-	public SelectionBuilder mapToTable(String column, String table, String fromColumn) {
-		projectionMap.put(column, table + "." + column + " AS " + fromColumn);
+	public SelectionBuilder mapToTable(String column, String table, String alias) {
+		projectionMap.put(column, String.format("%s.%s AS %s", table, column, alias));
 		return this;
 	}
 
-	public SelectionBuilder mapToTable(String column, String table, String fromColumn, String nullDefault) {
-		projectionMap.put(column, "IFNULL(" + table + "." + column + "," + nullDefault + ") AS " + fromColumn);
+	public SelectionBuilder mapIfNull(String column, String nullDefault) {
+		projectionMap.put(column, String.format("IFNULL(%s,%s) AS %s", column, nullDefault, column));
 		return this;
+	}
+
+	public SelectionBuilder mapIfNullToTable(String column, String table, String nullDefault) {
+		projectionMap.put(column, String.format("IFNULL(%s.%s,%s) AS %s", table, column, nullDefault, column));
+		return this;
+	}
+
+	public SelectionBuilder mapAsSum(String aliasColumn, String sumColumn) {
+		return map(aliasColumn, String.format("SUM(%s)", sumColumn));
+	}
+
+	public SelectionBuilder mapAsMax(String aliasColumn, String maxColumn) {
+		return map(aliasColumn, String.format("MAX(%s)", maxColumn));
 	}
 
 	public SelectionBuilder map(String fromColumn, String toClause) {
-		projectionMap.put(fromColumn, toClause + " AS " + fromColumn);
+		projectionMap.put(fromColumn, String.format("%s AS %s", toClause, fromColumn));
 		return this;
 	}
 
@@ -264,6 +277,10 @@ public class SelectionBuilder {
 		int count = db.delete(tableName, selection, getSelectionArgs());
 		Timber.v("deleted %,d rows", count);
 		return count;
+	}
+
+	public static String whereNullOrEmpty(String columnName) {
+		return String.format("(%1$S IS NULL OR %1$S='')", columnName);
 	}
 
 	public static String whereZeroOrNull(String columnName) {

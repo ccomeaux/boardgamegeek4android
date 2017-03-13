@@ -54,7 +54,7 @@ public class UpdateService extends IntentService {
 	}
 
 	@Override
-	protected void onHandleIntent(@NonNull Intent intent) {
+	protected void onHandleIntent(Intent intent) {
 		Timber.d("onHandleIntent(intent=" + intent + ")");
 
 		if (NetworkUtils.isOffline(getApplicationContext())) {

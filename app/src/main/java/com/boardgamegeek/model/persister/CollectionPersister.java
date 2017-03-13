@@ -5,6 +5,7 @@ import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -13,9 +14,11 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,11 +90,13 @@ public class CollectionPersister {
 		private int recordCount;
 		private final List<Integer> savedCollectionIds;
 		private final List<Integer> savedGameIds;
+		private final List<Integer> dirtyCollectionIds;
 
 		public SaveResults() {
 			recordCount = 0;
 			savedCollectionIds = new ArrayList<>();
 			savedGameIds = new ArrayList<>();
+			dirtyCollectionIds = new ArrayList<>();
 		}
 
 		public void increaseRecordCount(int count) {
@@ -104,6 +109,10 @@ public class CollectionPersister {
 
 		public void addSavedGameId(int id) {
 			savedGameIds.add(id);
+		}
+
+		public void addDirtyCollectionId(int id) {
+			dirtyCollectionIds.add(id);
 		}
 
 		public boolean hasGameBeenSaved(int gameId) {
@@ -177,19 +186,25 @@ public class CollectionPersister {
 			for (CollectionItem item : items) {
 				batch.clear();
 				if (isItemStatusSetToSync(item)) {
-					if (saveResults.hasGameBeenSaved(item.gameId)) {
-						Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", item.gameName(), item.gameId);
+					SyncCandidate candidate = SyncCandidate.find(resolver, item.collectionId(), item.gameId);
+					if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
+						Timber.i("Local play is dirty, skipping sync.");
+						saveResults.addDirtyCollectionId(item.collectionId());
 					} else {
-						addGameToBatch(item, batch);
-						saveResults.addSavedGameId(item.gameId);
-					}
-					addItemToBatch(item, batch);
-					ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
-					Timber.d("Saved a batch of %,d record(s)", results.length);
+						if (saveResults.hasGameBeenSaved(item.gameId)) {
+							Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", item.gameName(), item.gameId);
+						} else {
+							addGameToBatch(item, batch);
+							saveResults.addSavedGameId(item.gameId);
+						}
+						addItemToBatch(item, batch, candidate);
+						ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
+						Timber.d("Saved a batch of %,d record(s)", results.length);
 
-					saveResults.increaseRecordCount(results.length);
-					saveResults.addSavedCollectionId(item.collectionId());
-					Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.gameName(), item.gameId, item.collectionId());
+						saveResults.increaseRecordCount(results.length);
+						saveResults.addSavedCollectionId(item.collectionId());
+						Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.gameName(), item.gameId, item.collectionId());
+					}
 				} else {
 					Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", item.gameName(), item.gameId, item.collectionId());
 				}
@@ -239,7 +254,7 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private ContentValues toCollectionValues(CollectionItem item) {
+	private ContentValues toCollectionValues(CollectionItem item, SyncCandidate candidate) {
 		ContentValues values = new ContentValues();
 		if (!isBriefSync && includePrivateInfo && includeStats) {
 			values.put(Collection.UPDATED, updateTime);
@@ -302,35 +317,29 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void addItemToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch) {
-		ContentValues values = toCollectionValues(item);
+	private void addItemToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
+		ContentValues values = toCollectionValues(item, candidate);
 		ContentProviderOperation.Builder cpo;
-		long internalId = getCollectionItemInternalIdToUpdate(item.collectionId(), item.gameId);
-		if (internalId != BggContract.INVALID_ID) {
-			cpo = createUpdateOperation(values, batch, internalId);
+		if (candidate.getInternalId() != BggContract.INVALID_ID) {
+			cpo = createUpdateOperation(values, batch, candidate);
 		} else {
-			internalId = getCollectionItemInternalIdToUpdate(item.gameId);
-			if (internalId != BggContract.INVALID_ID) {
-				cpo = createUpdateOperation(values, batch, internalId);
-			} else {
-				cpo = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
-			}
+			cpo = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
 		}
 		batch.add(cpo.withValues(values).build());
 	}
 
 	@DebugLog
-	private ContentProviderOperation.Builder createUpdateOperation(ContentValues values, ArrayList<ContentProviderOperation> batch, long internalId) {
-		removeDirtyValues(values, internalId);
-		Uri uri = Collection.buildUri(internalId);
+	private ContentProviderOperation.Builder createUpdateOperation(ContentValues values, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
+		removeDirtyValues(values, candidate);
+		Uri uri = Collection.buildUri(candidate.getInternalId());
 		ContentProviderOperation.Builder operation = ContentProviderOperation.newUpdate(uri);
 		maybeDeleteThumbnail(values, uri, batch);
 		return operation;
 	}
 
 	@DebugLog
-	private void removeDirtyValues(ContentValues values, long internalId) {
-		removeValuesIfDirty(values, internalId, Collection.STATUS_DIRTY_TIMESTAMP,
+	private void removeDirtyValues(ContentValues values, SyncCandidate candidate) {
+		removeValuesIfDirty(values, candidate.getStatusDirtyTimestamp(),
 			Collection.STATUS_OWN,
 			Collection.STATUS_PREVIOUSLY_OWNED,
 			Collection.STATUS_FOR_TRADE,
@@ -340,9 +349,9 @@ public class CollectionPersister {
 			Collection.STATUS_WANT_TO_PLAY,
 			Collection.STATUS_PREORDERED,
 			Collection.STATUS_WISHLIST_PRIORITY);
-		removeValuesIfDirty(values, internalId, Collection.RATING_DIRTY_TIMESTAMP, Collection.RATING);
-		removeValuesIfDirty(values, internalId, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.COMMENT);
-		removeValuesIfDirty(values, internalId, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+		removeValuesIfDirty(values, candidate.getRatingDirtyTimestamp(), Collection.RATING);
+		removeValuesIfDirty(values, candidate.getCommentDirtyTimestamp(), Collection.COMMENT);
+		removeValuesIfDirty(values, candidate.getPrivateInfoDirtyTimestamp(),
 			Collection.PRIVATE_INFO_ACQUIRED_FROM,
 			Collection.PRIVATE_INFO_ACQUISITION_DATE,
 			Collection.PRIVATE_INFO_COMMENT,
@@ -351,44 +360,10 @@ public class CollectionPersister {
 			Collection.PRIVATE_INFO_PRICE_PAID,
 			Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
 			Collection.PRIVATE_INFO_QUANTITY);
-		removeValuesIfDirty(values, internalId, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, Collection.WISHLIST_COMMENT);
-		removeValuesIfDirty(values, internalId, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, Collection.CONDITION);
-		removeValuesIfDirty(values, internalId, Collection.WANT_PARTS_DIRTY_TIMESTAMP, Collection.WANTPARTS_LIST);
-		removeValuesIfDirty(values, internalId, Collection.HAS_PARTS_DIRTY_TIMESTAMP, Collection.HASPARTS_LIST);
-	}
-
-	@DebugLog
-	private long getCollectionItemInternalIdToUpdate(int collectionId, int gameId) {
-		long internalId;
-		if (collectionId == BggContract.INVALID_ID) {
-			internalId = ResolverUtils.queryLong(resolver,
-				Collection.CONTENT_URI,
-				Collection._ID,
-				BggContract.INVALID_ID,
-				"collection." + Collection.GAME_ID + "=? AND " +
-					ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID),
-				new String[] { String.valueOf(gameId) });
-		} else {
-			internalId = ResolverUtils.queryLong(resolver,
-				Collection.CONTENT_URI,
-				Collection._ID,
-				BggContract.INVALID_ID,
-				Collection.COLLECTION_ID + "=?",
-				new String[] { String.valueOf(collectionId) });
-		}
-		return internalId;
-	}
-
-	@DebugLog
-	private long getCollectionItemInternalIdToUpdate(int gameId) {
-		return ResolverUtils.queryLong(resolver,
-			Collection.CONTENT_URI,
-			Collection._ID,
-			BggContract.INVALID_ID,
-			"collection." + Collection.GAME_ID + "=? AND " +
-				ResolverUtils.generateWhereNullOrEmpty(Collection.COLLECTION_ID) + " AND " +
-				Collection.COLLECTION_DIRTY_TIMESTAMP + "=0",
-			new String[] { String.valueOf(gameId) });
+		removeValuesIfDirty(values, candidate.getWishlistCommentDirtyTimestamp(), Collection.WISHLIST_COMMENT);
+		removeValuesIfDirty(values, candidate.getTradeConditionDirtyTimestamp(), Collection.CONDITION);
+		removeValuesIfDirty(values, candidate.getWantPartsDirtyTimestamp(), Collection.WANTPARTS_LIST);
+		removeValuesIfDirty(values, candidate.getHasPartsDirtyTimestamp(), Collection.HASPARTS_LIST);
 	}
 
 	@DebugLog
@@ -416,19 +391,175 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void removeValuesIfDirty(ContentValues values, long internalId, String columnName, String... columns) {
-		if (getDirtyTimestamp(internalId, columnName) != NOT_DIRTY) {
+	private void removeValuesIfDirty(ContentValues values, long dirtyFlag, String... columns) {
+		if (dirtyFlag != NOT_DIRTY) {
 			for (String column : columns) {
 				values.remove(column);
 			}
 		}
 	}
 
-	@DebugLog
-	private int getDirtyTimestamp(long internalId, String columnName) {
-		if (internalId == BggContract.INVALID_ID) {
-			return NOT_DIRTY;
+	static class SyncCandidate {
+		public static final SyncCandidate NULL = new SyncCandidate() {
+			@Override
+			public long getInternalId() {
+				return BggContract.INVALID_ID;
+			}
+
+			@Override
+			public long getDirtyTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getStatusDirtyTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getRatingDirtyTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getWishlistCommentDirtyTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getTradeConditionDirtyTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getWantPartsDirtyTimestamp() {
+				return 0;
+			}
+
+			@Override
+			public long getHasPartsDirtyTimestamp() {
+				return 0;
+			}
+		};
+
+		public static final String[] PROJECTION = {
+			Collection._ID,
+			Collection.COLLECTION_DIRTY_TIMESTAMP,
+			Collection.STATUS_DIRTY_TIMESTAMP,
+			Collection.RATING_DIRTY_TIMESTAMP,
+			Collection.COMMENT_DIRTY_TIMESTAMP,
+			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+			Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+			Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
+			Collection.WANT_PARTS_DIRTY_TIMESTAMP,
+			Collection.HAS_PARTS_DIRTY_TIMESTAMP
+		};
+
+		private long internalId;
+		private long dirtyTimestamp;
+		private long statusDirtyTimestamp;
+		private long ratingDirtyTimestamp;
+		private long commentDirtyTimestamp;
+		private long privateInfoDirtyTimestamp;
+		private long wishlistCommentDirtyTimestamp;
+		private long tradeConditionDirtyTimestamp;
+		private long wantPartsDirtyTimestamp;
+		private long hasPartsDirtyTimestamp;
+
+		public static SyncCandidate find(ContentResolver resolver, int collectionId, int gameId) {
+			Cursor cursor = null;
+			try {
+				if (collectionId == BggContract.INVALID_ID) {
+					cursor = getCursorFromGameId(resolver, gameId);
+					if (cursor != null && cursor.moveToFirst()) {
+						return fromCursor(cursor);
+					}
+				} else {
+					cursor = resolver.query(Collection.CONTENT_URI,
+						PROJECTION,
+						Collection.COLLECTION_ID + "=?",
+						new String[] { String.valueOf(collectionId) },
+						null);
+					if (cursor != null && cursor.moveToFirst()) {
+						return fromCursor(cursor);
+					}
+
+					if (cursor != null) cursor.close();
+					cursor = getCursorFromGameId(resolver, gameId);
+					if (cursor != null && cursor.moveToFirst()) {
+						return fromCursor(cursor);
+					}
+				}
+			} finally {
+				if (cursor != null) cursor.close();
+			}
+			return NULL;
 		}
-		return ResolverUtils.queryInt(resolver, Collection.buildUri(internalId), columnName, NOT_DIRTY);
+
+		private static Cursor getCursorFromGameId(ContentResolver resolver, int gameId) {
+			Cursor cursor;
+			cursor = resolver.query(Collection.CONTENT_URI,
+				PROJECTION,
+				"collection." + Collection.GAME_ID + "=? AND " +
+					SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID),
+				new String[] { String.valueOf(gameId) },
+				null);
+			return cursor;
+		}
+
+		public static SyncCandidate fromCursor(Cursor cursor) {
+			SyncCandidate candidate = new SyncCandidate();
+			candidate.internalId = CursorUtils.getLong(cursor, Collection._ID, BggContract.INVALID_ID);
+			candidate.dirtyTimestamp = CursorUtils.getLong(cursor, Collection.COLLECTION_DIRTY_TIMESTAMP);
+			candidate.statusDirtyTimestamp = CursorUtils.getLong(cursor, Collection.STATUS_DIRTY_TIMESTAMP);
+			candidate.ratingDirtyTimestamp = CursorUtils.getLong(cursor, Collection.RATING_DIRTY_TIMESTAMP);
+			candidate.commentDirtyTimestamp = CursorUtils.getLong(cursor, Collection.COMMENT_DIRTY_TIMESTAMP);
+			candidate.privateInfoDirtyTimestamp = CursorUtils.getLong(cursor, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP);
+			candidate.wishlistCommentDirtyTimestamp = CursorUtils.getLong(cursor, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
+			candidate.tradeConditionDirtyTimestamp = CursorUtils.getLong(cursor, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
+			candidate.wantPartsDirtyTimestamp = CursorUtils.getLong(cursor, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
+			candidate.hasPartsDirtyTimestamp = CursorUtils.getLong(cursor, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
+			return candidate;
+		}
+
+		public long getInternalId() {
+			return internalId;
+		}
+
+		public long getDirtyTimestamp() {
+			return dirtyTimestamp;
+		}
+
+		public long getStatusDirtyTimestamp() {
+			return statusDirtyTimestamp;
+		}
+
+		public long getRatingDirtyTimestamp() {
+			return ratingDirtyTimestamp;
+		}
+
+		public long getCommentDirtyTimestamp() {
+			return commentDirtyTimestamp;
+		}
+
+		public long getPrivateInfoDirtyTimestamp() {
+			return privateInfoDirtyTimestamp;
+		}
+
+		public long getWishlistCommentDirtyTimestamp() {
+			return wishlistCommentDirtyTimestamp;
+		}
+
+		public long getTradeConditionDirtyTimestamp() {
+			return tradeConditionDirtyTimestamp;
+		}
+
+		public long getWantPartsDirtyTimestamp() {
+			return wantPartsDirtyTimestamp;
+		}
+
+		public long getHasPartsDirtyTimestamp() {
+			return hasPartsDirtyTimestamp;
+		}
 	}
 }

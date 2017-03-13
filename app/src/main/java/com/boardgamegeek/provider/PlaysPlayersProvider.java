@@ -35,7 +35,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 				builder = new SelectionBuilder()
 					.table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
 					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
-					.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
+					.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY)
 					.map(Plays.SUM_WINS, "SUM(CASE WHEN " + PlayPlayers.WIN + "=1 THEN " + Plays.QUANTITY + " ELSE 0 END)")
 					.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
 					.groupBy(PlayPlayers.UNIQUE_NAME);
@@ -44,7 +44,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 				builder = new SelectionBuilder()
 					.table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
 					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
-					.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
+					.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY)
 					.map(Plays.SUM_WINS, "SUM(CASE WHEN " + PlayPlayers.WIN + "=1 THEN " + Plays.QUANTITY + " ELSE 0 END)")
 					.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
 					.groupBy(PlayPlayers.NAME + "," + PlayPlayers.USER_NAME);
@@ -53,7 +53,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 				builder = new SelectionBuilder()
 					.table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
 					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
-					.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
+					.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY)
 					.map(Plays.SUM_WINS, "SUM(CASE WHEN " + PlayPlayers.WIN + "=1 THEN " + Plays.QUANTITY + " ELSE 0 END)")
 					.where(PlayPlayers.USER_NAME + "!=''")
 					.groupBy(PlayPlayers.USER_NAME);

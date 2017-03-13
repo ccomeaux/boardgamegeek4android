@@ -146,7 +146,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case PLAY_COUNT_TOKEN:
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_SIMPLE_URI,
-					new String[] { "SUM(" + Plays.QUANTITY + ")" },
+					new String[] { Plays.SUM_QUANTITY },
 					null, null, null);
 				break;
 			case PLAYERS_TOKEN:

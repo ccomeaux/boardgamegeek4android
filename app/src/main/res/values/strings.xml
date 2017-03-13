@@ -274,6 +274,7 @@
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status_">Collection status…</string>
 	<string name="menu_collection_status">Collection Status</string>
+	<string name="menu_collection_name">Collection Name</string>
 	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="title_add_a_copy">Add a Copy</string>
@@ -286,6 +287,7 @@
 	<string name="collection_sort_my_rating">My Rating</string>
 	<string name="collection_sort_play_count_asc">Least Played</string>
 	<string name="collection_sort_play_count_desc">Most Played</string>
+	<string name="collection_sort_play_date_max">Last Played On</string>
 	<string name="collection_sort_play_time">Play Time</string>
 	<string name="collection_sort_rank">Rank</string>
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
@@ -544,6 +546,8 @@
 	<string name="plays_sync_status_new">Played have been synced through %s.</string>
 	<string name="plays_sync_status_old">Played have been synced since %s.</string>
 	<string name="plays_sync_status_range">Played have been synced between %1$s and %2$s.</string>
+	<string name="starts_with">Starts with</string>
+	<string name="msg_collection_sort_play_date">Note that this will show only one copy of each game, even if you have multiple copies in your collection.</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

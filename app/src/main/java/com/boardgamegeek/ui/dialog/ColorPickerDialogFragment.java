@@ -161,7 +161,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		tryBindLists();
 		divider.setVisibility(featuredColors == null ? View.GONE : View.VISIBLE);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert).setView(rootView);
 		if (titleResId > 0) {
 			builder.setTitle(titleResId);
 		}

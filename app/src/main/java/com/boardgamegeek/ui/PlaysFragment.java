@@ -678,7 +678,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	private interface SumQuery {
 		int _TOKEN = 0x23;
-		String[] PROJECTION = { "SUM(" + Plays.QUANTITY + ")" };
+		String[] PROJECTION = { Plays.SUM_QUANTITY };
 		int TOTAL_COUNT = 0;
 	}
 
