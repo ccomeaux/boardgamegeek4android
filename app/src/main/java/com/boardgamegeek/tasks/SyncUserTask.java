@@ -1,13 +1,17 @@
 package com.boardgamegeek.tasks;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.PresentationUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -40,6 +44,14 @@ public class SyncUserTask extends SyncTask {
 					return String.format("Invalid user '%s'", username);
 				}
 				persister.save(user);
+
+				Account account = Authenticator.getAccount(context);
+				if (account != null && username.equals(account.name)) {
+					AccountUtils.setUsername(context, user.name);
+					AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName));
+					AccountUtils.setAvatarUrl(context, user.avatarUrl);
+				}
+
 				Timber.i("Synced user '%s'", username);
 			} else {
 				return String.format("Unsuccessful user fetch with HTTP response code: %s", response.code());
