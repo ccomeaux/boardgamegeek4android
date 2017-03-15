@@ -32,52 +32,38 @@ public class BuddyPersister {
 		return updateTime;
 	}
 
-	public int save(User buddy) {
-		List<User> buddies = new ArrayList<>(1);
-		buddies.add(buddy);
-		return save(buddies);
-	}
-
-	public int save(List<User> buddies) {
+	public int saveUser(User buddy) {
 		ContentResolver resolver = context.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		StringBuilder debugMessage = new StringBuilder();
-		if (buddies != null) {
-			for (User buddy : buddies) {
-				if (!TextUtils.isEmpty(buddy.name)) {
-					Uri uri = Buddies.buildBuddyUri(buddy.name);
-					ContentValues values = new ContentValues();
-					values.put(Buddies.UPDATED, updateTime);
-					int oldSyncHashCode = ResolverUtils.queryInt(resolver, uri, Buddies.SYNC_HASH_CODE);
-					int newSyncHashCode = generateSyncHashCode(buddy);
-					if (oldSyncHashCode != newSyncHashCode) {
-						values.put(Buddies.BUDDY_ID, buddy.getId());
-						values.put(Buddies.BUDDY_NAME, buddy.name);
-						values.put(Buddies.BUDDY_FIRSTNAME, buddy.firstName);
-						values.put(Buddies.BUDDY_LASTNAME, buddy.lastName);
-						values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
-						values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
-					}
-					debugMessage.append("Saving ").append(uri).append("; ");
-					addToBatch(resolver, values, batch, uri, debugMessage);
-				}
+		if (buddy != null && !TextUtils.isEmpty(buddy.name)) {
+			Uri uri = Buddies.buildBuddyUri(buddy.name);
+			ContentValues values = new ContentValues();
+			values.put(Buddies.UPDATED, updateTime);
+			int oldSyncHashCode = ResolverUtils.queryInt(resolver, uri, Buddies.SYNC_HASH_CODE);
+			int newSyncHashCode = generateSyncHashCode(buddy);
+			if (oldSyncHashCode != newSyncHashCode) {
+				values.put(Buddies.BUDDY_ID, buddy.getId());
+				values.put(Buddies.BUDDY_NAME, buddy.name);
+				values.put(Buddies.BUDDY_FIRSTNAME, buddy.firstName);
+				values.put(Buddies.BUDDY_LASTNAME, buddy.lastName);
+				values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
+				values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
 			}
+			debugMessage.append("Saving ").append(uri).append("; ");
+			addToBatch(resolver, values, batch, uri, debugMessage);
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch, debugMessage.toString());
-		if (result == null) {
-			return 0;
-		} else {
-			return result.length;
-		}
+		return result == null ? 0 : result.length;
 	}
 
-	public int saveList(Buddy buddy) {
+	public int saveBuddy(Buddy buddy) {
 		List<Buddy> buddies = new ArrayList<>(1);
 		buddies.add(buddy);
-		return saveList(buddies);
+		return saveBuddies(buddies);
 	}
 
-	public int saveList(List<Buddy> buddies) {
+	public int saveBuddies(List<Buddy> buddies) {
 		ContentResolver resolver = context.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		StringBuilder debugMessage = new StringBuilder();
@@ -90,11 +76,7 @@ public class BuddyPersister {
 			}
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch, debugMessage.toString());
-		if (result == null) {
-			return 0;
-		} else {
-			return result.length;
-		}
+		return result == null ? 0 : result.length;
 	}
 
 	private void addToBatch(ContentResolver resolver, ContentValues values, ArrayList<ContentProviderOperation> batch, Uri uri, StringBuilder debugMessage) {

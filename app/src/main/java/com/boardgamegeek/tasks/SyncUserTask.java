@@ -44,7 +44,7 @@ public class SyncUserTask extends SyncTask {
 				if (user == null || user.getId() == 0 || user.getId() == BggContract.INVALID_ID) {
 					return String.format("Invalid user '%s'", username);
 				}
-				persister.save(user);
+				persister.saveUser(user);
 
 				Account account = Authenticator.getAccount(context);
 				if (account != null && username.equals(account.name)) {
