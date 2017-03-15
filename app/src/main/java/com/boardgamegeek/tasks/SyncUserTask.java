@@ -23,19 +23,20 @@ import timber.log.Timber;
 
 public class SyncUserTask extends SyncTask {
 	private final String username;
+	private final Call<User> call;
 
 	public SyncUserTask(Context context, String username) {
 		super(context);
 		this.username = username;
+		BggService bggService = Adapter.createForXml();
+		call = bggService.user(username);
 	}
 
 	@Override
 	protected String doInBackground() {
 		if (TextUtils.isEmpty(username)) return "Tried to sync an unknown user.";
 
-		BggService bggService = Adapter.createForXml();
 		try {
-			Call<User> call = bggService.user(username);
 			Response<User> response = call.execute();
 			if (response.isSuccessful()) {
 				BuddyPersister persister = new BuddyPersister(context);
@@ -61,6 +62,11 @@ public class SyncUserTask extends SyncTask {
 			return (e.getLocalizedMessage());
 		}
 		return "";
+	}
+
+	@Override
+	protected void onCancelled() {
+		if (call != null) call.cancel();
 	}
 
 	@Override
