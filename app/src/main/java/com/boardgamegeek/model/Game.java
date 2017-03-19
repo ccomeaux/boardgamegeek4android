@@ -245,7 +245,7 @@ public class Game {
 		return StringUtils.parseInt(minage, 0);
 	}
 
-	@ElementList(inline = true) private List<Link> links;
+	@ElementList(inline = true, required = false) private List<Link> links;
 
 	@Element(name = "statistics", required = false) public Statistics statistics;
 
