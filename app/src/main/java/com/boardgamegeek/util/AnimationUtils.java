@@ -16,10 +16,12 @@ public class AnimationUtils {
 	}
 
 	public static void fadeIn(final View view) {
+		if (view == null || view.getVisibility() == View.VISIBLE) return;
 		fadeIn(view.getContext(), view, true);
 	}
 
 	public static void fadeIn(final View view, boolean animate) {
+		if (view == null || view.getVisibility() == View.VISIBLE) return;
 		fadeIn(view.getContext(), view, animate);
 	}
 
@@ -35,13 +37,12 @@ public class AnimationUtils {
 	}
 
 	public static void fadeOut(final View view) {
+		if (view == null || view.getVisibility() != View.VISIBLE) return;
 		fadeOut(view.getContext(), view, true);
 	}
 
 	private static void fadeOut(Context context, final View view, boolean animate) {
-		if (view == null || view.getVisibility() != View.VISIBLE) {
-			return;
-		}
+		if (view == null || view.getVisibility() != View.VISIBLE) return;
 		if (animate) {
 			final Animation animation = android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
 			animation.setAnimationListener(new AnimationListener() {

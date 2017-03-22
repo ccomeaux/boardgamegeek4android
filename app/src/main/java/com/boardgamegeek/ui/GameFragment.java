@@ -574,7 +574,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private boolean shouldShowCollection() {
-		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncStatuses(getContext()).length > 0;
+		String[] syncStatuses = PreferencesUtils.getSyncStatuses(getContext());
+		return Authenticator.isSignedIn(getActivity()) && syncStatuses != null && syncStatuses.length > 0;
 	}
 
 	@DebugLog
