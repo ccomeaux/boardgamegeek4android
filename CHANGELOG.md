@@ -5,6 +5,10 @@ Coming Soon...
 --------------
  * Bug fixes
 
+Version 6.4.1
+-------------
+ * Bug fixes
+
 Version 6.4
 -----------
  * Filter collection by collection name
