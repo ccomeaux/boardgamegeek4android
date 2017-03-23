@@ -164,10 +164,13 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					null, null, locationsSorter.getOrderByClause());
 				break;
 			case COLORS_TOKEN:
-				loader = new CursorLoader(getActivity(),
-					PlayerColors.buildUserUri(AccountUtils.getUsername(getActivity())),
-					PlayerColor.PROJECTION,
-					null, null, null);
+				String username = AccountUtils.getUsername(getActivity());
+				if (!TextUtils.isEmpty(username)) {
+					loader = new CursorLoader(getActivity(),
+						PlayerColors.buildUserUri(username),
+						PlayerColor.PROJECTION,
+						null, null, null);
+				}
 				break;
 		}
 		return loader;
