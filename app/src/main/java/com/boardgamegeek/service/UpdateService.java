@@ -55,16 +55,21 @@ public class UpdateService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		Timber.d("onHandleIntent(intent=" + intent + ")");
+		if (intent == null) {
+			Timber.i("Null intent");
+			return;
+		}
 
+		Timber.d("onHandleIntent(intent=%s)", intent);
+		if (!Intent.ACTION_SYNC.equals(intent.getAction())) {
+			Timber.w("Invalid intent action: %s", intent.getAction());
+			return;
+		}
 		if (NetworkUtils.isOffline(getApplicationContext())) {
 			Timber.i("Skipping update; offline");
 			return;
 		}
-		if (!Intent.ACTION_SYNC.equals(intent.getAction())) {
-			Timber.w("Invalid intent action: " + intent.getAction());
-			return;
-		}
+
 		int syncType = intent.getIntExtra(KEY_SYNC_TYPE, SYNC_TYPE_UNKNOWN);
 		int syncId = intent.getIntExtra(KEY_SYNC_ID, BggContract.INVALID_ID);
 		String syncKey = intent.getStringExtra(KEY_SYNC_KEY);
@@ -97,7 +102,7 @@ public class UpdateService extends IntentService {
 	}
 
 	private void signalEnd(long startTime) {
-		Timber.d("Sync took " + (System.currentTimeMillis() - startTime) + "ms");
+		Timber.d("Sync took %,d ms", System.currentTimeMillis() - startTime);
 		EventBus.getDefault().removeStickyEvent(UpdateEvent.class);
 		EventBus.getDefault().post(new UpdateCompleteEvent());
 	}
