@@ -1153,28 +1153,52 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		public void notifyPlayersChanged() {
-			notifyLayoutChanged(R.layout.row_log_play_player_header);
-			notifyItemRangeChanged(headerResources.size(), play.getPlayerCount());
+			new Handler().post(
+				new Runnable() {
+					@Override
+					public void run() {
+						notifyLayoutChanged(R.layout.row_log_play_player_header);
+						notifyItemRangeChanged(headerResources.size(), play.getPlayerCount());
+					}
+				});
 			maybeShowNotification();
 		}
 
-		public void notifyPlayerChanged(int playerPosition) {
-			notifyItemChanged(headerResources.size() + playerPosition);
+		public void notifyPlayerChanged(final int playerPosition) {
+			new Handler().post(
+				new Runnable() {
+					@Override
+					public void run() {
+						notifyItemChanged(headerResources.size() + playerPosition);
+					}
+				});
 		}
 
-		public void notifyPlayerAdded(int playerPosition) {
-			notifyLayoutChanged(R.layout.row_log_play_player_header);
-			final int position = headerResources.size() + playerPosition;
-			notifyItemInserted(position);
-			notifyItemRangeChanged(position + 1, getItemCount() - position);
+		public void notifyPlayerAdded(final int playerPosition) {
+			new Handler().post(
+				new Runnable() {
+					@Override
+					public void run() {
+						notifyLayoutChanged(R.layout.row_log_play_player_header);
+						final int position = headerResources.size() + playerPosition;
+						notifyItemInserted(position);
+						notifyItemRangeChanged(position + 1, getItemCount() - position);
+					}
+				});
 			maybeShowNotification();
 		}
 
-		public void notifyPlayerRemoved(int playerPosition) {
-			notifyLayoutChanged(R.layout.row_log_play_player_header);
-			final int position = headerResources.size() + playerPosition;
-			notifyItemRemoved(position);
-			notifyItemRangeChanged(position, play.getPlayerCount() - playerPosition);
+		public void notifyPlayerRemoved(final int playerPosition) {
+			new Handler().post(
+				new Runnable() {
+					@Override
+					public void run() {
+						notifyLayoutChanged(R.layout.row_log_play_player_header);
+						final int position = headerResources.size() + playerPosition;
+						notifyItemRemoved(position);
+						notifyItemRangeChanged(position, play.getPlayerCount() - playerPosition);
+					}
+				});
 			maybeShowNotification();
 		}
 
@@ -1195,9 +1219,15 @@ public class LogPlayActivity extends AppCompatActivity {
 		}
 
 		public void insertRow(@LayoutRes int layoutResId) {
-			int position = findPositionOfNewItemType(layoutResId);
+			final int position = findPositionOfNewItemType(layoutResId);
 			if (position != -1) {
-				notifyItemInserted(position);
+				new Handler().post(
+					new Runnable() {
+						@Override
+						public void run() {
+							notifyItemInserted(position);
+						}
+					});
 				recyclerView.smoothScrollToPosition(position);
 				// TODO focus field
 			}
