@@ -177,10 +177,11 @@ public class CollectionItem {
 	}
 
 	public String gameSortName() {
+		// the sort index is only accurate if the original name is missing
 		if (TextUtils.isEmpty(originalname)) {
 			return StringUtils.createSortName(name, sortindex);
 		} else {
-			return StringUtils.createSortName(originalname, sortindex);
+			return name;
 		}
 	}
 
