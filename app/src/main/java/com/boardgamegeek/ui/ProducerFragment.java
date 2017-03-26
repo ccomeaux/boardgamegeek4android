@@ -22,9 +22,11 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.SyncPublisherTask;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -41,7 +43,6 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	private Uri uri;
 	private int token;
 	private int id;
-	private boolean isSyncing;
 
 	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -150,7 +151,12 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 	@DebugLog
 	private void triggerRefresh() {
-		UpdateService.start(getActivity(), token, id);
+		if (token == PublisherQuery._TOKEN) {
+			TaskUtils.executeAsyncTask(new SyncPublisherTask(getContext(), id));
+			updateRefreshStatus(true);
+		} else {
+			UpdateService.start(getActivity(), token, id);
+		}
 	}
 
 	@Override
@@ -167,20 +173,18 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateEvent event) {
-		isSyncing = event.getType() == token;
-		updateRefreshStatus();
+		updateRefreshStatus(event.getType() == token);
 	}
 
 	@DebugLog
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateCompleteEvent event) {
-		isSyncing = false;
-		updateRefreshStatus();
+		updateRefreshStatus(false);
 	}
 
 	@DebugLog
-	private void updateRefreshStatus() {
+	private void updateRefreshStatus(final boolean isSyncing) {
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
@@ -188,6 +192,15 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPublisherTask.Event event) {
+		if (event.getPublisherId() == id) {
+			updateRefreshStatus(false);
 		}
 	}
 
@@ -200,8 +213,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 	private interface DesignerQuery extends Query {
 		int _TOKEN = UpdateService.SYNC_TYPE_DESIGNER;
-		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers.DESIGNER_DESCRIPTION,
-			Designers.UPDATED };
+		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers.DESIGNER_DESCRIPTION, Designers.UPDATED };
 	}
 
 	private interface ArtistQuery extends Query {
@@ -210,8 +222,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	}
 
 	private interface PublisherQuery extends Query {
-		int _TOKEN = UpdateService.SYNC_TYPE_PUBLISHER;
-		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers.PUBLISHER_DESCRIPTION,
-			Publishers.UPDATED };
+		int _TOKEN = 99;
+		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers.PUBLISHER_DESCRIPTION, Publishers.UPDATED };
 	}
 }

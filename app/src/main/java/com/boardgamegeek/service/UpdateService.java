@@ -31,7 +31,6 @@ public class UpdateService extends IntentService {
 	public static final int SYNC_TYPE_GAME_COLLECTION = 3;
 	public static final int SYNC_TYPE_DESIGNER = 10;
 	public static final int SYNC_TYPE_ARTIST = 11;
-	public static final int SYNC_TYPE_PUBLISHER = 12;
 	public static final int SYNC_TYPE_PLAYS_DATE = 20;
 	private static final int SYNC_TYPE_UNKNOWN = 0;
 
@@ -123,9 +122,6 @@ public class UpdateService extends IntentService {
 				break;
 			case SYNC_TYPE_ARTIST:
 				task = new SyncArtist(syncId);
-				break;
-			case SYNC_TYPE_PUBLISHER:
-				task = new SyncPublisher(syncId);
 				break;
 			case SYNC_TYPE_PLAYS_DATE:
 				task = new SyncPlaysByDate(syncKey);
