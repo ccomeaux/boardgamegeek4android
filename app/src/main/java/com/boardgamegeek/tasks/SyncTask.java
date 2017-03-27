@@ -22,11 +22,14 @@ import timber.log.Timber;
 public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void, String> {
 	protected final Context context;
 	protected final BggService bggService;
-	protected Call<T> call;
+	protected final long startTime;
+	private Call<T> call;
+	private int page = 1;
 
 	SyncTask(Context context) {
 		this.context = context;
 		bggService = Adapter.createForXml();
+		startTime = System.currentTimeMillis();
 	}
 
 	@DebugLog
@@ -36,20 +39,27 @@ public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void,
 			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));
 		if (NetworkUtils.isOffline(context)) return context.getString(R.string.msg_offline);
 		try {
-			call = createCall();
-			Response<T> response = call.execute();
-			if (response.isSuccessful()) {
-				if (isResponseBodyValid(response.body())) {
-					persistResponse(response.body());
+			boolean hasMorePages;
+			page = 0;
+			do {
+				page++;
+				call = createCall();
+				Response<T> response = call.execute();
+				if (response.isSuccessful()) {
+					if (isResponseBodyValid(response.body())) {
+						persistResponse(response.body());
+					} else {
+						return context.getString(R.string.msg_update_invalid_response,
+							context.getString(getTypeDescriptionResId())); // TODO: 3/26/17 include key
+					}
 				} else {
-					return context.getString(R.string.msg_update_invalid_response,
-						context.getString(getTypeDescriptionResId())); // TODO: 3/26/17 include key
+					return context.getString(R.string.msg_update_unsuccessful_response,
+						context.getString(getTypeDescriptionResId()),
+						response.code());
 				}
-			} else {
-				return context.getString(R.string.msg_update_unsuccessful_response,
-					context.getString(getTypeDescriptionResId()),
-					response.code());
-			}
+				hasMorePages = hasMorePages(response.body());
+			} while (hasMorePages);
+			finishSync();
 		} catch (IOException e) {
 			Timber.w(e,
 				context.getString(R.string.msg_update_exception),
@@ -71,6 +81,10 @@ public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void,
 		if (call != null) call.cancel();
 	}
 
+	protected int getCurrentPage(){
+		return page;
+	}
+
 	@StringRes
 	protected abstract int getTypeDescriptionResId();
 
@@ -85,6 +99,13 @@ public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void,
 	}
 
 	protected abstract void persistResponse(T body);
+
+	protected boolean hasMorePages(T body) {
+		return false;
+	}
+
+	protected void finishSync() {
+	}
 
 	protected abstract E createEvent(String errorMessage);
 

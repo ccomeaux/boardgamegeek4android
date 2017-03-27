@@ -46,6 +46,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
+import com.boardgamegeek.tasks.SyncPlaysByDateTask;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -56,6 +57,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
 import com.boardgamegeek.util.fabric.SortEvent;
@@ -278,7 +280,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateEvent event) {
-		isSyncing((event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.getType() == UpdateService.SYNC_TYPE_PLAYS_DATE));
+		isSyncing(event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS);
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPlaysByDateTask.Event event) {
+		isSyncing(false);
 	}
 
 	@SuppressWarnings({ "UnusedParameters", "unused" })
@@ -365,18 +374,19 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		@NonNull
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			final Calendar calendar = Calendar.getInstance();
-			return new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+			return new DatePickerDialog(getActivity(), this,
+				calendar.get(Calendar.YEAR),
+				calendar.get(Calendar.MONTH),
 				calendar.get(Calendar.DAY_OF_MONTH));
 		}
 
 		public void onDateSet(DatePicker view, int year, int month, int day) {
-			if (alreadyCalled) {
-				return;
-			}
+			if (alreadyCalled) return;
 			alreadyCalled = true;
 
+			// TODO: 3/27/17 show refreshing icon
 			String date = DateTimeUtils.formatDateForApi(year, month, day);
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_DATE, date);
+			TaskUtils.executeAsyncTask(new SyncPlaysByDateTask(getContext(), date));
 		}
 	}
 
