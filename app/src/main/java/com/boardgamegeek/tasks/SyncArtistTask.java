@@ -42,11 +42,6 @@ public class SyncArtistTask extends SyncTask<Person, Event> {
 	}
 
 	@Override
-	protected boolean isResponseBodyValid(Person artist) {
-		return artist != null;
-	}
-
-	@Override
 	protected void persistResponse(Person artist) {
 		Uri uri = Artists.buildArtistUri(artistId);
 		context.getContentResolver().update(uri, toValues(artist), null, null);

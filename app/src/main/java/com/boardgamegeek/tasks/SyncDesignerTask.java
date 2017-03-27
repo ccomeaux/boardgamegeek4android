@@ -42,11 +42,6 @@ public class SyncDesignerTask extends SyncTask<Person, Event> {
 	}
 
 	@Override
-	protected boolean isResponseBodyValid(Person designer) {
-		return designer != null;
-	}
-
-	@Override
 	protected void persistResponse(Person designer) {
 		Uri uri = Designers.buildDesignerUri(designerId);
 		context.getContentResolver().update(uri, toValues(designer), null, null);

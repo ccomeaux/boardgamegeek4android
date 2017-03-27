@@ -43,7 +43,9 @@ public class SyncUserTask extends SyncTask<User, Event> {
 
 	@Override
 	protected boolean isResponseBodyValid(User user) {
-		return user != null && user.getId() != 0 && user.getId() != BggContract.INVALID_ID;
+		return super.isResponseBodyValid(user) &&
+			user.getId() != 0 &&
+			user.getId() != BggContract.INVALID_ID;
 	}
 
 	@Override

@@ -42,11 +42,6 @@ public class SyncPublisherTask extends SyncTask<Company, Event> {
 	}
 
 	@Override
-	protected boolean isResponseBodyValid(Company company) {
-		return company != null;
-	}
-
-	@Override
 	protected void persistResponse(Company company) {
 		Uri uri = Publishers.buildPublisherUri(publisherId);
 		context.getContentResolver().update(uri, toValues(company), null, null);

@@ -80,7 +80,9 @@ public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void,
 		return context != null;
 	}
 
-	protected abstract boolean isResponseBodyValid(T body);
+	protected boolean isResponseBodyValid(T body) {
+		return body != null;
+	}
 
 	protected abstract void persistResponse(T body);
 
