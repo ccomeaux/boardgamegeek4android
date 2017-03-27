@@ -6,64 +6,54 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Publishers;
-
-import org.greenrobot.eventbus.EventBus;
-
-import java.io.IOException;
+import com.boardgamegeek.tasks.SyncPublisherTask.Event;
 
 import retrofit2.Call;
-import retrofit2.Response;
 import timber.log.Timber;
 
-public class SyncPublisherTask extends SyncTask {
-	private final Call<Company> call;
+public class SyncPublisherTask extends SyncTask<Company, Event> {
 	private final int publisherId;
 
 	public SyncPublisherTask(Context context, int publisherId) {
 		super(context);
 		this.publisherId = publisherId;
-		BggService bggService = Adapter.createForXml();
-		call = bggService.company(BggService.COMPANY_TYPE_PUBLISHER, publisherId);
 	}
 
 	@Override
-	protected String doInBackground() {
-		if (publisherId == BggContract.INVALID_ID) return "Tried to sync an unknown publisher.";
-
-		try {
-			Response<Company> response = call.execute();
-			if (response.isSuccessful()) {
-				Company company = response.body();
-				if (company == null) {
-					return String.format("Invalid publisher '%s'", publisherId);
-				}
-				Uri uri = Publishers.buildPublisherUri(publisherId);
-				context.getContentResolver().update(uri, toValues(company), null, null);
-				Timber.i("Synced Publisher: %s", publisherId);
-			} else {
-				return String.format("Unsuccessful publisher fetch with HTTP response code: %s", response.code());
-			}
-		} catch (IOException e) {
-			Timber.w(e, "Unsuccessful publisher fetch");
-			return (e.getLocalizedMessage());
-		}
-		return "";
+	protected String getTypeDescription() {
+		return "publisher";
 	}
 
 	@Override
-	protected void onCancelled() {
-		if (call != null) call.cancel();
+	protected Call<Company> createCall() {
+		return bggService.company(BggService.COMPANY_TYPE_PUBLISHER, publisherId);
 	}
 
 	@Override
-	protected void onPostExecute(String errorMessage) {
-		Timber.w(errorMessage);
-		EventBus.getDefault().post(new SyncPublisherTask.Event(errorMessage, publisherId));
+	protected boolean isRequestParamsValid() {
+		return publisherId != BggContract.INVALID_ID;
+	}
+
+	@Override
+	protected boolean isResponseBodyValid(Company company) {
+		return company != null;
+	}
+
+	@Override
+	protected void persistResponse(Company company) {
+		Uri uri = Publishers.buildPublisherUri(publisherId);
+		context.getContentResolver().update(uri, toValues(company), null, null);
+		Timber.i("Synced publisher: %s", publisherId);
+	}
+
+	@NonNull
+	@Override
+	protected Event createEvent(String errorMessage) {
+		return new Event(errorMessage, publisherId);
 	}
 
 	@NonNull
@@ -75,17 +65,12 @@ public class SyncPublisherTask extends SyncTask {
 		return values;
 	}
 
-	public class Event {
-		private final String errorMessage;
+	public class Event extends SyncTask.Event {
 		private final int publisherId;
 
 		public Event(String errorMessage, int publisherId) {
-			this.errorMessage = errorMessage;
+			super(errorMessage);
 			this.publisherId = publisherId;
-		}
-
-		public String getErrorMessage() {
-			return errorMessage;
 		}
 
 		public int getPublisherId() {
