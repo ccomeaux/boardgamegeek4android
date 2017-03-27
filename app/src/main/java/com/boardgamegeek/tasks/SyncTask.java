@@ -2,7 +2,9 @@ package com.boardgamegeek.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.StringRes;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.tasks.SyncTask.Event;
@@ -30,9 +32,9 @@ abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void, String
 	@DebugLog
 	@Override
 	protected String doInBackground(Void... params) {
-		if (context == null) return "Null context";
-		if (NetworkUtils.isOffline(context)) return "Offline";
-		if (!isRequestParamsValid()) return String.format("Tried to sync an unknown %s.", getTypeDescription());
+		if (!isRequestParamsValid())
+			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));
+		if (NetworkUtils.isOffline(context)) return context.getString(R.string.msg_offline);
 		try {
 			call = createCall();
 			Response<T> response = call.execute();
@@ -40,13 +42,19 @@ abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void, String
 				if (isResponseBodyValid(response.body())) {
 					persistResponse(response.body());
 				} else {
-					return String.format("Invalid %s received", getTypeDescription()); // TODO: 3/26/17 include key
+					return context.getString(R.string.msg_update_invalid_response,
+						context.getString(getTypeDescriptionResId())); // TODO: 3/26/17 include key
 				}
 			} else {
-				return String.format("Unsuccessful %s fetch with HTTP response code: %s", getTypeDescription(), response.code());
+				return context.getString(R.string.msg_update_unsuccessful_response,
+					context.getString(getTypeDescriptionResId()),
+					response.code());
 			}
 		} catch (IOException e) {
-			Timber.w(e, "Unsuccessful %s fetch", getTypeDescription());
+			Timber.w(e,
+				context.getString(R.string.msg_update_exception),
+				context.getString(getTypeDescriptionResId()),
+				e.getMessage());
 			return (e.getLocalizedMessage());
 		}
 		return "";
@@ -63,11 +71,14 @@ abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void, String
 		if (call != null) call.cancel();
 	}
 
-	protected abstract String getTypeDescription();
+	@StringRes
+	protected abstract int getTypeDescriptionResId();
 
 	protected abstract Call<T> createCall();
 
-	protected abstract boolean isRequestParamsValid();
+	protected boolean isRequestParamsValid() {
+		return context != null;
+	}
 
 	protected abstract boolean isResponseBodyValid(T body);
 

@@ -165,6 +165,7 @@
 	<string name="title_designer">Designer</string>
 	<string name="title_artist">Artist</string>
 	<string name="title_publisher">Publisher</string>
+	<string name="title_user">User</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_edit_location">Edit Location</string>
@@ -548,6 +549,11 @@
 	<string name="plays_sync_status_range">Played have been synced between %1$s and %2$s.</string>
 	<string name="starts_with">Starts with</string>
 	<string name="msg_collection_sort_play_date">Note that this will show only one copy of each game, even if you have multiple copies in your collection.</string>
+	<string name="msg_offline">Offline</string>
+	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
+	<string name="msg_update_invalid_response">Invalid %s received</string>
+	<string name="msg_update_unsuccessful_response">Unsuccessful fetching %1$s with HTTP response code: %2$d</string>
+	<string name="msg_update_exception">Exception fetching %1$s: %2$s</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

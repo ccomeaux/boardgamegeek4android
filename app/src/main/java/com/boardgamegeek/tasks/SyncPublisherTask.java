@@ -5,7 +5,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.provider.BggContract;
@@ -24,8 +26,9 @@ public class SyncPublisherTask extends SyncTask<Company, Event> {
 	}
 
 	@Override
-	protected String getTypeDescription() {
-		return "publisher";
+	@StringRes
+	protected int getTypeDescriptionResId() {
+		return R.string.title_publisher;
 	}
 
 	@Override
@@ -35,7 +38,7 @@ public class SyncPublisherTask extends SyncTask<Company, Event> {
 
 	@Override
 	protected boolean isRequestParamsValid() {
-		return publisherId != BggContract.INVALID_ID;
+		return super.isRequestParamsValid() && publisherId != BggContract.INVALID_ID;
 	}
 
 	@Override

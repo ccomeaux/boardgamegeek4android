@@ -2,8 +2,10 @@ package com.boardgamegeek.tasks;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.model.User;
@@ -24,8 +26,9 @@ public class SyncUserTask extends SyncTask<User, Event> {
 	}
 
 	@Override
-	protected String getTypeDescription() {
-		return "user";
+	@StringRes
+	protected int getTypeDescriptionResId() {
+		return R.string.title_user;
 	}
 
 	@Override
@@ -35,7 +38,7 @@ public class SyncUserTask extends SyncTask<User, Event> {
 
 	@Override
 	protected boolean isRequestParamsValid() {
-		return !TextUtils.isEmpty(username);
+		return super.isRequestParamsValid() && !TextUtils.isEmpty(username);
 	}
 
 	@Override
