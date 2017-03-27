@@ -19,7 +19,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import timber.log.Timber;
 
-abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void, String> {
+public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void, String> {
 	protected final Context context;
 	protected final BggService bggService;
 	protected Call<T> call;

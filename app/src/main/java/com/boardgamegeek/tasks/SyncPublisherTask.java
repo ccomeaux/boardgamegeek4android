@@ -50,7 +50,7 @@ public class SyncPublisherTask extends SyncTask<Company, Event> {
 	protected void persistResponse(Company company) {
 		Uri uri = Publishers.buildPublisherUri(publisherId);
 		context.getContentResolver().update(uri, toValues(company), null, null);
-		Timber.i("Synced publisher: %s", publisherId);
+		Timber.i("Synced publisher '%s'", publisherId);
 	}
 
 	@NonNull
