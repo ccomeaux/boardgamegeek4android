@@ -33,14 +33,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
@@ -50,6 +49,7 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
@@ -74,7 +74,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private static final int PLAY_QUERY_TOKEN = 0x01;
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
 
-	private boolean isSyncing;
 	private long internalId = BggContract.INVALID_ID;
 	private Play play = new Play();
 	private String thumbnailUrl;
@@ -280,27 +279,16 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		triggerRefresh();
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateEvent event) {
-		if (event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) {
-			isSyncing = true;
-			updateRefreshStatus();
-		}
-	}
-
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(UpdateCompleteEvent event) {
-		isSyncing = false;
-		updateRefreshStatus();
+		updateRefreshStatus(false);
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	private void updateRefreshStatus() {
+	private void updateRefreshStatus(final boolean isSyncing) {
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
@@ -490,7 +478,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void triggerRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, play.gameId);
+		TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), play.gameId));
+		updateRefreshStatus(true);
 	}
 
 	private void save(String action) {

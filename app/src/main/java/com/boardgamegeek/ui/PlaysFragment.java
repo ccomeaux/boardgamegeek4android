@@ -36,17 +36,16 @@ import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.tasks.SyncPlaysByDateTask;
+import com.boardgamegeek.tasks.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -275,12 +274,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateEvent event) {
-		isSyncing(event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS);
 	}
 
 	@SuppressWarnings("unused")
@@ -564,8 +557,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
 				break;
 			case MODE_GAME:
+				isSyncing(true);
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-				UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, gameId);
+				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
 				break;
 		}
 	}

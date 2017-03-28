@@ -56,6 +56,7 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
+import com.boardgamegeek.tasks.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
@@ -565,8 +566,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			playStatsRoot.setVisibility(View.VISIBLE);
 		}
 
-		if (mightNeedRefreshing
-			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
+		if (mightNeedRefreshing &&
+			(game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 		mightNeedRefreshing = false;
@@ -893,7 +894,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int gameId = Games.getGameId(gameUri);
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, gameId);
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, gameId);
+		TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
 	}
 
 	private interface GameQuery {
