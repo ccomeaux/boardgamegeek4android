@@ -54,8 +54,8 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
+import com.boardgamegeek.tasks.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.SyncGameTask;
 import com.boardgamegeek.tasks.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
@@ -893,9 +893,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void triggerRefresh() {
 		mightNeedRefreshing = false;
 		int gameId = Games.getGameId(gameUri);
-		// TODO: 3/28/17 show refresh icon 
+		// TODO: 3/28/17 show refresh icon
 		TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), gameId));
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
+		TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
 		TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
 	}
 

@@ -25,7 +25,7 @@ import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
@@ -450,7 +450,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void triggerRefresh() {
 		mightNeedRefreshing = false;
 		if (gameId != BggContract.INVALID_ID) {
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
 		}
 	}
 

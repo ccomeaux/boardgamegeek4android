@@ -15,11 +15,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemDeletedEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.DeleteCollectionItemTask;
 import com.boardgamegeek.tasks.ResetCollectionItemTask;
 import com.boardgamegeek.util.ActivityUtils;
@@ -171,20 +168,6 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@Override
 	public void onRefresh() {
 		((GameCollectionFragment) getFragment()).triggerRefresh();
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateEvent event) {
-		updateRefreshStatus(event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION);
-	}
-
-	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateCompleteEvent event) {
-		updateRefreshStatus(false);
 	}
 
 	@SuppressWarnings("unused")

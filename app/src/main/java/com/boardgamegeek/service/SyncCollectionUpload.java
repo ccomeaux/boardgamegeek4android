@@ -17,11 +17,13 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.model.CollectionItem;
+import com.boardgamegeek.tasks.SyncCollectionByGameTask;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
+import com.boardgamegeek.util.TaskUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -217,7 +219,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		ContentValues contentValues = new ContentValues();
 		addTask.appendContentValues(contentValues);
 		resolver.update(Collection.buildUri(item.getInternalId()), contentValues, null, null);
-		UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, item.getGameId());
+		TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(context, item.getGameId()));
 		notifySuccess(item, item.getGameId() * -1, R.string.sync_notification_collection_added);
 	}
 
