@@ -22,7 +22,6 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.tasks.SyncArtistTask;
 import com.boardgamegeek.tasks.SyncDesignerTask;
 import com.boardgamegeek.tasks.SyncPublisherTask;
-import com.boardgamegeek.tasks.SyncTask;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -151,16 +150,14 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 	@DebugLog
 	private void triggerRefresh() {
-		SyncTask task = null;
 		if (token == DesignerQuery._TOKEN) {
-			task = new SyncDesignerTask(getContext(), id);
+			TaskUtils.executeAsyncTask(new SyncDesignerTask(getContext(), id));
+			updateRefreshStatus(true);
 		} else if (token == ArtistQuery._TOKEN) {
-			task = new SyncArtistTask(getContext(), id);
+			TaskUtils.executeAsyncTask(new SyncArtistTask(getContext(), id));
+			updateRefreshStatus(true);
 		} else if (token == PublisherQuery._TOKEN) {
-			task = new SyncPublisherTask(getContext(), id);
-		}
-		if (task != null) {
-			TaskUtils.executeAsyncTask(task);
+			TaskUtils.executeAsyncTask(new SyncPublisherTask(getContext(), id));
 			updateRefreshStatus(true);
 		}
 	}
