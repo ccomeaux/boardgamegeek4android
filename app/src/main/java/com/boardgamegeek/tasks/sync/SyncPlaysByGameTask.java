@@ -1,4 +1,4 @@
-package com.boardgamegeek.tasks;
+package com.boardgamegeek.tasks.sync;
 
 
 import android.content.ContentValues;
@@ -15,7 +15,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.SyncPlaysByGameTask.Event;
+import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask.Event;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import hugo.weaving.DebugLog;

@@ -1,4 +1,4 @@
-package com.boardgamegeek.tasks;
+package com.boardgamegeek.tasks.sync;
 
 
 import android.content.Context;
@@ -14,7 +14,7 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.model.persister.CollectionPersister.SaveResults;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.SyncCollectionByGameTask.Event;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.Event;
 
 import retrofit2.Call;
 import timber.log.Timber;

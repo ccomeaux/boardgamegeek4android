@@ -25,7 +25,7 @@ import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.SyncCollectionByGameTask;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;

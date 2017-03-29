@@ -26,7 +26,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
-import com.boardgamegeek.tasks.SyncUserTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;

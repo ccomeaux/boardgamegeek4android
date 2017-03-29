@@ -19,7 +19,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
-import com.boardgamegeek.tasks.SyncUserTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;

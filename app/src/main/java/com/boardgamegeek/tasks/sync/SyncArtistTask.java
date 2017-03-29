@@ -1,4 +1,4 @@
-package com.boardgamegeek.tasks;
+package com.boardgamegeek.tasks.sync;
 
 
 import android.content.ContentValues;
@@ -12,7 +12,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
-import com.boardgamegeek.tasks.SyncArtistTask.Event;
+import com.boardgamegeek.tasks.sync.SyncArtistTask.Event;
 
 import retrofit2.Call;
 import timber.log.Timber;

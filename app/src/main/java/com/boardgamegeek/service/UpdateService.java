@@ -26,7 +26,6 @@ public class UpdateService extends IntentService {
 	private static final String KEY_SYNC_ID = "KEY_SYNC_ID";
 	private static final String KEY_SYNC_KEY = "KEY_SYNC_KEY";
 
-	public static final int SYNC_TYPE_GAME_COLLECTION = 3;
 	private static final int SYNC_TYPE_UNKNOWN = 0;
 
 	public static void start(@NonNull Context context, int type, int id) {
@@ -102,11 +101,6 @@ public class UpdateService extends IntentService {
 	@NonNull
 	private UpdateTask createUpdateTask(int syncType, int syncId, String syncKey) {
 		UpdateTask task = new InvalidUpdateTask(syncType);
-		switch (syncType) {
-			case SYNC_TYPE_GAME_COLLECTION:
-				task = new SyncGameCollection(syncId);
-				break;
-		}
 		return task;
 	}
 

@@ -1,4 +1,4 @@
-package com.boardgamegeek.tasks;
+package com.boardgamegeek.tasks.sync;
 
 
 import android.content.Context;
@@ -11,7 +11,7 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.SyncPlaysByDateTask.Event;
+import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.Event;
 
 import retrofit2.Call;
 import timber.log.Timber;

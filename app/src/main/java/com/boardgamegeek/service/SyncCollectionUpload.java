@@ -17,7 +17,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.model.CollectionItem;
-import com.boardgamegeek.tasks.SyncCollectionByGameTask;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;

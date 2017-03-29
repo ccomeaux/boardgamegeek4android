@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.util.TaskUtils;
 
 public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {

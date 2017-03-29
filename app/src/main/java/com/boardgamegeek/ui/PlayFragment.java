@@ -39,7 +39,7 @@ import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.tasks.SyncPlaysByGameTask;
+import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;

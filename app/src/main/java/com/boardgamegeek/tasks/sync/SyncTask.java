@@ -1,4 +1,4 @@
-package com.boardgamegeek.tasks;
+package com.boardgamegeek.tasks.sync;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,7 +7,7 @@ import android.support.annotation.StringRes;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.tasks.SyncTask.Event;
+import com.boardgamegeek.tasks.sync.SyncTask.Event;
 import com.boardgamegeek.util.NetworkUtils;
 
 import org.greenrobot.eventbus.EventBus;

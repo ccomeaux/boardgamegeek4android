@@ -12,7 +12,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.tasks.SyncPublisherTask;
+import com.boardgamegeek.tasks.sync.SyncPublisherTask;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;

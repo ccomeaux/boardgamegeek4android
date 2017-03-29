@@ -1,4 +1,4 @@
-package com.boardgamegeek.tasks;
+package com.boardgamegeek.tasks.sync;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -11,7 +11,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.SyncUserTask.Event;
+import com.boardgamegeek.tasks.sync.SyncUserTask.Event;
 import com.boardgamegeek.util.PresentationUtils;
 
 import retrofit2.Call;
