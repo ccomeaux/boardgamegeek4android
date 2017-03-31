@@ -11,13 +11,13 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.sync.SyncUserTask.Event;
+import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.util.PresentationUtils;
 
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncUserTask extends SyncTask<User, Event> {
+public class SyncUserTask extends SyncTask<User, CompletedEvent> {
 	private final String username;
 
 	public SyncUserTask(Context context, String username) {
@@ -64,14 +64,14 @@ public class SyncUserTask extends SyncTask<User, Event> {
 	}
 
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage, username);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage, username);
 	}
 
-	public class Event extends SyncTask.Event {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
 		private final String username;
 
-		public Event(String errorMessage, String username) {
+		public CompletedEvent(String errorMessage, String username) {
 			super(errorMessage);
 			this.username = username;
 		}

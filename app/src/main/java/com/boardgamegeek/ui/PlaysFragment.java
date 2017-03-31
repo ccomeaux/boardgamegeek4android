@@ -279,13 +279,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncPlaysByDateTask.Event event) {
+	public void onEvent(SyncPlaysByDateTask.CompletedEvent event) {
 		isSyncing(false);
 	}
 
-	@SuppressWarnings({ "UnusedParameters", "unused" })
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateCompleteEvent event) {
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
 		isSyncing(false);
 	}
 

@@ -14,12 +14,12 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.model.persister.CollectionPersister.SaveResults;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.Event;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
 
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Event> {
+public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, CompletedEvent> {
 	private final int gameId;
 	private final String username;
 	private final CollectionPersister persister;
@@ -92,13 +92,20 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Event
 
 	@NonNull
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage, gameId);
 	}
 
-	public class Event extends SyncTask.Event {
-		public Event(String errorMessage) {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
+		private int gameId;
+
+		public CompletedEvent(String errorMessage, int gameId) {
 			super(errorMessage);
+			this.gameId = gameId;
+		}
+
+		public int getGameId() {
+			return gameId;
 		}
 	}
 }

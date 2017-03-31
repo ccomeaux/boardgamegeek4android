@@ -12,12 +12,12 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.tasks.sync.SyncDesignerTask.Event;
+import com.boardgamegeek.tasks.sync.SyncDesignerTask.CompletedEvent;
 
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncDesignerTask extends SyncTask<Person, Event> {
+public class SyncDesignerTask extends SyncTask<Person, CompletedEvent> {
 	private final int designerId;
 
 	public SyncDesignerTask(Context context, int designerId) {
@@ -50,8 +50,8 @@ public class SyncDesignerTask extends SyncTask<Person, Event> {
 
 	@NonNull
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage, designerId);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage, designerId);
 	}
 
 	@NonNull
@@ -63,10 +63,10 @@ public class SyncDesignerTask extends SyncTask<Person, Event> {
 		return values;
 	}
 
-	public class Event extends SyncTask.Event {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
 		private final int designerId;
 
-		public Event(String errorMessage, int designerId) {
+		public CompletedEvent(String errorMessage, int designerId) {
 			super(errorMessage);
 			this.designerId = designerId;
 		}

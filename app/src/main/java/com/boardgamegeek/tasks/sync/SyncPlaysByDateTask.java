@@ -11,12 +11,12 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.Event;
+import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.CompletedEvent;
 
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, Event> {
+public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent> {
 	private final String date;
 	private final String username;
 
@@ -65,12 +65,12 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, Event> {
 
 	@NonNull
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage);
 	}
 
-	public class Event extends SyncTask.Event {
-		public Event(String errorMessage) {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
+		public CompletedEvent(String errorMessage) {
 			super(errorMessage);
 		}
 	}

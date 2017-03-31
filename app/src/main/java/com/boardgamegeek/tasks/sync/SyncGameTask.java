@@ -9,12 +9,12 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.sync.SyncGameTask.Event;
+import com.boardgamegeek.tasks.sync.SyncGameTask.CompletedEvent;
 
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncGameTask extends SyncTask<ThingResponse, Event> {
+public class SyncGameTask extends SyncTask<ThingResponse, CompletedEvent> {
 	private final int gameId;
 
 	public SyncGameTask(Context context, int gameId) {
@@ -46,14 +46,14 @@ public class SyncGameTask extends SyncTask<ThingResponse, Event> {
 
 	@NonNull
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage, gameId);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage, gameId);
 	}
 
-	public class Event extends SyncTask.Event {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
 		private final int gameId;
 
-		public Event(String errorMessage, int gameId) {
+		public CompletedEvent(String errorMessage, int gameId) {
 			super(errorMessage);
 			this.gameId = gameId;
 		}

@@ -15,7 +15,7 @@ import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.tasks.AddUsernameToPlayerTask;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
-import com.boardgamegeek.tasks.sync.SyncUserTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
@@ -116,7 +116,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncUserTask.Event event) {
+	public void onEvent(CompletedEvent event) {
 		if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferencesUtils.getSyncShowErrors(this)) {
 			showSnackbar(event.getErrorMessage());
 		}

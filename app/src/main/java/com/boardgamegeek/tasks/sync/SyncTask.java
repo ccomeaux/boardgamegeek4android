@@ -7,7 +7,7 @@ import android.support.annotation.StringRes;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.tasks.sync.SyncTask.Event;
+import com.boardgamegeek.tasks.sync.SyncTask.CompletedEvent;
 import com.boardgamegeek.util.NetworkUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -19,7 +19,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import timber.log.Timber;
 
-public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void, String> {
+public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Void, Void, String> {
 	protected final Context context;
 	protected final BggService bggService;
 	protected final long startTime;
@@ -109,10 +109,10 @@ public abstract class SyncTask<T, E extends Event> extends AsyncTask<Void, Void,
 
 	protected abstract E createEvent(String errorMessage);
 
-	protected class Event {
+	protected class CompletedEvent {
 		private final String errorMessage;
 
-		public Event(String errorMessage) {
+		public CompletedEvent(String errorMessage) {
 			this.errorMessage = errorMessage;
 		}
 

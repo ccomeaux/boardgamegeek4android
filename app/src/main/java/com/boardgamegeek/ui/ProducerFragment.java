@@ -22,6 +22,7 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.tasks.sync.SyncArtistTask;
 import com.boardgamegeek.tasks.sync.SyncDesignerTask;
 import com.boardgamegeek.tasks.sync.SyncPublisherTask;
+import com.boardgamegeek.tasks.sync.SyncPublisherTask.CompletedEvent;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -187,7 +188,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncDesignerTask.Event event) {
+	public void onEvent(SyncDesignerTask.CompletedEvent event) {
 		if (event.getDesignerId() == id) {
 			updateRefreshStatus(false);
 		}
@@ -196,7 +197,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncArtistTask.Event event) {
+	public void onEvent(SyncArtistTask.CompletedEvent event) {
 		if (event.getArtistId() == id) {
 			updateRefreshStatus(false);
 		}
@@ -205,7 +206,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncPublisherTask.Event event) {
+	public void onEvent(CompletedEvent event) {
 		if (event.getPublisherId() == id) {
 			updateRefreshStatus(false);
 		}

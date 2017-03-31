@@ -12,12 +12,12 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.tasks.sync.SyncPublisherTask.Event;
+import com.boardgamegeek.tasks.sync.SyncPublisherTask.CompletedEvent;
 
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncPublisherTask extends SyncTask<Company, Event> {
+public class SyncPublisherTask extends SyncTask<Company, CompletedEvent> {
 	private final int publisherId;
 
 	public SyncPublisherTask(Context context, int publisherId) {
@@ -50,8 +50,8 @@ public class SyncPublisherTask extends SyncTask<Company, Event> {
 
 	@NonNull
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage, publisherId);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage, publisherId);
 	}
 
 	@NonNull
@@ -63,10 +63,10 @@ public class SyncPublisherTask extends SyncTask<Company, Event> {
 		return values;
 	}
 
-	public class Event extends SyncTask.Event {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
 		private final int publisherId;
 
-		public Event(String errorMessage, int publisherId) {
+		public CompletedEvent(String errorMessage, int publisherId) {
 			super(errorMessage);
 			this.publisherId = publisherId;
 		}

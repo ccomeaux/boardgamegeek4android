@@ -12,12 +12,12 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
-import com.boardgamegeek.tasks.sync.SyncArtistTask.Event;
+import com.boardgamegeek.tasks.sync.SyncArtistTask.CompletedEvent;
 
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncArtistTask extends SyncTask<Person, Event> {
+public class SyncArtistTask extends SyncTask<Person, CompletedEvent> {
 	private final int artistId;
 
 	public SyncArtistTask(Context context, int artistId) {
@@ -50,8 +50,8 @@ public class SyncArtistTask extends SyncTask<Person, Event> {
 
 	@NonNull
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage, artistId);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage, artistId);
 	}
 
 	@NonNull
@@ -63,10 +63,10 @@ public class SyncArtistTask extends SyncTask<Person, Event> {
 		return values;
 	}
 
-	public class Event extends SyncTask.Event {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
 		private final int artistId;
 
-		public Event(String errorMessage, int artistId) {
+		public CompletedEvent(String errorMessage, int artistId) {
 			super(errorMessage);
 			this.artistId = artistId;
 		}

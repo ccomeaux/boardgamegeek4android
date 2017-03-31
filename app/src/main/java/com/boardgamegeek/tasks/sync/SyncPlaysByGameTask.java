@@ -15,14 +15,14 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask.Event;
+import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask.CompletedEvent;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import hugo.weaving.DebugLog;
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, Event> {
+public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent> {
 	private final int gameId;
 	private final String username;
 
@@ -73,8 +73,8 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, Event> {
 
 	@NonNull
 	@Override
-	protected Event createEvent(String errorMessage) {
-		return new Event(errorMessage);
+	protected CompletedEvent createEvent(String errorMessage) {
+		return new CompletedEvent(errorMessage);
 	}
 
 	@DebugLog
@@ -96,8 +96,8 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, Event> {
 		context.getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
 	}
 
-	public class Event extends SyncTask.Event {
-		public Event(String errorMessage) {
+	public class CompletedEvent extends SyncTask.CompletedEvent {
+		public CompletedEvent(String errorMessage) {
 			super(errorMessage);
 		}
 	}

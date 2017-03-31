@@ -12,7 +12,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.tasks.sync.SyncPublisherTask;
+import com.boardgamegeek.tasks.sync.SyncPublisherTask.CompletedEvent;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -62,8 +62,9 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncPublisherTask.Event event) {
+	public void onEvent(CompletedEvent event) {
 		if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferencesUtils.getSyncShowErrors(this)) {
+			// TODO: 3/29/17 makes this a Snackbar
 			Toast.makeText(this, event.getErrorMessage(), Toast.LENGTH_LONG).show();
 		}
 	}
