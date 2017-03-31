@@ -331,7 +331,6 @@
 				android:name="android.content.SyncAdapter"
 				android:resource="@xml/syncadapter"/>
 		</service>
-		<service android:name=".service.UpdateService"/>
 		<service
 			android:name=".auth.AuthenticationService"
 			android:exported="true">

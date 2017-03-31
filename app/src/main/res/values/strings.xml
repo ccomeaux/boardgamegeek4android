@@ -554,6 +554,7 @@
 	<string name="msg_update_invalid_response">Invalid %s received</string>
 	<string name="msg_update_unsuccessful_response">Unsuccessful fetching %1$s with HTTP response code: %2$d</string>
 	<string name="msg_update_exception">Exception fetching %1$s: %2$s</string>
+	<string name="profile_updated">Profile updated</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
