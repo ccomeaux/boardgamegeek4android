@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -178,6 +179,9 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
 		if (event.getGameId() == gameId) {
 			updateRefreshStatus(false);
+			if (!TextUtils.isEmpty(event.getErrorMessage())) {
+				Toast.makeText(this, event.getErrorMessage(), Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 

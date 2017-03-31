@@ -74,7 +74,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 	@NonNull
 	@Override
 	protected CompletedEvent createEvent(String errorMessage) {
-		return new CompletedEvent(errorMessage);
+		return new CompletedEvent(errorMessage, gameId);
 	}
 
 	@DebugLog
@@ -97,8 +97,15 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 	}
 
 	public class CompletedEvent extends SyncTask.CompletedEvent {
-		public CompletedEvent(String errorMessage) {
+		private final int gameId;
+
+		public CompletedEvent(String errorMessage, int gameId) {
 			super(errorMessage);
+			this.gameId = gameId;
+		}
+
+		public int getGameId() {
+			return gameId;
 		}
 	}
 }

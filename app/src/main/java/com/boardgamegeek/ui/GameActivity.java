@@ -180,10 +180,19 @@ public class GameActivity extends HeroActivity implements Callback {
 		}
 	}
 
-	@DebugLog
 	@Override
 	public void onRefresh() {
-		((GameFragment) getFragment()).triggerRefresh();
+		if (((GameFragment) getFragment()).triggerRefresh()) {
+			updateRefreshStatus(true);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(GameFragment.SyncCompleteEvent event) {
+		if (event.getGameId() == gameId) {
+			updateRefreshStatus(false);
+		}
 	}
 
 	@DebugLog
