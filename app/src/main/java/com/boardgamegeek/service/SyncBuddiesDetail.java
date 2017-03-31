@@ -61,11 +61,9 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						syncResult.stats.numIoExceptions++;
 					}
 
-					if (user == null) {
-						break;
-					}
+					if (user == null) break;
 
-					persister.save(user);
+					persister.saveUser(user);
 					syncResult.stats.numUpdates++;
 					count++;
 

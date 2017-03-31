@@ -19,9 +19,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
-import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -184,7 +185,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		if (TextUtils.isEmpty(fullName)) {
 			if (TextUtils.isEmpty(username)) {
 				if (Authenticator.isSignedIn(this)) {
-					UpdateService.start(this, UpdateService.SYNC_TYPE_BUDDY_SELF, null);
+					TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
 				}
 				return null;
 			} else {

@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon...
 --------------
+ * Sync improvements
  * Bug fixes
 
 Version 6.4.2
