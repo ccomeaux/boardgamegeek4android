@@ -145,7 +145,7 @@ dependencies {
     apt "com.google.auto.value:auto-value:1.4"
 
     compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'io.reactivex:rxjava:1.2.7'
+    compile 'io.reactivex:rxjava:1.2.9'
 
     compile 'frankiesardo:icepick:3.2.0'
     provided 'frankiesardo:icepick-processor:3.2.0'
