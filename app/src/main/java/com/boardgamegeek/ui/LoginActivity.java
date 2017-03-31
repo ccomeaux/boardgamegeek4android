@@ -20,7 +20,9 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.TaskUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -133,7 +135,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			loginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
 			userLoginTask = new UserLoginTask();
-			userLoginTask.execute((Void) null);
+			TaskUtils.executeAsyncTask(userLoginTask);
 		}
 	}
 
@@ -219,11 +221,14 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		} else {
 			accountManager.setPassword(account, password);
 		}
+		TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
+
 		final Intent intent = new Intent();
 		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, username);
 		intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, Authenticator.ACCOUNT_TYPE);
 		setAccountAuthenticatorResult(intent.getExtras());
 		setResult(RESULT_OK, intent);
+
 		finish();
 	}
 
