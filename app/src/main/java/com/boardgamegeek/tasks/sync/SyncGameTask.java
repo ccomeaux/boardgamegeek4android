@@ -11,6 +11,8 @@ import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.tasks.sync.SyncGameTask.CompletedEvent;
 
+import java.util.Locale;
+
 import retrofit2.Call;
 import timber.log.Timber;
 
@@ -40,7 +42,7 @@ public class SyncGameTask extends SyncTask<ThingResponse, CompletedEvent> {
 
 	@Override
 	protected void persistResponse(ThingResponse thing) {
-		int rowCount = new GamePersister(context).save(thing.getGames(), String.format("Game %d", gameId));
+		int rowCount = new GamePersister(context).save(thing.getGames(), String.format(Locale.getDefault(), "Game %d", gameId));
 		Timber.i("Synced %,d rows for game '%s'", rowCount, gameId);
 	}
 
