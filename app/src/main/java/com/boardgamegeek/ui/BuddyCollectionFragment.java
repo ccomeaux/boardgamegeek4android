@@ -242,10 +242,11 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
 			super(activity, R.layout.row_text_2, collection);
 			inflater = activity.getLayoutInflater();
-			setCollection(collection);
 		}
 
 		public void setCollection(List<CollectionItem> games) {
+			clear();
+			addAll(games);
 			notifyDataSetChanged();
 		}
 

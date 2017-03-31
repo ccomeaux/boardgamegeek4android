@@ -254,7 +254,7 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private ContentValues toCollectionValues(CollectionItem item, SyncCandidate candidate) {
+	private ContentValues toCollectionValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
 		if (!isBriefSync && includePrivateInfo && includeStats) {
 			values.put(Collection.UPDATED, updateTime);
@@ -318,7 +318,7 @@ public class CollectionPersister {
 
 	@DebugLog
 	private void addItemToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
-		ContentValues values = toCollectionValues(item, candidate);
+		ContentValues values = toCollectionValues(item);
 		ContentProviderOperation.Builder cpo;
 		if (candidate.getInternalId() != BggContract.INVALID_ID) {
 			cpo = createUpdateOperation(values, batch, candidate);
