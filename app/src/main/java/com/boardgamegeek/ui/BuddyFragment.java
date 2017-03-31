@@ -363,10 +363,12 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@DebugLog
 	private void requestRefresh() {
-		if (!isRefreshing && !hasBeenRefreshed) {
-			forceRefresh();
-		} else {
-			updateRefreshStatus(false);
+		if (!isRefreshing) {
+			if (hasBeenRefreshed) {
+				updateRefreshStatus(false);
+			} else {
+				forceRefresh();
+			}
 		}
 	}
 

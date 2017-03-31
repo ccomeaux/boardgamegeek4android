@@ -43,6 +43,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	private Uri uri;
 	private int token;
 	private int id;
+	private boolean isRefreshing;
 
 	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -142,7 +143,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 			updatedView.setTimestamp(updated);
 
 			if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH) {
-				triggerRefresh();
+				requestRefresh();
 			}
 		} else {
 			if (cursor != null) cursor.close();
@@ -150,16 +151,20 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	}
 
 	@DebugLog
-	private void triggerRefresh() {
-		if (token == DesignerQuery._TOKEN) {
-			TaskUtils.executeAsyncTask(new SyncDesignerTask(getContext(), id));
-			updateRefreshStatus(true);
-		} else if (token == ArtistQuery._TOKEN) {
-			TaskUtils.executeAsyncTask(new SyncArtistTask(getContext(), id));
-			updateRefreshStatus(true);
-		} else if (token == PublisherQuery._TOKEN) {
-			TaskUtils.executeAsyncTask(new SyncPublisherTask(getContext(), id));
-			updateRefreshStatus(true);
+	private void requestRefresh() {
+		if (!isRefreshing) {
+			if (token == DesignerQuery._TOKEN) {
+				TaskUtils.executeAsyncTask(new SyncDesignerTask(getContext(), id));
+				updateRefreshStatus(true);
+			} else if (token == ArtistQuery._TOKEN) {
+				TaskUtils.executeAsyncTask(new SyncArtistTask(getContext(), id));
+				updateRefreshStatus(true);
+			} else if (token == PublisherQuery._TOKEN) {
+				TaskUtils.executeAsyncTask(new SyncPublisherTask(getContext(), id));
+				updateRefreshStatus(true);
+			}
+		} else {
+			updateRefreshStatus(false);
 		}
 	}
 
@@ -170,16 +175,17 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 	@Override
 	public void onRefresh() {
-		triggerRefresh();
+		requestRefresh();
 	}
 
 	@DebugLog
-	private void updateRefreshStatus(final boolean isSyncing) {
+	private void updateRefreshStatus(boolean value) {
+		this.isRefreshing = value;
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isSyncing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
 				}
 			});
 		}
