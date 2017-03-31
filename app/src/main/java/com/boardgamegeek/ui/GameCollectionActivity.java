@@ -19,6 +19,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.DeleteCollectionItemTask;
 import com.boardgamegeek.tasks.ResetCollectionItemTask;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -167,7 +168,17 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		((GameCollectionFragment) getFragment()).triggerRefresh();
+		if (((GameCollectionFragment) getFragment()).triggerRefresh()) {
+			updateRefreshStatus(true);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
+		if (event.getGameId() == gameId) {
+			updateRefreshStatus(false);
+		}
 	}
 
 	@SuppressWarnings("unused")

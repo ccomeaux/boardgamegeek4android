@@ -78,8 +78,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 
 	@Override
 	protected boolean hasMorePages(CollectionResponse body) {
-		if (getCurrentPage() > 1) return false;
-		return results == null || results.getRecordCount() == 0;
+		return getCurrentPage() <= 1 && (results == null || results.getRecordCount() == 0);
 	}
 
 	@Override
@@ -97,7 +96,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 	}
 
 	public class CompletedEvent extends SyncTask.CompletedEvent {
-		private int gameId;
+		private final int gameId;
 
 		public CompletedEvent(String errorMessage, int gameId) {
 			super(errorMessage);

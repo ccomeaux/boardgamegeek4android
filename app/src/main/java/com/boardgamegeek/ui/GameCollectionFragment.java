@@ -30,6 +30,7 @@ import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemTextTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
@@ -53,6 +54,7 @@ import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -117,6 +119,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
 	private long internalId = 0;
+	private boolean isRefreshing;
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 	private boolean needsUploading;
@@ -447,10 +450,22 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	@DebugLog
-	public void triggerRefresh() {
+	public boolean triggerRefresh() {
 		mightNeedRefreshing = false;
-		if (gameId != BggContract.INVALID_ID) {
+		if (!isRefreshing && gameId != BggContract.INVALID_ID) {
+			isRefreshing = true;
 			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CompletedEvent event) {
+		if (event.getGameId() == gameId) {
+			isRefreshing = false;
 		}
 	}
 
