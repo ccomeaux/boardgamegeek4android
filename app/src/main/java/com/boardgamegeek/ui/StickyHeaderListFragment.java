@@ -113,7 +113,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	private boolean isListShown;
 	@State int listViewStatePosition;
 	@State int listViewStateTop;
-	private boolean isSyncing;
+	protected boolean isSyncing;
 	private int previousFirstVisibleItem;
 	private int lastScrollY;
 
@@ -209,17 +209,11 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@DebugLog
 	protected void isSyncing(boolean value) {
 		isSyncing = value;
-		updateRefreshStatus();
-	}
-
-	@DebugLog
-	private void updateRefreshStatus() {
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
 					if (swipeRefreshLayout != null) {
-						// this check seems unnecessary, but NullPointerException are getting thrown
 						swipeRefreshLayout.setRefreshing(isSyncing);
 					}
 				}

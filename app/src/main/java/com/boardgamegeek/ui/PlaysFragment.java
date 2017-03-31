@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.content.ContentProviderOperation;
 import android.content.Context;
@@ -13,10 +14,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,13 +31,13 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -79,7 +81,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import timber.log.Timber;
 
-public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
+public class PlaysFragment extends StickyHeaderListFragment
+	implements LoaderCallbacks<Cursor>, MultiChoiceModeListener, OnDateSetListener {
 	public static final String KEY_MODE = "MODE";
 	public static final int FILTER_TYPE_STATUS_ALL = -2;
 	public static final int FILTER_TYPE_STATUS_UPDATE = 1;
@@ -253,7 +256,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				filter(FILTER_TYPE_STATUS_PENDING, title);
 				return true;
 			case R.id.menu_refresh_on:
-				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
+				DatePickerFragment datePickerFragment = new DatePickerFragment();
+				datePickerFragment.setListener(this);
+				datePickerFragment.show(getActivity().getSupportFragmentManager(), "datePicker");
 				return true;
 			case R.id.menu_help:
 				showHelp();
@@ -287,7 +292,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
-		isSyncing(false);
+		if (mode == MODE_GAME && event.getGameId() == gameId) {
+			isSyncing(false);
+			if (!TextUtils.isEmpty(event.getErrorMessage())) {
+				Toast.makeText(getContext(), event.getErrorMessage(), Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 
 	@Override
@@ -360,28 +370,30 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		requery();
 	}
 
-	public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-		// HACK prevent onDateSet from firing twice
-		private boolean alreadyCalled = false;
+	public static class DatePickerFragment extends DialogFragment {
+		private OnDateSetListener listener;
 
 		@Override
 		@NonNull
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			final Calendar calendar = Calendar.getInstance();
-			return new DatePickerDialog(getActivity(), this,
+			return new DatePickerDialog(getActivity(),
+				listener,
 				calendar.get(Calendar.YEAR),
 				calendar.get(Calendar.MONTH),
 				calendar.get(Calendar.DAY_OF_MONTH));
 		}
 
-		public void onDateSet(DatePicker view, int year, int month, int day) {
-			if (alreadyCalled) return;
-			alreadyCalled = true;
-
-			// TODO: 3/27/17 show refreshing icon
-			String date = DateTimeUtils.formatDateForApi(year, month, day);
-			TaskUtils.executeAsyncTask(new SyncPlaysByDateTask(getContext(), date));
+		public void setListener(OnDateSetListener listener) {
+			this.listener = listener;
 		}
+	}
+
+	@Override
+	public void onDateSet(DatePicker view, int year, int month, int day) {
+		isSyncing(true);
+		String date = DateTimeUtils.formatDateForApi(year, month, day);
+		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask(getContext(), date));
 	}
 
 	private int getEmptyStringResource() {
@@ -550,6 +562,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@DebugLog
 	@Override
 	public void triggerRefresh() {
+		if (isSyncing) return;
 		switch (mode) {
 			case MODE_ALL:
 			case MODE_BUDDY:

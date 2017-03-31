@@ -28,11 +28,11 @@ import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -48,6 +48,7 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -78,6 +79,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private Play play = new Play();
 	private String thumbnailUrl;
 	private String imageUrl;
+	private boolean isRefreshing;
 
 	private Unbinder unbinder;
 	private ListView playersView;
@@ -282,18 +284,25 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateCompleteEvent event) {
-		updateRefreshStatus(false);
+	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
+		if (play != null && event.getGameId() == play.gameId) {
+			if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferencesUtils.getSyncShowErrors(getContext())) {
+				// TODO: 3/30/17 change to a snackbar (will need to change from a ListFragment)
+				Toast.makeText(getContext(), event.getErrorMessage(), Toast.LENGTH_LONG).show();
+			}
+			updateRefreshStatus(false);
+		}
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	private void updateRefreshStatus(final boolean isSyncing) {
+	private void updateRefreshStatus(final boolean value) {
+		isRefreshing = value;
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isSyncing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
 				}
 			});
 		}
@@ -478,8 +487,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void triggerRefresh() {
-		TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), play.gameId));
-		updateRefreshStatus(true);
+		if (!isRefreshing) {
+			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), play.gameId));
+			updateRefreshStatus(true);
+		}
 	}
 
 	private void save(String action) {
