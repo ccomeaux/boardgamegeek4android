@@ -87,7 +87,9 @@
 	<string name="no">No</string>
 	<string name="never">Never</string>
 	<string name="keep">Keep</string>
+	<string name="edit">Edit</string>
 	<string name="more">More</string>
+	<string name="more_suffix">%,d more</string>
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
