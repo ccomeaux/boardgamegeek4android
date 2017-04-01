@@ -94,7 +94,6 @@
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
 	<string name="title_clear_colors">Clear Colors?</string>
-	<string name="title_change_settings">Change Settings</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
 	<string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
@@ -523,7 +522,9 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_accuracy">These stats don\'t include %s.</string>
+	<string name="play_stat_accuracy">These stats don\'t include %s.</string>
+	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games. Wanna do that now?</string>
+	<string name="play_stat_msg_collection_status">You can change the collection statuses that are synced in the app\'s settings. Do you want to continue?</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>

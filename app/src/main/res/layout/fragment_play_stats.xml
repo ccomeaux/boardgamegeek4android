@@ -60,30 +60,62 @@
 					android:stretchColumns="0,1"/>
 			</android.support.v7.widget.CardView>
 
-			<TextView
-				android:id="@+id/accuracy_message"
+			<LinearLayout
+				android:id="@+id/collection_status_container"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:background="?attr/selectableItemBackground"
-				android:paddingBottom="@dimen/material_margin_vertical"
-				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/material_margin_vertical"
-				android:text="@string/play_stat_status_accuracy"/>
-
-			<Button
-				android:id="@+id/settings"
-				style="@style/Text.Footer.Card"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="right|center_vertical"
 				android:layout_marginBottom="@dimen/material_margin_vertical"
 				android:layout_marginLeft="@dimen/material_margin_horizontal"
 				android:layout_marginRight="@dimen/material_margin_horizontal"
 				android:layout_marginTop="@dimen/material_margin_vertical"
-				android:text="@string/title_change_settings"/>
+				android:gravity="center_vertical"
+				android:orientation="horizontal"
+				android:visibility="gone">
+
+				<TextView
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:paddingRight="@dimen/padding_standard"
+					android:text="@string/play_stat_collection_status"/>
+
+				<Button
+					android:id="@+id/settings_collection_status"
+					style="@style/Widget.AppCompat.Button.Colored"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right|center_vertical"
+					android:text="@string/edit"/>
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/accuracy_container"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="@dimen/material_margin_vertical"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:layout_marginRight="@dimen/material_margin_horizontal"
+				android:layout_marginTop="@dimen/material_margin_vertical"
+				android:gravity="center_vertical"
+				android:orientation="horizontal"
+				android:visibility="gone">
+
+				<TextView
+					android:id="@+id/accuracy_message"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:paddingRight="@dimen/padding_standard"
+					android:text="@string/play_stat_accuracy"/>
+
+				<Button
+					android:id="@+id/settings_include"
+					style="@style/Widget.AppCompat.Button"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right|center_vertical"
+					android:text="@string/edit"/>
+			</LinearLayout>
 		</LinearLayout>
-
 	</ScrollView>
-
 </FrameLayout>

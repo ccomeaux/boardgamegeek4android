@@ -18,7 +18,10 @@ import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.PlaysActivity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility for getting and putting preferences.
@@ -173,6 +176,18 @@ public class PreferencesUtils {
 			}
 		}
 		return false;
+	}
+
+	public static boolean addSyncStatus(Context context, String status) {
+		if (TextUtils.isEmpty(status)) return false;
+		if (isSyncStatus(context, status)) return false;
+
+		String[] statuses = getStringArray(context, KEY_SYNC_STATUSES, null);
+		Set<String> set = new HashSet<>();
+		set.addAll(Arrays.asList(statuses).subList(0, statuses.length));
+		set.add(status);
+
+		return putString(context, KEY_SYNC_STATUSES, MultiSelectListPreference.buildString(set));
 	}
 
 	public static boolean getSyncPlays(Context context) {

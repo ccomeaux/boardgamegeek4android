@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -17,7 +19,9 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.ui.dialog.PlayStatsSettingsDialogFragment;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.DialogUtils;
@@ -41,12 +45,15 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	@BindView(R.id.data) ViewGroup dataView;
 	@BindView(R.id.table) TableLayout table;
 	@BindView(R.id.table_hindex) TableLayout hIndexTable;
+	@BindView(R.id.collection_status_container) ViewGroup collectionStatusContainer;
+	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
 	@BindView(R.id.accuracy_message) TextView accuracyMessage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
+		bindCollectionStatusMessage();
 		bindAccuracyMessage();
 		return rootView;
 	}
@@ -108,6 +115,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 			case TOKEN:
 				PlayStats stats = PlayStats.fromCursor(cursor);
 				bindUi(stats);
+				PreferencesUtils.updateHIndex(getActivity(), stats.getHIndex());
 				showData();
 				break;
 			default:
@@ -120,19 +128,25 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	private void bindCollectionStatusMessage() {
+		boolean syncOwned = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
+		boolean syncPlayed = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		collectionStatusContainer.setVisibility(syncOwned && syncPlayed ? View.GONE : View.VISIBLE);
+	}
+
 	private void bindAccuracyMessage() {
 		List<String> things = new ArrayList<>(3);
-		if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
+		if (!PreferencesUtils.logPlayStatsIncomplete(getContext())) {
 			things.add(getString(R.string.incomplete_games).toLowerCase());
 		}
-		if (!PreferencesUtils.logPlayStatsExpansions(getActivity())) {
+		if (!PreferencesUtils.logPlayStatsExpansions(getContext())) {
 			things.add(getString(R.string.expansions).toLowerCase());
 		}
-		if (!PreferencesUtils.logPlayStatsAccessories(getActivity())) {
+		if (!PreferencesUtils.logPlayStatsAccessories(getContext())) {
 			things.add(getString(R.string.accessories).toLowerCase());
 		}
-		accuracyMessage.setVisibility(things.size() == 0 ? View.GONE : View.VISIBLE);
-		accuracyMessage.setText(getString(R.string.play_stat_status_accuracy,
+		accuracyContainer.setVisibility(things.size() == 0 ? View.GONE : View.VISIBLE);
+		accuracyMessage.setText(getString(R.string.play_stat_accuracy,
 			StringUtils.formatList(things, getString(R.string.or).toLowerCase(), ",")));
 	}
 
@@ -160,8 +174,6 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 			}
 			addStatRow(hIndexTable, builder);
 		}
-
-		PreferencesUtils.updateHIndex(getActivity(), stats.getHIndex());
 	}
 
 	private void showEmpty() {
@@ -191,10 +203,23 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		container.addView(view);
 	}
 
-	@OnClick(R.id.settings)
-	void onSettingsClick() {
-		PlayStatsSettingsDialogFragment df = PlayStatsSettingsDialogFragment.newInstance(dataView);
-		DialogUtils.showFragment(getActivity(), df, "play_stats_settings");
+	@OnClick(R.id.settings_collection_status)
+	void onSettingsCollectionStatusClick() {
+		DialogUtils.createConfirmationDialog(getContext(), R.string.play_stat_msg_collection_status, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				PreferencesUtils.addSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
+				PreferencesUtils.addSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
+				SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
+				bindCollectionStatusMessage();
+			}
+		}).show();
+	}
+
+	@OnClick(R.id.settings_include)
+	void onSettingsIncludeClick() {
+		PlayStatsIncludeSettingsDialogFragment df = PlayStatsIncludeSettingsDialogFragment.newInstance(accuracyContainer);
+		DialogUtils.showFragment(getActivity(), df, "play_stats_settings_include");
 	}
 
 	@Override
