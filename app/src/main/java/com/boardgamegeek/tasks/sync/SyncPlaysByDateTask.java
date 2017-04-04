@@ -59,7 +59,7 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent>
 	@Override
 	protected void finishSync() {
 		if (SyncService.isPlaysSyncUpToDate(context)) {
-			SyncService.calculateAndUpdateHIndex(context);
+			SyncService.calculateAndUpdateGameHIndex(context);
 		}
 	}
 

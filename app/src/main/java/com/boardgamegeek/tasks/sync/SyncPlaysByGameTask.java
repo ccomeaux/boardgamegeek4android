@@ -67,7 +67,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
 		if (SyncService.isPlaysSyncUpToDate(context)) {
-			SyncService.calculateAndUpdateHIndex(context);
+			SyncService.calculateAndUpdateGameHIndex(context);
 		}
 	}
 

@@ -117,7 +117,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		deletePendingPlays(syncResult);
 		updatePendingPlays(syncResult);
 		if (SyncService.isPlaysSyncUpToDate(context)) {
-			SyncService.calculateAndUpdateHIndex(context);
+			SyncService.calculateAndUpdateGameHIndex(context);
 		}
 	}
 

@@ -33,9 +33,9 @@
 	<string name="sync_notification_collection_updated">Updated collection item</string>
 	<string name="sync_notification_collection_deleted">Deleted collection item</string>
 	<string name="sync_notification_collection_added">Added collection item</string>
-	<string name="sync_notification_title_h_index">H-index</string>
-	<string name="sync_notification_h_index_increase">Congratulations! Your game h-index is now <b>%d</b>.</string>
-	<string name="sync_notification_h_index_decrease">Your game h-index has changed to <b>%d</b>.</string>
+	<string name="sync_notification_title_game_h_index">Game H-index</string>
+	<string name="sync_notification_game_h_index_increase">Congratulations! Your game game h-index is now <b>%d</b>.</string>
+	<string name="sync_notification_game_h_index_decrease">Your game h-index has changed to <b>%d</b>.</string>
 	<string name="sync_notification_page_suffix">%1$s (page %2$,d)</string>
 
 	<plurals name="sync_notification_collection_deleting">

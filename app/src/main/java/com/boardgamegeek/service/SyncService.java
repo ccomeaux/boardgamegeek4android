@@ -114,12 +114,12 @@ public class SyncService extends Service {
 		return false;
 	}
 
-	public static void calculateAndUpdateHIndex(@NonNull Context context) {
-		int hIndex = calculateHIndex(context);
-		PreferencesUtils.updateHIndex(context, hIndex);
+	public static void calculateAndUpdateGameHIndex(@NonNull Context context) {
+		int hIndex = calculateGameHIndex(context);
+		PreferencesUtils.updateGameHIndex(context, hIndex);
 	}
 
-	private static int calculateHIndex(@NonNull Context context) {
+	private static int calculateGameHIndex(@NonNull Context context) {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(

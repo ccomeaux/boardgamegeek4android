@@ -16,7 +16,7 @@ import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 
 public class NotificationUtils {
-	public static final String TAG_H_INDEX = "H-INDEX";
+	public static final String TAG_GAME_H_INDEX = "GAME_H-INDEX";
 	public static final String TAG_PERSIST_ERROR = "PERSIST_ERROR";
 	public static final String TAG_PLAY_TIMER = "PLAY_TIMER";
 	public static final String TAG_PROVIDER_ERROR = "PROVIDER_ERROR";

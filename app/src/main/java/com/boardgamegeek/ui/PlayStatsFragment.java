@@ -11,6 +11,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +47,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	@BindView(R.id.progress) View progressView;
 	@BindView(R.id.empty) View emptyView;
 	@BindView(R.id.data) ViewGroup dataView;
-	@BindView(R.id.table) TableLayout table;
+	@BindView(R.id.table_play_count) TableLayout table;
+	@BindView(R.id.game_h_index) TextView hIndexView;
 	@BindView(R.id.table_hindex) TableLayout hIndexTable;
 	@BindView(R.id.collection_status_container) ViewGroup collectionStatusContainer;
 	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
@@ -115,7 +120,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 			case TOKEN:
 				PlayStats stats = PlayStats.fromCursor(cursor);
 				bindUi(stats);
-				PreferencesUtils.updateHIndex(getActivity(), stats.getHIndex());
+				PreferencesUtils.updateGameHIndex(getActivity(), stats.getHIndex());
 				showData();
 				break;
 			default:
@@ -159,9 +164,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
+		hIndexView.setText(String.valueOf(stats.getHIndex()));
 		hIndexTable.removeAllViews();
-		addStatRow(hIndexTable, new Builder().labelId(R.string.play_stat_h_index).value(stats.getHIndex()).infoId(R.string.play_stat_h_index_info));
-		addDivider(hIndexTable);
 		boolean addDivider = true;
 		for (Pair<String, Integer> game : stats.getHIndexGames()) {
 			final Builder builder = new Builder().labelText(game.first).value(game.second);
@@ -201,6 +205,20 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
 		view.setBackgroundResource(R.color.dark_blue);
 		container.addView(view);
+	}
+
+	@OnClick(R.id.game_h_index_info)
+	void onGameHIndexInfoClick() {
+		final SpannableString spannableMessage = new SpannableString(getString(R.string.play_stat_game_h_index_info));
+		Linkify.addLinks(spannableMessage, Linkify.ALL);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+			.setTitle(R.string.play_stat_game_h_index)
+			.setMessage(spannableMessage);
+		AlertDialog dialog = builder.show();
+		TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+		if (textView != null) {
+			textView.setMovementMethod(LinkMovementMethod.getInstance());
+		}
 	}
 
 	@OnClick(R.id.settings_collection_status)

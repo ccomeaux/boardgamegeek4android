@@ -36,6 +36,7 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
+	private static final String KEY_GAME_H_INDEX = "hIndex";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
@@ -222,34 +223,34 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedDebugInsert", false);
 	}
 
-	public static int getHIndex(Context context) {
-		return getInt(context, "hIndex", 0);
+	public static int getGameHIndex(Context context) {
+		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}
 
-	public static void updateHIndex(@NonNull Context context, int hIndex) {
+	public static void updateGameHIndex(@NonNull Context context, int hIndex) {
 		if (hIndex != INVALID_H_INDEX) {
-			int oldHIndex = PreferencesUtils.getHIndex(context);
+			int oldHIndex = PreferencesUtils.getGameHIndex(context);
 			if (oldHIndex != hIndex) {
-				putInt(context, "hIndex", hIndex);
-				notifyHIndex(context, hIndex, oldHIndex);
+				putInt(context, KEY_GAME_H_INDEX, hIndex);
+				notifyGameHIndex(context, hIndex, oldHIndex);
 			}
 		}
 	}
 
-	private static void notifyHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
+	private static void notifyGameHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
 		@StringRes int messageId;
 		if (hIndex > oldHIndex) {
-			messageId = R.string.sync_notification_h_index_increase;
+			messageId = R.string.sync_notification_game_h_index_increase;
 		} else {
-			messageId = R.string.sync_notification_h_index_decrease;
+			messageId = R.string.sync_notification_game_h_index_decrease;
 		}
 		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
+			.createNotificationBuilder(context, R.string.sync_notification_title_game_h_index, PlaysActivity.class)
 			.setContentText(PresentationUtils.getText(context, messageId, hIndex))
 			.setContentIntent(pi);
-		NotificationUtils.notify(context, NotificationUtils.TAG_H_INDEX, 0, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_GAME_H_INDEX, 0, builder);
 	}
 
 	public static long getViewDefaultId(Context context) {
