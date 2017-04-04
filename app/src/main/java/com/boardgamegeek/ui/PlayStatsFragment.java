@@ -53,6 +53,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	@BindView(R.id.collection_status_container) ViewGroup collectionStatusContainer;
 	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
 	@BindView(R.id.accuracy_message) TextView accuracyMessage;
+	private boolean isOwnedSynced;
+	private boolean isPlayedSynced;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -134,9 +136,9 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	}
 
 	private void bindCollectionStatusMessage() {
-		boolean syncOwned = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
-		boolean syncPlayed = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
-		collectionStatusContainer.setVisibility(syncOwned && syncPlayed ? View.GONE : View.VISIBLE);
+		isOwnedSynced = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
+		isPlayedSynced = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		collectionStatusContainer.setVisibility(isOwnedSynced && isPlayedSynced ? View.GONE : View.VISIBLE);
 	}
 
 	private void bindAccuracyMessage() {
@@ -162,7 +164,9 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		addStatRow(table, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
+
+		if (isPlayedSynced)
+			addStatRow(table, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
 		hIndexView.setText(String.valueOf(stats.getHIndex()));
 		hIndexTable.removeAllViews();
@@ -209,7 +213,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@OnClick(R.id.game_h_index_info)
 	void onGameHIndexInfoClick() {
-		final SpannableString spannableMessage = new SpannableString(getString(R.string.play_stat_game_h_index_info));
+		SpannableString spannableMessage = new SpannableString(getString(R.string.play_stat_game_h_index_info));
 		Linkify.addLinks(spannableMessage, Linkify.ALL);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
 			.setTitle(R.string.play_stat_game_h_index)
