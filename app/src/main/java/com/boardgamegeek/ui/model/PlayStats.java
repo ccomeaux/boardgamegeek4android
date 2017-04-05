@@ -31,7 +31,7 @@ public class PlayStats {
 	private static final int MIN_H_INDEX_GAMES = 2;
 	private static final int MAX_H_INDEX_GAMES = 6;
 	private int numberOfPlays = 0;
-	private int numberOfGames = 0;
+	private int numberOfPlayedGames = 0;
 	private int numberOfQuarters = 0;
 	private int numberOfDimes = 0;
 	private int numberOfNickels = 0;
@@ -52,9 +52,7 @@ public class PlayStats {
 	}
 
 	private void init(Cursor cursor) {
-		if (cursor == null || !cursor.moveToFirst()) {
-			return;
-		}
+		if (cursor == null || !cursor.moveToFirst()) return;
 
 		do {
 			int playCount = cursor.getInt(SUM_QUANTITY);
@@ -62,7 +60,7 @@ public class PlayStats {
 			int rank = cursor.getInt(RANK);
 
 			numberOfPlays += playCount;
-			numberOfGames++;
+			if (playCount > 0) numberOfPlayedGames++;
 
 			if (playCount >= 25) {
 				numberOfQuarters++;
@@ -72,7 +70,7 @@ public class PlayStats {
 				numberOfNickels++;
 			}
 
-			if (rank >= 1 && rank <= 100) {
+			if (playCount > 0 && rank >= 1 && rank <= 100) {
 				top100count++;
 			}
 
@@ -116,10 +114,15 @@ public class PlayStats {
 	}
 
 	@NonNull
-	public static Uri getUri() {
-		return Plays.CONTENT_URI.buildUpon()
-			.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.Plays.OBJECT_ID)
-			.build();
+	public static Uri getUri(boolean byGames) {
+		if (byGames) {
+			return Games.CONTENT_URI.buildUpon()
+				.build();
+		} else {
+			return Plays.CONTENT_URI.buildUpon()
+				.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.Plays.OBJECT_ID)
+				.build();
+		}
 	}
 
 	@NonNull
@@ -127,7 +130,7 @@ public class PlayStats {
 		String selection = SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
 
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-			selection += " AND " + Plays.INCOMPLETE + "!=?";
+			selection += " AND " + SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE);
 		}
 
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
@@ -144,10 +147,6 @@ public class PlayStats {
 	@NonNull
 	public static String[] getSelectionArgs(Context context) {
 		List<String> args = new ArrayList<>();
-
-		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-			args.add("1");
-		}
 
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
@@ -171,7 +170,7 @@ public class PlayStats {
 	}
 
 	public int getNumberOfGames() {
-		return numberOfGames;
+		return numberOfPlayedGames;
 	}
 
 	public int getNumberOfQuarters() {

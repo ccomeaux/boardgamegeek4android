@@ -1,8 +1,10 @@
 package com.boardgamegeek.provider;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
@@ -35,7 +37,19 @@ public class GamesProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return new SelectionBuilder().table(Tables.GAMES_JOIN_COLLECTION).mapToTable(Games.GAME_ID, Tables.GAMES)
-			.mapToTable(Games.UPDATED, Tables.GAMES);
+		SelectionBuilder builder = new SelectionBuilder()
+			.table(Tables.GAMES_JOIN_PLAYS)
+			.mapToTable(Games.UPDATED, Tables.GAMES)
+			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
+			.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY, Tables.PLAYS)
+			.mapAsMax(Plays.MAX_DATE, Plays.DATE);
+
+		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
+		if (!TextUtils.isEmpty(groupBy)) {
+			builder.groupBy(groupBy);
+		} else {
+			builder.groupBy(Games.GAME_ID);
+		}
+		return builder;
 	}
 }

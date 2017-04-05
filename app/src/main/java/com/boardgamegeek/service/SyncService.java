@@ -123,7 +123,7 @@ public class SyncService extends Service {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(
-				PlayStats.getUri(),
+				PlayStats.getUri(false),
 				PlayStats.PROJECTION,
 				PlayStats.getSelection(context),
 				PlayStats.getSelectionArgs(context),

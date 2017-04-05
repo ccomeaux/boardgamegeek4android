@@ -95,7 +95,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		switch (id) {
 			case TOKEN:
 				loader = new CursorLoader(getActivity(),
-					PlayStats.getUri(),
+					PlayStats.getUri(isOwnedSynced && isPlayedSynced),
 					PlayStats.PROJECTION,
 					PlayStats.getSelection(getActivity()),
 					PlayStats.getSelectionArgs(getActivity()),
@@ -108,9 +108,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		if (cursor == null || !cursor.moveToFirst()) {
 			showEmpty();
