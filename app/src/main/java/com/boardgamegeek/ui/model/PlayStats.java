@@ -35,6 +35,8 @@ public class PlayStats {
 	private int numberOfQuarters = 0;
 	private int numberOfDimes = 0;
 	private int numberOfNickels = 0;
+	private int numberOfZeroes = 0;
+	private List<Integer> playCounts = new ArrayList<>();
 	private int hIndex = 0;
 	private int hIndexCounter = 1;
 	private final List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
@@ -60,15 +62,13 @@ public class PlayStats {
 			int rank = cursor.getInt(RANK);
 
 			numberOfPlays += playCount;
+			playCounts.add(playCount);
 			if (playCount > 0) numberOfPlayedGames++;
 
-			if (playCount >= 25) {
-				numberOfQuarters++;
-			} else if (playCount >= 10) {
-				numberOfDimes++;
-			} else if (playCount >= 5) {
-				numberOfNickels++;
-			}
+			if (playCount >= 25) numberOfQuarters++;
+			else if (playCount >= 10) numberOfDimes++;
+			else if (playCount >= 5) numberOfNickels++;
+			else if (playCount == 0) numberOfZeroes++;
 
 			if (playCount > 0 && rank >= 1 && rank <= 100) {
 				top100count++;
@@ -162,7 +162,7 @@ public class PlayStats {
 
 	@NonNull
 	public static String getSortOrder() {
-		return Plays.SUM_QUANTITY + " DESC, " + Games.GAME_NAME + " ASC";
+		return Plays.SUM_QUANTITY + " DESC, " + Games.GAME_SORT_NAME + " ASC";
 	}
 
 	public int getNumberOfPlays() {
@@ -195,5 +195,17 @@ public class PlayStats {
 
 	public List<Pair<String, Integer>> getHIndexGames() {
 		return hIndexGames;
+	}
+
+	public int getFriendless() {
+		if (playCounts == null || playCounts.size() == 0) return 0;
+		if (numberOfDimes == playCounts.size()) {
+			return playCounts.get(playCounts.size() - 1);
+		} else {
+			int friendless = playCounts.get(playCounts.size() - numberOfDimes - 1);
+			if (friendless == 0)
+				return numberOfDimes - numberOfZeroes;
+			return friendless;
+		}
 	}
 }
