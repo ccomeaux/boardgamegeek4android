@@ -16,6 +16,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.model.PlayStats.Builder;
+import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
@@ -56,10 +57,13 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private int postIndexCount = 0;
 	private int priorPlayCount;
 	private int top100count = 0;
+	private double totalCdf;
 	private boolean isOwnedSynced;
+	private final double lambda;
 
 	public CalculatePlayStatsTask(Context context) {
 		this.context = context.getApplicationContext();
+		lambda = Math.log(0.1) / -10;
 	}
 
 	@Override
@@ -86,7 +90,10 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 				int gameId = cursor.getInt(GAME_ID);
 
 				numberOfPlays += playCount;
-				if (ownedGameIds.contains(gameId)) ownedPlayCounts.add(playCount);
+				if (ownedGameIds.contains(gameId)) {
+					ownedPlayCounts.add(playCount);
+					totalCdf += MathUtils.cdf(playCount, lambda);
+				}
 				if (playCount > 0) numberOfPlayedGames++;
 
 				if (playCount >= 25) numberOfQuarters++;
@@ -146,6 +153,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			.hIndex(hIndex)
 			.hIndexGames(hIndexGames)
 			.friendless(getFriendless())
+			.utilization(getUtilization())
+			.cfm(getCfm())
 			.top100count(top100count)
 			.build();
 
@@ -245,4 +254,15 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		}
 	}
 
+	private double getUtilization() {
+		if (!isOwnedSynced) return PlayStats.INVALID_UTILIZATION;
+		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
+		return totalCdf / ownedPlayCounts.size();
+	}
+
+	private double getCfm() {
+		if (!isOwnedSynced) return PlayStats.INVALID_CFM;
+		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
+		return MathUtils.invcdf(totalCdf / ownedPlayCounts.size(), lambda);
+	}
 }

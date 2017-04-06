@@ -7,6 +7,8 @@ import java.util.List;
 
 public class PlayStats {
 	public static final int INVALID_FRIENDLESS = Integer.MIN_VALUE;
+	public static final double INVALID_UTILIZATION = -1.0;
+	public static final double INVALID_CFM = -1.0;
 
 	private int numberOfPlays = 0;
 	private int numberOfPlayedGames = 0;
@@ -14,8 +16,10 @@ public class PlayStats {
 	private int numberOfDimes = 0;
 	private int numberOfNickels = 0;
 	private int hIndex = 0;
-	private int friendless = 0;
 	private List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+	private int friendless = INVALID_FRIENDLESS;
+	private double utilization = INVALID_UTILIZATION;
+	private double cfm = 0.0;
 	private int top100count = 0;
 
 	private PlayStats(Builder builder) {
@@ -27,6 +31,8 @@ public class PlayStats {
 		hIndex = builder.hIndex;
 		hIndexGames = builder.hIndexGames;
 		friendless = builder.friendless;
+		utilization = builder.utilization;
+		cfm = builder.cfm;
 		top100count = builder.top100count;
 	}
 
@@ -58,6 +64,14 @@ public class PlayStats {
 		return friendless;
 	}
 
+	public double getUtilization() {
+		return utilization;
+	}
+
+	public double getCfm() {
+		return cfm;
+	}
+
 	public int getTop100Count() {
 		return top100count;
 	}
@@ -75,6 +89,8 @@ public class PlayStats {
 		private int hIndex;
 		private List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
 		private int friendless;
+		private double utilization;
+		private double cfm;
 		private int top100count;
 
 		public Builder() {
@@ -117,6 +133,16 @@ public class PlayStats {
 
 		public Builder friendless(int val) {
 			friendless = val;
+			return this;
+		}
+
+		public Builder utilization(double val) {
+			utilization = val;
+			return this;
+		}
+
+		public Builder cfm(double val) {
+			cfm = val;
 			return this;
 		}
 

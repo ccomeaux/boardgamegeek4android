@@ -162,12 +162,21 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		}
 
 		advancedTable.removeAllViews();
-		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS) {
+		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS)
 			addStatRow(advancedTable, new Builder()
 				.labelId(R.string.play_stat_friendless)
 				.value(stats.getFriendless())
 				.infoId(R.string.play_stat_friendless_info));
-		}
+		if (stats.getUtilization() != PlayStats.INVALID_UTILIZATION)
+			addStatRow(advancedTable, new Builder()
+				.labelId(R.string.play_stat_utilization)
+				.valueAsPercentage(stats.getUtilization())
+				.infoId(R.string.play_stat_utilization_info));
+		if (stats.getCfm() != PlayStats.INVALID_CFM)
+			addStatRow(advancedTable, new Builder()
+				.labelId(R.string.play_stat_cfm)
+				.value(stats.getCfm())
+				.infoId(R.string.play_stat_cfm_info));
 
 		showData();
 	}
