@@ -6,17 +6,13 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";
@@ -112,32 +108,6 @@ public class SyncService extends Service {
 			return true;
 		}
 		return false;
-	}
-
-	public static void calculateAndUpdateGameHIndex(@NonNull Context context) {
-		int hIndex = calculateGameHIndex(context);
-		PreferencesUtils.updateGameHIndex(context, hIndex);
-	}
-
-	private static int calculateGameHIndex(@NonNull Context context) {
-		Cursor cursor = null;
-		try {
-			cursor = context.getContentResolver().query(
-				PlayStats.getUri(false),
-				PlayStats.PROJECTION,
-				PlayStats.getSelection(context),
-				PlayStats.getSelectionArgs(context),
-				PlayStats.getSortOrder());
-			if (cursor != null) {
-				PlayStats stats = PlayStats.fromCursor(cursor);
-				return stats.getHIndex();
-			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
-		return PreferencesUtils.INVALID_H_INDEX;
 	}
 
 	public static boolean isPlaysSyncUpToDate(Context context) {

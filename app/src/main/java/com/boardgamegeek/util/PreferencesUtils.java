@@ -15,7 +15,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.ui.PlayStatsActivity;
-import com.boardgamegeek.ui.PlaysActivity;
+import com.boardgamegeek.ui.model.PlayStats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +47,8 @@ public class PreferencesUtils {
 	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
 	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
 	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
+
+	private static final int NOTIFICATION_ID_PLAY_STATS_H_INDEX = 0;
 
 	private PreferencesUtils() {
 	}
@@ -227,30 +229,33 @@ public class PreferencesUtils {
 		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}
 
-	public static void updateGameHIndex(@NonNull Context context, int hIndex) {
+	public static void updatePlayStats(@NonNull Context context, PlayStats playStats) {
+		if (playStats == null) return;
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		updateGameHIndex(context, editor, playStats.getHIndex());
+		editor.apply();
+	}
+
+	private static void updateGameHIndex(@NonNull Context context, Editor editor, int hIndex) {
 		if (hIndex != INVALID_H_INDEX) {
 			int oldHIndex = PreferencesUtils.getGameHIndex(context);
 			if (oldHIndex != hIndex) {
-				putInt(context, KEY_GAME_H_INDEX, hIndex);
-				notifyGameHIndex(context, hIndex, oldHIndex);
+				editor.putInt(KEY_GAME_H_INDEX, hIndex);
+				@StringRes int messageId = hIndex > oldHIndex ? R.string.sync_notification_game_h_index_increase : R.string.sync_notification_game_h_index_decrease;
+				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, hIndex), NOTIFICATION_ID_PLAY_STATS_H_INDEX);
 			}
 		}
 	}
 
-	private static void notifyGameHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
-		@StringRes int messageId;
-		if (hIndex > oldHIndex) {
-			messageId = R.string.sync_notification_game_h_index_increase;
-		} else {
-			messageId = R.string.sync_notification_game_h_index_decrease;
-		}
+	private static void notifyPlayStatChange(@NonNull Context context, CharSequence message, int id) {
 		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_game_h_index, PlaysActivity.class)
-			.setContentText(PresentationUtils.getText(context, messageId, hIndex))
+			.createNotificationBuilder(context, R.string.title_play_stats, PlayStats.class)
+			.setContentText(message)
 			.setContentIntent(pi);
-		NotificationUtils.notify(context, NotificationUtils.TAG_GAME_H_INDEX, 0, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, id, builder);
 	}
 
 	public static long getViewDefaultId(Context context) {

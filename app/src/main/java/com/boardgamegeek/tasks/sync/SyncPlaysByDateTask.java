@@ -11,7 +11,9 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.CompletedEvent;
+import com.boardgamegeek.util.TaskUtils;
 
 import retrofit2.Call;
 import timber.log.Timber;
@@ -59,7 +61,7 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent>
 	@Override
 	protected void finishSync() {
 		if (SyncService.isPlaysSyncUpToDate(context)) {
-			SyncService.calculateAndUpdateGameHIndex(context);
+			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
 	}
 

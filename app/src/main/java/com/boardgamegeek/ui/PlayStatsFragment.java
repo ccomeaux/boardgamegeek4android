@@ -3,13 +3,9 @@ package com.boardgamegeek.ui;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
@@ -23,14 +19,21 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlayStatsUpdatedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +42,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
 
-public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	SharedPreferences.OnSharedPreferenceChangeListener {
-	private static final int TOKEN = 0x01;
+public class PlayStatsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private Unbinder unbinder;
 	@BindView(R.id.progress) View progressView;
 	@BindView(R.id.empty) View emptyView;
@@ -65,10 +67,12 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		return rootView;
 	}
 
+	@DebugLog
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().restartLoader(TOKEN, null, this);
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+		TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(getContext()));
 	}
 
 	@Override
@@ -83,54 +87,23 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
 	}
 
+	@DebugLog
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
+	}
+
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		unbinder.unbind();
 	}
 
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-		CursorLoader loader = null;
-		switch (id) {
-			case TOKEN:
-				loader = new CursorLoader(getActivity(),
-					PlayStats.getUri(isOwnedSynced && isPlayedSynced),
-					PlayStats.PROJECTION,
-					PlayStats.getSelection(getActivity()),
-					PlayStats.getSelectionArgs(getActivity()),
-					PlayStats.getSortOrder());
-				loader.setUpdateThrottle(2000);
-				break;
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-
-		if (cursor == null || !cursor.moveToFirst()) {
-			showEmpty();
-			return;
-		}
-
-		int token = loader.getId();
-		switch (token) {
-			case TOKEN:
-				PlayStats stats = PlayStats.fromCursor(cursor);
-				bindUi(stats);
-				PreferencesUtils.updateGameHIndex(getActivity(), stats.getHIndex());
-				showData();
-				break;
-			default:
-				cursor.close();
-				break;
-		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(PlayStatsUpdatedEvent event) {
+		bindUi(event.getPlayStats());
 	}
 
 	private void bindCollectionStatusMessage() {
@@ -156,6 +129,11 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	}
 
 	private void bindUi(PlayStats stats) {
+		if (stats == null) {
+			showEmpty();
+			return;
+		}
+
 		table.removeAllViews();
 		addStatRow(table, new Builder().labelId(R.string.play_stat_play_count).value(stats.getNumberOfPlays()));
 		addStatRow(table, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfGames()));
@@ -180,6 +158,8 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 			}
 			addStatRow(hIndexTable, builder);
 		}
+
+		showData();
 	}
 
 	private void showEmpty() {
@@ -246,7 +226,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX)) {
 			bindAccuracyMessage();
-			getLoaderManager().restartLoader(TOKEN, null, this);
+			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(getContext()));
 		}
 	}
 }

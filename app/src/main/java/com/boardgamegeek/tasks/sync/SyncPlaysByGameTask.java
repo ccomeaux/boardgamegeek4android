@@ -15,8 +15,10 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask.CompletedEvent;
 import com.boardgamegeek.util.SelectionBuilder;
+import com.boardgamegeek.util.TaskUtils;
 
 import hugo.weaving.DebugLog;
 import retrofit2.Call;
@@ -67,7 +69,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
 		if (SyncService.isPlaysSyncUpToDate(context)) {
-			SyncService.calculateAndUpdateGameHIndex(context);
+			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
 	}
 
