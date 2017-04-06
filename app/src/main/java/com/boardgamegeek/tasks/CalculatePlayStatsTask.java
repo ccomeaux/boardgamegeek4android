@@ -192,7 +192,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	@NonNull
 	private static Uri getUri(boolean byGames) {
 		if (byGames) {
-			return Games.CONTENT_URI.buildUpon().build();
+			return Games.CONTENT_PLAYS_URI.buildUpon().build();
 		} else {
 			return Plays.CONTENT_URI.buildUpon()
 				.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.Plays.OBJECT_ID)

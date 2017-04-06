@@ -37,12 +37,20 @@ public class GamesProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		SelectionBuilder builder = new SelectionBuilder()
-			.table(Tables.GAMES_JOIN_PLAYS)
-			.mapToTable(Games.UPDATED, Tables.GAMES)
-			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
-			.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY, Tables.PLAYS)
-			.mapAsMax(Plays.MAX_DATE, Plays.DATE);
+		SelectionBuilder builder = new SelectionBuilder();
+		if (BggContract.FRAGMENT_PLAYS.equals(uri.getFragment())) {
+			builder
+				.table(Tables.GAMES_JOIN_PLAYS)
+				.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
+				.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY, Tables.PLAYS)
+				.mapAsMax(Plays.MAX_DATE, Plays.DATE);
+		} else {
+			builder
+				.table(Tables.GAMES_JOIN_COLLECTION)
+				.mapToTable(Games.GAME_ID, Tables.GAMES);
+		}
+		builder.mapToTable(Games.UPDATED, Tables.GAMES);
+
 
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {
