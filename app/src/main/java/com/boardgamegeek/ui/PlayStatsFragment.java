@@ -5,6 +5,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
@@ -49,9 +50,10 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	@BindView(R.id.progress) View progressView;
 	@BindView(R.id.empty) View emptyView;
 	@BindView(R.id.data) ViewGroup dataView;
-	@BindView(R.id.table_play_count) TableLayout table;
+	@BindView(R.id.table_play_count) TableLayout playCountTable;
 	@BindView(R.id.game_h_index) TextView hIndexView;
 	@BindView(R.id.table_hindex) TableLayout hIndexTable;
+	@BindView(R.id.table_advanced) TableLayout advancedTable;
 	@BindView(R.id.collection_status_container) ViewGroup collectionStatusContainer;
 	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
 	@BindView(R.id.accuracy_message) TextView accuracyMessage;
@@ -134,15 +136,15 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 			return;
 		}
 
-		table.removeAllViews();
-		addStatRow(table, new Builder().labelId(R.string.play_stat_play_count).value(stats.getNumberOfPlays()));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfGames()));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
-		addStatRow(table, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
+		playCountTable.removeAllViews();
+		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.getNumberOfPlays()));
+		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfGames()));
+		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
+		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
+		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
 
 		if (isPlayedSynced)
-			addStatRow(table, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
 		hIndexView.setText(String.valueOf(stats.getHIndex()));
 		hIndexTable.removeAllViews();
@@ -157,6 +159,14 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 				addDivider = false;
 			}
 			addStatRow(hIndexTable, builder);
+		}
+
+		advancedTable.removeAllViews();
+		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS) {
+			addStatRow(advancedTable, new Builder()
+				.labelId(R.string.play_stat_friendless)
+				.value(stats.getFriendless())
+				.infoId(R.string.play_stat_friendless_info));
 		}
 
 		showData();
@@ -191,10 +201,14 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 
 	@OnClick(R.id.game_h_index_info)
 	void onGameHIndexInfoClick() {
-		SpannableString spannableMessage = new SpannableString(getString(R.string.play_stat_game_h_index_info));
+		showAlertDialog(R.string.play_stat_game_h_index, R.string.play_stat_game_h_index_info);
+	}
+
+	private void showAlertDialog(@StringRes int titleResId, @StringRes int messageResId) {
+		SpannableString spannableMessage = new SpannableString(getString(messageResId));
 		Linkify.addLinks(spannableMessage, Linkify.ALL);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-			.setTitle(R.string.play_stat_game_h_index)
+			.setTitle(titleResId)
 			.setMessage(spannableMessage);
 		AlertDialog dialog = builder.show();
 		TextView textView = (TextView) dialog.findViewById(android.R.id.message);

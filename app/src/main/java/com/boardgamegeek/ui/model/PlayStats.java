@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayStats {
+	public static final int INVALID_FRIENDLESS = Integer.MIN_VALUE;
+
 	private int numberOfPlays = 0;
 	private int numberOfPlayedGames = 0;
 	private int numberOfQuarters = 0;

@@ -5,11 +5,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.util.ArraySet;
 import android.support.v4.util.Pair;
 
 import com.boardgamegeek.events.PlayStatsUpdatedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.model.PlayStats;
@@ -21,18 +23,21 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	public static final String[] PROJECTION = {
 		Plays.SUM_QUANTITY,
 		Plays.ITEM_NAME,
-		Games.GAME_RANK
+		Games.GAME_RANK,
+		Games.GAME_ID
 	};
 
 	private static final int SUM_QUANTITY = 0;
 	private static final int GAME_NAME = 1;
 	private static final int RANK = 2;
+	private static final int GAME_ID = 3;
 
 	private final Context context;
 	private static final int MIN_H_INDEX_GAMES = 2;
@@ -43,7 +48,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private int numberOfDimes = 0;
 	private int numberOfNickels = 0;
 	private int numberOfZeroes = 0;
-	private final List<Integer> playCounts = new ArrayList<>();
+	private final List<Integer> ownedPlayCounts = new ArrayList<>();
 	private int hIndex = 0;
 	private int hIndexCounter = 1;
 	private final List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
@@ -51,6 +56,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private int postIndexCount = 0;
 	private int priorPlayCount;
 	private int top100count = 0;
+	private boolean isOwnedSynced;
 
 	public CalculatePlayStatsTask(Context context) {
 		this.context = context.getApplicationContext();
@@ -58,8 +64,10 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 	@Override
 	protected PlayStats doInBackground(Void... params) {
-		boolean isOwnedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN);
+		isOwnedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN);
 		boolean isPlayedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
+
+		Set<Integer> ownedGameIds = getOwnedGameIds();
 
 		Cursor cursor = context.getContentResolver().query(
 			getUri(isOwnedSynced && isPlayedSynced),
@@ -75,9 +83,10 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 				int playCount = cursor.getInt(SUM_QUANTITY);
 				String gameName = cursor.getString(GAME_NAME);
 				int rank = cursor.getInt(RANK);
+				int gameId = cursor.getInt(GAME_ID);
 
 				numberOfPlays += playCount;
-				playCounts.add(playCount);
+				if (ownedGameIds.contains(gameId)) ownedPlayCounts.add(playCount);
 				if (playCount > 0) numberOfPlayedGames++;
 
 				if (playCount >= 25) numberOfQuarters++;
@@ -85,9 +94,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 				else if (playCount >= 5) numberOfNickels++;
 				else if (playCount == 0) numberOfZeroes++;
 
-				if (playCount > 0 && rank >= 1 && rank <= 100) {
-					top100count++;
-				}
+				if (playCount > 0 && rank >= 1 && rank <= 100) top100count++;
 
 				if (hIndex == 0) {
 					hIndexGamesStack.push(new Pair<>(gameName, playCount));
@@ -147,6 +154,27 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		return playStats;
 	}
 
+	@NonNull
+	private Set<Integer> getOwnedGameIds() {
+		Set<Integer> ownedGameIds = new ArraySet<>();
+		if (isOwnedSynced) {
+			Cursor collectionCursor = context.getContentResolver().query(
+				Collection.CONTENT_URI,
+				new String[] { Collection.GAME_ID },
+				Collection.STATUS_OWN + "=1",
+				null,
+				null);
+			try {
+				while (collectionCursor != null && collectionCursor.moveToNext()) {
+					ownedGameIds.add(collectionCursor.getInt(0));
+				}
+			} finally {
+				if (collectionCursor != null) collectionCursor.close();
+			}
+		}
+		return ownedGameIds;
+	}
+
 	@Override
 	protected void onPostExecute(PlayStats playStats) {
 		EventBus.getDefault().post(new PlayStatsUpdatedEvent(playStats));
@@ -204,13 +232,15 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	}
 
 	private int getFriendless() {
-		if (playCounts == null || playCounts.size() == 0) return 0;
-		if (numberOfDimes == playCounts.size()) {
-			return playCounts.get(playCounts.size() - 1);
+		if (!isOwnedSynced) return PlayStats.INVALID_FRIENDLESS;
+		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
+		int numberOfTens = numberOfDimes + numberOfQuarters;
+		if (numberOfTens == ownedPlayCounts.size()) {
+			return ownedPlayCounts.get(ownedPlayCounts.size() - 1);
 		} else {
-			int friendless = playCounts.get(playCounts.size() - numberOfDimes - 1);
+			int friendless = ownedPlayCounts.get(ownedPlayCounts.size() - numberOfTens - 1);
 			if (friendless == 0)
-				return numberOfDimes - numberOfZeroes;
+				return numberOfTens - numberOfZeroes;
 			return friendless;
 		}
 	}
