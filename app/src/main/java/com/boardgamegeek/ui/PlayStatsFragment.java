@@ -146,15 +146,15 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		if (isPlayedSynced)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
-		hIndexView.setText(String.valueOf(stats.getHIndex()));
+		hIndexView.setText(String.valueOf(stats.getGameHIndex()));
 		hIndexTable.removeAllViews();
 		boolean addDivider = true;
 		for (Pair<String, Integer> game : stats.getHIndexGames()) {
 			final Builder builder = new Builder().labelText(game.first).value(game.second);
-			if (game.second == stats.getHIndex()) {
+			if (game.second == stats.getGameHIndex()) {
 				builder.backgroundResource(R.color.light_blue_transparent);
 				addDivider = false;
-			} else if (game.second < stats.getHIndex() && addDivider) {
+			} else if (game.second < stats.getGameHIndex() && addDivider) {
 				addDivider(hIndexTable);
 				addDivider = false;
 			}

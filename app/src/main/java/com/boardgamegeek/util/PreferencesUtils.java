@@ -233,7 +233,7 @@ public class PreferencesUtils {
 		if (playStats == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateGameHIndex(context, editor, playStats.getHIndex());
+		updateGameHIndex(context, editor, playStats.getGameHIndex());
 		editor.apply();
 	}
 

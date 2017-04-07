@@ -15,7 +15,7 @@ public class PlayStats {
 	private int numberOfQuarters = 0;
 	private int numberOfDimes = 0;
 	private int numberOfNickels = 0;
-	private int hIndex = 0;
+	private int gameHIndex = 0;
 	private List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
 	private int friendless = INVALID_FRIENDLESS;
 	private double utilization = INVALID_UTILIZATION;
@@ -28,7 +28,7 @@ public class PlayStats {
 		numberOfQuarters = builder.numberOfQuarters;
 		numberOfDimes = builder.numberOfDimes;
 		numberOfNickels = builder.numberOfNickels;
-		hIndex = builder.hIndex;
+		gameHIndex = builder.gameHIndex;
 		hIndexGames = builder.hIndexGames;
 		friendless = builder.friendless;
 		utilization = builder.utilization;
@@ -56,8 +56,8 @@ public class PlayStats {
 		return numberOfNickels;
 	}
 
-	public int getHIndex() {
-		return hIndex;
+	public int getGameHIndex() {
+		return gameHIndex;
 	}
 
 	public int getFriendless() {
@@ -86,7 +86,7 @@ public class PlayStats {
 		private int numberOfQuarters;
 		private int numberOfDimes;
 		private int numberOfNickels;
-		private int hIndex;
+		private int gameHIndex;
 		private List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
 		private int friendless;
 		private double utilization;
@@ -121,8 +121,8 @@ public class PlayStats {
 			return this;
 		}
 
-		public Builder hIndex(int val) {
-			hIndex = val;
+		public Builder gameHIndex(int val) {
+			gameHIndex = val;
 			return this;
 		}
 
