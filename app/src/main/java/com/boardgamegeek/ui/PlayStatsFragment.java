@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
@@ -25,6 +24,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment;
+import com.boardgamegeek.ui.model.HIndexEntry;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.DialogUtils;
@@ -149,12 +149,12 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		hIndexView.setText(String.valueOf(stats.getGameHIndex()));
 		hIndexTable.removeAllViews();
 		boolean addDivider = true;
-		for (Pair<String, Integer> game : stats.getHIndexGames()) {
-			final Builder builder = new Builder().labelText(game.first).value(game.second);
-			if (game.second == stats.getGameHIndex()) {
+		for (HIndexEntry game : stats.getHIndexGames()) {
+			final Builder builder = new Builder().labelText(game.getDescription()).value(game.getPlayCount());
+			if (game.getPlayCount() == stats.getGameHIndex()) {
 				builder.backgroundResource(R.color.light_blue_transparent);
 				addDivider = false;
-			} else if (game.second < stats.getGameHIndex() && addDivider) {
+			} else if (game.getPlayCount() < stats.getGameHIndex() && addDivider) {
 				addDivider(hIndexTable);
 				addDivider = false;
 			}

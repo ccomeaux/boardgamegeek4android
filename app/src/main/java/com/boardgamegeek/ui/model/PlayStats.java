@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui.model;
 
-import android.support.v4.util.Pair;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +14,7 @@ public class PlayStats {
 	private int numberOfDimes = 0;
 	private int numberOfNickels = 0;
 	private int gameHIndex = 0;
-	private List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+	private List<HIndexEntry> hIndexGames = new ArrayList<>();
 	private int friendless = INVALID_FRIENDLESS;
 	private double utilization = INVALID_UTILIZATION;
 	private double cfm = 0.0;
@@ -76,7 +74,7 @@ public class PlayStats {
 		return top100count;
 	}
 
-	public List<Pair<String, Integer>> getHIndexGames() {
+	public List<HIndexEntry> getHIndexGames() {
 		return hIndexGames;
 	}
 
@@ -87,7 +85,7 @@ public class PlayStats {
 		private int numberOfDimes;
 		private int numberOfNickels;
 		private int gameHIndex;
-		private List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+		private List<HIndexEntry> hIndexGames = new ArrayList<>();
 		private int friendless;
 		private double utilization;
 		private double cfm;
@@ -126,7 +124,7 @@ public class PlayStats {
 			return this;
 		}
 
-		public Builder hIndexGames(List<Pair<String, Integer>> val) {
+		public Builder hIndexGames(List<HIndexEntry> val) {
 			hIndexGames = val;
 			return this;
 		}

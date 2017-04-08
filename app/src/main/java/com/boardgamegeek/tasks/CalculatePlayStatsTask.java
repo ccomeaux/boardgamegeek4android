@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArraySet;
-import android.support.v4.util.Pair;
 
 import com.boardgamegeek.events.PlayStatsUpdatedEvent;
 import com.boardgamegeek.io.BggService;
@@ -14,6 +13,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.model.HIndexEntry;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.model.PlayStats.Builder;
 import com.boardgamegeek.util.MathUtils;
@@ -40,7 +40,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private static final int GAME_ID = 3;
 
 	private final Context context;
-	private static final int MIN_H_INDEX_GAMES = 2;
+	private static final int MIN_H_INDEX_GAMES = 3;
 	private static final int MAX_H_INDEX_GAMES = 6;
 	private int numberOfPlays = 0;
 	private int numberOfPlayedGames = 0;
@@ -50,7 +50,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private int numberOfZeroes = 0;
 	private final List<Integer> ownedPlayCounts = new ArrayList<>();
 	private int gameHIndex = 0;
-	private final List<Pair<String, Integer>> hIndexGames = new ArrayList<>();
+	private final List<HIndexEntry> hIndexGames = new ArrayList<>();
 	private int top100count = 0;
 	private double totalCdf;
 	private boolean isOwnedSynced;
@@ -122,9 +122,13 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 			if (playCount > 0 && rank >= 1 && rank <= 100) top100count++;
 
-			hIndexGames.add(Pair.create(gameName, playCount));
+			hIndexCounter++;
+			hIndexGames.add(new HIndexEntry.Builder()
+				.name(gameName)
+				.rank(hIndexCounter)
+				.playCount(playCount)
+				.build());
 			if (gameHIndex == 0) {
-				hIndexCounter++;
 				if (hIndexCounter > playCount) {
 					gameHIndex = hIndexCounter - 1;
 				}
@@ -208,19 +212,19 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		return Plays.SUM_QUANTITY + " DESC, " + Games.GAME_SORT_NAME + " ASC";
 	}
 
-	private List<Pair<String, Integer>> getHIndexGames() {
+	private List<HIndexEntry> getHIndexGames() {
 		if (hIndexGames == null || hIndexGames.size() == 0) return new ArrayList<>();
 
-		List<Pair<String, Integer>> games = new ArrayList<>();
+		List<HIndexEntry> games = new ArrayList<>();
 		int indexAbove = -1;
 		int indexBelow = -1;
 		for (int i = 0; i < hIndexGames.size(); i++) {
-			Pair<String, Integer> game = hIndexGames.get(i);
-			if (game.second > gameHIndex) {
+			HIndexEntry game = hIndexGames.get(i);
+			if (game.getPlayCount() > gameHIndex) {
 				indexAbove = i;
-			} else if (game.second == gameHIndex) {
+			} else if (game.getPlayCount() == gameHIndex) {
 				games.add(game);
-			} else if (game.second < gameHIndex) {
+			} else if (game.getPlayCount() < gameHIndex) {
 				indexBelow = i;
 				break;
 			}
@@ -230,14 +234,14 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		int previousPlayCount = -1;
 		if (indexBelow > -1) {
 			for (int i = indexBelow; i < hIndexGames.size(); i++) {
-				Pair<String, Integer> game = hIndexGames.get(i);
+				HIndexEntry game = hIndexGames.get(i);
 				if (count >= MAX_H_INDEX_GAMES) {
 					break;
 				} else if (count < MIN_H_INDEX_GAMES) {
 					games.add(game);
 					count++;
-					previousPlayCount = game.second;
-				} else if (game.second == previousPlayCount) {
+					previousPlayCount = game.getPlayCount();
+				} else if (game.getPlayCount() == previousPlayCount) {
 					games.add(game);
 					count++;
 				} else {
@@ -250,14 +254,14 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		previousPlayCount = -1;
 		if (indexAbove > -1) {
 			for (int i = indexAbove; i >= 0; i--) {
-				Pair<String, Integer> game = hIndexGames.get(i);
+				HIndexEntry game = hIndexGames.get(i);
 				if (count >= MAX_H_INDEX_GAMES) {
 					break;
 				} else if (count < MIN_H_INDEX_GAMES) {
 					games.add(0, game);
 					count++;
-					previousPlayCount = game.second;
-				} else if (game.second == previousPlayCount) {
+					previousPlayCount = game.getPlayCount();
+				} else if (game.getPlayCount() == previousPlayCount) {
 					games.add(0, game);
 					count++;
 				} else {
