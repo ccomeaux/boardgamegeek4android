@@ -15,6 +15,7 @@ public class PlayStats {
 	private int numberOfNickels = 0;
 	private int gameHIndex = 0;
 	private List<HIndexEntry> hIndexGames = new ArrayList<>();
+	private int playerHIndex = 0;
 	private int friendless = INVALID_FRIENDLESS;
 	private double utilization = INVALID_UTILIZATION;
 	private double cfm = 0.0;
@@ -28,6 +29,7 @@ public class PlayStats {
 		numberOfNickels = builder.numberOfNickels;
 		gameHIndex = builder.gameHIndex;
 		hIndexGames = builder.hIndexGames;
+		playerHIndex = builder.playerHIndex;
 		friendless = builder.friendless;
 		utilization = builder.utilization;
 		cfm = builder.cfm;
@@ -58,6 +60,10 @@ public class PlayStats {
 		return gameHIndex;
 	}
 
+	public int getPlayerHIndex() {
+		return playerHIndex;
+	}
+
 	public int getFriendless() {
 		return friendless;
 	}
@@ -86,6 +92,7 @@ public class PlayStats {
 		private int numberOfNickels;
 		private int gameHIndex;
 		private List<HIndexEntry> hIndexGames = new ArrayList<>();
+		private int playerHIndex;
 		private int friendless;
 		private double utilization;
 		private double cfm;
@@ -126,6 +133,11 @@ public class PlayStats {
 
 		public Builder hIndexGames(List<HIndexEntry> val) {
 			hIndexGames = val;
+			return this;
+		}
+
+		public Builder playerHIndex(int val) {
+			playerHIndex = val;
 			return this;
 		}
 

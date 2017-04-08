@@ -39,6 +39,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -51,12 +52,15 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	@BindView(R.id.empty) View emptyView;
 	@BindView(R.id.data) ViewGroup dataView;
 	@BindView(R.id.table_play_count) TableLayout playCountTable;
-	@BindView(R.id.game_h_index) TextView hIndexView;
+	@BindView(R.id.game_h_index) TextView gameHIndexView;
 	@BindView(R.id.table_hindex) TableLayout hIndexTable;
+	@BindView(R.id.player_h_index) TextView playerHIndexView;
 	@BindView(R.id.table_advanced) TableLayout advancedTable;
 	@BindView(R.id.collection_status_container) ViewGroup collectionStatusContainer;
 	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
 	@BindView(R.id.accuracy_message) TextView accuracyMessage;
+	@BindString(R.string.this_many) String nullMessageChunk;
+	private PlayStats playStats;
 	private boolean isOwnedSynced;
 	private boolean isPlayedSynced;
 
@@ -131,6 +135,7 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	}
 
 	private void bindUi(PlayStats stats) {
+		playStats = stats;
 		if (stats == null) {
 			showEmpty();
 			return;
@@ -146,7 +151,7 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		if (isPlayedSynced)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
-		hIndexView.setText(String.valueOf(stats.getGameHIndex()));
+		gameHIndexView.setText(String.valueOf(stats.getGameHIndex()));
 		hIndexTable.removeAllViews();
 		boolean addDivider = true;
 		for (HIndexEntry game : stats.getHIndexGames()) {
@@ -160,6 +165,8 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 			}
 			addStatRow(hIndexTable, builder);
 		}
+
+		playerHIndexView.setText(String.valueOf(stats.getPlayerHIndex()));
 
 		advancedTable.removeAllViews();
 		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS)
@@ -210,11 +217,20 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 
 	@OnClick(R.id.game_h_index_info)
 	void onGameHIndexInfoClick() {
-		showAlertDialog(R.string.play_stat_game_h_index, R.string.play_stat_game_h_index_info);
+		showAlertDialog(R.string.play_stat_game_h_index,
+			R.string.play_stat_game_h_index_info,
+			playStats == null ? nullMessageChunk : playStats.getGameHIndex());
 	}
 
-	private void showAlertDialog(@StringRes int titleResId, @StringRes int messageResId) {
-		SpannableString spannableMessage = new SpannableString(getString(messageResId));
+	@OnClick(R.id.player_h_index_info)
+	void onPlayerHIndexInfoClick() {
+		showAlertDialog(R.string.play_stat_player_h_index,
+			R.string.play_stat_player_h_index_info,
+			playStats == null ? nullMessageChunk : playStats.getPlayerHIndex());
+	}
+
+	private void showAlertDialog(@StringRes int titleResId, @StringRes int messageResId, Object... formatArgs) {
+		SpannableString spannableMessage = new SpannableString(getString(messageResId, formatArgs));
 		Linkify.addLinks(spannableMessage, Linkify.ALL);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
 			.setTitle(titleResId)

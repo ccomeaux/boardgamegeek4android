@@ -503,14 +503,16 @@
 	<string name="play_stat_last_play">Last play</string>
 	<string name="play_stat_top_100">Top 100 games played</string>
 	<string name="play_stat_game_h_index">Game H-index</string>
-	<string name="play_stat_game_h_index_info">You\'ve played at least this number of games this number of times or more.\n\nhttps://boardgamegeek.com/thread/953084</string>
+	<string name="play_stat_game_h_index_info">You\'ve played at least %1$s games %1$s times or more.\n\nhttps://boardgamegeek.com/thread/953084</string>
 	<string name="play_stat_game_h_index_offset_in">This game contributes to your H-index.</string>
 	<string name="play_stat_game_h_index_offset_out">plays outside of your H-index.</string>
+	<string name="play_stat_player_h_index">Player H-index</string>
+	<string name="play_stat_player_h_index_info">You\'ve played against at least %1$s players %1$s times or more.\n\nhttps://boardgamegeek.com/thread/1448479</string>
 	<string name="play_stat_friendless">Friendless metric</string>
 	<string name="play_stat_friendless_info">A measure of how well played your owned collection is. A negative number indicates the difference of unplayed games vs. dimes you own.\n\nhttp://friendlessstats.dtdns.net/</string>
 	<string name="play_stat_cfm">Continuous Friendless Metric (CFM)</string>
 	<string name="play_stat_cfm_info">Similar to the friendless metric, it is an average number of plays with no cheating.\n\nhttp://friendlessstats.dtdns.net/</string>
-	<string name="game_h_index_prefix">Game H-Index <b>%d</b></string>
+	<string name="game_h_index_prefix">Game H-Index <b>%,d</b></string>
 	<string name="card_footer_colors">Edit colors</string>
 	<string name="card_footer_stats">See more stats</string>
 	<string name="play_stat_fhm">FHM</string>
@@ -562,6 +564,7 @@
 	<string name="msg_update_unsuccessful_response">Unsuccessful fetching %1$s with HTTP response code: %2$d</string>
 	<string name="msg_update_exception">Exception fetching %1$s: %2$s</string>
 	<string name="profile_updated">Profile updated</string>
+	<string name="this_many">this many</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

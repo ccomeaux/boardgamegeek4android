@@ -7,15 +7,18 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArraySet;
 
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.PlayStatsUpdatedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.model.HIndexEntry;
 import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.ui.model.PlayStats.Builder;
+import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -51,6 +54,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private final List<Integer> ownedPlayCounts = new ArrayList<>();
 	private int gameHIndex = 0;
 	private final List<HIndexEntry> hIndexGames = new ArrayList<>();
+	private int playerHIndex;
 	private int top100count = 0;
 	private double totalCdf;
 	private boolean isOwnedSynced;
@@ -81,6 +85,19 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			if (cursor != null) cursor.close();
 		}
 
+		Cursor playerCursor = context.getContentResolver().query(
+			Plays.buildPlayersByUniquePlayerUri(),
+			Player.PROJECTION,
+			getPlayerSelection(context),
+			getPlayerSelectionArgs(context),
+			getPlayerSortOrder());
+
+		try {
+			if (playerCursor != null) calculatePlayerStats(playerCursor);
+		} finally {
+			if (playerCursor != null) playerCursor.close();
+		}
+
 		PlayStats playStats = new Builder()
 			.numberOfPlays(numberOfPlays)
 			.numberOfPlayedGames(numberOfPlayedGames)
@@ -89,6 +106,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			.numberOfQuarters(numberOfQuarters)
 			.gameHIndex(gameHIndex)
 			.hIndexGames(getHIndexGames())
+			.playerHIndex(playerHIndex)
 			.friendless(getFriendless())
 			.utilization(getUtilization())
 			.cfm(getCfm())
@@ -122,6 +140,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 			if (playCount > 0 && rank >= 1 && rank <= 100) top100count++;
 
+			if (playCount > 0) {
 			hIndexCounter++;
 			hIndexGames.add(new HIndexEntry.Builder()
 				.name(gameName)
@@ -134,7 +153,24 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 				}
 			}
 		}
-		if (gameHIndex == 0) gameHIndex = hIndexCounter - 1;
+		}
+		if (gameHIndex == 0) gameHIndex = hIndexCounter;
+	}
+
+	private void calculatePlayerStats(Cursor playerCursor) {
+		int hIndexCounter = 0;
+		while (playerCursor.moveToNext()) {
+			Player player = Player.fromCursor(playerCursor);
+			if (player.getPlayCount() > 0) {
+				hIndexCounter++;
+				if (playerHIndex == 0) {
+					if (hIndexCounter > player.getPlayCount()) {
+						playerHIndex = hIndexCounter - 1;
+					}
+				}
+			}
+		}
+		if (playerHIndex == 0) playerHIndex = hIndexCounter;
 	}
 
 	@NonNull
@@ -210,6 +246,30 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	@NonNull
 	private static String getGameSortOrder() {
 		return Plays.SUM_QUANTITY + " DESC, " + Games.GAME_SORT_NAME + " ASC";
+	}
+
+	@NonNull
+	private static String getPlayerSelection(Context context) {
+		String selection = SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
+			PlayPlayers.USER_NAME + "!=?";
+
+		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
+			selection += " AND " + SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE);
+		}
+
+		return selection;
+	}
+
+	@NonNull
+	private static String[] getPlayerSelectionArgs(Context context) {
+		List<String> args = new ArrayList<>();
+		args.add(AccountUtils.getUsername(context));
+		return args.toArray(new String[args.size()]);
+	}
+
+	@NonNull
+	private static String getPlayerSortOrder() {
+		return PlayPlayers.SUM_QUANTITY + " DESC, " + PlayPlayers.NAME + BggContract.COLLATE_NOCASE;
 	}
 
 	private List<HIndexEntry> getHIndexGames() {
