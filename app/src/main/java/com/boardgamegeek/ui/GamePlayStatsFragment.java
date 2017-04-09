@@ -88,7 +88,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private int playingTime;
 	private double personalRating;
-	private int gameOwned;
+	private boolean gameOwned;
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
@@ -204,10 +204,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				if (cursor == null || !cursor.moveToFirst()) {
 					playingTime = 0;
 					personalRating = 0.0;
-					gameOwned = 0;
+					gameOwned = false;
 				} else {
 					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-					gameOwned = cursor.getInt(GameQuery.STATUS_OWN);
+					gameOwned = cursor.getInt(GameQuery.STATUS_OWN) > 0;
 					double ratingSum = 0;
 					int ratingCount = 0;
 					do {
@@ -402,7 +402,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
 		}
 
-		if (gameOwned > 0) {
+		if (gameOwned) {
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
 		}
 
