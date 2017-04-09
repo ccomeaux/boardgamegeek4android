@@ -73,7 +73,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 	@Override
 	protected void persistResponse(CollectionResponse body) {
 		results = persister.save(body.items);
-		Timber.i("Synced %,d collection item(s) for game '%s'", body.items.size(), gameId);
+		Timber.i("Synced %,d collection item(s) for game '%s'", body.items == null ? 0 : body.items.size(), gameId);
 	}
 
 	@Override
