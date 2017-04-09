@@ -141,8 +141,8 @@ dependencies {
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
     compile 'org.jsoup:jsoup:1.10.2'
 
-    provided "com.google.auto.value:auto-value:1.4"
-    apt "com.google.auto.value:auto-value:1.4"
+    provided "com.google.auto.value:auto-value:1.4.1"
+    apt "com.google.auto.value:auto-value:1.4.1"
 
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava:1.2.9'
