@@ -53,8 +53,9 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	@BindView(R.id.data) ViewGroup dataView;
 	@BindView(R.id.table_play_count) TableLayout playCountTable;
 	@BindView(R.id.game_h_index) TextView gameHIndexView;
-	@BindView(R.id.table_hindex) TableLayout hIndexTable;
+	@BindView(R.id.table_game_h_index) TableLayout gameHIndexTable;
 	@BindView(R.id.player_h_index) TextView playerHIndexView;
+	@BindView(R.id.table_player_h_index) TableLayout playerHIndexTable;
 	@BindView(R.id.table_advanced) TableLayout advancedTable;
 	@BindView(R.id.collection_status_container) ViewGroup collectionStatusContainer;
 	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
@@ -152,21 +153,10 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
 		gameHIndexView.setText(String.valueOf(stats.getGameHIndex()));
-		hIndexTable.removeAllViews();
-		boolean addDivider = true;
-		for (HIndexEntry game : stats.getHIndexGames()) {
-			final Builder builder = new Builder().labelText(game.getDescription()).value(game.getPlayCount());
-			if (game.getPlayCount() == stats.getGameHIndex()) {
-				builder.backgroundResource(R.color.light_blue_transparent);
-				addDivider = false;
-			} else if (game.getPlayCount() < stats.getGameHIndex() && addDivider) {
-				addDivider(hIndexTable);
-				addDivider = false;
-			}
-			addStatRow(hIndexTable, builder);
-		}
+		bindHIndexTable(gameHIndexTable, stats.getGameHIndex(), stats.getHIndexGames());
 
 		playerHIndexView.setText(String.valueOf(stats.getPlayerHIndex()));
+		bindHIndexTable(playerHIndexTable, stats.getPlayerHIndex(), stats.getHIndexPlayers());
 
 		advancedTable.removeAllViews();
 		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS)
@@ -186,6 +176,27 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 				.infoId(R.string.play_stat_cfm_info));
 
 		showData();
+	}
+
+	private void bindHIndexTable(TableLayout table, int hIndex, List<HIndexEntry> entries) {
+		table.removeAllViews();
+		if (entries == null || entries.size() == 0) {
+			table.setVisibility(View.GONE);
+		} else {
+			boolean addDivider = true;
+			for (HIndexEntry game : entries) {
+				final Builder builder = new Builder().labelText(game.getDescription()).value(game.getPlayCount());
+				if (game.getPlayCount() == hIndex) {
+					builder.backgroundResource(R.color.light_blue_transparent);
+					addDivider = false;
+				} else if (game.getPlayCount() < hIndex && addDivider) {
+					addDivider(table);
+					addDivider = false;
+				}
+				addStatRow(table, builder);
+			}
+			table.setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void showEmpty() {

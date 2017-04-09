@@ -16,6 +16,7 @@ public class PlayStats {
 	private int gameHIndex = 0;
 	private List<HIndexEntry> hIndexGames = new ArrayList<>();
 	private int playerHIndex = 0;
+	private List<HIndexEntry> hIndexPlayers = new ArrayList<>();
 	private int friendless = INVALID_FRIENDLESS;
 	private double utilization = INVALID_UTILIZATION;
 	private double cfm = 0.0;
@@ -30,6 +31,7 @@ public class PlayStats {
 		gameHIndex = builder.gameHIndex;
 		hIndexGames = builder.hIndexGames;
 		playerHIndex = builder.playerHIndex;
+		hIndexPlayers = builder.hIndexPlayers;
 		friendless = builder.friendless;
 		utilization = builder.utilization;
 		cfm = builder.cfm;
@@ -84,6 +86,10 @@ public class PlayStats {
 		return hIndexGames;
 	}
 
+	public List<HIndexEntry> getHIndexPlayers() {
+		return hIndexPlayers;
+	}
+
 	public static final class Builder {
 		private int numberOfPlays;
 		private int numberOfPlayedGames;
@@ -93,6 +99,7 @@ public class PlayStats {
 		private int gameHIndex;
 		private List<HIndexEntry> hIndexGames = new ArrayList<>();
 		private int playerHIndex;
+		private List<HIndexEntry> hIndexPlayers = new ArrayList<>();
 		private int friendless;
 		private double utilization;
 		private double cfm;
@@ -138,6 +145,11 @@ public class PlayStats {
 
 		public Builder playerHIndex(int val) {
 			playerHIndex = val;
+			return this;
+		}
+
+		public Builder hIndexPlayers(List<HIndexEntry> val) {
+			hIndexPlayers = val;
 			return this;
 		}
 

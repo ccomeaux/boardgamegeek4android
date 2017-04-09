@@ -43,19 +43,20 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private static final int GAME_ID = 3;
 
 	private final Context context;
-	private static final int MIN_H_INDEX_GAMES = 3;
-	private static final int MAX_H_INDEX_GAMES = 6;
-	private int numberOfPlays = 0;
-	private int numberOfPlayedGames = 0;
-	private int numberOfQuarters = 0;
-	private int numberOfDimes = 0;
-	private int numberOfNickels = 0;
-	private int numberOfZeroes = 0;
+	private static final int MIN_H_INDEX_ENTRIES = 3;
+	private static final int MAX_H_INDEX_ENTRIES = 6;
+	private int numberOfPlays;
+	private int numberOfPlayedGames;
+	private int numberOfQuarters;
+	private int numberOfDimes;
+	private int numberOfNickels;
+	private int numberOfZeroes;
 	private final List<Integer> ownedPlayCounts = new ArrayList<>();
 	private int gameHIndex = 0;
 	private final List<HIndexEntry> hIndexGames = new ArrayList<>();
 	private int playerHIndex;
-	private int top100count = 0;
+	private final List<HIndexEntry> hIndexPlayers = new ArrayList<>();
+	private int top100count;
 	private double totalCdf;
 	private boolean isOwnedSynced;
 	private final double lambda;
@@ -67,6 +68,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 	@Override
 	protected PlayStats doInBackground(Void... params) {
+		reset();
+
 		isOwnedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN);
 		boolean isPlayedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
 
@@ -107,6 +110,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			.gameHIndex(gameHIndex)
 			.hIndexGames(getHIndexGames())
 			.playerHIndex(playerHIndex)
+			.hIndexPlayers(getHIndexPlayers())
 			.friendless(getFriendless())
 			.utilization(getUtilization())
 			.cfm(getCfm())
@@ -116,6 +120,22 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		PreferencesUtils.updatePlayStats(context, playStats);
 
 		return playStats;
+	}
+
+	private void reset() {
+		numberOfPlays = 0;
+		numberOfPlayedGames = 0;
+		numberOfQuarters = 0;
+		numberOfDimes = 0;
+		numberOfNickels = 0;
+		numberOfZeroes = 0;
+		ownedPlayCounts.clear();
+		gameHIndex = 0;
+		hIndexGames.clear();
+		playerHIndex = 0;
+		hIndexPlayers.clear();
+		top100count = 0;
+		totalCdf = 0.0;
 	}
 
 	private void calculateGameStats(Cursor cursor, Set<Integer> ownedGameIds) {
@@ -141,18 +161,18 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			if (playCount > 0 && rank >= 1 && rank <= 100) top100count++;
 
 			if (playCount > 0) {
-			hIndexCounter++;
-			hIndexGames.add(new HIndexEntry.Builder()
-				.name(gameName)
-				.rank(hIndexCounter)
-				.playCount(playCount)
-				.build());
-			if (gameHIndex == 0) {
-				if (hIndexCounter > playCount) {
-					gameHIndex = hIndexCounter - 1;
+				hIndexCounter++;
+				hIndexGames.add(new HIndexEntry.Builder()
+					.name(gameName)
+					.rank(hIndexCounter)
+					.playCount(playCount)
+					.build());
+				if (gameHIndex == 0) {
+					if (hIndexCounter > playCount) {
+						gameHIndex = hIndexCounter - 1;
+					}
 				}
 			}
-		}
 		}
 		if (gameHIndex == 0) gameHIndex = hIndexCounter;
 	}
@@ -163,6 +183,11 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			Player player = Player.fromCursor(playerCursor);
 			if (player.getPlayCount() > 0) {
 				hIndexCounter++;
+				hIndexPlayers.add(new HIndexEntry.Builder()
+					.name(player.getDescription())
+					.rank(hIndexCounter)
+					.playCount(player.getPlayCount())
+					.build());
 				if (playerHIndex == 0) {
 					if (hIndexCounter > player.getPlayCount()) {
 						playerHIndex = hIndexCounter - 1;
@@ -273,18 +298,26 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	}
 
 	private List<HIndexEntry> getHIndexGames() {
-		if (hIndexGames == null || hIndexGames.size() == 0) return new ArrayList<>();
+		return getHIndexEntries(hIndexGames, gameHIndex);
+	}
 
-		List<HIndexEntry> games = new ArrayList<>();
+	private List<HIndexEntry> getHIndexPlayers() {
+		return getHIndexEntries(hIndexPlayers, playerHIndex);
+	}
+
+	private List<HIndexEntry> getHIndexEntries(List<HIndexEntry> hIndexEntries, int hIndex) {
+		if (hIndexEntries == null || hIndexEntries.size() == 0) return new ArrayList<>();
+
+		List<HIndexEntry> entries = new ArrayList<>();
 		int indexAbove = -1;
 		int indexBelow = -1;
-		for (int i = 0; i < hIndexGames.size(); i++) {
-			HIndexEntry game = hIndexGames.get(i);
-			if (game.getPlayCount() > gameHIndex) {
+		for (int i = 0; i < hIndexEntries.size(); i++) {
+			HIndexEntry entry = hIndexEntries.get(i);
+			if (entry.getPlayCount() > hIndex) {
 				indexAbove = i;
-			} else if (game.getPlayCount() == gameHIndex) {
-				games.add(game);
-			} else if (game.getPlayCount() < gameHIndex) {
+			} else if (entry.getPlayCount() == hIndex) {
+				entries.add(entry);
+			} else if (entry.getPlayCount() < hIndex) {
 				indexBelow = i;
 				break;
 			}
@@ -293,16 +326,16 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		int count = 0;
 		int previousPlayCount = -1;
 		if (indexBelow > -1) {
-			for (int i = indexBelow; i < hIndexGames.size(); i++) {
-				HIndexEntry game = hIndexGames.get(i);
-				if (count >= MAX_H_INDEX_GAMES) {
+			for (int i = indexBelow; i < hIndexEntries.size(); i++) {
+				HIndexEntry entry = hIndexEntries.get(i);
+				if (count >= MAX_H_INDEX_ENTRIES) {
 					break;
-				} else if (count < MIN_H_INDEX_GAMES) {
-					games.add(game);
+				} else if (count < MIN_H_INDEX_ENTRIES) {
+					entries.add(entry);
 					count++;
-					previousPlayCount = game.getPlayCount();
-				} else if (game.getPlayCount() == previousPlayCount) {
-					games.add(game);
+					previousPlayCount = entry.getPlayCount();
+				} else if (entry.getPlayCount() == previousPlayCount) {
+					entries.add(entry);
 					count++;
 				} else {
 					break;
@@ -314,15 +347,15 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		previousPlayCount = -1;
 		if (indexAbove > -1) {
 			for (int i = indexAbove; i >= 0; i--) {
-				HIndexEntry game = hIndexGames.get(i);
-				if (count >= MAX_H_INDEX_GAMES) {
+				HIndexEntry entry = hIndexEntries.get(i);
+				if (count >= MAX_H_INDEX_ENTRIES) {
 					break;
-				} else if (count < MIN_H_INDEX_GAMES) {
-					games.add(0, game);
+				} else if (count < MIN_H_INDEX_ENTRIES) {
+					entries.add(0, entry);
 					count++;
-					previousPlayCount = game.getPlayCount();
-				} else if (game.getPlayCount() == previousPlayCount) {
-					games.add(0, game);
+					previousPlayCount = entry.getPlayCount();
+				} else if (entry.getPlayCount() == previousPlayCount) {
+					entries.add(0, entry);
 					count++;
 				} else {
 					break;
@@ -330,7 +363,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			}
 		}
 
-		return games;
+		return entries;
 	}
 
 	private int getFriendless() {
