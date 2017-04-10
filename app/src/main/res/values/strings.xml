@@ -565,6 +565,8 @@
 	<string name="msg_update_exception">Exception fetching %1$s: %2$s</string>
 	<string name="profile_updated">Profile updated</string>
 	<string name="this_many">this many</string>
+	<string name="game">game</string>
+	<string name="player">player</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

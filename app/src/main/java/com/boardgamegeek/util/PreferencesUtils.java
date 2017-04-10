@@ -37,6 +37,7 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
 	private static final String KEY_GAME_H_INDEX = "hIndex";
+	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
@@ -48,7 +49,8 @@ public class PreferencesUtils {
 	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
 	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
 
-	private static final int NOTIFICATION_ID_PLAY_STATS_H_INDEX = 0;
+	private static final int NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0;
+	private static final int NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX = 1;
 
 	private PreferencesUtils() {
 	}
@@ -233,17 +235,18 @@ public class PreferencesUtils {
 		if (playStats == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateGameHIndex(context, editor, playStats.getGameHIndex());
+		updateHIndex(context, editor, playStats.getGameHIndex(), KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
+		updateHIndex(context, editor, playStats.getPlayerHIndex(), KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
 		editor.apply();
 	}
 
-	private static void updateGameHIndex(@NonNull Context context, Editor editor, int hIndex) {
+	private static void updateHIndex(@NonNull Context context, Editor editor, int hIndex, String key, @StringRes int typeResId, int notificationId) {
 		if (hIndex != INVALID_H_INDEX) {
-			int oldHIndex = PreferencesUtils.getGameHIndex(context);
+			int oldHIndex = getInt(context, key, 0);
 			if (oldHIndex != hIndex) {
-				editor.putInt(KEY_GAME_H_INDEX, hIndex);
-				@StringRes int messageId = hIndex > oldHIndex ? R.string.sync_notification_game_h_index_increase : R.string.sync_notification_game_h_index_decrease;
-				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, hIndex), NOTIFICATION_ID_PLAY_STATS_H_INDEX);
+				editor.putInt(key, hIndex);
+				@StringRes int messageId = hIndex > oldHIndex ? R.string.sync_notification_h_index_increase : R.string.sync_notification_h_index_decrease;
+				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, context.getString(typeResId), hIndex), notificationId);
 			}
 		}
 	}
