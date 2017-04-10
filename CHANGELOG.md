@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon...
 --------------
+ * More play stats (and they're prettier too)
  * Sync improvements
  * Bug fixes
 
