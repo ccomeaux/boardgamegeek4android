@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.ScrollView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -21,21 +20,20 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
-public class PlayStatsSettingsDialogFragment extends DialogFragment {
+public class PlayStatsIncludeSettingsDialogFragment extends DialogFragment {
 	private ViewGroup root;
 	private Unbinder unbinder;
-	@BindView(R.id.scroll_container) ScrollView scrollContainer;
 	@BindView(R.id.incomplete) CheckBox includeIncompleteGamesView;
 	@BindView(R.id.expansions) CheckBox includeExpansionsView;
 	@BindView(R.id.accessories) CheckBox includeAccessoriesView;
 
 	@DebugLog
-	public PlayStatsSettingsDialogFragment() {
+	public PlayStatsIncludeSettingsDialogFragment() {
 	}
 
 	@DebugLog
-	public static PlayStatsSettingsDialogFragment newInstance(@Nullable ViewGroup root) {
-		final PlayStatsSettingsDialogFragment fragment = new PlayStatsSettingsDialogFragment();
+	public static PlayStatsIncludeSettingsDialogFragment newInstance(@Nullable ViewGroup root) {
+		final PlayStatsIncludeSettingsDialogFragment fragment = new PlayStatsIncludeSettingsDialogFragment();
 		fragment.root = root;
 		return fragment;
 	}
@@ -45,7 +43,7 @@ public class PlayStatsSettingsDialogFragment extends DialogFragment {
 	@NonNull
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-		View rootView = layoutInflater.inflate(R.layout.dialog_play_stats_settings, root, false);
+		View rootView = layoutInflater.inflate(R.layout.dialog_play_stats_settings_include, root, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
 		bindUi();

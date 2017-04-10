@@ -272,6 +272,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String QUERY_VALUE_PLAY = "play";
 	public static final String FRAGMENT_SIMPLE = "simple";
+	public static final String FRAGMENT_PLAYS = "plays";
 	public static final String QUERY_KEY_LIMIT = "limit";
 
 	public static class Thumbnails {
@@ -292,6 +293,7 @@ public class BggContract {
 
 	public static class Games implements GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build();
+		public static final Uri CONTENT_PLAYS_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_PLAYS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game";

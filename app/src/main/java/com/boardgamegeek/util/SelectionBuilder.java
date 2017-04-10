@@ -155,6 +155,10 @@ public class SelectionBuilder {
 		return map(aliasColumn, String.format("SUM(%s)", sumColumn));
 	}
 
+	public SelectionBuilder mapAsSum(String aliasColumn, String sumColumn, String table) {
+		return map(aliasColumn, String.format("SUM(%s.%s)", table, sumColumn));
+	}
+
 	public SelectionBuilder mapAsMax(String aliasColumn, String maxColumn) {
 		return map(aliasColumn, String.format("MAX(%s)", maxColumn));
 	}
@@ -281,6 +285,10 @@ public class SelectionBuilder {
 
 	public static String whereNullOrEmpty(String columnName) {
 		return String.format("(%1$S IS NULL OR %1$S='')", columnName);
+	}
+
+	public static String whereNotNullOrEmpty(String columnName) {
+		return String.format("(%1$S IS NOT NULL AND %1$S<>'')", columnName);
 	}
 
 	public static String whereZeroOrNull(String columnName) {

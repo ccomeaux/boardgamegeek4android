@@ -28,6 +28,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -36,6 +37,7 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 
 import java.util.List;
 
@@ -117,7 +119,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		deletePendingPlays(syncResult);
 		updatePendingPlays(syncResult);
 		if (SyncService.isPlaysSyncUpToDate(context)) {
-			SyncService.calculateAndUpdateHIndex(context);
+			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
 	}
 

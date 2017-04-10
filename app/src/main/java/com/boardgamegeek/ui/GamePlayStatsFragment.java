@@ -44,6 +44,7 @@ import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -401,9 +402,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
 		int hIndexOffset = stats.getHIndexOffset();
 		if (hIndexOffset == -1) {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_in));
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_in));
 		} else {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_out).value(hIndexOffset));
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_out).value(hIndexOffset));
 		}
 	}
 
@@ -940,7 +941,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double calculateUtilization() {
-			return 1 - Math.exp(-lambda * playCount);
+			return MathUtils.cdf(playCount, lambda);
 		}
 
 		public int calculateFhm() {
@@ -960,7 +961,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getHIndexOffset() {
-			int hIndex = PreferencesUtils.getHIndex(getActivity());
+			int hIndex = PreferencesUtils.getGameHIndex(getActivity());
 			if (playCount >= hIndex) {
 				return -1;
 			} else {
