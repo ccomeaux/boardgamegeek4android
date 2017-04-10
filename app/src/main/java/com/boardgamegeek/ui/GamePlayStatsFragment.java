@@ -89,6 +89,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private int playingTime;
 	private double personalRating;
+	private boolean gameOwned;
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
@@ -204,8 +205,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				if (cursor == null || !cursor.moveToFirst()) {
 					playingTime = 0;
 					personalRating = 0.0;
+					gameOwned = false;
 				} else {
 					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
+					gameOwned = cursor.getInt(GameQuery.STATUS_OWN) > 0;
 					double ratingSum = 0;
 					int ratingCount = 0;
 					do {
@@ -399,7 +402,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
 		}
-		addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+
+		if (gameOwned) {
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+		}
+
 		int hIndexOffset = stats.getHIndexOffset();
 		if (hIndexOffset == -1) {
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_in));
@@ -1152,8 +1159,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface GameQuery {
 		int _TOKEN = 0x02;
-		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME };
+		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME, Collection.STATUS_OWN };
 		int RATING = 1;
 		int PLAYING_TIME = 2;
+		int STATUS_OWN = 3;
 	}
 }
