@@ -10,8 +10,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.UpdateErrorEvent;
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -46,8 +47,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(UpdateErrorEvent event) {
-		Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
+	public void onEvent(SyncUserTask.CompletedEvent event) {
+		if (event.getUsername().equals(AccountUtils.getUsername(this))) {
+			Toast.makeText(this, R.string.profile_updated, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@MenuRes

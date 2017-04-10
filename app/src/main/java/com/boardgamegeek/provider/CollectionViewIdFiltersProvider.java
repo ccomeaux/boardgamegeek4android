@@ -49,7 +49,7 @@ public class CollectionViewIdFiltersProvider extends BaseProvider {
 	private SelectionBuilder buildSelection(Uri uri, String table, String idColumnName) {
 		long filterId = CollectionViews.getViewId(uri);
 		return new SelectionBuilder().table(table)
-			.mapToTable(CollectionViewFilters._ID, Tables.COLLECTION_VIEW_FILTERS, CollectionViewFilters._ID, "0")
+			.mapIfNullToTable(CollectionViewFilters._ID, Tables.COLLECTION_VIEW_FILTERS, "0")
 			.where(idColumnName + "=?", String.valueOf(filterId));
 	}
 }

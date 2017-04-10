@@ -3,7 +3,6 @@
 	<string name="title_login">Sign in to BoardGameGeek</string>
 	<string name="prompt_username">Username</string>
 	<string name="prompt_password">Password</string>
-	<string name="show_password">Show password</string>
 	<string name="action_sign_in">Sign in</string>
 	<string name="login_progress_signing_in">Signing in&#8230;</string>
 	<string name="error_incorrect_password">This password is incorrect</string>

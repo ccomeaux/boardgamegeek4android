@@ -13,42 +13,45 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 
 @Root(name = "item")
 public class GeekListItem {
+	public static final int INVALID_OBJECT_TYPE_RES_ID = 0;
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
 	private long postDateTime = DateTimeUtils.UNPARSED_DATE;
 	private long editDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute private String id;
-
 	@Attribute private String imageid;
+	@Attribute private String objectid;
+	@Attribute private String objectname;
+	@Attribute private String objecttype;
+	@Attribute private String postdate;
+	@Attribute private String editdate;
+	@Attribute private String subtype;
+	@Attribute private String thumbs;
+	@Attribute private String username;
+	@Element(required = false) private String body;
+	@ElementList(name = "comment", inline = true, required = false) private ArrayList<GeekListComment> comments;
 
 	public int imageId() {
 		return Integer.valueOf(imageid);
 	}
 
-	@Attribute private String objectid;
-
 	public int getObjectId() {
 		return StringUtils.parseInt(objectid, BggContract.INVALID_ID);
 	}
-
-	@Attribute private String objectname;
 
 	public String getObjectName() {
 		return objectname;
 	}
 
-	@Attribute private String objecttype;
+	public int getObjectTypeResId() {
+		if (objecttype == null) return INVALID_OBJECT_TYPE_RES_ID;
 
-	public int getObjectTypeId() {
-		if (objecttype == null) {
-			return 0;
-		}
 		switch (objecttype) {
 			case "thing":
 				if ("boardgame".equals(subtype)) {
@@ -68,14 +71,16 @@ public class GeekListItem {
 				}
 				return R.string.title_person;
 			case "family":
+				if ("boardgamefamily".equals(subtype)) {
+					return R.string.title_board_game_family;
+				}
 				return R.string.title_family;
-			// subtype="boardgamefamily"
 			case "filepage":
 				return R.string.title_file;
 			case "geeklist":
 				return R.string.title_geeklist;
 		}
-		return 0;
+		return INVALID_OBJECT_TYPE_RES_ID;
 	}
 
 	public boolean isBoardGame() {
@@ -86,31 +91,29 @@ public class GeekListItem {
 		return "https://www.boardgamegeek.com/" + (TextUtils.isEmpty(subtype) ? objecttype : subtype) + "/" + objectid;
 	}
 
-	@Attribute private String postdate;
-
 	public long getPostDate() {
 		postDateTime = DateTimeUtils.tryParseDate(postDateTime, postdate, FORMAT);
 		return postDateTime;
 	}
-
-	@Attribute private String editdate;
 
 	public long getEditDate() {
 		editDateTime = DateTimeUtils.tryParseDate(editDateTime, editdate, FORMAT);
 		return editDateTime;
 	}
 
-	@Attribute private String subtype;
-
-	@Attribute private String thumbs;
-
 	public int getThumbCount() {
 		return StringUtils.parseInt(thumbs, 0);
 	}
 
-	@Attribute public String username;
+	public ArrayList<GeekListComment> getComments() {
+		return comments;
+	}
 
-	@Element(required = false) public String body;
+	public String getUsername() {
+		return username;
+	}
 
-	@ElementList(name = "comment", inline = true, required = false) private List<GeekListComment> comments;
+	public String getBody() {
+		return body;
+	}
 }

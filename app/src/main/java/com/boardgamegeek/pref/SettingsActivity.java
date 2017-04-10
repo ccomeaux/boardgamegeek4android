@@ -100,13 +100,15 @@ public class SettingsActivity extends DrawerActivity {
 						new LibsBuilder()
 							.withFields(R.string.class.getFields())
 							.withLibraries(
-								"Hugo",
-								"PhotoView",
 								"AndroidIcons",
-								"MPAndroidChart",
 								"AndroidRandomColor",
+								"AutoValue",
+								"Hugo",
+								"Jsoup",
 								"LeakCanary",
-								"MaterialRangeBar")
+								"MaterialRangeBar",
+								"MPAndroidChart",
+								"PhotoView")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))

@@ -15,10 +15,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.ui.PlayStatsActivity;
-import com.boardgamegeek.ui.PlaysActivity;
+import com.boardgamegeek.ui.model.PlayStats;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility for getting and putting preferences.
@@ -26,12 +29,15 @@ import java.util.List;
 public class PreferencesUtils {
 	public static final long VIEW_ID_COLLECTION = -1;
 	public static final int INVALID_H_INDEX = -1;
+	public static final int INVALID_ARTICLE_ID = -1;
 
 	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
 	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
+	private static final String KEY_GAME_H_INDEX = "hIndex";
+	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
@@ -42,6 +48,9 @@ public class PreferencesUtils {
 	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
 	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
 	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
+
+	private static final int NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0;
+	private static final int NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX = 1;
 
 	private PreferencesUtils() {
 	}
@@ -174,6 +183,18 @@ public class PreferencesUtils {
 		return false;
 	}
 
+	public static boolean addSyncStatus(Context context, String status) {
+		if (TextUtils.isEmpty(status)) return false;
+		if (isSyncStatus(context, status)) return false;
+
+		String[] statuses = getStringArray(context, KEY_SYNC_STATUSES, null);
+		Set<String> set = new HashSet<>();
+		set.addAll(Arrays.asList(statuses).subList(0, statuses.length));
+		set.add(status);
+
+		return putString(context, KEY_SYNC_STATUSES, MultiSelectListPreference.buildString(set));
+	}
+
 	public static boolean getSyncPlays(Context context) {
 		return getBoolean(context, "syncPlays", false);
 	}
@@ -184,6 +205,10 @@ public class PreferencesUtils {
 
 	public static boolean getSyncShowNotifications(Context context) {
 		return getBoolean(context, "sync_notifications", false);
+	}
+
+	public static boolean getSyncShowErrors(Context context) {
+		return getBoolean(context, "sync_errors", false);
 	}
 
 	public static boolean getSyncOnlyCharging(Context context) {
@@ -202,34 +227,38 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedDebugInsert", false);
 	}
 
-	public static int getHIndex(Context context) {
-		return getInt(context, "hIndex", 0);
+	public static int getGameHIndex(Context context) {
+		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}
 
-	public static void updateHIndex(@NonNull Context context, int hIndex) {
+	public static void updatePlayStats(@NonNull Context context, PlayStats playStats) {
+		if (playStats == null) return;
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		updateHIndex(context, editor, playStats.getGameHIndex(), KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
+		updateHIndex(context, editor, playStats.getPlayerHIndex(), KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
+		editor.apply();
+	}
+
+	private static void updateHIndex(@NonNull Context context, Editor editor, int hIndex, String key, @StringRes int typeResId, int notificationId) {
 		if (hIndex != INVALID_H_INDEX) {
-			int oldHIndex = PreferencesUtils.getHIndex(context);
+			int oldHIndex = getInt(context, key, 0);
 			if (oldHIndex != hIndex) {
-				putInt(context, "hIndex", hIndex);
-				notifyHIndex(context, hIndex, oldHIndex);
+				editor.putInt(key, hIndex);
+				@StringRes int messageId = hIndex > oldHIndex ? R.string.sync_notification_h_index_increase : R.string.sync_notification_h_index_decrease;
+				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, context.getString(typeResId), hIndex), notificationId);
 			}
 		}
 	}
 
-	private static void notifyHIndex(@NonNull Context context, int hIndex, int oldHIndex) {
-		@StringRes int messageId;
-		if (hIndex > oldHIndex) {
-			messageId = R.string.sync_notification_h_index_increase;
-		} else {
-			messageId = R.string.sync_notification_h_index_decrease;
-		}
+	private static void notifyPlayStatChange(@NonNull Context context, CharSequence message, int id) {
 		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
-			.setContentText(PresentationUtils.getText(context, messageId, hIndex))
+			.createNotificationBuilder(context, R.string.title_play_stats, PlayStats.class)
+			.setContentText(message)
 			.setContentIntent(pi);
-		NotificationUtils.notify(context, NotificationUtils.TAG_H_INDEX, 0, builder);
+		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, id, builder);
 	}
 
 	public static long getViewDefaultId(Context context) {
@@ -298,6 +327,19 @@ public class PreferencesUtils {
 
 	public static boolean getHapticFeedback(Context context) {
 		return getBoolean(context, KEY_HAPTIC_FEEDBACK, true);
+	}
+
+	public static boolean putThreadArticle(Context context, int threadId, int articleId) {
+		return putInt(context, getThreadKey(threadId), articleId);
+	}
+
+	public static int getThreadArticle(Context context, int threadId) {
+		return getInt(context, getThreadKey(threadId), INVALID_ARTICLE_ID);
+	}
+
+	@NonNull
+	private static String getThreadKey(long threadId) {
+		return "THREAD-" + String.valueOf(threadId);
 	}
 
 	private static boolean remove(Context context, String key) {

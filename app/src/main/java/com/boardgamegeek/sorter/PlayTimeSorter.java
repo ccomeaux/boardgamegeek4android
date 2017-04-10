@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -10,12 +11,17 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public abstract class PlayTimeSorter extends CollectionSorter {
 	public PlayTimeSorter(@NonNull Context context) {
 		super(context);
-		descriptionId = R.string.collection_sort_play_time;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_play_time;
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.PLAYING_TIME };
+	protected String getSortColumn() {
+		return Collection.PLAYING_TIME;
 	}
 
 	@NonNull

@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -18,9 +19,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
-import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -36,7 +38,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	@BindView(R.id.drawer_container) View drawerListContainer;
 	@BindView(R.id.left_drawer) LinearLayout drawerList;
 	@BindView(R.id.toolbar) Toolbar toolbar;
-	@BindView(R.id.root_container) ViewGroup rootContainer;
+	@Nullable @BindView(R.id.root_container) ViewGroup rootContainer;
 
 	protected int getDrawerResId() {
 		return 0;
@@ -183,7 +185,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		if (TextUtils.isEmpty(fullName)) {
 			if (TextUtils.isEmpty(username)) {
 				if (Authenticator.isSignedIn(this)) {
-					UpdateService.start(this, UpdateService.SYNC_TYPE_BUDDY_SELF, null);
+					TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
 				}
 				return null;
 			} else {

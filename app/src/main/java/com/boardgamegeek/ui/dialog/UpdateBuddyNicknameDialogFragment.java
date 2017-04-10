@@ -13,11 +13,11 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.DialogUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -79,7 +79,7 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 
 		setAndSelectExistingText();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert);
 		if (titleResId > 0) {
 			builder.setTitle(titleResId);
 		}
@@ -97,7 +97,7 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 		final AlertDialog dialog = builder.create();
 		int inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 		editText.setInputType(editText.getInputType() | inputType);
-		requestFocus(dialog);
+		DialogUtils.requestFocus(dialog, editText);
 		return dialog;
 	}
 
@@ -116,10 +116,5 @@ public class UpdateBuddyNicknameDialogFragment extends DialogFragment {
 			editText.setText(nickname);
 			editText.setSelection(0, nickname.length());
 		}
-	}
-
-	private void requestFocus(@NonNull AlertDialog dialog) {
-		editText.requestFocus();
-		dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
 }

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -15,18 +16,17 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemDeletedEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.DeleteCollectionItemTask;
 import com.boardgamegeek.tasks.ResetCollectionItemTask;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
@@ -71,6 +71,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 				.putContentId(String.valueOf(collectionId))
 				.putContentName(collectionName));
 		}
+		PresentationUtils.ensureFabIsShown(fab);
 	}
 
 	@Override
@@ -168,21 +169,20 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		((GameCollectionFragment) getFragment()).triggerRefresh();
+		if (((GameCollectionFragment) getFragment()).triggerRefresh()) {
+			updateRefreshStatus(true);
+		}
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateEvent event) {
-		updateRefreshStatus(event.getType() == UpdateService.SYNC_TYPE_GAME_COLLECTION);
-	}
-
-	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateCompleteEvent event) {
-		updateRefreshStatus(false);
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
+		if (event.getGameId() == gameId) {
+			updateRefreshStatus(false);
+			if (!TextUtils.isEmpty(event.getErrorMessage())) {
+				Toast.makeText(this, event.getErrorMessage(), Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 
 	@SuppressWarnings("unused")

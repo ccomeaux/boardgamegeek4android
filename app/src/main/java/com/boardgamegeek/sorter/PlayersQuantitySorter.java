@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -10,8 +11,12 @@ import com.boardgamegeek.provider.BggContract.Plays;
 public class PlayersQuantitySorter extends PlayersSorter {
 	public PlayersQuantitySorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Plays.SUM_QUANTITY, true);
-		descriptionId = R.string.menu_sort_quantity;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.menu_sort_quantity;
 	}
 
 	@Override
@@ -20,8 +25,13 @@ public class PlayersQuantitySorter extends PlayersSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Plays.SUM_QUANTITY };
+	protected String getSortColumn() {
+		return Plays.SUM_QUANTITY;
+	}
+
+	@Override
+	protected boolean isSortDescending() {
+		return true;
 	}
 
 	@NonNull

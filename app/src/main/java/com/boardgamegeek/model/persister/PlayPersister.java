@@ -19,6 +19,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -107,10 +108,19 @@ public class PlayPersister {
 			return BggContract.INVALID_ID;
 		} else {
 			debugMessage = "Inserting new play";
-			batch.add(ContentProviderOperation
-				.newInsert(Plays.CONTENT_URI)
-				.withValues(values)
-				.build());
+			if (PreferencesUtils.getAvoidBatching(context)) {
+				Uri uri = resolver.insert(Plays.CONTENT_URI, values);
+				if (uri == null) {
+					Timber.w("Unable to insert new play.");
+					return BggContract.INVALID_ID;
+				}
+				internalId = StringUtils.parseInt(uri.getLastPathSegment(), BggContract.INVALID_ID);
+			} else {
+				batch.add(ContentProviderOperation
+					.newInsert(Plays.CONTENT_URI)
+					.withValues(values)
+					.build());
+			}
 		}
 
 		if (includePlayers) {
@@ -317,15 +327,19 @@ public class PlayPersister {
 		// We can't save the colors if we aren't storing the game
 		if (!ResolverUtils.rowExists(resolver, Games.buildGameUri(play.gameId))) return;
 
+		Uri insertUri = Games.buildColorsUri(play.gameId);
+		List<String> insertedColors = new ArrayList<>();
+
 		for (Player player : play.getPlayers()) {
 			String color = player.color;
-			if (!TextUtils.isEmpty(color)) {
-				if (!ResolverUtils.rowExists(resolver, Games.buildColorsUri(play.gameId, color))) {
-					batch.add(ContentProviderOperation
-						.newInsert(Games.buildColorsUri(play.gameId))
-						.withValue(GameColors.COLOR, color)
-						.build());
-				}
+			if (!TextUtils.isEmpty(color) &&
+				!insertedColors.contains(color) &&
+				!ResolverUtils.rowExists(resolver, Games.buildColorsUri(play.gameId, color))) {
+				batch.add(ContentProviderOperation
+					.newInsert(insertUri)
+					.withValue(GameColors.COLOR, color)
+					.build());
+				insertedColors.add(color);
 			}
 		}
 	}

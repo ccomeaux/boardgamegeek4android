@@ -9,8 +9,6 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.StringUtils;
 
 public abstract class CollectionSorter extends Sorter {
-	protected int subDescriptionId;
-
 	public CollectionSorter(@NonNull Context context) {
 		super(context);
 	}
@@ -21,10 +19,15 @@ public abstract class CollectionSorter extends Sorter {
 	@Override
 	public String getDescription() {
 		String description = super.getDescription();
-		if (subDescriptionId > 0) {
-			description += " - " + context.getString(subDescriptionId);
+		if (getSubDescriptionId() > 0) {
+			description += " - " + context.getString(getSubDescriptionId());
 		}
 		return description;
+	}
+
+	@StringRes
+	protected int getSubDescriptionId() {
+		return 0;
 	}
 
 	@Override

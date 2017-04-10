@@ -1,0 +1,1409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 2.3">
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_width=&quot;wrap_content&quot;`">
+        <location
+            file="src/main/res/layout/fragment_plays_summary.xml"
+            line="179"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/BuddiesActivity.java"
+            line="40"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/tasks/ColorAssignerTask.java"
+            line="242"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/tasks/ColorAssignerTask.java"
+            line="250"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/tasks/ColorAssignerTask.java"
+            line="393"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
+            line="52"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
+            line="90"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
+            line="90"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
+            line="90"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/LocationsActivity.java"
+            line="58"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/PlayersActivity.java"
+            line="70"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/PlaysActivity.java"
+            line="50"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/service/SyncGamesOldest.java"
+            line="25"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/service/SyncGamesUnupdated.java"
+            line="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`android:elevation` requires API level 21 (current min is 15)">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="588"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`android:drawableTint` requires API level 23 (current min is 15)">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="605"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/dialog_help_score.xml"
+            line="17"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/dialog_help_score.xml"
+            line="28"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/dialog_help_score.xml"
+            line="39"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/dialog_help_score.xml"
+            line="51"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `fontFamily` is only used in API level 16 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout-land/dialog_number_pad.xml"
+            line="32"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `fontFamily` is only used in API level 16 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/dialog_number_pad.xml"
+            line="32"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/fragment_article.xml"
+            line="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/fragment_collection.xml"
+            line="85"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/include_game_play_stats_scores.xml"
+            line="53"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/include_game_play_stats_scores.xml"
+            line="68"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/include_game_play_stats_scores.xml"
+            line="83"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/include_game_play_stats_scores.xml"
+            line="99"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/row_header_drawer.xml"
+            line="18"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `fontFamily` is only used in API level 16 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/row_player.xml"
+            line="25"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/row_poll_players.xml"
+            line="33"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/row_poll_players.xml"
+            line="41"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/row_poll_players.xml"
+            line="58"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/widget_button_filter.xml"
+            line="8"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/widget_player_stat.xml"
+            line="65"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/widget_player_stat.xml"
+            line="80"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/widget_player_stat.xml"
+            line="95"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/widget_player_stat.xml"
+            line="110"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        <location
+            file="src/main/res/layout/widget_stat_bar.xml"
+            line="16"/>
+    </issue>
+
+    <issue
+        id="BatteryLife"
+        message="Declaring a broadcastreceiver for `android.net.conn.CONNECTIVITY_CHANGE` is deprecated for apps targeting N and higher. In general, apps should not rely on this broadcast and instead use `JobScheduler` or `GCMNetworkManager`.">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="359"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/dialog/CollectionNameFilterDialog.java"
+            line="30"/>
+    </issue>
+
+    <issue
+        id="AppCompatCustomView"
+        message="This custom view should extend `android.support.v7.widget.AppCompatImageView` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/widget/BezelImageView.java"
+            line="47"/>
+    </issue>
+
+    <issue
+        id="AppCompatCustomView"
+        message="This custom view should extend `android.support.v7.widget.AppCompatImageView` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/widget/ForegroundImageView.java"
+            line="35"/>
+    </issue>
+
+    <issue
+        id="AppCompatCustomView"
+        message="This custom view should extend `android.support.v7.widget.AppCompatTextView` instead">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/widget/TimestampView.java"
+            line="21"/>
+    </issue>
+
+    <issue
+        id="GradleDynamicVersion"
+        message="Avoid using + in version numbers; can lead to unpredictable and unrepeatable builds (io.fabric.tools:gradle:1.+)">
+        <location
+            file="build.gradle"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;more&quot;): This should probably be a plural rather than a string">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="436"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;games&quot;): This should probably be a plural rather than a string">
+        <location
+            file="src/main/res/values/strings_sync_service.xml"
+            line="16"/>
+    </issue>
+
+    <issue
+        id="ExportedContentProvider"
+        message="Exported content providers can provide access to potentially sensitive data">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="346"/>
+    </issue>
+
+    <issue
+        id="ExportedService"
+        message="Exported service does not require permission">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="322"/>
+    </issue>
+
+    <issue
+        id="ExportedService"
+        message="Exported service does not require permission">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="334"/>
+    </issue>
+
+    <issue
+        id="DrawAllocation"
+        message="Avoid object allocations during draw/layout operations (preallocate and reuse instead)">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/widget/BezelImageView.java"
+            line="154"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `SyncAdapter` which has field `context` pointing to `Context`); this is a memory leak (and also breaks Instant Run)">
+        <location
+            file="src/main/java/com/boardgamegeek/service/SyncService.java"
+            line="41"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable">
+        <location
+            file="src/main/res/layout/include_game_card_plays.xml"
+            line="63"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable">
+        <location
+            file="src/main/res/layout/include_game_card_plays.xml"
+            line="88"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable">
+        <location
+            file="src/main/res/layout/include_game_card_user_feedback.xml"
+            line="68"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable">
+        <location
+            file="src/main/res/layout/row_log_play_date.xml"
+            line="2"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This Handler class should be static or leaks might occur (anonymous android.os.Handler)">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/SearchResultsFragment.java"
+            line="89"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/primary` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_buffer_drawer.xml"
+            line="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_forum.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_forum_thread.xml"
+            line="8"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_geeklist.xml"
+            line="7"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/primary` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_header_drawer.xml"
+            line="8"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/primary` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_log_play_header.xml"
+            line="8"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_player_summary.xml"
+            line="7"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_text.xml"
+            line="8"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/light_blue` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/widget_button_filter.xml"
+            line="7"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.plurals.play_description_players_segment` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="640"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.HeroContainer` appears to be unused">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="398"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.HeroImage` appears to be unused">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="404"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless">
+        <location
+            file="src/main/res/layout/widget_color.xml"
+            line="8"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: drag_grip.9.png, ic_launcher_large.png, underline.9.png">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: drag_grip.9.png, expander_close.9.png, expander_open.9.png, title_logo.png, underline.9.png">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xhdpi`: expander_close.9.png, expander_open.9.png, ic_launcher_large.png, title_logo.png">
+        <location
+            file="src/main/res/drawable-xhdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: drag_grip.9.png, drawer_shadow.9.png, expander_close.9.png, expander_open.9.png, ic_account_circle_black_24dp.png... (12 more)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_time.png, ic_clock_small.png">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_clock_small.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_time.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_time.png, ic_clock_small.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_clock_small.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_time.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_designers.png, ic_edit_small.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_edit_small.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_designers.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png">
+        <location
+            file="src/main/res/drawable-hdpi/ic_edit_white.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/fab_edit.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_forums.png, ic_forums_small.png">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_forums_small.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_forums.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_forums.png, ic_forums_small.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_forums_small.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_forums.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_launcher_large.png, ic_launcher.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_launcher.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_launcher_large.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_rating.png, ic_score_average_win.png">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_score_average_win.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_rating.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_rating.png, ic_score_average_win.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_score_average_win.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_rating.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        <location
+            file="src/main/res/drawable-hdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_mechanics.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        <location
+            file="src/main/res/drawable-mdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_mechanics.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_mechanics.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_mechanics.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_mechanics.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        <location
+            file="src/main/res/drawable-hdpi/ic_thumbs_small.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_score_high.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        <location
+            file="src/main/res/drawable-mdpi/ic_thumbs_small.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_score_high.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_thumbs_small.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_score_high.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_thumbs_small.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_score_high.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_thumbs_small.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_score_high.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
+        <location
+            file="src/main/res/drawable-hdpi/ic_today.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_plays.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
+        <location
+            file="src/main/res/drawable-mdpi/ic_today.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_plays.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_today.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_plays.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_today.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_plays.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_today.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_plays.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_user.png, ic_user_small.png">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_user_small.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_user.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_user.png, ic_user_small.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_user_small.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_user.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
+        <location
+            file="src/main/res/drawable-hdpi/menu_delete.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_delete_white.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
+        <location
+            file="src/main/res/drawable-mdpi/menu_delete.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_delete_white.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
+        <location
+            file="src/main/res/drawable-xhdpi/menu_delete.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_delete_white.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/menu_delete.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_delete_white.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/menu_delete.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_delete_white.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_done.png, menu_done.png">
+        <location
+            file="src/main/res/drawable-xhdpi/menu_done.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/fab_done.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_done.png, menu_done.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/menu_done.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/fab_done.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
+        <location
+            file="src/main/res/drawable-mdpi/menu_edit.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_edit_white.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/fab_edit.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
+        <location
+            file="src/main/res/drawable-xhdpi/menu_edit.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_edit_white.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/fab_edit.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/menu_edit.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_edit_white.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/fab_edit.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/menu_edit.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_edit_white.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/fab_edit.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
+        <location
+            file="src/main/res/drawable-hdpi/menu_log_play.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/fab_log_play.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
+        <location
+            file="src/main/res/drawable-mdpi/menu_log_play.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/fab_log_play.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
+        <location
+            file="src/main/res/drawable-xhdpi/menu_log_play.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/fab_log_play.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/menu_log_play.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/fab_log_play.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/menu_log_play.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/fab_log_play.png"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingUrlError"
+        message="Activity supporting ACTION_VIEW is not exported">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="99"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="Missing URL">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="84"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="Missing URL">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="103"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/actionbar_done_cancel.xml"
+            line="19"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/actionbar_done_cancel.xml"
+            line="33"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/activity_logplayer.xml"
+            line="33"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/activity_logplayer.xml"
+            line="87"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/activity_logplayer.xml"
+            line="108"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/activity_logplayer.xml"
+            line="135"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/activity_logplayer.xml"
+            line="163"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/activity_logplayer.xml"
+            line="190"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/activity_logplayer.xml"
+            line="217"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/autocomplete_color.xml"
+            line="21"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/autocomplete_player.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/dialog_private_info.xml"
+            line="115"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/dialog_slider_filter.xml"
+            line="38"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/dialog_slider_filter.xml"
+            line="47"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/dialog_slider_filter.xml"
+            line="61"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/dialog_slider_filter.xml"
+            line="70"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/header_play.xml"
+            line="130"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_links.xml"
+            line="31"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_links.xml"
+            line="56"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_links.xml"
+            line="76"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_links.xml"
+            line="133"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_plays.xml"
+            line="33"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_plays.xml"
+            line="72"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_plays.xml"
+            line="97"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_rank.xml"
+            line="58"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_user_feedback.xml"
+            line="29"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_user_feedback.xml"
+            line="75"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_user_feedback.xml"
+            line="98"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_user_feedback.xml"
+            line="141"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_user_feedback.xml"
+            line="180"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_card_user_feedback.xml"
+            line="215"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/include_game_play_stats_scores.xml"
+            line="28"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_color.xml"
+            line="21"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_drawer.xml"
+            line="11"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_log_play_date.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_log_play_header.xml"
+            line="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_log_play_length.xml"
+            line="8"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_log_play_location.xml"
+            line="7"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_log_play_player_header.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_log_play_player_header.xml"
+            line="24"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_log_play_quantity.xml"
+            line="7"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_player.xml"
+            line="12"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_player.xml"
+            line="65"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_player.xml"
+            line="106"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_player.xml"
+            line="114"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_player_color.xml"
+            line="16"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/row_player_color.xml"
+            line="24"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/widget_color.xml"
+            line="15"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/widget_game_detail_row.xml"
+            line="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="[Accessibility] Missing `contentDescription` attribute on image">
+        <location
+            file="src/main/res/layout/widget_play_stat.xml"
+            line="21"/>
+    </issue>
+
+    <issue
+        id="RelativeOverlap"
+        message="`@id/rating` can overlap `@id/username` if @id/username, @id/rating grow due to localized text expansion">
+        <location
+            file="src/main/res/layout/row_comment.xml"
+            line="20"/>
+    </issue>
+
+</issues>

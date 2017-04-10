@@ -24,4 +24,12 @@ public class MathUtils {
 		bd = bd.round(new MathContext(digits));
 		return bd.intValue();
 	}
+
+	public static double cdf(double value, double lambda) {
+		return 1.0 - Math.exp(-1 * lambda * value);
+	}
+
+	public static double invcdf(double value, double lambda) {
+		return -Math.log(1.0 - value) / lambda;
+	}
 }

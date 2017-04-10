@@ -47,8 +47,17 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 		} else {
 			fragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
-		swipeRefreshLayout.setOnRefreshListener(this);
-		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+		if (isRefreshable()) {
+			swipeRefreshLayout.setOnRefreshListener(this);
+			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+			swipeRefreshLayout.setEnabled(true);
+		} else {
+			swipeRefreshLayout.setEnabled(false);
+		}
+	}
+
+	protected boolean isRefreshable() {
+		return true;
 	}
 
 	protected void createFragment() {

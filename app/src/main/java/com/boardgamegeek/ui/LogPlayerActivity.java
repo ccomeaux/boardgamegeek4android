@@ -354,8 +354,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 		enableButton |= hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container));
 		enableButton |= hideRow(shouldHideNew(), newView);
 		enableButton |= hideRow(shouldHideWin(), winView);
-		fab.setVisibility(enableButton ? View.VISIBLE : View.GONE);
 		fabBuffer.setVisibility(enableButton ? View.VISIBLE : View.GONE);
+		if (enableButton) {
+			fab.show();
+		} else {
+			fab.hide();
+		}
 	}
 
 	@DebugLog

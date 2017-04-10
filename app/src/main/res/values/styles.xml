@@ -51,6 +51,12 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 	</style>
 
+	<style name="SmallColoredButton" parent="Widget.AppCompat.Button.Colored">
+		<item name="android:minHeight">32dp</item>
+		<item name="android:backgroundTint">@color/medium_blue</item>
+		<item name="android:textSize">12sp</item>
+	</style>
+
 	<style name="Text.Code" parent="@android:style/TextAppearance">
 		<item name="android:textSize">14sp</item>
 		<item name="android:typeface">monospace</item>
@@ -257,13 +263,6 @@
 	<style name="Text.Header.Card">
 		<item name="android:layout_height">32dp</item>
 		<item name="android:gravity">center_vertical</item>
-	</style>
-
-	<style name="Text.Subtitle.Card">
-		<item name="android:textStyle">bold</item>
-		<item name="android:textSize">14sp</item>
-		<item name="android:gravity">bottom</item>
-		<item name="android:layout_height">40dp</item>
 	</style>
 
 	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
@@ -543,7 +542,7 @@
 	</style>
 
 	<style name="BggShowcaseTheme" parent="ShowcaseView.Light">
-		<item name="sv_backgroundColor">@color/medium_blue_transparent</item>
+		<item name="sv_backgroundColor">#f5405898</item>
 		<item name="sv_showcaseColor">@color/dark_blue</item>
 		<item name="sv_buttonText">@string/ok</item>
 		<item name="sv_titleTextAppearance">@style/BggShowcaseTitle</item>

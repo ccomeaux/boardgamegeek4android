@@ -236,7 +236,7 @@ public class Play {
 	 * Replaces a player at the position with a new player. If the position doesn't exists, the player is added instead.
 	 */
 	public void replaceOrAddPlayer(Player player, int position) {
-		if (position < players.size()) {
+		if (position >= 0 && position < players.size()) {
 			players.set(position, player);
 		} else {
 			players.add(player);

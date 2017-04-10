@@ -192,7 +192,7 @@ public class CursorUtils {
 
 	@NonNull
 	private static Calendar getCalendar(String date) {
-		Timber.w("Getting date from string: %s", date);
+		Timber.v("Getting date from string: %s", date);
 		String[] dateParts = date.split("-");
 		int year = Integer.parseInt(dateParts[0]);
 		int month = Integer.parseInt(dateParts[1]) - 1;

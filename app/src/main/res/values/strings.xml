@@ -87,12 +87,13 @@
 	<string name="no">No</string>
 	<string name="never">Never</string>
 	<string name="keep">Keep</string>
+	<string name="edit">Edit</string>
 	<string name="more">More</string>
+	<string name="more_suffix">%,d more</string>
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
 	<string name="title_clear_colors">Clear Colors?</string>
-	<string name="title_change_settings">Change Settings</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
 	<string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
@@ -119,6 +120,7 @@
 	<string name="title_settings">Settings</string>
 	<string name="title_geeklists">GeekLists</string>
 	<string name="title_geeklist">GeekList</string>
+	<string name="title_items">Items</string>
 	<string name="title_game">Game</string>
 	<string name="title_board_game">Board Game</string>
 	<string name="title_board_game_accessory">Board Game Accessory</string>
@@ -137,6 +139,7 @@
 	<string name="title_company">Company</string>
 	<string name="title_person">Person</string>
 	<string name="title_family">Family</string>
+	<string name="title_board_game_family">Board Game Family</string>
 	<string name="title_file">File</string>
 	<string name="title_game_shortcut">BGG Game</string>
 	<string name="title_game_detail">Game Details</string>
@@ -163,6 +166,7 @@
 	<string name="title_designer">Designer</string>
 	<string name="title_artist">Artist</string>
 	<string name="title_publisher">Publisher</string>
+	<string name="title_user">User</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_edit_location">Edit Location</string>
@@ -227,8 +231,8 @@
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
 	<string name="empty_thread">No posts in this thread.</string>
-	<string name="empty_geeklist">No items in this GeekList.</string>
 	<string name="empty_comments">No one has anything to say.</string>
+	<string name="empty_geeklist">No list here.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
@@ -272,6 +276,7 @@
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status_">Collection status…</string>
 	<string name="menu_collection_status">Collection Status</string>
+	<string name="menu_collection_name">Collection Name</string>
 	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="title_add_a_copy">Add a Copy</string>
@@ -284,6 +289,7 @@
 	<string name="collection_sort_my_rating">My Rating</string>
 	<string name="collection_sort_play_count_asc">Least Played</string>
 	<string name="collection_sort_play_count_desc">Most Played</string>
+	<string name="collection_sort_play_date_max">Last Played On</string>
 	<string name="collection_sort_play_time">Play Time</string>
 	<string name="collection_sort_rank">Rank</string>
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
@@ -341,6 +347,8 @@
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
 	<string name="menu_add_username">Add username</string>
+	<string name="menu_scroll_to_last_read">Scroll to last read</string>
+	<string name="menu_scroll_to_bottom">Scroll to bottom</string>
 	<string name="sort_description">by %s</string>
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
@@ -417,8 +425,6 @@
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
 	<string name="by_prefix">by %s</string>
-	<string name="posted_prefix">Posted %s</string>
-	<string name="edited_prefix">Edited %s</string>
 	<string name="add">Add</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_custom_player_order">Custom</string>
@@ -496,13 +502,21 @@
 	<string name="play_stat_first_play">First play</string>
 	<string name="play_stat_last_play">Last play</string>
 	<string name="play_stat_top_100">Top 100 games played</string>
-	<string name="play_stat_h_index">H-index</string>
-	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
-	<string name="play_stat_h_index_offset_in">This game contributes to your H-index.</string>
-	<string name="play_stat_h_index_offset_out">plays outside of your H-index.</string>
-	<string name="h_index_prefix">H-Index <b>%d</b></string>
+	<string name="play_stat_game_h_index">Game H-index</string>
+	<string name="play_stat_game_h_index_info">You\'ve played at least %1$s games %1$s times or more.\n\nhttps://boardgamegeek.com/thread/953084</string>
+	<string name="play_stat_game_h_index_offset_in">This game contributes to your H-index.</string>
+	<string name="play_stat_game_h_index_offset_out">plays outside of your H-index.</string>
+	<string name="play_stat_player_h_index">Player H-index</string>
+	<string name="play_stat_player_h_index_info">You\'ve played against at least %1$s players %1$s times or more.\n\nhttps://boardgamegeek.com/thread/1448479</string>
+	<string name="play_stat_friendless">Friendless metric</string>
+	<string name="play_stat_friendless_info">A measure of how well played your owned collection is. A negative number indicates the difference of unplayed games vs. dimes you own.\n\nhttp://friendlessstats.dtdns.net/</string>
+	<string name="play_stat_cfm">Continuous Friendless Metric (CFM)</string>
+	<string name="play_stat_cfm_info">Similar to the friendless metric, it is an average number of plays with no cheating.\n\nhttp://friendlessstats.dtdns.net/</string>
+	<string name="game_h_index_prefix">Game H-Index <b>%,d</b></string>
 	<string name="card_footer_colors">Edit colors</string>
 	<string name="card_footer_stats">See more stats</string>
+	<string name="title_players_skill">Skill Formula</string>
+	<string name="player_skill_info">Measures the success ratio using:\n\n 100 * PlayTimesPlayer / winnable games\n\nPlayTimesPlayer = \u2211 (# plays * # players)</string>
 	<string name="play_stat_fhm">FHM</string>
 	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
 	<string name="play_stat_hhm">HHM</string>
@@ -516,7 +530,9 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_accuracy">These stats don\'t include %s.</string>
+	<string name="play_stat_accuracy">These stats don\'t include %s.</string>
+	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games. Wanna do that now?</string>
+	<string name="play_stat_msg_collection_status">You can change the collection statuses that are synced in the app\'s settings. Do you want to continue?</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
@@ -537,10 +553,22 @@
 	<string name="collection_status_wishlist">Wishlist</string>
 	<string name="empty_top_games">Error loading top games</string>
 	<string name="title_top_games">Top Games</string>
+	<string name="title_description">Description</string>
 	<string name="plays_sync_status_none">Plays have never been synced.</string>
-	<string name="plays_sync_status_new">Played have been synced through %s.</string>
-	<string name="plays_sync_status_old">Played have been synced since %s.</string>
-	<string name="plays_sync_status_range">Played have been synced between %1$s and %2$s.</string>
+	<string name="plays_sync_status_new">Plays have been synced through %s.</string>
+	<string name="plays_sync_status_old">Plays have been synced since %s.</string>
+	<string name="plays_sync_status_range">Plays have been synced between %1$s and %2$s.</string>
+	<string name="starts_with">Starts with</string>
+	<string name="msg_collection_sort_play_date">Note that this will show only one copy of each game, even if you have multiple copies in your collection.</string>
+	<string name="msg_offline">Offline</string>
+	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
+	<string name="msg_update_invalid_response">Invalid %s received</string>
+	<string name="msg_update_unsuccessful_response">Unsuccessful fetching %1$s with HTTP response code: %2$d</string>
+	<string name="msg_update_exception">Exception fetching %1$s: %2$s</string>
+	<string name="profile_updated">Profile updated</string>
+	<string name="this_many">this many</string>
+	<string name="game">game</string>
+	<string name="player">player</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -610,14 +638,6 @@
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
 	</plurals>
-	<plurals name="players_suffix">
-		<item quantity="one">%1$s player</item>
-		<item quantity="other">%1$s players</item>
-	</plurals>
-	<plurals name="locations_suffix">
-		<item quantity="one">%1$s location</item>
-		<item quantity="other">%1$s locations</item>
-	</plurals>
 	<plurals name="wins_suffix">
 		<item quantity="one"><b>%,d</b> win</item>
 		<item quantity="other"><b>%,d</b> wins</item>
@@ -625,14 +645,6 @@
 	<plurals name="edit_timestamp">
 		<item quantity="one">%1$s (%2$s edit)</item>
 		<item quantity="other">%1$s (%2$s edits)</item>
-	</plurals>
-	<plurals name="items_suffix">
-		<item quantity="one">%,d item</item>
-		<item quantity="other">%,d items</item>
-	</plurals>
-	<plurals name="thumbs_suffix">
-		<item quantity="one">%,d thumb</item>
-		<item quantity="other">%,d thumbs</item>
 	</plurals>
 	<plurals name="times_suffix">
 		<item quantity="one">%,d time</item>

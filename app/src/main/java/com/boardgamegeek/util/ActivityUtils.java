@@ -8,6 +8,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
@@ -22,6 +23,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
+import com.boardgamegeek.ui.GamePlaysActivity;
 import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
@@ -68,7 +70,6 @@ public class ActivityUtils {
 	public static final String KEY_LINK = "LINK";
 	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
 	public static final String KEY_TYPE = "TYPE";
-	public static final String KEY_GEEK_LIST = "GEEK_LIST";
 	public static final String KEY_ID = "GEEK_LIST_ID";
 	public static final String KEY_ORDER = "GEEK_LIST_ORDER";
 	public static final String KEY_NAME = "GEEK_LIST_NAME";
@@ -81,6 +82,7 @@ public class ActivityUtils {
 	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
+	public static final String KEY_COMMENTS = "COMMENTS";
 	public static final String LINK_AMAZON_COM = "www.amazon.com";
 	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";
 	public static final String LINK_AMAZON_DE = "www.amazon.de";
@@ -89,16 +91,20 @@ public class ActivityUtils {
 
 	public static void launchGame(Context context, int gameId, String gameName) {
 		final Intent intent = createGameIntent(gameId, gameName);
+		if (intent == null) return;
 		context.startActivity(intent);
 	}
 
 	public static void navigateUpToGame(Context context, int gameId, String gameName) {
 		final Intent intent = createGameIntent(gameId, gameName);
+		if (intent == null) return;
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
 	}
 
+	@Nullable
 	public static Intent createGameIntent(int gameId, String gameName) {
+		if (gameId == BggContract.INVALID_ID) return null;
 		final Uri gameUri = Games.buildGameUri(gameId);
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
@@ -186,6 +192,21 @@ public class ActivityUtils {
 			.putContentType("GeekList")
 			.putContentName(title)
 			.putContentId(String.valueOf(id)));
+	}
+
+	public static Intent createGamePlaysIntent(Context context, Uri gameUri, String gameName, String imageUrl, String thumbnailUrl) {
+		return createGamePlaysIntent(context, gameUri, gameName, imageUrl, thumbnailUrl, false, 0);
+	}
+
+	public static Intent createGamePlaysIntent(Context context, Uri gameUri, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, int iconColor) {
+		Intent intent = new Intent(context, GamePlaysActivity.class);
+		intent.setData(gameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
+		return intent;
 	}
 
 	public static void startPlayActivity(Context context, PlaySelectedEvent event) {

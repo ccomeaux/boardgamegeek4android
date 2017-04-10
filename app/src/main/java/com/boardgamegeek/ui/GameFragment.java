@@ -28,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -53,8 +54,10 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
+import com.boardgamegeek.tasks.sync.SyncGameTask;
+import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
@@ -81,6 +84,7 @@ import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,13 +106,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
+	private static final int SYNC_NONE = 0;
+	private static final int SYNC_GAME = 1;
+	private static final int SYNC_PLAYS = 1 << 1;
+	private static final int SYNC_COLLECTION = 1 << 2;
 
 	private Uri gameUri;
 	private String gameName;
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
-	@ColorInt private int iconColor;
+	private boolean mightNeedRefreshing;
+	private int isRefreshing;
 
 	private Unbinder unbinder;
 
@@ -209,6 +218,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
 	@BindViews({
+		R.id.collection_add_button
+	}) List<Button> colorizedButtons;
+	@BindViews({
 		R.id.users_owning_bar,
 		R.id.users_trading_bar,
 		R.id.users_wanting_bar,
@@ -217,7 +229,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@State boolean isRanksExpanded;
 	@State boolean isDescriptionExpanded;
-	private boolean mightNeedRefreshing;
+	@ColorInt private int iconColor;
 	private Palette palette;
 	private ShowcaseViewWizard showcaseViewWizard;
 	private Transition expansionTransition;
@@ -395,7 +407,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case GameQuery._TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
-				lm.restartLoader(CollectionQuery._TOKEN, null, this);
+				if (shouldShowCollection()) lm.restartLoader(CollectionQuery._TOKEN, null, this);
 				lm.restartLoader(DesignerQuery._TOKEN, null, this);
 				lm.restartLoader(ArtistQuery._TOKEN, null, this);
 				lm.restartLoader(PublisherQuery._TOKEN, null, this);
@@ -504,6 +516,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		iconColor = swatch.getRgb();
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
 
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, PaletteUtils.getHeaderSwatch(palette));
 		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));
@@ -560,16 +573,22 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			playStatsRoot.setVisibility(View.VISIBLE);
 		}
 
-		if (mightNeedRefreshing
-			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
+		if (mightNeedRefreshing &&
+			(game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 		mightNeedRefreshing = false;
 	}
 
 	@DebugLog
+	private boolean shouldShowCollection() {
+		String[] syncStatuses = PreferencesUtils.getSyncStatuses(getContext());
+		return Authenticator.isSignedIn(getActivity()) && syncStatuses != null && syncStatuses.length > 0;
+	}
+
+	@DebugLog
 	private boolean shouldShowPlays() {
-		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity());
+		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getContext());
 	}
 
 	@DebugLog
@@ -746,13 +765,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@OnClick(R.id.plays_root)
 	@DebugLog
 	public void onPlaysClick() {
-		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
-		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
+		Intent intent = ActivityUtils.createGamePlaysIntent(getActivity(),
+			gameUri,
+			gameName,
+			imageUrl,
+			thumbnailUrl,
+			arePlayersCustomSorted,
+			iconColor);
 		startActivity(intent);
 	}
 
@@ -877,12 +896,63 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@DebugLog
-	public void triggerRefresh() {
+	public boolean triggerRefresh() {
 		mightNeedRefreshing = false;
-		int gameId = Games.getGameId(gameUri);
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, gameId);
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, gameId);
+		if (isRefreshing == SYNC_NONE) {
+			isRefreshing = SYNC_GAME | SYNC_PLAYS | SYNC_COLLECTION;
+			int gameId = Games.getGameId(gameUri);
+			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncGameTask.CompletedEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			finishSync(SYNC_GAME);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			finishSync(SYNC_PLAYS);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			finishSync(SYNC_COLLECTION);
+		}
+	}
+
+	private void finishSync(int syncType) {
+		isRefreshing &= ~syncType;
+		if (isRefreshing == SYNC_NONE) {
+			EventBus.getDefault().post(new SyncCompleteEvent(Games.getGameId(gameUri)));
+		}
+	}
+
+	public static class SyncCompleteEvent {
+		private final int gameId;
+
+		public SyncCompleteEvent(int gameId) {
+			this.gameId = gameId;
+		}
+
+		public int getGameId() {
+			return gameId;
+		}
 	}
 
 	private interface GameQuery {
