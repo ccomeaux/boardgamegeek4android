@@ -515,6 +515,8 @@
 	<string name="game_h_index_prefix">Game H-Index <b>%,d</b></string>
 	<string name="card_footer_colors">Edit colors</string>
 	<string name="card_footer_stats">See more stats</string>
+	<string name="title_players_skill">Skill Formula</string>
+	<string name="player_skill_info">Measures the success ratio using:\n\n 100 * PlayTimesPlayer / winnable games\n\nPlayTimesPlayer = \u2211 (# plays * # players)</string>
 	<string name="play_stat_fhm">FHM</string>
 	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
 	<string name="play_stat_hhm">HHM</string>

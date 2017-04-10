@@ -464,6 +464,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		builder.show();
 	}
 
+	@OnClick(R.id.players_skill_help)
+	public void onPlayersClick() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+		builder.setTitle(R.string.title_players_skill).setMessage(R.string.player_skill_info);
+		builder.show();
+	}
+
 	private class PlayerStats {
 		private String username;
 		private int playCount;
