@@ -1,12 +1,15 @@
 package com.boardgamegeek.export;
 
 import android.content.Context;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
 import com.boardgamegeek.util.FileUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
@@ -15,8 +18,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import timber.log.Timber;
@@ -41,16 +44,13 @@ public class JsonImportTask extends ImporterExporterTask {
 			return ERROR_STORAGE_ACCESS;
 		}
 
-		int progress = 0;
-		for (Step importer : steps) {
-			int result = importFile(importPath, importer);
-			progress++;
-			publishProgress(progress, steps.size(), progress - 1);
-			if (result == ERROR || isCancelled()) {
-				return ERROR;
-			} else if (result < ERROR) {
-				return result;
-			}
+		int stepIndex = 0;
+		for (Step step : steps) {
+			publishProgress(-1, 0, stepIndex);
+			int result = importFile(step);
+			if (isCancelled()) return ERROR;
+			if (isResultError(result)) return result;
+			stepIndex++;
 		}
 
 		return SUCCESS;
@@ -76,19 +76,48 @@ public class JsonImportTask extends ImporterExporterTask {
 		EventBus.getDefault().post(new ImportFinishedEvent(messageId));
 	}
 
-	private int importFile(File importPath, @NonNull Step step) {
-		File file = new File(importPath, step.getFileName());
-		if (!file.exists() || !file.canRead()) {
-			return ERROR_FILE_ACCESS;
+	private int importFile(@NonNull Step step) {
+		FileInputStream in = null;
+		if (shouldUseDefaultFolders()) {
+			File file = new File(FileUtils.getExportPath(), step.getFileName());
+			if (!file.exists() || !file.canRead()) {
+				Timber.i("Unable to read file '%s'", file.toString());
+				return ERROR_FILE_ACCESS;
+			}
+
+			try {
+				in = new FileInputStream(file);
+			} catch (FileNotFoundException e) {
+				Timber.e(e, "File '%s' not found", file.toString());
+			}
+		} else {
+			Uri backupFileUri = PreferencesUtils.getUri(context, step.getPreferenceKey());
+			if (backupFileUri == null) {
+				Timber.w("Null backupFileUri for '%s'", step.getDescription(context));
+				return ERROR_FILE_ACCESS;
+			}
+
+			ParcelFileDescriptor pfd;
+			try {
+				pfd = context.getContentResolver().openFileDescriptor(backupFileUri, "r");
+			} catch (FileNotFoundException | SecurityException e) {
+				Timber.e(e, "Backup file '%s' not found.", backupFileUri.toString());
+				return ERROR_FILE_ACCESS;
+			}
+			if (pfd == null) {
+				Timber.e("File descriptor for '%s' is null.", backupFileUri.toString());
+				return ERROR_FILE_ACCESS;
+			}
+
+			in = new FileInputStream(pfd.getFileDescriptor());
 		}
+
+		if (in == null) return ERROR;
 
 		step.initializeImport(context);
 
 		try {
-			InputStream in = new FileInputStream(file);
-
 			Gson gson = new Gson();
-
 			JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
 
 			//noinspection TryFinallyCanBeTryWithResources

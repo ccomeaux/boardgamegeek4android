@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<TextView
+		android:id="@+id/description"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentTop="true"
+		android:ellipsize="end"
+		android:maxLines="2"
+		android:textAppearance="@style/Text.Header"
+		tools:text="Game color"/>
+
+	<Button
+		android:id="@+id/select_file_button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/description"
+		android:layout_marginEnd="@dimen/padding_standard"
+		android:layout_marginRight="@dimen/padding_standard"
+		android:text="@string/select_file"/>
+
+	<TextView
+		android:id="@+id/file_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignBottom="@id/select_file_button"
+		android:layout_alignTop="@id/select_file_button"
+		android:layout_below="@+id/description"
+		android:layout_toEndOf="@id/select_file_button"
+		android:layout_toRightOf="@id/select_file_button"
+		android:ellipsize="end"
+		android:gravity="center_vertical"
+		android:maxLines="3"
+		android:textAppearance="@style/Text.Secondary"
+		tools:text="bgg4a-games.json"/>
+
+</merge>

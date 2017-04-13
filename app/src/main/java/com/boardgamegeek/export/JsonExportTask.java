@@ -4,6 +4,8 @@ import android.Manifest.permission;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.util.FileUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -33,42 +36,37 @@ public class JsonExportTask extends ImporterExporterTask {
 
 	@Override
 	protected Integer doInBackground(Void... params) {
-		int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
-		if (permissionCheck == PackageManager.PERMISSION_DENIED) {
-			Timber.i("No permissions to write to external storage");
-			return ERROR_STORAGE_ACCESS;
-		}
-
-		// Ensure external storage is available
-		if (!FileUtils.isExtStorageAvailable()) {
-			Timber.i("External storage is unavailable");
-			return ERROR_STORAGE_ACCESS;
-		}
-
-		// Ensure the export directory exists
-		File exportPath = FileUtils.getExportPath();
-		if (!exportPath.exists()) {
-			if (!exportPath.mkdirs()) {
-				Timber.i("Export path %s can't be created", exportPath);
+		if (shouldUseDefaultFolders()) {
+			int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
+			if (permissionCheck == PackageManager.PERMISSION_DENIED) {
+				Timber.i("No permissions to write to external storage");
 				return ERROR_STORAGE_ACCESS;
+			}
+
+			// Ensure external storage is available
+			if (!FileUtils.isExtStorageAvailable()) {
+				Timber.i("External storage is unavailable");
+				return ERROR_STORAGE_ACCESS;
+			}
+
+			// Ensure the export directory exists
+			File exportPath = FileUtils.getExportPath();
+			if (!exportPath.exists()) {
+				if (!exportPath.mkdirs()) {
+					Timber.i("Export path %s can't be created", exportPath);
+					return ERROR_STORAGE_ACCESS;
+				}
 			}
 		}
 
 		int stepIndex = 0;
 		for (Step exporter : steps) {
-			int result = export(exportPath, exporter, stepIndex);
+			int result = export(exporter, stepIndex);
+			if (isCancelled()) return ERROR;
+			if (isResultError(result)) return result;
 			stepIndex++;
-			if (result == ERROR || isCancelled()) {
-				return ERROR;
-			}
 		}
 
-		//TODO: auto-backup
-		//		if (isAutoBackupMode) {
-		//			// store current time = last backup time
-		//			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		//			prefs.edit().putLong(KEY_LAST_BACKUP, System.currentTimeMillis()).commit();
-		//		}
 
 		return SUCCESS;
 	}
@@ -90,7 +88,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		EventBus.getDefault().post(new ExportFinishedEvent(messageId));
 	}
 
-	private int export(File exportPath, @NonNull Step step, int stepIndex) {
+	private int export(@NonNull Step step, int stepIndex) {
 		final Cursor cursor = step.getCursor(context);
 
 		if (cursor == null) {
@@ -101,38 +99,52 @@ public class JsonExportTask extends ImporterExporterTask {
 			return SUCCESS;
 		}
 
-		publishProgress(cursor.getCount(), 0, stepIndex);
+		if (shouldUseDefaultFolders()) {
+			File backup = new File(FileUtils.getExportPath(), step.getFileName());
+			try {
+				OutputStream out = new FileOutputStream(backup);
+				writeJsonStream(out, cursor, step, stepIndex);
+			} catch (@NonNull JsonIOException | IOException e) {
+				Timber.e(e, "JSON export failed for step '%s'", step.getDescription(context));
+				return ERROR;
+			} finally {
+				cursor.close();
+			}
+		} else {
+			Uri backupFileUri = PreferencesUtils.getUri(context, step.getPreferenceKey());
+			if (backupFileUri == null) {
+				Timber.w("Null backupFileUri for '%s'", step.getDescription(context));
+				return ERROR_FILE_ACCESS;
+			}
 
-		File backup = new File(exportPath, step.getFileName());
-		try {
-			OutputStream out = new FileOutputStream(backup);
-			writeJsonStream(out, cursor, step, stepIndex);
-		} catch (@NonNull JsonIOException | IOException e) {
-			Timber.e(e, "JSON export failed");
-			return ERROR;
-		} finally {
-			cursor.close();
+			ParcelFileDescriptor pfd;
+			try {
+				pfd = context.getContentResolver().openFileDescriptor(backupFileUri, "w");
+				if (pfd == null) {
+					Timber.w("Null ParcelFileDescriptor fromm '%s'", backupFileUri);
+					return ERROR_FILE_ACCESS;
+				}
+				FileOutputStream out = new FileOutputStream(pfd.getFileDescriptor());
+				writeJsonStream(out, cursor, step, stepIndex);
+			} catch (IOException e) {
+				Timber.e(e, "JSON export failed for step '%s'", step.getDescription(context));
+			}
 		}
-
 		return SUCCESS;
 	}
 
 	private void writeJsonStream(@NonNull OutputStream out, @NonNull Cursor cursor, @NonNull Step step, int stepIndex) throws IOException {
-		int numTotal = cursor.getCount();
-		int numExported = 0;
-
 		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("  ");
 		writer.beginArray();
 
+		int numTotal = cursor.getCount();
+		int numExported = 0;
 		while (cursor.moveToNext()) {
-			if (isCancelled()) {
-				break;
-			}
-
+			if (isCancelled()) break;
+			publishProgress(numTotal, numExported++, stepIndex);
 			step.writeJsonRecord(context, cursor, gson, writer);
-			publishProgress(numTotal, ++numExported, stepIndex);
 		}
 
 		writer.endArray();

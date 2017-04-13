@@ -28,6 +28,11 @@ public class CollectionViewStep implements Step {
 		return "bgg4a-collection-views.json";
 	}
 
+	@Override
+	public String getPreferenceKey() {
+		return PREFERENCE_KEY_PREFIX + "collection-views";
+	}
+
 	@NonNull
 	@Override
 	public String getDescription(@NonNull Context context) {

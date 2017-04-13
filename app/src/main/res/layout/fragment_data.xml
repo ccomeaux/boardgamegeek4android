@@ -1,93 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical"
-			  tools:context=".ui.DataActivity">
-
-	<TextView
-		style="@style/Text.Header"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="@string/title_backup"/>
-
-	<TextView
-		android:id="@+id/export_message"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="@string/description_backup"/>
-
-	<TextView
-		android:id="@+id/backup_location"
-		style="@style/Text.Code"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_standard"
-		tools:text="/download/bgg4android/data/export.json"/>
-
-	<LinearLayout
-		android:id="@+id/backup_types"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"/>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:gravity="center"
-		android:orientation="horizontal"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_standard">
-
-		<Button
-			android:id="@+id/export_button"
-			style="@style/RaisedButton"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginRight="@dimen/padding_extra"
-			android:text="@string/title_export"
-			android:theme="@style/RaisedButtonTheme"/>
-
-		<Button
-			android:id="@+id/import_button"
-			style="@style/RaisedButton"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="@dimen/padding_extra"
-			android:text="@string/title_import"
-			android:theme="@style/RaisedButtonTheme"/>
-	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/progress_container"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="@dimen/padding_standard"
-		android:layout_marginTop="@dimen/padding_standard"
 		android:orientation="vertical"
-		android:visibility="gone"
-		tools:visibility="visible">
-
-		<ProgressBar
-			android:id="@+id/progress"
-			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/progress_bar_height"/>
+		android:paddingBottom="@dimen/material_margin_vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical"
+		tools:context=".ui.DataActivity">
 
 		<TextView
-			android:id="@+id/progress_detail"
-			style="@style/Text"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/title_backup"
+			android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+		<TextView
+			android:id="@+id/export_message"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center"
-			tools:text="Some file"/>
-	</LinearLayout>
+			android:text="@string/description_backup"/>
 
-</LinearLayout>
+		<LinearLayout
+			android:id="@+id/backup_types"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:orientation="horizontal"
+			android:paddingBottom="@dimen/padding_standard"
+			android:paddingTop="@dimen/padding_standard">
+
+			<Button
+				android:id="@+id/export_button"
+				style="@style/RaisedButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="@dimen/padding_extra"
+				android:layout_marginRight="@dimen/padding_extra"
+				android:text="@string/title_export"
+				android:theme="@style/RaisedButtonTheme"/>
+
+			<Button
+				android:id="@+id/import_button"
+				style="@style/RaisedButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="@dimen/padding_extra"
+				android:layout_marginStart="@dimen/padding_extra"
+				android:text="@string/title_import"
+				android:theme="@style/RaisedButtonTheme"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/progress_container"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/padding_standard"
+			android:layout_marginTop="@dimen/padding_standard"
+			android:orientation="vertical"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<ProgressBar
+				android:id="@+id/progress"
+				style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/progress_bar_height"/>
+
+			<TextView
+				android:id="@+id/progress_detail"
+				style="@style/Text"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				tools:text="Some file"/>
+		</LinearLayout>
+	</LinearLayout>
+</ScrollView>
