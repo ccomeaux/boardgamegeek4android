@@ -30,7 +30,6 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ExportProgressEvent;
-import com.boardgamegeek.events.ImportFinishedEvent;
 import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
@@ -209,14 +208,7 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportFinishedEvent event) {
-		notifyEnd(event.getMessageId());
-	}
-
-	@DebugLog
-	@SuppressWarnings("unused")
-	@Subscribe
-	public void onEvent(ImportFinishedEvent event) {
-		notifyEnd(event.getMessageId());
+		notifyEnd(event.getErrorMessage());
 	}
 
 	@DebugLog
@@ -253,9 +245,15 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 		}
 	}
 
-	private void notifyEnd(int messageId) {
+	private void notifyEnd(String errorMessage) {
 		View view = getView();
-		if (view != null) Snackbar.make(view, messageId, Snackbar.LENGTH_LONG).show();
+		if (view != null) {
+			if (TextUtils.isEmpty(errorMessage)) {
+				Snackbar.make(view, R.string.msg_export_success, Snackbar.LENGTH_LONG).show();
+			} else {
+				Snackbar.make(view, getString(R.string.msg_export_failed) + "\n" + errorMessage, Snackbar.LENGTH_LONG).show();
+			}
+		}
 		progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
 		progressContainer.setVisibility(View.GONE);
 	}

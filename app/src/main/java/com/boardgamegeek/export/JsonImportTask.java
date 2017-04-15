@@ -4,10 +4,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.ImportFinishedEvent;
+import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.google.gson.Gson;
@@ -30,89 +30,73 @@ public class JsonImportTask extends ImporterExporterTask {
 	}
 
 	@Override
-	protected Integer doInBackground(Void... params) {
-		// Ensure external storage
-		if (!FileUtils.isExtStorageAvailable()) {
-			return ERROR_STORAGE_ACCESS;
-		}
+	protected String doInBackground(Void... params) {
+		if (shouldUseDefaultFolders()) {
+			if (!FileUtils.isExtStorageAvailable()) {
+				return context.getString(R.string.msg_export_failed_external_unavailable);
+			}
 
-		// TODO: Ensure no large database ops are running?
+			// TODO: Ensure no large database ops are running?
 
-		// Ensure the export directory exists
-		File importPath = FileUtils.getExportPath();
-		if (!importPath.exists()) {
-			return ERROR_STORAGE_ACCESS;
+			File importPath = FileUtils.getExportPath();
+			if (!importPath.exists()) {
+				return context.getString(R.string.msg_import_failed_external_not_exist, importPath);
+			}
 		}
 
 		int stepIndex = 0;
 		for (Step step : steps) {
+			if (isCancelled()) return context.getString(R.string.cancelled);
 			publishProgress(-1, 0, stepIndex);
-			int result = importFile(step);
-			if (isCancelled()) return ERROR;
-			if (isResultError(result)) return result;
+			String result = importFile(step);
+			if (!TextUtils.isEmpty(result)) return result;
 			stepIndex++;
 		}
 
-		return SUCCESS;
+		return null;
 	}
 
 	@Override
-	protected void onPostExecute(@NonNull Integer result) {
-		@StringRes int messageId;
-		switch (result) {
-			case SUCCESS:
-				messageId = R.string.msg_import_success;
-				break;
-			case ERROR_STORAGE_ACCESS:
-				messageId = R.string.msg_import_failed_nosd;
-				break;
-			case ERROR_FILE_ACCESS:
-				messageId = R.string.msg_import_failed_nofile;
-				break;
-			default:
-				messageId = R.string.msg_import_failed;
-				break;
-		}
-		EventBus.getDefault().post(new ImportFinishedEvent(messageId));
+	protected void onPostExecute(String errorMessage) {
+		Timber.i(errorMessage);
+		EventBus.getDefault().post(new ExportFinishedEvent(errorMessage));
 	}
 
-	private int importFile(@NonNull Step step) {
-		FileInputStream in = null;
+	private String importFile(@NonNull Step step) {
+		FileInputStream in;
+		ParcelFileDescriptor pfd = null;
 		if (shouldUseDefaultFolders()) {
 			File file = new File(FileUtils.getExportPath(), step.getFileName());
-			if (!file.exists() || !file.canRead()) {
-				Timber.i("Unable to read file '%s'", file.toString());
-				return ERROR_FILE_ACCESS;
-			}
+			if (!file.exists()) return context.getString(R.string.msg_import_failed_file_not_exist, file);
+			if (!file.canRead()) return context.getString(R.string.msg_import_failed_file_not_read, file);
 
 			try {
 				in = new FileInputStream(file);
 			} catch (FileNotFoundException e) {
-				Timber.e(e, "File '%s' not found", file.toString());
+				String error = context.getString(R.string.msg_import_failed_file_not_exist, file);
+				Timber.w(e, error);
+				return error;
 			}
 		} else {
-			Uri backupFileUri = PreferencesUtils.getUri(context, step.getPreferenceKey());
-			if (backupFileUri == null) {
-				Timber.w("Null backupFileUri for '%s'", step.getDescription(context));
-				return ERROR_FILE_ACCESS;
+			Uri uri = PreferencesUtils.getUri(context, step.getPreferenceKey());
+			if (uri == null) {
+				Timber.i("Null uri for '%s'; skipping", step.getDescription(context));
+				return null;
 			}
 
-			ParcelFileDescriptor pfd;
 			try {
-				pfd = context.getContentResolver().openFileDescriptor(backupFileUri, "r");
-			} catch (FileNotFoundException | SecurityException e) {
-				Timber.e(e, "Backup file '%s' not found.", backupFileUri.toString());
-				return ERROR_FILE_ACCESS;
+				pfd = context.getContentResolver().openFileDescriptor(uri, "r");
+			} catch (FileNotFoundException e) {
+				String error = context.getString(R.string.msg_import_failed_file_not_exist, uri);
+				Timber.w(e, error);
+				return error;
 			}
 			if (pfd == null) {
-				Timber.e("File descriptor for '%s' is null.", backupFileUri.toString());
-				return ERROR_FILE_ACCESS;
+				return context.getString(R.string.msg_export_failed_null_pfd, uri);
 			}
 
 			in = new FileInputStream(pfd.getFileDescriptor());
 		}
-
-		if (in == null) return ERROR;
 
 		step.initializeImport(context);
 
@@ -132,12 +116,15 @@ public class JsonImportTask extends ImporterExporterTask {
 			} finally {
 				reader.close();
 			}
-		} catch (@NonNull JsonParseException | IOException e) {
+		} catch (JsonParseException | IOException e) {
 			// the given Json might not be valid or unreadable
-			Timber.e(e, "JSON show import failed");
-			return ERROR;
+			String error = context.getString(R.string.msg_export_failed_step, step.getDescription(context));
+			Timber.e(e, error);
+			return error;
 		}
 
-		return SUCCESS;
+		closePfd(pfd);
+
+		return null;
 	}
 }

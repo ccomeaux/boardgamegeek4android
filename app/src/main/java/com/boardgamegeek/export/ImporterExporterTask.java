@@ -4,20 +4,20 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.events.ExportProgressEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
-	protected static final int SUCCESS = 0;
-	protected static final int ERROR = -1;
-	protected static final int ERROR_STORAGE_ACCESS = -2;
-	protected static final int ERROR_FILE_ACCESS = -3;
+import timber.log.Timber;
+
+public class ImporterExporterTask extends AsyncTask<Void, Integer, String> {
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
 	private static final int PROGRESS_STEP = 2;
@@ -40,8 +40,8 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	@Override
-	protected Integer doInBackground(Void... params) {
-		return ERROR;
+	protected String doInBackground(Void... params) {
+		return null;
 	}
 
 	@Override
@@ -52,11 +52,17 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, Integer> {
 			values[PROGRESS_STEP]));
 	}
 
-	protected static boolean isResultError(int result) {
-		return result < 0;
-	}
-
 	public static boolean shouldUseDefaultFolders() {
 		return VERSION.SDK_INT < VERSION_CODES.KITKAT;
+	}
+
+	protected void closePfd(ParcelFileDescriptor pfd) {
+		if (pfd != null) {
+			try {
+				pfd.close();
+			} catch (IOException e) {
+				Timber.w(e);
+			}
+		}
 	}
 }

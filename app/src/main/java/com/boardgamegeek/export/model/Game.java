@@ -60,4 +60,9 @@ public class Game {
 			cursor.close();
 		}
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Game{id=%s, colors=%s}", id, colors);
+	}
 }

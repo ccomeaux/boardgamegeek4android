@@ -25,4 +25,9 @@ public class Color {
 		color.color = cursor.getString(COLOR);
 		return color;
 	}
+
+	@Override
+	public String toString() {
+		return color;
+	}
 }
