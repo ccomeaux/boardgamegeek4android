@@ -99,7 +99,7 @@ public class DataStepRow extends LinearLayout {
 	}
 
 	public void hideProgressBar() {
-		AnimationUtils.fadeOut(progressBar);
+		AnimationUtils.fadeOutToInvisible(progressBar);
 	}
 
 	@OnClick(R.id.export_button)
