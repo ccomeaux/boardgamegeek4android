@@ -28,11 +28,13 @@ import java.io.OutputStreamWriter;
 import timber.log.Timber;
 
 public class JsonExportTask extends ImporterExporterTask {
+	private final int requestCode;
 	private final Step step;
 	private final Uri uri;
 
-	public JsonExportTask(Context context, Step step, Uri uri) {
+	public JsonExportTask(Context context, int requestCode, Step step, Uri uri) {
 		super(context);
+		this.requestCode = requestCode;
 		this.step = step;
 		this.uri = uri;
 	}
@@ -110,7 +112,7 @@ public class JsonExportTask extends ImporterExporterTask {
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		Timber.i(errorMessage);
-		EventBus.getDefault().post(new ExportFinishedEvent(errorMessage));
+		EventBus.getDefault().post(new ExportFinishedEvent(requestCode, errorMessage));
 	}
 
 	private void writeJsonStream(@NonNull OutputStream out, @NonNull Cursor cursor, @NonNull Step step) throws IOException {
@@ -125,7 +127,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		int numExported = 0;
 		while (cursor.moveToNext()) {
 			if (isCancelled()) break;
-			publishProgress(numTotal, numExported++);
+			publishProgress(numTotal, numExported++, requestCode);
 			try {
 				step.writeJsonRecord(context, cursor, gson, writer);
 			} catch (RuntimeException e) {

@@ -21,8 +21,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.widget.ProgressBar;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
@@ -63,8 +61,6 @@ public class DataFragment extends Fragment implements Listener {
 	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
 	private Unbinder unbinder;
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
-	@BindView(R.id.progress_container) View progressContainer;
-	@BindView(R.id.progress) ProgressBar progressBar;
 	private final Map<Integer, Step> requestCodeSteps = new ArrayMap<>();
 	private Step currentStep;
 
@@ -87,6 +83,7 @@ public class DataFragment extends Fragment implements Listener {
 			DataStepRow row = new DataStepRow(getContext());
 			row.setListener(this);
 			row.bind(step, requestCode);
+			row.setTag(requestCode);
 			fileTypesView.addView(row);
 		}
 
@@ -126,7 +123,7 @@ public class DataFragment extends Fragment implements Listener {
 						public void onClick(DialogInterface dialog, int which) {
 							if (PackageManager.PERMISSION_GRANTED ==
 								ContextCompat.checkSelfPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE)) {
-								export(currentStep, null);
+								export(requestCode, currentStep, null);
 							} else {
 								if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
 									showSnackbar(R.string.msg_export_permission_rationale);
@@ -146,7 +143,7 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@Override
-	public void onImportClicked(int requestCode) {
+	public void onImportClicked(final int requestCode) {
 		if (requestCodeSteps.containsKey(requestCode)) {
 			currentStep = requestCodeSteps.get(requestCode);
 
@@ -156,7 +153,7 @@ public class DataFragment extends Fragment implements Listener {
 					new OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							performImport(currentStep, null);
+							performImport(requestCode, currentStep, null);
 						}
 					}).show();
 			} else {
@@ -188,9 +185,10 @@ public class DataFragment extends Fragment implements Listener {
 			}
 
 			if (requestCodeSteps.containsKey(requestCode)) {
-				export(requestCodeSteps.get(requestCode), uri);
+				export(requestCode, requestCodeSteps.get(requestCode), uri);
 			} else {
-				performImport(requestCodeSteps.get(requestCode - REQUEST_IMPORT_OFFSET), uri);
+				int code = requestCode - REQUEST_IMPORT_OFFSET;
+				performImport(code, requestCodeSteps.get(code), uri);
 			}
 		}
 	}
@@ -199,7 +197,7 @@ public class DataFragment extends Fragment implements Listener {
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (requestCodeSteps.containsKey(requestCode)) {
 			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				export(currentStep, null);
+				export(requestCode, currentStep, null);
 			} else {
 				showSnackbar(R.string.msg_export_permission_denied);
 			}
@@ -209,16 +207,18 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@DebugLog
-	private void export(Step step, Uri uri) {
-		initProgressBar();
-		TaskUtils.executeAsyncTask(new JsonExportTask(getContext(), step, uri));
+	private void export(int requestCode, Step step, Uri uri) {
+		DataStepRow row = findRow(requestCode);
+		if (row != null) row.initProgressBar();
+		TaskUtils.executeAsyncTask(new JsonExportTask(getContext(), requestCode, step, uri));
 		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Export"));
 	}
 
 	@DebugLog
-	private void performImport(Step step, Uri uri) {
-		initProgressBar();
-		TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), step, uri));
+	private void performImport(int requestCode, Step step, Uri uri) {
+		DataStepRow row = findRow(requestCode);
+		if (row != null) row.initProgressBar();
+		TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), requestCode, step, uri));
 		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Import"));
 	}
 
@@ -226,6 +226,8 @@ public class DataFragment extends Fragment implements Listener {
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportFinishedEvent event) {
+		DataStepRow row = findRow(event.getRequestCode());
+		if (row != null) row.hideProgressBar();
 		notifyEnd(event.getErrorMessage(), R.string.msg_export_success, R.string.msg_export_failed);
 	}
 
@@ -233,6 +235,8 @@ public class DataFragment extends Fragment implements Listener {
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportFinishedEvent event) {
+		DataStepRow row = findRow(event.getRequestCode());
+		if (row != null) row.hideProgressBar();
 		notifyEnd(event.getErrorMessage(), R.string.msg_import_success, R.string.msg_import_failed);
 	}
 
@@ -240,44 +244,41 @@ public class DataFragment extends Fragment implements Listener {
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportProgressEvent event) {
-		if (progressBar != null) {
-			if (event.getTotalCount() < 0) {
-				progressBar.setIndeterminate(true);
-			} else {
-				progressBar.setIndeterminate(false);
-				progressBar.setMax(event.getTotalCount());
-				progressBar.setProgress(event.getCurrentCount());
-			}
-		}
+		DataStepRow row = findRow(event.getRequestCode());
+		if (row != null) row.updateProgressBar(event.getTotalCount(), event.getCurrentCount());
 	}
 
-	private void initProgressBar() {
-		if (progressContainer != null) {
-			progressContainer.setVisibility(View.VISIBLE);
+	private DataStepRow findRow(int requestCode) {
+		for (int i = 0; i < fileTypesView.getChildCount(); i++) {
+			View view = fileTypesView.getChildAt(i);
+			if (view != null) {
+				Object tag = view.getTag();
+				if (tag.equals(requestCode)) {
+					return (DataStepRow) view;
+				}
+			}
 		}
-		if (progressBar != null) {
-			progressBar.setMax(1);
-			progressBar.setProgress(0);
-		}
+		return null;
 	}
 
 	private void notifyEnd(String errorMessage, @StringRes int successResId, @StringRes int failureResId) {
-		View view = getView();
-		if (view != null) {
-			if (TextUtils.isEmpty(errorMessage)) {
-				Snackbar.make(view, successResId, Snackbar.LENGTH_LONG).show();
-			} else {
-				Snackbar.make(view, getString(failureResId) + "\n" + errorMessage, Snackbar.LENGTH_LONG).show();
-			}
-		}
-		progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		progressContainer.setVisibility(View.GONE);
+		String message = TextUtils.isEmpty(errorMessage) ?
+			getString(successResId) :
+			getString(failureResId) + "\n" + errorMessage;
+		showSnackbar(message);
 	}
 
 	private void showSnackbar(@StringRes int messageResId) {
 		View view = getView();
 		if (view != null) {
 			Snackbar.make(view, messageResId, Snackbar.LENGTH_LONG).show();
+		}
+	}
+
+	private void showSnackbar(String message) {
+		View view = getView();
+		if (view != null) {
+			Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
 		}
 	}
 }

@@ -6,11 +6,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.Step;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.FileUtils;
 
 import java.io.File;
@@ -25,6 +27,7 @@ import butterknife.Unbinder;
 public class DataStepRow extends LinearLayout {
 	@BindView(R.id.description) TextView descriptionView;
 	@BindView(R.id.file_name) TextView fileNameView;
+	@BindView(R.id.progress) ProgressBar progressBar;
 	@BindDimen(R.dimen.padding_half) int verticalPadding;
 	@BindDimen(R.dimen.view_row_height) int minimumHeight;
 
@@ -73,6 +76,30 @@ public class DataStepRow extends LinearLayout {
 		} else {
 			fileNameView.setVisibility(GONE);
 		}
+	}
+
+	public void initProgressBar() {
+		if (progressBar != null) {
+			progressBar.setMax(1);
+			progressBar.setProgress(0);
+			AnimationUtils.fadeIn(progressBar);
+		}
+	}
+
+	public void updateProgressBar(int max, int progress) {
+		if (progressBar != null) {
+			if (max < 0) {
+				progressBar.setIndeterminate(true);
+			} else {
+				progressBar.setIndeterminate(false);
+				progressBar.setMax(max);
+				progressBar.setProgress(progress);
+			}
+		}
+	}
+
+	public void hideProgressBar() {
+		AnimationUtils.fadeOut(progressBar);
 	}
 
 	@OnClick(R.id.export_button)

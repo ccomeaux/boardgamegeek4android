@@ -22,11 +22,13 @@ import java.io.InputStreamReader;
 import timber.log.Timber;
 
 public class JsonImportTask extends ImporterExporterTask {
+	private final int requestCode;
 	private final Step step;
 	private final Uri uri;
 
-	public JsonImportTask(Context context, Step step, Uri uri) {
+	public JsonImportTask(Context context, int requestCode, Step step, Uri uri) {
 		super(context);
+		this.requestCode = requestCode;
 		this.step = step;
 		this.uri = uri;
 	}
@@ -74,7 +76,7 @@ public class JsonImportTask extends ImporterExporterTask {
 		}
 
 		if (isCancelled()) return context.getString(R.string.cancelled);
-		publishProgress(-1, 0, 0);
+		publishProgress(-1, 0, requestCode);
 
 		step.initializeImport(context);
 
@@ -109,6 +111,6 @@ public class JsonImportTask extends ImporterExporterTask {
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		Timber.i(errorMessage);
-		EventBus.getDefault().post(new ImportFinishedEvent(errorMessage));
+		EventBus.getDefault().post(new ImportFinishedEvent(requestCode, errorMessage));
 	}
 }

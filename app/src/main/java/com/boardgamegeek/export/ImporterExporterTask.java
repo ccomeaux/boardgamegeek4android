@@ -18,6 +18,7 @@ import timber.log.Timber;
 public class ImporterExporterTask extends AsyncTask<Void, Integer, String> {
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
+	private static final int REQUEST_CODE = 2;
 
 	protected final Context context;
 
@@ -34,7 +35,8 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, String> {
 	protected void onProgressUpdate(Integer... values) {
 		EventBus.getDefault().post(new ExportProgressEvent(
 			values[PROGRESS_TOTAL],
-			values[PROGRESS_CURRENT]));
+			values[PROGRESS_CURRENT],
+			values[REQUEST_CODE]));
 	}
 
 	public static boolean shouldUseDefaultFolders() {
