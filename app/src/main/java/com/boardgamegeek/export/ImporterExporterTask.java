@@ -12,31 +12,17 @@ import com.boardgamegeek.events.ExportProgressEvent;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import timber.log.Timber;
 
 public class ImporterExporterTask extends AsyncTask<Void, Integer, String> {
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
-	private static final int PROGRESS_STEP = 2;
 
 	protected final Context context;
-	protected final List<Step> steps = new ArrayList<>();
 
 	public ImporterExporterTask(@NonNull Context context) {
 		this.context = context.getApplicationContext();
-
-		steps.clear();
-		steps.add(new CollectionViewStep());
-		steps.add(new GameStep());
-		steps.add(new UserStep());
-	}
-
-	@NonNull
-	public List<Step> getSteps() {
-		return steps;
 	}
 
 	@Override
@@ -48,8 +34,7 @@ public class ImporterExporterTask extends AsyncTask<Void, Integer, String> {
 	protected void onProgressUpdate(Integer... values) {
 		EventBus.getDefault().post(new ExportProgressEvent(
 			values[PROGRESS_TOTAL],
-			values[PROGRESS_CURRENT],
-			values[PROGRESS_STEP]));
+			values[PROGRESS_CURRENT]));
 	}
 
 	public static boolean shouldUseDefaultFolders() {

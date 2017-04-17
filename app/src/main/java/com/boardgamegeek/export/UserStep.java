@@ -28,11 +28,6 @@ public class UserStep implements Step {
 		return "bgg4a-users.json";
 	}
 
-	@Override
-	public String getPreferenceKey() {
-		return PREFERENCE_KEY_PREFIX + "users";
-	}
-
 	@NonNull
 	@Override
 	public String getDescription(@NonNull Context context) {

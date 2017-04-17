@@ -8,11 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 public interface Step {
-	String PREFERENCE_KEY_PREFIX = "key_export_";
-
 	String getFileName();
-
-	String getPreferenceKey();
 
 	String getDescription(Context context);
 

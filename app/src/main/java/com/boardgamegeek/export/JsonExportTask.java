@@ -8,12 +8,10 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.util.FileUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
@@ -30,13 +28,18 @@ import java.io.OutputStreamWriter;
 import timber.log.Timber;
 
 public class JsonExportTask extends ImporterExporterTask {
-	public JsonExportTask(Context context) {
+	private final Step step;
+	private final Uri uri;
+
+	public JsonExportTask(Context context, Step step, Uri uri) {
 		super(context);
+		this.step = step;
+		this.uri = uri;
 	}
 
 	@Override
 	protected String doInBackground(Void... params) {
-		if (shouldUseDefaultFolders()) {
+		if (uri == null) {
 			int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
 			if (permissionCheck == PackageManager.PERMISSION_DENIED) {
 				return context.getString(R.string.msg_export_failed_external_permissions);
@@ -54,24 +57,8 @@ public class JsonExportTask extends ImporterExporterTask {
 			}
 		}
 
-		int stepIndex = 0;
-		for (Step exporter : steps) {
-			if (isCancelled()) return context.getString(R.string.cancelled);
-			String result = export(exporter, stepIndex);
-			if (!TextUtils.isEmpty(result)) return result;
-			stepIndex++;
-		}
+		if (isCancelled()) return context.getString(R.string.cancelled);
 
-		return null;
-	}
-
-	@Override
-	protected void onPostExecute(String errorMessage) {
-		Timber.i(errorMessage);
-		EventBus.getDefault().post(new ExportFinishedEvent(errorMessage));
-	}
-
-	private String export(@NonNull Step step, int stepIndex) {
 		OutputStream out;
 		ParcelFileDescriptor pfd = null;
 		if (shouldUseDefaultFolders()) {
@@ -84,16 +71,9 @@ public class JsonExportTask extends ImporterExporterTask {
 				return error;
 			}
 		} else {
-			Uri uri = PreferencesUtils.getUri(context, step.getPreferenceKey());
-			if (uri == null) {
-				Timber.i("Null URI for '%s'; skipping", step.getDescription(context));
-				return null;
-			}
-
 			try {
 				pfd = context.getContentResolver().openFileDescriptor(uri, "w");
 			} catch (SecurityException e) {
-				PreferencesUtils.putUri(context, step.getPreferenceKey(), null);
 				String error = context.getString(R.string.msg_export_failed_permissions, uri);
 				Timber.w(e, error);
 				return error;
@@ -113,7 +93,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		if (cursor == null) return context.getString(R.string.msg_export_failed_null_cursor);
 
 		try {
-			writeJsonStream(out, cursor, step, stepIndex);
+			writeJsonStream(out, cursor, step);
 		} catch (Exception e) {
 			String error = context.getString(R.string.msg_export_failed_step, step.getDescription(context));
 			Timber.e(e, error);
@@ -127,7 +107,13 @@ public class JsonExportTask extends ImporterExporterTask {
 		return null;
 	}
 
-	private void writeJsonStream(@NonNull OutputStream out, @NonNull Cursor cursor, @NonNull Step step, int stepIndex) throws IOException {
+	@Override
+	protected void onPostExecute(String errorMessage) {
+		Timber.i(errorMessage);
+		EventBus.getDefault().post(new ExportFinishedEvent(errorMessage));
+	}
+
+	private void writeJsonStream(@NonNull OutputStream out, @NonNull Cursor cursor, @NonNull Step step) throws IOException {
 		Gson gson = new GsonBuilder()
 			.excludeFieldsWithoutExposeAnnotation()
 			.create();
@@ -139,7 +125,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		int numExported = 0;
 		while (cursor.moveToNext()) {
 			if (isCancelled()) break;
-			publishProgress(numTotal, numExported++, stepIndex);
+			publishProgress(numTotal, numExported++);
 			try {
 				step.writeJsonRecord(context, cursor, gson, writer);
 			} catch (RuntimeException e) {

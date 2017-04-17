@@ -1,16 +1,13 @@
 package com.boardgamegeek.events;
 
-import android.support.annotation.StringRes;
-
 public class ImportFinishedEvent {
-	@StringRes private final int messageId;
+	private final String errorMessage;
 
-	public ImportFinishedEvent(@StringRes int messageId) {
-		this.messageId = messageId;
+	public ImportFinishedEvent(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 
-	@StringRes
-	public int getMessageId() {
-		return messageId;
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 }

@@ -7,36 +7,49 @@
 		android:id="@+id/description"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentStart="true"
-		android:layout_alignParentTop="true"
 		android:ellipsize="end"
 		android:maxLines="2"
 		android:textAppearance="@style/Text.Header"
 		tools:text="Game color"/>
 
-	<Button
-		android:id="@+id/select_file_button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/description"
-		android:layout_marginEnd="@dimen/padding_standard"
-		android:layout_marginRight="@dimen/padding_standard"
-		android:text="@string/select_file"/>
-
 	<TextView
 		android:id="@+id/file_name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@id/select_file_button"
-		android:layout_alignTop="@id/select_file_button"
-		android:layout_below="@+id/description"
-		android:layout_toEndOf="@id/select_file_button"
-		android:layout_toRightOf="@id/select_file_button"
 		android:ellipsize="end"
 		android:gravity="center_vertical"
 		android:maxLines="3"
 		android:textAppearance="@style/Text.Secondary"
 		tools:text="bgg4a-games.json"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_standard">
+
+		<Button
+			android:id="@+id/export_button"
+			style="@style/RaisedButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/padding_extra"
+			android:layout_marginRight="@dimen/padding_extra"
+			android:text="@string/title_export"
+			android:theme="@style/RaisedButtonTheme"/>
+
+		<Button
+			android:id="@+id/import_button"
+			style="@style/RaisedButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="@dimen/padding_extra"
+			android:layout_marginStart="@dimen/padding_extra"
+			android:text="@string/title_import"
+			android:theme="@style/RaisedButtonTheme"/>
+	</LinearLayout>
 
 </merge>

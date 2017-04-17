@@ -34,36 +34,6 @@
 			android:orientation="vertical"/>
 
 		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:orientation="horizontal"
-			android:paddingBottom="@dimen/padding_standard"
-			android:paddingTop="@dimen/padding_standard">
-
-			<Button
-				android:id="@+id/export_button"
-				style="@style/RaisedButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginEnd="@dimen/padding_extra"
-				android:layout_marginRight="@dimen/padding_extra"
-				android:text="@string/title_export"
-				android:theme="@style/RaisedButtonTheme"/>
-
-			<Button
-				android:id="@+id/import_button"
-				style="@style/RaisedButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginLeft="@dimen/padding_extra"
-				android:layout_marginStart="@dimen/padding_extra"
-				android:text="@string/title_import"
-				android:theme="@style/RaisedButtonTheme"/>
-		</LinearLayout>
-
-		<LinearLayout
 			android:id="@+id/progress_container"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -79,13 +49,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/progress_bar_height"/>
 
-			<TextView
-				android:id="@+id/progress_detail"
-				style="@style/Text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:gravity="center"
-				tools:text="Some file"/>
 		</LinearLayout>
 	</LinearLayout>
 </ScrollView>

@@ -6,15 +6,13 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -25,18 +23,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ExportProgressEvent;
+import com.boardgamegeek.events.ImportFinishedEvent;
+import com.boardgamegeek.export.CollectionViewStep;
+import com.boardgamegeek.export.GameStep;
 import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
 import com.boardgamegeek.export.Step;
+import com.boardgamegeek.export.UserStep;
 import com.boardgamegeek.ui.widget.DataStepRow;
+import com.boardgamegeek.ui.widget.DataStepRow.Listener;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
@@ -45,27 +46,27 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class DataFragment extends Fragment implements OnSharedPreferenceChangeListener {
-	private static final int REQUEST_EXPORT = 0;
+public class DataFragment extends Fragment implements Listener {
 	private static final int REQUEST_TASK_FIRST = 100;
+	private static final int REQUEST_IMPORT_OFFSET = 10;
 	private static final String ANSWERS_EVENT_NAME = "DataManagement";
 	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
 	private Unbinder unbinder;
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
 	@BindView(R.id.progress_container) View progressContainer;
 	@BindView(R.id.progress) ProgressBar progressBar;
-	@BindView(R.id.progress_detail) TextView progressDetailView;
-	private ImporterExporterTask task;
-	private final Map<Integer, String> requestCodePreferenceKeys = new ArrayMap<>();
+	private final Map<Integer, Step> requestCodeSteps = new ArrayMap<>();
+	private Step currentStep;
 
 	@DebugLog
 	@Nullable
@@ -75,14 +76,17 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 
 		unbinder = ButterKnife.bind(this, root);
 
-		task = new ImporterExporterTask(getActivity());
-		for (int i = 0; i < task.getSteps().size(); i++) {
+		List<Step> steps = new ArrayList<>();
+		steps.add(new CollectionViewStep());
+		steps.add(new GameStep());
+		steps.add(new UserStep());
+		for (int i = 0; i < steps.size(); i++) {
 			int requestCode = REQUEST_TASK_FIRST + i;
-			Step step = task.getSteps().get(i);
-			requestCodePreferenceKeys.put(requestCode, step.getPreferenceKey());
-			DataStepRow row = new DataStepRow(this);
+			Step step = steps.get(i);
+			requestCodeSteps.put(requestCode, step);
+			DataStepRow row = new DataStepRow(getContext());
+			row.setListener(this);
 			row.bind(step, requestCode);
-			row.setTag(step.getPreferenceKey());
 			fileTypesView.addView(row);
 		}
 
@@ -94,18 +98,6 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
 	}
 
 	@DebugLog
@@ -121,12 +113,69 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 		unbinder.unbind();
 	}
 
+	@Override
+	public void onExportClicked(final int requestCode) {
+		if (requestCodeSteps.containsKey(requestCode)) {
+			currentStep = requestCodeSteps.get(requestCode);
+
+			if (ImporterExporterTask.shouldUseDefaultFolders()) {
+				DialogUtils.createConfirmationDialog(getActivity(),
+					R.string.msg_export_confirmation,
+					new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (PackageManager.PERMISSION_GRANTED ==
+								ContextCompat.checkSelfPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE)) {
+								export(currentStep, null);
+							} else {
+								if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
+									showSnackbar(R.string.msg_export_permission_rationale);
+								}
+								requestPermissions(new String[] { permission.WRITE_EXTERNAL_STORAGE }, requestCode);
+							}
+						}
+					}).show();
+			} else {
+				Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("text/json");
+				intent.putExtra(Intent.EXTRA_TITLE, currentStep.getFileName());
+				startActivityForResult(intent, requestCode);
+			}
+		}
+	}
+
+	@Override
+	public void onImportClicked(int requestCode) {
+		if (requestCodeSteps.containsKey(requestCode)) {
+			currentStep = requestCodeSteps.get(requestCode);
+
+			if (ImporterExporterTask.shouldUseDefaultFolders()) {
+				DialogUtils.createConfirmationDialog(getActivity(),
+					R.string.msg_import_confirmation,
+					new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							performImport(currentStep, null);
+						}
+					}).show();
+			} else {
+				Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("text/json");
+				intent.putExtra(Intent.EXTRA_TITLE, currentStep.getFileName());
+				startActivityForResult(intent, requestCode + REQUEST_IMPORT_OFFSET);
+			}
+		}
+	}
+
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode != Activity.RESULT_OK || !isAdded() || data == null) return;
 
-		if (requestCodePreferenceKeys.containsKey(requestCode)) {
+		if (requestCodeSteps.containsKey(requestCode) ||
+			requestCodeSteps.containsKey(requestCode - REQUEST_IMPORT_OFFSET)) {
 			Uri uri = data.getData();
 
 			if (uri == null) return;
@@ -138,46 +187,21 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 				Timber.e(e, "Could not persist URI permissions for '%s'.", uri.toString());
 			}
 
-			String key = requestCodePreferenceKeys.get(requestCode);
-			if (TextUtils.isEmpty(key)) return;
-
-			PreferencesUtils.putUri(getContext(), key, uri);
-			updateFileName(key);
-		}
-	}
-
-	@DebugLog
-	@OnClick(R.id.export_button)
-	public void onExportClick() {
-		DialogUtils.createConfirmationDialog(getActivity(), R.string.msg_export_confirmation, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (PackageManager.PERMISSION_GRANTED ==
-					ContextCompat.checkSelfPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE)) {
-					export();
-				} else {
-					if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
-						View view = getView();
-						if (view != null) {
-							Snackbar.make(view, R.string.msg_export_permission_rationale, Snackbar.LENGTH_INDEFINITE).show();
-						}
-					}
-					requestPermissions(new String[] { permission.WRITE_EXTERNAL_STORAGE }, REQUEST_EXPORT);
-				}
+			if (requestCodeSteps.containsKey(requestCode)) {
+				export(requestCodeSteps.get(requestCode), uri);
+			} else {
+				performImport(requestCodeSteps.get(requestCode - REQUEST_IMPORT_OFFSET), uri);
 			}
-		}).show();
+		}
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (requestCode == REQUEST_EXPORT) {
+		if (requestCodeSteps.containsKey(requestCode)) {
 			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				export();
+				export(currentStep, null);
 			} else {
-				View view = getView();
-				if (view != null) {
-					Snackbar.make(view, R.string.msg_export_permission_denied, Snackbar.LENGTH_LONG).show();
-				}
+				showSnackbar(R.string.msg_export_permission_denied);
 			}
 		} else {
 			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -185,30 +209,31 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 	}
 
 	@DebugLog
-	private void export() {
+	private void export(Step step, Uri uri) {
 		initProgressBar();
-		TaskUtils.executeAsyncTask(new JsonExportTask(getContext()));
+		TaskUtils.executeAsyncTask(new JsonExportTask(getContext(), step, uri));
 		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Export"));
 	}
 
 	@DebugLog
-	@OnClick(R.id.import_button)
-	public void onImportClick() {
-		DialogUtils.createConfirmationDialog(getActivity(), R.string.msg_import_confirmation, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				initProgressBar();
-				TaskUtils.executeAsyncTask(new JsonImportTask(getContext()));
-				Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Import"));
-			}
-		}).show();
+	private void performImport(Step step, Uri uri) {
+		initProgressBar();
+		TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), step, uri));
+		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Import"));
 	}
 
 	@DebugLog
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportFinishedEvent event) {
-		notifyEnd(event.getErrorMessage());
+		notifyEnd(event.getErrorMessage(), R.string.msg_export_success, R.string.msg_export_failed);
+	}
+
+	@DebugLog
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ImportFinishedEvent event) {
+		notifyEnd(event.getErrorMessage(), R.string.msg_import_success, R.string.msg_import_failed);
 	}
 
 	@DebugLog
@@ -224,12 +249,6 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 				progressBar.setProgress(event.getCurrentCount());
 			}
 		}
-		if (progressDetailView != null &&
-			task != null &&
-			event.getStepIndex() < task.getSteps().size()) {
-			String description = task.getSteps().get(event.getStepIndex()).getDescription(getActivity());
-			progressDetailView.setText(description);
-		}
 	}
 
 	private void initProgressBar() {
@@ -240,37 +259,25 @@ public class DataFragment extends Fragment implements OnSharedPreferenceChangeLi
 			progressBar.setMax(1);
 			progressBar.setProgress(0);
 		}
-		if (progressDetailView != null) {
-			progressDetailView.setText("");
-		}
 	}
 
-	private void notifyEnd(String errorMessage) {
+	private void notifyEnd(String errorMessage, @StringRes int successResId, @StringRes int failureResId) {
 		View view = getView();
 		if (view != null) {
 			if (TextUtils.isEmpty(errorMessage)) {
-				Snackbar.make(view, R.string.msg_export_success, Snackbar.LENGTH_LONG).show();
+				Snackbar.make(view, successResId, Snackbar.LENGTH_LONG).show();
 			} else {
-				Snackbar.make(view, getString(R.string.msg_export_failed) + "\n" + errorMessage, Snackbar.LENGTH_LONG).show();
+				Snackbar.make(view, getString(failureResId) + "\n" + errorMessage, Snackbar.LENGTH_LONG).show();
 			}
 		}
 		progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
 		progressContainer.setVisibility(View.GONE);
 	}
 
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		updateFileName(key);
-	}
-
-	private void updateFileName(String key) {
-		if (TextUtils.isEmpty(key)) return;
-		for (int i = 0; i < fileTypesView.getChildCount(); i++) {
-			View view = fileTypesView.getChildAt(i);
-			if (key.equals(view.getTag())) {
-				((DataStepRow) view).setFileNameView(PreferencesUtils.getUri(getContext(), key));
-				return;
-			}
+	private void showSnackbar(@StringRes int messageResId) {
+		View view = getView();
+		if (view != null) {
+			Snackbar.make(view, messageResId, Snackbar.LENGTH_LONG).show();
 		}
 	}
 }
