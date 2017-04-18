@@ -11,7 +11,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.Step;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.FileUtils;
@@ -71,7 +70,7 @@ public class DataStepRow extends LinearLayout {
 	public void bind(Step step, int requestCode) {
 		this.requestCode = requestCode;
 		descriptionView.setText(step.getDescription(getContext()));
-		if (ImporterExporterTask.shouldUseDefaultFolders()) {
+		if (FileUtils.shouldUseDefaultFolders()) {
 			fileNameView.setText(FileUtils.getExportFile(step.getName()).toString());
 			fileNameView.setVisibility(VISIBLE);
 		} else {

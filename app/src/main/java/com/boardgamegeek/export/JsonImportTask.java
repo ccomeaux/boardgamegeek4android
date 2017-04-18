@@ -2,10 +2,12 @@ package com.boardgamegeek.export;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
+import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -21,13 +23,14 @@ import java.io.InputStreamReader;
 
 import timber.log.Timber;
 
-public class JsonImportTask extends ImporterExporterTask {
+public class JsonImportTask extends AsyncTask<Void, Integer, String> {
+	protected final Context context;
 	private final int requestCode;
 	private final Step step;
 	private final Uri uri;
 
 	public JsonImportTask(Context context, int requestCode, Step step, Uri uri) {
-		super(context);
+		this.context = context.getApplicationContext();
 		this.requestCode = requestCode;
 		this.step = step;
 		this.uri = uri;
@@ -103,9 +106,14 @@ public class JsonImportTask extends ImporterExporterTask {
 			return error;
 		}
 
-		closePfd(pfd);
+		FileUtils.closePfd(pfd);
 
 		return null;
+	}
+
+	@Override
+	protected void onProgressUpdate(Integer... values) {
+		EventBus.getDefault().post(new ImportProgressEvent(values[0]));
 	}
 
 	@Override

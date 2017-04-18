@@ -1,13 +1,18 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
 
 import java.io.File;
 import java.io.IOException;
+
+import timber.log.Timber;
 
 public class FileUtils {
 	private FileUtils() {
@@ -74,7 +79,7 @@ public class FileUtils {
 
 	/**
 	 * Checks if {@link Environment}.MEDIA_MOUNTED is returned by {@code getExternalStorageState()}
-	 * and therefore external storage is read- and writeable.
+	 * and therefore external storage is read- and write-able.
 	 */
 	public static boolean isExtStorageAvailable() {
 		return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
@@ -86,5 +91,19 @@ public class FileUtils {
 
 	public static File getExportFile(String fileName) {
 		return new File(getExportPath(), fileName + ".json");
+	}
+
+	public static boolean shouldUseDefaultFolders() {
+		return VERSION.SDK_INT < VERSION_CODES.KITKAT;
+	}
+
+	public static void closePfd(ParcelFileDescriptor pfd) {
+		if (pfd != null) {
+			try {
+				pfd.close();
+			} catch (IOException e) {
+				Timber.w(e);
+			}
+		}
 	}
 }

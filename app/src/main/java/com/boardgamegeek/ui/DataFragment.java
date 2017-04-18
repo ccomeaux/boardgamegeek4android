@@ -26,9 +26,9 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ExportProgressEvent;
 import com.boardgamegeek.events.ImportFinishedEvent;
+import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.export.CollectionViewStep;
 import com.boardgamegeek.export.GameStep;
-import com.boardgamegeek.export.ImporterExporterTask;
 import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
 import com.boardgamegeek.export.Step;
@@ -36,6 +36,7 @@ import com.boardgamegeek.export.UserStep;
 import com.boardgamegeek.ui.widget.DataStepRow;
 import com.boardgamegeek.ui.widget.DataStepRow.Listener;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
@@ -115,7 +116,7 @@ public class DataFragment extends Fragment implements Listener {
 		if (requestCodeSteps.containsKey(requestCode)) {
 			currentStep = requestCodeSteps.get(requestCode);
 
-			if (ImporterExporterTask.shouldUseDefaultFolders()) {
+			if (FileUtils.shouldUseDefaultFolders()) {
 				DialogUtils.createConfirmationDialog(getActivity(),
 					R.string.msg_export_confirmation,
 					new OnClickListener() {
@@ -147,7 +148,7 @@ public class DataFragment extends Fragment implements Listener {
 		if (requestCodeSteps.containsKey(requestCode)) {
 			currentStep = requestCodeSteps.get(requestCode);
 
-			if (ImporterExporterTask.shouldUseDefaultFolders()) {
+			if (FileUtils.shouldUseDefaultFolders()) {
 				DialogUtils.createConfirmationDialog(getActivity(),
 					R.string.msg_import_confirmation,
 					new OnClickListener() {
@@ -246,6 +247,14 @@ public class DataFragment extends Fragment implements Listener {
 	public void onEvent(ExportProgressEvent event) {
 		DataStepRow row = findRow(event.getRequestCode());
 		if (row != null) row.updateProgressBar(event.getTotalCount(), event.getCurrentCount());
+	}
+
+	@DebugLog
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(ImportProgressEvent event) {
+		DataStepRow row = findRow(event.getRequestCode());
+		if (row != null) row.updateProgressBar(-1, 0);
 	}
 
 	private DataStepRow findRow(int requestCode) {

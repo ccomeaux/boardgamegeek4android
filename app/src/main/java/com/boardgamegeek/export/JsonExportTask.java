@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
+import com.boardgamegeek.events.ExportProgressEvent;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,13 +29,18 @@ import java.io.OutputStreamWriter;
 
 import timber.log.Timber;
 
-public class JsonExportTask extends ImporterExporterTask {
+public class JsonExportTask extends AsyncTask<Void, Integer, String> {
+	private static final int PROGRESS_TOTAL = 0;
+	private static final int PROGRESS_CURRENT = 1;
+	private static final int REQUEST_CODE = 2;
+
+	protected final Context context;
 	private final int requestCode;
 	private final Step step;
 	private final Uri uri;
 
 	public JsonExportTask(Context context, int requestCode, Step step, Uri uri) {
-		super(context);
+		this.context = context.getApplicationContext();
 		this.requestCode = requestCode;
 		this.step = step;
 		this.uri = uri;
@@ -63,7 +70,7 @@ public class JsonExportTask extends ImporterExporterTask {
 
 		OutputStream out;
 		ParcelFileDescriptor pfd = null;
-		if (shouldUseDefaultFolders()) {
+		if (FileUtils.shouldUseDefaultFolders()) {
 			File file = FileUtils.getExportFile(step.getName());
 			try {
 				out = new FileOutputStream(file);
@@ -104,9 +111,17 @@ public class JsonExportTask extends ImporterExporterTask {
 			cursor.close();
 		}
 
-		closePfd(pfd);
+		FileUtils.closePfd(pfd);
 
 		return null;
+	}
+
+	@Override
+	protected void onProgressUpdate(Integer... values) {
+		EventBus.getDefault().post(new ExportProgressEvent(
+			values[PROGRESS_TOTAL],
+			values[PROGRESS_CURRENT],
+			values[REQUEST_CODE]));
 	}
 
 	@Override
