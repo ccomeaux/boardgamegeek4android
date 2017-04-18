@@ -29,7 +29,7 @@ import java.io.OutputStreamWriter;
 
 import timber.log.Timber;
 
-public class JsonExportTask extends AsyncTask<Void, Integer, String> {
+public class JsonExportTask extends AsyncTask<Uri, Integer, String> {
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
 	private static final int REQUEST_CODE = 2;
@@ -37,17 +37,16 @@ public class JsonExportTask extends AsyncTask<Void, Integer, String> {
 	protected final Context context;
 	private final int requestCode;
 	private final Step step;
-	private final Uri uri;
 
-	public JsonExportTask(Context context, int requestCode, Step step, Uri uri) {
+	public JsonExportTask(Context context, int requestCode, Step step) {
 		this.context = context.getApplicationContext();
 		this.requestCode = requestCode;
 		this.step = step;
-		this.uri = uri;
 	}
 
 	@Override
-	protected String doInBackground(Void... params) {
+	protected String doInBackground(Uri... params) {
+		Uri uri = params[0];
 		if (uri == null) {
 			int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
 			if (permissionCheck == PackageManager.PERMISSION_DENIED) {

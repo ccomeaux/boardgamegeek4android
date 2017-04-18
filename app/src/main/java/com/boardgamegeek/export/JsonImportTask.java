@@ -23,21 +23,20 @@ import java.io.InputStreamReader;
 
 import timber.log.Timber;
 
-public class JsonImportTask extends AsyncTask<Void, Integer, String> {
+public class JsonImportTask extends AsyncTask<Uri, Integer, String> {
 	protected final Context context;
 	private final int requestCode;
 	private final Step step;
-	private final Uri uri;
 
-	public JsonImportTask(Context context, int requestCode, Step step, Uri uri) {
+	public JsonImportTask(Context context, int requestCode, Step step) {
 		this.context = context.getApplicationContext();
 		this.requestCode = requestCode;
 		this.step = step;
-		this.uri = uri;
 	}
 
 	@Override
-	protected String doInBackground(Void... params) {
+	protected String doInBackground(Uri... params) {
+		Uri uri = params[0];
 		FileInputStream in;
 		ParcelFileDescriptor pfd = null;
 		if (uri == null) {

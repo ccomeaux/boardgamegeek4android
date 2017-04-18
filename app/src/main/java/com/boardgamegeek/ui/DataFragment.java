@@ -211,7 +211,7 @@ public class DataFragment extends Fragment implements Listener {
 	private void export(int requestCode, Step step, Uri uri) {
 		DataStepRow row = findRow(requestCode);
 		if (row != null) row.initProgressBar();
-		TaskUtils.executeAsyncTask(new JsonExportTask(getContext(), requestCode, step, uri));
+		TaskUtils.executeAsyncTask(new JsonExportTask(getContext(), requestCode, step), uri);
 		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Export"));
 	}
 
@@ -219,7 +219,7 @@ public class DataFragment extends Fragment implements Listener {
 	private void performImport(int requestCode, Step step, Uri uri) {
 		DataStepRow row = findRow(requestCode);
 		if (row != null) row.initProgressBar();
-		TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), requestCode, step, uri));
+		TaskUtils.executeAsyncTask(new JsonImportTask(getContext(), requestCode, step), uri);
 		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Import"));
 	}
 
