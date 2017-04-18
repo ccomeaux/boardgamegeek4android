@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,6 +27,8 @@ public class DataStepRow extends LinearLayout {
 	@BindView(R.id.description) TextView descriptionView;
 	@BindView(R.id.file_name) TextView fileNameView;
 	@BindView(R.id.progress) ProgressBar progressBar;
+	@BindView(R.id.export_button) Button exportButton;
+	@BindView(R.id.import_button) Button importButton;
 	@BindDimen(R.dimen.padding_half) int verticalPadding;
 	@BindDimen(R.dimen.view_row_height) int minimumHeight;
 
@@ -82,6 +85,8 @@ public class DataStepRow extends LinearLayout {
 			progressBar.setProgress(0);
 			AnimationUtils.fadeIn(progressBar);
 		}
+		if (importButton != null) importButton.setEnabled(false);
+		if (exportButton != null) exportButton.setEnabled(false);
 	}
 
 	public void updateProgressBar(int max, int progress) {
@@ -98,6 +103,8 @@ public class DataStepRow extends LinearLayout {
 
 	public void hideProgressBar() {
 		AnimationUtils.fadeOutToInvisible(progressBar);
+		if (importButton != null) importButton.setEnabled(true);
+		if (exportButton != null) exportButton.setEnabled(true);
 	}
 
 	@OnClick(R.id.export_button)
