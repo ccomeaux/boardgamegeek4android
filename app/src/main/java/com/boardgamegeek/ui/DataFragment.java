@@ -136,7 +136,7 @@ public class DataFragment extends Fragment implements Listener {
 				Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
 				intent.addCategory(Intent.CATEGORY_OPENABLE);
 				intent.setType("text/json");
-				intent.putExtra(Intent.EXTRA_TITLE, currentStep.getFileName());
+				intent.putExtra(Intent.EXTRA_TITLE, currentStep.getName() + ".json");
 				startActivityForResult(intent, requestCode);
 			}
 		}
@@ -160,7 +160,7 @@ public class DataFragment extends Fragment implements Listener {
 				Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 				intent.addCategory(Intent.CATEGORY_OPENABLE);
 				intent.setType("text/json");
-				intent.putExtra(Intent.EXTRA_TITLE, currentStep.getFileName());
+				intent.putExtra(Intent.EXTRA_TITLE, currentStep.getName() + ".json");
 				startActivityForResult(intent, requestCode + REQUEST_IMPORT_OFFSET);
 			}
 		}

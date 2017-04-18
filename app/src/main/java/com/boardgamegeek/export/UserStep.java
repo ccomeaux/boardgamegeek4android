@@ -24,8 +24,13 @@ import java.util.ArrayList;
 public class UserStep implements Step {
 	@NonNull
 	@Override
-	public String getFileName() {
-		return "bgg4a-users.json";
+	public String getName() {
+		return "bgg4a-users";
+	}
+
+	@Override
+	public int getVersion() {
+		return 1;
 	}
 
 	@NonNull

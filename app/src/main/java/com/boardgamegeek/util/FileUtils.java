@@ -83,4 +83,8 @@ public class FileUtils {
 	public static File getExportPath() {
 		return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 	}
+
+	public static File getExportFile(String fileName) {
+		return new File(getExportPath(), fileName + ".json");
+	}
 }

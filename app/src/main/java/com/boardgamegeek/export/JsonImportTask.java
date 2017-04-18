@@ -49,7 +49,7 @@ public class JsonImportTask extends ImporterExporterTask {
 				return context.getString(R.string.msg_import_failed_external_not_exist, importPath);
 			}
 
-			File file = new File(FileUtils.getExportPath(), step.getFileName());
+			File file = FileUtils.getExportFile(step.getName());
 			if (!file.exists()) return context.getString(R.string.msg_import_failed_file_not_exist, file);
 			if (!file.canRead()) return context.getString(R.string.msg_import_failed_file_not_read, file);
 

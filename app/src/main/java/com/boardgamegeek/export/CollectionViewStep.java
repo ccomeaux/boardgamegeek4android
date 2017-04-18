@@ -24,8 +24,13 @@ import java.util.ArrayList;
 public class CollectionViewStep implements Step {
 	@NonNull
 	@Override
-	public String getFileName() {
-		return "bgg4a-collection-views.json";
+	public String getName() {
+		return "bgg4a-collection-views";
+	}
+
+	@Override
+	public int getVersion() {
+		return 1;
 	}
 
 	@NonNull

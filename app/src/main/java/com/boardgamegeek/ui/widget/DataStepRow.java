@@ -15,8 +15,6 @@ import com.boardgamegeek.export.Step;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.FileUtils;
 
-import java.io.File;
-
 import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,7 +69,7 @@ public class DataStepRow extends LinearLayout {
 		this.requestCode = requestCode;
 		descriptionView.setText(step.getDescription(getContext()));
 		if (ImporterExporterTask.shouldUseDefaultFolders()) {
-			fileNameView.setText(new File(FileUtils.getExportPath(), step.getFileName()).toString());
+			fileNameView.setText(FileUtils.getExportFile(step.getName()).toString());
 			fileNameView.setVisibility(VISIBLE);
 		} else {
 			fileNameView.setVisibility(GONE);

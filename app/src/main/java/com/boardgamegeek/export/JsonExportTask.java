@@ -64,7 +64,7 @@ public class JsonExportTask extends ImporterExporterTask {
 		OutputStream out;
 		ParcelFileDescriptor pfd = null;
 		if (shouldUseDefaultFolders()) {
-			File file = new File(FileUtils.getExportPath(), step.getFileName());
+			File file = FileUtils.getExportFile(step.getName());
 			try {
 				out = new FileOutputStream(file);
 			} catch (FileNotFoundException e) {

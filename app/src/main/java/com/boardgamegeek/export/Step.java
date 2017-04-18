@@ -8,7 +8,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 public interface Step {
-	String getFileName();
+	String getName();
+
+	int getVersion();
 
 	String getDescription(Context context);
 
