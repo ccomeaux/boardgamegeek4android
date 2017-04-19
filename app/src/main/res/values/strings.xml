@@ -192,7 +192,7 @@
 	<string name="msg_export_failed_external_unavailable">External storage is unavailable.</string>
 	<string name="msg_export_failed_external_not_created">Export path \'%s\' can\'t be created.</string>
 	<string name="msg_export_failed_file_not_found">File \'%s\' not found.</string>
-	<string name="msg_export_failed_step">%s step unsuccessful.</string>
+	<string name="msg_export_failed_write_json">Couldn\'t write JSON.</string>
 	<string name="msg_export_failed_null_pfd">ParcelFileDescriptor for \'%s\' is null.</string>
 	<string name="msg_export_failed_null_cursor">Cursor is null.</string>
 	<string name="msg_export_failed_permissions">No permissions to write to \'%s\'.</string>
@@ -201,6 +201,7 @@
 	<string name="msg_import_failed_external_not_exist">Import path \'%s\' doesn\'t exist.</string>
 	<string name="msg_import_failed_file_not_exist">File \'%s\' doesn\'t exist.</string>
 	<string name="msg_import_failed_file_not_read">File \'%s\' can\'t be read.</string>
+	<string name="msg_import_failed_parse_json">Couldn\'t parse JSON.</string>
 	<string name="favorite_colors_hint">Click to set your favorite colors when logging plays.</string>
 	<string name="backup_type_collection_view">Collection view</string>
 	<string name="backup_type_game">Game color</string>

@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ExportProgressEvent;
+import com.boardgamegeek.export.model.Model;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,24 +30,26 @@ import java.io.OutputStreamWriter;
 
 import timber.log.Timber;
 
-public class JsonExportTask extends AsyncTask<Uri, Integer, String> {
+public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, Integer, String> {
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
-	private static final int REQUEST_CODE = 2;
 
 	protected final Context context;
-	private final int requestCode;
-	private final Step step;
+	private final String type;
+	private final Uri uri;
 
-	public JsonExportTask(Context context, int requestCode, Step step) {
+	public JsonExportTask(Context context, String type, Uri uri) {
 		this.context = context.getApplicationContext();
-		this.requestCode = requestCode;
-		this.step = step;
+		this.type = type;
+		this.uri = uri;
 	}
 
+	protected abstract Cursor getCursor(Context context);
+
+	protected abstract void writeJsonRecord(Context context, Cursor cursor, Gson gson, JsonWriter writer);
+
 	@Override
-	protected String doInBackground(Uri... params) {
-		Uri uri = params[0];
+	protected String doInBackground(Void... params) {
 		if (uri == null) {
 			int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
 			if (permissionCheck == PackageManager.PERMISSION_DENIED) {
@@ -69,8 +72,8 @@ public class JsonExportTask extends AsyncTask<Uri, Integer, String> {
 
 		OutputStream out;
 		ParcelFileDescriptor pfd = null;
-		if (FileUtils.shouldUseDefaultFolders()) {
-			File file = FileUtils.getExportFile(step.getName());
+		if (uri == null) {
+			File file = FileUtils.getExportFile(type);
 			try {
 				out = new FileOutputStream(file);
 			} catch (FileNotFoundException e) {
@@ -97,13 +100,13 @@ public class JsonExportTask extends AsyncTask<Uri, Integer, String> {
 			out = new FileOutputStream(pfd.getFileDescriptor());
 		}
 
-		final Cursor cursor = step.getCursor(context);
+		final Cursor cursor = getCursor(context);
 		if (cursor == null) return context.getString(R.string.msg_export_failed_null_cursor);
 
 		try {
-			writeJsonStream(out, cursor, step);
+			writeJsonStream(out, cursor);
 		} catch (Exception e) {
-			String error = context.getString(R.string.msg_export_failed_step, step.getDescription(context));
+			String error = context.getString(R.string.msg_export_failed_write_json);
 			Timber.e(e, error);
 			return error;
 		} finally {
@@ -120,16 +123,16 @@ public class JsonExportTask extends AsyncTask<Uri, Integer, String> {
 		EventBus.getDefault().post(new ExportProgressEvent(
 			values[PROGRESS_TOTAL],
 			values[PROGRESS_CURRENT],
-			values[REQUEST_CODE]));
+			type));
 	}
 
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		Timber.i(errorMessage);
-		EventBus.getDefault().post(new ExportFinishedEvent(requestCode, errorMessage));
+		EventBus.getDefault().post(new ExportFinishedEvent(type, errorMessage));
 	}
 
-	private void writeJsonStream(@NonNull OutputStream out, @NonNull Cursor cursor, @NonNull Step step) throws IOException {
+	private void writeJsonStream(@NonNull OutputStream out, @NonNull Cursor cursor) throws IOException {
 		Gson gson = new GsonBuilder()
 			.excludeFieldsWithoutExposeAnnotation()
 			.create();
@@ -141,9 +144,9 @@ public class JsonExportTask extends AsyncTask<Uri, Integer, String> {
 		int numExported = 0;
 		while (cursor.moveToNext()) {
 			if (isCancelled()) break;
-			publishProgress(numTotal, numExported++, requestCode);
+			publishProgress(numTotal, numExported++);
 			try {
-				step.writeJsonRecord(context, cursor, gson, writer);
+				writeJsonRecord(context, cursor, gson, writer);
 			} catch (RuntimeException e) {
 				Timber.e(e);
 			}

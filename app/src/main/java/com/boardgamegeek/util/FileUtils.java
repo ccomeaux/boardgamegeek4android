@@ -85,12 +85,16 @@ public class FileUtils {
 		return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
 	}
 
+	public static File getExportFile(String type) {
+		return new File(getExportPath(), getExportFileName(type));
+	}
+
 	public static File getExportPath() {
 		return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 	}
 
-	public static File getExportFile(String fileName) {
-		return new File(getExportPath(), fileName + ".json");
+	public static String getExportFileName(String type) {
+		return "bgg4a-" + type + ".json";
 	}
 
 	public static boolean shouldUseDefaultFolders() {

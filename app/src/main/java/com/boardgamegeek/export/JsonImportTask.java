@@ -8,6 +8,7 @@ import android.os.ParcelFileDescriptor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
 import com.boardgamegeek.events.ImportProgressEvent;
+import com.boardgamegeek.export.model.Model;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -23,20 +24,24 @@ import java.io.InputStreamReader;
 
 import timber.log.Timber;
 
-public class JsonImportTask extends AsyncTask<Uri, Integer, String> {
+public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, Integer, String> {
 	protected final Context context;
-	private final int requestCode;
-	private final Step step;
+	private final String type;
+	private final Uri uri;
 
-	public JsonImportTask(Context context, int requestCode, Step step) {
+	public JsonImportTask(Context context, String type, Uri uri) {
 		this.context = context.getApplicationContext();
-		this.requestCode = requestCode;
-		this.step = step;
+		this.type = type;
+		this.uri = uri;
 	}
 
+	protected void initializeImport(Context context) {
+	}
+
+	protected abstract void importRecord(Context context, Gson gson, JsonReader reader);
+
 	@Override
-	protected String doInBackground(Uri... params) {
-		Uri uri = params[0];
+	protected String doInBackground(Void... params) {
 		FileInputStream in;
 		ParcelFileDescriptor pfd = null;
 		if (uri == null) {
@@ -51,7 +56,7 @@ public class JsonImportTask extends AsyncTask<Uri, Integer, String> {
 				return context.getString(R.string.msg_import_failed_external_not_exist, importPath);
 			}
 
-			File file = FileUtils.getExportFile(step.getName());
+			File file = FileUtils.getExportFile(type);
 			if (!file.exists()) return context.getString(R.string.msg_import_failed_file_not_exist, file);
 			if (!file.canRead()) return context.getString(R.string.msg_import_failed_file_not_read, file);
 
@@ -78,9 +83,9 @@ public class JsonImportTask extends AsyncTask<Uri, Integer, String> {
 		}
 
 		if (isCancelled()) return context.getString(R.string.cancelled);
-		publishProgress(-1, 0, requestCode);
+		publishProgress(-1, 0);
 
-		step.initializeImport(context);
+		initializeImport(context);
 
 		try {
 			Gson gson = new Gson();
@@ -90,7 +95,7 @@ public class JsonImportTask extends AsyncTask<Uri, Integer, String> {
 			try {
 				reader.beginArray();
 				while (reader.hasNext()) {
-					step.importRecord(context, gson, reader);
+					importRecord(context, gson, reader);
 				}
 				reader.endArray();
 			} catch (IllegalStateException e) {
@@ -100,7 +105,7 @@ public class JsonImportTask extends AsyncTask<Uri, Integer, String> {
 			}
 		} catch (JsonParseException | IOException e) {
 			// the given Json might not be valid or unreadable
-			String error = context.getString(R.string.msg_export_failed_step, step.getDescription(context));
+			String error = context.getString(R.string.msg_import_failed_parse_json);
 			Timber.e(e, error);
 			return error;
 		}
@@ -112,12 +117,12 @@ public class JsonImportTask extends AsyncTask<Uri, Integer, String> {
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
-		EventBus.getDefault().post(new ImportProgressEvent(values[0]));
+		EventBus.getDefault().post(new ImportProgressEvent(type));
 	}
 
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		Timber.i(errorMessage);
-		EventBus.getDefault().post(new ImportFinishedEvent(requestCode, errorMessage));
+		EventBus.getDefault().post(new ImportFinishedEvent(type, errorMessage));
 	}
 }

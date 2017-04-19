@@ -10,7 +10,7 @@ import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Game {
+public class Game extends Model {
 	public static final String[] PROJECTION = new String[] {
 		Games.GAME_ID,
 	};
@@ -30,6 +30,11 @@ public class Game {
 
 	public List<Color> getColors() {
 		return colors;
+	}
+
+	@Override
+	public int getVersion() {
+		return 1;
 	}
 
 	@NonNull

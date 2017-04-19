@@ -3,12 +3,12 @@ package com.boardgamegeek.events;
 public class ExportProgressEvent {
 	private final int totalCount;
 	private final int currentCount;
-	private final int requestCode;
+	private final String type;
 
-	public ExportProgressEvent(int totalCount, int currentCount, int requestCode) {
+	public ExportProgressEvent(int totalCount, int currentCount, String type) {
 		this.totalCount = totalCount;
 		this.currentCount = currentCount;
-		this.requestCode = requestCode;
+		this.type = type;
 	}
 
 	public int getTotalCount() {
@@ -19,7 +19,7 @@ public class ExportProgressEvent {
 		return currentCount;
 	}
 
-	public int getRequestCode() {
-		return requestCode;
+	public String getType() {
+		return type;
 	}
 }

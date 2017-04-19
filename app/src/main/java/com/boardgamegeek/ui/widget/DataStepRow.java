@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.StringRes;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -11,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.export.Step;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.FileUtils;
 
@@ -32,13 +32,13 @@ public class DataStepRow extends LinearLayout {
 	@BindDimen(R.dimen.view_row_height) int minimumHeight;
 
 	private final Unbinder unbinder;
-	private int requestCode;
+	private String type;
 	private Listener listener;
 
 	public interface Listener {
-		void onExportClicked(int requestCode);
+		void onExportClicked(String tag);
 
-		void onImportClicked(int requestCode);
+		void onImportClicked(String type);
 	}
 
 	public DataStepRow(Context context) {
@@ -67,11 +67,11 @@ public class DataStepRow extends LinearLayout {
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	public void bind(Step step, int requestCode) {
-		this.requestCode = requestCode;
-		descriptionView.setText(step.getDescription(getContext()));
+	public void bind(String type, @StringRes int descriptionResId) {
+		this.type = type;
+		descriptionView.setText(descriptionResId);
 		if (FileUtils.shouldUseDefaultFolders()) {
-			fileNameView.setText(FileUtils.getExportFile(step.getName()).toString());
+			fileNameView.setText(FileUtils.getExportFile(type).toString());
 			fileNameView.setVisibility(VISIBLE);
 		} else {
 			fileNameView.setVisibility(GONE);
@@ -108,11 +108,11 @@ public class DataStepRow extends LinearLayout {
 
 	@OnClick(R.id.export_button)
 	void onExportClick() {
-		if (listener != null) listener.onExportClicked(requestCode);
+		if (listener != null) listener.onExportClicked(type);
 	}
 
 	@OnClick(R.id.import_button)
 	void onImportClick() {
-		if (listener != null) listener.onImportClicked(requestCode);
+		if (listener != null) listener.onImportClicked(type);
 	}
 }

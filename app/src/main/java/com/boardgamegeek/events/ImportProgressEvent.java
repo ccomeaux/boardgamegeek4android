@@ -1,13 +1,13 @@
 package com.boardgamegeek.events;
 
 public class ImportProgressEvent {
-	private final int requestCode;
+	private final String type;
 
-	public ImportProgressEvent(int requestCode) {
-		this.requestCode = requestCode;
+	public ImportProgressEvent(String type) {
+		this.type = type;
 	}
 
-	public int getRequestCode() {
-		return requestCode;
+	public String getType() {
+		return type;
 	}
 }

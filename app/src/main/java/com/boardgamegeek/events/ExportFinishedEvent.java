@@ -2,18 +2,18 @@ package com.boardgamegeek.events;
 
 public class ExportFinishedEvent {
 	private final String errorMessage;
-	private final int requestCode;
+	private final String type;
 
-	public ExportFinishedEvent(int requestCode, String errorMessage) {
-		this.requestCode = requestCode;
+	public ExportFinishedEvent(String type, String errorMessage) {
 		this.errorMessage = errorMessage;
+		this.type = type;
 	}
 
 	public String getErrorMessage() {
 		return errorMessage;
 	}
 
-	public int getRequestCode() {
-		return requestCode;
+	public String getType() {
+		return type;
 	}
 }
