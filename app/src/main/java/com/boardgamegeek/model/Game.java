@@ -328,7 +328,7 @@ public class Game {
 
 	private List<Link> getLinks(String type) {
 		List<Link> list = new ArrayList<>();
-		if (!TextUtils.isEmpty(type)) {
+		if (!TextUtils.isEmpty(type) && links != null && links.size() > 0) {
 			for (Link link : links) {
 				if (type.equals(link.type)) {
 					list.add(link);
