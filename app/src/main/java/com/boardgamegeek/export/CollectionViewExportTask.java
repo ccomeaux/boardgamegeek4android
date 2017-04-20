@@ -15,6 +15,11 @@ public class CollectionViewExportTask extends JsonExportTask<CollectionView> {
 	}
 
 	@Override
+	protected int getVersion() {
+		return 1;
+	}
+
+	@Override
 	protected Cursor getCursor(Context context) {
 		return context.getContentResolver().query(
 			CollectionViews.CONTENT_URI,

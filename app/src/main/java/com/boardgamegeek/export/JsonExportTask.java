@@ -34,7 +34,7 @@ public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, In
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
 
-	protected final Context context;
+	private final Context context;
 	private final String type;
 	private final Uri uri;
 
@@ -42,6 +42,10 @@ public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, In
 		this.context = context.getApplicationContext();
 		this.type = type;
 		this.uri = uri;
+	}
+
+	protected int getVersion() {
+		return 0;
 	}
 
 	protected abstract Cursor getCursor(Context context);
@@ -138,13 +142,17 @@ public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, In
 			.create();
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("  ");
+
+		writer.beginObject();
+		writer.name(Constants.NAME_TYPE).value(type);
+		writer.name(Constants.NAME_VERSION).value(getVersion());
+		writer.name(Constants.NAME_ITEMS);
 		writer.beginArray();
 
-		int numTotal = cursor.getCount();
 		int numExported = 0;
 		while (cursor.moveToNext()) {
 			if (isCancelled()) break;
-			publishProgress(numTotal, numExported++);
+			publishProgress(cursor.getCount(), numExported++);
 			try {
 				writeJsonRecord(context, cursor, gson, writer);
 			} catch (RuntimeException e) {
@@ -153,6 +161,7 @@ public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, In
 		}
 
 		writer.endArray();
+		writer.endObject();
 		writer.close();
 	}
 }

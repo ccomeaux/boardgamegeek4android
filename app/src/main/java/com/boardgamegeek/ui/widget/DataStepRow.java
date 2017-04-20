@@ -80,8 +80,7 @@ public class DataStepRow extends LinearLayout {
 
 	public void initProgressBar() {
 		if (progressBar != null) {
-			progressBar.setMax(1);
-			progressBar.setProgress(0);
+			progressBar.setIndeterminate(false);
 			AnimationUtils.fadeIn(progressBar);
 		}
 		if (importButton != null) importButton.setEnabled(false);

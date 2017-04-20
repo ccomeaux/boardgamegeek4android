@@ -23,9 +23,12 @@ public class UserImportTask extends JsonImportTask<User> {
 	}
 
 	@Override
-	protected void importRecord(Context context, Gson gson, JsonReader reader) {
-		User user = gson.fromJson(reader, User.class);
+	protected User parseItem(Gson gson, JsonReader reader) {
+		return gson.fromJson(reader, User.class);
+	}
 
+	@Override
+	protected void importRecord(User user, int version) {
 		ContentResolver resolver = context.getContentResolver();
 
 		String name = user.getName();

@@ -281,7 +281,7 @@ public class DataFragment extends Fragment implements Listener {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportProgressEvent event) {
 		DataStepRow row = findRow(event.getType());
-		if (row != null) row.updateProgressBar(-1, 0);
+		if (row != null) row.updateProgressBar(event.getTotalCount(), event.getCurrentCount());
 	}
 
 	private DataStepRow findRow(String type) {

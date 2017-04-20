@@ -45,11 +45,6 @@ public class CollectionView extends Model {
 		return filters;
 	}
 
-	@Override
-	public int getVersion() {
-		return 1;
-	}
-
 	@NonNull
 	public static CollectionView fromCursor(@NonNull Cursor cursor) {
 		CollectionView cv = new CollectionView();

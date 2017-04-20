@@ -33,11 +33,6 @@ public class User extends Model {
 		return colors;
 	}
 
-	@Override
-	public int getVersion() {
-		return 1;
-	}
-
 	@NonNull
 	public static User fromCursor(@NonNull Cursor cursor) {
 		User user = new User();

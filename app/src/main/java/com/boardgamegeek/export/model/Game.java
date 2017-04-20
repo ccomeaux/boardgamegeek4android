@@ -32,11 +32,6 @@ public class Game extends Model {
 		return colors;
 	}
 
-	@Override
-	public int getVersion() {
-		return 1;
-	}
-
 	@NonNull
 	public static Game fromCursor(@NonNull Cursor cursor) {
 		Game game = new Game();

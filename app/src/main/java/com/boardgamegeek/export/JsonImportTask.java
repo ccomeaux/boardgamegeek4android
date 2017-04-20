@@ -11,8 +11,8 @@ import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.export.model.Model;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -21,24 +21,33 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import timber.log.Timber;
 
 public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, Integer, String> {
+	private static final int PROGRESS_TOTAL = 0;
+	private static final int PROGRESS_CURRENT = 1;
+
 	protected final Context context;
 	private final String type;
 	private final Uri uri;
+	private final List<T> items;
 
 	public JsonImportTask(Context context, String type, Uri uri) {
 		this.context = context.getApplicationContext();
 		this.type = type;
 		this.uri = uri;
+		items = new ArrayList<>();
 	}
 
-	protected void initializeImport(Context context) {
+	protected void initializeImport() {
 	}
 
-	protected abstract void importRecord(Context context, Gson gson, JsonReader reader);
+	protected abstract T parseItem(Gson gson, JsonReader reader);
+
+	protected abstract void importRecord(T item, int version);
 
 	@Override
 	protected String doInBackground(Void... params) {
@@ -83,31 +92,52 @@ public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, In
 		}
 
 		if (isCancelled()) return context.getString(R.string.cancelled);
-		publishProgress(-1, 0);
 
-		initializeImport(context);
+		initializeImport();
+		int version = 0;
 
+		JsonReader reader = null;
 		try {
-			Gson gson = new Gson();
-			JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-
-			//noinspection TryFinallyCanBeTryWithResources
-			try {
-				reader.beginArray();
+			reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+			if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+				parseItems(reader);
+			} else {
+				reader.beginObject();
 				while (reader.hasNext()) {
-					importRecord(context, gson, reader);
+					String name = reader.nextName();
+					if (Constants.NAME_VERSION.equals(name)) {
+						version = reader.nextInt();
+					} else if (Constants.NAME_TYPE.equals(name)) {
+						String type = reader.nextString();
+						if (!type.equals(this.type)) {
+							throw new IllegalStateException("The file is not the right type.");
+						}
+					} else if (Constants.NAME_ITEMS.equals(name)) {
+						parseItems(reader);
+					} else {
+						reader.skipValue();
+					}
 				}
-				reader.endArray();
-			} catch (IllegalStateException e) {
-				Timber.w(e, "Problem trying to import a file.");
-			} finally {
-				reader.close();
+				reader.endObject();
 			}
-		} catch (JsonParseException | IOException e) {
-			// the given Json might not be valid or unreadable
+		} catch (Exception e) {
 			String error = context.getString(R.string.msg_import_failed_parse_json);
 			Timber.e(e, error);
 			return error;
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					Timber.w(e, "Failed trying to close the JsonReader");
+				}
+			}
+		}
+
+		for (int i = 0; i < items.size(); i++) {
+			publishProgress(items.size(), i);
+			T item = items.get(i);
+			importRecord(item, version);
 		}
 
 		FileUtils.closePfd(pfd);
@@ -115,9 +145,22 @@ public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, In
 		return null;
 	}
 
+	private void parseItems(JsonReader reader) throws IOException {
+		Gson gson = new Gson();
+		items.clear();
+		reader.beginArray();
+		while (reader.hasNext()) {
+			items.add(parseItem(gson, reader));
+		}
+		reader.endArray();
+	}
+
 	@Override
 	protected void onProgressUpdate(Integer... values) {
-		EventBus.getDefault().post(new ImportProgressEvent(type));
+		EventBus.getDefault().post(new ImportProgressEvent(
+			values[PROGRESS_TOTAL],
+			values[PROGRESS_CURRENT],
+			type));
 	}
 
 	@Override

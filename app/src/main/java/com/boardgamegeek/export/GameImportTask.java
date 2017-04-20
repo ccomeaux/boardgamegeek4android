@@ -23,9 +23,12 @@ public class GameImportTask extends JsonImportTask<Game> {
 	}
 
 	@Override
-	protected void importRecord(Context context, Gson gson, JsonReader reader) {
-		Game game = gson.fromJson(reader, Game.class);
+	protected Game parseItem(Gson gson, JsonReader reader) {
+		return gson.fromJson(reader, Game.class);
+	}
 
+	@Override
+	protected void importRecord(Game game, int version) {
 		ContentResolver resolver = context.getContentResolver();
 
 		int gameId = game.getGameId();

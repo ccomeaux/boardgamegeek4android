@@ -23,14 +23,17 @@ public class CollectionViewImportTask extends JsonImportTask<CollectionView> {
 	}
 
 	@Override
-	protected void initializeImport(Context context) {
+	protected void initializeImport() {
 		context.getContentResolver().delete(CollectionViews.CONTENT_URI, null, null);
 	}
 
 	@Override
-	protected void importRecord(Context context, Gson gson, JsonReader reader) {
-		CollectionView cv = gson.fromJson(reader, CollectionView.class);
+	protected CollectionView parseItem(Gson gson, JsonReader reader) {
+		return gson.fromJson(reader, CollectionView.class);
+	}
 
+	@Override
+	protected void importRecord(CollectionView cv, int version) {
 		ContentResolver resolver = context.getContentResolver();
 
 		ContentValues values = new ContentValues();
