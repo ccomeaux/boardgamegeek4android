@@ -435,7 +435,7 @@
 	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
 	<string name="one_more">1 more</string>
-	<string name="some_more">%d more</string>
+	<string name="some_more">%,d more</string>
 	<string name="number_to_text">ABC</string>
 	<string name="text_to_number">123</string>
 	<string name="close">Close</string>
@@ -513,8 +513,6 @@
 	<string name="play_stat_cfm">Continuous Friendless Metric (CFM)</string>
 	<string name="play_stat_cfm_info">Similar to the friendless metric, it is an average number of plays with no cheating.\n\nhttp://friendlessstats.dtdns.net/</string>
 	<string name="game_h_index_prefix">Game H-Index <b>%,d</b></string>
-	<string name="card_footer_colors">Edit colors</string>
-	<string name="card_footer_stats">See more stats</string>
 	<string name="title_players_skill">Skill Formula</string>
 	<string name="player_skill_info">Measures the success ratio using:\n\n 100 * PlayTimesPlayer / winnable games\n\nPlayTimesPlayer = \u2211 (# plays * # players)</string>
 	<string name="play_stat_fhm">FHM</string>
@@ -531,7 +529,7 @@
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_accuracy">These stats don\'t include %s.</string>
-	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games. Wanna do that now?</string>
+	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games. Do you want do that now?</string>
 	<string name="play_stat_msg_collection_status">You can change the collection statuses that are synced in the app\'s settings. Do you want to continue?</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>

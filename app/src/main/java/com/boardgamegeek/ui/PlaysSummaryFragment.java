@@ -237,7 +237,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		playsInProgressContainer.removeAllViews();
 		if (numberOfPlaysInProgress > 0) {
-			while (cursor.moveToNext()) {
+			while (cursor != null && cursor.moveToNext()) {
 				playsCard.setVisibility(View.VISIBLE);
 				addPlayToContainer(cursor, playsInProgressContainer);
 			}
