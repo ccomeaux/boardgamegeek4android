@@ -105,13 +105,13 @@ public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, In
 				reader.beginObject();
 				while (reader.hasNext()) {
 					String name = reader.nextName();
-					if (Constants.NAME_VERSION.equals(name)) {
-						version = reader.nextInt();
-					} else if (Constants.NAME_TYPE.equals(name)) {
+					if (Constants.NAME_TYPE.equals(name)) {
 						String type = reader.nextString();
 						if (!type.equals(this.type)) {
-							throw new IllegalStateException("The file is not the right type.");
+							return context.getString(R.string.msg_import_failed_wrong_type, this.type, type);
 						}
+					} else if (Constants.NAME_VERSION.equals(name)) {
+						version = reader.nextInt();
 					} else if (Constants.NAME_ITEMS.equals(name)) {
 						parseItems(reader);
 					} else {
@@ -121,9 +121,8 @@ public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, In
 				reader.endObject();
 			}
 		} catch (Exception e) {
-			String error = context.getString(R.string.msg_import_failed_parse_json);
-			Timber.e(e, error);
-			return error;
+			Timber.w(e, "Importing %s JSON file.", type);
+			return context.getString(R.string.msg_import_failed_parse_json);
 		} finally {
 			if (reader != null) {
 				try {

@@ -23,6 +23,7 @@ import butterknife.Unbinder;
 
 @SuppressLint("ViewConstructor")
 public class DataStepRow extends LinearLayout {
+	@BindView(R.id.type) TextView typeView;
 	@BindView(R.id.description) TextView descriptionView;
 	@BindView(R.id.file_name) TextView fileNameView;
 	@BindView(R.id.progress) ProgressBar progressBar;
@@ -67,8 +68,9 @@ public class DataStepRow extends LinearLayout {
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	public void bind(String type, @StringRes int descriptionResId) {
+	public void bind(String type, @StringRes int typeResId, @StringRes int descriptionResId) {
 		this.type = type;
+		typeView.setText(typeResId);
 		descriptionView.setText(descriptionResId);
 		if (FileUtils.shouldUseDefaultFolders()) {
 			fileNameView.setText(FileUtils.getExportFile(type).toString());

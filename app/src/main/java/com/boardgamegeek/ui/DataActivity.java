@@ -13,6 +13,6 @@ public class DataActivity extends TopLevelSinglePaneActivity {
 
 	@Override
 	protected int getDrawerResId() {
-		return R.string.title_data;
+		return R.string.title_backup;
 	}
 }

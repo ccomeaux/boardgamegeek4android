@@ -122,7 +122,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_data, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_backup, R.drawable.ic_data, drawerList));
 		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings, drawerList));
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
 	}
@@ -160,7 +160,7 @@ public abstract class DrawerActivity extends BaseActivity {
 				case R.string.title_signin:
 					startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_SIGN_IN);
 					break;
-				case R.string.title_data:
+				case R.string.title_backup:
 					startActivity(new Intent(this, DataActivity.class));
 					break;
 				case R.string.title_settings:

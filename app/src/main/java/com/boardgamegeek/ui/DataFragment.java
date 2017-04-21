@@ -59,10 +59,9 @@ public class DataFragment extends Fragment implements Listener {
 	private static final int REQUEST_PERMISSIONS = 3000;
 	private static final String ANSWERS_EVENT_NAME = "DataManagement";
 	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
+
 	private Unbinder unbinder;
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
-	//private final Map<String, JsonExportTask> exportTasks = new ArrayMap<>();
-	//private final Map<String, JsonImportTask> importTasks = new ArrayMap<>();
 	private String currentType;
 
 	@DebugLog
@@ -72,26 +71,17 @@ public class DataFragment extends Fragment implements Listener {
 		View root = inflater.inflate(R.layout.fragment_data, container, false);
 
 		unbinder = ButterKnife.bind(this, root);
-
-		//exportTasks.put(Constants.TYPE_COLLECTION_VIEWS, new CollectionViewExportTask(getContext()));
-		//importTasks.put(Constants.TYPE_COLLECTION_VIEWS, new CollectionViewImportTask(getContext()));
-		createDataRow(Constants.TYPE_COLLECTION_VIEWS, R.string.backup_type_collection_view);
-
-		//exportTasks.put(Constants.TYPE_GAMES, new GameExportTask(getContext()));
-		//importTasks.put(Constants.TYPE_GAMES, new GameImportTask(getContext()));
-		createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game);
-
-		//exportTasks.put(Constants.TYPE_USERS, new UserExportTask(getContext()));
-		//importTasks.put(Constants.TYPE_USERS, new UserImportTask(getContext()));
-		createDataRow(Constants.TYPE_USERS, R.string.backup_type_user);
+		createDataRow(Constants.TYPE_COLLECTION_VIEWS, R.string.backup_type_collection_view, R.string.backup_description_collection_view);
+		createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game, R.string.backup_description_game);
+		createDataRow(Constants.TYPE_USERS, R.string.backup_type_user, R.string.backup_description_user);
 
 		return root;
 	}
 
-	private void createDataRow(String type, @StringRes int descriptionResId) {
+	private void createDataRow(String type, @StringRes int typeResId, @StringRes int descriptionResId) {
 		DataStepRow row = new DataStepRow(getContext());
 		row.setListener(this);
-		row.bind(type, descriptionResId);
+		row.bind(type, typeResId, descriptionResId);
 		row.setTag(type);
 		fileTypesView.addView(row);
 	}
@@ -118,6 +108,7 @@ public class DataFragment extends Fragment implements Listener {
 
 	@Nullable
 	private JsonExportTask getExportTask(String type, Uri uri) {
+		if (TextUtils.isEmpty(type)) return null;
 		switch (type) {
 			case Constants.TYPE_COLLECTION_VIEWS:
 				return new CollectionViewExportTask(getContext(), uri);
@@ -131,6 +122,7 @@ public class DataFragment extends Fragment implements Listener {
 
 	@Nullable
 	private JsonImportTask getImportTask(String type, Uri uri) {
+		if (TextUtils.isEmpty(type)) return null;
 		switch (type) {
 			case Constants.TYPE_COLLECTION_VIEWS:
 				return new CollectionViewImportTask(getContext(), uri);
@@ -198,7 +190,6 @@ public class DataFragment extends Fragment implements Listener {
 		if (resultCode != Activity.RESULT_OK || !isAdded() || data == null) return;
 
 		Uri uri = data.getData();
-
 		if (uri == null) return;
 
 		try {
@@ -230,24 +221,34 @@ public class DataFragment extends Fragment implements Listener {
 
 	@DebugLog
 	private void performExport(String type, Uri uri) {
-		JsonExportTask task = getExportTask(currentType, uri);
-		if (task == null) return;
+		JsonExportTask task = getExportTask(type, uri);
+		if (task == null) {
+			Timber.i("No task found for %s", type);
+			return;
+		}
 		DataStepRow row = findRow(type);
 		if (row != null) row.initProgressBar();
 		//noinspection unchecked
 		TaskUtils.<Void>executeAsyncTask(task);
-		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Export"));
+		logAnswer("Export");
 	}
 
 	@DebugLog
 	private void performImport(String type, Uri uri) {
 		JsonImportTask task = getImportTask(type, uri);
-		if (task == null) return;
+		if (task == null) {
+			Timber.i("No task found for %s", type);
+			return;
+		}
 		DataStepRow row = findRow(type);
 		if (row != null) row.initProgressBar();
 		//noinspection unchecked
 		TaskUtils.<Void>executeAsyncTask(task);
-		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, "Import"));
+		logAnswer("Import");
+	}
+
+	private void logAnswer(String action) {
+		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, action));
 	}
 
 	@DebugLog
@@ -300,7 +301,7 @@ public class DataFragment extends Fragment implements Listener {
 	private void notifyEnd(String errorMessage, @StringRes int successResId, @StringRes int failureResId) {
 		String message = TextUtils.isEmpty(errorMessage) ?
 			getString(successResId) :
-			getString(failureResId) + "\n" + errorMessage;
+			getString(failureResId) + " - " + errorMessage;
 		showSnackbar(message);
 	}
 
