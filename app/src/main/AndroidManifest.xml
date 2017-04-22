@@ -293,7 +293,7 @@
 			android:label="Article"/>
 		<activity
 			android:name=".ui.DataActivity"
-			android:label="@string/title_data">
+			android:label="@string/title_backup">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>

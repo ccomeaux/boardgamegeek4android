@@ -10,7 +10,7 @@ import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Game {
+public class Game extends Model {
 	public static final String[] PROJECTION = new String[] {
 		Games.GAME_ID,
 	};
@@ -59,5 +59,10 @@ public class Game {
 		} finally {
 			cursor.close();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Game{id=%s, colors=%s}", id, colors);
 	}
 }

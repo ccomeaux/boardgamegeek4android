@@ -1,7 +1,10 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
@@ -9,10 +12,9 @@ import com.boardgamegeek.provider.BggContract;
 import java.io.File;
 import java.io.IOException;
 
-public class FileUtils {
-	private static final String EXPORT_FOLDER = "bgg4android-export";
-	private static final String EXPORT_FOLDER_AUTO = EXPORT_FOLDER + File.separator + "AutoBackup";
+import timber.log.Timber;
 
+public class FileUtils {
 	private FileUtils() {
 	}
 
@@ -77,15 +79,35 @@ public class FileUtils {
 
 	/**
 	 * Checks if {@link Environment}.MEDIA_MOUNTED is returned by {@code getExternalStorageState()}
-	 * and therefore external storage is read- and writeable.
+	 * and therefore external storage is read- and write-able.
 	 */
 	public static boolean isExtStorageAvailable() {
 		return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
 	}
 
-	public static File getExportPath(boolean isAutoBackupMode) {
-		return new File(
-			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-			isAutoBackupMode ? EXPORT_FOLDER_AUTO : EXPORT_FOLDER);
+	public static File getExportFile(String type) {
+		return new File(getExportPath(), getExportFileName(type));
+	}
+
+	public static File getExportPath() {
+		return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+	}
+
+	public static String getExportFileName(String type) {
+		return "bgg4a-" + type + ".json";
+	}
+
+	public static boolean shouldUseDefaultFolders() {
+		return VERSION.SDK_INT < VERSION_CODES.KITKAT;
+	}
+
+	public static void closePfd(ParcelFileDescriptor pfd) {
+		if (pfd != null) {
+			try {
+				pfd.close();
+			} catch (IOException e) {
+				Timber.w(e);
+			}
+		}
 	}
 }

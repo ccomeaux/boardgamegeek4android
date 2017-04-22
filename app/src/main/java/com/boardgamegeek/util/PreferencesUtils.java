@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
@@ -335,6 +337,17 @@ public class PreferencesUtils {
 
 	public static int getThreadArticle(Context context, int threadId) {
 		return getInt(context, getThreadKey(threadId), INVALID_ARTICLE_ID);
+	}
+
+	@Nullable
+	public static Uri getUri(Context context, String key) {
+		String uriString = getString(context, key, null);
+		if (uriString == null) return null;
+		return Uri.parse(uriString);
+	}
+
+	public static boolean putUri(Context context, String key, Uri uri) {
+		return putString(context, key, uri == null ? null : uri.toString());
 	}
 
 	@NonNull

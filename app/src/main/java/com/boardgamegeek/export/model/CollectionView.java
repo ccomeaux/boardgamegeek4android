@@ -10,7 +10,7 @@ import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionView {
+public class CollectionView extends Model {
 	public static final String[] PROJECTION = new String[] {
 		CollectionViews._ID,
 		CollectionViews.NAME,
