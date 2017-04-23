@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.accounts.Account;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -184,8 +185,9 @@ public abstract class DrawerActivity extends BaseActivity {
 		String username = AccountUtils.getUsername(this);
 		if (TextUtils.isEmpty(fullName)) {
 			if (TextUtils.isEmpty(username)) {
-				if (Authenticator.isSignedIn(this)) {
-					TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
+				Account account = Authenticator.getAccount(this);
+				if (account != null) {
+					TaskUtils.executeAsyncTask(new SyncUserTask(this, account.name));
 				}
 				return null;
 			} else {

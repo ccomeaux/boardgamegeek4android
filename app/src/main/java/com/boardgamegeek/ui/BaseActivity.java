@@ -48,7 +48,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncUserTask.CompletedEvent event) {
-		if (event.getUsername().equals(AccountUtils.getUsername(this))) {
+		if (event.getUsername() != null &&
+			event.getUsername().equals(AccountUtils.getUsername(this))) {
 			Toast.makeText(this, R.string.profile_updated, Toast.LENGTH_SHORT).show();
 		}
 	}
