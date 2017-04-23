@@ -20,11 +20,11 @@ public class PlaysProvider extends BasicProvider {
 		}
 
 		builder
-			.mapToTable(Plays._ID, getTable())
-			.mapToTable(Plays.PLAY_ID, getTable())
+			.mapToTable(Plays._ID, Tables.PLAYS)
+			.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 			.mapToTable(Plays.SYNC_TIMESTAMP, Tables.PLAYS)
-			.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
-			.map(Plays.MAX_DATE, "MAX(" + Plays.DATE + ")");
+			.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY)
+			.mapAsMax(Plays.MAX_DATE, Plays.DATE);
 
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {

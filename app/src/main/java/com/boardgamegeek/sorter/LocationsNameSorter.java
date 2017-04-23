@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -10,8 +11,12 @@ import com.boardgamegeek.provider.BggContract.Plays;
 public class LocationsNameSorter extends LocationsSorter {
 	public LocationsNameSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = getClause(Plays.LOCATION, false);
-		descriptionId = R.string.menu_sort_name;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.menu_sort_name;
 	}
 
 	@Override

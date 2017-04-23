@@ -34,7 +34,8 @@
 				android:layout_height="match_parent"
 				android:drawSelectorOnTop="false"
 				android:footerDividersEnabled="false"
-				android:headerDividersEnabled="false"/>
+				android:headerDividersEnabled="false"
+				android:visibility="gone"/>
 
 			<TextView
 				android:id="@+id/empty"

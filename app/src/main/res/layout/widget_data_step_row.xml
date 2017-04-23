@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<TextView
+		android:id="@+id/type"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:maxLines="1"
+		android:textAppearance="@style/TextAppearance.AppCompat.Title"
+		tools:text="Game"/>
+
+	<TextView
+		android:id="@+id/description"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/Text"
+		tools:text="All kinds of stuff goes here."/>
+
+	<TextView
+		android:id="@+id/file_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:gravity="center_vertical"
+		android:maxLines="3"
+		android:textAppearance="@style/Text.Secondary"
+		tools:text="bgg4a-games.json"/>
+
+	<ProgressBar
+		android:id="@+id/progress"
+		style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/progress_bar_height"
+		android:visibility="invisible"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_standard">
+
+		<Button
+			android:id="@+id/export_button"
+			style="@style/Widget.AppCompat.Button.Colored"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/title_export"
+			app:backgroundTint="@color/medium_blue"/>
+
+		<Space
+			android:layout_width="24dp"
+			android:layout_height="match_parent"/>
+
+		<Button
+			android:id="@+id/import_button"
+			style="@style/Widget.AppCompat.Button.Colored"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/title_import"
+			app:backgroundTint="@color/medium_blue"/>
+	</LinearLayout>
+</merge>

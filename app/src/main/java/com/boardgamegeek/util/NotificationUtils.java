@@ -4,8 +4,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -14,11 +16,12 @@ import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 
 public class NotificationUtils {
-	public static final String TAG_H_INDEX = "H-INDEX";
+	public static final String TAG_PLAY_STATS = "PLAY_STATS";
 	public static final String TAG_PERSIST_ERROR = "PERSIST_ERROR";
 	public static final String TAG_PLAY_TIMER = "PLAY_TIMER";
 	public static final String TAG_PROVIDER_ERROR = "PROVIDER_ERROR";
 	public static final String TAG_SYNC_PROGRESS = "SYNC_PROGRESS";
+	public static final String TAG_SYNC_ERROR = "SYNC_ERROR";
 	public static final String TAG_UPDATE_ERROR = "UPDATE_ERROR";
 	public static final String TAG_UPLOAD_PLAY = "UPLOAD_PLAY";
 	public static final String TAG_UPLOAD_PLAY_ERROR = "UPLOAD_PLAY_ERROR";
@@ -37,16 +40,16 @@ public class NotificationUtils {
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId) {
-		return createNotificationBuilder(context, titleId, HomeActivity.class);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId) {
+		return createNotificationBuilder(context, titleResId, HomeActivity.class);
 	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId, Class<?> cls) {
-		return createNotificationBuilder(context, context.getString(titleId), cls);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, Class<?> cls) {
+		return createNotificationBuilder(context, context.getString(titleResId), cls);
 	}
 
 	/**
@@ -54,13 +57,27 @@ public class NotificationUtils {
 	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Class<?> cls) {
-		@SuppressWarnings("deprecation")
+		return createNotificationBuilder(context, title, new Intent(context, cls));
+	}
+
+	/**
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent.
+	 */
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, Intent intent) {
+		return createNotificationBuilder(context, context.getString(titleResId), intent);
+	}
+
+	/**
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent.
+	 */
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Intent intent) {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setSmallIcon(R.drawable.ic_stat_bgg)
-			.setColor(context.getResources().getColor(R.color.primary))
+			.setColor(ContextCompat.getColor(context, R.color.primary))
 			.setContentTitle(title)
 			.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-		Intent intent = new Intent(context, cls);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(resultPendingIntent);
 		return builder;

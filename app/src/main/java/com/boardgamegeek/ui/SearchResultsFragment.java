@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
 import android.support.design.widget.CoordinatorLayout;
@@ -63,6 +64,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
+import icepick.State;
 import retrofit2.Call;
 
 public class SearchResultsFragment extends Fragment implements LoaderCallbacks<SearchData>, ActionMode.Callback {
@@ -73,8 +76,8 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	private static final String KEY_SEARCH_TEXT = "SEARCH_TEXT";
 	private static final String KEY_SEARCH_EXACT = "SEARCH_EXACT";
 
-	private String previousSearchText;
-	private boolean previousShouldSearchExact;
+	@State String previousSearchText;
+	@State boolean previousShouldSearchExact;
 	private SearchResultsAdapter searchResultsAdapter;
 	private Snackbar snackbar;
 	private ShowcaseView showcaseView;
@@ -114,9 +117,20 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		restartLoader(intent.getStringExtra(SearchManager.QUERY), true);
+		if (intent.hasExtra(SearchManager.QUERY)) {
+			previousSearchText = intent.getStringExtra(SearchManager.QUERY);
+		}
+
+		getLoaderManager().initLoader(LOADER_ID, getLoaderBundle(previousSearchText, previousShouldSearchExact), SearchResultsFragment.this);
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -196,9 +210,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	public void onLoadFinished(Loader<SearchData> loader, SearchData data) {
 		AnimationUtils.fadeOut(progressView);
 
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		int count = data == null ? 0 : data.getCount();
 		final String searchText = data == null ? "" : data.getSearchText();
@@ -209,18 +221,14 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 				new Callback() {
 					@Override
 					public boolean onItemClick(int position) {
-						if (actionMode == null) {
-							return false;
-						}
+						if (actionMode == null) return false;
 						toggleSelection(position);
 						return true;
 					}
 
 					@Override
 					public boolean onItemLongClick(int position) {
-						if (actionMode != null) {
-							return false;
-						}
+						if (actionMode != null) return false;
 						actionMode = getActivity().startActionMode(SearchResultsFragment.this);
 						toggleSelection(position);
 						return true;
@@ -289,7 +297,6 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 					@Override
 					public void onClick(View v) {
 						requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
-						//setProgressShown(true);
 						requery(searchText, false);
 						Answers.getInstance().logCustom(new CustomEvent("SearchMore"));
 					}
@@ -322,26 +329,23 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	}
 
 	private void requery(@Nullable String query, boolean shouldSearchExact) {
-		if (!isAdded()) {
+		if (!isAdded()) return;
+		if (query == null && previousSearchText == null) return;
+		if (previousSearchText != null && previousSearchText.equals(query) && shouldSearchExact == previousShouldSearchExact)
 			return;
-		}
-		if (query == null && previousSearchText == null) {
-			return;
-		}
-		if (previousSearchText != null && previousSearchText.equals(query) && shouldSearchExact == previousShouldSearchExact) {
-			return;
-		}
+
 		Answers.getInstance().logSearch(new SearchEvent().putQuery(query));
-		restartLoader(query, shouldSearchExact);
+		getLoaderManager().restartLoader(LOADER_ID, getLoaderBundle(query, shouldSearchExact), SearchResultsFragment.this);
 	}
 
-	private void restartLoader(String query, boolean shouldSearchExact) {
+	@NonNull
+	private Bundle getLoaderBundle(String query, boolean shouldSearchExact) {
 		previousSearchText = query;
 		previousShouldSearchExact = shouldSearchExact;
 		Bundle args = new Bundle();
 		args.putString(KEY_SEARCH_TEXT, query);
 		args.putBoolean(KEY_SEARCH_EXACT, shouldSearchExact);
-		getLoaderManager().restartLoader(LOADER_ID, args, SearchResultsFragment.this);
+		return args;
 	}
 
 	private static class SearchLoader extends BggLoader<SearchData> {
@@ -393,16 +397,12 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		}
 
 		public int getCount() {
-			if (getBody() == null || getBody().games == null) {
-				return 0;
-			}
+			if (getBody() == null || getBody().games == null) return 0;
 			return getBody().games.size();
 		}
 
 		public List<SearchResult> getList() {
-			if (getBody() == null || getBody().games == null) {
-				return new ArrayList<>();
-			}
+			if (getBody() == null || getBody().games == null) return new ArrayList<>();
 			return getBody().games;
 		}
 	}

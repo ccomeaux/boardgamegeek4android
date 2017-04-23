@@ -35,6 +35,7 @@ public class ShortcutUtils {
 
 	public static Intent createGameIntent(Context context, int gameId, String gameName, String thumbnailUrl) {
 		Intent shortcut = createGameShortcutIntent(context, gameId, gameName);
+		if (shortcut == null) return null;
 		File file = getThumbnailFile(context, thumbnailUrl);
 		if (file != null && file.exists()) {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));

@@ -301,13 +301,15 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		for (PlayerColorChoices player : playersNeedingColor) {
 			Cursor cursor = null;
 			try {
+				if (TextUtils.isEmpty(player.name)) continue;
+
 				Uri uri = null;
 				if (player.type == TYPE_PLAYER_USER) {
 					uri = PlayerColors.buildUserUri(player.name);
 				} else if (player.type == TYPE_PLAYER_NON_USER) {
 					uri = PlayerColors.buildPlayerUri(player.name);
 				}
-				if (uri == null) return;
+				if (uri == null) continue;
 
 				final String[] projection = { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER };
 				cursor = context.getContentResolver().query(uri, projection, null, null, null);

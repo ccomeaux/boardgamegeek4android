@@ -12,6 +12,7 @@ public class CollectionFilterDialogFactory {
 
 	public CollectionFilterDialogFactory() {
 		dialogs = new ArrayList<>();
+		dialogs.add(new CollectionNameFilterDialog());
 		dialogs.add(new CollectionStatusFilterDialog());
 		dialogs.add(new PlayerNumberFilterDialog());
 		dialogs.add(new PlayTimeFilterDialog());

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout style="@style/RowContainer.WithThumbnail"
 			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="wrap_content"
 			  android:background="?android:attr/selectableItemBackground"
@@ -15,7 +16,8 @@
 		android:minWidth="32dp"
 		android:paddingLeft="0dp"
 		android:paddingRight="@dimen/padding_standard"
-		android:textSize="22sp"/>
+		android:textSize="22sp"
+		tools:text="19"/>
 
 	<ImageView
 		android:id="@+id/thumbnail"
@@ -37,23 +39,15 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:maxLines="2"/>
-
-		<TextView
-			android:id="@+id/type"
-			style="@style/Text"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:maxLines="1"/>
+			android:maxLines="2"
+			tools:text="Puerto Rico"/>
 
 		<TextView
 			android:id="@+id/username"
-			style="@style/Text.Secondary"
+			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:maxLines="1"/>
+			android:drawableLeft="@drawable/ic_user_small"
+			tools:text="ccomeaux"/>
 	</LinearLayout>
-
 </LinearLayout>

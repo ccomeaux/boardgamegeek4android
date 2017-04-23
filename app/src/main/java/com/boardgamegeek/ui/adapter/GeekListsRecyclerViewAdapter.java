@@ -28,10 +28,10 @@ public class GeekListsRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<G
 	}
 
 	public class GeekListEntryViewHolder extends PaginatedItemViewHolder {
-		@BindView(R.id.geeklist_title) TextView title;
-		@BindView(R.id.geeklist_creator) TextView creator;
-		@BindView(R.id.geeklist_items) TextView numItems;
-		@BindView(R.id.geeklist_thumbs) TextView numThumbs;
+		@BindView(R.id.title) TextView title;
+		@BindView(R.id.creator) TextView creator;
+		@BindView(R.id.number_of_items) TextView numberOfItems;
+		@BindView(R.id.number_of_thumbs) TextView numberOfThumbs;
 
 		public GeekListEntryViewHolder(View itemView) {
 			super(itemView);
@@ -40,11 +40,10 @@ public class GeekListsRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<G
 
 		@Override
 		public void bind(final GeekListEntry geekListEntry) {
-			Context context = itemView.getContext();
 			title.setText(geekListEntry.getTitle());
-			creator.setText(context.getString(R.string.by_prefix, geekListEntry.getAuthor()));
-			numItems.setText(context.getResources().getQuantityString(R.plurals.items_suffix, geekListEntry.getNumberOfItems(), geekListEntry.getNumberOfItems()));
-			numThumbs.setText(context.getResources().getQuantityString(R.plurals.thumbs_suffix, geekListEntry.getNumberOfThumbs(), geekListEntry.getNumberOfThumbs()));
+			creator.setText(geekListEntry.getAuthor());
+			numberOfItems.setText(String.valueOf(geekListEntry.getNumberOfItems()));
+			numberOfThumbs.setText(String.valueOf(geekListEntry.getNumberOfThumbs()));
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

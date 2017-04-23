@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -18,8 +19,12 @@ public class PlaysDateSorter extends PlaysSorter {
 
 	public PlaysDateSorter(@NonNull Context context) {
 		super(context);
-		orderByClause = Plays.DEFAULT_SORT;
-		descriptionId = R.string.menu_plays_sort_date;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.menu_plays_sort_date;
 	}
 
 	@Override

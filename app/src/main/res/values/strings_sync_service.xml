@@ -9,14 +9,21 @@
 	<string name="sync_notification_collection_full">Syncing your entire collection</string>
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Filling in some gaps in your collection</string>
-	<string name="sync_notification_collection_items">Syncing collection items with status of "%s"</string>
-	<string name="sync_notification_collection_accessories">Syncing collection accessories with status of "%s"</string>
+	<string name="sync_notification_collection_items">Syncing \"%s\" collection items</string>
+	<string name="sync_notification_collection_accessories">Syncing \"%s\" collection accessories</string>
+	<string name="sync_notification_collection_items_since">Syncing collection items modified since %s</string>
+	<string name="sync_notification_collection_accessories_since">Syncing collection accessories modified since %s</string>
+	<string name="sync_notification_collection_update_games">Updating %1$,d games [%2$s]</string>
 	<string name="sync_notification_games_oldest">Refreshing stale games</string>
 	<string name="sync_notification_games_unupdated">Getting the details of newly added games</string>
 	<string name="sync_notification_collection_missing">Removing items not in your collection</string>
 	<string name="sync_notification_buddies_list">Syncing list of GeekBuddies</string>
+	<string name="sync_notification_buddies_list_downloading">Downloading list of GeekBuddies</string>
+	<string name="sync_notification_buddies_list_storing">Storing list of GeekBuddies</string>
+	<string name="sync_notification_buddies_list_pruning">Pruning old of GeekBuddies</string>
 	<string name="sync_notification_buddies_oldest">Refreshing stale buddies</string>
 	<string name="sync_notification_buddies_unupdated">Updating newly added buddies</string>
+	<string name="sync_notification_buddy">Updating GeekBuddy %s</string>
 	<string name="sync_notification_plays">Downloading plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>
 	<string name="sync_notification_plays_all">Syncing all plays</string>
@@ -26,30 +33,9 @@
 	<string name="sync_notification_collection_updated">Updated collection item</string>
 	<string name="sync_notification_collection_deleted">Deleted collection item</string>
 	<string name="sync_notification_collection_added">Added collection item</string>
-	<string name="sync_notification_title_h_index">H-index</string>
-	<string name="sync_notification_h_index_increase">Congratulations! Your game h-index is now <b>%d</b>.</string>
-	<string name="sync_notification_h_index_decrease">Your game h-index has changed to <b>%d</b>.</string>
+	<string name="sync_notification_h_index_increase">Congratulations! Your %1$s h-index is now <b>%2$d</b>.</string>
+	<string name="sync_notification_h_index_decrease">Your %1$s h-index has changed to <b>%2$d</b>.</string>
 	<string name="sync_notification_page_suffix">%1$s (page %2$,d)</string>
-	<string name="sync_update_invalid_sync_type">sync invalid type: %s</string>
-	<string name="sync_msg_error">Failed trying to %s!</string>
-	<string name="sync_msg_invalid">Unable to %s.</string>
-	<string name="sync_msg_artist_valid">update artist %s</string>
-	<string name="sync_msg_artist_invalid">update an unknown artist</string>
-	<string name="sync_msg_buddy_valid">update buddy %s</string>
-	<string name="sync_msg_buddy_invalid">update an unknown buddy</string>
-	<string name="sync_msg_buddy_self">update self</string>
-	<string name="sync_msg_designer_valid">update designer %s</string>
-	<string name="sync_msg_designer_invalid">update an unknown designer</string>
-	<string name="sync_msg_game_valid">update game %s</string>
-	<string name="sync_msg_game_invalid">update an unknown game</string>
-	<string name="sync_msg_game_collection_valid">update collection for game %s</string>
-	<string name="sync_msg_game_collection_invalid">update collection for an unknown game</string>
-	<string name="sync_msg_game_plays_valid">update plays for game %s</string>
-	<string name="sync_msg_game_plays_invalid">update plays for an unknown game</string>
-	<string name="sync_msg_plays_date_valid">update plays for %s</string>
-	<string name="sync_msg_plays_date_invalid">update plays for an unknown date</string>
-	<string name="sync_msg_publisher_valid">update publisher %s</string>
-	<string name="sync_msg_publisher_invalid">update an publisher game</string>
 
 	<plurals name="sync_notification_collection_deleting">
 		<item quantity="one">Deleting %,d collection item.</item>
@@ -62,6 +48,14 @@
 	<plurals name="sync_notification_collection_uploading">
 		<item quantity="one">Uploading %,d collection item.</item>
 		<item quantity="other">Uploading %,d collection items.</item>
+	</plurals>
+	<plurals name="sync_notification_progress_update">
+		<item quantity="one">Updating %,d play</item>
+		<item quantity="other">Updating %,d plays</item>
+	</plurals>
+	<plurals name="sync_notification_progress_delete">
+		<item quantity="one">Deleting %,d play</item>
+		<item quantity="other">Deleting %,d plays</item>
 	</plurals>
 	<plurals name="sync_notification_games">
 		<item quantity="one">Syncing %1$,d game: %2$s</item>

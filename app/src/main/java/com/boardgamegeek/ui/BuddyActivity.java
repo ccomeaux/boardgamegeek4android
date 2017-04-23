@@ -15,10 +15,12 @@ import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.tasks.AddUsernameToPlayerTask;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
@@ -114,6 +116,15 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CompletedEvent event) {
+		if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferencesUtils.getSyncShowErrors(this)) {
+			showSnackbar(event.getErrorMessage());
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(@NonNull RenamePlayerTask.Event event) {
 		name = event.getPlayerName();
 		getIntent().putExtra(ActivityUtils.KEY_PLAYER_NAME, name);
@@ -139,7 +150,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	}
 
 	private void showSnackbar(String message) {
-		if (!TextUtils.isEmpty(message)) {
+		if (!TextUtils.isEmpty(message) && rootContainer != null) {
 			Snackbar.make(rootContainer, message, Snackbar.LENGTH_LONG).show();
 		}
 	}

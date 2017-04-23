@@ -63,7 +63,7 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 		return fragment;
 	}
 
-	public void setTitle(int titleResId){
+	public void setTitle(int titleResId) {
 		this.titleResId = titleResId;
 	}
 
@@ -86,7 +86,7 @@ public class CollectionStatusDialogFragment extends DialogFragment {
 		unbinder = ButterKnife.bind(this, rootView);
 		initUi();
 
-		AlertDialog.Builder builder = new Builder(getContext())
+		AlertDialog.Builder builder = new Builder(getContext(), R.style.Theme_bgglight_Dialog_Alert)
 			.setTitle(titleResId)
 			.setView(rootView)
 			.setPositiveButton(R.string.ok, new OnClickListener() {

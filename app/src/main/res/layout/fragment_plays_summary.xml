@@ -10,8 +10,32 @@
 		android:layout_height="wrap_content"
 		android:animateLayoutChanges="true"
 		android:orientation="vertical"
-		android:paddingBottom="@dimen/padding_standard"
 		android:paddingTop="@dimen/padding_standard">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="bottom"
+			android:orientation="horizontal"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/title_plays"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+			<Button
+				android:id="@+id/more_plays_button"
+				style="@style/SmallColoredButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="end|bottom"
+				android:text="@string/more"
+				android:visibility="gone"/>
+		</LinearLayout>
 
 		<android.support.v7.widget.CardView
 			android:id="@+id/card_plays"
@@ -27,15 +51,10 @@
 				android:orientation="vertical">
 
 				<TextView
-					android:id="@+id/card_header_plays"
-					style="@style/Text.Header.Card"
-					android:layout_width="wrap_content"
-					android:text="@string/title_plays"/>
-
-				<TextView
 					android:id="@+id/plays_subtitle_in_progress"
-					style="@style/Text.Subtitle.Card"
+					style="@style/Text.Header"
 					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
 					android:text="@string/title_in_progress"
 					android:visibility="gone"
 					tools:visibility="visible"/>
@@ -44,15 +63,18 @@
 					android:id="@+id/plays_in_progress_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:divider="@drawable/list_divider"
 					android:orientation="vertical"
+					android:showDividers="middle"
 					android:visibility="gone"
 					tools:visibility="visible"/>
 
-
 				<TextView
 					android:id="@+id/plays_subtitle_recent"
-					style="@style/Text.Subtitle.Card"
+					style="@style/Text.Header"
 					android:layout_width="wrap_content"
+					android:layout_height="40dp"
+					android:gravity="bottom"
 					android:text="@string/title_recent"
 					android:visibility="gone"
 					tools:visibility="visible"/>
@@ -61,17 +83,38 @@
 					android:id="@+id/plays_container"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:divider="@drawable/list_divider"
 					android:orientation="vertical"
+					android:showDividers="middle"
 					android:visibility="gone"
 					tools:visibility="visible"/>
-
-				<TextView
-					android:id="@+id/card_footer_plays"
-					style="@style/Text.Footer.Card"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"/>
 			</LinearLayout>
 		</android.support.v7.widget.CardView>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="bottom"
+			android:minHeight="@dimen/card_header_height"
+			android:orientation="horizontal"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/title_players"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+			<Button
+				android:id="@+id/more_players_button"
+				style="@style/SmallColoredButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="end|bottom"
+				android:text="@string/more"/>
+		</LinearLayout>
 
 		<android.support.v7.widget.CardView
 			android:id="@+id/card_players"
@@ -82,31 +125,38 @@
 			tools:visibility="visible">
 
 			<LinearLayout
-				android:id="@+id/container_players"
+				android:id="@+id/players_container"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical">
-
-				<TextView
-					android:id="@+id/card_header_players"
-					style="@style/Text.Header.Card"
-					android:layout_width="wrap_content"
-					android:text="@string/title_players"/>
-
-				<LinearLayout
-					android:id="@+id/players_container"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical"/>
-
-				<TextView
-					android:id="@+id/card_footer_players"
-					style="@style/Text.Footer.Card"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/more"/>
-			</LinearLayout>
+				android:divider="@drawable/list_divider"
+				android:orientation="vertical"
+				android:showDividers="middle"/>
 		</android.support.v7.widget.CardView>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="bottom"
+			android:minHeight="@dimen/card_header_height"
+			android:orientation="horizontal"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/title_locations"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+			<Button
+				android:id="@+id/more_locations_button"
+				style="@style/SmallColoredButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="end|bottom"
+				android:text="@string/more"/>
+		</LinearLayout>
 
 		<android.support.v7.widget.CardView
 			android:id="@+id/card_locations"
@@ -117,31 +167,38 @@
 			tools:visibility="visible">
 
 			<LinearLayout
-				android:id="@+id/container_locations"
+				android:id="@+id/locations_container"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical">
-
-				<TextView
-					android:id="@+id/card_header_locations"
-					style="@style/Text.Header.Card"
-					android:layout_width="wrap_content"
-					android:text="@string/title_locations"/>
-
-				<LinearLayout
-					android:id="@+id/locations_container"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical"/>
-
-				<TextView
-					android:id="@+id/card_footer_locations"
-					style="@style/Text.Footer.Card"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/more"/>
-			</LinearLayout>
+				android:divider="@drawable/list_divider"
+				android:orientation="vertical"
+				android:showDividers="middle"/>
 		</android.support.v7.widget.CardView>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="bottom"
+			android:minHeight="@dimen/card_header_height"
+			android:orientation="horizontal"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/title_favorite_colors"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+			<Button
+				android:id="@+id/edit_colors_button"
+				style="@style/SmallColoredButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="end|bottom"
+				android:text="@string/edit"/>
+		</LinearLayout>
 
 		<android.support.v7.widget.CardView
 			android:id="@+id/card_colors"
@@ -151,44 +208,53 @@
 			android:visibility="gone"
 			tools:visibility="visible">
 
-			<LinearLayout
-				android:id="@+id/container_colors"
+			<TextView
+				android:id="@+id/colors_hint"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical">
+				android:gravity="center_vertical"
+				android:minHeight="56dp"
+				android:text="@string/favorite_colors_hint"/>
 
-				<TextView
-					android:id="@+id/card_header_colors"
-					style="@style/Text.Header.Card"
-					android:layout_width="wrap_content"
-					android:text="@string/title_favorite_colors"/>
+			<HorizontalScrollView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:fillViewport="true"
+				android:minHeight="56dp">
 
-				<TextView
-					android:id="@+id/colors_hint"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:text="@string/favorite_colors_hint"/>
-
-				<HorizontalScrollView
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:fillViewport="true">
-
-					<LinearLayout
-						android:id="@+id/color_container"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="horizontal"/>
-				</HorizontalScrollView>
-
-				<TextView
-					android:id="@+id/card_footer_colors"
-					style="@style/Text.Footer.Card"
+				<LinearLayout
+					android:id="@+id/color_container"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="@string/card_footer_colors"/>
-			</LinearLayout>
+					android:layout_gravity="center_vertical"
+					android:orientation="horizontal"/>
+			</HorizontalScrollView>
 		</android.support.v7.widget.CardView>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="bottom"
+			android:minHeight="@dimen/card_header_height"
+			android:orientation="horizontal"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/title_play_stats"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+			<Button
+				android:id="@+id/more_play_stats_button"
+				style="@style/SmallColoredButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="end|bottom"
+				android:text="@string/more"/>
+		</LinearLayout>
 
 		<android.support.v7.widget.CardView
 			style="@style/Card"
@@ -202,25 +268,14 @@
 				android:orientation="vertical">
 
 				<TextView
-					android:id="@+id/card_header_stats"
-					style="@style/Text.Header.Card"
-					android:layout_width="wrap_content"
-					android:text="@string/title_play_stats"/>
-
-				<TextView
 					android:id="@+id/h_index"
 					style="@style/Text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
 					android:maxLines="1"
+					android:minHeight="56dp"
 					tools:text="H-Index 17"/>
-
-				<TextView
-					android:id="@+id/card_footer_stats"
-					style="@style/Text.Footer.Card"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/card_footer_stats"/>
 			</LinearLayout>
 		</android.support.v7.widget.CardView>
 

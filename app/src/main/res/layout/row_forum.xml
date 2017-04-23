@@ -46,7 +46,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_clock_small"
-			app:hideWhenEmpty="true"
+			app:emptyMessage="@string/never"
 			app:isForumTimestamp="true"
 			tools:text="3 days ago"/>
 	</LinearLayout>

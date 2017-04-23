@@ -3,6 +3,9 @@ package com.boardgamegeek.ui.model;
 import android.database.Cursor;
 
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.util.PresentationUtils;
+
+import java.util.Locale;
 
 public class Player {
 
@@ -41,11 +44,20 @@ public class Player {
 		return username;
 	}
 
+	public String getDescription() {
+		return PresentationUtils.describePlayer(name, username);
+	}
+
 	public int getPlayCount() {
 		return playCount;
 	}
 
 	public int getWinCount() {
 		return winCount;
+	}
+
+	@Override
+	public String toString() {
+		return String.format(Locale.US, "%1$s (%2$,d/%3$,d)", getDescription(), winCount, playCount);
 	}
 }

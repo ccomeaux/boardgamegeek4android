@@ -44,6 +44,7 @@ import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -88,6 +89,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private int playingTime;
 	private double personalRating;
+	private boolean gameOwned;
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
@@ -195,41 +197,47 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
-
-		if (cursor == null || !cursor.moveToFirst()) {
-			showEmpty();
-			return;
-		}
+		if (getActivity() == null) return;
 
 		int token = loader.getId();
 		switch (token) {
 			case GameQuery._TOKEN:
-				playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-				double ratingSum = 0;
-				int ratingCount = 0;
-				do {
-					double rating = cursor.getDouble(GameQuery.RATING);
-					if (rating > 0) {
-						ratingSum += rating;
-						ratingCount++;
-					}
-				} while (cursor.moveToNext());
-				if (ratingCount == 0) {
+				if (cursor == null || !cursor.moveToFirst()) {
+					playingTime = 0;
 					personalRating = 0.0;
+					gameOwned = false;
 				} else {
-					personalRating = ratingSum / ratingCount;
+					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
+					gameOwned = cursor.getInt(GameQuery.STATUS_OWN) > 0;
+					double ratingSum = 0;
+					int ratingCount = 0;
+					do {
+						double rating = cursor.getDouble(GameQuery.RATING);
+						if (rating > 0) {
+							ratingSum += rating;
+							ratingCount++;
+						}
+					} while (cursor.moveToNext());
+					if (ratingCount == 0) {
+						personalRating = 0.0;
+					} else {
+						personalRating = ratingSum / ratingCount;
+					}
 				}
 				getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				break;
 			case PlayQuery._TOKEN:
+				if (cursor == null || !cursor.moveToFirst()) {
+					showEmpty();
+					return;
+				}
 				stats = new Stats(cursor, personalRating);
 				getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 				break;
 			case PlayerQuery._TOKEN:
-				stats.addPlayerData(cursor);
+				if (cursor != null && cursor.moveToFirst()) {
+					stats.addPlayerData(cursor);
+				}
 				stats.calculate();
 				bindUi(stats);
 				showData();
@@ -394,12 +402,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
 		}
-		addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+
+		if (gameOwned) {
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+		}
+
 		int hIndexOffset = stats.getHIndexOffset();
 		if (hIndexOffset == -1) {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_in));
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_in));
 		} else {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_out).value(hIndexOffset));
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_out).value(hIndexOffset));
 		}
 	}
 
@@ -449,6 +461,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public void onHighScoreClick() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_high_scorers).setMessage(stats.getHighScorers());
+		builder.show();
+	}
+
+	@OnClick(R.id.players_skill_help)
+	public void onPlayersClick() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+		builder.setTitle(R.string.title_players_skill).setMessage(R.string.player_skill_info);
 		builder.show();
 	}
 
@@ -724,11 +743,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public void addPlayerData(Cursor cursor) {
 			do {
 				PlayerModel playerModel = new PlayerModel(cursor);
-				if (!plays.containsKey(playerModel.playId)) {
-					Timber.e("Play %s not found in the play map!", playerModel.playId);
-					return;
+				if (plays.containsKey(playerModel.playId)) {
+					plays.get(playerModel.playId).addPlayer(playerModel);
+				} else {
+					Timber.w("Play %s not found in the play map!", playerModel.playId);
 				}
-				plays.get(playerModel.playId).addPlayer(playerModel);
 			} while (cursor.moveToNext());
 		}
 
@@ -936,7 +955,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double calculateUtilization() {
-			return 1 - Math.exp(-lambda * playCount);
+			return MathUtils.cdf(playCount, lambda);
 		}
 
 		public int calculateFhm() {
@@ -956,7 +975,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getHIndexOffset() {
-			int hIndex = PreferencesUtils.getHIndex(getActivity());
+			int hIndex = PreferencesUtils.getGameHIndex(getActivity());
 			if (playCount >= hIndex) {
 				return -1;
 			} else {
@@ -1147,8 +1166,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface GameQuery {
 		int _TOKEN = 0x02;
-		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME };
+		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME, Collection.STATUS_OWN };
 		int RATING = 1;
 		int PLAYING_TIME = 2;
+		int STATUS_OWN = 3;
 	}
 }

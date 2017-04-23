@@ -14,8 +14,12 @@ public class WishlistPrioritySorter extends CollectionSorter {
 	public WishlistPrioritySorter(@NonNull Context context) {
 		super(context);
 		priorityText = context.getResources().getStringArray(R.array.wishlist_priority);
-		orderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
-		descriptionId = R.string.collection_sort_wishlist_priority;
+	}
+
+	@StringRes
+	@Override
+	protected int getDescriptionId() {
+		return R.string.collection_sort_wishlist_priority;
 	}
 
 	@StringRes
@@ -25,8 +29,8 @@ public class WishlistPrioritySorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.STATUS_WISHLIST_PRIORITY };
+	protected String getSortColumn() {
+		return Collection.STATUS_WISHLIST_PRIORITY;
 	}
 
 	@Override

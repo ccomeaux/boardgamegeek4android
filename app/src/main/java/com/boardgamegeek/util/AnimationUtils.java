@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+
 /**
  * Helper class for animations.
  */
@@ -16,8 +19,13 @@ public class AnimationUtils {
 	}
 
 	public static void fadeIn(final View view) {
-		if (view == null) return;
+		if (view == null || view.getVisibility() == View.VISIBLE) return;
 		fadeIn(view.getContext(), view, true);
+	}
+
+	public static void fadeIn(final View view, boolean animate) {
+		if (view == null || view.getVisibility() == View.VISIBLE) return;
+		fadeIn(view.getContext(), view, animate);
 	}
 
 	public static void fadeIn(Context context, final View view, boolean animate) {
@@ -32,13 +40,16 @@ public class AnimationUtils {
 	}
 
 	public static void fadeOut(final View view) {
-		fadeOut(view.getContext(), view, true);
+		if (view == null || view.getVisibility() != View.VISIBLE) return;
+		fadeOut(view.getContext(), view, true, GONE);
 	}
 
-	public static void fadeOut(Context context, final View view, boolean animate) {
-		if (view == null || view.getVisibility() != View.VISIBLE) {
-			return;
-		}
+	public static void fadeOutToInvisible(final View view) {
+		fadeOut(view.getContext(), view, true, INVISIBLE);
+	}
+
+	private static void fadeOut(Context context, final View view, boolean animate, final int visibility) {
+		if (view == null || view.getVisibility() != View.VISIBLE) return;
 		if (animate) {
 			final Animation animation = android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
 			animation.setAnimationListener(new AnimationListener() {
@@ -48,7 +59,7 @@ public class AnimationUtils {
 
 				@Override
 				public void onAnimationEnd(Animation animation) {
-					view.setVisibility(View.GONE);
+					view.setVisibility(visibility);
 				}
 
 				@Override
@@ -58,7 +69,7 @@ public class AnimationUtils {
 			view.startAnimation(animation);
 		} else {
 			view.clearAnimation();
-			view.setVisibility(View.GONE);
+			view.setVisibility(GONE);
 		}
 	}
 

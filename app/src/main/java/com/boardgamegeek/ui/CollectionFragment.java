@@ -1,10 +1,11 @@
 package com.boardgamegeek.ui;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,7 +44,7 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
-import com.boardgamegeek.interfaces.CollectionView;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -51,12 +52,13 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
+import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialog;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFactory;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
-import com.boardgamegeek.ui.dialog.DeleteView;
-import com.boardgamegeek.ui.dialog.SaveView;
+import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
+import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
@@ -82,6 +84,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -92,7 +95,8 @@ import icepick.State;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
+public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener,
+	CollectionFilterDialog.OnFilterChangedListener, SaveViewDialogFragment.OnViewSavedListener, DeleteViewDialogFragment.OnViewDeletedListener {
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -299,7 +303,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-	@NonNull OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
+	@NonNull
+	final OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
 		@DebugLog
 		@Override
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
@@ -313,10 +318,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					ShortcutUtils.createCollectionShortcut(getContext(), viewId, viewName, null);
 					return true;
 				case R.id.menu_collection_view_save:
-					SaveView.createDialog(getActivity(), CollectionFragment.this, viewName, sorter, filters);
+					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
+					dialog.setOnViewSavedListener(CollectionFragment.this);
+					dialog.show(getFragmentManager(), "save_view");
 					return true;
 				case R.id.menu_collection_view_delete:
-					DeleteView.createDialog(getActivity(), CollectionFragment.this);
+					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(getActivity());
+					ddf.setOnViewDeletedListener(CollectionFragment.this);
+					ddf.show(getFragmentManager(), "delete_view");
 					return true;
 				case R.id.menu_collection_sort:
 					final CollectionSortDialogFragment sortFragment =
@@ -366,7 +375,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (id == Query._TOKEN) {
 			StringBuilder where = new StringBuilder();
 			String[] args = {};
-			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
 			if (viewId == 0 && filters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
@@ -382,14 +390,15 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					}
 				}
 			}
-			Uri mUri = uriBuilder.build();
-			loader = new CursorLoader(getActivity(), mUri, sorter == null ? Query.PROJECTION : StringUtils.unionArrays(
-				Query.PROJECTION, sorter.getColumns()), where.toString(), args, sorter == null ? null
-				: sorter.getOrderByClause());
+			loader = new CursorLoader(getActivity(),
+				Collection.CONTENT_URI,
+				sorter == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, sorter.getColumns()),
+				where.toString(),
+				args,
+				sorter == null ? null : sorter.getOrderByClause());
 		} else if (id == ViewQuery._TOKEN) {
 			if (viewId > 0) {
-				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(viewId),
-					ViewQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(viewId), ViewQuery.PROJECTION, null, null, null);
 			}
 		}
 		return loader;
@@ -479,7 +488,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			final int rowCount = cursor.getCount();
 			final String sortDescription = sorter == null ? "" :
 				String.format(getActivity().getString(R.string.sort_description), sorter.getDescription());
-			rowCountView.setText(String.format("%,d", rowCount));
+			rowCountView.setText(String.format(Locale.getDefault(), "%,d", rowCount));
 			sortDescriptionView.setText(sortDescription);
 			EventBus.getDefault().post(new CollectionCountChangedEvent(rowCount));
 			EventBus.getDefault().post(new CollectionSortChangedEvent(sortDescription));
@@ -609,22 +618,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		requery();
 	}
 
-	@Override
 	@DebugLog
 	public void createView(long id, String name) {
 		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
 		EventBus.getDefault().post(new CollectionViewRequestedEvent(id));
-	}
-
-	@Override
-	@DebugLog
-	public void deleteView(long id) {
-		CollectionViewManipulationEvent.log("Delete");
-		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
-		if (viewId == id) {
-			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
-		}
 	}
 
 	@DebugLog
@@ -921,5 +919,101 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 		}
 		return false;
+	}
+
+	private String createViewDescription(Sorter sort, List<CollectionFilterer> filters) {
+		StringBuilder text = new StringBuilder();
+		for (CollectionFilterer filter : filters) {
+			if (filter != null) {
+				if (text.length() > 0) {
+					text.append("\n");
+				}
+				text.append(filter.getDisplayText());
+			}
+		}
+		if (text.length() > 0) {
+			text.append("\n");
+		}
+		text.append(getString(R.string.by_prefix, sort.getDescription()));
+		return text.toString();
+	}
+
+	@Override
+	public void onInsertRequested(String name, boolean isDefault) {
+		long id = insertView(name, sorter.getType(), filters);
+		setDefault(id, isDefault);
+		createView(id, name);
+	}
+
+	@Override
+	public void onUpdateRequested(String name, boolean isDefault, long viewId) {
+		updateView(viewId, sorter.getType(), filters);
+		setDefault(viewId, isDefault);
+		createView(viewId, name);
+	}
+
+	@Override
+	public void onDeleteRequested(long viewId) {
+		CollectionViewManipulationEvent.log("Delete");
+		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
+		if (viewId == this.viewId) {
+			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
+		}
+	}
+
+	private void setDefault(long viewId, boolean isDefault) {
+		if (isDefault) {
+			// TODO: prompt the user if replacing a default
+			PreferencesUtils.putViewDefaultId(getActivity(), viewId);
+		} else {
+			if (viewId == PreferencesUtils.getViewDefaultId(getActivity())) {
+				PreferencesUtils.removeViewDefaultId(getActivity());
+			}
+		}
+	}
+
+	private long insertView(String name, int sortType, final List<CollectionFilterer> filters) {
+		ContentResolver resolver = getActivity().getContentResolver();
+
+		ContentValues values = new ContentValues();
+		values.put(CollectionViews.NAME, name);
+		values.put(CollectionViews.STARRED, false);
+		values.put(CollectionViews.SORT_TYPE, sortType);
+		Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
+
+		int filterId = CollectionViews.getViewId(filterUri);
+		Uri uri = CollectionViews.buildViewFilterUri(filterId);
+		insertDetails(uri, filters);
+		if (filterUri == null) {
+			return BggContract.INVALID_ID;
+		}
+		return StringUtils.parseLong(filterUri.getLastPathSegment());
+	}
+
+	private void updateView(long viewId, int sortType, final List<CollectionFilterer> filters) {
+		ContentResolver resolver = getActivity().getContentResolver();
+
+		ContentValues values = new ContentValues();
+		values.put(CollectionViews.SORT_TYPE, sortType);
+		resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
+
+		Uri uri = CollectionViews.buildViewFilterUri(viewId);
+		resolver.delete(uri, null, null);
+		insertDetails(uri, filters);
+	}
+
+	private void insertDetails(Uri viewFiltersUri, final List<CollectionFilterer> filters) {
+		List<ContentValues> cvs = new ArrayList<>(filters.size());
+		for (CollectionFilterer filter : filters) {
+			if (filter != null) {
+				ContentValues cv = new ContentValues();
+				cv.put(CollectionViewFilters.TYPE, filter.getType());
+				cv.put(CollectionViewFilters.DATA, filter.flatten());
+				cvs.add(cv);
+			}
+		}
+		if (cvs.size() > 0) {
+			getActivity().getContentResolver().bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
+		}
 	}
 }

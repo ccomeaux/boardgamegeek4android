@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,8 +65,9 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 		}
 	}
 
+	@NonNull
 	@Override
-	public View getView(final int position, final View convertView, final ViewGroup parent) {
+	public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
 		View view = convertView;
 		if (view == null) {
 			view = inflater.inflate(R.layout.autocomplete_item, parent, false);
@@ -88,6 +90,7 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 		return view;
 	}
 
+	@NonNull
 	@Override
 	public Filter getFilter() {
 		return new PlayerFilter();

@@ -6,7 +6,7 @@
 	android:layout_height="wrap_content"
 	android:background="?attr/selectableItemBackground"
 	android:gravity="center_vertical"
-	android:minHeight="@dimen/edit_row_height"
+	android:minHeight="@dimen/player_row_height"
 	android:orientation="vertical"
 	android:paddingBottom="@dimen/padding_half"
 	android:paddingTop="@dimen/padding_half">

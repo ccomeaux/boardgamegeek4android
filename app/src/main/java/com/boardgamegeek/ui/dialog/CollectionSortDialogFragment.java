@@ -18,6 +18,7 @@ import android.widget.ScrollView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
@@ -50,6 +51,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.wishlist_priority,
 		R.id.play_count_asc,
 		R.id.play_count_desc,
+		R.id.play_date,
 		R.id.year_published_asc,
 		R.id.year_published_desc,
 		R.id.play_time_asc,
@@ -63,6 +65,8 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.price_paid,
 		R.id.current_value
 	}) List<RadioButton> radioButtons;
+	@BindView(R.id.play_date) View playDateRadioButton;
+	@BindView(R.id.play_date_message) View playDateMessageView;
 
 	@DebugLog
 	public CollectionSortDialogFragment() {
@@ -89,6 +93,12 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		View rootView = layoutInflater.inflate(R.layout.dialog_collection_sort, root, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
+		if (!PreferencesUtils.getSyncPlays(getContext())) {
+			if (findSelectedRadioButton() != playDateRadioButton) {
+				playDateRadioButton.setVisibility(View.GONE);
+				playDateMessageView.setVisibility(View.GONE);
+			}
+		}
 		setChecked();
 		radioGroup.setOnCheckedChangeListener(this);
 		createNames();
@@ -165,6 +175,7 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
+				if (scrollContainer == null) return;
 				scrollContainer.scrollTo(0, (int) radioButton.getY());
 			}
 		});

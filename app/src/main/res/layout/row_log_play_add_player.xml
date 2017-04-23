@@ -4,15 +4,15 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:gravity="center_vertical">
+	android:gravity="center"
+	android:minHeight="64dp">
 
-	<TextView
+	<Button
 		android:id="@+id/add_players_button"
-		android:layout_width="match_parent"
+		style="@style/Widget.AppCompat.Button.Colored"
+		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
-		android:background="?attr/selectableItemBackground"
-		android:gravity="center"
-		android:text="@string/title_add_players"
-		android:textAppearance="@style/TextAppearance.AppCompat.Button"
-		android:textColor="@color/accent"/>
+		android:layout_gravity="center_horizontal"
+		android:layout_marginTop="@dimen/padding_extra"
+		android:text="@string/title_add_players"/>
 </LinearLayout>

@@ -1,14 +1,12 @@
 package com.boardgamegeek.io;
 
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
-
-import com.boardgamegeek.model.CollectionResponse;
 
 import java.io.IOException;
 
 import retrofit2.Call;
 import retrofit2.Response;
-import timber.log.Timber;
 
 public class CollectionRequest {
 	private final BggService bggService;
@@ -21,19 +19,18 @@ public class CollectionRequest {
 		this.options = options;
 	}
 
+	@NonNull
 	public CollectionResponse execute() {
-		Call<CollectionResponse> call = bggService.collection(username, options);
+		Call<com.boardgamegeek.model.CollectionResponse> call = bggService.collection(username, options);
 		try {
-			Response<CollectionResponse> response = call.execute();
+			Response<com.boardgamegeek.model.CollectionResponse> response = call.execute();
 			if (response.isSuccessful()) {
-				return response.body();
+				return new CollectionResponse(response.body().items);
 			} else {
-				Timber.w("Unsuccessful collection fetch with code: %s", response.code());
+				return new CollectionResponse("Unsuccessful collection fetch with code: %s", response.code());
 			}
 		} catch (IOException e) {
-			// This is probably caused by a timeout, but for now treat it like an empty response
-			Timber.w(e, "Unsuccessful collection fetch");
+			return new CollectionResponse(e.getMessage());
 		}
-		return new CollectionResponse();
 	}
 }

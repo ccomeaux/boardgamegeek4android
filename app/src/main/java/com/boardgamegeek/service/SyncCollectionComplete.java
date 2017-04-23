@@ -11,7 +11,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.CollectionRequest;
-import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.io.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -20,29 +20,41 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
- * Syncs the user's collection in brief mode, one collection status at a time.
+ * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
+ * database that weren't synced.
  */
 public class SyncCollectionComplete extends SyncTask {
 	private List<String> statuses;
+	private String[] statusEntries;
+	private String[] statusValues;
 
+	@DebugLog
 	public SyncCollectionComplete(Context context, BggService service) {
 		super(context, service);
 	}
 
+	@DebugLog
 	@Override
 	public int getSyncType() {
 		return SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD;
 	}
 
+	@DebugLog
 	@Override
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing full collection list...");
 		try {
-			CollectionPersister persister = new CollectionPersister(context).brief();
+			CollectionPersister persister = new CollectionPersister.Builder(context)
+				.includePrivateInfo()
+				.includeStats()
+				.build();
 
+			statusEntries = context.getResources().getStringArray(R.array.pref_sync_status_entries);
+			statusValues = context.getResources().getStringArray(R.array.pref_sync_status_values);
 			statuses = getSyncableStatuses();
 
 			for (int i = 0; i < statuses.size(); i++) {
@@ -56,15 +68,49 @@ public class SyncCollectionComplete extends SyncTask {
 					Timber.i("...skipping blank status");
 					continue;
 				}
-				Timber.i("...syncing status [" + status + "]");
+				Timber.i("...syncing status [%s]", status);
 
-				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, status));
+				String statusDescription = getStatusDescription(status);
+
+				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, statusDescription));
+
+				if (i > 0) if (wasSleepInterrupted(5000)) return;
+
 				ArrayMap<String, String> options = createOptions(i, status);
-				requestAndPersist(account.name, persister, options, syncResult);
+				CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
+				if (response.hasError()) {
+					showError(response.getError());
+					syncResult.stats.numIoExceptions++;
+					return;
+				} else if (response.getNumberOfItems() > 0) {
+					int rows = persister.save(response.getItems()).getRecordCount();
+					syncResult.stats.numEntries += response.getNumberOfItems();
+					Timber.i("...saved %,d records for %,d collection items", rows, response.getNumberOfItems());
+				} else {
+					Timber.i("...no collection items to save");
+				}
 
-				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, status));
+				if (isCancelled()) {
+					Timber.i("...cancelled");
+					return;
+				}
+
+				if (wasSleepInterrupted(2000)) return;
+
+				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, statusDescription));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-				requestAndPersist(account.name, persister, options, syncResult);
+				response = new CollectionRequest(service, account.name, options).execute();
+				if (response.hasError()) {
+					showError(response.getError());
+					syncResult.stats.numIoExceptions++;
+					return;
+				} else if (response.getNumberOfItems() > 0) {
+					int rows = persister.save(response.getItems()).getRecordCount();
+					syncResult.stats.numEntries += response.getNumberOfItems();
+					Timber.i("...saved %,d records for %,d collection accessories", rows, response.getNumberOfItems());
+				} else {
+					Timber.i("...no collection accessories to save");
+				}
 			}
 
 			final long initialTimestamp = persister.getInitialTimestamp();
@@ -75,6 +121,7 @@ public class SyncCollectionComplete extends SyncTask {
 		}
 	}
 
+	@DebugLog
 	@NonNull
 	private List<String> getSyncableStatuses() {
 		List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
@@ -85,10 +132,22 @@ public class SyncCollectionComplete extends SyncTask {
 		return statuses;
 	}
 
+	@DebugLog
+	private String getStatusDescription(String status) {
+		for (int i = 0; i < statusEntries.length; i++) {
+			if (statusValues[i].equalsIgnoreCase(status)) {
+				return statusEntries[i];
+			}
+		}
+		return status;
+	}
+
+	@DebugLog
 	@NonNull
 	private ArrayMap<String, String> createOptions(int i, String status) {
 		ArrayMap<String, String> options = new ArrayMap<>();
-		options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(status, "1");
 		for (int j = 0; j < i; j++) {
 			options.put(statuses.get(j), "0");
@@ -96,28 +155,18 @@ public class SyncCollectionComplete extends SyncTask {
 		return options;
 	}
 
-	private void requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
-		CollectionResponse response = new CollectionRequest(service, username, options).execute();
-		if (response.items != null && response.items.size() > 0) {
-			int rows = persister.save(response.items);
-			syncResult.stats.numEntries += response.items.size();
-			Timber.i("...saved " + rows + " records for " + response.items.size() + " collection items");
-		} else {
-			Timber.i("...no collection items to save");
-		}
-	}
-
+	@DebugLog
 	private void deleteUnusedItems(long initialTimestamp) {
 		Timber.i("...deleting old collection entries");
 		int count = context.getContentResolver().delete(
 			Collection.CONTENT_URI,
 			Collection.UPDATED_LIST + "<?",
 			new String[] { String.valueOf(initialTimestamp) });
-		Timber.i("...deleted " + count + " old collection entries");
-		// TODO: delete games as well?!
+		Timber.i("...deleted %,d old collection entries", count);
 		// TODO: delete thumbnail images associated with this list (both collection and game)
 	}
 
+	@DebugLog
 	private void updateTimestamps(long initialTimestamp) {
 		Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, initialTimestamp);
 		Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, initialTimestamp);

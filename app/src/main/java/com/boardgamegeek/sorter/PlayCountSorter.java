@@ -13,8 +13,8 @@ public abstract class PlayCountSorter extends CollectionSorter {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.NUM_PLAYS };
+	protected String getSortColumn() {
+		return Collection.NUM_PLAYS;
 	}
 
 	@Override

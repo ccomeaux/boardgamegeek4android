@@ -62,7 +62,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 
 	private String getSelectedFromStringArray(int resId) {
 		String[] values = context.getResources().getStringArray(resId);
-		if (values != null && selectedSubtype != 0 && selectedSubtype < values.length) {
+		if (selectedSubtype != 0 && selectedSubtype < values.length) {
 			return values[selectedSubtype];
 		}
 		return "";

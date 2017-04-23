@@ -4,20 +4,21 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:installLocation="auto">
 
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 	<uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.READ_SYNC_STATS"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
 
 	<application
 		android:name=".BggApplication"
 		android:allowBackup="true"
+		android:fullBackupContent="@xml/backup_no_database"
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/app_name"
 		android:logo="@drawable/title_logo"
@@ -39,7 +40,8 @@
 			android:name=".ui.CollectionActivity"
 			android:exported="true"
 			android:label="@string/title_collection"
-			android:uiOptions="splitActionBarWhenNarrow">
+			android:uiOptions="splitActionBarWhenNarrow"
+			android:windowSoftInputMode="adjustNothing">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -281,13 +283,6 @@
 				android:value=".ui.GeekListsActivity"/>
 		</activity>
 		<activity
-			android:name=".ui.GeekListDescriptionActivity"
-			android:label="@string/title_geeklist">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.GeekListActivity"/>
-		</activity>
-		<activity
 			android:name=".ui.GeekListItemActivity"
 			android:label="@string/title_geeklist"/>
 		<activity
@@ -298,7 +293,7 @@
 			android:label="Article"/>
 		<activity
 			android:name=".ui.DataActivity"
-			android:label="@string/title_data">
+			android:label="@string/title_backup">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -336,7 +331,6 @@
 				android:name="android.content.SyncAdapter"
 				android:resource="@xml/syncadapter"/>
 		</service>
-		<service android:name=".service.UpdateService"/>
 		<service
 			android:name=".auth.AuthenticationService"
 			android:exported="true">

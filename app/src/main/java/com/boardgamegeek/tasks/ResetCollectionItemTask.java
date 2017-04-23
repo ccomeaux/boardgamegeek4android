@@ -7,7 +7,8 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
+import com.boardgamegeek.util.TaskUtils;
 
 public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	private final Context context;
@@ -42,7 +43,7 @@ public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		if (result) {
-			UpdateService.start(context, UpdateService.SYNC_TYPE_GAME_COLLECTION, gameId);
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(context, gameId));
 		}
 	}
 }

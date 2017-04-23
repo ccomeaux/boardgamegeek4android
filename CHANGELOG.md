@@ -1,10 +1,70 @@
 Release Notes
 =============
 
-Coming Soon
+Coming Soon...
+--------------
+ * More play stats (and they're prettier too)
+ * Corrected and improved backup/restore
+ * Sync improvements
+ * Bug fixes
+
+Version 6.4.2
+-------------
+ * Bug fixes
+
+Version 6.4.1
+-------------
+ * Bug fixes
+
+Version 6.4
 -----------
- * Under-the-hood improvements to play logging
+ * Filter collection by collection name
+ * Sort collection by last played date
+ * When viewing a play, players are selectable
+ * Clicking a notification about an uploaded play or collection item goes to something more interesting
+ * UI improvements
+ * Syncing improvements
+ * Bug fixes
+
+Version 6.3.7
+-------------
+ * Bug fixes
+
+Version 6.3.6
+-------------
+ * Bug fixes
+
+Version 6.3.5
+-------------
+ * Clear database and re-sync play information
+ * Syncing improvements
+ * Bug fixes
+
+Version 6.3.4
+-------------
+ * Bug fixes
+
+Version 6.3.3
+-------------
+ * Sync error notifications can be enabled in settings
+ * Bug fixes
+
+Version 6.3.2
+-------------
+ * Bug fixes, especially around syncing
+
+Version 6.3.1
+-------------
+ * Always notify of sync errors
+ * Bug fixes
+
+Version 6.3
+-----------
+ * Under-the-hood improvements to play logging and collection syncing
+ * Improved GeekList UI
+ * While reading a thread, you can now scroll to the bottom of the list or to the last read article.
  * Improved forum timestamps
+ * Link to the privacy policy
  * Bug fixes
 
 Version 6.2

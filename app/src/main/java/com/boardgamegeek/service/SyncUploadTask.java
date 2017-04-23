@@ -1,12 +1,14 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -32,7 +34,11 @@ public abstract class SyncUploadTask extends SyncTask {
 	@StringRes
 	protected abstract int getNotificationTitleResId();
 
-	protected abstract Class<?> getNotificationIntentClass();
+	protected abstract Intent getNotificationSummaryIntent();
+
+	protected Intent getNotificationIntent() {
+		return getNotificationSummaryIntent();
+	}
 
 	protected abstract String getNotificationMessageTag();
 
@@ -58,7 +64,9 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	private void buildAndNotify(CharSequence title, CharSequence message, int id, Bitmap largeIcon) {
-		Builder builder = createNotificationBuilder()
+		Builder builder = NotificationUtils.createNotificationBuilder(context,
+			getNotificationTitleResId(),
+			getNotificationIntent())
 			.setCategory(NotificationCompat.CATEGORY_SERVICE)
 			.setContentTitle(title)
 			.setContentText(message)
@@ -79,7 +87,9 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	@DebugLog
 	private void showNotificationSummary() {
-		Builder builder = createNotificationBuilder()
+		Builder builder = NotificationUtils.createNotificationBuilder(context,
+			getNotificationTitleResId(),
+			getNotificationSummaryIntent())
 			.setGroup(getNotificationMessageTag())
 			.setGroupSummary(true);
 		final int messageCount = notificationMessages.size();
@@ -101,18 +111,16 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	@DebugLog
-	protected void notifyUploadError(String errorMessage) {
-		Timber.e(errorMessage);
-		NotificationCompat.Builder builder = createNotificationBuilder()
+	protected void notifyUploadError(CharSequence errorMessage) {
+		if (TextUtils.isEmpty(errorMessage)) return;
+		Timber.e(errorMessage.toString());
+		Builder builder = NotificationUtils.createNotificationBuilder(context,
+			getNotificationTitleResId(),
+			getNotificationSummaryIntent())
 			.setContentText(errorMessage)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(errorMessage);
 		NotificationUtils.notify(context, getNotificationErrorTag(), 0, builder);
-	}
-
-	@DebugLog
-	protected NotificationCompat.Builder createNotificationBuilder() {
-		return NotificationUtils.createNotificationBuilder(context, getNotificationTitleResId(), getNotificationIntentClass());
 	}
 }
