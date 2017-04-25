@@ -296,10 +296,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
 			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
 			final boolean hasItems = adapter != null && adapter.getCount() > 0;
+			final boolean hasViewSelected = viewId > 0;
 
 			menu.findItem(R.id.menu_collection_view_save).setEnabled(hasFiltersApplied || hasSortApplied);
 			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 			menu.findItem(R.id.menu_collection_random_game).setEnabled(hasItems);
+			menu.findItem(R.id.menu_create_shortcut).setEnabled(hasViewSelected);
 		}
 	}
 
@@ -315,8 +317,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
 				case R.id.menu_create_shortcut:
-					ShortcutUtils.createCollectionShortcut(getContext(), viewId, viewName, null);
-					return true;
+					if (viewId > 0) {
+						ShortcutUtils.createCollectionShortcut(getContext(), viewId, viewName, null);
+						return true;
+					}
+					break;
 				case R.id.menu_collection_view_save:
 					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
 					dialog.setOnViewSavedListener(CollectionFragment.this);
@@ -639,7 +644,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private void bindFilterButtons() {
 		filterButtonContainer.removeAllViews();
 
-		final LayoutInflater layoutInflater = getLayoutInflater(null);
+		final LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 		for (CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.getDisplayText())) {
 				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));

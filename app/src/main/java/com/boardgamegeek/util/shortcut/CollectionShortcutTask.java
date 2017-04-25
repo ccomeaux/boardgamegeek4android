@@ -20,6 +20,6 @@ public class CollectionShortcutTask extends ShortcutTask {
 	@Override
 	protected Intent createIntent() {
 		Intent intent = ActivityUtils.createCollectionIntent(context, viewId);
-		return ShortcutUtils.createShortcutIntent(context, viewName, intent, R.drawable.ic_collection);
+		return ShortcutUtils.createShortcutIntent(context, viewName, intent, R.drawable.ic_shortcut_ic_collection);
 	}
 }
