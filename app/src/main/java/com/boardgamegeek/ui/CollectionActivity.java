@@ -25,9 +25,11 @@ import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
+import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
@@ -191,6 +193,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 							fragment.clearView();
 						} else {
 							fragment.setView(id);
+							TaskUtils.executeAsyncTask(new SelectCollectionViewTask(CollectionActivity.this, id));
 						}
 					}
 				}

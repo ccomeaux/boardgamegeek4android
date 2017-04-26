@@ -85,7 +85,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAY_PLAY_ID_NOT_REQUIRED = 40;
 	private static final int VER_PLAYS_RESET = 41;
 	private static final int VER_PLAYS_HARD_RESET = 42;
-	private static final int DATABASE_VERSION = VER_PLAYS_HARD_RESET;
+	private static final int VER_COLLECTION_VIEWS_SELECTED_COUNT = 43;
+	private static final int DATABASE_VERSION = VER_COLLECTION_VIEWS_SELECTED_COUNT;
 
 	private final Context context;
 
@@ -496,7 +497,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.useDefaultPrimaryKey()
 			.addColumn(CollectionViews.NAME, COLUMN_TYPE.TEXT)
 			.addColumn(CollectionViews.STARRED, COLUMN_TYPE.INTEGER)
-			.addColumn(CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER);
+			.addColumn(CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER)
+			.addColumn(CollectionViews.SELECTED_COUNT, COLUMN_TYPE.INTEGER)
+			.addColumn(CollectionViews.SELECTED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildCollectionViewFiltersTable() {
@@ -736,6 +739,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 					SyncService.clearPlays(context);
 					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS);
 					version = VER_PLAYS_HARD_RESET;
+				case VER_PLAYS_HARD_RESET:
+					addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.SELECTED_COUNT, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.SELECTED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_COLLECTION_VIEWS_SELECTED_COUNT;
 			}
 
 			if (version != DATABASE_VERSION) {
