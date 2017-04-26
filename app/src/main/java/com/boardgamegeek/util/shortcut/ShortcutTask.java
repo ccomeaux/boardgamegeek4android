@@ -24,6 +24,10 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	protected final Context context;
 	private final String thumbnailUrl;
 
+	public ShortcutTask(Context context) {
+		this(context, null);
+	}
+
 	public ShortcutTask(Context context, String thumbnailUrl) {
 		this.context = context.getApplicationContext();
 		this.thumbnailUrl = HttpUtils.ensureScheme(thumbnailUrl);

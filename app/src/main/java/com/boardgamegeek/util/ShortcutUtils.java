@@ -23,8 +23,8 @@ public class ShortcutUtils {
 	private ShortcutUtils() {
 	}
 
-	public static void createCollectionShortcut(Context context, long viewId, String viewName, String thumbnailUrl) {
-		CollectionShortcutTask task = new CollectionShortcutTask(context, viewId, viewName, thumbnailUrl);
+	public static void createCollectionShortcut(Context context, long viewId, String viewName) {
+		CollectionShortcutTask task = new CollectionShortcutTask(context, viewId, viewName);
 		TaskUtils.executeAsyncTask(task);
 	}
 

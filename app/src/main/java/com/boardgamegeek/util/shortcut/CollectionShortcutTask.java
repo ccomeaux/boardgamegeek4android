@@ -11,8 +11,8 @@ public class CollectionShortcutTask extends ShortcutTask {
 	private final long viewId;
 	private final String viewName;
 
-	public CollectionShortcutTask(Context context, long viewId, String viewName, String thumbnailUrl) {
-		super(context, thumbnailUrl);
+	public CollectionShortcutTask(Context context, long viewId, String viewName) {
+		super(context);
 		this.viewId = viewId;
 		this.viewName = viewName;
 	}
