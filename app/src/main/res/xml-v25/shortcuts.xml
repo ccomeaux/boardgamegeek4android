@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+	<shortcut
+		android:enabled="true"
+		android:icon="@drawable/ic_shortcut_ic_plays"
+		android:shortcutId="plays-summary"
+		android:shortcutLongLabel="@string/title_plays"
+		android:shortcutShortLabel="@string/title_plays">
+		<intent
+			android:action="android.intent.action.VIEW"
+			android:targetClass="com.boardgamegeek.ui.PlaysSummaryActivity"
+			android:targetPackage="com.boardgamegeek"/>
+	</shortcut>
+</shortcuts>
