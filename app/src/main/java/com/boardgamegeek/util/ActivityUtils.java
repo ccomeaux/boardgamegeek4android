@@ -23,6 +23,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
+import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.GamePlaysActivity;
 import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
@@ -109,6 +110,12 @@ public class ActivityUtils {
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		return intent;
+	}
+
+	public static Intent createCollectionIntent(Context context, long viewId) {
+		return new Intent(context, CollectionActivity.class)
+			.setAction(Intent.ACTION_VIEW)
+			.putExtra(CollectionActivity.KEY_VIEW_ID, viewId);
 	}
 
 	public static void startBuddyActivity(Context context, String username, String playerName) {

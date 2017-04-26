@@ -229,6 +229,8 @@ public class BggContract {
 		String NAME = "name";
 		String STARRED = "starred";
 		String SORT_TYPE = "sort_type";
+		String SELECTED_COUNT = "selected_count";
+		String SELECTED_TIMESTAMP = "selected_timestamp";
 	}
 
 	interface CollectionViewFiltersColumns {

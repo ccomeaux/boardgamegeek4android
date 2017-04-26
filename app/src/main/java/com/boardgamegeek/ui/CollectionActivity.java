@@ -25,9 +25,11 @@ import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutCreatedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
+import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
@@ -39,6 +41,7 @@ import icepick.Icepick;
 import icepick.State;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor> {
+	public static final String KEY_VIEW_ID = "VIEW_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	@State int viewIndex;
@@ -50,7 +53,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-		viewId = savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this);
+
+		viewId = getIntent().getLongExtra(KEY_VIEW_ID, savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this));
 
 		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
@@ -131,7 +135,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	@Subscribe
 	public void onEvent(GameShortcutCreatedEvent event) {
-		Intent intent = ShortcutUtils.createIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
+		Intent intent = ShortcutUtils.createGameIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		if (intent != null) {
 			setResult(RESULT_OK, intent);
 		}
@@ -189,6 +193,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 							fragment.clearView();
 						} else {
 							fragment.setView(id);
+							TaskUtils.executeAsyncTask(new SelectCollectionViewTask(CollectionActivity.this, id));
 						}
 					}
 				}

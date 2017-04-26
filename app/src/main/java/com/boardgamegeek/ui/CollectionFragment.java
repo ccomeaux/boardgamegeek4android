@@ -68,6 +68,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -282,10 +283,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final Menu menu = footerToolbar.getMenu();
 		if (isCreatingShortcut) {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
+			menu.findItem(R.id.menu_create_shortcut).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
 		} else {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(true);
+			menu.findItem(R.id.menu_create_shortcut).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
@@ -293,10 +296,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
 			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
 			final boolean hasItems = adapter != null && adapter.getCount() > 0;
+			final boolean hasViewSelected = viewId > 0;
 
 			menu.findItem(R.id.menu_collection_view_save).setEnabled(hasFiltersApplied || hasSortApplied);
 			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 			menu.findItem(R.id.menu_collection_random_game).setEnabled(hasItems);
+			menu.findItem(R.id.menu_create_shortcut).setEnabled(hasViewSelected);
 		}
 	}
 
@@ -311,6 +316,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
 					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
+				case R.id.menu_create_shortcut:
+					if (viewId > 0) {
+						ShortcutUtils.createCollectionShortcut(getContext(), viewId, viewName);
+						return true;
+					}
+					break;
 				case R.id.menu_collection_view_save:
 					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
 					dialog.setOnViewSavedListener(CollectionFragment.this);
@@ -633,7 +644,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private void bindFilterButtons() {
 		filterButtonContainer.removeAllViews();
 
-		final LayoutInflater layoutInflater = getLayoutInflater(null);
+		final LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 		for (CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.getDisplayText())) {
 				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
