@@ -1,25 +1,54 @@
 package com.boardgamegeek.tasks;
 
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.database.Cursor;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
+import com.boardgamegeek.util.ActivityUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
+	private static final int SHORTCUT_COUNT = 3;
 	private final Context context;
 	private final long viewId;
+	private final ShortcutManager shortcutManager;
 
 	public SelectCollectionViewTask(Context context, long viewId) {
 		this.context = context.getApplicationContext();
 		this.viewId = viewId;
+		if (VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
+			shortcutManager = context.getSystemService(ShortcutManager.class);
+		} else {
+			shortcutManager = null;
+		}
 	}
 
 	@Override
 	protected Void doInBackground(Void... params) {
+		updateSelection();
+		if (VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
+			shortcutManager.reportShortcutUsed(createShortcutName(viewId));
+			setShortcuts();
+		}
+		return null;
+	}
+
+	private void updateSelection() {
 		Cursor cursor = null;
 		try {
 			Uri uri = CollectionViews.buildViewUri(viewId);
@@ -36,6 +65,44 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 		} finally {
 			if (cursor != null) cursor.close();
 		}
-		return null;
+	}
+
+	@TargetApi(VERSION_CODES.N_MR1)
+	private void setShortcuts() {
+		List<ShortcutInfo> shortcuts = new ArrayList<>(SHORTCUT_COUNT);
+		Cursor cursor = null;
+		try {
+			cursor = context.getContentResolver().query(CollectionViews.CONTENT_URI,
+				new String[] { CollectionViews._ID, CollectionViews.NAME },
+				null, null,
+				CollectionViews.SELECTED_COUNT + " DESC, " + CollectionViews.SELECTED_TIMESTAMP + " DESC");
+			while (cursor != null && cursor.moveToNext()) {
+				String name = cursor.getString(1);
+				if (!TextUtils.isEmpty(name)) {
+					shortcuts.add(createShortcutInfo(cursor.getLong(0), name));
+					if (shortcuts.size() >= SHORTCUT_COUNT) break;
+				}
+			}
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+
+		shortcutManager.setDynamicShortcuts(shortcuts);
+	}
+
+	@TargetApi(VERSION_CODES.N_MR1)
+	@NonNull
+	private ShortcutInfo createShortcutInfo(long viewId, @NonNull String viewName) {
+		return new ShortcutInfo.Builder(context, createShortcutName(viewId))
+			.setShortLabel(viewName.substring(0, 10))
+			.setLongLabel(viewName.substring(0, 25))
+			.setIcon(Icon.createWithResource(context, R.drawable.ic_shortcut_ic_collection))
+			.setIntent(ActivityUtils.createCollectionIntent(context, viewId))
+			.build();
+	}
+
+	@NonNull
+	private static String createShortcutName(long viewId) {
+		return "collection-view-" + viewId;
 	}
 }

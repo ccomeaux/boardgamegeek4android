@@ -113,9 +113,9 @@ public class ActivityUtils {
 	}
 
 	public static Intent createCollectionIntent(Context context, long viewId) {
-		final Intent intent = new Intent(context, CollectionActivity.class);
-		intent.putExtra(CollectionActivity.KEY_VIEW_ID, viewId);
-		return intent;
+		return new Intent(context, CollectionActivity.class)
+			.setAction(Intent.ACTION_VIEW)
+			.putExtra(CollectionActivity.KEY_VIEW_ID, viewId);
 	}
 
 	public static void startBuddyActivity(Context context, String username, String playerName) {
