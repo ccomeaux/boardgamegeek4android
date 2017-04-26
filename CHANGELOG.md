@@ -4,6 +4,7 @@ Release Notes
 Coming Soon...
 --------------
  * More play stats (and they're prettier too)
+ * App shortcuts for collection views
  * Corrected and improved backup/restore
  * Sync improvements
  * Bug fixes
