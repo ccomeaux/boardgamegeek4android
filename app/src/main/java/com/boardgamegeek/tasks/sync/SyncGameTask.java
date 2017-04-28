@@ -43,7 +43,7 @@ public class SyncGameTask extends SyncTask<ThingResponse, CompletedEvent> {
 	@Override
 	protected void persistResponse(ThingResponse thing) {
 		int rowCount = new GamePersister(context).save(thing.getGames(), String.format(Locale.getDefault(), "Game %d", gameId));
-		Timber.i("Synced %,d rows for game '%s'", rowCount, gameId);
+		Timber.i("Synced game '%s' (%,d rows)", gameId, rowCount);
 	}
 
 	@NonNull
