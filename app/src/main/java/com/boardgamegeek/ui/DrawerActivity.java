@@ -21,13 +21,18 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import hugo.weaving.DebugLog;
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
@@ -88,14 +93,22 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 	}
 
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CompletedEvent event) {
+		Account account = Authenticator.getAccount(this);
+		if (account != null && event.getUsername().equals(account.name)) {
+			refreshDrawer();
+		}
+	}
+
 	protected void onSignInSuccess() {
 		refreshDrawer();
 	}
 
 	private void refreshDrawer() {
-		if (drawerList == null) {
-			return;
-		}
+		if (drawerList == null) return;
 
 		drawerList.removeAllViews();
 		drawerList.addView(makeNavDrawerBuffer(drawerList));
