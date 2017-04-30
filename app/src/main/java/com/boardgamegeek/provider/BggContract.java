@@ -54,6 +54,7 @@ public class BggContract {
 		String UPDATED_PLAYS = "updated_plays";
 		String CUSTOM_PLAYER_SORT = "custom_player_sort";
 		String GAME_RANK = "game_rank";
+		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
 	}
 
 	interface GameRanksColumns {
@@ -182,6 +183,14 @@ public class BggContract {
 		String POLL_RESULTS_RESULT_SORT_INDEX = "pollresultsresult_sortindex";
 	}
 
+	interface GameSuggestedPlayerCountPollResultsColumns {
+		String PLAYER_COUNT = "player_count";
+		String SORT_INDEX = "sort_index";
+		String BEST_VOTE_COUNT = "best_vote_count";
+		String RECOMMENDED_VOTE_COUNT = "recommended_vote_count";
+		String NOT_RECOMMENDED_VOTE_COUNT = "not_recommended_vote_count";
+	}
+
 	interface GameColorsColumns {
 		String COLOR = "color";
 	}
@@ -257,6 +266,7 @@ public class BggContract {
 	private static final String PATH_POLLS = "polls";
 	private static final String PATH_POLL_RESULTS = "results";
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
+	public static final String PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS = "suggestedplayercountpollresults";
 	public static final String PATH_THUMBNAILS = "thumbnails";
 	public static final String PATH_AVATARS = "avatars";
 	public static final String PATH_COLORS = "colors";
@@ -424,8 +434,17 @@ public class BggContract {
 		}
 
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key, String key2) {
-			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName)
+				.appendPath(PATH_POLL_RESULTS).appendPath(key)
 				.appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
+		}
+
+		public static Uri buildSuggestedPlayerCountPollResultsUri(int gameId) {
+			return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).build();
+		}
+
+		public static Uri buildSuggestedPlayerCountPollResultsUri(int gameId, String playerCount) {
+			return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).appendPath(playerCount).build();
 		}
 
 		public static Uri buildColorsUri(int gameId) {
@@ -749,6 +768,13 @@ public class BggContract {
 			}
 			return 0;
 		}
+	}
+
+	public static class GameSuggestedPlayerCountPollPollResults implements GameSuggestedPlayerCountPollResultsColumns, GamesColumns, BaseColumns {
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll.playercount";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepoll.playercount";
+
+		public static final String DEFAULT_SORT = GameSuggestedPlayerCountPollResultsColumns.SORT_INDEX + " ASC";
 	}
 
 	public static class GamePolls implements GamePollsColumns, GamesColumns, BaseColumns {

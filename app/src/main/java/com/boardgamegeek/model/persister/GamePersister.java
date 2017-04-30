@@ -24,6 +24,7 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
+import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
@@ -83,9 +84,13 @@ public class GamePersister {
 				} else {
 					cpoBuilder = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 				}
+
+				ArrayList<ContentProviderOperation> rankOperations = createRanksBatch(game);
+				ArrayList<ContentProviderOperation> pollOperations = createPollsBatch(game, values);
+
 				batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build());
-				batch.addAll(createRanksBatch(game));
-				batch.addAll(createPollsBatch(game));
+				batch.addAll(rankOperations);
+				batch.addAll(pollOperations);
 				batch.addAll(designerPersister.createBatch(game.id, resolver, game.getDesigners()));
 				batch.addAll(artistPersister.createBatch(game.id, resolver, game.getArtists()));
 				batch.addAll(publisherPersister.createBatch(game.id, resolver, game.getPublishers()));
@@ -154,70 +159,105 @@ public class GamePersister {
 		return values;
 	}
 
-	private ArrayList<ContentProviderOperation> createPollsBatch(Game game) {
+	private ArrayList<ContentProviderOperation> createPollsBatch(Game game, ContentValues gameContentValues) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		List<String> existingPollNames = ResolverUtils.queryStrings(resolver, Games.buildPollsUri(game.id), GamePolls.POLL_NAME);
 		if (game.polls != null) {
 			for (Poll poll : game.polls) {
-				ContentValues values = new ContentValues();
-				values.put(GamePolls.POLL_TITLE, poll.title);
-				values.put(GamePolls.POLL_TOTAL_VOTES, poll.totalvotes);
-
-				List<String> existingResultKeys = new ArrayList<>();
-				if (existingPollNames.remove(poll.name)) {
-					batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name)).withValues(values).build());
-					existingResultKeys = ResolverUtils.queryStrings(resolver, Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS);
+				if ("suggested_numplayers".equals(poll.name)) {
+					gameContentValues.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, poll.totalvotes);
+					int sortIndex = 0;
+					List<String> existingResults = ResolverUtils.queryStrings(resolver,
+						Games.buildSuggestedPlayerCountPollResultsUri(game.id), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT);
+					for (Results results : poll.results) {
+						ContentValues values = new ContentValues(5);
+						values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, ++sortIndex);
+						for (Result result : results.result) {
+							if ("Best".equals(result.value)) {
+								values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, result.numvotes);
+							} else if ("Recommended".equals(result.value)) {
+								values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, result.numvotes);
+							} else if ("Not Recommended".equals(result.value)) {
+								values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, result.numvotes);
+							} else {
+								Timber.i("Unexpected suggested player count result of '%s'", result.value);
+							}
+						}
+						if (existingResults.remove(results.getKey())) {
+							Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id, results.getKey());
+							batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+						} else {
+							values.put(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, results.getKey());
+							Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id);
+							batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+						}
+					}
+					for (String result : existingResults) {
+						Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id, result);
+						batch.add(ContentProviderOperation.newDelete(uri).build());
+					}
 				} else {
-					values.put(GamePolls.POLL_NAME, poll.name);
-					batch.add(ContentProviderOperation.newInsert(Games.buildPollsUri(game.id)).withValues(values).build());
-				}
+					ContentValues values = new ContentValues();
+					values.put(GamePolls.POLL_TITLE, poll.title);
+					values.put(GamePolls.POLL_TOTAL_VOTES, poll.totalvotes);
 
-				int resultsIndex = 0;
-				for (Results results : poll.results) {
-					values.clear();
-					values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, ++resultsIndex);
-
-					List<String> existingValues = new ArrayList<>();
-					if (existingResultKeys.remove(results.getKey())) {
-						batch.add(ContentProviderOperation
-							.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.getKey()))
-							.withValues(values).build());
-						existingValues = ResolverUtils.queryStrings(resolver,
-							Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()),
-							GamePollResultsResult.POLL_RESULTS_RESULT_KEY);
+					List<String> existingResultKeys = new ArrayList<>();
+					if (existingPollNames.remove(poll.name)) {
+						batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name)).withValues(values).build());
+						existingResultKeys = ResolverUtils.queryStrings(resolver, Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS);
 					} else {
-						values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.getKey());
-						batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name)).withValues(values).build());
+						values.put(GamePolls.POLL_NAME, poll.name);
+						batch.add(ContentProviderOperation.newInsert(Games.buildPollsUri(game.id)).withValues(values).build());
 					}
 
-					int resultSortIndex = 0;
-					for (Result result : results.result) {
+					int resultsIndex = 0;
+					for (Results results : poll.results) {
 						values.clear();
-						if (result.level > 0) values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.level);
-						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value);
-						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numvotes);
-						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
+						values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, ++resultsIndex);
 
-						String key = DataUtils.generatePollResultsKey(result.level, result.value);
-						if (existingValues.remove(key)) {
-							batch.add(ContentProviderOperation.newUpdate(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), key))
-								.withValues(values)
-								.build());
-						} else {
+						List<String> existingValues = new ArrayList<>();
+						if (existingResultKeys.remove(results.getKey())) {
 							batch.add(ContentProviderOperation
-								.newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()))
-								.withValues(values)
-								.build());
+								.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.getKey()))
+								.withValues(values).build());
+							existingValues = ResolverUtils.queryStrings(resolver,
+								Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()),
+								GamePollResultsResult.POLL_RESULTS_RESULT_KEY);
+						} else {
+							values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.getKey());
+							batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name)).withValues(values).build());
+						}
+
+						int resultSortIndex = 0;
+						for (Result result : results.result) {
+							values.clear();
+							if (result.level > 0)
+								values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.level);
+							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value);
+							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numvotes);
+							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
+
+							String key = DataUtils.generatePollResultsKey(result.level, result.value);
+							if (existingValues.remove(key)) {
+								batch.add(ContentProviderOperation.newUpdate(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), key))
+									.withValues(values)
+									.build());
+							} else {
+								batch.add(ContentProviderOperation
+									.newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()))
+									.withValues(values)
+									.build());
+							}
+						}
+
+						for (String value : existingValues) {
+							batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), value)).build());
 						}
 					}
 
-					for (String value : existingValues) {
-						batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), value)).build());
+					for (String player : existingResultKeys) {
+						batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.id, poll.name, player)).build());
 					}
-				}
-
-				for (String player : existingResultKeys) {
-					batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.id, poll.name, player)).build());
 				}
 			}
 		}

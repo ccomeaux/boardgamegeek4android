@@ -574,7 +574,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 
 		if (mightNeedRefreshing &&
-			(game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
+			(game.PollsCount == 0 ||
+				game.SuggestedPlayerCountPollVoteTotal == 0 ||
+				DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 		mightNeedRefreshing = false;
@@ -625,7 +627,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void addRankRow(String label, int rank, double rating) {
-		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, subtypeContainer, false);
+		LinearLayout layout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.widget_rank_row, subtypeContainer, false);
 
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
 		tv.setText(PresentationUtils.describeRankName(getActivity(), "family", label));
@@ -886,7 +888,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 	}
 
-	@OnClick({ R.id.number_of_players, R.id.player_age })
+	@OnClick({ R.id.player_age })
 	@DebugLog
 	public void onPollClick(View view) {
 		Bundle arguments = new Bundle(2);
@@ -894,6 +896,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		arguments.putString(ActivityUtils.KEY_TYPE, (String) view.getTag());
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
+
+	@OnClick({ R.id.number_of_players })
+	@DebugLog
+	public void onSuggestedPlayerCountPollClick() {
+		Bundle arguments = new Bundle(2);
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
+		DialogUtils.launchDialog(this, new SuggestedPlayerCountPollFragment(), "suggested-player-count-poll-dialog", arguments);
+	}
+
 
 	@DebugLog
 	public boolean triggerRefresh() {
@@ -964,7 +975,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
 			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT,
-			Games.STATS_NUMBER_COMMENTS };
+			Games.STATS_NUMBER_COMMENTS, Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -992,6 +1003,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int SUBTYPE = 24;
 		int CUSTOM_PLAYER_SORT = 25;
 		int STATS_NUMBER_COMMENTS = 26;
+		int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 27;
 	}
 
 	private interface DesignerQuery {
@@ -1128,6 +1140,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		final int PollsCount;
 		final String Subtype;
 		final boolean CustomPlayerSort;
+		final int SuggestedPlayerCountPollVoteTotal;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -1156,6 +1169,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
 			Subtype = cursor.getString(GameQuery.SUBTYPE);
 			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
+			SuggestedPlayerCountPollVoteTotal = cursor.getInt(GameQuery.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL);
 		}
 
 		@DebugLog
