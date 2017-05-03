@@ -88,7 +88,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAYS_HARD_RESET = 42;
 	private static final int VER_COLLECTION_VIEWS_SELECTED_COUNT = 43;
 	private static final int VER_SUGGESTED_PLAYER_COUNT_POLL = 44;
-	private static final int DATABASE_VERSION = VER_SUGGESTED_PLAYER_COUNT_POLL;
+	private static final int VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION = 45;
+	private static final int DATABASE_VERSION = VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION;
 
 	private final Context context;
 
@@ -455,7 +456,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, COLUMN_TYPE.INTEGER)
 			.addColumn(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, COLUMN_TYPE.INTEGER)
 			.addColumn(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, COLUMN_TYPE.INTEGER)
-			.addColumn(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, COLUMN_TYPE.INTEGER);
+			.addColumn(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, COLUMN_TYPE.INTEGER)
+			.addColumn(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildGameColorsTable() {
@@ -765,6 +767,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.GAMES, Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER);
 					buildGameSuggestedPlayerCountPollResultsTable().replace(db);
 					version = VER_SUGGESTED_PLAYER_COUNT_POLL;
+				case VER_SUGGESTED_PLAYER_COUNT_POLL:
+					addColumn(db, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, COLUMN_TYPE.INTEGER);
+					version = VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION;
 			}
 
 			if (version != DATABASE_VERSION) {

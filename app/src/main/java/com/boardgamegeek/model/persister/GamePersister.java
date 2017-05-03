@@ -36,6 +36,7 @@ import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.DataUtils;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PlayerCountRecommendation;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
@@ -170,19 +171,24 @@ public class GamePersister {
 					List<String> existingResults = ResolverUtils.queryStrings(resolver,
 						Games.buildSuggestedPlayerCountPollResultsUri(game.id), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT);
 					for (Results results : poll.results) {
-						ContentValues values = new ContentValues(5);
+						ContentValues values = new ContentValues(6);
+						PlayerCountRecommendation.Builder builder = new PlayerCountRecommendation.Builder();
 						values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, ++sortIndex);
 						for (Result result : results.result) {
 							if ("Best".equals(result.value)) {
 								values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, result.numvotes);
+								builder.bestVoteCount(result.numvotes);
 							} else if ("Recommended".equals(result.value)) {
 								values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, result.numvotes);
+								builder.recommendedVoteCount(result.numvotes);
 							} else if ("Not Recommended".equals(result.value)) {
 								values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, result.numvotes);
+								builder.notRecommendVoteCount(result.numvotes);
 							} else {
 								Timber.i("Unexpected suggested player count result of '%s'", result.value);
 							}
 						}
+						values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, builder.build().calculate());
 						if (existingResults.remove(results.getKey())) {
 							Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id, results.getKey());
 							batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());

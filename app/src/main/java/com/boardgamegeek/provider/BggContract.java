@@ -189,6 +189,7 @@ public class BggContract {
 		String BEST_VOTE_COUNT = "best_vote_count";
 		String RECOMMENDED_VOTE_COUNT = "recommended_vote_count";
 		String NOT_RECOMMENDED_VOTE_COUNT = "not_recommended_vote_count";
+		String RECOMMENDATION = "recommendation";
 	}
 
 	interface GameColorsColumns {
