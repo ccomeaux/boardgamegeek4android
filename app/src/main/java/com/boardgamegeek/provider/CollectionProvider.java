@@ -46,6 +46,10 @@ public class CollectionProvider extends BasicProvider {
 		} else {
 			builder.groupBy(Collection.GAME_ID);
 		}
+
+		String having = uri.getQueryParameter(BggContract.QUERY_KEY_HAVING);
+		builder.having(having);
+
 		return builder;
 	}
 

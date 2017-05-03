@@ -285,6 +285,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String QUERY_VALUE_PLAY = "play";
+	public static final String QUERY_KEY_HAVING = "having";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String FRAGMENT_PLAYS = "plays";
 	public static final String QUERY_KEY_LIMIT = "limit";
@@ -678,8 +679,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = GamesExpansionsColumns.EXPANSION_NAME + COLLATE_NOCASE + " ASC";
 	}
 
-	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns,
-		SyncListColumns {
+	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
@@ -689,6 +689,11 @@ public class BggContract {
 
 		public static Uri buildUri(long id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
+		}
+
+		public static Uri buildUri(String having) {
+			if (TextUtils.isEmpty(having)) return CONTENT_URI;
+			return CONTENT_URI.buildUpon().appendQueryParameter(QUERY_KEY_HAVING, having).build();
 		}
 
 		public static long getId(Uri uri) {

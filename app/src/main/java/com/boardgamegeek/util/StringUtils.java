@@ -127,12 +127,8 @@ public class StringUtils {
 	 * Concatenates 2 arrays of strings into 1.
 	 */
 	public static String[] concatenate(String[] array1, String[] array2) {
-		if (array1 == null) {
-			return array2;
-		}
-		if (array2 == null) {
-			return array1;
-		}
+		if (array1 == null) return array2;
+		if (array2 == null) return array1;
 		String[] result = new String[array1.length + array2.length];
 		System.arraycopy(array1, 0, result, 0, array1.length);
 		System.arraycopy(array2, 0, result, array1.length, array2.length);
@@ -143,12 +139,8 @@ public class StringUtils {
 	 * Returns a union of 2 arrays, ensuring that each string exists only once.
 	 */
 	public static String[] unionArrays(String[] array1, String[] array2) {
-		if (array1 == null) {
-			return array2;
-		}
-		if (array2 == null) {
-			return array1;
-		}
+		if (array1 == null) return array2;
+		if (array2 == null) return array1;
 		Set<String> set = new LinkedHashSet<>();
 		set.addAll(Arrays.asList(array1));
 		set.addAll(Arrays.asList(array2));

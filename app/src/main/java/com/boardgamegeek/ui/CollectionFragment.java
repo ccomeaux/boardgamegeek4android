@@ -380,24 +380,27 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (id == Query._TOKEN) {
 			StringBuilder where = new StringBuilder();
 			String[] args = {};
+			StringBuilder having = new StringBuilder();
 			if (viewId == 0 && filters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
 				for (CollectionFilterer filter : filters) {
 					if (filter != null) {
 						if (!TextUtils.isEmpty(filter.getSelection())) {
-							if (where.length() > 0) {
-								where.append(" AND ");
-							}
+							if (where.length() > 0) where.append(" AND ");
 							where.append("(").append(filter.getSelection()).append(")");
 							args = StringUtils.concatenate(args, filter.getSelectionArgs());
+						}
+						if (!TextUtils.isEmpty(filter.getHaving())) {
+							if (having.length() > 0) having.append(" AND ");
+							having.append("(").append(filter.getHaving()).append(")");
 						}
 					}
 				}
 			}
 			loader = new CursorLoader(getActivity(),
-				Collection.CONTENT_URI,
-				sorter == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, sorter.getColumns()),
+				Collection.buildUri(having.toString()),
+				getProjection(),
 				where.toString(),
 				args,
 				sorter == null ? null : sorter.getOrderByClause());
@@ -407,6 +410,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 		}
 		return loader;
+	}
+
+	private String[] getProjection() {
+		String[] projection = sorter == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, sorter.getColumns());
+		for (CollectionFilterer filter : filters) {
+			projection = StringUtils.unionArrays(projection, filter.getColumns());
+		}
+		return projection;
 	}
 
 	private String buildDefaultWhereClause() {
