@@ -55,6 +55,7 @@ public class BggContract {
 		String CUSTOM_PLAYER_SORT = "custom_player_sort";
 		String GAME_RANK = "game_rank";
 		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
+		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
 	}
 
 	interface GameRanksColumns {
@@ -525,6 +526,19 @@ public class BggContract {
 				}
 			}
 			return "";
+		}
+
+		public static String createRecommendedPlayerCountColumn(String playerCount) {
+			return Games.PLAYER_COUNT_RECOMMENDATION_PREFIX + playerCount;
+		}
+
+		public static String getRecommendedPlayerCountFromColumn(String column) {
+			if (column.startsWith(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX)) {
+				String delimiter = Games.PLAYER_COUNT_RECOMMENDATION_PREFIX.substring(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX.length() - 1);
+				String[] parts = column.split(delimiter);
+				return parts[parts.length - 1];
+			}
+			return null;
 		}
 	}
 
