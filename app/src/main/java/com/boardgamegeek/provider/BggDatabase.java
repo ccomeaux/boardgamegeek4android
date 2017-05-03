@@ -156,9 +156,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String POLLS_JOIN_GAMES = createJoin(GAMES, GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, Games.GAME_ID, GameSuggestedPlayerCountPollPollResults.GAME_ID);
 		String POLL_RESULTS_JOIN_POLL_RESULTS_RESULT = createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
 		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
-		String COLLECTION_JOIN_GAMES_JOIN_PLAYS = Tables.COLLECTION +
-			createJoinSuffix(COLLECTION, GAMES, Collection.GAME_ID, Games.GAME_ID) +
-			createJoinSuffix(COLLECTION, PLAYS, Collection.GAME_ID, Plays.OBJECT_ID);
 		String GAMES_JOIN_PLAYS = Tables.GAMES + createJoinSuffix(GAMES, PLAYS, Games.GAME_ID, Plays.OBJECT_ID);
 		String PLAYS_JOIN_GAMES = Tables.PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID);

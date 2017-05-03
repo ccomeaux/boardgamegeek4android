@@ -570,7 +570,6 @@
 	<string name="plays_sync_status_old">Plays have been synced since %s.</string>
 	<string name="plays_sync_status_range">Plays have been synced between %1$s and %2$s.</string>
 	<string name="starts_with">Starts with</string>
-	<string name="msg_collection_sort_play_date">Note that this will show only one copy of each game, even if you have multiple copies in your collection.</string>
 	<string name="msg_offline">Offline</string>
 	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
 	<string name="msg_update_invalid_response">Invalid %s received</string>

@@ -14,14 +14,14 @@ public class CollectionProvider extends BasicProvider {
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		SelectionBuilder builder = new SelectionBuilder()
-			.table(Tables.COLLECTION_JOIN_GAMES_JOIN_PLAYS)
+			.table(Tables.COLLECTION_JOIN_GAMES)
 			.mapToTable(Collection._ID, Tables.COLLECTION)
 			.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
 			.mapToTable(Collection.PRIVATE_INFO_QUANTITY, Tables.COLLECTION)
 			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
-			.mapAsMax(Plays.MAX_DATE, Plays.DATE);
+			.map(Plays.MAX_DATE, String.format("(SELECT MAX(%s) FROM %s WHERE %s.%s=%s.%s)", Plays.DATE, Tables.PLAYS, Tables.PLAYS, Plays.OBJECT_ID, Tables.GAMES, Games.GAME_ID));
 
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {
