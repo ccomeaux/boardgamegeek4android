@@ -762,7 +762,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					version = VER_COLLECTION_VIEWS_SELECTED_COUNT;
 				case VER_COLLECTION_VIEWS_SELECTED_COUNT:
 					addColumn(db, Tables.GAMES, Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER);
-					buildGameSuggestedPlayerCountPollResultsTable().replace(db);
+					buildGameSuggestedPlayerCountPollResultsTable().create(db);
 					version = VER_SUGGESTED_PLAYER_COUNT_POLL;
 				case VER_SUGGESTED_PLAYER_COUNT_POLL:
 					addColumn(db, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, COLUMN_TYPE.INTEGER);
