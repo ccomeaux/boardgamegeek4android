@@ -30,7 +30,7 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	@BindView(R.id.range_bar) RangeBar rangeBar;
 
 	public void createDialog(final Context context, final OnFilterChangedListener listener, CollectionFilterer filter) {
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = LayoutInflater.from(context);
 		@SuppressLint("InflateParams") View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
 		ButterKnife.bind(this, layout);
 
