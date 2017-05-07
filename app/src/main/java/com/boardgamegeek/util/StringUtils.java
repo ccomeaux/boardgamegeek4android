@@ -3,6 +3,7 @@ package com.boardgamegeek.util;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
 
 import java.util.Arrays;
@@ -189,5 +190,11 @@ public class StringUtils {
 		sb.append(boldText);
 		sb.setSpan(new StyleSpan(Typeface.BOLD), sb.length() - boldText.length(), sb.length(),
 			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	}
+
+	public static String limitText(String text, int length) {
+		if (TextUtils.isEmpty(text)) return "";
+		if (text.length() <= length) return text;
+		return text.substring(0, length);
 	}
 }
