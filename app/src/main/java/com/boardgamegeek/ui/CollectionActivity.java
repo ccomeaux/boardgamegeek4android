@@ -188,6 +188,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 					long oldId = fragment.getViewId();
 					if (id != oldId) {
 						Answers.getInstance().logCustom(new CustomEvent("CollectionViewSelected"));
+						viewId = id;
 						viewIndex = findViewIndex(id);
 						if (id < 0) {
 							fragment.clearView();
