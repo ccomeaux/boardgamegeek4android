@@ -12,12 +12,6 @@
 		android:layout_height="wrap_content"
 		android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/card_header_links"
-			style="@style/Text.Header.Card"
-			android:layout_width="wrap_content"
-			android:text="@string/links"/>
-
 		<LinearLayout
 			android:id="@+id/link_bgg"
 			android:layout_width="match_parent"

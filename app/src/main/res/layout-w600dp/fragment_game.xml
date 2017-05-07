@@ -57,8 +57,8 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:baselineAligned="false">
+		android:baselineAligned="false"
+		android:orientation="horizontal">
 
 		<LinearLayout
 			android:layout_width="0dp"
@@ -72,6 +72,16 @@
 
 			<include layout="@layout/include_game_card_details"/>
 
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="bottom"
+				android:minHeight="@dimen/card_header_height"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingRight="@dimen/activity_horizontal_margin"
+				android:text="@string/links"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
 			<include layout="@layout/include_game_card_links"/>
 		</LinearLayout>
 
@@ -81,9 +91,38 @@
 			android:layout_weight="1"
 			android:orientation="vertical">
 
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="bottom"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingRight="@dimen/activity_horizontal_margin"
+				android:text="@string/title_collection"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
 			<include layout="@layout/include_game_card_collection"/>
 
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="bottom"
+				android:minHeight="@dimen/card_header_height"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingRight="@dimen/activity_horizontal_margin"
+				android:text="@string/title_plays"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
 			<include layout="@layout/include_game_card_plays"/>
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="bottom"
+				android:minHeight="@dimen/card_header_height"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingRight="@dimen/activity_horizontal_margin"
+				android:text="@string/title_user_feedback"
+				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 			<include layout="@layout/include_game_card_user_feedback"/>
 		</LinearLayout>

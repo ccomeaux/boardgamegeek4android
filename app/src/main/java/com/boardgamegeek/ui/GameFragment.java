@@ -196,13 +196,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.game_info_base_games
 	}) List<GameDetailRow> colorizedRows;
 	@BindViews({
-		R.id.card_header_details,
-		R.id.card_header_collection,
-		R.id.card_header_plays,
-		R.id.card_header_user_feedback,
-		R.id.card_header_links
-	}) List<TextView> colorizedHeaders;
-	@BindViews({
 		R.id.icon_plays,
 		R.id.icon_play_stats,
 		R.id.icon_colors,
@@ -517,8 +510,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
-
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, PaletteUtils.getHeaderSwatch(palette));
 		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));
 	}
 
@@ -644,7 +635,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
 		collectionCard.setVisibility(View.VISIBLE);
-		collectionContainer.removeViews(2, collectionContainer.getChildCount() - 2);
+		collectionContainer.removeAllViews();
 		if (cursor != null && cursor.moveToFirst()) {
 			collectionAddButton.setVisibility(View.GONE);
 			do {

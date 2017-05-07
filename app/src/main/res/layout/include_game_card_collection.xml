@@ -16,12 +16,6 @@
 		android:layout_height="wrap_content"
 		android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/card_header_collection"
-			style="@style/Text.Header.Card"
-			android:layout_width="wrap_content"
-			android:text="@string/title_collection"/>
-
 		<Button
 			android:id="@+id/collection_add_button"
 			style="@style/Widget.AppCompat.Button.Colored"
