@@ -19,6 +19,7 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
+import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
@@ -86,7 +87,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAYS_RESET = 41;
 	private static final int VER_PLAYS_HARD_RESET = 42;
 	private static final int VER_COLLECTION_VIEWS_SELECTED_COUNT = 43;
-	private static final int DATABASE_VERSION = VER_COLLECTION_VIEWS_SELECTED_COUNT;
+	private static final int VER_SUGGESTED_PLAYER_COUNT_POLL = 44;
+	private static final int VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION = 45;
+	private static final int DATABASE_VERSION = VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION;
 
 	private final Context context;
 
@@ -134,6 +137,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAME_POLLS = "game_polls";
 		String GAME_POLL_RESULTS = "game_poll_results";
 		String GAME_POLL_RESULTS_RESULT = "game_poll_results_result";
+		String GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS = "game_suggested_player_count_poll_results";
 		String GAME_COLORS = "game_colors";
 		String PLAYS = "plays";
 		String PLAY_PLAYERS = "play_players";
@@ -149,11 +153,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.CATEGORY_ID);
 		String GAMES_EXPANSIONS_JOIN_EXPANSIONS = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.EXPANSION_ID, Games.GAME_ID);
 		String POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, GamePolls._ID, GamePollResults.POLL_ID);
+		String POLLS_JOIN_GAMES = createJoin(GAMES, GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, Games.GAME_ID, GameSuggestedPlayerCountPollPollResults.GAME_ID);
 		String POLL_RESULTS_JOIN_POLL_RESULTS_RESULT = createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
 		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
-		String COLLECTION_JOIN_GAMES_JOIN_PLAYS = Tables.COLLECTION +
-			createJoinSuffix(COLLECTION, GAMES, Collection.GAME_ID, Games.GAME_ID) +
-			createJoinSuffix(COLLECTION, PLAYS, Collection.GAME_ID, Plays.OBJECT_ID);
 		String GAMES_JOIN_PLAYS = Tables.GAMES + createJoinSuffix(GAMES, PLAYS, Games.GAME_ID, Plays.OBJECT_ID);
 		String PLAYS_JOIN_GAMES = Tables.PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID);
@@ -213,6 +215,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		buildGamePollsTable().create(db);
 		buildGamePollResultsTable().create(db);
 		buildGamePollResultsResultTable().create(db);
+		buildGameSuggestedPlayerCountPollResultsTable().create(db);
 		buildGameColorsTable().create(db);
 
 		buildPlaysTable().create(db);
@@ -297,6 +300,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.GAME_RANK, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -438,6 +442,19 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, COLUMN_TYPE.TEXT, true)
 			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, COLUMN_TYPE.INTEGER, true)
 			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, COLUMN_TYPE.INTEGER, true);
+	}
+
+	private TableBuilder buildGameSuggestedPlayerCountPollResultsTable() {
+		return new TableBuilder()
+			.setTable(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
+			.useDefaultPrimaryKey()
+			.addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
+			.addColumn(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, COLUMN_TYPE.INTEGER, true, true)
+			.addColumn(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, COLUMN_TYPE.INTEGER)
+			.addColumn(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, COLUMN_TYPE.INTEGER)
+			.addColumn(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, COLUMN_TYPE.INTEGER)
+			.addColumn(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, COLUMN_TYPE.INTEGER)
+			.addColumn(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildGameColorsTable() {
@@ -743,6 +760,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.SELECTED_COUNT, COLUMN_TYPE.INTEGER);
 					addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.SELECTED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 					version = VER_COLLECTION_VIEWS_SELECTED_COUNT;
+				case VER_COLLECTION_VIEWS_SELECTED_COUNT:
+					addColumn(db, Tables.GAMES, Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER);
+					buildGameSuggestedPlayerCountPollResultsTable().create(db);
+					version = VER_SUGGESTED_PLAYER_COUNT_POLL;
+				case VER_SUGGESTED_PLAYER_COUNT_POLL:
+					addColumn(db, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, COLUMN_TYPE.INTEGER);
+					version = VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION;
 			}
 
 			if (version != DATABASE_VERSION) {
@@ -774,6 +798,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		dropTable(db, Tables.GAME_POLLS);
 		dropTable(db, Tables.GAME_POLL_RESULTS);
 		dropTable(db, Tables.GAME_POLL_RESULTS_RESULT);
+		dropTable(db, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS);
 		dropTable(db, Tables.GAME_COLORS);
 		dropTable(db, Tables.PLAYS);
 		dropTable(db, Tables.PLAY_PLAYERS);

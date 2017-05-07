@@ -36,7 +36,7 @@ public abstract class BaseProvider {
 
 	@DebugLog
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		SelectionBuilder builder = buildExpandedSelection(uri).where(selection, selectionArgs);
+		SelectionBuilder builder = buildExpandedSelection(uri, projection).where(selection, selectionArgs);
 		builder.limit(uri.getQueryParameter(BggContract.QUERY_KEY_LIMIT));
 		return builder.query(db, projection, getSortOrder(sortOrder));
 	}
@@ -53,6 +53,11 @@ public abstract class BaseProvider {
 	@DebugLog
 	protected String getDefaultSortOrder() {
 		return null;
+	}
+
+	@DebugLog
+	protected SelectionBuilder buildExpandedSelection(Uri uri, String[] projection) {
+		return buildExpandedSelection(uri);
 	}
 
 	@DebugLog

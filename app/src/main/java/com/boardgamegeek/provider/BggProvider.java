@@ -50,6 +50,9 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new GamesMechanicsIdProvider());
 		addProvider(map, new GamesCategoriesIdProvider());
 
+		addProvider(map, new GamesIdSuggestedPlayerCountPollResultsProvider());
+		addProvider(map, new GamesIdSuggestedPlayerCountPollResultProvider());
+
 		addProvider(map, new GamesIdPollsProvider());
 		addProvider(map, new GamesIdPollsNameProvider());
 		addProvider(map, new GamesIdPollsNameResultsProvider());

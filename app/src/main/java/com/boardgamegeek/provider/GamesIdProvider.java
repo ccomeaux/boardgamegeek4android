@@ -15,7 +15,9 @@ public class GamesIdProvider extends BaseProvider {
 		int gameId = Games.getGameId(uri);
 		String GAME_POLLS_COUNT = "(SELECT COUNT(" + GamePolls.POLL_NAME + ") FROM " + Tables.GAME_POLLS
 			+ " WHERE " + Tables.GAME_POLLS + "." + GamePolls.GAME_ID + "=" + Tables.GAMES + "." + Games.GAME_ID + ")";
-		return new SelectionBuilder().table(Tables.GAMES).map(Games.POLLS_COUNT, GAME_POLLS_COUNT)
+		return new SelectionBuilder()
+			.table(Tables.GAMES)
+			.map(Games.POLLS_COUNT, GAME_POLLS_COUNT)
 			.whereEquals(Tables.GAMES + "." + Games.GAME_ID, gameId);
 	}
 

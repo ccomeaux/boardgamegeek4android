@@ -91,6 +91,15 @@ public class NotificationUtils {
 		nm.notify(tag, id, builder.build());
 	}
 
+	public static void showPersistErrorNotification(Context context, Exception e) {
+		NotificationCompat.Builder builder = NotificationUtils
+			.createNotificationBuilder(context, R.string.sync_notification_title)
+			.setContentText(e.getMessage())
+			.setCategory(NotificationCompat.CATEGORY_ERROR)
+			.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getMessage()));
+		NotificationUtils.notify(context, NotificationUtils.TAG_PERSIST_ERROR, 0, builder);
+	}
+
 	/**
 	 * Cancel the notification by a unique ID.
 	 */

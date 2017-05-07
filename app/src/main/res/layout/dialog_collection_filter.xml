@@ -69,6 +69,14 @@
 			android:tag="@string/collection_filter_type_suggested_age"
 			android:text="@string/menu_suggested_age"/>
 
+		<CheckBox
+			android:id="@+id/recommended_player_count"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_filter_type_recommended_player_count"
+			android:text="@string/menu_recommended_player_count"/>
+
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
