@@ -18,6 +18,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -52,7 +53,6 @@ import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -757,19 +757,21 @@ public class PlaysFragment extends StickyHeaderListFragment
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (!selectedPlaysPositions.iterator().hasNext()) {
-			return false;
-		}
+		if (!selectedPlaysPositions.iterator().hasNext()) return false;
 		switch (item.getItemId()) {
 			case R.id.menu_send:
 				mode.finish();
-				DialogUtils.createConfirmationDialog(getActivity(),
-					getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()),
-					new DialogInterface.OnClickListener() {
+				new AlertDialog.Builder(getContext())
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()))
+					.setCancelable(true)
+					.setNegativeButton(R.string.cancel, null)
+					.setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
 						}
-					}).show();
+					})
+					.show();
 				return true;
 			case R.id.menu_edit:
 				mode.finish();
@@ -780,15 +782,18 @@ public class PlaysFragment extends StickyHeaderListFragment
 				return true;
 			case R.id.menu_delete:
 				mode.finish();
-				DialogUtils.createConfirmationDialog(
-					getActivity(),
-					getResources()
-						.getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()),
-					new DialogInterface.OnClickListener() {
+				new AlertDialog.Builder(getContext())
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()))
+					.setCancelable(true)
+					.setNegativeButton(R.string.cancel, null)
+					.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
 						}
-					}).show();
+					})
+					.show();
+
 				return true;
 		}
 		return false;

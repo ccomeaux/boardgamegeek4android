@@ -74,28 +74,17 @@ public class DialogUtils {
 		return builder.create();
 	}
 
-	public static Dialog createConfirmationDialog(Context context, String message, OnClickListener okListener) {
-		return createConfirmationDialog(context, -1, message, null, okListener, null);
-	}
-
 	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener) {
 		return createConfirmationDialog(context, messageId, null, null, okListener, null);
 	}
 
 	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view, OnClickListener okListener, OnClickListener cancelListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
-			.setNegativeButton(android.R.string.cancel, cancelListener)
+			.setNegativeButton(android.R.string.cancel, null)
 			.setPositiveButton(android.R.string.ok, okListener)
 			.setTitle(R.string.are_you_sure_title);
 		builder = addAlertIcon(builder);
-		if (messageId != -1) {
-			builder.setMessage(messageId);
-		} else {
-			builder.setMessage(message);
-		}
-		if (view != null) {
-			builder.setView(view);
-		}
+		if (messageId > 0) builder.setMessage(messageId);
 
 		return builder.create();
 	}
