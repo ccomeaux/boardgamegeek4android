@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -45,27 +47,42 @@ public class DialogUtils {
 		ft.commitAllowingStateLoss();
 	}
 
-	public static Dialog createCancelDialog(final Activity activity) {
-		return createConfirmationDialog(activity, R.string.are_you_sure_cancel,
-			new DialogInterface.OnClickListener() {
+	public interface OnDiscardListener {
+		void onDiscard();
+	}
+
+	public static Dialog createDiscardDialog(final Activity activity, @StringRes int objectResId, boolean isNew) {
+		return createDiscardDialog(activity, objectResId, isNew, null);
+	}
+
+	public static Dialog createDiscardDialog(final Activity activity, @StringRes int objectResId, boolean isNew, final OnDiscardListener listener) {
+		if (activity == null) return null;
+		String messageFormat = activity.getString(isNew ?
+			R.string.discard_new_message :
+			R.string.discard_changes_message);
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+			.setCancelable(true)
+			.setPositiveButton(R.string.keep_editing, null)
+			.setNegativeButton(R.string.discard, new OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
+					if (listener != null) listener.onDiscard();
 					activity.setResult(Activity.RESULT_CANCELED);
 					activity.finish();
 				}
-			});
+			})
+			.setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()));
+		return builder.create();
 	}
 
-	public static Dialog createConfirmationDialog(Context context, String message,
-												  DialogInterface.OnClickListener okListener) {
+	public static Dialog createConfirmationDialog(Context context, String message, OnClickListener okListener) {
 		return createConfirmationDialog(context, -1, message, null, okListener, null);
 	}
 
-	public static Dialog createConfirmationDialog(Context context, int messageId,
-												  DialogInterface.OnClickListener okListener) {
+	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener) {
 		return createConfirmationDialog(context, messageId, null, null, okListener, null);
 	}
 
-	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view, DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
+	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view, OnClickListener okListener, OnClickListener cancelListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
 			.setNegativeButton(android.R.string.cancel, cancelListener)
 			.setPositiveButton(android.R.string.ok, okListener)

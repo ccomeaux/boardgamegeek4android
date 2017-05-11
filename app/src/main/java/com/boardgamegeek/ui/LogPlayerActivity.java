@@ -69,6 +69,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_FAB_COLOR = "FAB_COLOR";
 	public static final String KEY_POSITION = "POSITION";
+	public static final String KEY_NEW_PLAYER = "NEW_PLAYER";
 	public static final int INVALID_POSITION = -1;
 
 	private static final int HELP_VERSION = 2;
@@ -113,6 +114,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@State boolean userHasShownNew;
 	@State boolean userHasShownWin;
 	private int autoPosition;
+	private boolean isNewPlayer;
 	private ArrayList<String> usedColors;
 	private ArrayList<String> colors;
 
@@ -194,6 +196,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			userHasShownScore = true;
 			scoreView.requestFocus();
 		}
+		isNewPlayer = intent.getBooleanExtra(KEY_NEW_PLAYER, false);
 		fab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent))));
 
 		if (savedInstanceState == null) {
@@ -514,7 +517,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			setResult(RESULT_CANCELED);
 			finish();
 		} else {
-			DialogUtils.createCancelDialog(this).show();
+			DialogUtils.createDiscardDialog(this, R.string.player, isNewPlayer).show();
 		}
 	}
 

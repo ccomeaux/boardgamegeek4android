@@ -46,6 +46,8 @@
 	<string name="done">Done</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
+	<string name="discard">Discard</string>
+	<string name="keep_editing">Keep Editing</string>
 	<string name="cancelled">Cancelled</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
@@ -105,6 +107,8 @@
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Are you sure you want to discard local changes?</string>
+	<string name="discard_new_message">"Are you sure you want to discard this %s?"</string>
+	<string name="discard_changes_message">"Are you sure you want to discard changes to this %s?"</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
@@ -579,6 +583,7 @@
 	<string name="profile_updated">Profile updated</string>
 	<string name="this_many">this many</string>
 	<string name="game">game</string>
+	<string name="play">play</string>
 	<string name="player">player</string>
 	<string name="select_file">Select File</string>
 	<string name="best">Best</string>
