@@ -95,8 +95,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onDestroyView() {
-		unbinder.unbind();
 		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
