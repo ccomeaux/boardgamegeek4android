@@ -75,17 +75,15 @@ public class DialogUtils {
 	}
 
 	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener) {
-		return createConfirmationDialog(context, messageId, null, null, okListener, null);
+		return createConfirmationDialog(context, messageId, okListener, R.string.ok);
 	}
 
-	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view, OnClickListener okListener, OnClickListener cancelListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
-			.setNegativeButton(android.R.string.cancel, null)
-			.setPositiveButton(android.R.string.ok, okListener)
-			.setTitle(R.string.are_you_sure_title);
-		builder = addAlertIcon(builder);
+	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener, @StringRes int positiveButtonTextId) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context)
+			.setCancelable(true)
+			.setNegativeButton(R.string.cancel, null)
+			.setPositiveButton(positiveButtonTextId, okListener);
 		if (messageId > 0) builder.setMessage(messageId);
-
 		return builder.create();
 	}
 

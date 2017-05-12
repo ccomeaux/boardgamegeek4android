@@ -47,6 +47,8 @@
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="discard">Discard</string>
+	<string name="reset">Reset</string>
+	<string name="sort">Sort</string>
 	<string name="keep_editing">Keep Editing</string>
 	<string name="cancelled">Cancelled</string>
 	<string name="exact">Exact</string>
@@ -110,9 +112,9 @@
 	<string name="discard_new_message">"Are you sure you want to discard this %s?"</string>
 	<string name="discard_changes_message">"Are you sure you want to discard changes to this %s?"</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
-	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
+	<string name="are_you_sure_player_sort_custom_off">Do you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
-	<string name="are_you_sure_timer_reset">Are you sure you want to reset the timer and lose the current length?</string>
+	<string name="are_you_sure_timer_reset">Do you want to reset the timer and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
 	<string name="are_you_sure_cancel_collection_edit">Are you sure you want to discard all of the changes you\'ve made to this collection item?</string>
@@ -497,8 +499,7 @@
 	<string name="msg_colors_generated">Colors generated!</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
-	<string name="title_custom_player_order">Custom Player Order</string>
-	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
+	<string name="message_custom_player_order">Do you want keep the current starting positions or clear them?</string>
 	<string name="play_stat_distinct_games">Distinct games</string>
 	<string name="play_stat_quarters">Quarters</string>
 	<string name="play_stat_quarter">Quarter</string>
