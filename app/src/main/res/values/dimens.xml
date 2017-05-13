@@ -32,6 +32,7 @@
 	<dimen name="image_header_height">64dp</dimen>
 	<dimen name="drawer_width">304dp</dimen>
 	<dimen name="material_margin_horizontal">16dp</dimen>
+	<dimen name="material_margin_dialog">24dp</dimen>
 	<dimen name="material_margin_horizontal_thumbnail">8dp</dimen>
 	<dimen name="material_margin_horizontal_webview_container">8dp</dimen>
 	<dimen name="material_margin_horizontal_card">8dp</dimen>
