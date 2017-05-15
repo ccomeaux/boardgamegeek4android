@@ -2,80 +2,123 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 			xmlns:tools="http://schemas.android.com/tools"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:clipToPadding="false">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
-		android:paddingBottom="@dimen/material_margin_vertical"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/material_margin_vertical">
+		android:paddingBottom="12dp"
+		android:paddingLeft="@dimen/material_margin_dialog"
+		android:paddingRight="@dimen/material_margin_dialog"
+		android:paddingTop="16dp">
 
 		<TextView
-			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/pref_sync_timestamps_collection_full"/>
+			android:text="@string/title_collection"
+			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/pref_sync_timestamps_collection_full"
+				android:textColor="@color/dialog_text"/>
+
+			<TextView
+				android:id="@+id/sync_timestamp_collection_full"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="2"
+				android:textColor="@color/dialog_text"
+				tools:text="January 1, 1970 12:00 AM"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/pref_sync_timestamps_collection_partial"
+				android:textColor="@color/dialog_text"/>
+
+			<TextView
+				android:id="@+id/sync_timestamp_collection_partial"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="2"
+				android:textColor="@color/dialog_text"
+				tools:text="January 1 12:00 AM"/>
+		</LinearLayout>
+
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					  xmlns:tools="http://schemas.android.com/tools"
+					  android:layout_width="match_parent"
+					  android:layout_height="16dp"
+					  tools:background="#ff0">
+
+			<View
+				android:id="@+id/divider"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/divider_height"
+				android:layout_gravity="bottom"
+				android:background="@color/list_divider"
+				tools:background="#f00"/>
+		</LinearLayout>
 
 		<TextView
-			android:id="@+id/sync_timestamp_collection_full"
-			style="@style/Text.Dialog"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			tools:text="January 1, 1970 12:00 AM"/>
-
-		<TextView
-			style="@style/Text.Header.Section.Dialog"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/pref_sync_timestamps_collection_partial"/>
-
-		<TextView
-			android:id="@+id/sync_timestamp_collection_partial"
-			style="@style/Text.Dialog"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			tools:text="January 1 12:00 AM"/>
-
-		<TextView
-			style="@style/Text.Header.Section.Dialog"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/pref_sync_timestamps_buddy"/>
+			android:gravity="bottom"
+			android:minHeight="32dp"
+			android:text="@string/title_buddies"
+			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
 		<TextView
 			android:id="@+id/sync_timestamp_buddy"
-			style="@style/Text.Dialog"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:textColor="@color/dialog_text"
 			tools:text="January 1 12:00 AM"/>
 
-		<TextView
-			style="@style/Text.Header.Section.Dialog"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/pref_sync_timestamps_plays_newest_date"/>
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+					  xmlns:tools="http://schemas.android.com/tools"
+					  android:layout_width="match_parent"
+					  android:layout_height="16dp"
+					  tools:background="#ff0">
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/divider_height"
+				android:layout_gravity="bottom"
+				android:background="@color/list_divider"
+				tools:background="#f00"/>
+		</LinearLayout>
 
 		<TextView
-			android:id="@+id/sync_timestamp_plays_newest_date"
-			style="@style/Text.Dialog"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			tools:text="January 1"/>
+			android:gravity="bottom"
+			android:minHeight="32dp"
+			android:text="@string/title_plays"
+			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
 		<TextView
-			style="@style/Text.Header.Section.Dialog"
+			android:id="@+id/sync_timestamp_plays"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/pref_sync_timestamps_plays_oldest_date"/>
-
-		<TextView
-			android:id="@+id/sync_timestamp_plays_oldest_date"
-			style="@style/Text.Dialog"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
+			android:textColor="@color/dialog_text"
 			tools:text="January 1"/>
 	</LinearLayout>
 </ScrollView>
