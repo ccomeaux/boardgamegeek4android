@@ -18,6 +18,7 @@
 	<color name="inverse_text_body">#deffffff</color>
 
 	<color name="black_overlay">#CC000000</color>
+	<color name="white_overlay">#CCFFFFFF</color>
 	<color name="black_overlay_light">#6000</color>
 	<color name="no_image">#808080</color>
 	<color name="navdrawer_icon_tint">#75ffffff</color>

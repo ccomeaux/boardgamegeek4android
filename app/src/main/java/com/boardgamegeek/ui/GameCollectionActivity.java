@@ -149,7 +149,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionItemChangedEvent event) {
 		safelySetTitle(event.getCollectionName());
-		ScrimUtils.applyInvertedScrim(scrimView);
+		ScrimUtils.applyDarkScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
 

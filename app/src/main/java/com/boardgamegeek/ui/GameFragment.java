@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,9 +16,9 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.Swatch;
-import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.transition.AutoTransition;
 import android.transition.Transition;
@@ -76,6 +77,7 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.TaskUtils;
@@ -122,7 +124,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private Unbinder unbinder;
 
 	@BindView(R.id.game_rating) TextView ratingView;
-	@BindView(R.id.description_card) CardView descriptionCard;
 	@BindView(R.id.game_description) TextView descriptionView;
 	@BindView(R.id.game_rank) TextView rankView;
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
@@ -258,7 +259,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		unbinder = ButterKnife.bind(this, rootView);
 
 		colorize();
-		openOrCloseDescription();
 
 		mightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -511,6 +511,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
 		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));
+
+		ScrimUtils.applyWhiteScrim(descriptionView);
 	}
 
 	@DebugLog
@@ -748,11 +750,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		openOrCloseRanks();
 	}
 
+	@SuppressLint("InflateParams")
 	@OnClick(R.id.game_description)
 	@DebugLog
 	public void onDescriptionClick() {
-		isDescriptionExpanded = !isDescriptionExpanded;
-		openOrCloseDescription();
+		View v = LayoutInflater.from(getContext()).inflate(R.layout.dialog_text, null);
+		((TextView) v.findViewById(R.id.text)).setText(descriptionView.getText());
+		new Builder(getContext(), R.style.Theme_bgglight_Dialog_Alert)
+			.setView(v)
+			.show();
 	}
 
 	@OnClick(R.id.plays_root)
@@ -835,16 +841,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 		subtypeContainer.setVisibility(isRanksExpanded ? View.VISIBLE : View.GONE);
 		subtypeExpander.setImageResource(isRanksExpanded ? R.drawable.expander_close : R.drawable.expander_open);
-	}
-
-	@DebugLog
-	private void openOrCloseDescription() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			TransitionManager.beginDelayedTransition(descriptionCard, expansionTransition);
-		}
-		descriptionView.setMaxLines(isDescriptionExpanded ? Integer.MAX_VALUE : 3);
-		descriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
-			isDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
 	@SuppressWarnings("unused")

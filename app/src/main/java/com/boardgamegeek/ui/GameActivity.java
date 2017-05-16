@@ -150,7 +150,7 @@ public class GameActivity extends HeroActivity implements Callback {
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
-		ScrimUtils.applyInvertedScrim(scrimView);
+		ScrimUtils.applyDarkScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
 
