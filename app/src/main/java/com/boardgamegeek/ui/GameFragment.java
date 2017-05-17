@@ -107,7 +107,6 @@ import timber.log.Timber;
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
 	private static final int SYNC_NONE = 0;
 	private static final int SYNC_GAME = 1;
 	private static final int SYNC_PLAYS = 1 << 1;
@@ -128,7 +127,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.game_rank) TextView rankView;
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
 
-	@BindView(R.id.primary_info_container) View primaryInfoContainer;
 	@BindView(R.id.number_of_players) TextView numberOfPlayersView;
 	@BindView(R.id.play_time) TextView playTimeView;
 	@BindView(R.id.player_age) TextView playerAgeView;
@@ -196,6 +194,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.game_info_base_games
 	}) List<GameDetailRow> colorizedRows;
 	@BindViews({
+		R.id.icon_game_year_published,
+		R.id.icon_play_time,
+		R.id.icon_number_of_players,
+		R.id.icon_player_age,
 		R.id.icon_plays,
 		R.id.icon_play_stats,
 		R.id.icon_colors,
@@ -375,7 +377,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				break;
 			case LanguagePollQuery._TOKEN:
 				loader = new CursorLoader(getActivity(),
-					Games.buildPollResultsResultUri(gameId, POLL_TYPE_LANGUAGE_DEPENDENCE),
+					Games.buildPollResultsResultUri(gameId, PollFragment.LANGUAGE_DEPENDENCE),
 					LanguagePollQuery.PROJECTION,
 					null,
 					null,
@@ -497,11 +499,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void colorize() {
-		if (palette == null || primaryInfoContainer == null || !isAdded()) {
-			return;
-		}
+		if (palette == null || colorizedTextViews == null || !isAdded()) return;
+		
 		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, ContextCompat.getColor(getContext(), R.color.info_background));
-		primaryInfoContainer.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 
 		swatch = PaletteUtils.getIconSwatch(palette);
@@ -706,15 +706,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
 			long date = CursorUtils.getDateInMillis(cursor, PlaysQuery.MAX_DATE);
 
-			//if (sum > 0) {
 			String description = PresentationUtils.describePlayCount(getActivity(), sum);
 			if (!TextUtils.isEmpty(description)) {
 				description = " (" + description + ")";
 			}
 			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, sum, sum, description));
-			//} else {
-			//	playsLabel.setText(getResources().getString(R.string.no_plays));
-			//}
 
 			if (date > 0) {
 				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(date)));
@@ -809,7 +805,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onLanguageDependenceClick() {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, POLL_TYPE_LANGUAGE_DEPENDENCE);
+		arguments.putString(ActivityUtils.KEY_TYPE, PollFragment.LANGUAGE_DEPENDENCE);
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
@@ -873,16 +869,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 	}
 
-	@OnClick({ R.id.player_age })
+	@OnClick({ R.id.player_age_root })
 	@DebugLog
-	public void onPollClick(View view) {
+	public void onPollClick() {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, (String) view.getTag());
+		arguments.putString(ActivityUtils.KEY_TYPE, PollFragment.SUGGESTED_PLAYER_AGE);
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
-	@OnClick({ R.id.number_of_players })
+	@OnClick({ R.id.number_of_players_root })
 	@DebugLog
 	public void onSuggestedPlayerCountPollClick() {
 		Bundle arguments = new Bundle(2);

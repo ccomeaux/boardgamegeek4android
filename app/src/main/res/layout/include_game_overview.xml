@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:showIn="@layout/fragment_game">
+
+	<android.support.v7.widget.CardView
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:orientation="horizontal">
+
+					<ImageView
+						android:id="@+id/icon_game_year_published"
+						style="@style/Icon"
+						android:src="@drawable/ic_calendar"/>
+
+					<TextView
+						android:id="@+id/game_year_published"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:textAppearance="@style/Text.Body"
+						tools:text="1996"/>
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:orientation="horizontal">
+
+					<ImageView
+						android:id="@+id/icon_play_time"
+						style="@style/Icon"
+						android:src="@drawable/ic_time"/>
+
+					<TextView
+						android:id="@+id/play_time"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:textAppearance="@style/Text.Body"
+						tools:text="90 min"/>
+				</LinearLayout>
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<LinearLayout
+					android:id="@+id/number_of_players_root"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:background="?attr/selectableItemBackground"
+					android:clickable="true"
+					android:descendantFocusability="blocksDescendants"
+					android:orientation="horizontal">
+
+					<ImageView
+						android:id="@+id/icon_number_of_players"
+						style="@style/Icon"
+						android:src="@drawable/ic_users"/>
+
+					<TextView
+						android:id="@+id/number_of_players"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:textAppearance="@style/Text.Body"
+						tools:text="3 - 5"/>
+				</LinearLayout>
+
+				<LinearLayout
+					android:id="@+id/player_age_root"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:background="?attr/selectableItemBackground"
+					android:clickable="true"
+					android:descendantFocusability="blocksDescendants"
+					android:orientation="horizontal">
+
+					<ImageView
+						android:id="@+id/icon_player_age"
+						style="@style/Icon"
+						android:src="@drawable/ic_ages"/>
+
+					<TextView
+						android:id="@+id/player_age"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:textAppearance="@style/Text.Body"
+						tools:text="13+"/>
+				</LinearLayout>
+			</LinearLayout>
+		</LinearLayout>
+	</android.support.v7.widget.CardView>
+</merge>
