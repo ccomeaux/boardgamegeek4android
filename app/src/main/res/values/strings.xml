@@ -19,6 +19,7 @@
 	<string name="mechanics">Mechanics</string>
 	<string name="expansions">Expansions</string>
 	<string name="base_games">Base Games</string>
+	<string name="collection_item">Collection Item</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="sync_pending_update">Update pending</string>
@@ -93,6 +94,7 @@
 	<string name="never">Never</string>
 	<string name="keep">Keep</string>
 	<string name="edit">Edit</string>
+	<string name="modify">Modify</string>
 	<string name="more">More</string>
 	<string name="more_suffix">%,d more</string>
 	<string name="image">Image</string>
@@ -117,7 +119,6 @@
 	<string name="are_you_sure_timer_reset">Do you want to reset the timer and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
-	<string name="are_you_sure_cancel_collection_edit">Are you sure you want to discard all of the changes you\'ve made to this collection item?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
@@ -548,8 +549,9 @@
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_accuracy">These stats don\'t include %s.</string>
-	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games. Do you want do that now?</string>
-	<string name="play_stat_msg_collection_status">You can change the collection statuses that are synced in the app\'s settings. Do you want to continue?</string>
+	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games.</string>
+	<string name="play_stat_title_collection_status">Modify sync statuses?</string>
+	<string name="play_stat_msg_collection_status">You can undo this action by navigating to the app\'s Sync Settings and modifying the collection statuses.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>

@@ -255,15 +255,21 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 
 	@OnClick(R.id.settings_collection_status)
 	void onSettingsCollectionStatusClick() {
-		DialogUtils.createConfirmationDialog(getContext(), R.string.play_stat_msg_collection_status, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				PreferencesUtils.addSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
-				PreferencesUtils.addSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
-				SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
-				bindCollectionStatusMessage();
-			}
-		}).show();
+		DialogUtils.createThemedBuilder(getContext())
+			.setTitle(R.string.play_stat_title_collection_status)
+			.setMessage(R.string.play_stat_msg_collection_status)
+			.setPositiveButton(R.string.modify, new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					PreferencesUtils.addSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
+					PreferencesUtils.addSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
+					SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
+					bindCollectionStatusMessage();
+				}
+			})
+			.setNegativeButton(R.string.cancel, null)
+			.setCancelable(true)
+			.show();
 	}
 
 	@OnClick(R.id.settings_include)

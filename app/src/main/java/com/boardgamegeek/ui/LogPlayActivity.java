@@ -710,7 +710,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			finish();
 		} else {
 			if (shouldDeletePlayOnActivityCancel) {
-				DialogUtils.createDiscardDialog(this, R.string.play, true, new DialogUtils.OnDiscardListener() {
+				DialogUtils.createDiscardDialog(this, R.string.play, true, true, new DialogUtils.OnDiscardListener() {
 					@Override
 					public void onDiscard() {
 						deletePlay();

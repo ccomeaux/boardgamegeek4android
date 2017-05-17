@@ -45,6 +45,7 @@ import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.DialogUtils.OnDiscardListener;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
@@ -225,15 +226,14 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
-				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
-					new OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							play.dirtyTimestamp = 0;
-							play.updateTimestamp = 0;
-							play.deleteTimestamp = 0;
-							save("Discard");
-						}
-					}).show();
+				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, new OnDiscardListener() {
+					public void onDiscard() {
+						play.dirtyTimestamp = 0;
+						play.updateTimestamp = 0;
+						play.deleteTimestamp = 0;
+						save("Discard");
+					}
+				}).show();
 				return true;
 			case R.id.menu_edit:
 				PlayManipulationEvent.log("Edit", play.gameName);
@@ -245,18 +245,20 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				EventBus.getDefault().post(new PlaySentEvent());
 				return true;
 			case R.id.menu_delete: {
-				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
-					new OnClickListener() {
+				DialogUtils.createThemedBuilder(getContext())
+					.setMessage(R.string.are_you_sure_delete_play)
+					.setPositiveButton(R.string.delete, new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							if (play.hasStarted()) {
-								cancelNotification();
-							}
+							if (play.hasStarted()) cancelNotification();
 							play.end(); // this prevents the timer from reappearing
 							play.deleteTimestamp = System.currentTimeMillis();
 							save("Delete");
 							EventBus.getDefault().post(new PlayDeletedEvent());
 						}
-					}).show();
+					})
+					.setNegativeButton(R.string.cancel, null)
+					.setCancelable(true)
+					.show();
 				return true;
 			}
 			case R.id.menu_rematch:

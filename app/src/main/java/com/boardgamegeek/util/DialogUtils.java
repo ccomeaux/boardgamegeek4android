@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
@@ -25,6 +26,10 @@ import com.boardgamegeek.R;
  */
 public class DialogUtils {
 	private DialogUtils() {
+	}
+
+	public static Builder createThemedBuilder(Context context) {
+		return new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert);
 	}
 
 	public static void show(DialogFragment fragment, FragmentManager manager, String tag) {
@@ -52,26 +57,28 @@ public class DialogUtils {
 	}
 
 	public static Dialog createDiscardDialog(final Activity activity, @StringRes int objectResId, boolean isNew) {
-		return createDiscardDialog(activity, objectResId, isNew, null);
+		return createDiscardDialog(activity, objectResId, isNew, true, null);
 	}
 
-	public static Dialog createDiscardDialog(final Activity activity, @StringRes int objectResId, boolean isNew, final OnDiscardListener listener) {
+	public static Dialog createDiscardDialog(final Activity activity, @StringRes int objectResId, boolean isNew, final boolean finishActivity, final OnDiscardListener listener) {
 		if (activity == null) return null;
 		String messageFormat = activity.getString(isNew ?
 			R.string.discard_new_message :
 			R.string.discard_changes_message);
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-			.setCancelable(true)
+		return createThemedBuilder(activity)
+			.setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()))
 			.setPositiveButton(R.string.keep_editing, null)
 			.setNegativeButton(R.string.discard, new OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					if (listener != null) listener.onDiscard();
-					activity.setResult(Activity.RESULT_CANCELED);
-					activity.finish();
+					if (finishActivity) {
+						activity.setResult(Activity.RESULT_CANCELED);
+						activity.finish();
+					}
 				}
 			})
-			.setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()));
-		return builder.create();
+			.setCancelable(true)
+			.create();
 	}
 
 	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener) {
@@ -85,10 +92,6 @@ public class DialogUtils {
 			.setPositiveButton(positiveButtonTextId, okListener);
 		if (messageId > 0) builder.setMessage(messageId);
 		return builder.create();
-	}
-
-	public static AlertDialog.Builder addAlertIcon(AlertDialog.Builder builder) {
-		return builder.setIconAttribute(android.R.attr.alertDialogIcon);
 	}
 
 	public static void showFragment(FragmentActivity activity, DialogFragment fragment, String tag) {
