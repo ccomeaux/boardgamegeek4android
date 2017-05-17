@@ -147,7 +147,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.collection_card) View collectionCard;
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
-	@BindView(R.id.collection_add_button) TextView collectionAddButton;
 
 	@BindView(R.id.plays_card) View playsCard;
 	@BindView(R.id.plays_root) View playsRoot;
@@ -636,10 +635,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
-		collectionCard.setVisibility(View.VISIBLE);
-		collectionContainer.removeAllViews();
 		if (cursor != null && cursor.moveToFirst()) {
-			collectionAddButton.setVisibility(View.GONE);
+			collectionCard.setVisibility(View.VISIBLE);
+			collectionContainer.removeAllViews();
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
 
@@ -678,7 +676,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
 		} else {
-			collectionAddButton.setVisibility(View.VISIBLE);
+			collectionCard.setVisibility(View.GONE);
 		}
 	}
 
