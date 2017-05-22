@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.annotation.ColorInt;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
@@ -166,6 +167,11 @@ public class ColorUtils {
 		return (List<Pair<String, Integer>>) limitedColorNameList.clone();
 	}
 
+	public static void setTextViewBackground(TextView view, int color) {
+		setViewBackground(view, color);
+		view.setTextColor(getTextColor(color));
+	}
+
 	/**
 	 * Set the background of a {@link android.view.View} to the specified color, with a darker version of the
 	 * color as a border.
@@ -266,4 +272,15 @@ public class ColorUtils {
 
 		return colors;
 	}
+
+	@ColorInt
+	public static int getTextColor(int backgroundColor) {
+		if (backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor)) {
+			return Color.WHITE;
+		} else {
+			return Color.BLACK;
+		}
+	}
+
+
 }

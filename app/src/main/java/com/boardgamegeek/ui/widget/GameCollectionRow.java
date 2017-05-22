@@ -148,7 +148,7 @@ public class GameCollectionRow extends LinearLayout {
 			ratingView.setVisibility(View.GONE);
 		} else {
 			ratingView.setText(PresentationUtils.describePersonalRating(getContext(), rating));
-			ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(rating));
+			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(rating));
 			ratingView.setVisibility(View.VISIBLE);
 		}
 	}

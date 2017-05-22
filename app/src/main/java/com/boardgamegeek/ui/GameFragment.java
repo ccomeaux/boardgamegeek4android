@@ -503,10 +503,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
 
 		rankView.setText(PresentationUtils.describeRank(getContext(), game.Rank, BggService.RANK_TYPE_SUBTYPE, game.Subtype));
+
 		ratingView.setText(PresentationUtils.describeRating(getContext(), game.Rating));
 		ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
+		ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
 
-		ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
 		idView.setText(String.valueOf(game.Id));
 		updatedView.setTimestamp(game.Updated);
 		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
