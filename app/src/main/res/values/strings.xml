@@ -415,6 +415,15 @@
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="ages">Ages</string>
+	<string name="ages_unknown">Unknown ages</string>
+	<string name="player_range_unknown"><b>\?</b> players</string>
+	<string name="player_range_suffix"><b>%1$,d - %2$,d</b> players</string>
+	<string name="mins_unknown"><b>\?</b> mins</string>
+	<string name="mins_suffix"><b>%,d</b> mins</string>
+	<string name="hrs_suffix"><b>%,d</b> hrs</string>
+	<string name="hrs_mins"><b>%1$d</b>h <b>%2$d</b>m</string>
+	<string name="rank_description"><b>#%,d</b> %s</string>
+	<string name="rank_div">%1$s &#183; %2$s</string>
 	<string name="play_description_game_segment">Played %s</string>
 	<string name="play_description_length_segment">\u0020for %s</string>
 	<string name="play_description_date_segment">\u0020on %s</string>
@@ -429,13 +438,13 @@
 	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
 	<string name="language_1_text">No necessary in-game text (<b>%.2f</b>/5)</string>
-	<string name="language_2_text">Some necessary text - easily memorized or small crib sheet (<b>%.2f</b>/5)</string>
-	<string name="language_3_text">Moderate in-game text - needs crib sheets or paste ups (<b>%.2f</b>/5)</string>
-	<string name="language_4_text">Extensive use of text - massive conversion needed to be playable (<b>%.2f</b>/5)</string>
+	<string name="language_2_text">Some necessary text (<b>%.2f</b>/5)</string>
+	<string name="language_3_text">Moderate in-game text (<b>%.2f</b>/5)</string>
+	<string name="language_4_text">Extensive use of text (<b>%.2f</b>/5)</string>
 	<string name="language_5_text">Unplayable in another language (<b>%.2f</b>/5)</string>
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
-	<string name="age_suffix">+</string>
+	<string name="age_prefix">Ages <b>%d</b>+</string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
 	<string name="updated_prefix">Updated %s</string>
@@ -633,12 +642,12 @@
 		<item quantity="other">Logging plays…</item>
 	</plurals>
 	<plurals name="colors_suffix">
-		<item quantity="one"><b>%,d</b> Color/Team</item>
-		<item quantity="other"><b>%,d</b> Colors/Teams</item>
+		<item quantity="one"><b>%,d</b> color/team</item>
+		<item quantity="other"><b>%,d</b> colors/teams</item>
 	</plurals>
 	<plurals name="comments_suffix">
-		<item quantity="one"><b>%,d</b> Comment</item>
-		<item quantity="other"><b>%,d</b> Comments</item>
+		<item quantity="one"><b>%,d</b> comment</item>
+		<item quantity="other"><b>%,d</b> comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
 		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
@@ -675,6 +684,10 @@
 	<plurals name="players_suffix">
 		<item quantity="one">%,d player</item>
 		<item quantity="other">%,d players</item>
+	</plurals>
+	<plurals name="player_range_suffix">
+		<item quantity="one"><b>%,d</b> player</item>
+		<item quantity="other"><b>%,d</b> players</item>
 	</plurals>
 	<plurals name="votes_suffix">
 		<item quantity="one"><b>%,d</b> vote</item>

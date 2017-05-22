@@ -22,8 +22,6 @@
 			android:layout_weight="1"
 			android:orientation="vertical">
 
-			<include layout="@layout/include_game_card_rank"/>
-
 			<include layout="@layout/include_game_card_details"/>
 
 			<include layout="@layout/include_game_card_links"/>

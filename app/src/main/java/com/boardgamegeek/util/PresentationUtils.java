@@ -28,7 +28,7 @@ import hugo.weaving.DebugLog;
  * Methods to aid in presenting information in a consistent manner.
  */
 public class PresentationUtils {
-	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.0");
+	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.0#");
 	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.000");
 	private static final DecimalFormat PERSONAL_RATING_FORMAT = new DecimalFormat("#0.#");
 	private static final DecimalFormat MONEY_FORMAT = setUpMoneyFormatter();
@@ -120,22 +120,53 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static String describeRank(int rank) {
-		if (rank == 0 || rank == Integer.MAX_VALUE) {
-			return "";
+	public static CharSequence describePlayerAge(Context context, int age) {
+		if (age <= 0) return context.getString(R.string.ages_unknown);
+		return getText(context, R.string.age_prefix, age);
+	}
+
+	@DebugLog
+	public static CharSequence describePlayerRange(Context context, int minPlayers, int maxPlayers) {
+		if (minPlayers == 0 && maxPlayers == 0) {
+			return context.getResources().getString(R.string.player_range_unknown);
+		} else if (minPlayers >= maxPlayers) {
+			return getQuantityText(context, R.plurals.player_range_suffix, minPlayers, minPlayers);
 		} else {
-			return "#" + rank;
+			return getText(context, R.string.player_range_suffix, minPlayers, maxPlayers);
 		}
 	}
 
 	@DebugLog
-	public static String describeRankName(Context context, String type, String name) {
-		if (name == null) {
-			return "";
+	public static CharSequence describeMinutes(Context context, int minutes) {
+		if (minutes == 0) return context.getString(R.string.mins_unknown);
+
+		if (minutes >= 120) {
+			int hours = minutes / 60;
+			int remainingMinutes = minutes % 60;
+
+			if (remainingMinutes == 0) {
+				return getText(context, R.string.hrs_suffix, hours);
+			} else {
+				return getText(context, R.string.hrs_mins, hours, remainingMinutes);
+			}
+		} else {
+			return getText(context, R.string.mins_suffix, minutes);
 		}
-		if (type == null) {
-			return name;
+	}
+
+	@DebugLog
+	public static CharSequence describeRank(Context context, int rank, String type, String name) {
+		if (rank == 0 || rank == Integer.MAX_VALUE) {
+			return describeRankName(context, type, name);
+		} else {
+			return getText(context, R.string.rank_description, rank, describeRankName(context, type, name));
 		}
+	}
+
+	@DebugLog
+	private static CharSequence describeRankName(Context context, String type, String name) {
+		if (name == null) return "";
+		if (type == null) return name;
 		@StringRes int resId = R.string.title_game;
 		if (BggService.RANK_TYPE_SUBTYPE.equals(type)) {
 			switch (name) {
@@ -181,7 +212,7 @@ public class PresentationUtils {
 					return name;
 			}
 		}
-		return context.getString(resId);
+		return context.getText(resId);
 	}
 
 	@DebugLog
