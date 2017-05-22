@@ -94,6 +94,14 @@ public class ColorUtils {
 	}
 
 	/**
+	 * Returns a color based on the stage (1 - 5) using a proportional blend for any decimal places.
+	 */
+	public static int getFiveStageColor(double stage) {
+		int baseStage = MathUtils.constrain((int) stage, 1, 5);
+		return blendColors(FIVE_STAGE_COLORS[baseStage], FIVE_STAGE_COLORS[baseStage + 1], baseStage + 1 - stage);
+	}
+
+	/**
 	 * Returns a color based that is ratio% of color1 and (1 - ratio)% of color2 (including alpha).
 	 */
 	private static int blendColors(int color1, int color2, double ratio) {
@@ -110,8 +118,20 @@ public class ColorUtils {
 	/**
 	 * An array of RGBs that match the BGG ratings from 0 to 10.
 	 */
-	private static final int[] RATING_COLORS = { 0x00ffffff, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
-		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
+	private static final int[] RATING_COLORS = {
+		0x00ffffff,
+		0xffff0000, // 1
+		0xffff3366, // 2
+		0xffff6699, // 3
+		0xffff66cc, // 4
+		0xffcc99ff, // 5
+		0xff9999ff, // 6
+		0xff99ffff, // 7
+		0xff66ff99, // 8
+		0xff33cc99, // 9
+		0xff00cc00, // 10
+		0x00ffffff
+	};
 
 	private static final ArrayMap<String, Integer> colorNameMap;
 	private static final ArrayList<Pair<String, Integer>> limitedColorNameList;
@@ -256,7 +276,13 @@ public class ColorUtils {
 	}
 
 	public static final int[] FIVE_STAGE_COLORS = {
-		GREEN, BLUE, YELLOW, ORANGE, RED
+		0xFF249563,
+		0xFF2FC482,
+		0xFF1D8ACD,
+		0xFF5369A2,
+		0xFFDF4751,
+		0x00ffffff
+		// 0xFFDB303B - alternate red color
 	};
 
 	/**

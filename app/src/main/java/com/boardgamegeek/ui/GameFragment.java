@@ -94,6 +94,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import timber.log.Timber;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -148,13 +151,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
-	@BindView(R.id.weight_root) View weightRoot;
-	@BindView(R.id.game_weight) TextView weightView;
+	@BindView(R.id.game_weight_message) TextView weightMessage;
+	@BindView(R.id.game_weight_score) TextView weightScore;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
-	@BindView(R.id.language_dependence_root) View languageDependenceRoot;
+	@BindView(R.id.language_dependence_message) TextView languageDependenceMessage;
+	@BindView(R.id.language_dependence_score) TextView languageDependenceScore;
 	@BindView(R.id.language_dependence_votes) TextView languageDependenceVotes;
-	@BindView(R.id.language_dependence_details) TextView languageDependenceDetails;
 
 	@BindView(R.id.users_count) TextView userCountView;
 	@BindView(R.id.users_owning_bar) StatBar numberOwningBar;
@@ -414,8 +417,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				onPlaysQueryComplete(cursor);
 				break;
 			case ColorQuery._TOKEN:
-				playsCard.setVisibility(View.VISIBLE);
-				colorsRoot.setVisibility(View.VISIBLE);
+				playsCard.setVisibility(VISIBLE);
+				colorsRoot.setVisibility(VISIBLE);
 				int count = cursor == null ? 0 : cursor.getCount();
 				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
 				break;
@@ -429,9 +432,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	private void fetchForumInfo() {
-		if (forumsLastPostDateView.getVisibility() == View.VISIBLE) {
-			return;
-		}
+		if (forumsLastPostDateView.getVisibility() == VISIBLE) return;
+
 		BggService bggService = Adapter.createForXml();
 		Call<ForumListResponse> call = bggService.forumList(BggService.FORUM_TYPE_THING, Games.getGameId(gameUri));
 		call.enqueue(new Callback<ForumListResponse>() {
@@ -516,8 +518,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		playerAgeView.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
 		commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 
-		weightRoot.setVisibility(game.NumberWeights > 0 ? View.VISIBLE : View.GONE);
-		weightView.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
+		weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
+		if (game.AverageWeight >= 1 && game.AverageWeight <= 5) {
+			weightScore.setText(PresentationUtils.describeScore(getContext(), game.AverageWeight));
+			ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.AverageWeight));
+		}
 		weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
 
 		final int maxUsers = game.getMaxUsers();
@@ -528,8 +533,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, maxUsers);
 
 		if (shouldShowPlays()) {
-			playsCard.setVisibility(View.VISIBLE);
-			playStatsRoot.setVisibility(View.VISIBLE);
+			playsCard.setVisibility(VISIBLE);
+			playStatsRoot.setVisibility(VISIBLE);
 		}
 
 		if (mightNeedRefreshing &&
@@ -561,10 +566,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex, int idColumnIndex) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			view.setVisibility(View.GONE);
+			view.setVisibility(GONE);
 			view.clear();
 		} else {
-			view.setVisibility(View.VISIBLE);
+			view.setVisibility(VISIBLE);
 			view.bind(cursor, nameColumnIndex, idColumnIndex, Games.getGameId(gameUri), gameName);
 		}
 	}
@@ -586,9 +591,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 					}
 				}
 				typesView.setText(cs);
-				typesView.setVisibility(View.VISIBLE);
+				typesView.setVisibility(VISIBLE);
 			} else {
-				typesView.setVisibility(View.GONE);
+				typesView.setVisibility(GONE);
 			}
 		}
 	}
@@ -596,7 +601,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
 		if (cursor != null && cursor.moveToFirst()) {
-			collectionCard.setVisibility(View.VISIBLE);
+			collectionCard.setVisibility(VISIBLE);
 			collectionContainer.removeAllViews();
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
@@ -636,7 +641,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
 		} else {
-			collectionCard.setVisibility(View.GONE);
+			collectionCard.setVisibility(GONE);
 		}
 	}
 
@@ -660,8 +665,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor.moveToFirst()) {
-			playsCard.setVisibility(View.VISIBLE);
-			playsRoot.setVisibility(View.VISIBLE);
+			playsCard.setVisibility(VISIBLE);
+			playsRoot.setVisibility(VISIBLE);
 
 			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
 			long date = CursorUtils.getDateInMillis(cursor, PlaysQuery.MAX_DATE);
@@ -674,9 +679,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 			if (date > 0) {
 				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(date)));
-				lastPlayView.setVisibility(View.VISIBLE);
+				lastPlayView.setVisibility(VISIBLE);
 			} else {
-				lastPlayView.setVisibility(View.GONE);
+				lastPlayView.setVisibility(GONE);
 			}
 		}
 	}
@@ -688,14 +693,21 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (cursor != null) {
 			while (cursor.moveToNext()) {
 				totalVotes = cursor.getInt(LanguagePollQuery.POLL_TOTAL_VOTES);
-				int level = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_LEVEL) % 5;
+				int level = (cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_LEVEL) - 1) % 5 + 1;
 				int votes = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_VOTES);
 				totalLevel += votes * level;
 			}
 		}
-		languageDependenceDetails.setText(PresentationUtils.describeLanguageDependence(getActivity(), (double) totalLevel / totalVotes));
+		double score = (double) totalLevel / totalVotes;
+		languageDependenceMessage.setText(PresentationUtils.describeLanguageDependence(getActivity(), score));
+		if (score >= 1 && score <= 5) {
+			languageDependenceScore.setText(PresentationUtils.describeScore(getContext(), score));
+			ColorUtils.setTextViewBackground(languageDependenceScore, ColorUtils.getFiveStageColor(score));
+			languageDependenceScore.setVisibility(VISIBLE);
+		} else {
+			languageDependenceScore.setVisibility(GONE);
+		}
 		languageDependenceVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
-		languageDependenceRoot.setVisibility(totalVotes > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	@SuppressLint("InflateParams")
