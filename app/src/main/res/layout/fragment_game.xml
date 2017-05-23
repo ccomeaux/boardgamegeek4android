@@ -8,8 +8,6 @@
 	android:orientation="vertical"
 	tools:context=".ui.GameActivity">
 
-	<include layout="@layout/include_game_overview"/>
-
 	<include layout="@layout/include_game_card_details"/>
 
 	<include layout="@layout/include_game_card_collection"/>

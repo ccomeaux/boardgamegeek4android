@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/player_age_root"
+	style="@style/CardRow.Clickable"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="0dp"
+	android:layout_height="match_parent"
+	android:layout_weight="1"
+	android:orientation="horizontal"
+	tools:showIn="@layout/fragment_game">
+
+	<ImageView
+		android:id="@+id/icon_player_age"
+		style="@style/Icon"
+		android:src="@drawable/ic_ages"/>
+
+	<TextView
+		android:id="@+id/player_age"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:gravity="center_vertical"
+		android:textAppearance="@style/Text"
+		tools:text="Ages 13+"/>
+</LinearLayout>
+			

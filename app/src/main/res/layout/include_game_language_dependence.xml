@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/language_dependence_root"
+	style="@style/CardRow.Clickable"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="0dp"
+	android:layout_height="match_parent"
+	android:layout_weight="1"
+	android:orientation="horizontal"
+	tools:showIn="@layout/fragment_game">
+
+	<ImageView
+		android:id="@+id/icon_language_dependence"
+		style="@style/Icon"
+		android:src="@drawable/ic_language"/>
+
+	<LinearLayout
+		style="@style/CardRowContent"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/language_dependence_message"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:maxLines="2"
+			android:textAppearance="@style/Text"
+			tools:text="Unplayable in another language"/>
+
+		<TextView
+			android:id="@+id/language_dependence_score"
+			style="@style/RatingSmall"
+			android:layout_width="64dp"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			tools:background="#088"
+			tools:text="4.81"/>
+
+		<TextView
+			android:id="@+id/language_dependence_votes"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:textAppearance="@style/Text.Secondary"
+			tools:text="42,000 votes"/>
+	</LinearLayout>
+</LinearLayout>
+			
