@@ -89,7 +89,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_VIEWS_SELECTED_COUNT = 43;
 	private static final int VER_SUGGESTED_PLAYER_COUNT_POLL = 44;
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION = 45;
-	private static final int DATABASE_VERSION = VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION;
+	private static final int VER_MIN_MAX_PLAYING_TIME = 46;
+	private static final int DATABASE_VERSION = VER_MIN_MAX_PLAYING_TIME;
 
 	private final Context context;
 
@@ -279,6 +280,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.MIN_PLAYERS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.MAX_PLAYERS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.PLAYING_TIME, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.MIN_PLAYING_TIME, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.NUM_PLAYS, COLUMN_TYPE.INTEGER, true, 0)
 			.addColumn(Games.MINIMUM_AGE, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.DESCRIPTION, COLUMN_TYPE.TEXT)
@@ -767,6 +770,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 				case VER_SUGGESTED_PLAYER_COUNT_POLL:
 					addColumn(db, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, COLUMN_TYPE.INTEGER);
 					version = VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION;
+				case VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION:
+					addColumn(db, Tables.GAMES, Games.MIN_PLAYING_TIME, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER);
+					version = VER_MIN_MAX_PLAYING_TIME;
 			}
 
 			if (version != DATABASE_VERSION) {

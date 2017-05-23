@@ -33,6 +33,8 @@ public class BggContract {
 		String MIN_PLAYERS = "min_players";
 		String MAX_PLAYERS = "max_players";
 		String PLAYING_TIME = "playing_time";
+		String MIN_PLAYING_TIME = "min_playing_time";
+		String MAX_PLAYING_TIME = "max_playing_time";
 		String NUM_PLAYS = "num_of_plays";
 		String MINIMUM_AGE = "age";
 		String DESCRIPTION = "description";

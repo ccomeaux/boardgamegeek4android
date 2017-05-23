@@ -234,9 +234,19 @@ public class Game {
 	@ElementList(inline = true, required = false) public List<Poll> polls;
 
 	@Path("playingtime") @Attribute(name = "value") private String playingtime;
+	@Path("minplaytime") @Attribute(name = "value") private String minplaytime;
+	@Path("maxplaytime") @Attribute(name = "value") private String maxplaytime;
 
 	public int getPlayingTime() {
 		return StringUtils.parseInt(playingtime, 0);
+	}
+
+	public int getMinPlayingTime() {
+		return StringUtils.parseInt(minplaytime, 0);
+	}
+
+	public int getMaxPlayingTime() {
+		return StringUtils.parseInt(maxplaytime, 0);
 	}
 
 	@Path("minage") @Attribute(name = "value") private String minage;

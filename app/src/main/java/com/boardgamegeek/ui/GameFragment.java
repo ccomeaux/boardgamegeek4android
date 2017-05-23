@@ -514,7 +514,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		updatedView.setTimestamp(game.Updated);
 		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
 		numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.MinPlayers, game.MaxPlayers));
-		playTimeView.setText(PresentationUtils.describeMinutes(getContext(), game.PlayingTime));
+
+		playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
+
 		playerAgeView.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
 		commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 
@@ -907,13 +909,38 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private interface GameQuery {
 		int _TOKEN = 0x11;
 
-		String[] PROJECTION = { Games.GAME_ID, Games.STATS_AVERAGE, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS,
-			Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED,
-			Games.UPDATED, Games.GAME_RANK, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
-			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
-			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT,
-			Games.STATS_NUMBER_COMMENTS, Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL };
+		String[] PROJECTION = {
+			Games.GAME_ID,
+			Games.STATS_AVERAGE,
+			Games.YEAR_PUBLISHED,
+			Games.MIN_PLAYERS,
+			Games.MAX_PLAYERS,
+			Games.PLAYING_TIME,
+			Games.MINIMUM_AGE,
+			Games.DESCRIPTION,
+			Games.STATS_USERS_RATED,
+			Games.UPDATED,
+			Games.GAME_RANK,
+			Games.GAME_NAME,
+			Games.THUMBNAIL_URL,
+			Games.STATS_BAYES_AVERAGE,
+			Games.STATS_MEDIAN,
+			Games.STATS_STANDARD_DEVIATION,
+			Games.STATS_NUMBER_WEIGHTS,
+			Games.STATS_AVERAGE_WEIGHT,
+			Games.STATS_NUMBER_OWNED,
+			Games.STATS_NUMBER_TRADING,
+			Games.STATS_NUMBER_WANTING,
+			Games.STATS_NUMBER_WISHING,
+			Games.POLLS_COUNT,
+			Games.IMAGE_URL,
+			Games.SUBTYPE,
+			Games.CUSTOM_PLAYER_SORT,
+			Games.STATS_NUMBER_COMMENTS,
+			Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+			Games.MIN_PLAYING_TIME,
+			Games.MAX_PLAYING_TIME
+		};
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -942,6 +969,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int CUSTOM_PLAYER_SORT = 25;
 		int STATS_NUMBER_COMMENTS = 26;
 		int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 27;
+		int MIN_PLAYING_TIME = 28;
+		int MAX_PLAYING_TIME = 29;
 	}
 
 	private interface DesignerQuery {
@@ -1061,6 +1090,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		final int MinPlayers;
 		final int MaxPlayers;
 		final int PlayingTime;
+		final int MinPlayingTime;
+		final int MaxPlayingTime;
 		final int MinimumAge;
 		final String Description;
 		final int UsersRated;
@@ -1090,6 +1121,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			MinPlayers = cursor.getInt(GameQuery.MIN_PLAYERS);
 			MaxPlayers = cursor.getInt(GameQuery.MAX_PLAYERS);
 			PlayingTime = cursor.getInt(GameQuery.PLAYING_TIME);
+			MinPlayingTime = cursor.getInt(GameQuery.MIN_PLAYING_TIME);
+			MaxPlayingTime = cursor.getInt(GameQuery.MAX_PLAYING_TIME);
 			MinimumAge = cursor.getInt(GameQuery.MINIMUM_AGE);
 			Description = cursor.getString(GameQuery.DESCRIPTION);
 			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);

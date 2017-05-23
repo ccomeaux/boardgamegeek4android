@@ -152,7 +152,15 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static CharSequence describeMinutes(Context context, int minutes) {
+	public static CharSequence describeMinuteRange(Context context, int min, int max, int defaultMins) {
+		if (min == 0 && max == 0) return describeMinutes(context, defaultMins);
+		if (min == 0) return describeMinutes(context, max);
+		if (max == 0) return describeMinutes(context, min);
+		return getText(context, R.string.mins_range_suffix, min, max);
+	}
+
+	@DebugLog
+	private static CharSequence describeMinutes(Context context, int minutes) {
 		if (minutes == 0) return context.getString(R.string.mins_unknown);
 
 		if (minutes >= 120) {
