@@ -154,6 +154,7 @@ public class PresentationUtils {
 	@DebugLog
 	public static CharSequence describeMinuteRange(Context context, int min, int max, int defaultMins) {
 		if (min == 0 && max == 0) return describeMinutes(context, defaultMins);
+		if (min == max) return describeMinutes(context, max);
 		if (min == 0) return describeMinutes(context, max);
 		if (max == 0) return describeMinutes(context, min);
 		return getText(context, R.string.mins_range_suffix, min, max);
