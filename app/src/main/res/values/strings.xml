@@ -419,6 +419,8 @@
 	<string name="ages_unknown">Unknown ages</string>
 	<string name="player_range_unknown"><b>\?</b> players</string>
 	<string name="player_range_suffix"><b>%1$,d - %2$,d</b> players</string>
+	<string name="best_prefix">Best with <b>%s</b></string>
+	<string name="recommended_prefix">Good with <b>%s</b></string>
 	<string name="mins_unknown"><b>\?</b> mins</string>
 	<string name="mins_suffix"><b>%,d</b> mins</string>
 	<string name="hrs_suffix"><b>%,d</b> hrs</string>

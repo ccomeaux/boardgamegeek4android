@@ -11,6 +11,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Provides utility methods for dealing with strings.
  */
@@ -170,6 +172,44 @@ public class StringUtils {
 						sb.append(comma).append(" ");
 					}
 				}
+			}
+		}
+		return sb.toString();
+	}
+
+	@DebugLog
+	public static String formatRange(List<Integer> list) {
+		if (list == null) return "";
+		if (list.size() == 0) return "";
+		if (list.size() == 1) return String.valueOf(list.get(0));
+
+		int first = -1;
+		int last = -1;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < list.size(); i++) {
+			if (first == -1) {
+				first = list.get(i);
+			} else if (list.get(i) - 1 == list.get(i - 1)) {
+				last = list.get(i);
+			} else if (last != -1) {
+				if (sb.length() > 0) sb.append(", ");
+				sb.append(first).append(" - ").append(last);
+				first = -1;
+				last = -1;
+			} else {
+				if (sb.length() > 0) sb.append(", ");
+				sb.append(first);
+				first = -1;
+				last = -1;
+			}
+		}
+		if (first != -1) {
+			if (last != -1) {
+				if (sb.length() > 0) sb.append(", ");
+				sb.append(first).append(" - ").append(last);
+			} else {
+				if (sb.length() > 0) sb.append(", ");
+				sb.append(first);
 			}
 		}
 		return sb.toString();

@@ -41,6 +41,7 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
+import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
@@ -66,11 +67,13 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
+import com.boardgamegeek.util.PlayerCountRecommendation;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.ShowcaseViewWizard;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
@@ -120,6 +123,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
 
 	@BindView(R.id.number_of_players) TextView numberOfPlayersView;
+	@BindView(R.id.number_of_players_best) TextView numberOfPlayersBest;
+	@BindView(R.id.number_of_players_recommended) TextView numberOfPlayersRecommended;
+	@BindView(R.id.number_of_players_votes) TextView numberOfPlayersVotes;
+
 	@BindView(R.id.play_time) TextView playTimeView;
 	@BindView(R.id.player_age) TextView playerAgeView;
 
@@ -253,6 +260,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
 		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
+		lm.restartLoader(SuggestedPlayerCountQuery._TOKEN, null, this);
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
@@ -358,6 +366,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 					null,
 					LanguagePollQuery.SORT);
 				break;
+			case SuggestedPlayerCountQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Games.buildSuggestedPlayerCountPollResultsUri(gameId),
+					SuggestedPlayerCountQuery.PROJECTION,
+					null, null, null);
+				break;
 			default:
 				Timber.w("Invalid query token=%s", id);
 				break;
@@ -424,6 +438,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				break;
 			case LanguagePollQuery._TOKEN:
 				onLanguagePollQueryComplete(cursor);
+				break;
+			case SuggestedPlayerCountQuery._TOKEN:
+				onPlayerCountQueryComplete(cursor);
 				break;
 			default:
 				cursor.close();
@@ -710,6 +727,37 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			languageDependenceScore.setVisibility(GONE);
 		}
 		languageDependenceVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
+	}
+
+	@DebugLog
+	private void onPlayerCountQueryComplete(Cursor cursor) {
+		if (cursor != null && cursor.moveToFirst()) {
+			int totalVotes = cursor.getInt(SuggestedPlayerCountQuery.TOTAL_VOTE_COUNT);
+			PresentationUtils.setTextOrHide(numberOfPlayersVotes,
+				PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
+
+			List<Integer> bestCounts = new ArrayList<>();
+			List<Integer> recommendedCounts = new ArrayList<>();
+			do {
+				int playerCount = cursor.getInt(SuggestedPlayerCountQuery.PLAYER_COUNT);
+				int recommendation = cursor.getInt(SuggestedPlayerCountQuery.RECOMMENDATION);
+				if (recommendation == PlayerCountRecommendation.BEST) {
+					bestCounts.add(playerCount);
+					recommendedCounts.add(playerCount);
+				} else if (recommendation == PlayerCountRecommendation.RECOMMENDED) {
+					recommendedCounts.add(playerCount);
+				}
+			} while (cursor.moveToNext());
+
+			PresentationUtils.setTextOrHide(numberOfPlayersBest,
+				PresentationUtils.getText(getContext(), R.string.best_prefix, StringUtils.formatRange(bestCounts)));
+			PresentationUtils.setTextOrHide(numberOfPlayersRecommended,
+				PresentationUtils.getText(getContext(), R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts)));
+		} else {
+			numberOfPlayersBest.setVisibility(GONE);
+			numberOfPlayersRecommended.setVisibility(GONE);
+			numberOfPlayersVotes.setVisibility(GONE);
+		}
 	}
 
 	@SuppressLint("InflateParams")
@@ -1078,6 +1126,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int POLL_RESULTS_RESULT_LEVEL = 1;
 		int POLL_TOTAL_VOTES = 2;
 		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
+	}
+
+	private interface SuggestedPlayerCountQuery {
+		int _TOKEN = 0x25;
+		String[] PROJECTION = {
+			GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+			GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT,
+			GameSuggestedPlayerCountPollPollResults.RECOMMENDATION,
+		};
+		int TOTAL_VOTE_COUNT = 0;
+		int PLAYER_COUNT = 1;
+		int RECOMMENDATION = 2;
 	}
 
 	private class Game {
