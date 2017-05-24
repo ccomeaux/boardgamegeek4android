@@ -128,7 +128,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.number_of_players_votes) TextView numberOfPlayersVotes;
 
 	@BindView(R.id.play_time) TextView playTimeView;
-	@BindView(R.id.player_age) TextView playerAgeView;
+
+	@BindView(R.id.player_age_message) TextView playerAgeMessage;
+	@BindView(R.id.player_age_poll) TextView playerAgePoll;
+	@BindView(R.id.player_age_votes) TextView playerAgeVotes;
 
 	@BindView(R.id.game_rank) TextView rankView;
 	@BindView(R.id.game_types) TextView typesView;
@@ -260,6 +263,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
 		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
+		lm.restartLoader(AgePollQuery._TOKEN, null, this);
 		lm.restartLoader(SuggestedPlayerCountQuery._TOKEN, null, this);
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
@@ -302,7 +306,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		wizard.addTarget(R.string.help_game_menu, Target.NONE);
 		wizard.addTarget(R.string.help_game_log_play, new SafeViewTarget(R.id.fab, getActivity()));
 		wizard.addTarget(R.string.help_game_poll, new SafeViewTarget(R.id.number_of_players, getActivity()));
-		wizard.addTarget(-1, new SafeViewTarget(R.id.player_age, getActivity()));
+		wizard.addTarget(-1, new SafeViewTarget(R.id.player_age_root, getActivity()));
 		return wizard;
 	}
 
@@ -365,6 +369,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 					null,
 					null,
 					LanguagePollQuery.SORT);
+				break;
+			case AgePollQuery._TOKEN:
+				loader = new CursorLoader(getActivity(),
+					Games.buildPollResultsResultUri(gameId, PollFragment.SUGGESTED_PLAYER_AGE),
+					AgePollQuery.PROJECTION,
+					null,
+					null,
+					AgePollQuery.SORT);
 				break;
 			case SuggestedPlayerCountQuery._TOKEN:
 				loader = new CursorLoader(getActivity(),
@@ -438,6 +450,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				break;
 			case LanguagePollQuery._TOKEN:
 				onLanguagePollQueryComplete(cursor);
+				break;
+			case AgePollQuery._TOKEN:
+				onAgePollQueryComplete(cursor);
 				break;
 			case SuggestedPlayerCountQuery._TOKEN:
 				onPlayerCountQueryComplete(cursor);
@@ -534,7 +549,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
 
-		playerAgeView.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
+		playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
+
 		commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 
 		weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
@@ -727,6 +743,28 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			languageDependenceScore.setVisibility(GONE);
 		}
 		PresentationUtils.setTextOrHide(languageDependenceVotes,
+			PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
+	}
+
+	@DebugLog
+	private void onAgePollQueryComplete(Cursor cursor) {
+		String currentValue = "";
+		int maxVotes = 0;
+		int totalVotes = 0;
+		if (cursor != null && cursor.moveToFirst()) {
+			totalVotes = cursor.getInt(AgePollQuery.POLL_TOTAL_VOTES);
+			do {
+				String value = cursor.getString(AgePollQuery.POLL_RESULTS_RESULT_VALUE);
+				int votes = cursor.getInt(AgePollQuery.POLL_RESULTS_RESULT_VOTES);
+
+				if (votes > maxVotes) currentValue = value;
+			} while (cursor.moveToNext());
+		}
+
+		if (!TextUtils.isEmpty(currentValue))
+			PresentationUtils.setTextOrHide(playerAgePoll, PresentationUtils.describePlayerAge(getContext(), currentValue));
+
+		PresentationUtils.setTextOrHide(playerAgeVotes,
 			PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
 	}
 
@@ -1127,6 +1165,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int _TOKEN = 0x23;
 		int POLL_RESULTS_RESULT_VOTES = 0;
 		int POLL_RESULTS_RESULT_LEVEL = 1;
+		int POLL_TOTAL_VOTES = 2;
+		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
+	}
+
+	private interface AgePollQuery {
+		String[] PROJECTION = {
+			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
+			GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
+			GamePolls.POLL_TOTAL_VOTES
+		};
+		int _TOKEN = 0x24;
+		int POLL_RESULTS_RESULT_VOTES = 0;
+		int POLL_RESULTS_RESULT_VALUE = 1;
 		int POLL_TOTAL_VOTES = 2;
 		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
 	}

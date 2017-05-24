@@ -448,7 +448,9 @@
 	<string name="language_5_text">Unplayable in another language</string>
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
-	<string name="age_prefix">Ages <b>%d</b>+</string>
+	<string name="age_prefix">Ages <b>%d+</b></string>
+	<string name="age_community">Community: <b>%s</b></string>
+	<string name="age_community_plus">Community: <b>%d+</b></string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
 	<string name="updated_prefix">Updated %s</string>

@@ -15,12 +15,40 @@
 		style="@style/Icon"
 		android:src="@drawable/ic_ages"/>
 
-	<TextView
-		android:id="@+id/player_age"
+	<LinearLayout
+		style="@style/CardRowContent"
 		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
-		android:textAppearance="@style/Text"
-		tools:text="Ages 13+"/>
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/player_age_message"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textAppearance="@style/Text"
+			tools:text="Ages 13+"/>
+
+		<TextView
+			android:id="@+id/player_age_poll"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:paddingTop="@dimen/padding_half"
+			android:textAppearance="@style/Text.Secondary"
+			android:visibility="gone"
+			tools:text="Community: 12+"
+			tools:visibility="visible"/>
+
+		<TextView
+			android:id="@+id/player_age_votes"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:textAppearance="@style/Text.Secondary.Small"
+			android:visibility="gone"
+			tools:text="42,000 votes"
+			tools:visibility="visible"/>
+	</LinearLayout>
 </LinearLayout>
 			

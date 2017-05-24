@@ -135,6 +135,15 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
+	public static CharSequence describePlayerAge(Context context, String value) {
+		int age = StringUtils.parseInt(value, -1);
+		if (age > -1) {
+			return getText(context, R.string.age_community_plus, age);
+		}
+		return getText(context, R.string.age_community, value);
+	}
+
+	@DebugLog
 	public static CharSequence describePlayerAge(Context context, int age) {
 		if (age <= 0) return context.getString(R.string.ages_unknown);
 		return getText(context, R.string.age_prefix, age);
