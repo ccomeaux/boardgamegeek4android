@@ -34,45 +34,45 @@
 
 			<include layout="@layout/include_game_ranks"/>
 
-			<include
-				layout="@layout/include_game_ratings"
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
 
-			<include
-				layout="@layout/include_game_comments"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				<include layout="@layout/include_game_ratings"/>
 
-			<include
-				layout="@layout/include_game_year_published"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				<include layout="@layout/include_game_comments"/>
+			</LinearLayout>
 
-			<include
-				layout="@layout/include_game_playing_time"
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
 
-			<include
-				layout="@layout/include_game_player_range"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				<include layout="@layout/include_game_year_published"/>
 
-			<include
-				layout="@layout/include_game_ages"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				<include layout="@layout/include_game_playing_time"/>
+			</LinearLayout>
 
-			<include
-				layout="@layout/include_game_weight"
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
 
-			<include
-				layout="@layout/include_game_language_dependence"
+				<include layout="@layout/include_game_player_range"/>
+
+				<include layout="@layout/include_game_ages"/>
+			</LinearLayout>
+
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<include layout="@layout/include_game_weight"/>
+
+				<include layout="@layout/include_game_language_dependence"/>
+			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_designers"
