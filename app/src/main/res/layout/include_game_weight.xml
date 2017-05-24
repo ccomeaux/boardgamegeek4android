@@ -43,8 +43,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary"
-			android:textSize="12sp"
+			android:textAppearance="@style/Text.Secondary.Small"
 			tools:text="42,000 votes"/>
 	</LinearLayout>
 </LinearLayout>

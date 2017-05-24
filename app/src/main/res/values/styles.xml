@@ -109,6 +109,10 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="Text.Secondary.Small">
+		<item name="android:textSize">12sp</item>
+	</style>
+
 	<style name="Text.Secondary.Inverse">
 		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>

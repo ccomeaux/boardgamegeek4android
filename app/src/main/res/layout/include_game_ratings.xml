@@ -38,8 +38,7 @@
 			android:layout_height="wrap_content"
 			android:maxLines="1"
 			android:paddingTop="@dimen/padding_half"
-			android:textAppearance="@style/Text.Secondary"
-			android:textSize="12sp"
+			android:textAppearance="@style/Text.Secondary.Small"
 			tools:text="42,000 votes"/>
 	</LinearLayout>
 </LinearLayout>

@@ -726,15 +726,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		} else {
 			languageDependenceScore.setVisibility(GONE);
 		}
-		languageDependenceVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
+		PresentationUtils.setTextOrHide(languageDependenceVotes,
+			PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
 	}
 
 	@DebugLog
 	private void onPlayerCountQueryComplete(Cursor cursor) {
+		int totalVotes = 0;
 		if (cursor != null && cursor.moveToFirst()) {
-			int totalVotes = cursor.getInt(SuggestedPlayerCountQuery.TOTAL_VOTE_COUNT);
-			PresentationUtils.setTextOrHide(numberOfPlayersVotes,
-				PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
+			totalVotes = cursor.getInt(SuggestedPlayerCountQuery.TOTAL_VOTE_COUNT);
 
 			List<Integer> bestCounts = new ArrayList<>();
 			List<Integer> recommendedCounts = new ArrayList<>();
@@ -751,13 +751,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 			PresentationUtils.setTextOrHide(numberOfPlayersBest,
 				PresentationUtils.getText(getContext(), R.string.best_prefix, StringUtils.formatRange(bestCounts)));
-			PresentationUtils.setTextOrHide(numberOfPlayersRecommended,
-				PresentationUtils.getText(getContext(), R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts)));
+			if (!bestCounts.equals(recommendedCounts)) {
+				PresentationUtils.setTextOrHide(numberOfPlayersRecommended,
+					PresentationUtils.getText(getContext(), R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts)));
+			}
 		} else {
 			numberOfPlayersBest.setVisibility(GONE);
 			numberOfPlayersRecommended.setVisibility(GONE);
-			numberOfPlayersVotes.setVisibility(GONE);
 		}
+		PresentationUtils.setTextOrHide(numberOfPlayersVotes,
+			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
 	}
 
 	@SuppressLint("InflateParams")
