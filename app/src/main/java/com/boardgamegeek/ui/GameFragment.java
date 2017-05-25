@@ -1044,8 +1044,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int GAME_RANK = 10;
 		int GAME_NAME = 11;
 		int THUMBNAIL_URL = 12;
-		int STATS_BAYES_AVERAGE = 13;
-		int STATS_STANDARD_DEVIATION = 15;
 		int STATS_NUMBER_WEIGHTS = 16;
 		int STATS_AVERAGE_WEIGHT = 17;
 		int STATS_NUMBER_OWNED = 18;
@@ -1113,12 +1111,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	private interface RankQuery {
 		int _TOKEN = 0x19;
-		String[] PROJECTION = { GameRanks.GAME_RANK_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
-			GameRanks.GAME_RANK_BAYES_AVERAGE };
+		String[] PROJECTION = {
+			GameRanks.GAME_RANK_NAME,
+			GameRanks.GAME_RANK_VALUE,
+			GameRanks.GAME_RANK_TYPE
+		};
 		int GAME_RANK_NAME = 0;
 		int GAME_RANK_VALUE = 1;
 		int GAME_RANK_TYPE = 2;
-		int GAME_RANK_BAYES_AVERAGE = 3;
 	}
 
 	private interface CollectionQuery {
@@ -1212,8 +1212,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		final int UsersCommented;
 		final long Updated;
 		final int Rank;
-		final double BayesAverage;
-		final double StandardDeviation;
 		final double AverageWeight;
 		final int NumberWeights;
 		final int NumberOwned;
@@ -1243,8 +1241,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			UsersCommented = cursor.getInt(GameQuery.STATS_NUMBER_COMMENTS);
 			Updated = cursor.getLong(GameQuery.UPDATED);
 			Rank = cursor.getInt(GameQuery.GAME_RANK);
-			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);
-			StandardDeviation = cursor.getDouble(GameQuery.STATS_STANDARD_DEVIATION);
 			AverageWeight = cursor.getDouble(GameQuery.STATS_AVERAGE_WEIGHT);
 			NumberWeights = cursor.getInt(GameQuery.STATS_NUMBER_WEIGHTS);
 			NumberOwned = cursor.getInt(GameQuery.STATS_NUMBER_OWNED);
@@ -1272,13 +1268,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private class Rank {
 		final String Name;
 		final int Rank;
-		final double Rating;
 		final String Type;
 
 		Rank(Cursor cursor) {
 			Name = cursor.getString(RankQuery.GAME_RANK_NAME);
 			Rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
-			Rating = cursor.getDouble(RankQuery.GAME_RANK_BAYES_AVERAGE);
 			Type = cursor.getString(RankQuery.GAME_RANK_TYPE);
 		}
 	}
