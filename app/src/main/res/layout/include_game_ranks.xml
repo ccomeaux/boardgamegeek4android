@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	style="@style/CardRow"
+	android:id="@+id/game_rank_root"
+	style="@style/CardRow.Clickable"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -21,10 +22,10 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:paddingLeft="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_half"
 		android:textAppearance="@style/Text.Secondary"
 		android:visibility="gone"
-		tools:text="#42 Board Game"/>
+		tools:text="#34 Strategy"
+		tools:visibility="visible"/>
 </LinearLayout>
 
 			

@@ -161,8 +161,8 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static CharSequence describeMinuteRange(Context context, int min, int max, int defaultMins) {
-		if (min == 0 && max == 0) return describeMinutes(context, defaultMins);
+	public static CharSequence describeMinuteRange(Context context, int min, int max, int defaultMinutes) {
+		if (min == 0 && max == 0) return describeMinutes(context, defaultMinutes);
 		if (min == max) return describeMinutes(context, max);
 		if (min == 0) return describeMinutes(context, max);
 		if (max == 0) return describeMinutes(context, min);
@@ -197,7 +197,7 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	private static CharSequence describeRankName(Context context, String type, String name) {
+	public static CharSequence describeRankName(Context context, String type, String name) {
 		if (name == null) return "";
 		if (type == null) return name;
 		@StringRes int resId = R.string.title_game;

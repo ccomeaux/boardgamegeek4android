@@ -55,6 +55,7 @@ import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
+import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -799,6 +800,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 		PresentationUtils.setTextOrHide(numberOfPlayersVotes,
 			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
+	}
+
+	@OnClick(R.id.game_rank_root)
+	@DebugLog
+	public void onRankClick() {
+		Bundle arguments = new Bundle(2);
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
+		DialogUtils.launchDialog(this, new RanksFragment(), "ranks-dialog", arguments);
 	}
 
 	@SuppressLint("InflateParams")

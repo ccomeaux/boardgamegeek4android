@@ -15,7 +15,16 @@ public class GamesIdRankProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		return new SelectionBuilder().table(TABLE).whereEquals(GameRanks.GAME_ID, Games.getGameId(uri));
+		return new SelectionBuilder()
+			.table(TABLE)
+			.whereEquals(Tables.GAME_RANKS + "." + GameRanks.GAME_ID, Games.getGameId(uri));
+	}
+
+	@Override
+	protected SelectionBuilder buildExpandedSelection(Uri uri) {
+		return new SelectionBuilder()
+			.table(Tables.GAMES_RANKS_JOIN_GAMES)
+			.whereEquals(Tables.GAME_RANKS + "." + GameRanks.GAME_ID, Games.getGameId(uri));
 	}
 
 	@Override
