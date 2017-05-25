@@ -28,8 +28,7 @@ public class PollKeyRow extends LinearLayout {
 	}
 
 	private void init(Context context) {
-		LayoutInflater li = LayoutInflater.from(context);
-		li.inflate(R.layout.row_poll_key, this);
+		LayoutInflater.from(context).inflate(R.layout.row_poll_key, this);
 		ButterKnife.bind(this);
 	}
 
