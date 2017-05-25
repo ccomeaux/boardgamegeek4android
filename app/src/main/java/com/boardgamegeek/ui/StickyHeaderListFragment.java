@@ -24,6 +24,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.squareup.picasso.Picasso;
@@ -104,7 +105,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
 	@BindView(android.R.id.empty) TextView emptyTextView;
 	@BindView(R.id.empty_button) Button emptyButton;
-	@BindView(R.id.progressContainer) View progressContainer;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
 	@BindView(R.id.list_container) View listContainer;
 	@BindView(R.id.fab) FloatingActionButton fabView;
 	private StickyListHeadersListView listView;
@@ -147,7 +148,8 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		focusHandler.removeCallbacks(listViewFocusRunnable);
 		listView = null;
 		isListShown = false;
-		progressContainer = listContainer = null;
+		progressBar = null;
+		listContainer = null;
 		emptyTextView = null;
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
@@ -265,20 +267,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		emptyText = text;
 	}
 
-	public void setProgressShown(boolean shown) {
-		if (shown) {
-			if (progressContainer.getVisibility() != View.VISIBLE) {
-				progressContainer.clearAnimation();
-				progressContainer.setVisibility(View.VISIBLE);
-			}
-		} else {
-			if (progressContainer.getVisibility() != View.GONE) {
-				progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-				progressContainer.setVisibility(View.GONE);
-			}
-		}
-	}
-
 	public void setListShown(boolean shown) {
 		setListShown(shown, true);
 	}
@@ -289,29 +277,23 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	private void setListShown(boolean shown, boolean animate) {
 		ensureList();
-		if (isListShown == shown) {
-			return;
-		}
+		if (isListShown == shown) return;
 		isListShown = shown;
 		if (shown) {
 			if (animate) {
-				progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
 				listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
 			} else {
-				progressContainer.clearAnimation();
 				listContainer.clearAnimation();
 			}
-			progressContainer.setVisibility(View.GONE);
 			listContainer.setVisibility(View.VISIBLE);
+			progressBar.hide();
 		} else {
+			progressBar.show();
 			if (animate) {
-				progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
 				listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
 			} else {
-				progressContainer.clearAnimation();
 				listContainer.clearAnimation();
 			}
-			progressContainer.setVisibility(View.VISIBLE);
 			listContainer.setVisibility(View.GONE);
 		}
 	}
@@ -387,7 +369,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			setListAdapter(adapter);
 		} else {
 			// We are starting without an adapter, so assume we won't have our data right away and start with the progress indicator.
-			if (progressContainer != null) {
+			if (progressBar != null) {
 				setListShown(false, false);
 			}
 		}

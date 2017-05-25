@@ -395,9 +395,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@Override
 	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
 			case GameQuery._TOKEN:

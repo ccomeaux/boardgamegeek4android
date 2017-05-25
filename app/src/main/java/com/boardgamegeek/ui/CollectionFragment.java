@@ -231,6 +231,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	private void requery() {
+		progressBar.show();
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
 	}
 
@@ -486,17 +487,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
 			if (adapter == null) {
 				adapter = new CollectionAdapter(getActivity());
 				setListAdapter(adapter);
-			} else {
-				setProgressShown(false);
 			}
 			adapter.changeCursor(cursor);
 			restoreScrollState();
@@ -511,6 +508,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 			bindFilterButtons();
 			invalidateMenu();
+			progressBar.hide();
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
 				viewName = cursor.getString(ViewQuery.NAME);
@@ -712,7 +710,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void setView(long viewId) {
 		if (this.viewId != viewId) {
-			setProgressShown(true);
+			progressBar.show();
 			this.viewId = viewId;
 			resetScrollState();
 			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
@@ -722,7 +720,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void clearView() {
 		if (viewId != 0) {
-			setProgressShown(true);
 			viewId = 0;
 			viewName = "";
 			resetScrollState();
@@ -738,7 +735,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		@DebugLog
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
-			inflater = getActivity().getLayoutInflater();
+			inflater = LayoutInflater.from(context);
 		}
 
 		@Override
