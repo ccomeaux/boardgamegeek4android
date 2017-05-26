@@ -2,10 +2,12 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build.VERSION;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
 import android.support.v4.view.ViewCompat;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -17,6 +19,9 @@ import com.boardgamegeek.util.PresentationUtils;
 
 import icepick.Icepick;
 import icepick.State;
+import timber.log.Timber;
+
+import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 
 public class TimestampView extends TextView {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
@@ -78,7 +83,13 @@ public class TimestampView extends TextView {
 		} finally {
 			a.recycle();
 		}
-		setMaxLines(1);
+		if (VERSION.SDK_INT >= JELLY_BEAN) {
+			int maxLines = getMaxLines();
+			Timber.i("MAX LINES: " + maxLines);
+			if (maxLines == -1 || maxLines == Integer.MAX_VALUE) {
+				setMaxLines(1);
+			}
+		}
 	}
 
 	public void setFormat(@StringRes int formatResId) {
@@ -112,12 +123,12 @@ public class TimestampView extends TextView {
 				@SuppressWarnings("deprecation")
 				@Override
 				public void run() {
-					if (!ViewCompat.isAttachedToWindow(TimestampView.this)) {
-						return;
-					}
+					if (!ViewCompat.isAttachedToWindow(TimestampView.this)) return;
 					final CharSequence formattedTimestamp = PresentationUtils.formatTimestamp(getContext(), timestamp, isForumTimeStamp, includeTime);
 					if (!TextUtils.isEmpty(format)) {
-						setText(Html.fromHtml(String.format(Html.toHtml(new SpannedString(format)), formattedTimestamp, formatArg)));
+						String format = Html.toHtml(new SpannedString(TimestampView.this.format));
+						Spanned text = Html.fromHtml(String.format(format, formattedTimestamp, formatArg));
+						setText(PresentationUtils.trimTrailingWhitespace(text));
 					} else {
 						setText(formattedTimestamp);
 					}
