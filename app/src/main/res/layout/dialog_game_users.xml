@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical">
+
+		<com.boardgamegeek.ui.widget.StatBar
+			android:id="@+id/users_owning_bar"
+			style="@style/StatRow"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+
+		<com.boardgamegeek.ui.widget.StatBar
+			android:id="@+id/users_trading_bar"
+			style="@style/StatRow"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+
+		<com.boardgamegeek.ui.widget.StatBar
+			android:id="@+id/users_wanting_bar"
+			style="@style/StatRow"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+
+		<com.boardgamegeek.ui.widget.StatBar
+			android:id="@+id/users_wishing_bar"
+			style="@style/StatRow"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+	</LinearLayout>
+</ScrollView>

@@ -162,7 +162,6 @@
 	<string name="title_ranks_ratings">Ranks &amp; Ratings</string>
 	<string name="title_colors">Colors</string>
 	<string name="title_favorite_colors">Favorite Colors</string>
-	<string name="title_user_feedback">User Feedback</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
@@ -175,6 +174,7 @@
 	<string name="title_artist">Artist</string>
 	<string name="title_publisher">Publisher</string>
 	<string name="title_user">User</string>
+	<string name="title_users">Users</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_edit_location">Edit Location</string>

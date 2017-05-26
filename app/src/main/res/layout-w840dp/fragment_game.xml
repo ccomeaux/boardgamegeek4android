@@ -86,6 +86,16 @@
 						<include layout="@layout/include_game_language_dependence"/>
 					</LinearLayout>
 
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="horizontal">
+
+						<include layout="@layout/include_game_forums"/>
+
+						<include layout="@layout/include_game_users"/>
+					</LinearLayout>
+
 					<com.boardgamegeek.ui.widget.GameDetailRow
 						android:id="@+id/game_info_designers"
 						android:layout_width="match_parent"
@@ -164,7 +174,6 @@
 
 			<include layout="@layout/include_game_card_plays"/>
 
-			<include layout="@layout/include_game_card_user_feedback"/>
 		</LinearLayout>
 	</LinearLayout>
 

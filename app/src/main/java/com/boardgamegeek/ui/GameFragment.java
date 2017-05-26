@@ -55,11 +55,11 @@ import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
+import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
-import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -171,10 +171,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.language_dependence_votes) TextView languageDependenceVotes;
 
 	@BindView(R.id.users_count) TextView userCountView;
-	@BindView(R.id.users_owning_bar) StatBar numberOwningBar;
-	@BindView(R.id.users_trading_bar) StatBar numberTradingBar;
-	@BindView(R.id.users_wanting_bar) StatBar numberWantingBar;
-	@BindView(R.id.users_wishing_bar) StatBar numberWishingBar;
 
 	@BindView(R.id.game_info_id) TextView idView;
 	@BindView(R.id.game_info_last_updated) TimestampView updatedView;
@@ -210,15 +206,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindViews({
 		R.id.collection_add_button
 	}) List<Button> colorizedButtons;
-	@BindViews({
-		R.id.users_owning_bar,
-		R.id.users_trading_bar,
-		R.id.users_wanting_bar,
-		R.id.users_wishing_bar,
-	}) List<StatBar> statBars;
 
 	@ColorInt private int iconColor;
 	private Palette palette;
+	private Palette.Swatch darkSwatch;
 	private ShowcaseViewWizard showcaseViewWizard;
 
 	@Override
@@ -511,7 +502,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
-		ButterKnife.apply(statBars, StatBar.colorSetter, PaletteUtils.getDarkSwatch(palette));
+		darkSwatch = PaletteUtils.getDarkSwatch(palette);
 
 		ScrimUtils.applyWhiteScrim(descriptionView);
 	}
@@ -561,10 +552,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final int maxUsers = game.getMaxUsers();
 		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
-		numberOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, maxUsers);
-		numberTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, maxUsers);
-		numberWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, maxUsers);
-		numberWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, maxUsers);
 
 		if (shouldShowPlays()) {
 			playsCard.setVisibility(VISIBLE);
@@ -880,6 +867,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		startActivity(intent);
+	}
+
+	@OnClick(R.id.users_count_root)
+	@DebugLog
+	public void onUsersClick() {
+		Bundle arguments = new Bundle(1);
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
+		arguments.putInt(ActivityUtils.KEY_ICON_COLOR, darkSwatch.getRgb());
+		DialogUtils.launchDialog(this, new GameUsersDialogFragment(), "users-dialog", arguments);
 	}
 
 	@DebugLog
