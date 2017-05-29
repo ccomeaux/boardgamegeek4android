@@ -246,10 +246,11 @@ public class SelectionBuilder {
 	 * Execute query using the current internal state as {@code WHERE} clause.
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String groupBy, String having, String orderBy, String limit) {
-		assertTable();
-		if (columns != null) {
-			mapColumns(columns);
+		if (columns == null || columns.length == 0) {
+			throw new IllegalStateException("Columns not specified");
 		}
+		assertTable();
+		mapColumns(columns);
 		Timber.v("QUERY: columns=%s, %s", Arrays.toString(columns), this);
 		Cursor c = db.query(tableName, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
 		Timber.v("queried %,d rows", c.getCount());
