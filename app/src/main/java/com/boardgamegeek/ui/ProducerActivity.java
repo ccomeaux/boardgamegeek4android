@@ -38,9 +38,9 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 		if (actionBar != null) actionBar.setTitle(contentType);
 
 		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType(contentType)
-				.putContentId(uri.getLastPathSegment()));
+			ContentViewEvent event = new ContentViewEvent().putContentType(contentType);
+			if (uri != null) event.putContentId(uri.getLastPathSegment());
+			Answers.getInstance().logContentView(event);
 		}
 	}
 
