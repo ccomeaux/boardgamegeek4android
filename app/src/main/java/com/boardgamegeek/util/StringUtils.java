@@ -11,10 +11,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Provides utility methods for dealing with strings.
  */
 public class StringUtils {
+	private static final int INVALID_RANGE = -1;
+	private static final String RANGE_COMMA = ", ";
+	private static final String RANGE_DASH = " - ";
+
 	private StringUtils() {
 	}
 
@@ -170,6 +176,45 @@ public class StringUtils {
 						sb.append(comma).append(" ");
 					}
 				}
+			}
+		}
+		return sb.toString();
+	}
+
+	@DebugLog
+	public static String formatRange(List<Integer> list) {
+		if (list == null) return "";
+		if (list.size() == 0) return "";
+		if (list.size() == 1) return String.valueOf(list.get(0));
+
+		int first = INVALID_RANGE;
+		int last = INVALID_RANGE;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < list.size(); i++) {
+			int current = list.get(i);
+			if (first == INVALID_RANGE) {
+				first = current;
+			} else if (current - 1 == list.get(i - 1)) {
+				last = current;
+			} else if (last != INVALID_RANGE) {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first).append(RANGE_DASH).append(last);
+				first = INVALID_RANGE;
+				last = INVALID_RANGE;
+			} else {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first);
+				first = current;
+				last = INVALID_RANGE;
+			}
+		}
+		if (first != INVALID_RANGE) {
+			if (last != INVALID_RANGE) {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first).append(RANGE_DASH).append(last);
+			} else {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first);
 			}
 		}
 		return sb.toString();

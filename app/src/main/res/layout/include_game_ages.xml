@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/player_age_root"
+	style="@style/CardRow.Clickable"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="0dp"
+	android:layout_height="match_parent"
+	android:layout_weight="1"
+	android:orientation="horizontal"
+	tools:showIn="@layout/fragment_game">
+
+	<ImageView
+		android:id="@+id/icon_player_age"
+		style="@style/Icon"
+		android:src="@drawable/ic_ages"/>
+
+	<LinearLayout
+		style="@style/CardRowContent"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/player_age_message"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textAppearance="@style/Text"
+			tools:text="Ages 13+"/>
+
+		<TextView
+			android:id="@+id/player_age_poll"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:paddingTop="@dimen/padding_half"
+			android:textAppearance="@style/Text.Secondary"
+			android:visibility="gone"
+			tools:text="Community: 12+"
+			tools:visibility="visible"/>
+
+		<TextView
+			android:id="@+id/player_age_votes"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:textAppearance="@style/Text.Secondary.Small"
+			android:visibility="gone"
+			tools:text="42,000 votes"
+			tools:visibility="visible"/>
+	</LinearLayout>
+</LinearLayout>
+			

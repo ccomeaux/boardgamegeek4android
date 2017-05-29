@@ -487,7 +487,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 		rating.setText(item.getRatingDescription());
 		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
-		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
+		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 		ratingTimestampView.setTimestamp(item.ratingTimestamp);
 
 		statusView.setText(item.getStatusDescription());

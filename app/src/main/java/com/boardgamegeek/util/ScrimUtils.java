@@ -17,8 +17,6 @@
 package com.boardgamegeek.util;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
@@ -26,7 +24,10 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.view.Gravity;
 import android.view.View;
 
@@ -39,36 +40,25 @@ public class ScrimUtils {
 	private ScrimUtils() {
 	}
 
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	public static void applyDefaultScrim(View view) {
-		if (view == null) {
-			return;
-		}
-		setBackground(view, ScrimUtils.makeDefaultScrimDrawable(view.getContext()));
-	}
-
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	public static void applyInvertedScrim(View view) {
-		if (view == null) {
-			return;
-		}
-		setBackground(view, ScrimUtils.makeInvertedScrimDrawable(view.getContext()));
+	/**
+	 * Apply a white scrim foreground that's whitest at the bottom.
+	 */
+	public static void applyWhiteScrim(View view) {
+		if (VERSION.SDK_INT < VERSION_CODES.M) return;
+		if (view == null) return;
+		int color = ContextCompat.getColor(view.getContext(), R.color.white_overlay);
+		Drawable drawable = ScrimUtils.makeCubicGradientScrimDrawable(color, 4, Gravity.BOTTOM);
+		view.setForeground(drawable);
 	}
 
 	/**
-	 * A black scrim that's darkest at the top.
+	 * Apply a black scrim background that's darkest at the bottom.
 	 */
-	public static Drawable makeDefaultScrimDrawable(Context context) {
-		//noinspection deprecation
-		return ScrimUtils.makeCubicGradientScrimDrawable(context.getResources().getColor(R.color.black_overlay), 4, Gravity.TOP);
-	}
-
-	/**
-	 * A white scrim that's lightest at the bottom.
-	 */
-	public static Drawable makeInvertedScrimDrawable(Context context) {
-		//noinspection deprecation
-		return ScrimUtils.makeCubicGradientScrimDrawable(context.getResources().getColor(R.color.black_overlay), 3, Gravity.BOTTOM);
+	public static void applyDarkScrim(View view) {
+		if (view == null) return;
+		int color = ContextCompat.getColor(view.getContext(), R.color.black_overlay);
+		Drawable drawable = ScrimUtils.makeCubicGradientScrimDrawable(color, 3, Gravity.BOTTOM);
+		ViewCompat.setBackground(view, drawable);
 	}
 
 	/**
@@ -140,14 +130,5 @@ public class ScrimUtils {
 		});
 
 		return paintDrawable;
-	}
-
-	private static void setBackground(View view, Drawable scrim) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-			view.setBackground(scrim);
-		} else {
-			//noinspection deprecation
-			view.setBackgroundDrawable(scrim);
-		}
 	}
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/ratings_root"
+	style="@style/CardRow.Clickable"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="0dp"
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:orientation="horizontal"
+	tools:showIn="@layout/fragment_game">
+
+	<ImageView
+		android:id="@+id/icon_rating"
+		style="@style/Icon"
+		android:src="@drawable/ic_rating"/>
+
+	<LinearLayout
+		style="@style/CardRowContent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/game_rating"
+			style="@style/RatingSmall"
+			android:layout_width="64dp"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:textStyle="bold"
+			tools:background="#088"
+			tools:text="7.43"/>
+
+		<TextView
+			android:id="@+id/game_ratings_votes"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:paddingTop="@dimen/padding_half"
+			android:textAppearance="@style/Text.Secondary.Small"
+			tools:text="42,000 votes"/>
+	</LinearLayout>
+</LinearLayout>
+
+				

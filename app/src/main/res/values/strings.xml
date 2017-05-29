@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="weight_1_text">Light (<b>%.2f</b>/5)</string>
-	<string name="weight_2_text">Medium Light (<b>%.2f</b>/5)</string>
-	<string name="weight_3_text">Medium (<b>%.2f</b>/5)</string>
-	<string name="weight_4_text">Medium Heavy (<b>%.2f</b>/5)</string>
-	<string name="weight_5_text">Heavy (<b>%.2f</b>/5)</string>
+	<string name="weight_1_text">Light</string>
+	<string name="weight_2_text">Medium Light</string>
+	<string name="weight_3_text">Medium</string>
+	<string name="weight_4_text">Medium Heavy</string>
+	<string name="weight_5_text">Heavy</string>
 	<string name="owning_meter_text">%s Owning</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
@@ -19,6 +19,7 @@
 	<string name="mechanics">Mechanics</string>
 	<string name="expansions">Expansions</string>
 	<string name="base_games">Base Games</string>
+	<string name="collection_item">Collection Item</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="sync_pending_update">Update pending</string>
@@ -46,6 +47,10 @@
 	<string name="done">Done</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
+	<string name="discard">Discard</string>
+	<string name="reset">Reset</string>
+	<string name="sort">Sort</string>
+	<string name="keep_editing">Keep Editing</string>
 	<string name="cancelled">Cancelled</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
@@ -89,6 +94,7 @@
 	<string name="never">Never</string>
 	<string name="keep">Keep</string>
 	<string name="edit">Edit</string>
+	<string name="modify">Modify</string>
 	<string name="more">More</string>
 	<string name="more_suffix">%,d more</string>
 	<string name="image">Image</string>
@@ -105,13 +111,14 @@
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Are you sure you want to discard local changes?</string>
+	<string name="discard_new_message">"Are you sure you want to discard this %s?"</string>
+	<string name="discard_changes_message">"Are you sure you want to discard changes to this %s?"</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
-	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
+	<string name="are_you_sure_player_sort_custom_off">Do you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
-	<string name="are_you_sure_timer_reset">Are you sure you want to reset the timer and lose the current length?</string>
+	<string name="are_you_sure_timer_reset">Do you want to reset the timer and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
-	<string name="are_you_sure_cancel_collection_edit">Are you sure you want to discard all of the changes you\'ve made to this collection item?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
@@ -152,9 +159,9 @@
 	<string name="title_comments">Comments</string>
 	<string name="title_private_info">Private Info</string>
 	<string name="title_ratings">Ratings</string>
+	<string name="title_ranks_ratings">Ranks &amp; Ratings</string>
 	<string name="title_colors">Colors</string>
 	<string name="title_favorite_colors">Favorite Colors</string>
-	<string name="title_user_feedback">User Feedback</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
@@ -167,6 +174,7 @@
 	<string name="title_artist">Artist</string>
 	<string name="title_publisher">Publisher</string>
 	<string name="title_user">User</string>
+	<string name="title_users">Users</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_edit_location">Edit Location</string>
@@ -407,7 +415,21 @@
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
+	<string name="unknown">Unknown</string>
 	<string name="ages">Ages</string>
+	<string name="ages_unknown">Unknown ages</string>
+	<string name="player_range_unknown"><b>\?</b> players</string>
+	<string name="player_range_suffix"><b>%1$,d - %2$,d</b> players</string>
+	<string name="best_prefix">Best with <b>%s</b></string>
+	<string name="recommended_prefix">Good with <b>%s</b></string>
+	<string name="mins_unknown"><b>\?</b> mins</string>
+	<string name="mins_suffix"><b>%,d</b> mins</string>
+	<string name="hrs_suffix"><b>%,d</b> hrs</string>
+	<string name="hrs_mins"><b>%1$d</b>h <b>%2$d</b>m</string>
+	<string name="mins_range_suffix"><b>%1$,d - %2$,d</b> mins</string>
+	<string name="rank_description"><b>#%d</b> %s</string>
+	<string name="rank_prefix">#%d</string>
+	<string name="rank_div">%1$s &#183; %2$s</string>
 	<string name="play_description_game_segment">Played %s</string>
 	<string name="play_description_length_segment">\u0020for %s</string>
 	<string name="play_description_date_segment">\u0020on %s</string>
@@ -421,14 +443,16 @@
 	<string name="player_description_score_segment">: %s</string>
 	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
-	<string name="language_1_text">No necessary in-game text (<b>%.2f</b>/5)</string>
-	<string name="language_2_text">Some necessary text - easily memorized or small crib sheet (<b>%.2f</b>/5)</string>
-	<string name="language_3_text">Moderate in-game text - needs crib sheets or paste ups (<b>%.2f</b>/5)</string>
-	<string name="language_4_text">Extensive use of text - massive conversion needed to be playable (<b>%.2f</b>/5)</string>
-	<string name="language_5_text">Unplayable in another language (<b>%.2f</b>/5)</string>
+	<string name="language_1_text">No necessary in-game text</string>
+	<string name="language_2_text">Some necessary text</string>
+	<string name="language_3_text">Moderate in-game text</string>
+	<string name="language_4_text">Extensive use of text</string>
+	<string name="language_5_text">Unplayable in another language</string>
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
-	<string name="age_suffix">+</string>
+	<string name="age_prefix">Ages <b>%d+</b></string>
+	<string name="age_community">Community: <b>%s</b></string>
+	<string name="age_community_plus">Community: <b>%d+</b></string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
 	<string name="updated_prefix">Updated %s</string>
@@ -437,7 +461,7 @@
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
-	<string name="standard_deviation_prefix">Standard deviation: <b>%s</b></string>
+	<string name="standard_deviation_prefix">Standard deviation: <b>%.3f</b></string>
 	<string name="by_prefix">by %s</string>
 	<string name="add">Add</string>
 	<string name="add_field">Add field…</string>
@@ -493,8 +517,7 @@
 	<string name="msg_colors_generated">Colors generated!</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
-	<string name="title_custom_player_order">Custom Player Order</string>
-	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
+	<string name="message_custom_player_order">Do you want keep the current starting positions or clear them?</string>
 	<string name="play_stat_distinct_games">Distinct games</string>
 	<string name="play_stat_quarters">Quarters</string>
 	<string name="play_stat_quarter">Quarter</string>
@@ -543,8 +566,9 @@
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_accuracy">These stats don\'t include %s.</string>
-	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games. Do you want do that now?</string>
-	<string name="play_stat_msg_collection_status">You can change the collection statuses that are synced in the app\'s settings. Do you want to continue?</string>
+	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games.</string>
+	<string name="play_stat_title_collection_status">Modify sync statuses?</string>
+	<string name="play_stat_msg_collection_status">You can undo this action by navigating to the app\'s Sync Settings and modifying the collection statuses.</string>
 	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
@@ -579,6 +603,7 @@
 	<string name="profile_updated">Profile updated</string>
 	<string name="this_many">this many</string>
 	<string name="game">game</string>
+	<string name="play">play</string>
 	<string name="player">player</string>
 	<string name="select_file">Select File</string>
 	<string name="best">Best</string>
@@ -625,12 +650,12 @@
 		<item quantity="other">Logging plays…</item>
 	</plurals>
 	<plurals name="colors_suffix">
-		<item quantity="one"><b>%,d</b> Color/Team</item>
-		<item quantity="other"><b>%,d</b> Colors/Teams</item>
+		<item quantity="one"><b>%,d</b> color/team</item>
+		<item quantity="other"><b>%,d</b> colors/teams</item>
 	</plurals>
 	<plurals name="comments_suffix">
-		<item quantity="one"><b>%,d</b> Comment</item>
-		<item quantity="other"><b>%,d</b> Comments</item>
+		<item quantity="one"><b>%,d</b> comment</item>
+		<item quantity="other"><b>%,d</b> comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
 		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
@@ -667,6 +692,10 @@
 	<plurals name="players_suffix">
 		<item quantity="one">%,d player</item>
 		<item quantity="other">%,d players</item>
+	</plurals>
+	<plurals name="player_range_suffix">
+		<item quantity="one"><b>%,d</b> player</item>
+		<item quantity="other"><b>%,d</b> players</item>
 	</plurals>
 	<plurals name="votes_suffix">
 		<item quantity="one"><b>%,d</b> vote</item>

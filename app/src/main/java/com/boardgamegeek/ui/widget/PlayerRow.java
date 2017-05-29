@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
@@ -138,11 +137,7 @@ public class PlayerRow extends LinearLayout {
 			if (player.getSeat() == Player.SEAT_UNKNOWN) {
 				seatView.setVisibility(View.GONE);
 			} else {
-				if (color != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(color)) {
-					seatView.setTextColor(Color.WHITE);
-				} else {
-					seatView.setTextColor(Color.BLACK);
-				}
+				seatView.setTextColor(ColorUtils.getTextColor(color));
 				startingPositionView.setVisibility(View.GONE);
 			}
 			if (color != ColorUtils.TRANSPARENT) {

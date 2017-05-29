@@ -28,7 +28,7 @@ import hugo.weaving.DebugLog;
  * Methods to aid in presenting information in a consistent manner.
  */
 public class PresentationUtils {
-	private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.0");
+	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("#0.0#");
 	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.000");
 	private static final DecimalFormat PERSONAL_RATING_FORMAT = new DecimalFormat("#0.#");
 	private static final DecimalFormat MONEY_FORMAT = setUpMoneyFormatter();
@@ -97,7 +97,7 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static String describeRating(Context context, double rating) {
-		return describeRating(context, rating, RATING_FORMAT);
+		return describeScore(context, rating, R.string.unrated);
 	}
 
 	@DebugLog
@@ -120,22 +120,86 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static String describeRank(int rank) {
-		if (rank == 0 || rank == Integer.MAX_VALUE) {
-			return "";
+	public static String describeScore(@NonNull Context context, double score) {
+		return describeScore(context, score, 0);
+	}
+
+	@DebugLog
+	public static String describeScore(@NonNull Context context, double score, @StringRes int defaultResId) {
+		if (score > 0.0) {
+			return SCORE_FORMAT.format(score);
+		} else if (defaultResId > 0) {
+			return context.getString(defaultResId);
+		}
+		return "";
+	}
+
+	@DebugLog
+	public static CharSequence describePlayerAge(Context context, String value) {
+		int age = StringUtils.parseInt(value, -1);
+		if (age > -1) {
+			return getText(context, R.string.age_community_plus, age);
+		}
+		return getText(context, R.string.age_community, value);
+	}
+
+	@DebugLog
+	public static CharSequence describePlayerAge(Context context, int age) {
+		if (age <= 0) return context.getString(R.string.ages_unknown);
+		return getText(context, R.string.age_prefix, age);
+	}
+
+	@DebugLog
+	public static CharSequence describePlayerRange(Context context, int minPlayers, int maxPlayers) {
+		if (minPlayers == 0 && maxPlayers == 0) {
+			return context.getResources().getString(R.string.player_range_unknown);
+		} else if (minPlayers >= maxPlayers) {
+			return getQuantityText(context, R.plurals.player_range_suffix, minPlayers, minPlayers);
 		} else {
-			return "#" + rank;
+			return getText(context, R.string.player_range_suffix, minPlayers, maxPlayers);
 		}
 	}
 
 	@DebugLog
-	public static String describeRankName(Context context, String type, String name) {
-		if (name == null) {
-			return "";
+	public static CharSequence describeMinuteRange(Context context, int min, int max, int defaultMinutes) {
+		if (min == 0 && max == 0) return describeMinutes(context, defaultMinutes);
+		if (min == max) return describeMinutes(context, max);
+		if (min == 0) return describeMinutes(context, max);
+		if (max == 0) return describeMinutes(context, min);
+		return getText(context, R.string.mins_range_suffix, min, max);
+	}
+
+	@DebugLog
+	private static CharSequence describeMinutes(Context context, int minutes) {
+		if (minutes == 0) return context.getString(R.string.mins_unknown);
+
+		if (minutes >= 120) {
+			int hours = minutes / 60;
+			int remainingMinutes = minutes % 60;
+
+			if (remainingMinutes == 0) {
+				return getText(context, R.string.hrs_suffix, hours);
+			} else {
+				return getText(context, R.string.hrs_mins, hours, remainingMinutes);
+			}
+		} else {
+			return getText(context, R.string.mins_suffix, minutes);
 		}
-		if (type == null) {
-			return name;
+	}
+
+	@DebugLog
+	public static CharSequence describeRank(Context context, int rank, String type, String name) {
+		if (rank == 0 || rank == Integer.MAX_VALUE) {
+			return describeRankName(context, type, name);
+		} else {
+			return getText(context, R.string.rank_description, rank, describeRankName(context, type, name));
 		}
+	}
+
+	@DebugLog
+	public static CharSequence describeRankName(Context context, String type, String name) {
+		if (name == null) return "";
+		if (type == null) return name;
 		@StringRes int resId = R.string.title_game;
 		if (BggService.RANK_TYPE_SUBTYPE.equals(type)) {
 			switch (name) {
@@ -181,37 +245,41 @@ public class PresentationUtils {
 					return name;
 			}
 		}
-		return context.getString(resId);
+		return context.getText(resId);
 	}
 
 	@DebugLog
-	public static CharSequence describeWeight(Context context, double weight) {
-		@StringRes int resId = R.string.weight_1_text;
-		if (weight >= 4.2) {
+	public static CharSequence describeWeight(@NonNull Context context, double weight) {
+		@StringRes int resId = R.string.unknown;
+		if (weight >= 4.5 && weight <= 5.0) {
 			resId = R.string.weight_5_text;
-		} else if (weight >= 3.4) {
+		} else if (weight >= 3.5) {
 			resId = R.string.weight_4_text;
-		} else if (weight >= 2.6) {
+		} else if (weight > 2.5) {
 			resId = R.string.weight_3_text;
-		} else if (weight >= 1.8) {
+		} else if (weight > 1.5) {
 			resId = R.string.weight_2_text;
+		} else if (weight >= 1.0) {
+			resId = R.string.weight_1_text;
 		}
-		return getText(context, resId, weight);
+		return context.getText(resId);
 	}
 
 	@DebugLog
-	public static CharSequence describeLanguageDependence(Context context, double value) {
-		@StringRes int resId = R.string.language_1_text;
-		if (value >= 4.2) {
+	public static CharSequence describeLanguageDependence(@NonNull Context context, double value) {
+		@StringRes int resId = R.string.unknown;
+		if (value >= 4.5 && value <= 5.0) {
 			resId = R.string.language_5_text;
-		} else if (value >= 3.4) {
+		} else if (value >= 3.5) {
 			resId = R.string.language_4_text;
-		} else if (value >= 2.6) {
+		} else if (value > 2.5) {
 			resId = R.string.language_3_text;
-		} else if (value >= 1.8) {
+		} else if (value > 1.5) {
 			resId = R.string.language_2_text;
+		} else if (value >= 1.0) {
+			resId = R.string.language_1_text;
 		}
-		return getText(context, resId, value);
+		return context.getText(resId);
 	}
 
 	@DebugLog

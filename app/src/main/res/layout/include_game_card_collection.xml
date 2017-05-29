@@ -1,34 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-	android:id="@+id/collection_card"
-	style="@style/Card"
+<merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:visibility="gone"
-	tools:showIn="@layout/fragment_game"
-	tools:visibility="visible">
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<LinearLayout
-		android:id="@+id/collection_container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:baselineAligned="true"
+		android:gravity="bottom"
+		android:minHeight="@dimen/card_header_height"
+		android:orientation="horizontal"
+		android:paddingLeft="@dimen/activity_horizontal_margin"
+		android:paddingRight="@dimen/activity_horizontal_margin">
 
 		<TextView
-			android:id="@+id/card_header_collection"
-			style="@style/Text.Header.Card"
-			android:layout_width="wrap_content"
-			android:text="@string/title_collection"/>
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/title_collection"
+			android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 		<Button
 			android:id="@+id/collection_add_button"
-			style="@style/Widget.AppCompat.Button.Colored"
+			style="@style/SmallColoredButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal"
-			android:gravity="center"
+			android:layout_gravity="end|bottom"
 			android:text="@string/add"/>
 	</LinearLayout>
-</android.support.v7.widget.CardView>
+
+	<android.support.v7.widget.CardView
+		android:id="@+id/collection_card"
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:visibility="gone"
+		tools:showIn="@layout/fragment_game"
+		tools:visibility="visible">
+
+		<LinearLayout
+			android:id="@+id/collection_container"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"/>
+	</android.support.v7.widget.CardView>
+</merge>

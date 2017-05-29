@@ -141,6 +141,8 @@ public class GamePersister {
 		values.put(Games.MIN_PLAYERS, game.getMinPlayers());
 		values.put(Games.MAX_PLAYERS, game.getMaxPlayers());
 		values.put(Games.PLAYING_TIME, game.getPlayingTime());
+		values.put(Games.MIN_PLAYING_TIME, game.getMinPlayingTime());
+		values.put(Games.MAX_PLAYING_TIME, game.getMaxPlayingTime());
 		values.put(Games.MINIMUM_AGE, game.getMinAge());
 		if (game.statistics != null) {
 			values.put(Games.STATS_USERS_RATED, game.statistics.usersRated());

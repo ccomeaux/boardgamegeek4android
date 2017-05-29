@@ -16,6 +16,7 @@ public class SignOutPreference extends DialogPreference {
 		TypedValue typedValue = new TypedValue();
 		getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);
 		setDialogIcon(typedValue.resourceId);
+		setDialogTitle(getTitle() + "?");
 		setDialogLayoutResource(R.layout.widget_dialogpreference_textview);
 	}
 

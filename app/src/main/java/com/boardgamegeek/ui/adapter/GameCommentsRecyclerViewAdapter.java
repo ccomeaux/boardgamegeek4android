@@ -40,7 +40,7 @@ public class GameCommentsRecyclerViewAdapter extends PaginatedRecyclerViewAdapte
 		protected void bind(Comment item) {
 			usernameView.setText(item.username);
 			ratingView.setText(item.getRatingText());
-			ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(item.getRating()));
+			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(item.getRating()));
 			PresentationUtils.setTextOrHide(commentView, item.value);
 		}
 	}

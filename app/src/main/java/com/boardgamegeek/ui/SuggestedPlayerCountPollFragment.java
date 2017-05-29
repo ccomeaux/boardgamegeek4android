@@ -89,9 +89,7 @@ public class SuggestedPlayerCountPollFragment extends DialogFragment implements 
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		if (loader.getId() == Query._TOKEN) {
 			int totalVoteCount = cursor != null && cursor.moveToFirst() ? cursor.getInt(Query.TOTAL_VOTE_COUNT) : 0;

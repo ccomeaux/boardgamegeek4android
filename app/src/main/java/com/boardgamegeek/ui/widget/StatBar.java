@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.graphics.Palette;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,30 +42,26 @@ public class StatBar extends FrameLayout {
 			LinearLayout.LayoutParams.MATCH_PARENT));
 		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.stat_bar_height));
 
-		LayoutInflater li = LayoutInflater.from(context);
-		li.inflate(R.layout.widget_stat_bar, this, true);
-
+		LayoutInflater.from(context).inflate(R.layout.widget_stat_bar, this, true);
 		ButterKnife.bind(this);
 	}
 
 	public void setBar(int id, double progress, double max) {
 		textView.setText(String.format(getContext().getResources().getString(id), FORMAT.format(progress)));
-		valueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
-			(int) (progress * 1000)));
-		noValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
-			(int) ((max - progress) * 1000)));
+		valueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, (int) (progress * 1000)));
+		noValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, (int) ((max - progress) * 1000)));
 	}
 
 	public void setColor(int color) {
 		valueView.setBackgroundColor(color);
 	}
 
-	public static final ButterKnife.Setter<StatBar, Palette.Swatch> colorSetter =
-		new ButterKnife.Setter<StatBar, Palette.Swatch>() {
+	public static final ButterKnife.Setter<StatBar, Integer> colorSetter =
+		new ButterKnife.Setter<StatBar, Integer>() {
 			@Override
-			public void set(@NonNull StatBar view, Palette.Swatch value, int index) {
+			public void set(@NonNull StatBar view, Integer value, int index) {
 				if (value != null) {
-					view.setColor(value.getRgb());
+					view.setColor(value);
 				}
 			}
 		};

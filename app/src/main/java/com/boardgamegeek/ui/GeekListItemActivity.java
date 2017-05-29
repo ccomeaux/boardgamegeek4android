@@ -46,7 +46,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 				.putContentName(objectName));
 		}
 
-		ScrimUtils.applyInvertedScrim(scrimView);
+		ScrimUtils.applyDarkScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, imageId, null);
 	}
 

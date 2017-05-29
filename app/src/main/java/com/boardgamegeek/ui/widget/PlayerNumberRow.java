@@ -40,8 +40,7 @@ public class PlayerNumberRow extends LinearLayout {
 	}
 
 	private void init(Context context) {
-		LayoutInflater li = LayoutInflater.from(context);
-		li.inflate(R.layout.row_poll_players, this);
+		LayoutInflater.from(context).inflate(R.layout.row_poll_players, this);
 		ButterKnife.bind(this);
 	}
 

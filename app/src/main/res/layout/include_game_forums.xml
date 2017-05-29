@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/forums_root"
+	style="@style/CardRow.Clickable"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="0dp"
+	android:layout_height="match_parent"
+	android:layout_weight="1"
+	android:orientation="horizontal"
+	tools:showIn="@layout/fragment_game">
+
+	<ImageView
+		android:id="@+id/icon_forums"
+		style="@style/Icon"
+		android:src="@drawable/ic_forums"
+		tools:ignore="ContentDescription"/>
+
+	<LinearLayout
+		android:id="@+id/forums_container"
+		style="@style/CardRowContent"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/forums"
+			style="@style/Text"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:text="@string/title_forums"
+			android:textAppearance="@style/Text"/>
+
+		<com.boardgamegeek.ui.widget.TimestampView
+			android:id="@+id/forums_last_post_date"
+			style="@style/Text.Secondary"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:maxLines="2"
+			android:visibility="invisible"
+			app:format="@string/forum_last_post_in"
+			app:hideWhenEmpty="true"
+			app:isForumTimestamp="true"
+			tools:text="Last post 1 hour ago"
+			tools:visibility="visible"/>
+	</LinearLayout>
+</LinearLayout>

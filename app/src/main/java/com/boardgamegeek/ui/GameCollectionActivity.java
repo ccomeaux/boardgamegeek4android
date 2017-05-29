@@ -23,6 +23,7 @@ import com.boardgamegeek.tasks.ResetCollectionItemTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.DialogUtils.OnDiscardListener;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
@@ -89,16 +90,13 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@Override
 	public void onBackPressed() {
 		if (isInEditMode && isItemUpdated) {
-			DialogUtils.createConfirmationDialog(this,
-				R.string.are_you_sure_cancel_collection_edit,
-				new OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						ResetCollectionItemTask task =
-							new ResetCollectionItemTask(GameCollectionActivity.this, internalId, gameId);
-						TaskUtils.executeAsyncTask(task);
-						GameCollectionActivity.super.onBackPressed();
-					}
-				}).show();
+			DialogUtils.createDiscardDialog(this, R.string.collection_item, false, false, new OnDiscardListener() {
+				public void onDiscard() {
+					ResetCollectionItemTask task = new ResetCollectionItemTask(GameCollectionActivity.this, internalId, gameId);
+					TaskUtils.executeAsyncTask(task);
+					GameCollectionActivity.super.onBackPressed();
+				}
+			}).show();
 		} else {
 			super.onBackPressed();
 		}
@@ -131,14 +129,17 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 				ActivityUtils.startImageActivity(this, imageUrl);
 				return true;
 			case R.id.menu_delete:
-				DialogUtils.createConfirmationDialog(this,
-					R.string.are_you_sure_delete_collection_item,
-					new OnClickListener() {
+				DialogUtils.createThemedBuilder(this)
+					.setMessage(R.string.are_you_sure_delete_collection_item)
+					.setPositiveButton(R.string.delete, new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							TaskUtils.executeAsyncTask(new DeleteCollectionItemTask(GameCollectionActivity.this, internalId));
 							finish();
 						}
-					}).show();
+					})
+					.setNegativeButton(R.string.cancel, null)
+					.setCancelable(true)
+					.show();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -149,7 +150,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionItemChangedEvent event) {
 		safelySetTitle(event.getCollectionName());
-		ScrimUtils.applyInvertedScrim(scrimView);
+		ScrimUtils.applyDarkScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
 

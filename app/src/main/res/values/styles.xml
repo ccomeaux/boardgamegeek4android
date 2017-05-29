@@ -109,6 +109,10 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="Text.Secondary.Small">
+		<item name="android:textSize">12sp</item>
+	</style>
+
 	<style name="Text.Secondary.Inverse">
 		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
@@ -406,7 +410,7 @@
 		<item name="android:background">@color/no_image</item>
 	</style>
 
-	<style name="RatingLarge" parent="@style/Text.Title">
+	<style name="RatingLarge" parent="@style/Text.Subtitle">
 		<item name="android:paddingBottom">@dimen/padding_half</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
@@ -482,6 +486,7 @@
 
 	<style name="CardRow.Clickable">
 		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:clickable">true</item>
 		<item name="android:descendantFocusability">blocksDescendants</item>
 	</style>
 

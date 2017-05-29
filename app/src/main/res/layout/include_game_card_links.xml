@@ -1,148 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-	style="@style/Card"
+<merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	tools:context=".ui.SimpleSinglePaneActivity">
+	xmlns:tools="http://schemas.android.com/tools">
 
-	<LinearLayout
+	<TextView
+		android:id="@+id/card_header_links"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="bottom"
+		android:minHeight="@dimen/card_header_height"
+		android:paddingLeft="@dimen/activity_horizontal_margin"
+		android:paddingRight="@dimen/activity_horizontal_margin"
+		android:text="@string/links"
+		android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+
+	<android.support.v7.widget.CardView
+		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical">
-
-		<TextView
-			android:id="@+id/card_header_links"
-			style="@style/Text.Header.Card"
-			android:layout_width="wrap_content"
-			android:text="@string/links"/>
+		tools:context=".ui.SimpleSinglePaneActivity">
 
 		<LinearLayout
-			android:id="@+id/link_bgg"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="?attr/selectableItemBackground"
-			android:descendantFocusability="blocksDescendants"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
-			android:orientation="horizontal">
+			android:orientation="vertical">
 
-			<ImageView
-				android:id="@+id/icon_link_bgg"
-				style="@style/Icon"
-				android:src="@drawable/ic_link"/>
-
-			<TextView
-				style="@style/Text"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:text="@string/link_bgg"/>
-		</LinearLayout>
-
-		<LinearLayout
-			android:id="@+id/link_bg_prices"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="?attr/selectableItemBackground"
-			android:descendantFocusability="blocksDescendants"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
-			android:orientation="horizontal">
-
-			<ImageView
-				android:id="@+id/icon_link_bg_prices"
-				style="@style/Icon"
-				android:src="@drawable/ic_link_bg_prices"/>
-
-			<TextView
-				style="@style/Text"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:text="@string/link_bg_prices"/>
-		</LinearLayout>
-
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center_vertical">
-
-			<ImageView
-				android:id="@+id/icon_link_amazon"
-				style="@style/Icon"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentTop="true"
-				android:src="@drawable/ic_action_amazon"/>
-
-			<TextView
-				android:id="@+id/link_amazon"
-				style="@style/Text"
+			<LinearLayout
+				android:id="@+id/link_bgg"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_alignParentTop="true"
-				android:layout_toRightOf="@id/icon_link_amazon"
 				android:background="?attr/selectableItemBackground"
+				android:descendantFocusability="blocksDescendants"
 				android:gravity="center_vertical"
-				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon"/>
+				android:orientation="horizontal">
 
-			<TextView
-				android:id="@+id/link_amazon_uk"
-				style="@style/Text"
+				<ImageView
+					android:id="@+id/icon_link_bgg"
+					style="@style/Icon"
+					android:src="@drawable/ic_link"/>
+
+				<TextView
+					style="@style/Text"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:gravity="center_vertical"
+					android:maxLines="1"
+					android:text="@string/link_bgg"/>
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/link_bg_prices"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@+id/link_amazon"
-				android:layout_toRightOf="@id/icon_link_amazon"
 				android:background="?attr/selectableItemBackground"
+				android:descendantFocusability="blocksDescendants"
 				android:gravity="center_vertical"
-				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon_uk"/>
+				android:orientation="horizontal">
 
-			<TextView
-				android:id="@+id/link_amazon_de"
-				style="@style/Text"
+				<ImageView
+					android:id="@+id/icon_link_bg_prices"
+					style="@style/Icon"
+					android:src="@drawable/ic_link_bg_prices"/>
+
+				<TextView
+					style="@style/Text"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:gravity="center_vertical"
+					android:maxLines="1"
+					android:text="@string/link_bg_prices"/>
+			</LinearLayout>
+
+			<RelativeLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@+id/link_amazon_uk"
-				android:layout_toRightOf="@id/icon_link_amazon"
+				android:gravity="center_vertical">
+
+				<ImageView
+					android:id="@+id/icon_link_amazon"
+					style="@style/Icon"
+					android:layout_alignParentLeft="true"
+					android:layout_alignParentTop="true"
+					android:src="@drawable/ic_action_amazon"/>
+
+				<TextView
+					android:id="@+id/link_amazon"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_toRightOf="@id/icon_link_amazon"
+					android:background="?attr/selectableItemBackground"
+					android:gravity="center_vertical"
+					android:maxLines="1"
+					android:minHeight="@dimen/edit_row_height"
+					android:text="@string/link_amazon"/>
+
+				<TextView
+					android:id="@+id/link_amazon_uk"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@+id/link_amazon"
+					android:layout_toRightOf="@id/icon_link_amazon"
+					android:background="?attr/selectableItemBackground"
+					android:gravity="center_vertical"
+					android:maxLines="1"
+					android:minHeight="@dimen/edit_row_height"
+					android:text="@string/link_amazon_uk"/>
+
+				<TextView
+					android:id="@+id/link_amazon_de"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@+id/link_amazon_uk"
+					android:layout_toRightOf="@id/icon_link_amazon"
+					android:background="?attr/selectableItemBackground"
+					android:gravity="center_vertical"
+					android:maxLines="1"
+					android:minHeight="@dimen/edit_row_height"
+					android:text="@string/link_amazon_de"/>
+			</RelativeLayout>
+
+			<LinearLayout
+				android:id="@+id/link_ebay"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackground"
+				android:descendantFocusability="blocksDescendants"
 				android:gravity="center_vertical"
-				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon_de"/>
-		</RelativeLayout>
+				android:orientation="horizontal">
 
-		<LinearLayout
-			android:id="@+id/link_ebay"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="?attr/selectableItemBackground"
-			android:descendantFocusability="blocksDescendants"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
-			android:orientation="horizontal">
+				<ImageView
+					android:id="@+id/icon_link_ebay"
+					style="@style/Icon"
+					android:src="@drawable/ic_link_ebay"/>
 
-			<ImageView
-				android:id="@+id/icon_link_ebay"
-				style="@style/Icon"
-				android:src="@drawable/ic_link_ebay"/>
-
-			<TextView
-				style="@style/Text"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:text="@string/link_ebay"/>
+				<TextView
+					style="@style/Text"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:gravity="center_vertical"
+					android:maxLines="1"
+					android:text="@string/link_ebay"/>
+			</LinearLayout>
 		</LinearLayout>
-	</LinearLayout>
-</android.support.v7.widget.CardView>
+	</android.support.v7.widget.CardView>
+</merge>

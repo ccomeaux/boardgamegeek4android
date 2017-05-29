@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog.OnDateSetListener;
-import android.app.Dialog;
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -705,35 +704,31 @@ public class LogPlayActivity extends AppCompatActivity {
 			finish();
 		} else if (play.equals(originalPlay)) {
 			if (shouldDeletePlayOnActivityCancel) {
-				play.updateTimestamp = 0;
-				play.deleteTimestamp = System.currentTimeMillis();
-				play.dirtyTimestamp = 0;
-				if (save()) {
-					triggerUpload();
-				}
+				deletePlay();
 			}
 			setResult(RESULT_CANCELED);
 			finish();
 		} else {
 			if (shouldDeletePlayOnActivityCancel) {
-				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							play.updateTimestamp = 0;
-							play.deleteTimestamp = System.currentTimeMillis();
-							play.dirtyTimestamp = 0;
-							if (save()) {
-								triggerUpload();
-								cancelNotification();
-							}
-							setResult(RESULT_CANCELED);
-							finish();
-						}
-					})
-					.show();
+				DialogUtils.createDiscardDialog(this, R.string.play, true, true, new DialogUtils.OnDiscardListener() {
+					@Override
+					public void onDiscard() {
+						deletePlay();
+					}
+				}).show();
 			} else {
-				DialogUtils.createCancelDialog(this).show();
+				DialogUtils.createDiscardDialog(this, R.string.play, false).show();
 			}
+		}
+	}
+
+	private void deletePlay() {
+		play.updateTimestamp = 0;
+		play.deleteTimestamp = System.currentTimeMillis();
+		play.dirtyTimestamp = 0;
+		if (save()) {
+			triggerUpload();
+			cancelNotification();
 		}
 	}
 
@@ -913,44 +908,41 @@ public class LogPlayActivity extends AppCompatActivity {
 						if (arePlayersCustomSorted) {
 							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
 							if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
-								Dialog dialog = DialogUtils.createConfirmationDialog(LogPlayActivity.this,
+								DialogUtils.createConfirmationDialog(LogPlayActivity.this,
 									R.string.are_you_sure_player_sort_custom_off,
 									new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
-											play.pickStartPlayer(0);
-											arePlayersCustomSorted = false;
-											playAdapter.notifyPlayersChanged();
+											autoSortPlayers();
 										}
-									});
-								dialog.show();
+									},
+									R.string.sort)
+									.show();
 							} else {
-								play.pickStartPlayer(0);
-								arePlayersCustomSorted = false;
-								playAdapter.notifyPlayersChanged();
+								autoSortPlayers();
 							}
 						} else {
 							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
 							if (play.hasStartingPositions()) {
 								AlertDialog.Builder builder = new Builder(LogPlayActivity.this)
-									.setCancelable(true).setTitle(R.string.title_custom_player_order)
 									.setMessage(R.string.message_custom_player_order)
-									.setNegativeButton(R.string.keep, new OnClickListener() {
+									.setPositiveButton(R.string.keep, new OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
 											arePlayersCustomSorted = true;
 											playAdapter.notifyPlayersChanged();
 										}
-									}).setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
+									})
+									.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
 											arePlayersCustomSorted = true;
 											play.clearPlayerPositions();
 											playAdapter.notifyPlayersChanged();
 										}
-									});
-								builder = DialogUtils.addAlertIcon(builder);
-								builder.create().show();
+									})
+									.setCancelable(true);
+								builder.show();
 							}
 						}
 						return true;
@@ -977,6 +969,12 @@ public class LogPlayActivity extends AppCompatActivity {
 		};
 	}
 
+	private void autoSortPlayers() {
+		arePlayersCustomSorted = false;
+		play.pickStartPlayer(0);
+		playAdapter.notifyPlayersChanged();
+	}
+
 	@DebugLog
 	private void promptPickStartPlayer() {
 		CharSequence[] array = createArrayOfPlayerDescriptions();
@@ -988,7 +986,8 @@ public class LogPlayActivity extends AppCompatActivity {
 					notifyStartPlayer();
 					playAdapter.notifyPlayersChanged();
 				}
-			}).show();
+			})
+			.show();
 	}
 
 	@DebugLog
@@ -1022,7 +1021,11 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private void addNewPlayer() {
-		editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+		Intent intent = new Intent();
+		if (!arePlayersCustomSorted) {
+			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, play.getPlayerCount() + 1);
+		}
+		editPlayer(intent, REQUEST_ADD_PLAYER);
 	}
 
 	@DebugLog
@@ -1031,7 +1034,6 @@ public class LogPlayActivity extends AppCompatActivity {
 		Intent intent = new Intent();
 		intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
-		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
 		if (!arePlayersCustomSorted && player != null) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 		}
@@ -1049,14 +1051,12 @@ public class LogPlayActivity extends AppCompatActivity {
 		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
 		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
-		if (!arePlayersCustomSorted && requestCode == REQUEST_ADD_PLAYER) {
-			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, play.getPlayerCount() + 1);
-		}
 		List<String> colors = new ArrayList<>();
 		for (Player player : play.getPlayers()) {
 			colors.add(player.color);
 		}
 		intent.putExtra(LogPlayerActivity.KEY_USED_COLORS, colors.toArray(new String[colors.size()]));
+		intent.putExtra(LogPlayerActivity.KEY_NEW_PLAYER, requestCode == REQUEST_ADD_PLAYER);
 		startActivityForResult(intent, requestCode);
 	}
 
@@ -1474,7 +1474,9 @@ public class LogPlayActivity extends AppCompatActivity {
 								public void onClick(DialogInterface dialog, int which) {
 									startTimer();
 								}
-							}).show();
+							},
+							R.string.reset)
+							.show();
 					}
 				}
 			}

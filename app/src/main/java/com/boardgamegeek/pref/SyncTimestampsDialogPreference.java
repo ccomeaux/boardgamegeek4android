@@ -19,8 +19,7 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 	@BindView(R.id.sync_timestamp_collection_full) TextView collectionFull;
 	@BindView(R.id.sync_timestamp_collection_partial) TextView collectionPartial;
 	@BindView(R.id.sync_timestamp_buddy) TextView buddies;
-	@BindView(R.id.sync_timestamp_plays_newest_date) TextView playsNewest;
-	@BindView(R.id.sync_timestamp_plays_oldest_date) TextView playsOldest;
+	@BindView(R.id.sync_timestamp_plays) TextView playsView;
 
 	@SuppressWarnings("unused")
 	public SyncTimestampsDialogPreference(Context context, AttributeSet attrs) {
@@ -35,7 +34,7 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 	}
 
 	private void init() {
-		setDialogTitle(R.string.pref_sync_timestamps);
+		setDialogTitle(R.string.pref_sync_timestamps_title);
 		setDialogLayoutResource(R.layout.dialog_sync_stats);
 		setPositiveButtonText(R.string.close);
 		setNegativeButtonText("");
@@ -48,9 +47,24 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 
 		setDateTime(collectionFull, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_COMPLETE), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 		setDateTime(collectionPartial, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_PARTIAL), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+
 		setDateTime(buddies, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_BUDDIES), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-		setDateTime(playsNewest, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE), DateUtils.FORMAT_SHOW_DATE);
-		setDateTime(playsOldest, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE), DateUtils.FORMAT_SHOW_DATE);
+
+		long oldestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
+		long newestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
+		if (oldestDate == 0 && newestDate == 0) {
+			playsView.setText(R.string.plays_sync_status_none);
+		} else if (oldestDate == 0) {
+			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_new),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else if (newestDate == 0) {
+			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_old),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else {
+			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_range),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		}
 	}
 
 	private void setDateTime(TextView view, long timeStamp, int flags) {

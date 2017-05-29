@@ -79,9 +79,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			if (article == null) return;
 
 			usernameView.setText(article.username());
-			editDateView.setTimestamp(article.editTicks());
 			postDateView.setTimestamp(article.postTicks());
-			UIUtils.setTextMaybeHtml(bodyView, article.body());
 			if (article.editTicks() != article.postTicks()) {
 				editDateView.setTimestamp(article.editTicks());
 				editDateView.setVisibility(View.VISIBLE);

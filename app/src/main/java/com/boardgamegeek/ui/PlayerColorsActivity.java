@@ -341,15 +341,22 @@ public class PlayerColorsActivity extends BaseActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_clear:
-				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_clear_colors, new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						PlayerColorsManipulationEvent.log("Clear");
-						if (colors != null) colors.clear();
-						if (adapter != null) adapter.notifyDataSetChanged();
-						showData();
-					}
-				}).show();
+				DialogUtils.createThemedBuilder(this)
+					.setMessage(R.string.are_you_sure_clear_colors)
+					.setPositiveButton(R.string.clear, new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							PlayerColorsManipulationEvent.log("Clear");
+							if (colors != null) {
+								colors.clear();
+								if (adapter != null) adapter.notifyDataSetChanged();
+								showData();
+							}
+						}
+					})
+					.setNegativeButton(R.string.cancel, null)
+					.setCancelable(true)
+					.show();
 				break;
 			case android.R.id.home:
 				ActivityUtils.navigateUpToBuddy(this, buddyName, playerName);

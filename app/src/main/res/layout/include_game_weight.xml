@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/weight_root"
+	style="@style/CardRow"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="0dp"
+	android:layout_height="match_parent"
+	android:layout_weight="1"
+	android:orientation="horizontal"
+	tools:showIn="@layout/fragment_game">
+
+	<ImageView
+		android:id="@+id/icon_weight"
+		style="@style/Icon"
+		android:src="@drawable/ic_weight"/>
+
+	<LinearLayout
+		style="@style/CardRowContent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/game_weight_message"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:maxLines="2"
+			android:textAppearance="@style/Text"
+			tools:text="Light"/>
+
+		<TextView
+			android:id="@+id/game_weight_score"
+			style="@style/RatingSmall"
+			android:layout_width="64dp"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			tools:background="#088"
+			tools:text="1.23"/>
+
+		<TextView
+			android:id="@+id/game_weight_votes"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:textAppearance="@style/Text.Secondary.Small"
+			tools:text="42,000 votes"/>
+	</LinearLayout>
+</LinearLayout>
+
+				

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:fadingEdgeLength="12dp"
+			android:padding="@dimen/material_margin_dialog"
+			android:requiresFadingEdge="vertical">
+
+	<TextView
+		android:id="@+id/text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/Text.Body"
+		android:textSize="12sp"/>
+</ScrollView>

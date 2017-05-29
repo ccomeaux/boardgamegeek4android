@@ -9,6 +9,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,7 +57,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	private Snackbar snackbar;
 
 	private Unbinder unbinder;
-	@BindView(R.id.progress) View progressView;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(R.id.poll_scroll) ScrollView scrollView;
 	@BindView(R.id.pie_chart) PieChart pieChart;
 
@@ -66,6 +67,8 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		if (gameId == BggContract.INVALID_ID) dismiss();
+
 		pollType = intent.getStringExtra(ActivityUtils.KEY_TYPE);
 		pollResultUri = Games.buildPollResultsResultUri(gameId, pollType);
 	}
@@ -102,6 +105,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		super.onActivityCreated(savedInstanceState);
 		if (pollType == null) {
 			Timber.w("Missing type");
+			dismiss();
 		}
 		switch (pollType) {
 			case LANGUAGE_DEPENDENCE:
@@ -120,7 +124,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -134,9 +138,8 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
+		if (loader == null) return;
 
 		if (loader.getId() == Query._TOKEN) {
 			int totalVoteCount = cursor != null && cursor.moveToFirst() ? cursor.getInt(Query.POLL_TOTAL_VOTES) : 0;
@@ -146,7 +149,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 				createPieChart(cursor, totalVoteCount);
 			}
 
-			progressView.setVisibility(View.GONE);
+			progressView.hide();
 			scrollView.setVisibility(View.VISIBLE);
 		} else {
 			if (cursor != null) cursor.close();
@@ -211,8 +214,11 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 	private interface Query {
 		int _TOKEN = 0x0;
-		String[] PROJECTION = { GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
-			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, GamePolls.POLL_TOTAL_VOTES };
+		String[] PROJECTION = {
+			GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
+			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
+			GamePolls.POLL_TOTAL_VOTES
+		};
 		int POLL_RESULTS_RESULT_VALUE = 0;
 		int POLL_RESULTS_RESULT_VOTES = 1;
 		int POLL_TOTAL_VOTES = 2;
