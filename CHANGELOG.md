@@ -4,7 +4,8 @@ Release Notes
 Coming Soon...
 --------------
  * Filter collection by recommended player counts
- * More play stats (and they're prettier too)
+ * UI changes (improvements?)
+ * More play stats
  * App shortcuts for collection views
  * Corrected and improved backup/restore
  * Sync improvements
