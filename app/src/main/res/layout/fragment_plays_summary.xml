@@ -1,291 +1,298 @@
-<ScrollView android:id="@+id/data"
-			xmlns:android="http://schemas.android.com/apk/res/android"
-			xmlns:tools="http://schemas.android.com/tools"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			tools:context=".ui.PlaysSummaryFragment">
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/swipe_refresh"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".ui.PlaysSummaryFragment">
 
-	<LinearLayout
+	<ScrollView
+		android:id="@+id/data"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:animateLayoutChanges="true"
-		android:orientation="vertical"
-		android:paddingTop="@dimen/padding_standard">
+		android:layout_height="match_parent">
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="bottom"
-			android:orientation="horizontal"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal">
-
-			<TextView
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="@string/title_plays"
-				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-			<Button
-				android:id="@+id/more_plays_button"
-				style="@style/SmallColoredButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="end|bottom"
-				android:text="@string/more"
-				android:visibility="gone"/>
-		</LinearLayout>
-
-		<android.support.v7.widget.CardView
-			android:id="@+id/card_plays"
-			style="@style/Card"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:visibility="gone"
-			tools:visibility="visible">
+			android:animateLayoutChanges="true"
+			android:orientation="vertical"
+			android:paddingTop="@dimen/padding_standard">
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical">
+				android:gravity="bottom"
+				android:orientation="horizontal"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal">
 
 				<TextView
-					android:id="@+id/plays_subtitle_in_progress"
-					style="@style/Text.Header"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/title_plays"
+					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+				<Button
+					android:id="@+id/more_plays_button"
+					style="@style/SmallColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="@string/title_in_progress"
-					android:visibility="gone"
-					tools:visibility="visible"/>
-
-				<LinearLayout
-					android:id="@+id/plays_in_progress_container"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:divider="@drawable/list_divider"
-					android:orientation="vertical"
-					android:showDividers="middle"
-					android:visibility="gone"
-					tools:visibility="visible"/>
-
-				<TextView
-					android:id="@+id/plays_subtitle_recent"
-					style="@style/Text.Header"
-					android:layout_width="wrap_content"
-					android:layout_height="40dp"
-					android:gravity="bottom"
-					android:text="@string/title_recent"
-					android:visibility="gone"
-					tools:visibility="visible"/>
-
-				<LinearLayout
-					android:id="@+id/plays_container"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:divider="@drawable/list_divider"
-					android:orientation="vertical"
-					android:showDividers="middle"
-					android:visibility="gone"
-					tools:visibility="visible"/>
+					android:layout_gravity="end|bottom"
+					android:text="@string/more"
+					android:visibility="gone"/>
 			</LinearLayout>
-		</android.support.v7.widget.CardView>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="bottom"
-			android:minHeight="@dimen/card_header_height"
-			android:orientation="horizontal"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal">
-
-			<TextView
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="@string/title_players"
-				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-			<Button
-				android:id="@+id/more_players_button"
-				style="@style/SmallColoredButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="end|bottom"
-				android:text="@string/more"/>
-		</LinearLayout>
-
-		<android.support.v7.widget.CardView
-			android:id="@+id/card_players"
-			style="@style/Card"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:visibility="gone"
-			tools:visibility="visible">
-
-			<LinearLayout
-				android:id="@+id/players_container"
+			<android.support.v7.widget.CardView
+				android:id="@+id/card_plays"
+				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:divider="@drawable/list_divider"
-				android:orientation="vertical"
-				android:showDividers="middle"/>
-		</android.support.v7.widget.CardView>
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="bottom"
-			android:minHeight="@dimen/card_header_height"
-			android:orientation="horizontal"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal">
-
-			<TextView
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="@string/title_locations"
-				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-			<Button
-				android:id="@+id/more_locations_button"
-				style="@style/SmallColoredButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="end|bottom"
-				android:text="@string/more"/>
-		</LinearLayout>
-
-		<android.support.v7.widget.CardView
-			android:id="@+id/card_locations"
-			style="@style/Card"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:visibility="gone"
-			tools:visibility="visible">
-
-			<LinearLayout
-				android:id="@+id/locations_container"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:divider="@drawable/list_divider"
-				android:orientation="vertical"
-				android:showDividers="middle"/>
-		</android.support.v7.widget.CardView>
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="bottom"
-			android:minHeight="@dimen/card_header_height"
-			android:orientation="horizontal"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal">
-
-			<TextView
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="@string/title_favorite_colors"
-				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-			<Button
-				android:id="@+id/edit_colors_button"
-				style="@style/SmallColoredButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="end|bottom"
-				android:text="@string/edit"/>
-		</LinearLayout>
-
-		<android.support.v7.widget.CardView
-			android:id="@+id/card_colors"
-			style="@style/Card"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:visibility="gone"
-			tools:visibility="visible">
-
-			<TextView
-				android:id="@+id/colors_hint"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:gravity="center_vertical"
-				android:minHeight="56dp"
-				android:text="@string/favorite_colors_hint"/>
-
-			<HorizontalScrollView
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:fillViewport="true"
-				android:minHeight="56dp">
+				android:visibility="gone"
+				tools:visibility="visible">
 
 				<LinearLayout
-					android:id="@+id/color_container"
-					android:layout_width="wrap_content"
+					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:orientation="horizontal"/>
-			</HorizontalScrollView>
-		</android.support.v7.widget.CardView>
+					android:orientation="vertical">
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="bottom"
-			android:minHeight="@dimen/card_header_height"
-			android:orientation="horizontal"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal">
+					<TextView
+						android:id="@+id/plays_subtitle_in_progress"
+						style="@style/Text.Header"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/title_in_progress"
+						android:visibility="gone"
+						tools:visibility="visible"/>
 
-			<TextView
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="@string/title_play_stats"
-				android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+					<LinearLayout
+						android:id="@+id/plays_in_progress_container"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:divider="@drawable/list_divider"
+						android:orientation="vertical"
+						android:showDividers="middle"
+						android:visibility="gone"
+						tools:visibility="visible"/>
 
-			<Button
-				android:id="@+id/more_play_stats_button"
-				style="@style/SmallColoredButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="end|bottom"
-				android:text="@string/more"/>
-		</LinearLayout>
+					<TextView
+						android:id="@+id/plays_subtitle_recent"
+						style="@style/Text.Header"
+						android:layout_width="wrap_content"
+						android:layout_height="40dp"
+						android:gravity="bottom"
+						android:text="@string/title_recent"
+						android:visibility="gone"
+						tools:visibility="visible"/>
 
-		<android.support.v7.widget.CardView
-			style="@style/Card"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+					<LinearLayout
+						android:id="@+id/plays_container"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:divider="@drawable/list_divider"
+						android:orientation="vertical"
+						android:showDividers="middle"
+						android:visibility="gone"
+						tools:visibility="visible"/>
+				</LinearLayout>
+			</android.support.v7.widget.CardView>
 
 			<LinearLayout
-				android:id="@+id/container_stats"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical">
+				android:gravity="bottom"
+				android:minHeight="@dimen/card_header_height"
+				android:orientation="horizontal"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal">
 
 				<TextView
-					android:id="@+id/h_index"
-					style="@style/Text"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/title_players"
+					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+				<Button
+					android:id="@+id/more_players_button"
+					style="@style/SmallColoredButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="end|bottom"
+					android:text="@string/more"/>
+			</LinearLayout>
+
+			<android.support.v7.widget.CardView
+				android:id="@+id/card_players"
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<LinearLayout
+					android:id="@+id/players_container"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:divider="@drawable/list_divider"
+					android:orientation="vertical"
+					android:showDividers="middle"/>
+			</android.support.v7.widget.CardView>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="bottom"
+				android:minHeight="@dimen/card_header_height"
+				android:orientation="horizontal"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal">
+
+				<TextView
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/title_locations"
+					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+				<Button
+					android:id="@+id/more_locations_button"
+					style="@style/SmallColoredButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="end|bottom"
+					android:text="@string/more"/>
+			</LinearLayout>
+
+			<android.support.v7.widget.CardView
+				android:id="@+id/card_locations"
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<LinearLayout
+					android:id="@+id/locations_container"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:divider="@drawable/list_divider"
+					android:orientation="vertical"
+					android:showDividers="middle"/>
+			</android.support.v7.widget.CardView>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="bottom"
+				android:minHeight="@dimen/card_header_height"
+				android:orientation="horizontal"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal">
+
+				<TextView
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/title_favorite_colors"
+					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+				<Button
+					android:id="@+id/edit_colors_button"
+					style="@style/SmallColoredButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="end|bottom"
+					android:text="@string/edit"/>
+			</LinearLayout>
+
+			<android.support.v7.widget.CardView
+				android:id="@+id/card_colors"
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<TextView
+					android:id="@+id/colors_hint"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center_vertical"
-					android:maxLines="1"
 					android:minHeight="56dp"
-					tools:text="H-Index 17"/>
-			</LinearLayout>
-		</android.support.v7.widget.CardView>
+					android:text="@string/favorite_colors_hint"/>
 
-		<TextView
-			android:id="@+id/sync_status"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/padding_standard"
-			android:paddingLeft="@dimen/activity_horizontal_margin"
-			android:paddingRight="@dimen/activity_horizontal_margin"
-			android:paddingTop="@dimen/padding_standard"/>
-	</LinearLayout>
-</ScrollView>
+				<HorizontalScrollView
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:fillViewport="true"
+					android:minHeight="56dp">
+
+					<LinearLayout
+						android:id="@+id/color_container"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
+						android:orientation="horizontal"/>
+				</HorizontalScrollView>
+			</android.support.v7.widget.CardView>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="bottom"
+				android:minHeight="@dimen/card_header_height"
+				android:orientation="horizontal"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal">
+
+				<TextView
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/title_play_stats"
+					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+				<Button
+					android:id="@+id/more_play_stats_button"
+					style="@style/SmallColoredButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="end|bottom"
+					android:text="@string/more"/>
+			</LinearLayout>
+
+			<android.support.v7.widget.CardView
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<LinearLayout
+					android:id="@+id/container_stats"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/h_index"
+						style="@style/Text"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:gravity="center_vertical"
+						android:maxLines="1"
+						android:minHeight="56dp"
+						tools:text="H-Index 17"/>
+				</LinearLayout>
+			</android.support.v7.widget.CardView>
+
+			<TextView
+				android:id="@+id/sync_status"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingBottom="@dimen/padding_standard"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingRight="@dimen/activity_horizontal_margin"
+				android:paddingTop="@dimen/padding_standard"/>
+		</LinearLayout>
+	</ScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

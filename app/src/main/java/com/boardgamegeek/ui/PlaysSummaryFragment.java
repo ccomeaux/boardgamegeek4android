@@ -3,10 +3,13 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -23,6 +26,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.PlaySelectedEvent;
+import com.boardgamegeek.events.SyncCompleteEvent;
+import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
@@ -45,13 +50,16 @@ import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
 
-public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int PLAYS_TOKEN = 1;
 	private static final int PLAY_COUNT_TOKEN = 2;
 	private static final int PLAYERS_TOKEN = 3;
@@ -64,7 +72,10 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int NUMBER_OF_LOCATIONS_SHOWN = 5;
 
 	private int numberOfPlaysInProgress;
+	private boolean isRefreshing;
+
 	private Unbinder unbinder;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.card_plays) View playsCard;
 	@BindView(R.id.plays_subtitle_in_progress) TextView playsInProgressSubtitle;
 	@BindView(R.id.plays_in_progress_container) LinearLayout playsInProgressContainer;
@@ -88,6 +99,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
+
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
 		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(getActivity())));
 
@@ -122,6 +136,20 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 		}
 		getLoaderManager().restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
+	}
+
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@DebugLog
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	@Override
@@ -408,5 +436,43 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@OnClick(R.id.more_play_stats_button)
 	public void onStatsClick() {
 		startActivity(new Intent(getActivity(), PlayStatsActivity.class));
+	}
+
+	@Override
+	public void onRefresh() {
+		if (!isRefreshing) {
+			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
+		} else {
+			updateRefreshStatus(false);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(@NonNull SyncEvent event) {
+		if ((event.getType() & SyncService.FLAG_SYNC_PLAYS) == SyncService.FLAG_SYNC_PLAYS) {
+			updateRefreshStatus(true);
+		}
+	}
+
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(SyncCompleteEvent event) {
+		updateRefreshStatus(false);
+	}
+
+	@DebugLog
+	private void updateRefreshStatus(boolean value) {
+		this.isRefreshing = value;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
+				}
+			});
+		}
 	}
 }
