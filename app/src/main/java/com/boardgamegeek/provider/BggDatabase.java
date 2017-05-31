@@ -28,6 +28,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.ResetGameTask;
 import com.boardgamegeek.tasks.ResetPlaysTask;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
@@ -90,7 +91,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_SUGGESTED_PLAYER_COUNT_POLL = 44;
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION = 45;
 	private static final int VER_MIN_MAX_PLAYING_TIME = 46;
-	private static final int DATABASE_VERSION = VER_MIN_MAX_PLAYING_TIME;
+	private static final int VER_SUGGESTED_PLAYER_COUNT_RESYNC = 47;
+	private static final int DATABASE_VERSION = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
 
 	private final Context context;
 
@@ -775,6 +777,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.GAMES, Games.MIN_PLAYING_TIME, COLUMN_TYPE.INTEGER);
 					addColumn(db, Tables.GAMES, Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER);
 					version = VER_MIN_MAX_PLAYING_TIME;
+				case VER_MIN_MAX_PLAYING_TIME:
+					TaskUtils.executeAsyncTask(new ResetGameTask(context));
+					SyncService.sync(context, SyncService.FLAG_SYNC_GAMES);
+					version = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
 			}
 
 			if (version != DATABASE_VERSION) {

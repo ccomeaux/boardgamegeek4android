@@ -173,6 +173,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 
 			tasks.add(new SyncCollectionUnupdated(context, service));
+		}
+		if ((type & SyncService.FLAG_SYNC_GAMES) == SyncService.FLAG_SYNC_GAMES) {
 			tasks.add(new SyncGamesRemove(context, service));
 			tasks.add(new SyncGamesOldest(context, service));
 			tasks.add(new SyncGamesUnupdated(context, service));
