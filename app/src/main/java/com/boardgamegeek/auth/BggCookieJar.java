@@ -15,8 +15,6 @@ import timber.log.Timber;
 public class BggCookieJar implements CookieJar {
 	private String authToken;
 	private long authTokenExpiry;
-	@SuppressWarnings("unused") private String sessionId;
-	private long sessionIdExpiry;
 
 	@Override
 	public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
@@ -26,9 +24,6 @@ public class BggCookieJar implements CookieJar {
 			if ("bggpassword".equalsIgnoreCase(cookie.name())) {
 				authToken = cookie.value();
 				authTokenExpiry = cookie.expiresAt();
-			} else if ("SessionID".equalsIgnoreCase(cookie.name())) {
-				sessionId = cookie.value();
-				sessionIdExpiry = cookie.expiresAt();
 			}
 		}
 	}
@@ -47,15 +42,13 @@ public class BggCookieJar implements CookieJar {
 		BggCookieJar authResponse = new BggCookieJar();
 		authResponse.authToken = "password";
 		authResponse.authTokenExpiry = Long.MAX_VALUE;
-		authResponse.sessionId = "session";
-		authResponse.sessionIdExpiry = Long.MAX_VALUE;
 		return authResponse;
 	}
 
 	@NonNull
 	@Override
 	public String toString() {
-		return String.format("token: %s (%s); session: %s (%s)", authToken, new Date(authTokenExpiry), sessionIdExpiry, new Date(sessionIdExpiry));
+		return String.format("token: %s (%s)", authToken, new Date(authTokenExpiry));
 	}
 
 	public String getAuthToken() {
