@@ -1467,15 +1467,21 @@ public class LogPlayActivity extends AppCompatActivity {
 					if (play.length == 0) {
 						startTimer();
 					} else {
-						DialogUtils.createConfirmationDialog(LogPlayActivity.this,
-							R.string.are_you_sure_timer_reset,
-							new DialogInterface.OnClickListener() {
+						DialogUtils.createThemedBuilder(LogPlayActivity.this)
+							.setMessage(R.string.are_you_sure_timer_reset)
+							.setPositiveButton(R.string.continue_, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									resumeTimer();
+								}
+							})
+							.setNegativeButton(R.string.reset, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
 									startTimer();
 								}
-							},
-							R.string.reset)
+							})
+							.setCancelable(true)
 							.show();
 					}
 				}
@@ -1485,6 +1491,14 @@ public class LogPlayActivity extends AppCompatActivity {
 			private void startTimer() {
 				Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "On"));
 				play.start();
+				bind();
+				maybeShowNotification();
+			}
+
+			@DebugLog
+			private void resumeTimer() {
+				Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "On"));
+				play.resume();
 				bind();
 				maybeShowNotification();
 			}

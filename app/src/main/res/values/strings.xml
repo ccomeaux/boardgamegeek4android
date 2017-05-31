@@ -48,6 +48,7 @@
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="discard">Discard</string>
+	<string name="continue_">Continue</string>
 	<string name="reset">Reset</string>
 	<string name="sort">Sort</string>
 	<string name="keep_editing">Keep Editing</string>
@@ -116,7 +117,7 @@
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_player_sort_custom_off">Do you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
-	<string name="are_you_sure_timer_reset">Do you want to reset the timer and lose the current play length?</string>
+	<string name="are_you_sure_timer_reset">Do you want to continue the timer where you left off or reset it and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
 	<string name="app_name">BoardGameGeek</string>
