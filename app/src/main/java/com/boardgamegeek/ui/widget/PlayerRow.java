@@ -37,6 +37,7 @@ public class PlayerRow extends LinearLayout {
 	@BindView(R.id.score) TextView scoreView;
 	@BindView(R.id.starting_position) TextView startingPositionView;
 	@BindView(R.id.rating) TextView ratingView;
+	@BindView(R.id.rating_button) ImageView ratingButton;
 	@BindView(R.id.score_button) ImageView scoreButton;
 	@BindView(R.id.more) View moreButton;
 
@@ -70,12 +71,18 @@ public class PlayerRow extends LinearLayout {
 		scoreTypeface = scoreView.getTypeface();
 		nameColor = nameView.getTextColors().getDefaultColor();
 
+		ratingButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 	}
 
 	public void setOnScoreListener(OnClickListener l) {
 		PresentationUtils.setSelectableBackgroundBorderless(scoreButton);
 		scoreButton.setOnClickListener(l);
+	}
+
+	public void setOnRatingListener(OnClickListener l) {
+		PresentationUtils.setSelectableBackgroundBorderless(scoreButton);
+		ratingButton.setOnClickListener(l);
 	}
 
 	public void setOnColorListener(OnClickListener l) {
@@ -106,6 +113,7 @@ public class PlayerRow extends LinearLayout {
 			setText(teamColorView, "");
 			setText(scoreView, "");
 			setText(ratingView, "");
+			ratingButton.setVisibility(GONE);
 			scoreButton.setVisibility(View.GONE);
 		} else {
 			setText(seatView, player.getStartingPosition());
@@ -128,6 +136,7 @@ public class PlayerRow extends LinearLayout {
 			setText(teamColorView, player.color);
 			setText(scoreView, player.score, scoreTypeface, false, player.Win());
 			setText(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
+			ratingButton.setVisibility(player.rating > 0 ? VISIBLE : GONE);
 			setText(startingPositionView, player.getStartingPosition());
 
 			int color = ColorUtils.parseColor(player.color);

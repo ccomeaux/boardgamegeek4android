@@ -1836,6 +1836,24 @@ public class LogPlayActivity extends AppCompatActivity {
 						fragment.show(getSupportFragmentManager(), "color_picker");
 					}
 				});
+				row.setOnRatingListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						final Player player = play.getPlayers().get(position);
+						final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(player.getDescription(), player.getRatingDescription(), player.color);
+						fragment.setMinValue(1.0);
+						fragment.setMaxValue(10.0);
+						fragment.setMaxMantissa(6);
+						fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
+							@Override
+							public void onDoneClick(String output) {
+								player.rating = StringUtils.parseDouble(output);
+								playAdapter.notifyPlayerChanged(position);
+							}
+						});
+						DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
+					}
+				});
 				row.setOnScoreListener(
 					new View.OnClickListener() {
 						@Override

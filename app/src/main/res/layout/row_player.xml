@@ -65,6 +65,28 @@
 		android:layout_gravity="center">
 
 		<ImageView
+			android:id="@+id/rating_button"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
+			android:layout_gravity="center"
+			android:scaleType="center"
+			android:src="@drawable/ic_rating"/>
+
+		<TextView
+			android:id="@+id/rating"
+			style="@style/Text.Big"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			tools:text="7.5"/>
+	</FrameLayout>
+
+	<FrameLayout
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="center">
+
+		<ImageView
 			android:id="@+id/score_button"
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
@@ -92,13 +114,6 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				tools:text="First"/>
-
-			<TextView
-				android:id="@+id/rating"
-				style="@style/Text.Footnote"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				tools:text="7.5"/>
 		</LinearLayout>
 	</FrameLayout>
 
