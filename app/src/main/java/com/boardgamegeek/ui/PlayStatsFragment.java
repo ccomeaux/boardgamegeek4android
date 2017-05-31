@@ -56,6 +56,8 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	@BindView(R.id.table_game_h_index) TableLayout gameHIndexTable;
 	@BindView(R.id.player_h_index) TextView playerHIndexView;
 	@BindView(R.id.table_player_h_index) TableLayout playerHIndexTable;
+	@BindView(R.id.header_advanced) View advancedHeader;
+	@BindView(R.id.card_advanced) View advancedCard;
 	@BindView(R.id.table_advanced) TableLayout advancedTable;
 	@BindView(R.id.collection_status_container) ViewGroup collectionStatusContainer;
 	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
@@ -159,22 +161,30 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		bindHIndexTable(playerHIndexTable, stats.getPlayerHIndex(), stats.getHIndexPlayers());
 
 		advancedTable.removeAllViews();
-		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS)
+		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS) {
+			advancedHeader.setVisibility(View.VISIBLE);
+			advancedCard.setVisibility(View.VISIBLE);
 			addStatRow(advancedTable, new Builder()
 				.labelId(R.string.play_stat_friendless)
 				.value(stats.getFriendless())
 				.infoId(R.string.play_stat_friendless_info));
-		if (stats.getUtilization() != PlayStats.INVALID_UTILIZATION)
+		}
+		if (stats.getUtilization() != PlayStats.INVALID_UTILIZATION) {
+			advancedHeader.setVisibility(View.VISIBLE);
+			advancedCard.setVisibility(View.VISIBLE);
 			addStatRow(advancedTable, new Builder()
 				.labelId(R.string.play_stat_utilization)
 				.valueAsPercentage(stats.getUtilization())
 				.infoId(R.string.play_stat_utilization_info));
-		if (stats.getCfm() != PlayStats.INVALID_CFM)
+		}
+		if (stats.getCfm() != PlayStats.INVALID_CFM) {
+			advancedHeader.setVisibility(View.VISIBLE);
+			advancedCard.setVisibility(View.VISIBLE);
 			addStatRow(advancedTable, new Builder()
 				.labelId(R.string.play_stat_cfm)
 				.value(stats.getCfm())
 				.infoId(R.string.play_stat_cfm_info));
-
+		}
 		showData();
 	}
 
