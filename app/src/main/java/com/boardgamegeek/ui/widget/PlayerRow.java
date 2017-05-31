@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.PresentationUtils;
 
 import java.text.DecimalFormat;
 
@@ -44,8 +45,6 @@ public class PlayerRow extends LinearLayout {
 	private final Typeface scoreTypeface;
 	private final int nameColor;
 
-	private boolean hasScoreListener;
-
 	public PlayerRow(Context context) {
 		this(context, null);
 	}
@@ -62,6 +61,8 @@ public class PlayerRow extends LinearLayout {
 		int verticalPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
 		setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 
+		PresentationUtils.setSelectableBackground(this);
+
 		ButterKnife.bind(this);
 
 		nameTypeface = nameView.getTypeface();
@@ -73,19 +74,17 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void setOnScoreListener(OnClickListener l) {
-		hasScoreListener = true;
-		scoreButton.setVisibility(View.VISIBLE);
-		scoreButton.setFocusable(false);
+		PresentationUtils.setSelectableBackgroundBorderless(scoreButton);
 		scoreButton.setOnClickListener(l);
 	}
 
 	public void setOnColorListener(OnClickListener l) {
-		colorContainer.setFocusable(false);
+		PresentationUtils.setSelectableBackgroundBorderless(colorContainer);
 		colorContainer.setOnClickListener(l);
 	}
 
 	public void setNameListener(OnClickListener l) {
-		nameContainer.setVisibility(View.VISIBLE);
+		PresentationUtils.setSelectableBackground(nameContainer);
 		nameContainer.setOnClickListener(l);
 	}
 
@@ -143,8 +142,6 @@ public class PlayerRow extends LinearLayout {
 			if (color != ColorUtils.TRANSPARENT) {
 				teamColorView.setVisibility(View.GONE);
 			}
-
-			scoreButton.setVisibility(hasScoreListener ? View.VISIBLE : View.GONE);
 		}
 	}
 
