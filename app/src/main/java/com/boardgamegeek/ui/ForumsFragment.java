@@ -93,9 +93,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	@DebugLog
 	public void onLoadFinished(Loader<SafeResponse<ForumListResponse>> loader, SafeResponse<ForumListResponse> data) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		if (adapter == null) {
 			adapter = new ForumsRecyclerViewAdapter(getActivity(),

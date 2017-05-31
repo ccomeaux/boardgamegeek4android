@@ -234,8 +234,9 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 	@DebugLog
 	private void showError(String message) {
-		Builder b = new Builder(this);
-		b.setTitle("Error").setMessage(message);
-		b.create().show();
+		new Builder(this)
+			.setTitle(R.string.title_error)
+			.setMessage(message)
+			.show();
 	}
 }
