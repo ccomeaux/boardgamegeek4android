@@ -580,7 +580,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void notifyChange(Game game) {
-		GameInfoChangedEvent event = new GameInfoChangedEvent(game.Name, game.Subtype, game.ImageUrl, game.ThumbnailUrl, game.CustomPlayerSort);
+		GameInfoChangedEvent event = new GameInfoChangedEvent(game.Name, game.Subtype, game.ImageUrl, game.ThumbnailUrl, game.CustomPlayerSort, game.IsStarred);
 		EventBus.getDefault().post(event);
 	}
 
@@ -1031,7 +1031,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Games.STATS_NUMBER_COMMENTS,
 			Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
 			Games.MIN_PLAYING_TIME,
-			Games.MAX_PLAYING_TIME
+			Games.MAX_PLAYING_TIME,
+			Games.STARRED
 		};
 
 		int GAME_ID = 0;
@@ -1061,6 +1062,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 27;
 		int MIN_PLAYING_TIME = 28;
 		int MAX_PLAYING_TIME = 29;
+		int STARRED = 30;
 	}
 
 	private interface DesignerQuery {
@@ -1225,6 +1227,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		final String Subtype;
 		final boolean CustomPlayerSort;
 		final int SuggestedPlayerCountPollVoteTotal;
+		final boolean IsStarred;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -1254,6 +1257,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Subtype = cursor.getString(GameQuery.SUBTYPE);
 			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
 			SuggestedPlayerCountPollVoteTotal = cursor.getInt(GameQuery.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL);
+			IsStarred = (cursor.getInt(GameQuery.STARRED) == 1);
 		}
 
 		@DebugLog
