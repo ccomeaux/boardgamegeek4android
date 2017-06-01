@@ -27,7 +27,6 @@ public class PlayerRow extends LinearLayout {
 	private final DecimalFormat ratingFormat = new DecimalFormat("0.0######");
 
 	@BindView(R.id.drag_handle) View dragHandle;
-	@BindView(R.id.color_container) View colorContainer;
 	@BindView(R.id.color_view) ImageView colorView;
 	@BindView(R.id.seat) TextView seatView;
 	@BindView(R.id.name_container) View nameContainer;
@@ -86,8 +85,8 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void setOnColorListener(OnClickListener l) {
-		PresentationUtils.setSelectableBackgroundBorderless(colorContainer);
-		colorContainer.setOnClickListener(l);
+		PresentationUtils.setSelectableBackgroundBorderless(colorView);
+		colorView.setOnClickListener(l);
 	}
 
 	public void setNameListener(OnClickListener l) {
@@ -132,6 +131,7 @@ public class PlayerRow extends LinearLayout {
 			}
 			PresentationUtils.setTextOrHide(teamColorView, player.color);
 			setText(scoreView, player.score, scoreTypeface, false, player.Win());
+			scoreButton.setVisibility(TextUtils.isEmpty(player.score) ? GONE : VISIBLE);
 			PresentationUtils.setTextOrHide(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
 			ratingButton.setVisibility(player.rating > 0 ? VISIBLE : GONE);
 			PresentationUtils.setTextOrHide(startingPositionView, player.getStartingPosition());
