@@ -220,11 +220,11 @@ public class SelectionBuilder {
 	}
 
 	private void mapColumns(String[] columns) {
+		if (columns == null) return;
+		if (columns.length == 0) return;
 		for (int i = 0; i < columns.length; i++) {
 			final String target = projectionMap.get(columns[i]);
-			if (target != null) {
-				columns[i] = target;
-			}
+			if (target != null) columns[i] = target;
 		}
 	}
 
@@ -246,9 +246,6 @@ public class SelectionBuilder {
 	 * Execute query using the current internal state as {@code WHERE} clause.
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String groupBy, String having, String orderBy, String limit) {
-		if (columns == null || columns.length == 0) {
-			throw new IllegalStateException("Columns not specified");
-		}
 		assertTable();
 		mapColumns(columns);
 		Timber.v("QUERY: columns=%s, %s", Arrays.toString(columns), this);
