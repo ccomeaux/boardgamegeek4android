@@ -96,60 +96,57 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void setOnMoreListener(OnClickListener l) {
-		moreButton.setVisibility(View.VISIBLE);
+		moreButton.setVisibility(VISIBLE);
 		moreButton.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {
-		dragHandle.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
+		dragHandle.setVisibility(value ? VISIBLE : INVISIBLE);
 	}
 
 	public void setPlayer(Player player) {
 		if (player == null) {
 			colorView.setVisibility(View.GONE);
-			setText(seatView, "");
-			setText(nameView, getResources().getString(R.string.title_player));
-			setText(usernameView, "");
-			setText(teamColorView, "");
-			setText(scoreView, "");
-			setText(ratingView, "");
+			PresentationUtils.setTextOrHide(seatView, "");
+			PresentationUtils.setTextOrHide(nameView, getResources().getString(R.string.title_player));
+			PresentationUtils.setTextOrHide(usernameView, "");
+			PresentationUtils.setTextOrHide(teamColorView, "");
+			PresentationUtils.setTextOrHide(scoreView, "");
+			PresentationUtils.setTextOrHide(ratingView, "");
 			ratingButton.setVisibility(GONE);
-			scoreButton.setVisibility(View.GONE);
+			scoreButton.setVisibility(GONE);
 		} else {
-			setText(seatView, player.getStartingPosition());
+			PresentationUtils.setTextOrHide(seatView, player.getStartingPosition());
 			if (TextUtils.isEmpty(player.name) && TextUtils.isEmpty(player.username)) {
-				String name;
-				if (player.getSeat() == Player.SEAT_UNKNOWN) {
-					name = getResources().getString(R.string.title_player);
-				} else {
-					name = getResources().getString(R.string.generic_player, player.getSeat());
-				}
+				String name = player.getSeat() == Player.SEAT_UNKNOWN ?
+					getResources().getString(R.string.title_player) :
+					getResources().getString(R.string.generic_player, player.getSeat());
 				setText(nameView, name, nameTypeface, player.New(), player.Win(), true);
-				usernameView.setVisibility(View.GONE);
+				usernameView.setVisibility(GONE);
 			} else if (TextUtils.isEmpty(player.name)) {
 				setText(nameView, player.username, nameTypeface, player.New(), player.Win());
-				usernameView.setVisibility(View.GONE);
+				usernameView.setVisibility(GONE);
 			} else {
 				setText(nameView, player.name, nameTypeface, player.New(), player.Win());
 				setText(usernameView, player.username, usernameTypeface, player.New(), player.Win());
 			}
-			setText(teamColorView, player.color);
+			PresentationUtils.setTextOrHide(teamColorView, player.color);
 			setText(scoreView, player.score, scoreTypeface, false, player.Win());
-			setText(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
+			PresentationUtils.setTextOrHide(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
 			ratingButton.setVisibility(player.rating > 0 ? VISIBLE : GONE);
-			setText(startingPositionView, player.getStartingPosition());
+			PresentationUtils.setTextOrHide(startingPositionView, player.getStartingPosition());
 
 			int color = ColorUtils.parseColor(player.color);
-			colorView.setVisibility(View.VISIBLE);
+			colorView.setVisibility(VISIBLE);
 			ColorUtils.setColorViewValue(colorView, color);
 			if (player.getSeat() == Player.SEAT_UNKNOWN) {
-				seatView.setVisibility(View.GONE);
+				seatView.setVisibility(GONE);
 			} else {
 				seatView.setTextColor(ColorUtils.getTextColor(color));
-				startingPositionView.setVisibility(View.GONE);
+				startingPositionView.setVisibility(GONE);
 			}
 			if (color != ColorUtils.TRANSPARENT) {
-				teamColorView.setVisibility(View.GONE);
+				teamColorView.setVisibility(GONE);
 			}
 		}
 	}
@@ -162,17 +159,12 @@ public class PlayerRow extends LinearLayout {
 		return dragHandle;
 	}
 
-	private void setText(TextView textView, String text) {
-		textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-		textView.setText(text);
-	}
-
 	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold) {
 		setText(textView, text, tf, italic, bold, false);
 	}
 
-	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold, boolean secondary) {
-		setText(textView, text);
+	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold, boolean isSecondary) {
+		PresentationUtils.setTextOrHide(textView, text);
 		if (!TextUtils.isEmpty(text)) {
 			if (italic && bold) {
 				textView.setTypeface(tf, Typeface.BOLD_ITALIC);
@@ -183,7 +175,7 @@ public class PlayerRow extends LinearLayout {
 			} else {
 				textView.setTypeface(tf, Typeface.NORMAL);
 			}
-			if (secondary) {
+			if (isSecondary) {
 				textView.setTextColor(ContextCompat.getColor(getContext(), R.color.secondary_text));
 			} else {
 				textView.setTextColor(nameColor);
