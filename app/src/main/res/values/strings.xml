@@ -302,6 +302,8 @@
 	<string name="menu_collection_name">Collection Name</string>
 	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
+	<string name="favorites">Favorites</string>
+	<string name="not_favorites">Not favorites</string>
 	<string name="title_add_a_copy">Add a Copy</string>
 	<string name="collection_sort_acquisition_date">Acquisition Date</string>
 	<string name="collection_sort_average_rating">Average Rating</string>
