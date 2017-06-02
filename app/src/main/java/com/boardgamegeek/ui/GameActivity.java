@@ -20,7 +20,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.tasks.StarGameTask;
+import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
@@ -47,7 +47,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
-	private boolean isStarred;
+	private boolean isFavorite;
 
 	@DebugLog
 	@Override
@@ -111,9 +111,9 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem menuItem = menu.findItem(R.id.menu_star);
+		MenuItem menuItem = menu.findItem(R.id.menu_favorite);
 		if (menuItem != null) {
-			menuItem.setTitle(isStarred ? R.string.menu_un_star : R.string.menu_star);
+			menuItem.setTitle(isFavorite ? R.string.menu_unfavorite : R.string.menu_favorite);
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -136,8 +136,8 @@ public class GameActivity extends HeroActivity implements Callback {
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, gameId, gameName, "Game");
 				return true;
-			case R.id.menu_star:
-				TaskUtils.executeAsyncTask(new StarGameTask(this, gameId, !isStarred));
+			case R.id.menu_favorite:
+				TaskUtils.executeAsyncTask(new FavoriteGameTask(this, gameId, !isFavorite));
 				return true;
 			case R.id.menu_shortcut:
 				ShortcutUtils.createGameShortcut(this, gameId, gameName, thumbnailUrl);
@@ -165,7 +165,7 @@ public class GameActivity extends HeroActivity implements Callback {
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
-		isStarred = event.isStarred();
+		isFavorite = event.isFavorite();
 		ScrimUtils.applyDarkScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}

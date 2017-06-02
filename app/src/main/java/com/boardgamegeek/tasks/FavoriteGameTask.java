@@ -7,22 +7,22 @@ import android.os.AsyncTask;
 
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class StarGameTask extends AsyncTask<Void, Void, Boolean> {
+public class FavoriteGameTask extends AsyncTask<Void, Void, Boolean> {
 	private final Context context;
 	private final int gameId;
-	private final boolean star;
+	private final boolean isFavorite;
 
-	public StarGameTask(Context context, int gameId, boolean star) {
+	public FavoriteGameTask(Context context, int gameId, boolean isFavorite) {
 		this.context = context;
 		this.gameId = gameId;
-		this.star = star;
+		this.isFavorite = isFavorite;
 	}
 
 	@Override
 	protected Boolean doInBackground(Void... params) {
 		final ContentResolver resolver = context.getContentResolver();
 		ContentValues values = new ContentValues();
-		values.put(Games.STARRED, star ? 1 : 0);
+		values.put(Games.STARRED, isFavorite ? 1 : 0);
 		return resolver.update(Games.buildGameUri(gameId), values, null, null) > 0;
 	}
 }

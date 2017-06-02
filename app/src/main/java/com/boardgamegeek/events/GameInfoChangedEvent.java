@@ -6,15 +6,15 @@ public class GameInfoChangedEvent {
 	private final String thumbnailUrl;
 	private final String imageUrl;
 	private final boolean arePlayersCustomSorted;
-	private final boolean isStarred;
+	private final boolean isFavorite;
 
-	public GameInfoChangedEvent(String gameName, String subtype, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, boolean isStarred) {
+	public GameInfoChangedEvent(String gameName, String subtype, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, boolean isFavorite) {
 		this.gameName = gameName;
 		this.subtype = subtype;
 		this.thumbnailUrl = thumbnailUrl;
 		this.imageUrl = imageUrl;
 		this.arePlayersCustomSorted = arePlayersCustomSorted;
-		this.isStarred = isStarred;
+		this.isFavorite = isFavorite;
 	}
 
 	public String getGameName() {
@@ -37,7 +37,7 @@ public class GameInfoChangedEvent {
 		return arePlayersCustomSorted;
 	}
 
-	public boolean isStarred() {
-		return isStarred;
+	public boolean isFavorite() {
+		return isFavorite;
 	}
 }

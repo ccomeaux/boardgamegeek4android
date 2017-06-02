@@ -40,4 +40,5 @@
 	<string name="collection_filter_type_average_weight">5</string>
 	<string name="collection_filter_type_collection_name">13</string>
 	<string name="collection_filter_type_recommended_player_count">14</string>
+	<string name="collection_filter_type_favorite">15</string>
 </resources>
