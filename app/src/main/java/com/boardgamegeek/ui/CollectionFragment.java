@@ -759,12 +759,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+			boolean isFavorite = cursor.getInt(Query.STARRED) == 1;
 			final long timestamp = sorter.getTimestamp(cursor);
 
 			UIUtils.setActivatedCompat(view, collectionId == selectedCollectionId);
 			holder.nameView.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.yearView.setText(PresentationUtils.describeYear(getActivity(), year));
 			holder.timestampView.setTimestamp(timestamp);
+			holder.favoriteView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
 			PresentationUtils.setTextOrHide(holder.infoView, sorter == null ? "" : sorter.getDisplayInfo(cursor));
 			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl, holder.thumbnailView);
 		}
@@ -799,6 +801,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			@BindView(R.id.info) TextView infoView;
 			@BindView(R.id.timestamp) TimestampView timestampView;
 			@BindView(R.id.thumbnail) ImageView thumbnailView;
+			@BindView(R.id.favorite) ImageView favoriteView;
 
 			public ViewHolder(@NonNull View view) {
 				ButterKnife.bind(this, view);
@@ -812,10 +815,20 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	private interface Query {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.THUMBNAIL_URL, Collection.IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED,
-			Games.CUSTOM_PLAYER_SORT };
+		String[] PROJECTION = {
+			Collection._ID,
+			Collection.COLLECTION_ID,
+			Collection.COLLECTION_NAME,
+			Collection.YEAR_PUBLISHED,
+			Collection.GAME_NAME,
+			Games.GAME_ID,
+			Collection.COLLECTION_THUMBNAIL_URL,
+			Collection.THUMBNAIL_URL,
+			Collection.IMAGE_URL,
+			Collection.COLLECTION_YEAR_PUBLISHED,
+			Games.CUSTOM_PLAYER_SORT,
+			Games.STARRED
+		};
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -828,12 +841,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int IMAGE_URL = 8;
 		int COLLECTION_YEAR_PUBLISHED = 9;
 		int CUSTOM_PLAYER_SORT = 10;
+		int STARRED = 11;
 	}
 
 	private interface ViewQuery {
 		int _TOKEN = 0x02;
-		String[] PROJECTION = { CollectionViewFilters._ID, CollectionViewFilters.NAME, CollectionViewFilters.SORT_TYPE,
-			CollectionViewFilters.TYPE, CollectionViewFilters.DATA, };
+		String[] PROJECTION = {
+			CollectionViewFilters._ID,
+			CollectionViewFilters.NAME,
+			CollectionViewFilters.SORT_TYPE,
+			CollectionViewFilters.TYPE,
+			CollectionViewFilters.DATA
+		};
 
 		// int _ID = 0;
 		int NAME = 1;

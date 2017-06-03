@@ -49,6 +49,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
+import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncGameTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
@@ -136,6 +137,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@BindView(R.id.game_rank) TextView rankView;
 	@BindView(R.id.game_types) TextView typesView;
+	@BindView(R.id.icon_favorite) ImageView favoriteView;
 
 	@BindView(R.id.game_info_designers) GameDetailRow designersView;
 	@BindView(R.id.game_info_artists) GameDetailRow artistsView;
@@ -185,6 +187,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.game_info_base_games
 	}) List<GameDetailRow> colorizedRows;
 	@BindViews({
+		R.id.icon_favorite,
 		R.id.icon_rating,
 		R.id.icon_game_year_published,
 		R.id.icon_play_time,
@@ -527,6 +530,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
 
 		rankView.setText(PresentationUtils.describeRank(getContext(), game.Rank, BggService.RANK_TYPE_SUBTYPE, game.Subtype));
+		favoriteView.setImageResource(game.IsFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+		favoriteView.setTag(R.id.favorite, game.IsFavorite);
 
 		ratingView.setText(PresentationUtils.describeRating(getContext(), game.Rating));
 		ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
@@ -580,7 +585,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void notifyChange(Game game) {
-		GameInfoChangedEvent event = new GameInfoChangedEvent(game.Name, game.Subtype, game.ImageUrl, game.ThumbnailUrl, game.CustomPlayerSort);
+		GameInfoChangedEvent event = new GameInfoChangedEvent(game.Name, game.Subtype, game.ImageUrl, game.ThumbnailUrl, game.CustomPlayerSort, game.IsFavorite);
 		EventBus.getDefault().post(event);
 	}
 
@@ -785,6 +790,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 		PresentationUtils.setTextOrHide(numberOfPlayersVotes,
 			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
+	}
+
+	@OnClick(R.id.icon_favorite)
+	@DebugLog
+	public void onFavoriteClick() {
+		boolean isFavorite = (boolean) favoriteView.getTag(R.id.favorite);
+		TaskUtils.executeAsyncTask(new FavoriteGameTask(getContext(), Games.getGameId(gameUri), !isFavorite));
 	}
 
 	@OnClick(R.id.game_rank_root)
@@ -1031,7 +1043,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Games.STATS_NUMBER_COMMENTS,
 			Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
 			Games.MIN_PLAYING_TIME,
-			Games.MAX_PLAYING_TIME
+			Games.MAX_PLAYING_TIME,
+			Games.STARRED
 		};
 
 		int GAME_ID = 0;
@@ -1061,6 +1074,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 27;
 		int MIN_PLAYING_TIME = 28;
 		int MAX_PLAYING_TIME = 29;
+		int STARRED = 30;
 	}
 
 	private interface DesignerQuery {
@@ -1225,6 +1239,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		final String Subtype;
 		final boolean CustomPlayerSort;
 		final int SuggestedPlayerCountPollVoteTotal;
+		final boolean IsFavorite;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -1254,6 +1269,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			Subtype = cursor.getString(GameQuery.SUBTYPE);
 			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
 			SuggestedPlayerCountPollVoteTotal = cursor.getInt(GameQuery.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL);
+			IsFavorite = (cursor.getInt(GameQuery.STARRED) == 1);
 		}
 
 		@DebugLog

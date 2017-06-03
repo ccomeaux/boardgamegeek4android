@@ -20,6 +20,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
@@ -28,6 +29,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -45,6 +47,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
+	private boolean isFavorite;
 
 	@DebugLog
 	@Override
@@ -106,6 +109,15 @@ public class GameActivity extends HeroActivity implements Callback {
 		return true;
 	}
 
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem menuItem = menu.findItem(R.id.menu_favorite);
+		if (menuItem != null) {
+			menuItem.setTitle(isFavorite ? R.string.menu_unfavorite : R.string.menu_favorite);
+		}
+		return super.onPrepareOptionsMenu(menu);
+	}
+
 	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -123,6 +135,9 @@ public class GameActivity extends HeroActivity implements Callback {
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, gameId, gameName, "Game");
+				return true;
+			case R.id.menu_favorite:
+				TaskUtils.executeAsyncTask(new FavoriteGameTask(this, gameId, !isFavorite));
 				return true;
 			case R.id.menu_shortcut:
 				ShortcutUtils.createGameShortcut(this, gameId, gameName, thumbnailUrl);
@@ -150,6 +165,7 @@ public class GameActivity extends HeroActivity implements Callback {
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
+		isFavorite = event.isFavorite();
 		ScrimUtils.applyDarkScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}

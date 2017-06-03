@@ -144,5 +144,19 @@
 			android:layout_height="match_parent"
 			android:tag="@string/collection_filter_type_play_count"
 			android:text="@string/menu_play_count"/>
+
+		<TextView
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/collection_sort_local"/>
+
+		<CheckBox
+			android:id="@+id/favorite"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_filter_type_favorite"
+			android:text="@string/menu_favorite"/>
 	</LinearLayout>
 </ScrollView>
