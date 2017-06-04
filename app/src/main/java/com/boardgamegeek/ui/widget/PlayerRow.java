@@ -80,7 +80,7 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void setOnRatingListener(OnClickListener l) {
-		PresentationUtils.setSelectableBackgroundBorderless(scoreButton);
+		PresentationUtils.setSelectableBackgroundBorderless(ratingButton);
 		ratingButton.setOnClickListener(l);
 	}
 
