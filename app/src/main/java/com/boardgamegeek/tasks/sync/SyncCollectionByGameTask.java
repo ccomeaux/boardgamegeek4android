@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
@@ -39,6 +40,11 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 	@StringRes
 	protected int getTypeDescriptionResId() {
 		return R.string.title_collection;
+	}
+
+	@Override
+	protected BggService createService() {
+		return Adapter.createForXmlWithAuth(context);
 	}
 
 	@Override
