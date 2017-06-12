@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.Authenticator;
@@ -24,7 +25,7 @@ public class AuthInterceptor implements Interceptor {
 	}
 
 	@Override
-	public Response intercept(Chain chain) throws IOException {
+	public Response intercept(@NonNull Chain chain) throws IOException {
 		Request originalRequest = chain.request();
 
 		AccountManager accountManager = AccountManager.get(context);

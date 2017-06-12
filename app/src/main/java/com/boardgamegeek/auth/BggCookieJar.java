@@ -17,7 +17,7 @@ public class BggCookieJar implements CookieJar {
 	private long authTokenExpiry;
 
 	@Override
-	public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+	public void saveFromResponse(@NonNull HttpUrl url, @NonNull List<Cookie> cookies) {
 		Timber.w(url.toString());
 		Timber.w(cookies.toString());
 		for (Cookie cookie : cookies) {
@@ -29,7 +29,7 @@ public class BggCookieJar implements CookieJar {
 	}
 
 	@Override
-	public List<Cookie> loadForRequest(HttpUrl url) {
+	public List<Cookie> loadForRequest(@NonNull HttpUrl url) {
 		return Collections.emptyList();
 	}
 

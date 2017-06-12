@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -33,6 +34,7 @@ public class ShortcutUtils {
 		TaskUtils.executeAsyncTask(task);
 	}
 
+	@Nullable
 	public static Intent createGameIntent(Context context, int gameId, String gameName, String thumbnailUrl) {
 		Intent shortcut = createGameShortcutIntent(context, gameId, gameName);
 		if (shortcut == null) return null;
@@ -43,6 +45,7 @@ public class ShortcutUtils {
 		return shortcut;
 	}
 
+	@Nullable
 	public static File getThumbnailFile(Context context, String url) {
 		if (!TextUtils.isEmpty(url)) {
 			String filename = FileUtils.getFileNameFromUrl(url);
@@ -53,8 +56,10 @@ public class ShortcutUtils {
 		return null;
 	}
 
+	@Nullable
 	public static Intent createGameShortcutIntent(Context context, int gameId, String gameName) {
 		Intent intent = ActivityUtils.createGameIntent(gameId, gameName);
+		if (intent == null) return null;
 		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
 		return createShortcutIntent(context, gameName, intent, DEFAULT_SHORTCUT_ICON);
 	}
