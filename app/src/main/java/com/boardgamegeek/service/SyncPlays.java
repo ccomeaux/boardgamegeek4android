@@ -39,7 +39,7 @@ public class SyncPlays extends SyncTask {
 	}
 
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) throws IOException {
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing plays...");
 		try {
 			if (!PreferencesUtils.getSyncPlays(context)) {

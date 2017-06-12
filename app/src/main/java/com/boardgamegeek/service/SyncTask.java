@@ -16,8 +16,6 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
-import java.io.IOException;
-
 import timber.log.Timber;
 
 public abstract class SyncTask extends ServiceTask {
@@ -34,7 +32,7 @@ public abstract class SyncTask extends ServiceTask {
 
 	public abstract int getSyncType();
 
-	public abstract void execute(Account account, SyncResult syncResult) throws IOException;
+	public abstract void execute(Account account, SyncResult syncResult);
 
 	public void cancel() {
 		isCancelled = true;
