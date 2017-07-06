@@ -20,12 +20,12 @@
 	</declare-styleable>
 	<declare-styleable name="BggForegroundLinearLayout">
 		<attr name="android:foreground"/>
-		<attr name="android:foregroundInsidePadding"/>
+		<attr name="foregroundInsidePadding"/>
 		<attr name="android:foregroundGravity"/>
 	</declare-styleable>
 	<declare-styleable name="ForegroundImageView">
 		<attr name="android:foreground"/>
-		<attr name="android:foregroundInsidePadding"/>
+		<attr name="foregroundInsidePadding"/>
 		<attr name="android:foregroundGravity"/>
 	</declare-styleable>
 	<declare-styleable name="TimestampView">
