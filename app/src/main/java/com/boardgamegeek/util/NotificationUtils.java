@@ -86,48 +86,48 @@ public class NotificationUtils {
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title) {
-		return createNotificationBuilder(context, title, HomeActivity.class);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, String channelId) {
+		return createNotificationBuilder(context, title, channelId, HomeActivity.class);
 	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId) {
-		return createNotificationBuilder(context, titleResId, HomeActivity.class);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, String channelId) {
+		return createNotificationBuilder(context, titleResId, channelId, HomeActivity.class);
 	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, Class<?> cls) {
-		return createNotificationBuilder(context, context.getString(titleResId), cls);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, String channelId, Class<?> cls) {
+		return createNotificationBuilder(context, context.getString(titleResId), channelId, cls);
 	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Class<?> cls) {
-		return createNotificationBuilder(context, title, new Intent(context, cls));
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, String channelId, Class<?> cls) {
+		return createNotificationBuilder(context, title, channelId, new Intent(context, cls));
 	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, Intent intent) {
-		return createNotificationBuilder(context, context.getString(titleResId), intent);
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, String channelId, Intent intent) {
+		return createNotificationBuilder(context, context.getString(titleResId), channelId, intent);
 	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Intent intent) {
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, String channelId, Intent intent) {
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
 			.setSmallIcon(R.drawable.ic_stat_bgg)
 			.setColor(ContextCompat.getColor(context, R.color.primary))
 			.setContentTitle(title)
@@ -147,7 +147,7 @@ public class NotificationUtils {
 
 	public static void showPersistErrorNotification(Context context, Exception e) {
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title)
+			.createNotificationBuilder(context, R.string.sync_notification_title, NotificationUtils.CHANNEL_ID_ERROR)
 			.setContentText(e.getMessage())
 			.setCategory(NotificationCompat.CATEGORY_ERROR)
 			.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getMessage()));
@@ -176,19 +176,19 @@ public class NotificationUtils {
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {
-				buildAndNotify(context, internalId, play, thumbnailUrl, imageUrl, bitmap);
+				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, bitmap);
 			}
 
 			@Override
 			public void onFailedIconLoad() {
-				buildAndNotify(context, internalId, play, thumbnailUrl, imageUrl, null);
+				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, null);
 			}
 		});
 		loader.executeOnMainThread();
 	}
 
-	private static void buildAndNotify(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName);
+	private static void buildAndNotifyPlaying(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName, NotificationUtils.CHANNEL_ID_PLAYING);
 
 		Intent intent = ActivityUtils.createPlayIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

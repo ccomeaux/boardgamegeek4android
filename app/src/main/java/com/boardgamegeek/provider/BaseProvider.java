@@ -132,7 +132,7 @@ public abstract class BaseProvider {
 	protected void notifyException(Context context, SQLException e) {
 		if (PreferencesUtils.getSyncShowNotifications(context)) {
 			NotificationCompat.Builder builder = NotificationUtils
-				.createNotificationBuilder(context, R.string.title_error)
+				.createNotificationBuilder(context, R.string.title_error, NotificationUtils.CHANNEL_ID_ERROR)
 				.setContentText(e.getLocalizedMessage())
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getLocalizedMessage()));

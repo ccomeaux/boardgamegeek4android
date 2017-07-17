@@ -64,9 +64,11 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	private void buildAndNotify(CharSequence title, CharSequence message, int id, Bitmap largeIcon) {
-		Builder builder = NotificationUtils.createNotificationBuilder(context,
-			getNotificationTitleResId(),
-			getNotificationIntent())
+		Builder builder = NotificationUtils
+			.createNotificationBuilder(context,
+				getNotificationTitleResId(),
+				NotificationUtils.CHANNEL_ID_SYNC_UPLOAD,
+				getNotificationIntent())
 			.setCategory(NotificationCompat.CATEGORY_SERVICE)
 			.setContentTitle(title)
 			.setContentText(message)
@@ -87,9 +89,10 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	@DebugLog
 	private void showNotificationSummary() {
-		Builder builder = NotificationUtils.createNotificationBuilder(context,
-			getNotificationTitleResId(),
-			getNotificationSummaryIntent())
+		Builder builder = NotificationUtils
+			.createNotificationBuilder(context,
+				getNotificationTitleResId(),
+				NotificationUtils.CHANNEL_ID_SYNC_UPLOAD, getNotificationSummaryIntent())
 			.setGroup(getNotificationMessageTag())
 			.setGroupSummary(true);
 		final int messageCount = notificationMessages.size();
@@ -114,9 +117,10 @@ public abstract class SyncUploadTask extends SyncTask {
 	protected void notifyUploadError(CharSequence errorMessage) {
 		if (TextUtils.isEmpty(errorMessage)) return;
 		Timber.e(errorMessage.toString());
-		Builder builder = NotificationUtils.createNotificationBuilder(context,
-			getNotificationTitleResId(),
-			getNotificationSummaryIntent())
+		Builder builder = NotificationUtils
+			.createNotificationBuilder(context,
+				getNotificationTitleResId(),
+				NotificationUtils.CHANNEL_ID_ERROR, getNotificationSummaryIntent())
 			.setContentText(errorMessage)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
