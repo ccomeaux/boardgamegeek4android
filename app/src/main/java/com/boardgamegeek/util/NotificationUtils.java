@@ -27,7 +27,6 @@ public class NotificationUtils {
 	public static final String TAG_PROVIDER_ERROR = "PROVIDER_ERROR";
 	public static final String TAG_SYNC_PROGRESS = "SYNC_PROGRESS";
 	public static final String TAG_SYNC_ERROR = "SYNC_ERROR";
-	public static final String TAG_UPDATE_ERROR = "UPDATE_ERROR";
 	public static final String TAG_UPLOAD_PLAY = "UPLOAD_PLAY";
 	public static final String TAG_UPLOAD_PLAY_ERROR = "UPLOAD_PLAY_ERROR";
 	public static final String TAG_UPLOAD_COLLECTION = "UPLOAD_COLLECTION";

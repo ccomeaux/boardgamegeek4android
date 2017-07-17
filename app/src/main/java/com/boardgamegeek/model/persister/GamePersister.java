@@ -6,10 +6,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
-import com.boardgamegeek.R;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.Game.Link;
 import com.boardgamegeek.model.Game.Poll;
@@ -593,14 +591,5 @@ public class GamePersister {
 		private Uri buildLinkUri(Link newLink) {
 			return getContentUri().buildUpon().appendPath(String.valueOf(newLink.id)).build();
 		}
-	}
-
-	private void showErrorNotification(Exception e) {
-		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title)
-			.setContentText(e.getMessage())
-			.setCategory(NotificationCompat.CATEGORY_ERROR)
-			.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getMessage()));
-		NotificationUtils.notify(context, NotificationUtils.TAG_PERSIST_ERROR, 0, builder);
 	}
 }
