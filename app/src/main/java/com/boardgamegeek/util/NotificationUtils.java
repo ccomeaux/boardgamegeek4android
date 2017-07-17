@@ -1,9 +1,14 @@
 package com.boardgamegeek.util;
 
+import android.annotation.TargetApi;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.os.Build.VERSION_CODES;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -27,6 +32,55 @@ public class NotificationUtils {
 	public static final String TAG_UPLOAD_PLAY_ERROR = "UPLOAD_PLAY_ERROR";
 	public static final String TAG_UPLOAD_COLLECTION = "UPLOAD_COLLECTION";
 	public static final String TAG_UPLOAD_COLLECTION_ERROR = "UPLOAD_COLLECTION_ERROR";
+
+	public static final String CHANNEL_ID_SYNC_PROGRESS = "sync";
+	public static final String CHANNEL_ID_ERROR = "sync_error";
+	public static final String CHANNEL_ID_SYNC_UPLOAD = "sync_upload";
+	public static final String CHANNEL_ID_PLAYING = "playing";
+	public static final String CHANNEL_ID_STATS = "stats";
+
+	@TargetApi(VERSION_CODES.O)
+	public static void createNotificationChannels(Context context) {
+		if (context == null) return;
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+		NotificationChannel channel = new NotificationChannel(
+			NotificationUtils.CHANNEL_ID_SYNC_PROGRESS,
+			context.getString(R.string.channel_name_sync_progress),
+			NotificationManager.IMPORTANCE_LOW);
+		channel.setDescription(context.getString(R.string.channel_description_sync_progress));
+		notificationManager.createNotificationChannel(channel);
+
+		channel = new NotificationChannel(
+			NotificationUtils.CHANNEL_ID_SYNC_UPLOAD,
+			context.getString(R.string.channel_name_sync_upload),
+			NotificationManager.IMPORTANCE_DEFAULT);
+		channel.setDescription(context.getString(R.string.channel_description_sync_upload));
+		notificationManager.createNotificationChannel(channel);
+
+		channel = new NotificationChannel(
+			NotificationUtils.CHANNEL_ID_ERROR,
+			context.getString(R.string.channel_name_sync_error),
+			NotificationManager.IMPORTANCE_DEFAULT);
+		channel.setDescription(context.getString(R.string.channel_description_sync_error));
+		channel.setLightColor(Color.RED);
+		notificationManager.createNotificationChannel(channel);
+
+		channel = new NotificationChannel(
+			NotificationUtils.CHANNEL_ID_PLAYING,
+			context.getString(R.string.channel_name_playing),
+			NotificationManager.IMPORTANCE_HIGH);
+		channel.setDescription(context.getString(R.string.channel_description_playing));
+		channel.setLightColor(Color.BLUE);
+		notificationManager.createNotificationChannel(channel);
+
+		channel = new NotificationChannel(
+			NotificationUtils.CHANNEL_ID_STATS,
+			context.getString(R.string.channel_name_stats),
+			NotificationManager.IMPORTANCE_DEFAULT);
+		channel.setDescription(context.getString(R.string.channel_description_stats));
+		notificationManager.createNotificationChannel(channel);
+	}
 
 	/**
 	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and

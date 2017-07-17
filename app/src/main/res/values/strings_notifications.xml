@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="channel_name_sync_progress">Sync progress</string>
+	<string name="channel_description_sync_progress">Show the progress of the synchronization process between this application and the BoardGameGeek.com website.</string>
+	<string name="channel_name_sync_upload">Upload</string>
+	<string name="channel_description_sync_upload">Notifies you when a collection item or play has been successfully uploaded (added, changed, or deleted) to BoardGameGeek.com.</string>
+	<string name="channel_name_sync_error">Errors</string>
+	<string name="channel_description_sync_error">Display errors during synchronization or saving data locally. This is especially helpful for debugging purposes.</string>
+	<string name="channel_name_playing">Playing</string>
+	<string name="channel_description_playing">Display the current game being played including the elapsed time.</string>
+	<string name="channel_name_stats">Stats updates</string>
+	<string name="channel_description_stats">Let\'s you know whenever statistics are updated.</string>
+</resources>
