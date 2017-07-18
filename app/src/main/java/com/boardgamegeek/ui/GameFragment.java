@@ -40,7 +40,6 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
-import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
@@ -59,6 +58,7 @@ import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStat
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.model.Game;
+import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -111,6 +111,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int SYNC_PLAYS = 1 << 1;
 	private static final int SYNC_COLLECTION = 1 << 2;
 	private static final int GAME_TOKEN = 0x11;
+	private static final int RANK_TOKEN = 0x19;
 
 	private Uri gameUri;
 	private String gameName;
@@ -252,7 +253,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		mightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GAME_TOKEN, null, this);
-		lm.restartLoader(RankQuery._TOKEN, null, this);
+		lm.restartLoader(RANK_TOKEN, null, this);
 		if (shouldShowPlays()) {
 			lm.restartLoader(PlaysQuery._TOKEN, null, this);
 		}
@@ -337,8 +338,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case BaseGameQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 				break;
-			case RankQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildRanksUri(gameId), RankQuery.PROJECTION, null, null, null);
+			case RANK_TOKEN:
+				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
 				break;
 			case CollectionQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
@@ -428,7 +429,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case BaseGameQuery._TOKEN:
 				onListQueryComplete(cursor, baseGamesView, BaseGameQuery.EXPANSION_NAME, BaseGameQuery.EXPANSION_ID);
 				break;
-			case RankQuery._TOKEN:
+			case RANK_TOKEN:
 				onRankQueryComplete(cursor);
 				break;
 			case CollectionQuery._TOKEN:
@@ -611,13 +612,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			if (cursor != null && cursor.getCount() > 0) {
 				CharSequence cs = null;
 				while (cursor.moveToNext()) {
-					Rank rank = new Rank(cursor);
-					if (!BggService.RANK_TYPE_SUBTYPE.equals(rank.Type)) {
+					GameRank rank = GameRank.fromCursor(cursor);
+					if (rank.isFamilyType()) {
 						if (cs != null) {
 							cs = PresentationUtils.getText(getContext(), R.string.rank_div, cs,
-								PresentationUtils.describeRank(getContext(), rank.Rank, rank.Type, rank.Name));
+								PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName()));
 						} else {
-							cs = PresentationUtils.describeRank(getContext(), rank.Rank, rank.Type, rank.Name);
+							cs = PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName());
 						}
 					}
 				}
@@ -1070,18 +1071,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int EXPANSION_NAME = 1;
 	}
 
-	private interface RankQuery {
-		int _TOKEN = 0x19;
-		String[] PROJECTION = {
-			GameRanks.GAME_RANK_NAME,
-			GameRanks.GAME_RANK_VALUE,
-			GameRanks.GAME_RANK_TYPE
-		};
-		int GAME_RANK_NAME = 0;
-		int GAME_RANK_VALUE = 1;
-		int GAME_RANK_TYPE = 2;
-	}
-
 	private interface CollectionQuery {
 		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 			Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_THUMBNAIL_URL, Collection.STATUS_OWN,
@@ -1153,17 +1142,5 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int TOTAL_VOTE_COUNT = 0;
 		int PLAYER_COUNT = 1;
 		int RECOMMENDATION = 2;
-	}
-
-	private class Rank {
-		final String Name;
-		final int Rank;
-		final String Type;
-
-		Rank(Cursor cursor) {
-			Name = cursor.getString(RankQuery.GAME_RANK_NAME);
-			Rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
-			Type = cursor.getString(RankQuery.GAME_RANK_TYPE);
-		}
 	}
 }
