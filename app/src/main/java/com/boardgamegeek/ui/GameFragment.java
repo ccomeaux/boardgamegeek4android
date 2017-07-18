@@ -58,6 +58,7 @@ import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
+import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -109,6 +110,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int SYNC_GAME = 1;
 	private static final int SYNC_PLAYS = 1 << 1;
 	private static final int SYNC_COLLECTION = 1 << 2;
+	private static final int GAME_TOKEN = 0x11;
 
 	private Uri gameUri;
 	private String gameName;
@@ -249,7 +251,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		mightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
-		lm.restartLoader(GameQuery._TOKEN, null, this);
+		lm.restartLoader(GAME_TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
 		if (shouldShowPlays()) {
 			lm.restartLoader(PlaysQuery._TOKEN, null, this);
@@ -311,8 +313,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		CursorLoader loader = null;
 		int gameId = Games.getGameId(gameUri);
 		switch (id) {
-			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), gameUri, GameQuery.PROJECTION, null, null, null);
+			case GAME_TOKEN:
+				loader = new CursorLoader(getActivity(), gameUri, Game.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId), DesignerQuery.PROJECTION, null, null, null);
@@ -392,7 +394,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
-			case GameQuery._TOKEN:
+			case GAME_TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
 				if (shouldShowCollection()) lm.restartLoader(CollectionQuery._TOKEN, null, this);
@@ -519,7 +521,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			return;
 		}
 
-		Game game = new Game(cursor);
+		Game game = Game.fromCursor(cursor);
 
 		notifyChange(game);
 		gameName = game.Name;
@@ -1019,73 +1021,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 	}
 
-	private interface GameQuery {
-		int _TOKEN = 0x11;
-
-		String[] PROJECTION = {
-			Games.GAME_ID,
-			Games.STATS_AVERAGE,
-			Games.YEAR_PUBLISHED,
-			Games.MIN_PLAYERS,
-			Games.MAX_PLAYERS,
-			Games.PLAYING_TIME,
-			Games.MINIMUM_AGE,
-			Games.DESCRIPTION,
-			Games.STATS_USERS_RATED,
-			Games.UPDATED,
-			Games.GAME_RANK,
-			Games.GAME_NAME,
-			Games.THUMBNAIL_URL,
-			Games.STATS_BAYES_AVERAGE,
-			Games.STATS_MEDIAN,
-			Games.STATS_STANDARD_DEVIATION,
-			Games.STATS_NUMBER_WEIGHTS,
-			Games.STATS_AVERAGE_WEIGHT,
-			Games.STATS_NUMBER_OWNED,
-			Games.STATS_NUMBER_TRADING,
-			Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING,
-			Games.POLLS_COUNT,
-			Games.IMAGE_URL,
-			Games.SUBTYPE,
-			Games.CUSTOM_PLAYER_SORT,
-			Games.STATS_NUMBER_COMMENTS,
-			Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-			Games.MIN_PLAYING_TIME,
-			Games.MAX_PLAYING_TIME,
-			Games.STARRED
-		};
-
-		int GAME_ID = 0;
-		int STATS_AVERAGE = 1;
-		int YEAR_PUBLISHED = 2;
-		int MIN_PLAYERS = 3;
-		int MAX_PLAYERS = 4;
-		int PLAYING_TIME = 5;
-		int MINIMUM_AGE = 6;
-		int DESCRIPTION = 7;
-		int STATS_USERS_RATED = 8;
-		int UPDATED = 9;
-		int GAME_RANK = 10;
-		int GAME_NAME = 11;
-		int THUMBNAIL_URL = 12;
-		int STATS_NUMBER_WEIGHTS = 16;
-		int STATS_AVERAGE_WEIGHT = 17;
-		int STATS_NUMBER_OWNED = 18;
-		int STATS_NUMBER_TRADING = 19;
-		int STATS_NUMBER_WANTING = 20;
-		int STATS_NUMBER_WISHING = 21;
-		int POLLS_COUNT = 22;
-		int IMAGE_URL = 23;
-		int SUBTYPE = 24;
-		int CUSTOM_PLAYER_SORT = 25;
-		int STATS_NUMBER_COMMENTS = 26;
-		int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 27;
-		int MIN_PLAYING_TIME = 28;
-		int MAX_PLAYING_TIME = 29;
-		int STARRED = 30;
-	}
-
 	private interface DesignerQuery {
 		int _TOKEN = 0x12;
 		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
@@ -1218,79 +1153,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int TOTAL_VOTE_COUNT = 0;
 		int PLAYER_COUNT = 1;
 		int RECOMMENDATION = 2;
-	}
-
-	private class Game {
-		final String Name;
-		final String ThumbnailUrl;
-		final String ImageUrl;
-		final int Id;
-		final double Rating;
-		final int YearPublished;
-		final int MinPlayers;
-		final int MaxPlayers;
-		final int PlayingTime;
-		final int MinPlayingTime;
-		final int MaxPlayingTime;
-		final int MinimumAge;
-		final String Description;
-		final int UsersRated;
-		final int UsersCommented;
-		final long Updated;
-		final int Rank;
-		final double AverageWeight;
-		final int NumberWeights;
-		final int NumberOwned;
-		final int NumberTrading;
-		final int NumberWanting;
-		final int NumberWishing;
-		final int PollsCount;
-		final String Subtype;
-		final boolean CustomPlayerSort;
-		final int SuggestedPlayerCountPollVoteTotal;
-		final boolean IsFavorite;
-
-		public Game(Cursor cursor) {
-			Name = cursor.getString(GameQuery.GAME_NAME);
-			ThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
-			ImageUrl = cursor.getString(GameQuery.IMAGE_URL);
-			Id = cursor.getInt(GameQuery.GAME_ID);
-			Rating = cursor.getDouble(GameQuery.STATS_AVERAGE);
-			YearPublished = cursor.getInt(GameQuery.YEAR_PUBLISHED);
-			MinPlayers = cursor.getInt(GameQuery.MIN_PLAYERS);
-			MaxPlayers = cursor.getInt(GameQuery.MAX_PLAYERS);
-			PlayingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-			MinPlayingTime = cursor.getInt(GameQuery.MIN_PLAYING_TIME);
-			MaxPlayingTime = cursor.getInt(GameQuery.MAX_PLAYING_TIME);
-			MinimumAge = cursor.getInt(GameQuery.MINIMUM_AGE);
-			Description = cursor.getString(GameQuery.DESCRIPTION);
-			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);
-			UsersCommented = cursor.getInt(GameQuery.STATS_NUMBER_COMMENTS);
-			Updated = cursor.getLong(GameQuery.UPDATED);
-			Rank = cursor.getInt(GameQuery.GAME_RANK);
-			AverageWeight = cursor.getDouble(GameQuery.STATS_AVERAGE_WEIGHT);
-			NumberWeights = cursor.getInt(GameQuery.STATS_NUMBER_WEIGHTS);
-			NumberOwned = cursor.getInt(GameQuery.STATS_NUMBER_OWNED);
-			NumberTrading = cursor.getInt(GameQuery.STATS_NUMBER_TRADING);
-			NumberWanting = cursor.getInt(GameQuery.STATS_NUMBER_WANTING);
-			NumberWishing = cursor.getInt(GameQuery.STATS_NUMBER_WISHING);
-			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
-			Subtype = cursor.getString(GameQuery.SUBTYPE);
-			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
-			SuggestedPlayerCountPollVoteTotal = cursor.getInt(GameQuery.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL);
-			IsFavorite = (cursor.getInt(GameQuery.STARRED) == 1);
-		}
-
-		@DebugLog
-		public int getMaxUsers() {
-			int max = Math.max(UsersRated, UsersCommented);
-			max = Math.max(max, NumberOwned);
-			max = Math.max(max, NumberTrading);
-			max = Math.max(max, NumberWanting);
-			max = Math.max(max, NumberWeights);
-			max = Math.max(max, NumberWishing);
-			return max;
-		}
 	}
 
 	private class Rank {
