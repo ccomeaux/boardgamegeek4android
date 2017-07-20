@@ -411,14 +411,16 @@ public class Play {
 	public double getHighScore() {
 		if (getPlayerCount() == 0) return 0.0;
 
-		double highScore = Double.MIN_VALUE;
+		double highScore = -Double.MAX_VALUE;
 		for (Player player : players) {
 			if (player == null) continue;
-			double score = StringUtils.parseDouble(player.score, Double.MIN_VALUE);
+			double score = StringUtils.parseDouble(player.score, -Double.MAX_VALUE);
 			if (score > highScore) {
 				highScore = score;
 			}
 		}
+		// Can happen if we had un-parseable scores
+		if(highScore == -Double.MAX_VALUE) { return 0.0; }
 
 		return highScore;
 	}
