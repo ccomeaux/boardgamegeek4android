@@ -37,7 +37,6 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
-import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -61,6 +60,7 @@ import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
 import com.boardgamegeek.ui.model.GamePublisher;
 import com.boardgamegeek.ui.model.GameRank;
+import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -122,6 +122,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
 	private static final int RANK_TOKEN = 0x19;
+	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
 
 	private Uri gameUri;
 	private String gameName;
@@ -272,7 +273,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		}
 		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
 		lm.restartLoader(AgePollQuery._TOKEN, null, this);
-		lm.restartLoader(SuggestedPlayerCountQuery._TOKEN, null, this);
+		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
@@ -386,11 +387,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 					null,
 					AgePollQuery.SORT);
 				break;
-			case SuggestedPlayerCountQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Games.buildSuggestedPlayerCountPollResultsUri(gameId),
-					SuggestedPlayerCountQuery.PROJECTION,
-					null, null, null);
+			case SUGGESTED_PLAYER_COUNT_TOKEN:
+				loader = new CursorLoader(getActivity(), GameSuggestedPlayerCount.buildUri(gameId), GameSuggestedPlayerCount.PROJECTION, null, null, null);
 				break;
 			default:
 				Timber.w("Invalid query token=%s", id);
@@ -460,7 +458,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case AgePollQuery._TOKEN:
 				onAgePollQueryComplete(cursor);
 				break;
-			case SuggestedPlayerCountQuery._TOKEN:
+			case SUGGESTED_PLAYER_COUNT_TOKEN:
 				onPlayerCountQueryComplete(cursor);
 				break;
 			default:
@@ -783,18 +781,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private void onPlayerCountQueryComplete(Cursor cursor) {
 		int totalVotes = 0;
 		if (cursor != null && cursor.moveToFirst()) {
-			totalVotes = cursor.getInt(SuggestedPlayerCountQuery.TOTAL_VOTE_COUNT);
-
 			List<Integer> bestCounts = new ArrayList<>();
 			List<Integer> recommendedCounts = new ArrayList<>();
 			do {
-				int playerCount = cursor.getInt(SuggestedPlayerCountQuery.PLAYER_COUNT);
-				int recommendation = cursor.getInt(SuggestedPlayerCountQuery.RECOMMENDATION);
-				if (recommendation == PlayerCountRecommendation.BEST) {
-					bestCounts.add(playerCount);
-					recommendedCounts.add(playerCount);
-				} else if (recommendation == PlayerCountRecommendation.RECOMMENDED) {
-					recommendedCounts.add(playerCount);
+				GameSuggestedPlayerCount suggestedPlayerCount = GameSuggestedPlayerCount.fromCursor(cursor);
+				totalVotes = Math.max(totalVotes, suggestedPlayerCount.getTotalVotes());
+				if (suggestedPlayerCount.getRecommendation() == PlayerCountRecommendation.BEST) {
+					bestCounts.add(suggestedPlayerCount.getPlayerCount());
+					recommendedCounts.add(suggestedPlayerCount.getPlayerCount());
+				} else if (suggestedPlayerCount.getRecommendation() == PlayerCountRecommendation.RECOMMENDED) {
+					recommendedCounts.add(suggestedPlayerCount.getPlayerCount());
 				}
 			} while (cursor.moveToNext());
 
@@ -1091,17 +1087,5 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int POLL_RESULTS_RESULT_VALUE = 1;
 		int POLL_TOTAL_VOTES = 2;
 		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
-	}
-
-	private interface SuggestedPlayerCountQuery {
-		int _TOKEN = 0x25;
-		String[] PROJECTION = {
-			GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-			GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT,
-			GameSuggestedPlayerCountPollPollResults.RECOMMENDATION,
-		};
-		int TOTAL_VOTE_COUNT = 0;
-		int PLAYER_COUNT = 1;
-		int RECOMMENDATION = 2;
 	}
 }
