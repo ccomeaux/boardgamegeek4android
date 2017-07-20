@@ -35,7 +35,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	@BindView(R.id.output) TextView outputView;
 	@BindView(R.id.num_delete) View deleteView;
 	private OnClickListener clickListener;
-	private double minValue = 0.0;
+	private double minValue = -Double.MAX_VALUE;
 	private double maxValue = Double.MAX_VALUE;
 	private int maxMantissa = MAX_LENGTH;
 
@@ -148,11 +148,20 @@ public class NumberPadDialogFragment extends DialogFragment {
 	})
 	void onNumPadClick(TextView textView) {
 		String output = outputView.getText().toString() + textView.getText();
-		if (isWithinLength(output) && isWithinRange(output)) {
-			maybeBuzz(textView);
-			outputView.setText(output);
-			enableDelete();
+		maybeUpdateOutput(output, textView);
+	}
+
+	@OnClick({
+		R.id.num_plusminus
+	})
+	void onPlusMinusClick(TextView textView) {
+		String output = outputView.getText().toString();
+		if(output.length() > 0 && output.charAt(0) == '-') {
+			output = output.substring(1);
+		} else {
+			output = '-' + output;
 		}
+		maybeUpdateOutput(output, textView);
 	}
 
 	@OnClick(R.id.num_done)
@@ -168,11 +177,15 @@ public class NumberPadDialogFragment extends DialogFragment {
 		final CharSequence text = outputView.getText();
 		if (text.length() > 0) {
 			String output = text.subSequence(0, text.length() - 1).toString();
-			if (isWithinLength(output) && isWithinRange(output)) {
-				maybeBuzz(view);
-				outputView.setText(output);
-				enableDelete();
-			}
+			maybeUpdateOutput(output, view);
+		}
+	}
+
+	private void maybeUpdateOutput(String output, View view) {
+		if (isWithinLength(output) && isWithinRange(output)) {
+			maybeBuzz(view);
+			outputView.setText(output);
+			enableDelete();
 		}
 	}
 
@@ -206,7 +219,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 	}
 
 	private boolean isWithinRange(String text) {
-		if (TextUtils.isEmpty(text) || ".".equals(text)) {
+		if (TextUtils.isEmpty(text) || ".".equals(text) || "-.".equals(text)) {
 			return true;
 		}
 		if (hasTwoDecimalPoints(text)) {
@@ -231,6 +244,9 @@ public class NumberPadDialogFragment extends DialogFragment {
 		}
 		if (text.startsWith(".")) {
 			return Double.parseDouble("0" + text);
+		}
+		if(text.startsWith("-") && text.charAt(1) == '.') {
+			return Double.parseDouble("-0" + text.substring(1));
 		}
 		return Double.parseDouble(text);
 	}

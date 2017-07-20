@@ -25,6 +25,17 @@
 		android:orientation="horizontal">
 
 		<TextView
+			android:id="@+id/num_plusminus"
+			style="@style/NumPad"
+			android:layout_width="40dp"
+			android:layout_height="match_parent"
+			android:layout_weight="0"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:paddingLeft="@dimen/padding_extra"
+			android:text="±"
+			android:textColor="@color/dialog_text"/>
+
+		<TextView
 			android:id="@+id/output"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -32,7 +43,6 @@
 			android:fontFamily="sans-serif-light"
 			android:gravity="center"
 			android:lines="1"
-			android:paddingLeft="@dimen/padding_extra"
 			android:textAppearance="@style/Text.Readout"
 			tools:text="1234"/>
 
@@ -40,6 +50,7 @@
 			android:id="@+id/num_delete"
 			android:layout_width="40dp"
 			android:layout_height="match_parent"
+			android:layout_weight="0"
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:contentDescription="@string/delete"
 			android:paddingRight="@dimen/padding_extra"
