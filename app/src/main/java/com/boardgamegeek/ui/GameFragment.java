@@ -34,18 +34,12 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
-import com.boardgamegeek.provider.BggContract.Artists;
-import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.GamesExpansions;
-import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
@@ -58,6 +52,14 @@ import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStat
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.model.Game;
+import com.boardgamegeek.ui.model.GameArtist;
+import com.boardgamegeek.ui.model.GameBaseGame;
+import com.boardgamegeek.ui.model.GameCategory;
+import com.boardgamegeek.ui.model.GameDesigner;
+import com.boardgamegeek.ui.model.GameExpansion;
+import com.boardgamegeek.ui.model.GameList;
+import com.boardgamegeek.ui.model.GameMechanic;
+import com.boardgamegeek.ui.model.GamePublisher;
 import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
@@ -110,7 +112,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int SYNC_GAME = 1;
 	private static final int SYNC_PLAYS = 1 << 1;
 	private static final int SYNC_COLLECTION = 1 << 2;
+
 	private static final int GAME_TOKEN = 0x11;
+	private static final int DESIGNER_TOKEN = 0x12;
+	private static final int ARTIST_TOKEN = 0x13;
+	private static final int PUBLISHER_TOKEN = 0x14;
+	private static final int CATEGORY_TOKEN = 0x15;
+	private static final int MECHANIC_TOKEN = 0x16;
+	private static final int EXPANSION_TOKEN = 0x17;
+	private static final int BASE_GAME_TOKEN = 0x18;
 	private static final int RANK_TOKEN = 0x19;
 
 	private Uri gameUri;
@@ -317,26 +327,26 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case GAME_TOKEN:
 				loader = new CursorLoader(getActivity(), gameUri, Game.PROJECTION, null, null, null);
 				break;
-			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId), DesignerQuery.PROJECTION, null, null, null);
+			case DESIGNER_TOKEN:
+				loader = new CursorLoader(getActivity(), GameDesigner.buildUri(gameId), GameDesigner.PROJECTION, null, null, null);
 				break;
-			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(gameId), ArtistQuery.PROJECTION, null, null, null);
+			case ARTIST_TOKEN:
+				loader = new CursorLoader(getActivity(), GameArtist.buildUri(gameId), GameArtist.PROJECTION, null, null, null);
 				break;
-			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(gameId), PublisherQuery.PROJECTION, null, null, null);
+			case PUBLISHER_TOKEN:
+				loader = new CursorLoader(getActivity(), GamePublisher.buildUri(gameId), GamePublisher.PROJECTION, null, null, null);
 				break;
-			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(gameId), CategoryQuery.PROJECTION, null, null, null);
+			case CATEGORY_TOKEN:
+				loader = new CursorLoader(getActivity(), GameCategory.buildUri(gameId), GameCategory.PROJECTION, null, null, null);
 				break;
-			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(gameId), MechanicQuery.PROJECTION, null, null, null);
+			case MECHANIC_TOKEN:
+				loader = new CursorLoader(getActivity(), GameMechanic.buildUri(gameId), GameMechanic.PROJECTION, null, null, null);
 				break;
-			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
+			case EXPANSION_TOKEN:
+				loader = new CursorLoader(getActivity(), GameExpansion.buildUri(gameId), GameExpansion.PROJECTION, GameExpansion.getSelection(), GameExpansion.getSelectionArgs(), null);
 				break;
-			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
+			case BASE_GAME_TOKEN:
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
 			case RANK_TOKEN:
 				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
@@ -399,35 +409,35 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
 				if (shouldShowCollection()) lm.restartLoader(CollectionQuery._TOKEN, null, this);
-				lm.restartLoader(DesignerQuery._TOKEN, null, this);
-				lm.restartLoader(ArtistQuery._TOKEN, null, this);
-				lm.restartLoader(PublisherQuery._TOKEN, null, this);
-				lm.restartLoader(CategoryQuery._TOKEN, null, this);
-				lm.restartLoader(MechanicQuery._TOKEN, null, this);
-				lm.restartLoader(ExpansionQuery._TOKEN, null, this);
-				lm.restartLoader(BaseGameQuery._TOKEN, null, this);
+				lm.restartLoader(DESIGNER_TOKEN, null, this);
+				lm.restartLoader(ARTIST_TOKEN, null, this);
+				lm.restartLoader(PUBLISHER_TOKEN, null, this);
+				lm.restartLoader(CATEGORY_TOKEN, null, this);
+				lm.restartLoader(MECHANIC_TOKEN, null, this);
+				lm.restartLoader(EXPANSION_TOKEN, null, this);
+				lm.restartLoader(BASE_GAME_TOKEN, null, this);
 				fetchForumInfo();
 				break;
-			case DesignerQuery._TOKEN:
-				onListQueryComplete(cursor, designersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID);
+			case DESIGNER_TOKEN:
+				onListQueryComplete(cursor, designersView);
 				break;
-			case ArtistQuery._TOKEN:
-				onListQueryComplete(cursor, artistsView, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_ID);
+			case ARTIST_TOKEN:
+				onListQueryComplete(cursor, artistsView);
 				break;
-			case PublisherQuery._TOKEN:
-				onListQueryComplete(cursor, publishersView, PublisherQuery.PUBLISHER_NAME, PublisherQuery.PUBLISHER_ID);
+			case PUBLISHER_TOKEN:
+				onListQueryComplete(cursor, publishersView);
 				break;
-			case CategoryQuery._TOKEN:
-				onListQueryComplete(cursor, categoriesView, CategoryQuery.CATEGORY_NAME, CategoryQuery.CATEGORY_ID);
+			case CATEGORY_TOKEN:
+				onListQueryComplete(cursor, categoriesView);
 				break;
-			case MechanicQuery._TOKEN:
-				onListQueryComplete(cursor, mechanicsView, MechanicQuery.MECHANIC_NAME, MechanicQuery.MECHANIC_ID);
+			case MECHANIC_TOKEN:
+				onListQueryComplete(cursor, mechanicsView);
 				break;
-			case ExpansionQuery._TOKEN:
-				onListQueryComplete(cursor, expansionsView, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
+			case EXPANSION_TOKEN:
+				onListQueryComplete(cursor, expansionsView);
 				break;
-			case BaseGameQuery._TOKEN:
-				onListQueryComplete(cursor, baseGamesView, BaseGameQuery.EXPANSION_NAME, BaseGameQuery.EXPANSION_ID);
+			case BASE_GAME_TOKEN:
+				onListQueryComplete(cursor, baseGamesView);
 				break;
 			case RANK_TOKEN:
 				onRankQueryComplete(cursor);
@@ -596,13 +606,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@DebugLog
-	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex, int idColumnIndex) {
+	private void onListQueryComplete(Cursor cursor, GameDetailRow view) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(GONE);
 			view.clear();
 		} else {
 			view.setVisibility(VISIBLE);
-			view.bind(cursor, nameColumnIndex, idColumnIndex, Games.getGameId(gameUri), gameName);
+			view.bind(cursor, GameList.NAME_COLUMN_INDEX, GameList.ID_COLUMN_INDEX, Games.getGameId(gameUri), gameName);
 		}
 	}
 
@@ -1020,55 +1030,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		public int getGameId() {
 			return gameId;
 		}
-	}
-
-	private interface DesignerQuery {
-		int _TOKEN = 0x12;
-		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
-		int DESIGNER_ID = 0;
-		int DESIGNER_NAME = 1;
-	}
-
-	private interface ArtistQuery {
-		int _TOKEN = 0x13;
-		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
-		int ARTIST_ID = 0;
-		int ARTIST_NAME = 1;
-	}
-
-	private interface PublisherQuery {
-		int _TOKEN = 0x14;
-		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
-		int PUBLISHER_ID = 0;
-		int PUBLISHER_NAME = 1;
-	}
-
-	private interface CategoryQuery {
-		int _TOKEN = 0x15;
-		String[] PROJECTION = { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
-		int CATEGORY_ID = 0;
-		int CATEGORY_NAME = 1;
-	}
-
-	private interface MechanicQuery {
-		int _TOKEN = 0x16;
-		String[] PROJECTION = { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
-		int MECHANIC_ID = 0;
-		int MECHANIC_NAME = 1;
-	}
-
-	private interface ExpansionQuery {
-		int _TOKEN = 0x17;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		int EXPANSION_ID = 0;
-		int EXPANSION_NAME = 1;
-	}
-
-	private interface BaseGameQuery {
-		int _TOKEN = 0x18;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		int EXPANSION_ID = 0;
-		int EXPANSION_NAME = 1;
 	}
 
 	private interface CollectionQuery {
