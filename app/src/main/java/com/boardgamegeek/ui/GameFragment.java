@@ -36,7 +36,6 @@ import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
@@ -56,6 +55,7 @@ import com.boardgamegeek.ui.model.GameDesigner;
 import com.boardgamegeek.ui.model.GameExpansion;
 import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
+import com.boardgamegeek.ui.model.GamePlays;
 import com.boardgamegeek.ui.model.GamePublisher;
 import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
@@ -67,7 +67,6 @@ import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -76,7 +75,6 @@ import com.boardgamegeek.util.PlayerCountRecommendation;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
-import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -122,6 +120,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
 	private static final int RANK_TOKEN = 0x19;
+	private static final int PLAYS_TOKEN = 0x21;
 	private static final int COLOR_TOKEN = 0x22;
 	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
 	private static final int SUGGESTED_AGE_TOKEN = 0x24;
@@ -269,7 +268,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		lm.restartLoader(GAME_TOKEN, null, this);
 		lm.restartLoader(RANK_TOKEN, null, this);
 		if (shouldShowPlays()) {
-			lm.restartLoader(PlaysQuery._TOKEN, null, this);
+			lm.restartLoader(PLAYS_TOKEN, null, this);
 		}
 		if (PreferencesUtils.showLogPlay(getActivity())) {
 			lm.restartLoader(COLOR_TOKEN, null, this);
@@ -358,17 +357,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case CollectionQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
-			case PlaysQuery._TOKEN:
+			case PLAYS_TOKEN:
 				// retrieve plays that aren't pending delete (optionally only completed plays)
-				String selection = String.format("%s=? AND %s", Plays.OBJECT_ID, SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
-				if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
-					selection += String.format(" AND %s!=1", Plays.INCOMPLETE);
-				}
 				loader = new CursorLoader(getActivity(),
-					Plays.CONTENT_URI,
-					PlaysQuery.PROJECTION,
-					selection,
-					new String[] { String.valueOf(gameId) },
+					GamePlays.URI,
+					GamePlays.PROJECTION,
+					GamePlays.getSelection(getContext()),
+					GamePlays.getSelectionArgs(gameId),
 					null);
 				break;
 			case COLOR_TOKEN:
@@ -436,7 +431,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case CollectionQuery._TOKEN:
 				onCollectionQueryComplete(cursor);
 				break;
-			case PlaysQuery._TOKEN:
+			case PLAYS_TOKEN:
 				onPlaysQueryComplete(cursor);
 				break;
 			case COLOR_TOKEN:
@@ -705,17 +700,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			playsCard.setVisibility(VISIBLE);
 			playsRoot.setVisibility(VISIBLE);
 
-			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
-			long date = CursorUtils.getDateInMillis(cursor, PlaysQuery.MAX_DATE);
+			GamePlays plays = GamePlays.fromCursor(cursor);
 
-			String description = PresentationUtils.describePlayCount(getActivity(), sum);
+			String description = PresentationUtils.describePlayCount(getActivity(), plays.getCount());
 			if (!TextUtils.isEmpty(description)) {
 				description = " (" + description + ")";
 			}
-			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, sum, sum, description));
+			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, plays.getCount(), plays.getCount(), description));
 
-			if (date > 0) {
-				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(date)));
+			if (plays.getMaxDateInMillis() > 0) {
+				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(plays.getMaxDateInMillis())));
 				lastPlayView.setVisibility(VISIBLE);
 			} else {
 				lastPlayView.setVisibility(GONE);
@@ -1043,12 +1037,5 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int YEAR_PUBLISHED = 16;
 		int RATING = 17;
 		int COLLECTION_IMAGE_URL = 18;
-	}
-
-	private interface PlaysQuery {
-		String[] PROJECTION = { Plays._ID, Plays.MAX_DATE, Plays.SUM_QUANTITY, Plays.MAX_DATE };
-		int _TOKEN = 0x21;
-		int MAX_DATE = 1;
-		int SUM_QUANTITY = 2;
 	}
 }
