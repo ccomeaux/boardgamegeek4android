@@ -34,7 +34,6 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
-import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
@@ -51,6 +50,7 @@ import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.GameArtist;
 import com.boardgamegeek.ui.model.GameBaseGame;
 import com.boardgamegeek.ui.model.GameCategory;
+import com.boardgamegeek.ui.model.GameCollectionItem;
 import com.boardgamegeek.ui.model.GameDesigner;
 import com.boardgamegeek.ui.model.GameExpansion;
 import com.boardgamegeek.ui.model.GameList;
@@ -120,6 +120,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
 	private static final int RANK_TOKEN = 0x19;
+	private static final int COLLECTION_TOKEN = 0x20;
 	private static final int PLAYS_TOKEN = 0x21;
 	private static final int COLOR_TOKEN = 0x22;
 	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
@@ -354,8 +355,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case RANK_TOKEN:
 				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
 				break;
-			case CollectionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+			case COLLECTION_TOKEN:
+				loader = new CursorLoader(getActivity(), GameCollectionItem.URI, GameCollectionItem.PROJECTION, GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
 				break;
 			case PLAYS_TOKEN:
 				// retrieve plays that aren't pending delete (optionally only completed plays)
@@ -394,7 +395,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case GAME_TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
-				if (shouldShowCollection()) lm.restartLoader(CollectionQuery._TOKEN, null, this);
+				if (shouldShowCollection()) lm.restartLoader(COLLECTION_TOKEN, null, this);
 				lm.restartLoader(DESIGNER_TOKEN, null, this);
 				lm.restartLoader(ARTIST_TOKEN, null, this);
 				lm.restartLoader(PUBLISHER_TOKEN, null, this);
@@ -428,7 +429,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case RANK_TOKEN:
 				onRankQueryComplete(cursor);
 				break;
-			case CollectionQuery._TOKEN:
+			case COLLECTION_TOKEN:
 				onCollectionQueryComplete(cursor);
 				break;
 			case PLAYS_TOKEN:
@@ -637,38 +638,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			collectionContainer.removeAllViews();
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
-
-				final long internalId = cursor.getLong(CollectionQuery._ID);
-				final int gameId = Games.getGameId(gameUri);
-				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
-				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);
-				final String imageUrl = cursor.getString(CollectionQuery.COLLECTION_IMAGE_URL);
-				row.bind(internalId, gameId, gameName, collectionId, yearPublished, imageUrl);
-
-				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL_URL);
-				final String collectionName = cursor.getString(CollectionQuery.COLLECTION_NAME);
-				final int collectionYearPublished = cursor.getInt(CollectionQuery.COLLECTION_YEAR);
-				final int numberOfPlays = cursor.getInt(CollectionQuery.NUM_PLAYS);
-				final String comment = cursor.getString(CollectionQuery.COMMENT);
-				final double rating = cursor.getDouble(CollectionQuery.RATING);
-				List<String> status = new ArrayList<>();
-				for (int i = CollectionQuery.STATUS_1; i <= CollectionQuery.STATUS_N; i++) {
-					if (cursor.getInt(i) == 1) {
-						if (i == CollectionQuery.STATUS_WISHLIST) {
-							status.add(PresentationUtils.describeWishlist(getActivity(),
-								cursor.getInt(CollectionQuery.STATUS_WISHLIST_PRIORITY)));
-						} else {
-							int index = i - CollectionQuery.STATUS_1;
-							status.add(getResources().getStringArray(R.array.collection_status_filter_entries)[index]);
-						}
-					}
-				}
-
-				row.setThumbnail(thumbnailUrl);
-				row.setStatus(status, numberOfPlays, rating, comment);
-				row.setDescription(collectionName, collectionYearPublished);
-				row.setComment(comment);
-				row.setRating(rating);
+				GameCollectionItem item = GameCollectionItem.fromCursor(getContext(), cursor);
+				row.bind(item.getInternalId(), Games.getGameId(gameUri), gameName, item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
+				row.setThumbnail(item.getThumbnailUrl());
+				row.setStatus(item.getStatuses(), item.getNumberOfPlays(), item.getRating(), item.getComment());
+				row.setDescription(item.getCollectionName(), item.getCollectionYearPublished());
+				row.setComment(item.getComment());
+				row.setRating(item.getRating());
 
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
@@ -1013,29 +989,5 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		public int getGameId() {
 			return gameId;
 		}
-	}
-
-	private interface CollectionQuery {
-		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_THUMBNAIL_URL, Collection.STATUS_OWN,
-			Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE, Collection.STATUS_WANT,
-			Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST, Collection.STATUS_WANT_TO_PLAY,
-			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS,
-			Collection.COMMENT, Games.YEAR_PUBLISHED, Collection.RATING, Collection.IMAGE_URL };
-		int _TOKEN = 0x20;
-		int _ID = 0;
-		int COLLECTION_ID = 1;
-		int COLLECTION_NAME = 2;
-		int COLLECTION_YEAR = 3;
-		int COLLECTION_THUMBNAIL_URL = 4;
-		int STATUS_1 = 5;
-		int STATUS_N = 12;
-		int STATUS_WISHLIST = 10;
-		int STATUS_WISHLIST_PRIORITY = 13;
-		int NUM_PLAYS = 14;
-		int COMMENT = 15;
-		int YEAR_PUBLISHED = 16;
-		int RATING = 17;
-		int COLLECTION_IMAGE_URL = 18;
 	}
 }
