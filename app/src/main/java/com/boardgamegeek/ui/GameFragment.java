@@ -35,8 +35,6 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
-import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -60,6 +58,8 @@ import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
 import com.boardgamegeek.ui.model.GamePublisher;
 import com.boardgamegeek.ui.model.GameRank;
+import com.boardgamegeek.ui.model.GameSuggestedAge;
+import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
@@ -122,6 +122,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
 	private static final int RANK_TOKEN = 0x19;
+	private static final int COLOR_TOKEN = 0x22;
+	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
+	private static final int SUGGESTED_AGE_TOKEN = 0x24;
 	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
 
 	private Uri gameUri;
@@ -269,10 +272,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			lm.restartLoader(PlaysQuery._TOKEN, null, this);
 		}
 		if (PreferencesUtils.showLogPlay(getActivity())) {
-			lm.restartLoader(ColorQuery._TOKEN, null, this);
+			lm.restartLoader(COLOR_TOKEN, null, this);
 		}
-		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
-		lm.restartLoader(AgePollQuery._TOKEN, null, this);
+		lm.restartLoader(SUGGESTED_LANGUAGE_TOKEN, null, this);
+		lm.restartLoader(SUGGESTED_AGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
@@ -368,24 +371,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 					new String[] { String.valueOf(gameId) },
 					null);
 				break;
-			case ColorQuery._TOKEN:
+			case COLOR_TOKEN:
 				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId), GameColorAdapter.PROJECTION, null, null, null);
 				break;
-			case LanguagePollQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Games.buildPollResultsResultUri(gameId, PollFragment.LANGUAGE_DEPENDENCE),
-					LanguagePollQuery.PROJECTION,
-					null,
-					null,
-					LanguagePollQuery.SORT);
+			case SUGGESTED_LANGUAGE_TOKEN:
+				loader = new CursorLoader(getActivity(), GameSuggestedLanguage.buildUri(gameId), GameSuggestedLanguage.PROJECTION, null, null, GameSuggestedLanguage.SORT);
 				break;
-			case AgePollQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Games.buildPollResultsResultUri(gameId, PollFragment.SUGGESTED_PLAYER_AGE),
-					AgePollQuery.PROJECTION,
-					null,
-					null,
-					AgePollQuery.SORT);
+			case SUGGESTED_AGE_TOKEN:
+				loader = new CursorLoader(getActivity(), GameSuggestedAge.buildUri(gameId), GameSuggestedAge.PROJECTION, null, null, GameSuggestedAge.SORT);
 				break;
 			case SUGGESTED_PLAYER_COUNT_TOKEN:
 				loader = new CursorLoader(getActivity(), GameSuggestedPlayerCount.buildUri(gameId), GameSuggestedPlayerCount.PROJECTION, null, null, null);
@@ -446,16 +439,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case PlaysQuery._TOKEN:
 				onPlaysQueryComplete(cursor);
 				break;
-			case ColorQuery._TOKEN:
+			case COLOR_TOKEN:
 				playsCard.setVisibility(VISIBLE);
 				colorsRoot.setVisibility(VISIBLE);
 				int count = cursor == null ? 0 : cursor.getCount();
 				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
 				break;
-			case LanguagePollQuery._TOKEN:
+			case SUGGESTED_LANGUAGE_TOKEN:
 				onLanguagePollQueryComplete(cursor);
 				break;
-			case AgePollQuery._TOKEN:
+			case SUGGESTED_AGE_TOKEN:
 				onAgePollQueryComplete(cursor);
 				break;
 			case SUGGESTED_PLAYER_COUNT_TOKEN:
@@ -732,14 +725,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void onLanguagePollQueryComplete(Cursor cursor) {
-		int totalLevel = 0;
 		int totalVotes = 0;
+		int totalLevel = 0;
 		if (cursor != null) {
 			while (cursor.moveToNext()) {
-				totalVotes = cursor.getInt(LanguagePollQuery.POLL_TOTAL_VOTES);
-				int level = (cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_LEVEL) - 1) % 5 + 1;
-				int votes = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_VOTES);
-				totalLevel += votes * level;
+				GameSuggestedLanguage gsl = GameSuggestedLanguage.fromCursor(cursor);
+				totalVotes = Math.max(totalVotes, gsl.getTotalVotes());
+				totalLevel += gsl.getVotes() * gsl.getLevel();
 			}
 		}
 		double score = (double) totalLevel / totalVotes;
@@ -761,12 +753,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int maxVotes = 0;
 		int totalVotes = 0;
 		if (cursor != null && cursor.moveToFirst()) {
-			totalVotes = cursor.getInt(AgePollQuery.POLL_TOTAL_VOTES);
 			do {
-				String value = cursor.getString(AgePollQuery.POLL_RESULTS_RESULT_VALUE);
-				int votes = cursor.getInt(AgePollQuery.POLL_RESULTS_RESULT_VOTES);
-
-				if (votes > maxVotes) currentValue = value;
+				GameSuggestedAge gsa = GameSuggestedAge.fromCursor(cursor);
+				totalVotes = Math.max(totalVotes, gsa.getTotalVotes());
+				if (gsa.getVotes() > maxVotes) {
+					maxVotes = gsa.getVotes();
+					currentValue = gsa.getValue();
+				}
 			} while (cursor.moveToNext());
 		}
 
@@ -1057,35 +1050,5 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int _TOKEN = 0x21;
 		int MAX_DATE = 1;
 		int SUM_QUANTITY = 2;
-	}
-
-	private interface ColorQuery {
-		int _TOKEN = 0x22;
-	}
-
-	private interface LanguagePollQuery {
-		String[] PROJECTION = {
-			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
-			GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL,
-			GamePolls.POLL_TOTAL_VOTES
-		};
-		int _TOKEN = 0x23;
-		int POLL_RESULTS_RESULT_VOTES = 0;
-		int POLL_RESULTS_RESULT_LEVEL = 1;
-		int POLL_TOTAL_VOTES = 2;
-		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
-	}
-
-	private interface AgePollQuery {
-		String[] PROJECTION = {
-			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
-			GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
-			GamePolls.POLL_TOTAL_VOTES
-		};
-		int _TOKEN = 0x24;
-		int POLL_RESULTS_RESULT_VOTES = 0;
-		int POLL_RESULTS_RESULT_VALUE = 1;
-		int POLL_TOTAL_VOTES = 2;
-		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
 	}
 }
