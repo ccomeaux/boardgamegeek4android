@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -200,10 +201,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				}
 				break;
 			case COLORS_TOKEN:
-				loader = new CursorLoader(getActivity(),
-					isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName),
-					PlayerColor.PROJECTION,
-					null, null, null);
+				if (!TextUtils.isEmpty(buddyName) || !TextUtils.isEmpty(playerName)) {
+					Uri uri = isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName);
+					loader = new CursorLoader(getActivity(),
+						uri,
+						PlayerColor.PROJECTION,
+						null, null, null);
+				}
 				break;
 		}
 		return loader;
@@ -212,9 +216,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
 			case TOKEN:

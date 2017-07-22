@@ -119,7 +119,8 @@ public class ActivityUtils {
 	}
 
 	public static void startBuddyActivity(Context context, String username, String playerName) {
-		context.startActivity(createBuddyIntent(context, username, playerName));
+		Intent intent = createBuddyIntent(context, username, playerName);
+		if (intent != null) context.startActivity(intent);
 	}
 
 	public static void navigateUpToBuddy(Context context, String buddyName) {
@@ -128,11 +129,18 @@ public class ActivityUtils {
 
 	public static void navigateUpToBuddy(Context context, String buddyName, String playerName) {
 		Intent intent = createBuddyIntent(context, buddyName, playerName);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		context.startActivity(intent);
+		if (intent != null) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			context.startActivity(intent);
+		}
 	}
 
+	@Nullable
 	private static Intent createBuddyIntent(Context context, String username, String playerName) {
+		if (TextUtils.isEmpty(username) && TextUtils.isEmpty(playerName)) {
+			Timber.w("Unable to create a BuddyActivity intent - missing both a username and a player name");
+			return null;
+		}
 		Intent intent = new Intent(context, BuddyActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);

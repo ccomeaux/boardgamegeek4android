@@ -46,6 +46,9 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 		}
 		name = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 		username = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+
+		if (TextUtils.isEmpty(name) && TextUtils.isEmpty(username)) finish();
+
 		setSubtitle();
 
 		EventBus.getDefault().removeStickyEvent(BuddySelectedEvent.class);
