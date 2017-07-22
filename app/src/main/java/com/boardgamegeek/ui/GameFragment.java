@@ -67,7 +67,6 @@ import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
@@ -105,7 +104,6 @@ import static android.view.View.VISIBLE;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 2;
-	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int SYNC_NONE = 0;
 	private static final int SYNC_GAME = 1;
 	private static final int SYNC_PLAYS = 1 << 1;
@@ -132,7 +130,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
-	private boolean mightNeedRefreshing;
 	private int isRefreshing;
 
 	private Unbinder unbinder;
@@ -264,7 +261,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		colorize();
 
-		mightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GAME_TOKEN, null, this);
 		lm.restartLoader(RANK_TOKEN, null, this);
@@ -513,9 +509,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@DebugLog
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			if (mightNeedRefreshing) {
-				triggerRefresh();
-			}
 			return;
 		}
 
@@ -565,14 +558,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			playsCard.setVisibility(VISIBLE);
 			playStatsRoot.setVisibility(VISIBLE);
 		}
-
-		if (mightNeedRefreshing &&
-			(game.PollsCount == 0 ||
-				game.SuggestedPlayerCountPollVoteTotal == 0 ||
-				DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
-			triggerRefresh();
-		}
-		mightNeedRefreshing = false;
 	}
 
 	@DebugLog
@@ -933,7 +918,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	public boolean triggerRefresh() {
-		mightNeedRefreshing = false;
 		if (isRefreshing == SYNC_NONE) {
 			isRefreshing = SYNC_GAME | SYNC_PLAYS | SYNC_COLLECTION;
 			int gameId = Games.getGameId(gameUri);

@@ -3,13 +3,18 @@ package com.boardgamegeek.ui;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
@@ -21,7 +26,9 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.FavoriteGameTask;
+import com.boardgamegeek.ui.model.GameToRefresh;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
@@ -40,7 +47,8 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameActivity extends HeroActivity implements Callback {
+public class GameActivity extends HeroActivity implements Callback, LoaderCallbacks<Cursor> {
+	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private int gameId;
 	private String gameName;
@@ -48,6 +56,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
+	private boolean mightNeedRefreshing;
 
 	@DebugLog
 	@Override
@@ -87,6 +96,10 @@ public class GameActivity extends HeroActivity implements Callback {
 				.putContentId(String.valueOf(gameId))
 				.putContentName(gameName));
 		}
+
+		mightNeedRefreshing = true;
+		LoaderManager lm = getSupportLoaderManager();
+		lm.restartLoader(0, null, this);
 	}
 
 	@DebugLog
@@ -198,9 +211,7 @@ public class GameActivity extends HeroActivity implements Callback {
 
 	@Override
 	public void onRefresh() {
-		if (((GameFragment) getFragment()).triggerRefresh()) {
-			updateRefreshStatus(true);
-		}
+		triggerRefresh();
 	}
 
 	@SuppressWarnings("unused")
@@ -217,5 +228,34 @@ public class GameActivity extends HeroActivity implements Callback {
 		Intent intent = ActivityUtils.createEditPlayIntent(this, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		startActivityForResult(intent, REQUEST_EDIT_PLAY);
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		return new CursorLoader(this, Games.buildGameUri(gameId), null, null, null, null);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		if (mightNeedRefreshing) {
+			if (cursor == null || !cursor.moveToFirst()) {
+				triggerRefresh();
+			} else {
+				GameToRefresh game = GameToRefresh.fromCursor(cursor);
+				if (DateTimeUtils.howManyDaysOld(game.getSyncedTimestampInMillis()) > AGE_IN_DAYS_TO_REFRESH || game.getPollsVoteCount() == 0)
+					triggerRefresh();
+			}
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	private void triggerRefresh() {
+		if (((GameFragment) getFragment()).triggerRefresh()) {
+			mightNeedRefreshing = false;
+			updateRefreshStatus(true);
+		}
 	}
 }

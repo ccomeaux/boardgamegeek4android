@@ -30,12 +30,10 @@ public class Game {
 		Games.STATS_NUMBER_TRADING,
 		Games.STATS_NUMBER_WANTING,
 		Games.STATS_NUMBER_WISHING,
-		Games.POLLS_COUNT,
 		Games.IMAGE_URL,
 		Games.SUBTYPE,
 		Games.CUSTOM_PLAYER_SORT,
 		Games.STATS_NUMBER_COMMENTS,
-		Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
 		Games.MIN_PLAYING_TIME,
 		Games.MAX_PLAYING_TIME,
 		Games.STARRED
@@ -60,15 +58,13 @@ public class Game {
 	private static final int STATS_NUMBER_TRADING = 19;
 	private static final int STATS_NUMBER_WANTING = 20;
 	private static final int STATS_NUMBER_WISHING = 21;
-	private static final int POLLS_COUNT = 22;
-	private static final int IMAGE_URL = 23;
-	private static final int SUBTYPE = 24;
-	private static final int CUSTOM_PLAYER_SORT = 25;
-	private static final int STATS_NUMBER_COMMENTS = 26;
-	private static final int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 27;
-	private static final int MIN_PLAYING_TIME = 28;
-	private static final int MAX_PLAYING_TIME = 29;
-	private static final int STARRED = 30;
+	private static final int IMAGE_URL = 22;
+	private static final int SUBTYPE = 23;
+	private static final int CUSTOM_PLAYER_SORT = 24;
+	private static final int STATS_NUMBER_COMMENTS = 25;
+	private static final int MIN_PLAYING_TIME = 26;
+	private static final int MAX_PLAYING_TIME = 27;
+	private static final int STARRED = 28;
 
 	public String Name;
 	public String ThumbnailUrl;
@@ -93,10 +89,8 @@ public class Game {
 	public int NumberTrading;
 	public int NumberWanting;
 	public int NumberWishing;
-	public int PollsCount;
 	public String Subtype;
 	public boolean CustomPlayerSort;
-	public int SuggestedPlayerCountPollVoteTotal;
 	public boolean IsFavorite;
 
 	private Game() {
@@ -127,10 +121,8 @@ public class Game {
 		game.NumberTrading = cursor.getInt(STATS_NUMBER_TRADING);
 		game.NumberWanting = cursor.getInt(STATS_NUMBER_WANTING);
 		game.NumberWishing = cursor.getInt(STATS_NUMBER_WISHING);
-		game.PollsCount = cursor.getInt(POLLS_COUNT);
 		game.Subtype = cursor.getString(SUBTYPE);
 		game.CustomPlayerSort = (cursor.getInt(CUSTOM_PLAYER_SORT) == 1);
-		game.SuggestedPlayerCountPollVoteTotal = cursor.getInt(SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL);
 		game.IsFavorite = (cursor.getInt(STARRED) == 1);
 		return game;
 	}
