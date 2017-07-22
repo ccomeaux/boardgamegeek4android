@@ -19,7 +19,6 @@ import com.boardgamegeek.util.PresentationUtils;
 
 import icepick.Icepick;
 import icepick.State;
-import timber.log.Timber;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 
@@ -85,7 +84,6 @@ public class TimestampView extends TextView {
 		}
 		if (VERSION.SDK_INT >= JELLY_BEAN) {
 			int maxLines = getMaxLines();
-			Timber.i("MAX LINES: " + maxLines);
 			if (maxLines == -1 || maxLines == Integer.MAX_VALUE) {
 				setMaxLines(1);
 			}
