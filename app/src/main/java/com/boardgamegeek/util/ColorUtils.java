@@ -97,8 +97,8 @@ public class ColorUtils {
 	 * Returns a color based on the stage (1 - 5) using a proportional blend for any decimal places.
 	 */
 	public static int getFiveStageColor(double stage) {
-		int baseStage = MathUtils.constrain((int) stage, 1, 5);
-		return blendColors(FIVE_STAGE_COLORS[baseStage], FIVE_STAGE_COLORS[baseStage + 1], baseStage + 1 - stage);
+		int index = MathUtils.constrain((int) stage, 1, 5) - 1;
+		return blendColors(FIVE_STAGE_COLORS[index], FIVE_STAGE_COLORS[index + 1], index + 2 - stage);
 	}
 
 	/**
