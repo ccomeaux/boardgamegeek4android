@@ -38,9 +38,6 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
-import com.boardgamegeek.tasks.sync.SyncGameTask;
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
@@ -82,7 +79,6 @@ import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,10 +100,6 @@ import static android.view.View.VISIBLE;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 2;
-	private static final int SYNC_NONE = 0;
-	private static final int SYNC_GAME = 1;
-	private static final int SYNC_PLAYS = 1 << 1;
-	private static final int SYNC_COLLECTION = 1 << 2;
 
 	private static final int GAME_TOKEN = 0x11;
 	private static final int DESIGNER_TOKEN = 0x12;
@@ -130,7 +122,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
-	private int isRefreshing;
 
 	private Unbinder unbinder;
 
@@ -913,65 +904,5 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
 		DialogUtils.launchDialog(this, new SuggestedPlayerCountPollFragment(), "suggested-player-count-poll-dialog", arguments);
-	}
-
-
-	@DebugLog
-	public boolean triggerRefresh() {
-		if (isRefreshing == SYNC_NONE) {
-			isRefreshing = SYNC_GAME | SYNC_PLAYS | SYNC_COLLECTION;
-			int gameId = Games.getGameId(gameUri);
-			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), gameId));
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
-			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
-			return true;
-		}
-		return false;
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
-			finishSync(SYNC_GAME);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
-			finishSync(SYNC_PLAYS);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
-			finishSync(SYNC_COLLECTION);
-		}
-	}
-
-	private void finishSync(int syncType) {
-		isRefreshing &= ~syncType;
-		if (isRefreshing == SYNC_NONE) {
-			EventBus.getDefault().post(new SyncCompleteEvent(Games.getGameId(gameUri)));
-		}
-	}
-
-	public static class SyncCompleteEvent {
-		private final int gameId;
-
-		public SyncCompleteEvent(int gameId) {
-			this.gameId = gameId;
-		}
-
-		public int getGameId() {
-			return gameId;
-		}
 	}
 }

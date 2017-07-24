@@ -26,6 +26,9 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.FavoriteGameTask;
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
+import com.boardgamegeek.tasks.sync.SyncGameTask;
+import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.model.GameToRefresh;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -40,6 +43,7 @@ import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -50,6 +54,11 @@ import timber.log.Timber;
 public class GameActivity extends HeroActivity implements Callback, LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REQUEST_EDIT_PLAY = 1;
+	private static final int REFRESH_STATUS_NONE = 0;
+	private static final int REFRESH_STATUS_GAME = 1;
+	private static final int REFRESH_STATUS_PLAYS = 1 << 1;
+	private static final int REFRESH_STATUS_COLLECTION = 1 << 2;
+
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
@@ -57,6 +66,7 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
 	private boolean mightNeedRefreshing;
+	private int refreshStatus;
 
 	@DebugLog
 	@Override
@@ -211,15 +221,7 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 
 	@Override
 	public void onRefresh() {
-		triggerRefresh();
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(GameFragment.SyncCompleteEvent event) {
-		if (event.getGameId() == gameId) {
-			updateRefreshStatus(false);
-		}
+		requestRefresh();
 	}
 
 	@DebugLog
@@ -239,11 +241,11 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (mightNeedRefreshing) {
 			if (cursor == null || !cursor.moveToFirst()) {
-				triggerRefresh();
+				requestRefresh();
 			} else {
 				GameToRefresh game = GameToRefresh.fromCursor(cursor);
 				if (DateTimeUtils.howManyDaysOld(game.getSyncedTimestampInMillis()) > AGE_IN_DAYS_TO_REFRESH || game.getPollsVoteCount() == 0)
-					triggerRefresh();
+					requestRefresh();
 			}
 		}
 	}
@@ -252,10 +254,77 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	private void triggerRefresh() {
-		if (((GameFragment) getFragment()).triggerRefresh()) {
+	@DebugLog
+	private void requestRefresh() {
+		if (triggerRefresh()) {
 			mightNeedRefreshing = false;
 			updateRefreshStatus(true);
+		}
+	}
+
+	@DebugLog
+	public boolean triggerRefresh() {
+		if (refreshStatus == REFRESH_STATUS_NONE) {
+			refreshStatus = REFRESH_STATUS_GAME | REFRESH_STATUS_PLAYS | REFRESH_STATUS_COLLECTION;
+			TaskUtils.executeAsyncTask(new SyncGameTask(this, gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(this, gameId));
+			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(this, gameId));
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncCompleteEvent event) {
+		if (event.getGameId() == gameId) {
+			updateRefreshStatus(false);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncGameTask.CompletedEvent event) {
+		if (event.getGameId() == gameId) {
+			finishSync(REFRESH_STATUS_GAME);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
+		if (event.getGameId() == gameId) {
+			finishSync(REFRESH_STATUS_PLAYS);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
+		if (event.getGameId() == gameId) {
+			finishSync(REFRESH_STATUS_COLLECTION);
+		}
+	}
+
+	private void finishSync(int syncType) {
+		refreshStatus &= ~syncType;
+		if (refreshStatus == REFRESH_STATUS_NONE) {
+			EventBus.getDefault().post(new SyncCompleteEvent(gameId));
+		}
+	}
+
+	public static class SyncCompleteEvent {
+		private final int gameId;
+
+		public SyncCompleteEvent(int gameId) {
+			this.gameId = gameId;
+		}
+
+		public int getGameId() {
+			return gameId;
 		}
 	}
 }
