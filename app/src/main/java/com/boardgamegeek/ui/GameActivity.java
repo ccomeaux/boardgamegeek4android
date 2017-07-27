@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
@@ -40,6 +42,7 @@ import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.TaskUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -51,7 +54,7 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameActivity extends HeroActivity implements Callback, LoaderCallbacks<Cursor> {
+public class GameActivity extends HeroTabActivity implements Callback, LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private static final int REFRESH_STATUS_NONE = 0;
@@ -114,8 +117,9 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 
 	@DebugLog
 	@Override
-	protected Fragment onCreatePane() {
-		return new GameFragment();
+	protected void setUpViewPager() {
+		GamePagerAdapter adapter = new GamePagerAdapter(getSupportFragmentManager());
+		viewPager.setAdapter(adapter);
 	}
 
 	@DebugLog
@@ -205,7 +209,7 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 	@DebugLog
 	@Override
 	public void onSuccessfulImageLoad(Palette palette) {
-		((GameFragment) getFragment()).onPaletteGenerated(palette);
+		//((GameFragment) getFragment()).onPaletteGenerated(palette);
 		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
 		if (PreferencesUtils.showLogPlay(this)) {
 			fab.show();
@@ -219,7 +223,7 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 		}
 	}
 
-	@Override
+	//@Override
 	public void onRefresh() {
 		requestRefresh();
 	}
@@ -258,7 +262,7 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 	private void requestRefresh() {
 		if (triggerRefresh()) {
 			mightNeedRefreshing = false;
-			updateRefreshStatus(true);
+			//updateRefreshStatus(true);
 		}
 	}
 
@@ -278,7 +282,7 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncCompleteEvent event) {
 		if (event.getGameId() == gameId) {
-			updateRefreshStatus(false);
+			//updateRefreshStatus(false);
 		}
 	}
 
@@ -325,6 +329,34 @@ public class GameActivity extends HeroActivity implements Callback, LoaderCallba
 
 		public int getGameId() {
 			return gameId;
+		}
+	}
+
+	private final class GamePagerAdapter extends FragmentPagerAdapter {
+		public GamePagerAdapter(FragmentManager fragmentManager) {
+			super(fragmentManager);
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			if (position == 0) return getString(R.string.title_description);
+			return "";
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			if (position == 0) {
+				return Fragment.instantiate(
+					GameActivity.this,
+					GameFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+			}
+			return null;
+		}
+
+		@Override
+		public int getCount() {
+			return 1;
 		}
 	}
 }
