@@ -616,8 +616,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 						}
 					}
 				}
-				typesView.setText(cs);
-				typesView.setVisibility(VISIBLE);
+				if (TextUtils.isEmpty(cs)) {
+					typesView.setVisibility(GONE);
+				} else {
+					typesView.setText(cs);
+					typesView.setVisibility(VISIBLE);
+				}
 			} else {
 				typesView.setVisibility(GONE);
 			}
