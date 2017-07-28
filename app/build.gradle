@@ -159,7 +159,7 @@ dependencies {
 
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 
-    compile 'org.jsoup:jsoup:1.10.2'
+    compile 'org.jsoup:jsoup:1.10.3'
 
     provided "com.google.auto.value:auto-value:1.4.1"
     apt "com.google.auto.value:auto-value:1.4.1"
