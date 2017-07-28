@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import butterknife.BindView;
@@ -26,12 +27,15 @@ import butterknife.Unbinder;
 
 public class NumberPadDialogFragment extends DialogFragment {
 	private static final String KEY_TITLE = "TITLE";
+	private static final String KEY_SUBTITLE = "SUBTITLE";
 	private static final String KEY_OUTPUT = "OUTPUT";
 	private static final String KEY_COLOR = "COLOR";
 	private static final int MAX_LENGTH = 10;
 
 	private Unbinder unbinder;
+	@BindView(R.id.header) View headerView;
 	@BindView(R.id.title) TextView titleView;
+	@BindView(R.id.subtitle) TextView subtitleView;
 	@BindView(R.id.output) TextView outputView;
 	@BindView(R.id.num_delete) View deleteView;
 	private OnClickListener clickListener;
@@ -44,13 +48,19 @@ public class NumberPadDialogFragment extends DialogFragment {
 	}
 
 	public static NumberPadDialogFragment newInstance(String title, String output) {
-		return newInstance(title, output, null);
+		return newInstance(title, output, null, null);
 	}
 
-	public static NumberPadDialogFragment newInstance(String title, String output, String colorDescription) {
+	public static NumberPadDialogFragment newInstance(String title, String output, String colorDescription, String subtitle) {
 		final NumberPadDialogFragment fragment = new NumberPadDialogFragment();
 		Bundle args = new Bundle();
 		args.putString(KEY_TITLE, title);
+		if (StringUtils.isNumeric(output)) {
+			args.putString(KEY_OUTPUT, output);
+		}
+		if (!TextUtils.isEmpty(subtitle)) {
+			args.putString(KEY_SUBTITLE, subtitle);
+		}
 		if (StringUtils.isNumeric(output)) {
 			args.putString(KEY_OUTPUT, output);
 		}
@@ -109,17 +119,22 @@ public class NumberPadDialogFragment extends DialogFragment {
 			if (args.containsKey(KEY_TITLE)) {
 				titleView.setText(args.getString(KEY_TITLE));
 			}
+			if (args.containsKey(KEY_SUBTITLE)) {
+				PresentationUtils.setTextOrHide(subtitleView, args.getString(KEY_SUBTITLE));
+			}
 			if (args.containsKey(KEY_OUTPUT)) {
 				outputView.setText(args.getString(KEY_OUTPUT));
 				enableDelete();
 			}
 			if (args.containsKey(KEY_COLOR)) {
 				int color = args.getInt(KEY_COLOR);
-				titleView.setBackgroundColor(color);
+				headerView.setBackgroundColor(color);
 				if (color != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(color)) {
 					titleView.setTextColor(Color.WHITE);
+					subtitleView.setTextColor(Color.WHITE);
 				} else {
 					titleView.setTextColor(Color.BLACK);
+					subtitleView.setTextColor(Color.BLACK);
 				}
 			}
 		}

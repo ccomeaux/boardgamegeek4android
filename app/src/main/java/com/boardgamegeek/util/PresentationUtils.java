@@ -10,6 +10,7 @@ import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -448,5 +449,25 @@ public class PresentationUtils {
 				fab.show();
 			}
 		}, 2000);
+	}
+
+	@DebugLog
+	public static void setSelectableBackground(View view) {
+		setSelectableBackground(view, android.R.attr.selectableItemBackground);
+	}
+
+	@DebugLog
+	public static void setSelectableBackgroundBorderless(View view) {
+		setSelectableBackground(view, android.R.attr.selectableItemBackgroundBorderless);
+	}
+
+	@DebugLog
+	private static void setSelectableBackground(View view, int backgroundResId) {
+		TypedValue outValue = new TypedValue();
+		view.getContext().getTheme().resolveAttribute(backgroundResId, outValue, true);
+		view.setBackgroundResource(outValue.resourceId);
+		view.setClickable(true);
+		view.setFocusable(true);
+		view.setVisibility(View.VISIBLE);
 	}
 }

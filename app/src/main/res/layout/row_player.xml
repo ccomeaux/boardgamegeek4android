@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	   xmlns:tools="http://schemas.android.com/tools">
+	   xmlns:tools="http://schemas.android.com/tools"
+	   tools:layout_height="64dp"
+	   tools:layout_width="match_parent"
+	   tools:parentTag="LinearLayout">
 
 	<FrameLayout
 		android:id="@+id/color_container"
 		android:layout_width="@dimen/edit_label_width"
 		android:layout_height="match_parent"
-		android:layout_gravity="left|center_vertical"
-		android:background="?attr/selectableItemBackgroundBorderless">
+		android:layout_gravity="left|center_vertical">
 
 		<ImageView
 			android:id="@+id/color_view"
@@ -31,8 +33,8 @@
 		android:id="@+id/name_container"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
 		android:layout_weight="1"
-		android:background="?attr/selectableItemBackground"
 		android:orientation="vertical">
 
 		<TextView
@@ -55,7 +57,38 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			tools:text="They"/>
+
+		<TextView
+			android:id="@+id/starting_position"
+			style="@style/Text.Footnote"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			tools:text="First"/>
 	</LinearLayout>
+
+	<FrameLayout
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="center">
+
+		<ImageView
+			android:id="@+id/rating_button"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
+			android:layout_gravity="center"
+			android:scaleType="center"
+			android:src="@drawable/ic_rating"
+			tools:tint="#2000"
+			tools:tintMode="src_in"/>
+
+		<TextView
+			android:id="@+id/rating"
+			style="@style/Text.Big"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			tools:text="7.5"/>
+	</FrameLayout>
 
 	<FrameLayout
 		android:layout_width="wrap_content"
@@ -67,45 +100,24 @@
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
-			android:background="?attr/selectableItemBackgroundBorderless"
 			android:scaleType="center"
 			android:src="@drawable/ic_score"
-			android:visibility="gone"
-			tools:visibility="visible"/>
+			tools:tint="#2000"
+			tools:tintMode="src_in"/>
 
-		<LinearLayout
+		<TextView
+			android:id="@+id/score"
+			style="@style/Text.Big"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
-			android:gravity="right"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/score"
-				style="@style/Text.Big"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				tools:text="529"/>
-
-			<TextView
-				android:id="@+id/starting_position"
-				style="@style/Text.Footnote"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				tools:text="First"/>
-
-			<TextView
-				android:id="@+id/rating"
-				style="@style/Text.Footnote"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				tools:text="7.5"/>
-		</LinearLayout>
+			tools:text="529"/>
 	</FrameLayout>
 
 	<ImageView
 		android:id="@+id/more"
 		style="@style/Icon.Right"
+		android:layout_gravity="center"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:src="@drawable/ic_more_vert"
 		android:visibility="gone"
@@ -114,6 +126,8 @@
 	<ImageView
 		android:id="@+id/drag_handle"
 		style="@style/Icon.Right"
+		android:layout_gravity="center"
+		android:contentDescription="@string/sort"
 		android:src="@drawable/drag_grip"
 		android:visibility="invisible"
 		tools:visibility="visible"/>

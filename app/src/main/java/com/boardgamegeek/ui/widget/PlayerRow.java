@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.PresentationUtils;
 
 import java.text.DecimalFormat;
 
@@ -26,7 +27,6 @@ public class PlayerRow extends LinearLayout {
 	private final DecimalFormat ratingFormat = new DecimalFormat("0.0######");
 
 	@BindView(R.id.drag_handle) View dragHandle;
-	@BindView(R.id.color_container) View colorContainer;
 	@BindView(R.id.color_view) ImageView colorView;
 	@BindView(R.id.seat) TextView seatView;
 	@BindView(R.id.name_container) View nameContainer;
@@ -36,6 +36,7 @@ public class PlayerRow extends LinearLayout {
 	@BindView(R.id.score) TextView scoreView;
 	@BindView(R.id.starting_position) TextView startingPositionView;
 	@BindView(R.id.rating) TextView ratingView;
+	@BindView(R.id.rating_button) ImageView ratingButton;
 	@BindView(R.id.score_button) ImageView scoreButton;
 	@BindView(R.id.more) View moreButton;
 
@@ -43,8 +44,6 @@ public class PlayerRow extends LinearLayout {
 	private final Typeface usernameTypeface;
 	private final Typeface scoreTypeface;
 	private final int nameColor;
-
-	private boolean hasScoreListener;
 
 	public PlayerRow(Context context) {
 		this(context, null);
@@ -62,6 +61,8 @@ public class PlayerRow extends LinearLayout {
 		int verticalPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
 		setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 
+		PresentationUtils.setSelectableBackground(this);
+
 		ButterKnife.bind(this);
 
 		nameTypeface = nameView.getTypeface();
@@ -69,82 +70,84 @@ public class PlayerRow extends LinearLayout {
 		scoreTypeface = scoreView.getTypeface();
 		nameColor = nameView.getTextColors().getDefaultColor();
 
+		ratingButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 		scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN);
 	}
 
 	public void setOnScoreListener(OnClickListener l) {
-		hasScoreListener = true;
-		scoreButton.setVisibility(View.VISIBLE);
-		scoreButton.setFocusable(false);
+		PresentationUtils.setSelectableBackgroundBorderless(scoreButton);
 		scoreButton.setOnClickListener(l);
 	}
 
+	public void setOnRatingListener(OnClickListener l) {
+		PresentationUtils.setSelectableBackgroundBorderless(ratingButton);
+		ratingButton.setOnClickListener(l);
+	}
+
 	public void setOnColorListener(OnClickListener l) {
-		colorContainer.setFocusable(false);
-		colorContainer.setOnClickListener(l);
+		PresentationUtils.setSelectableBackgroundBorderless(colorView);
+		colorView.setOnClickListener(l);
 	}
 
 	public void setNameListener(OnClickListener l) {
-		nameContainer.setVisibility(View.VISIBLE);
+		PresentationUtils.setSelectableBackground(nameContainer);
 		nameContainer.setOnClickListener(l);
 	}
 
 	public void setOnMoreListener(OnClickListener l) {
-		moreButton.setVisibility(View.VISIBLE);
+		moreButton.setVisibility(VISIBLE);
 		moreButton.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {
-		dragHandle.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
+		dragHandle.setVisibility(value ? VISIBLE : INVISIBLE);
 	}
 
 	public void setPlayer(Player player) {
 		if (player == null) {
 			colorView.setVisibility(View.GONE);
-			setText(seatView, "");
-			setText(nameView, getResources().getString(R.string.title_player));
-			setText(usernameView, "");
-			setText(teamColorView, "");
-			setText(scoreView, "");
-			setText(ratingView, "");
-			scoreButton.setVisibility(View.GONE);
+			PresentationUtils.setTextOrHide(seatView, "");
+			PresentationUtils.setTextOrHide(nameView, getResources().getString(R.string.title_player));
+			PresentationUtils.setTextOrHide(usernameView, "");
+			PresentationUtils.setTextOrHide(teamColorView, "");
+			PresentationUtils.setTextOrHide(scoreView, "");
+			PresentationUtils.setTextOrHide(ratingView, "");
+			ratingButton.setVisibility(GONE);
+			scoreButton.setVisibility(GONE);
 		} else {
-			setText(seatView, player.getStartingPosition());
+			PresentationUtils.setTextOrHide(seatView, player.getStartingPosition());
 			if (TextUtils.isEmpty(player.name) && TextUtils.isEmpty(player.username)) {
-				String name;
-				if (player.getSeat() == Player.SEAT_UNKNOWN) {
-					name = getResources().getString(R.string.title_player);
-				} else {
-					name = getResources().getString(R.string.generic_player, player.getSeat());
-				}
+				String name = player.getSeat() == Player.SEAT_UNKNOWN ?
+					getResources().getString(R.string.title_player) :
+					getResources().getString(R.string.generic_player, player.getSeat());
 				setText(nameView, name, nameTypeface, player.New(), player.Win(), true);
-				usernameView.setVisibility(View.GONE);
+				usernameView.setVisibility(GONE);
 			} else if (TextUtils.isEmpty(player.name)) {
 				setText(nameView, player.username, nameTypeface, player.New(), player.Win());
-				usernameView.setVisibility(View.GONE);
+				usernameView.setVisibility(GONE);
 			} else {
 				setText(nameView, player.name, nameTypeface, player.New(), player.Win());
 				setText(usernameView, player.username, usernameTypeface, player.New(), player.Win());
 			}
-			setText(teamColorView, player.color);
+			PresentationUtils.setTextOrHide(teamColorView, player.color);
 			setText(scoreView, player.score, scoreTypeface, false, player.Win());
-			setText(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
-			setText(startingPositionView, player.getStartingPosition());
+			scoreButton.setVisibility(TextUtils.isEmpty(player.score) ? GONE : VISIBLE);
+			PresentationUtils.setTextOrHide(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
+			ratingButton.setVisibility(player.rating > 0 ? VISIBLE : GONE);
+			PresentationUtils.setTextOrHide(startingPositionView, player.getStartingPosition());
 
 			int color = ColorUtils.parseColor(player.color);
-			colorView.setVisibility(View.VISIBLE);
+			colorView.setVisibility(VISIBLE);
 			ColorUtils.setColorViewValue(colorView, color);
 			if (player.getSeat() == Player.SEAT_UNKNOWN) {
-				seatView.setVisibility(View.GONE);
+				seatView.setVisibility(GONE);
 			} else {
 				seatView.setTextColor(ColorUtils.getTextColor(color));
-				startingPositionView.setVisibility(View.GONE);
+				startingPositionView.setVisibility(GONE);
 			}
 			if (color != ColorUtils.TRANSPARENT) {
-				teamColorView.setVisibility(View.GONE);
+				teamColorView.setVisibility(GONE);
 			}
-
-			scoreButton.setVisibility(hasScoreListener ? View.VISIBLE : View.GONE);
 		}
 	}
 
@@ -156,17 +159,12 @@ public class PlayerRow extends LinearLayout {
 		return dragHandle;
 	}
 
-	private void setText(TextView textView, String text) {
-		textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-		textView.setText(text);
-	}
-
 	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold) {
 		setText(textView, text, tf, italic, bold, false);
 	}
 
-	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold, boolean secondary) {
-		setText(textView, text);
+	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold, boolean isSecondary) {
+		PresentationUtils.setTextOrHide(textView, text);
 		if (!TextUtils.isEmpty(text)) {
 			if (italic && bold) {
 				textView.setTypeface(tf, Typeface.BOLD_ITALIC);
@@ -177,7 +175,7 @@ public class PlayerRow extends LinearLayout {
 			} else {
 				textView.setTypeface(tf, Typeface.NORMAL);
 			}
-			if (secondary) {
+			if (isSecondary) {
 				textView.setTextColor(ContextCompat.getColor(getContext(), R.color.secondary_text));
 			} else {
 				textView.setTextColor(nameColor);
