@@ -8,6 +8,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,10 +32,11 @@ import timber.log.Timber;
 public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
 	private Uri uri;
 	private Unbinder unbinder;
+	@BindView(R.id.unranked) TextView unrankedView;
 	@BindView(R.id.subtypes) ViewGroup subtypesView;
+	@BindView(R.id.families) ViewGroup familiesView;
 	@BindView(R.id.standard_deviation) TextView standardDeviationView;
 	@BindView(R.id.votes) TextView votesView;
-	@BindView(R.id.families) ViewGroup familiesView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -86,12 +88,19 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 			subtypesView.removeAllViews();
 			familiesView.removeAllViews();
 
+			boolean hasRankedSubtype = false;
+			CharSequence unrankedSubtype = "Game";
 			if (cursor.moveToFirst()) {
 				double standardDeviation = cursor.getDouble(Query.STATS_STANDARD_DEVIATION);
 				int voteCount = cursor.getInt(Query.STATS_USERS_RATED);
 
-				standardDeviationView.setText(PresentationUtils.getText(getContext(), R.string.standard_deviation_prefix, standardDeviation));
 				votesView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, voteCount, voteCount));
+				if (voteCount == 0) {
+					standardDeviationView.setVisibility(View.GONE);
+				} else {
+					standardDeviationView.setText(PresentationUtils.getText(getContext(), R.string.standard_deviation_prefix, standardDeviation));
+					standardDeviationView.setVisibility(View.VISIBLE);
+				}
 
 				do {
 					String type = cursor.getString(Query.GAME_RANK_TYPE);
@@ -100,23 +109,34 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 					double average = cursor.getDouble(Query.GAME_RANK_BAYES_AVERAGE);
 					boolean isFamily = BggService.RANK_TYPE_FAMILY.equals(type);
 
-					GameRankRow row = new GameRankRow(getContext(), isFamily);
-					row.setRank(rank);
-					row.setName(name);
-					row.setRatingView(average);
-
-					switch (type) {
-						case BggService.RANK_TYPE_SUBTYPE:
-							subtypesView.addView(row);
-							break;
-						case BggService.RANK_TYPE_FAMILY:
-							familiesView.addView(row);
-							break;
-						default:
-							Timber.i("Invalid rank type: %s", type);
-							break;
+					if (PresentationUtils.isRankValid(rank)) {
+						GameRankRow row = new GameRankRow(getContext(), isFamily);
+						row.setRank(rank);
+						row.setName(name);
+						row.setRatingView(average);
+						switch (type) {
+							case BggService.RANK_TYPE_SUBTYPE:
+								subtypesView.addView(row);
+								subtypesView.setVisibility(View.VISIBLE);
+								unrankedView.setVisibility(View.GONE);
+								hasRankedSubtype = true;
+								break;
+							case BggService.RANK_TYPE_FAMILY:
+								familiesView.addView(row);
+								familiesView.setVisibility(View.VISIBLE);
+								break;
+							default:
+								Timber.i("Invalid rank type: %s", type);
+								break;
+						}
+					} else if (BggService.RANK_TYPE_SUBTYPE.equals(type)) {
+						unrankedSubtype = name;
 					}
 				} while (cursor.moveToNext());
+			}
+			if (!hasRankedSubtype && !TextUtils.isEmpty(unrankedSubtype)) {
+				unrankedView.setText(PresentationUtils.getText(getContext(), R.string.unranked_prefix, unrankedSubtype));
+				unrankedView.setVisibility(View.VISIBLE);
 			}
 		} else {
 			cursor.close();

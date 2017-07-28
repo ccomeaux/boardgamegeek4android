@@ -552,6 +552,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (game.AverageWeight >= 1 && game.AverageWeight <= 5) {
 			weightScore.setText(PresentationUtils.describeScore(getContext(), game.AverageWeight));
 			ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.AverageWeight));
+			weightScore.setVisibility(VISIBLE);
+		} else {
+			weightScore.setVisibility(GONE);
 		}
 		weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
 
@@ -616,8 +619,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 						}
 					}
 				}
-				typesView.setText(cs);
-				typesView.setVisibility(VISIBLE);
+				if (TextUtils.isEmpty(cs)) {
+					typesView.setVisibility(GONE);
+				} else {
+					typesView.setText(cs);
+					typesView.setVisibility(VISIBLE);
+				}
 			} else {
 				typesView.setVisibility(GONE);
 			}
@@ -778,9 +785,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				}
 			} while (cursor.moveToNext());
 
-			PresentationUtils.setTextOrHide(numberOfPlayersBest,
-				PresentationUtils.getText(getContext(), R.string.best_prefix, StringUtils.formatRange(bestCounts)));
-			if (!bestCounts.equals(recommendedCounts)) {
+			if (bestCounts.size() > 0) {
+				PresentationUtils.setTextOrHide(numberOfPlayersBest,
+					PresentationUtils.getText(getContext(), R.string.best_prefix, StringUtils.formatRange(bestCounts)));
+			}
+			if (recommendedCounts.size() > 0 && !bestCounts.equals(recommendedCounts)) {
 				PresentationUtils.setTextOrHide(numberOfPlayersRecommended,
 					PresentationUtils.getText(getContext(), R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts)));
 			}

@@ -421,6 +421,8 @@
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="unknown">Unknown</string>
+	<string name="unknown_weight">Unknown weight</string>
+	<string name="unknown_language">Unknown language dependence</string>
 	<string name="ages">Ages</string>
 	<string name="ages_unknown">Unknown ages</string>
 	<string name="player_range_unknown"><b>\?</b> players</string>
@@ -460,6 +462,7 @@
 	<string name="age_community_plus">Community: <b>%d+</b></string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
+	<string name="unranked_prefix">Unranked %s</string>
 	<string name="updated_prefix">Updated %s</string>
 	<string name="saved_prefix">Saved %s</string>
 	<string name="synced_prefix">Synced %s</string>
