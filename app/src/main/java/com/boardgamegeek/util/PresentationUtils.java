@@ -188,11 +188,16 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
+	public static boolean isRankValid(int rank) {
+		return rank > 0 && rank < Integer.MAX_VALUE;
+	}
+
+	@DebugLog
 	public static CharSequence describeRank(Context context, int rank, String type, String name) {
-		if (rank == 0 || rank == Integer.MAX_VALUE) {
-			return describeRankName(context, type, name);
-		} else {
+		if (isRankValid(rank)) {
 			return getText(context, R.string.rank_description, rank, describeRankName(context, type, name));
+		} else {
+			return describeRankName(context, type, name);
 		}
 	}
 

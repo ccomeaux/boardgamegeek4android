@@ -460,6 +460,7 @@
 	<string name="age_community_plus">Community: <b>%d+</b></string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
+	<string name="unranked_prefix">Unranked %s</string>
 	<string name="updated_prefix">Updated %s</string>
 	<string name="saved_prefix">Saved %s</string>
 	<string name="synced_prefix">Synced %s</string>

@@ -26,7 +26,12 @@ public class GameRankRow extends LinearLayout {
 	}
 
 	public void setRank(int rank) {
-		rankView.setText(getContext().getString(R.string.rank_prefix, rank));
+		if (PresentationUtils.isRankValid(rank)) {
+			rankView.setText(getContext().getString(R.string.rank_prefix, rank));
+			rankView.setVisibility(VISIBLE);
+		} else {
+			rankView.setVisibility(INVISIBLE);
+		}
 	}
 
 	public void setName(CharSequence name) {
