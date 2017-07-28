@@ -255,7 +255,7 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static CharSequence describeWeight(@NonNull Context context, double weight) {
-		@StringRes int resId = R.string.unknown;
+		@StringRes int resId = R.string.unknown_weight;
 		if (weight >= 4.5 && weight <= 5.0) {
 			resId = R.string.weight_5_text;
 		} else if (weight >= 3.5) {
@@ -272,7 +272,7 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static CharSequence describeLanguageDependence(@NonNull Context context, double value) {
-		@StringRes int resId = R.string.unknown;
+		@StringRes int resId = R.string.unknown_language;
 		if (value >= 4.5 && value <= 5.0) {
 			resId = R.string.language_5_text;
 		} else if (value >= 3.5) {
