@@ -17,6 +17,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
@@ -120,6 +121,27 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	protected void setUpViewPager() {
 		GamePagerAdapter adapter = new GamePagerAdapter(getSupportFragmentManager());
 		viewPager.setAdapter(adapter);
+		viewPager.addOnPageChangeListener(new OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+			}
+
+			@Override
+			public void onPageSelected(int position) {
+				switch (position) {
+					case 0:
+						fab.show();
+						break;
+					case 1:
+						fab.hide();
+						break;
+				}
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int state) {
+			}
+		});
 	}
 
 	@DebugLog
