@@ -162,8 +162,6 @@
 			android:layout_weight="1"
 			android:orientation="vertical">
 
-			<include layout="@layout/include_game_card_collection"/>
-
 			<include layout="@layout/include_game_card_plays"/>
 		</LinearLayout>
 	</LinearLayout>

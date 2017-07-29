@@ -132,7 +132,7 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 					case 0:
 						fab.show();
 						break;
-					case 1:
+					default:
 						fab.hide();
 						break;
 				}
@@ -383,6 +383,8 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 				case 0:
 					return getString(R.string.title_description);
 				case 1:
+					return getString(R.string.title_collection);
+				case 2:
 					return getString(R.string.links);
 			}
 			return "";
@@ -399,6 +401,11 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 				case 1:
 					return Fragment.instantiate(
 						GameActivity.this,
+						GameCollectionFragment.class.getName(),
+						UIUtils.intentToFragmentArguments(getIntent()));
+				case 2:
+					return Fragment.instantiate(
+						GameActivity.this,
 						GameLinksFragment.class.getName(),
 						UIUtils.intentToFragmentArguments(getIntent()));
 			}
@@ -407,7 +414,7 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 
 		@Override
 		public int getCount() {
-			return 2;
+			return 3;
 		}
 	}
 }

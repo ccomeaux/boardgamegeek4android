@@ -22,7 +22,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,18 +35,14 @@ import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.GameArtist;
 import com.boardgamegeek.ui.model.GameBaseGame;
 import com.boardgamegeek.ui.model.GameCategory;
-import com.boardgamegeek.ui.model.GameCollectionItem;
 import com.boardgamegeek.ui.model.GameDesigner;
 import com.boardgamegeek.ui.model.GameExpansion;
 import com.boardgamegeek.ui.model.GameList;
@@ -58,7 +53,6 @@ import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
 import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
-import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
@@ -110,7 +104,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
 	private static final int RANK_TOKEN = 0x19;
-	private static final int COLLECTION_TOKEN = 0x20;
 	private static final int PLAYS_TOKEN = 0x21;
 	private static final int COLOR_TOKEN = 0x22;
 	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
@@ -151,9 +144,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.game_info_mechanics) GameDetailRow mechanicsView;
 	@BindView(R.id.game_info_expansions) GameDetailRow expansionsView;
 	@BindView(R.id.game_info_base_games) GameDetailRow baseGamesView;
-
-	@BindView(R.id.collection_card) View collectionCard;
-	@BindView(R.id.collection_container) ViewGroup collectionContainer;
 
 	@BindView(R.id.plays_card) View playsCard;
 	@BindView(R.id.plays_root) View playsRoot;
@@ -207,9 +197,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_language_dependence,
 		R.id.icon_users,
 	}) List<ImageView> colorizedIcons;
-	@BindViews({
-		R.id.collection_add_button
-	}) List<Button> colorizedButtons;
 
 	@ColorInt private int iconColor;
 	private Palette palette;
@@ -337,9 +324,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case RANK_TOKEN:
 				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
 				break;
-			case COLLECTION_TOKEN:
-				loader = new CursorLoader(getActivity(), GameCollectionItem.URI, GameCollectionItem.PROJECTION, GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
-				break;
 			case PLAYS_TOKEN:
 				// retrieve plays that aren't pending delete (optionally only completed plays)
 				loader = new CursorLoader(getActivity(),
@@ -377,7 +361,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case GAME_TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
-				if (shouldShowCollection()) lm.restartLoader(COLLECTION_TOKEN, null, this);
 				lm.restartLoader(DESIGNER_TOKEN, null, this);
 				lm.restartLoader(ARTIST_TOKEN, null, this);
 				lm.restartLoader(PUBLISHER_TOKEN, null, this);
@@ -410,9 +393,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				break;
 			case RANK_TOKEN:
 				onRankQueryComplete(cursor);
-				break;
-			case COLLECTION_TOKEN:
-				onCollectionQueryComplete(cursor);
 				break;
 			case PLAYS_TOKEN:
 				onPlaysQueryComplete(cursor);
@@ -480,7 +460,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		iconColor = swatch.getRgb();
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
-		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
 		darkSwatch = PaletteUtils.getDarkSwatch(palette);
 
 		ScrimUtils.applyWhiteScrim(descriptionView);
@@ -541,12 +520,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@DebugLog
-	private boolean shouldShowCollection() {
-		String[] syncStatuses = PreferencesUtils.getSyncStatuses(getContext());
-		return Authenticator.isSignedIn(getActivity()) && syncStatuses != null && syncStatuses.length > 0;
-	}
-
-	@DebugLog
 	private boolean shouldShowPlays() {
 		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getContext());
 	}
@@ -594,45 +567,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				typesView.setVisibility(GONE);
 			}
 		}
-	}
-
-	@DebugLog
-	private void onCollectionQueryComplete(Cursor cursor) {
-		if (cursor != null && cursor.moveToFirst()) {
-			collectionCard.setVisibility(VISIBLE);
-			collectionContainer.removeAllViews();
-			do {
-				GameCollectionRow row = new GameCollectionRow(getActivity());
-				GameCollectionItem item = GameCollectionItem.fromCursor(getContext(), cursor);
-				row.bind(item.getInternalId(), Games.getGameId(gameUri), gameName, item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
-				row.setThumbnail(item.getThumbnailUrl());
-				row.setStatus(item.getStatuses(), item.getNumberOfPlays(), item.getRating(), item.getComment());
-				row.setDescription(item.getCollectionName(), item.getCollectionYearPublished());
-				row.setComment(item.getComment());
-				row.setRating(item.getRating());
-
-				collectionContainer.addView(row);
-			} while (cursor.moveToNext());
-		} else {
-			collectionCard.setVisibility(GONE);
-		}
-	}
-
-	@OnClick(R.id.collection_add_button)
-	void onAddToCollectionClick() {
-		CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
-			collectionContainer,
-			new CollectionStatusDialogListener() {
-				@Override
-				public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
-					int gameId = Games.getGameId(gameUri);
-					AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), gameId, selectedStatuses, wishlistPriority);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		);
-		statusDialogFragment.setTitle(R.string.title_add_a_copy);
-		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
 	}
 
 	@DebugLog
