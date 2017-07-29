@@ -206,10 +206,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_weight,
 		R.id.icon_language_dependence,
 		R.id.icon_users,
-		R.id.icon_link_bgg,
-		R.id.icon_link_bg_prices,
-		R.id.icon_link_amazon,
-		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
 	@BindViews({
 		R.id.collection_add_button
@@ -863,31 +859,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
-	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_amazon_uk, R.id.link_amazon_de, R.id.link_ebay })
-	void onLinkClick(View view) {
-		switch (view.getId()) {
-			case R.id.link_bgg:
-				ActivityUtils.linkBgg(getActivity(), Games.getGameId(gameUri));
-				break;
-			case R.id.link_bg_prices:
-				ActivityUtils.linkBgPrices(getActivity(), gameName);
-				break;
-			case R.id.link_amazon:
-				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_COM);
-				break;
-			case R.id.link_amazon_uk:
-				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_UK);
-				break;
-			case R.id.link_amazon_de:
-				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_DE);
-				break;
-			case R.id.link_ebay:
-				ActivityUtils.linkEbay(getActivity(), gameName);
-				break;
-		}
-	}
 
 	@OnClick({ R.id.player_age_root })
 	@DebugLog

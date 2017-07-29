@@ -165,8 +165,6 @@
 			<include layout="@layout/include_game_card_collection"/>
 
 			<include layout="@layout/include_game_card_plays"/>
-
-			<include layout="@layout/include_game_card_links"/>
 		</LinearLayout>
 	</LinearLayout>
 

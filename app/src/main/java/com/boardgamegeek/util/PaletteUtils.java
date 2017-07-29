@@ -123,6 +123,8 @@ public class PaletteUtils {
 	 * Gets a swatch from the palette suitable for tinting icon images.
 	 */
 	public static Palette.Swatch getIconSwatch(Palette palette) {
+		if (palette == null) return null;
+
 		Palette.Swatch swatch = palette.getDarkVibrantSwatch();
 		if (swatch != null) {
 			return swatch;

@@ -339,24 +339,35 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			if (position == 0) return getString(R.string.title_description);
+			switch (position) {
+				case 0:
+					return getString(R.string.title_description);
+				case 1:
+					return getString(R.string.links);
+			}
 			return "";
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			if (position == 0) {
-				return Fragment.instantiate(
-					GameActivity.this,
-					GameFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
+			switch (position) {
+				case 0:
+					return Fragment.instantiate(
+						GameActivity.this,
+						GameFragment.class.getName(),
+						UIUtils.intentToFragmentArguments(getIntent()));
+				case 1:
+					return Fragment.instantiate(
+						GameActivity.this,
+						GameLinksFragment.class.getName(),
+						UIUtils.intentToFragmentArguments(getIntent()));
 			}
 			return null;
 		}
 
 		@Override
 		public int getCount() {
-			return 1;
+			return 2;
 		}
 	}
 }
