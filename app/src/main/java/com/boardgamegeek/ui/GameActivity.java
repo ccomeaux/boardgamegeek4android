@@ -383,7 +383,11 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 				case 0:
 					return getString(R.string.title_description);
 				case 1:
-					return getString(R.string.title_collection);
+					if (shouldShowCollection()) {
+						return getString(R.string.title_collection);
+					} else {
+						return getString(R.string.links);
+					}
 				case 2:
 					return getString(R.string.links);
 			}
@@ -399,22 +403,36 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 						GameFragment.class.getName(),
 						UIUtils.intentToFragmentArguments(getIntent()));
 				case 1:
-					return Fragment.instantiate(
-						GameActivity.this,
-						GameCollectionFragment.class.getName(),
-						UIUtils.intentToFragmentArguments(getIntent()));
+					if (shouldShowCollection()) {
+						return Fragment.instantiate(
+							GameActivity.this,
+							GameCollectionFragment.class.getName(),
+							UIUtils.intentToFragmentArguments(getIntent()));
+					} else {
+						return createLinksFragment();
+					}
 				case 2:
-					return Fragment.instantiate(
-						GameActivity.this,
-						GameLinksFragment.class.getName(),
-						UIUtils.intentToFragmentArguments(getIntent()));
+					return createLinksFragment();
 			}
 			return null;
 		}
 
+		private Fragment createLinksFragment() {
+			return Fragment.instantiate(
+				GameActivity.this,
+				GameLinksFragment.class.getName(),
+				UIUtils.intentToFragmentArguments(getIntent()));
+		}
+
 		@Override
 		public int getCount() {
-			return 3;
+			return 2 + (shouldShowCollection() ? 1 : 0);
 		}
+	}
+
+	@DebugLog
+	private boolean shouldShowCollection() {
+		String[] syncStatuses = PreferencesUtils.getSyncStatuses(this);
+		return Authenticator.isSignedIn(this) && syncStatuses != null && syncStatuses.length > 0;
 	}
 }
