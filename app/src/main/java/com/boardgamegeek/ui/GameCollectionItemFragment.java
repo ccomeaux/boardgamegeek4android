@@ -70,7 +70,7 @@ import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
 
-public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class GameCollectionItemFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
@@ -138,7 +138,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
 		colorize(palette);

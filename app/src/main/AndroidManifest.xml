@@ -243,7 +243,7 @@
 			android:label="@string/title_log_player"
 			android:theme="@style/Theme.bgglight"/>
 		<activity
-			android:name=".ui.GameCollectionActivity"
+			android:name=".ui.GameCollectionItemActivity"
 			android:label="@string/title_collection"/>
 		<activity
 			android:name=".ui.GamePlaysActivity"

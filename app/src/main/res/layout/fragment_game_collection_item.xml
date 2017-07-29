@@ -7,7 +7,7 @@
 	android:layout_height="wrap_content"
 	android:animateLayoutChanges="true"
 	android:orientation="vertical"
-	tools:context=".ui.GameCollectionActivity">
+	tools:context=".ui.GameCollectionItemActivity">
 
 	<LinearLayout
 		android:id="@+id/info_bar"
