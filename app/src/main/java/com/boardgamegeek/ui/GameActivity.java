@@ -231,7 +231,7 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	@DebugLog
 	@Override
 	public void onSuccessfulImageLoad(Palette palette) {
-		//((GameFragment) getFragment()).onPaletteGenerated(palette);
+		EventBus.getDefault().post(new PaletteEvent(gameId, palette));
 		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
 		if (PreferencesUtils.showLogPlay(this)) {
 			fab.show();
@@ -351,6 +351,24 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 
 		public int getGameId() {
 			return gameId;
+		}
+	}
+
+	public static class PaletteEvent {
+		private final int gameId;
+		private final Palette palette;
+
+		public PaletteEvent(int gameId, Palette palette) {
+			this.gameId = gameId;
+			this.palette = palette;
+		}
+
+		public int getGameId() {
+			return gameId;
+		}
+
+		public Palette getPalette() {
+			return palette;
 		}
 	}
 

@@ -227,7 +227,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		gameUri = intent.getData();
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -471,12 +470,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
-	}
-
-	@DebugLog
-	public void onPaletteGenerated(Palette palette) {
-		this.palette = palette;
-		colorize();
 	}
 
 	@DebugLog
@@ -855,10 +848,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@SuppressWarnings("unused")
 	@Subscribe
+	public void onEvent(GameActivity.PaletteEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			palette = event.getPalette();
+			colorize();
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe
 	public void onEvent(CollectionItemUpdatedEvent event) {
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 	}
-
 
 	@OnClick({ R.id.player_age_root })
 	@DebugLog

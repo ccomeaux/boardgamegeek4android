@@ -17,6 +17,9 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.List;
 
 import butterknife.BindViews;
@@ -39,7 +42,6 @@ public class GameLinksFragment extends Fragment {
 
 	private Palette palette = null;
 
-
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,17 @@ public class GameLinksFragment extends Fragment {
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
+	}
 
 	@DebugLog
 	@Override
@@ -63,18 +76,10 @@ public class GameLinksFragment extends Fragment {
 	}
 
 	@DebugLog
-	private void colorize() {
-		if (palette == null) return;
-		Palette.Swatch swatch = PaletteUtils.getIconSwatch(palette);
-		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
-	}
-
-	@DebugLog
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
-
 	}
 
 	@SuppressWarnings("unused")
@@ -101,5 +106,21 @@ public class GameLinksFragment extends Fragment {
 				ActivityUtils.linkEbay(getActivity(), gameName);
 				break;
 		}
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe
+	public void onEvent(GameActivity.PaletteEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			palette = event.getPalette();
+			colorize();
+		}
+	}
+
+	@DebugLog
+	private void colorize() {
+		if (palette == null) return;
+		Palette.Swatch swatch = PaletteUtils.getIconSwatch(palette);
+		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
 	}
 }
