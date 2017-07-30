@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+	android:id="@+id/collection_container"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -7,35 +8,5 @@
 	android:orientation="vertical"
 	android:paddingLeft="@dimen/material_margin_horizontal"
 	android:paddingRight="@dimen/material_margin_horizontal"
-	tools:context="com.boardgamegeek.ui.GameCollectionFragment">
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:baselineAligned="true"
-		android:gravity="bottom"
-		android:minHeight="@dimen/card_header_height"
-		android:orientation="horizontal">
-
-		<TextView
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="@string/title_collection"
-			android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-		<Button
-			android:id="@+id/collection_add_button"
-			style="@style/SmallColoredButton"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="end|bottom"
-			android:text="@string/add"/>
-	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/collection_container"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"/>
-</LinearLayout>
+	android:paddingTop="@dimen/padding_standard"
+	tools:context="com.boardgamegeek.ui.GameCollectionFragment"/>

@@ -71,6 +71,7 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	private boolean isFavorite;
 	private boolean mightNeedRefreshing;
 	private int refreshStatus;
+	private GamePagerAdapter adapter;
 
 	@DebugLog
 	@Override
@@ -119,7 +120,7 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	@DebugLog
 	@Override
 	protected void setUpViewPager() {
-		GamePagerAdapter adapter = new GamePagerAdapter(getSupportFragmentManager());
+		adapter = new GamePagerAdapter(getSupportFragmentManager());
 		viewPager.setAdapter(adapter);
 		viewPager.addOnPageChangeListener(new OnPageChangeListener() {
 			@Override
@@ -128,14 +129,8 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 
 			@Override
 			public void onPageSelected(int position) {
-				switch (position) {
-					case 0:
-						fab.show();
-						break;
-					default:
-						fab.hide();
-						break;
-				}
+				adapter.setCurrentPosition(position);
+				adapter.displayFab();
 			}
 
 			@Override
@@ -234,14 +229,14 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		EventBus.getDefault().post(new PaletteEvent(gameId, palette));
 		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
 		if (PreferencesUtils.showLogPlay(this)) {
-			fab.show();
+			adapter.displayFab();
 		}
 	}
 
 	@Override
 	public void onFailedImageLoad() {
 		if (PreferencesUtils.showLogPlay(this)) {
-			fab.show();
+			adapter.displayFab();
 		}
 	}
 
@@ -373,6 +368,8 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	}
 
 	private final class GamePagerAdapter extends FragmentPagerAdapter {
+		private int currentPosition;
+
 		public GamePagerAdapter(FragmentManager fragmentManager) {
 			super(fragmentManager);
 		}
@@ -427,6 +424,21 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		@Override
 		public int getCount() {
 			return 2 + (shouldShowCollection() ? 1 : 0);
+		}
+
+		public void setCurrentPosition(int position) {
+			currentPosition = position;
+		}
+
+		public void displayFab() {
+			switch (currentPosition) {
+				case 0:
+					fab.show();
+					break;
+				default:
+					fab.hide();
+					break;
+			}
 		}
 	}
 
