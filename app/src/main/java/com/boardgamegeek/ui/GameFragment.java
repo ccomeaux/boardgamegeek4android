@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -14,7 +13,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.graphics.Palette;
-import android.support.v7.graphics.Palette.Swatch;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.io.Adapter;
@@ -36,7 +33,6 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.FavoriteGameTask;
-import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.model.Game;
@@ -47,7 +43,6 @@ import com.boardgamegeek.ui.model.GameDesigner;
 import com.boardgamegeek.ui.model.GameExpansion;
 import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
-import com.boardgamegeek.ui.model.GamePlays;
 import com.boardgamegeek.ui.model.GamePublisher;
 import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
@@ -62,7 +57,6 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
@@ -104,17 +98,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
 	private static final int RANK_TOKEN = 0x19;
-	private static final int PLAYS_TOKEN = 0x21;
-	private static final int COLOR_TOKEN = 0x22;
 	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
 	private static final int SUGGESTED_AGE_TOKEN = 0x24;
 	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
 
 	private Uri gameUri;
 	private String gameName;
-	private String imageUrl;
-	private String thumbnailUrl;
-	private boolean arePlayersCustomSorted;
 
 	private Unbinder unbinder;
 
@@ -144,14 +133,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.game_info_mechanics) GameDetailRow mechanicsView;
 	@BindView(R.id.game_info_expansions) GameDetailRow expansionsView;
 	@BindView(R.id.game_info_base_games) GameDetailRow baseGamesView;
-
-	@BindView(R.id.plays_card) View playsCard;
-	@BindView(R.id.plays_root) View playsRoot;
-	@BindView(R.id.plays_label) TextView playsLabel;
-	@BindView(R.id.plays_last_play) TextView lastPlayView;
-	@BindView(R.id.play_stats_root) View playStatsRoot;
-	@BindView(R.id.colors_root) View colorsRoot;
-	@BindView(R.id.game_colors_label) TextView colorsLabel;
 
 	@BindView(R.id.game_ratings_votes) TextView ratingsVotes;
 
@@ -188,9 +169,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_play_time,
 		R.id.icon_number_of_players,
 		R.id.icon_player_age,
-		R.id.icon_plays,
-		R.id.icon_play_stats,
-		R.id.icon_colors,
 		R.id.icon_forums,
 		R.id.icon_comments,
 		R.id.icon_weight,
@@ -198,7 +176,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_users,
 	}) List<ImageView> colorizedIcons;
 
-	@ColorInt private int iconColor;
 	private Palette palette;
 	private Palette.Swatch darkSwatch;
 	private ShowcaseViewWizard showcaseViewWizard;
@@ -237,12 +214,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GAME_TOKEN, null, this);
 		lm.restartLoader(RANK_TOKEN, null, this);
-		if (shouldShowPlays()) {
-			lm.restartLoader(PLAYS_TOKEN, null, this);
-		}
-		if (PreferencesUtils.showLogPlay(getActivity())) {
-			lm.restartLoader(COLOR_TOKEN, null, this);
-		}
 		lm.restartLoader(SUGGESTED_LANGUAGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_AGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
@@ -324,18 +295,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case RANK_TOKEN:
 				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
 				break;
-			case PLAYS_TOKEN:
-				// retrieve plays that aren't pending delete (optionally only completed plays)
-				loader = new CursorLoader(getActivity(),
-					GamePlays.URI,
-					GamePlays.PROJECTION,
-					GamePlays.getSelection(getContext()),
-					GamePlays.getSelectionArgs(gameId),
-					null);
-				break;
-			case COLOR_TOKEN:
-				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId), GameColorAdapter.PROJECTION, null, null, null);
-				break;
 			case SUGGESTED_LANGUAGE_TOKEN:
 				loader = new CursorLoader(getActivity(), GameSuggestedLanguage.buildUri(gameId), GameSuggestedLanguage.PROJECTION, null, null, GameSuggestedLanguage.SORT);
 				break;
@@ -394,15 +353,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			case RANK_TOKEN:
 				onRankQueryComplete(cursor);
 				break;
-			case PLAYS_TOKEN:
-				onPlaysQueryComplete(cursor);
-				break;
-			case COLOR_TOKEN:
-				playsCard.setVisibility(VISIBLE);
-				colorsRoot.setVisibility(VISIBLE);
-				int count = cursor == null ? 0 : cursor.getCount();
-				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
-				break;
 			case SUGGESTED_LANGUAGE_TOKEN:
 				onLanguagePollQueryComplete(cursor);
 				break;
@@ -457,7 +407,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (palette == null || colorizedRows == null || !isAdded()) return;
 
 		Palette.Swatch swatch = PaletteUtils.getIconSwatch(palette);
-		iconColor = swatch.getRgb();
 		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
 		darkSwatch = PaletteUtils.getDarkSwatch(palette);
@@ -475,9 +424,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		notifyChange(game);
 		gameName = game.Name;
-		imageUrl = game.ImageUrl;
-		thumbnailUrl = game.ThumbnailUrl;
-		arePlayersCustomSorted = game.CustomPlayerSort;
 
 		yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
 
@@ -512,16 +458,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final int maxUsers = game.getMaxUsers();
 		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
-
-		if (shouldShowPlays()) {
-			playsCard.setVisibility(VISIBLE);
-			playStatsRoot.setVisibility(VISIBLE);
-		}
-	}
-
-	@DebugLog
-	private boolean shouldShowPlays() {
-		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getContext());
 	}
 
 	@DebugLog
@@ -565,29 +501,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 				}
 			} else {
 				typesView.setVisibility(GONE);
-			}
-		}
-	}
-
-	@DebugLog
-	private void onPlaysQueryComplete(Cursor cursor) {
-		if (cursor.moveToFirst()) {
-			playsCard.setVisibility(VISIBLE);
-			playsRoot.setVisibility(VISIBLE);
-
-			GamePlays plays = GamePlays.fromCursor(cursor);
-
-			String description = PresentationUtils.describePlayCount(getActivity(), plays.getCount());
-			if (!TextUtils.isEmpty(description)) {
-				description = " (" + description + ")";
-			}
-			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, plays.getCount(), plays.getCount(), description));
-
-			if (plays.getMaxDateInMillis() > 0) {
-				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(plays.getMaxDateInMillis())));
-				lastPlayView.setVisibility(VISIBLE);
-			} else {
-				lastPlayView.setVisibility(GONE);
 			}
 		}
 	}
@@ -696,42 +609,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		new Builder(getContext(), R.style.Theme_bgglight_Dialog_Alert)
 			.setView(v)
 			.show();
-	}
-
-	@OnClick(R.id.plays_root)
-	@DebugLog
-	public void onPlaysClick() {
-		Intent intent = ActivityUtils.createGamePlaysIntent(getActivity(),
-			gameUri,
-			gameName,
-			imageUrl,
-			thumbnailUrl,
-			arePlayersCustomSorted,
-			iconColor);
-		startActivity(intent);
-	}
-
-	@OnClick(R.id.play_stats_root)
-	@DebugLog
-	public void onPlayStatsClick() {
-		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		if (palette != null) {
-			final Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-			intent.putExtra(ActivityUtils.KEY_HEADER_COLOR, swatch.getRgb());
-		}
-		startActivity(intent);
-	}
-
-	@OnClick(R.id.colors_root)
-	@DebugLog
-	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), GameColorsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
-		startActivity(intent);
 	}
 
 	@OnClick(R.id.forums_root)

@@ -211,6 +211,7 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
 		isFavorite = event.isFavorite();
 		ScrimUtils.applyDarkScrim(scrimView);
+		// TODO: 7/29/17 only load the image if the URL is different from the previous load? 
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
 
@@ -376,54 +377,69 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			switch (position) {
-				case 0:
-					return getString(R.string.title_description);
-				case 1:
-					if (shouldShowCollection()) {
-						return getString(R.string.title_collection);
-					} else {
-						return getString(R.string.links);
-					}
-				case 2:
-					return getString(R.string.links);
+			if (isDescriptionPosition(position)) {
+				return getString(R.string.title_description);
+			} else if (isCollectionPosition(position)) {
+				return getString(R.string.title_collection);
+			} else if (isPlaysPosition(position)) {
+				return getString(R.string.title_plays);
+			} else if (isLinksPosition(position)) {
+				return getString(R.string.links);
 			}
 			return "";
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			switch (position) {
-				case 0:
-					return Fragment.instantiate(
-						GameActivity.this,
-						GameFragment.class.getName(),
-						UIUtils.intentToFragmentArguments(getIntent()));
-				case 1:
-					if (shouldShowCollection()) {
-						return Fragment.instantiate(
-							GameActivity.this,
-							GameCollectionFragment.class.getName(),
-							UIUtils.intentToFragmentArguments(getIntent()));
-					} else {
-						return createLinksFragment();
-					}
-				case 2:
-					return createLinksFragment();
+			if (isDescriptionPosition(position)) {
+				return Fragment.instantiate(
+					GameActivity.this,
+					GameFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+			} else if (isCollectionPosition(position)) {
+				return Fragment.instantiate(
+					GameActivity.this,
+					GameCollectionFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+			} else if (isPlaysPosition(position)) {
+				return Fragment.instantiate(
+					GameActivity.this,
+					GamePlaysFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
+			} else if (isLinksPosition(position)) {
+				return Fragment.instantiate(
+					GameActivity.this,
+					GameLinksFragment.class.getName(),
+					UIUtils.intentToFragmentArguments(getIntent()));
 			}
 			return null;
 		}
 
-		private Fragment createLinksFragment() {
-			return Fragment.instantiate(
-				GameActivity.this,
-				GameLinksFragment.class.getName(),
-				UIUtils.intentToFragmentArguments(getIntent()));
+		private boolean isDescriptionPosition(int position) {
+			return position == 0;
+		}
+
+		private boolean isCollectionPosition(int position) {
+			return shouldShowCollection() && position == 1;
+		}
+
+		private boolean isPlaysPosition(int position) {
+			if (shouldShowCollection()) {
+				return shouldShowPlays() && position == 2;
+			} else {
+				return shouldShowPlays() && position == 1;
+			}
+		}
+
+		private boolean isLinksPosition(int position) {
+			return position == (getCount() - 1);
 		}
 
 		@Override
 		public int getCount() {
-			return 2 + (shouldShowCollection() ? 1 : 0);
+			return 2 +
+				(shouldShowCollection() ? 1 : 0) +
+				(shouldShowPlays() ? 1 : 0);
 		}
 
 		public void setCurrentPosition(int position) {
@@ -431,15 +447,17 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		}
 
 		public void displayFab() {
-			switch (currentPosition) {
-				case 0:
-					fab.show();
-					break;
-				default:
-					fab.hide();
-					break;
+			if (isDescriptionPosition(currentPosition)) {
+				fab.show();
+			} else {
+				fab.hide();
 			}
 		}
+	}
+
+	@DebugLog
+	private boolean shouldShowPlays() {
+		return Authenticator.isSignedIn(this) && PreferencesUtils.getSyncPlays(this);
 	}
 
 	@DebugLog

@@ -149,8 +149,6 @@
 		</LinearLayout>
 	</android.support.v7.widget.CardView>
 
-	<include layout="@layout/include_game_card_plays"/>
-
 	<include layout="@layout/include_game_footer"/>
 
 	<View
