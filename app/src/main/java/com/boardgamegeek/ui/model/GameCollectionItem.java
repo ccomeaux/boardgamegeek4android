@@ -7,7 +7,6 @@ import android.net.Uri;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.PresentationUtils;
 
 import java.util.ArrayList;
@@ -15,7 +14,8 @@ import java.util.List;
 
 public class GameCollectionItem {
 	public static final String[] PROJECTION = {
-		Collection._ID, Collection.COLLECTION_ID,
+		Collection._ID,
+		Collection.COLLECTION_ID,
 		Collection.COLLECTION_NAME,
 		Collection.COLLECTION_YEAR_PUBLISHED,
 		Collection.COLLECTION_THUMBNAIL_URL,
@@ -30,7 +30,7 @@ public class GameCollectionItem {
 		Collection.STATUS_WISHLIST_PRIORITY,
 		Collection.NUM_PLAYS,
 		Collection.COMMENT,
-		Games.YEAR_PUBLISHED,
+		Collection.YEAR_PUBLISHED,
 		Collection.RATING,
 		Collection.IMAGE_URL
 	};
@@ -84,8 +84,7 @@ public class GameCollectionItem {
 		for (int i = STATUS_1; i <= STATUS_N; i++) {
 			if (cursor.getInt(i) == 1) {
 				if (i == STATUS_WISHLIST) {
-					item.statuses.add(PresentationUtils.describeWishlist(context,
-						cursor.getInt(STATUS_WISHLIST_PRIORITY)));
+					item.statuses.add(PresentationUtils.describeWishlist(context, cursor.getInt(STATUS_WISHLIST_PRIORITY)));
 				} else {
 					int index = i - STATUS_1;
 					item.statuses.add(context.getResources().getStringArray(R.array.collection_status_filter_entries)[index]);

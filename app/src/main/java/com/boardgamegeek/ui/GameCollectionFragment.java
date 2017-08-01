@@ -76,6 +76,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		if (getActivity() == null) return;
 		if (cursor != null && cursor.moveToFirst()) {
 			collectionContainer.removeAllViews();
 			do {

@@ -24,6 +24,8 @@ public class CollectionProvider extends BasicProvider {
 			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
 			.map(Plays.MAX_DATE, String.format("(SELECT MAX(%s) FROM %s WHERE %s.%s=%s.%s)", Plays.DATE, Tables.PLAYS, Tables.PLAYS, Plays.OBJECT_ID, Tables.GAMES, Games.GAME_ID));
 
+		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
+
 		for (String column : projection) {
 			if (column.startsWith(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX)) {
 				String playerCount = Games.getRecommendedPlayerCountFromColumn(column);
@@ -37,14 +39,16 @@ public class CollectionProvider extends BasicProvider {
 							GameSuggestedPlayerCountPollPollResults.GAME_ID,
 							playerCount));
 				}
+				if (TextUtils.isEmpty(groupBy)) {
+					groupBy = Collection.GAME_ID;
+				}
 			}
 		}
 
-		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {
 			builder.groupBy(groupBy);
 		} else {
-			builder.groupBy(Collection.GAME_ID);
+			builder.groupBy(Collection.COLLECTION_ID);
 		}
 
 		String having = uri.getQueryParameter(BggContract.QUERY_KEY_HAVING);
