@@ -1,5 +1,8 @@
 package com.boardgamegeek.events;
 
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
+
 public class GameInfoChangedEvent {
 	private final String gameName;
 	private final String subtype;
@@ -25,7 +28,9 @@ public class GameInfoChangedEvent {
 		return subtype;
 	}
 
+	@NonNull
 	public String getImageUrl() {
+		if (TextUtils.isEmpty(imageUrl)) return "";
 		return imageUrl;
 	}
 

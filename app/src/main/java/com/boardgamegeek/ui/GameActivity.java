@@ -8,6 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -51,6 +55,9 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -209,13 +216,14 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
-		imageUrl = event.getImageUrl();
+		if (!event.getImageUrl().equals(imageUrl)) {
+			imageUrl = event.getImageUrl();
+			ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
+		}
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.arePlayersCustomSorted();
 		isFavorite = event.isFavorite();
 		ScrimUtils.applyDarkScrim(scrimView);
-		// TODO: 7/29/17 only load the image if the URL is different from the previous load? 
-		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
 
 	@DebugLog
@@ -387,72 +395,85 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	}
 
 	private final class GamePagerAdapter extends FragmentPagerAdapter {
+		public static final int INVALID_IMAGE_RES_ID = -1;
+
+		private final class Tab {
+			@StringRes private int titleResId;
+			private String className;
+			@DrawableRes private int imageResId;
+
+			public Tab(int titleResId, String className) {
+				this(titleResId, className, INVALID_IMAGE_RES_ID);
+			}
+
+			public Tab(int titleResId, String className, int imageResId) {
+				this.titleResId = titleResId;
+				this.className = className;
+				this.imageResId = imageResId;
+			}
+
+			public int getTitleResId() {
+				return titleResId;
+			}
+
+			public String getClassName() {
+				return className;
+			}
+
+			public int getImageResId() {
+				return imageResId;
+			}
+		}
+
+		private List<Tab> tabs = new ArrayList<>();
 		private int currentPosition;
 
 		public GamePagerAdapter(FragmentManager fragmentManager) {
 			super(fragmentManager);
+			updateTabs();
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+			updateTabs();
+		}
+
+		private void updateTabs() {
+			tabs.clear();
+			tabs.add(new Tab(R.string.title_description, GameFragment.class.getName(), R.drawable.fab_log_play));
+			if (shouldShowCollection())
+				tabs.add(new Tab(R.string.title_collection, GameCollectionFragment.class.getName(), R.drawable.fab_done));
+			if (shouldShowPlays())
+				tabs.add(new Tab(R.string.title_plays, GamePlaysFragment.class.getName()));
+			tabs.add(new Tab(R.string.links, GameLinksFragment.class.getName()));
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			if (isDescriptionPosition(position)) {
-				return getString(R.string.title_description);
-			} else if (isCollectionPosition(position)) {
-				return getString(R.string.title_collection);
-			} else if (isPlaysPosition(position)) {
-				return getString(R.string.title_plays);
-			} else if (isLinksPosition(position)) {
-				return getString(R.string.links);
+			if (position < tabs.size()) {
+				return getString(tabs.get(position).getTitleResId());
 			}
 			return "";
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			String fname = null;
-			if (isDescriptionPosition(position)) {
-				fname = GameFragment.class.getName();
-			} else if (isCollectionPosition(position)) {
-				fname = GameCollectionFragment.class.getName();
-			} else if (isPlaysPosition(position)) {
-				fname = GamePlaysFragment.class.getName();
-			} else if (isLinksPosition(position)) {
-				fname = GameLinksFragment.class.getName();
-			}
-			if (!TextUtils.isEmpty(fname)) {
-				Bundle args = UIUtils.intentToFragmentArguments(getIntent());
-				args.putInt(ActivityUtils.KEY_ICON_COLOR, iconColor);
-				args.putInt(ActivityUtils.KEY_DARK_COLOR, darkColor);
-				return Fragment.instantiate(GameActivity.this, fname, args);
+			if (position < tabs.size()) {
+				String className = tabs.get(position).getClassName();
+				if (!TextUtils.isEmpty(className)) {
+					Bundle args = UIUtils.intentToFragmentArguments(getIntent());
+					args.putInt(ActivityUtils.KEY_ICON_COLOR, iconColor);
+					args.putInt(ActivityUtils.KEY_DARK_COLOR, darkColor);
+					return Fragment.instantiate(GameActivity.this, className, args);
+				}
 			}
 			return null;
 		}
 
-		private boolean isDescriptionPosition(int position) {
-			return position == 0;
-		}
-
-		private boolean isCollectionPosition(int position) {
-			return shouldShowCollection() && position == 1;
-		}
-
-		private boolean isPlaysPosition(int position) {
-			if (shouldShowCollection()) {
-				return shouldShowPlays() && position == 2;
-			} else {
-				return shouldShowPlays() && position == 1;
-			}
-		}
-
-		private boolean isLinksPosition(int position) {
-			return position == (getCount() - 1);
-		}
-
 		@Override
 		public int getCount() {
-			return 2 +
-				(shouldShowCollection() ? 1 : 0) +
-				(shouldShowPlays() ? 1 : 0);
+			return tabs.size();
 		}
 
 		public void setCurrentPosition(int position) {
@@ -460,10 +481,30 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		}
 
 		public void displayFab() {
-			if (isDescriptionPosition(currentPosition)) {
-				fab.show();
-			} else {
-				fab.hide();
+			if (currentPosition < tabs.size()) {
+				final int resId = tabs.get(currentPosition).getImageResId();
+				if (resId != INVALID_IMAGE_RES_ID) {
+					if (fab.isShown()) {
+						fab.hide(new OnVisibilityChangedListener() {
+							@Override
+							public void onShown(FloatingActionButton fab) {
+								super.onShown(fab);
+							}
+
+							@Override
+							public void onHidden(FloatingActionButton fab) {
+								super.onHidden(fab);
+								fab.setImageResource(resId);
+								fab.show();
+							}
+						});
+					} else {
+						fab.setImageResource(resId);
+						fab.show();
+					}
+				} else {
+					fab.hide();
+				}
 			}
 		}
 	}
