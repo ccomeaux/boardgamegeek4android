@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.dialog;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -29,7 +30,7 @@ import butterknife.Unbinder;
 
 public class GameUsersDialogFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
 	private Uri uri;
-	@ColorInt private int color;
+	@ColorInt private int barColor;
 	private Unbinder unbinder;
 	@BindView(R.id.users_owning_bar) StatBar numberOwningBar;
 	@BindView(R.id.users_trading_bar) StatBar numberTradingBar;
@@ -49,7 +50,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		if (gameId == BggContract.INVALID_ID) dismiss();
-		color = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, -1);
+		barColor = intent.getIntExtra(ActivityUtils.KEY_DARK_COLOR, Color.TRANSPARENT);
 		uri = Games.buildGameUri(gameId);
 	}
 
@@ -59,9 +60,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.dialog_game_users, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
-		if (color != -1) {
-			ButterKnife.apply(statBars, StatBar.colorSetter, color);
-		}
+		if (barColor != Color.TRANSPARENT) ButterKnife.apply(statBars, StatBar.colorSetter, barColor);
 		return rootView;
 	}
 

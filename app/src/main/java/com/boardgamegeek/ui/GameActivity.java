@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -72,6 +73,8 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	private boolean mightNeedRefreshing;
 	private int refreshStatus;
 	private GamePagerAdapter adapter;
+	@ColorInt private int iconColor;
+	@ColorInt private int darkColor;
 
 	@DebugLog
 	@Override
@@ -227,10 +230,17 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	@DebugLog
 	@Override
 	public void onSuccessfulImageLoad(Palette palette) {
-		EventBus.getDefault().post(new PaletteEvent(gameId, palette));
-		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
-		if (PreferencesUtils.showLogPlay(this)) {
-			adapter.displayFab();
+		if (palette != null) {
+			Palette.Swatch iconSwatch = PaletteUtils.getIconSwatch(palette);
+			Palette.Swatch darkSwatch = PaletteUtils.getDarkSwatch(palette);
+
+			iconColor = iconSwatch.getRgb();
+			darkColor = darkSwatch.getRgb();
+			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor));
+			fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
+			if (PreferencesUtils.showLogPlay(this)) {
+				adapter.displayFab();
+			}
 		}
 	}
 
@@ -350,21 +360,29 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		}
 	}
 
-	public static class PaletteEvent {
+	public static class ColorEvent {
 		private final int gameId;
-		private final Palette palette;
+		@ColorInt private int iconColor;
+		@ColorInt private int darkColor;
 
-		public PaletteEvent(int gameId, Palette palette) {
+		public ColorEvent(int gameId, int iconColor, int darkColor) {
 			this.gameId = gameId;
-			this.palette = palette;
+			this.iconColor = iconColor;
+			this.darkColor = darkColor;
 		}
 
 		public int getGameId() {
 			return gameId;
 		}
 
-		public Palette getPalette() {
-			return palette;
+		@ColorInt
+		public int getIconColor() {
+			return iconColor;
+		}
+
+		@ColorInt
+		public int getDarkColor() {
+			return darkColor;
 		}
 	}
 
@@ -391,26 +409,21 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 
 		@Override
 		public Fragment getItem(int position) {
+			String fname = null;
 			if (isDescriptionPosition(position)) {
-				return Fragment.instantiate(
-					GameActivity.this,
-					GameFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
+				fname = GameFragment.class.getName();
 			} else if (isCollectionPosition(position)) {
-				return Fragment.instantiate(
-					GameActivity.this,
-					GameCollectionFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
+				fname = GameCollectionFragment.class.getName();
 			} else if (isPlaysPosition(position)) {
-				return Fragment.instantiate(
-					GameActivity.this,
-					GamePlaysFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
+				fname = GamePlaysFragment.class.getName();
 			} else if (isLinksPosition(position)) {
-				return Fragment.instantiate(
-					GameActivity.this,
-					GameLinksFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
+				fname = GameLinksFragment.class.getName();
+			}
+			if (!TextUtils.isEmpty(fname)) {
+				Bundle args = UIUtils.intentToFragmentArguments(getIntent());
+				args.putInt(ActivityUtils.KEY_ICON_COLOR, iconColor);
+				args.putInt(ActivityUtils.KEY_DARK_COLOR, darkColor);
+				return Fragment.instantiate(GameActivity.this, fname, args);
 			}
 			return null;
 		}

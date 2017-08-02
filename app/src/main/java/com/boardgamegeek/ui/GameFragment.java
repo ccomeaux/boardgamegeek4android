@@ -3,8 +3,10 @@ package com.boardgamegeek.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -12,7 +14,6 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog.Builder;
-import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +34,7 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.FavoriteGameTask;
+import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.model.Game;
@@ -176,8 +178,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_users,
 	}) List<ImageView> colorizedIcons;
 
-	private Palette palette;
-	private Palette.Swatch darkSwatch;
+	@ColorInt private int iconColor = Color.TRANSPARENT;
+	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
 
 	@Override
@@ -189,6 +191,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, Color.TRANSPARENT);
+		darkColor = intent.getIntExtra(ActivityUtils.KEY_DARK_COLOR, Color.TRANSPARENT);
 	}
 
 	@Override
@@ -404,14 +409,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void colorize() {
-		if (palette == null || colorizedRows == null || !isAdded()) return;
+		if (!isAdded()) return;
 
-		Palette.Swatch swatch = PaletteUtils.getIconSwatch(palette);
-		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
-		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
-		darkSwatch = PaletteUtils.getDarkSwatch(palette);
-
-		ScrimUtils.applyWhiteScrim(descriptionView);
+		if (iconColor != Color.TRANSPARENT) {
+			if (colorizedRows != null) ButterKnife.apply(colorizedRows, GameDetailRow.rgbIconSetter, iconColor);
+			if (colorizedIcons != null) ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, iconColor);
+		}
 	}
 
 	@DebugLog
@@ -438,6 +441,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		idView.setText(String.valueOf(game.Id));
 		updatedView.setTimestamp(game.Updated);
 		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
+		ScrimUtils.applyWhiteScrim(descriptionView);
 		numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.MinPlayers, game.MaxPlayers));
 
 		playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
@@ -643,7 +647,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onUsersClick() {
 		Bundle arguments = new Bundle(1);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putInt(ActivityUtils.KEY_ICON_COLOR, darkSwatch.getRgb());
+		arguments.putInt(ActivityUtils.KEY_ICON_COLOR, darkColor);
 		DialogUtils.launchDialog(this, new GameUsersDialogFragment(), "users-dialog", arguments);
 	}
 
@@ -659,9 +663,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@SuppressWarnings("unused")
 	@Subscribe
-	public void onEvent(GameActivity.PaletteEvent event) {
+	public void onEvent(ColorEvent event) {
 		if (event.getGameId() == Games.getGameId(gameUri)) {
-			palette = event.getPalette();
+			iconColor = event.getIconColor();
+			darkColor = event.getDarkColor();
 			colorize();
 		}
 	}

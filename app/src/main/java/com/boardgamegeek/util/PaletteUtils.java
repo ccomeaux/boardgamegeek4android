@@ -43,20 +43,6 @@ public class PaletteUtils {
 			}
 		};
 
-	/**
-	 * Sets the {@link android.widget.ImageView}'s color filter to the {@link android.support.v7.graphics.Palette.Swatch}'s
-	 * base RGB.
-	 */
-	public static final ButterKnife.Setter<ImageView, Palette.Swatch> colorIconSetter =
-		new ButterKnife.Setter<ImageView, Palette.Swatch>() {
-			@Override
-			public void set(@NonNull ImageView view, Palette.Swatch value, int index) {
-				if (value != null) {
-					view.setColorFilter(value.getRgb());
-				}
-			}
-		};
-
 	public static final ButterKnife.Setter<Button, Palette.Swatch> colorButtonSetter =
 		new ButterKnife.Setter<Button, Palette.Swatch>() {
 			@Override
@@ -126,14 +112,10 @@ public class PaletteUtils {
 		if (palette == null) return null;
 
 		Palette.Swatch swatch = palette.getDarkVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
+		if (swatch != null) return swatch;
 
 		swatch = palette.getVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
+		if (swatch != null) return swatch;
 
 		if (palette.getSwatches().size() > 0) {
 			return palette.getSwatches().get(0);
@@ -146,15 +128,13 @@ public class PaletteUtils {
 	 * Gets a swatch from the palette suitable for light text.
 	 */
 	public static Palette.Swatch getDarkSwatch(Palette palette) {
+		if (palette == null) return null;
+
 		Palette.Swatch swatch = palette.getDarkMutedSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
+		if (swatch != null) return swatch;
 
 		swatch = palette.getDarkVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
+		if (swatch != null) return swatch;
 
 		if (palette.getSwatches().size() > 0) {
 			return palette.getSwatches().get(0);

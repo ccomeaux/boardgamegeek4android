@@ -2,10 +2,11 @@ package com.boardgamegeek.ui;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.v4.app.Fragment;
-import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -40,7 +42,7 @@ public class GameLinksFragment extends Fragment {
 		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
 
-	private Palette palette = null;
+	@ColorInt private int iconColor = Color.TRANSPARENT;
 
 	@Override
 	@DebugLog
@@ -50,6 +52,7 @@ public class GameLinksFragment extends Fragment {
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
 	@Override
@@ -110,17 +113,18 @@ public class GameLinksFragment extends Fragment {
 
 	@SuppressWarnings("unused")
 	@Subscribe
-	public void onEvent(GameActivity.PaletteEvent event) {
+	public void onEvent(ColorEvent event) {
 		if (event.getGameId() == Games.getGameId(gameUri)) {
-			palette = event.getPalette();
+			iconColor = event.getIconColor();
 			colorize();
 		}
 	}
 
 	@DebugLog
 	private void colorize() {
-		if (palette == null) return;
-		Palette.Swatch swatch = PaletteUtils.getIconSwatch(palette);
-		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		if (!isAdded()) return;
+		if (iconColor != Color.TRANSPARENT) {
+			ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, iconColor);
+		}
 	}
 }

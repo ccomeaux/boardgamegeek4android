@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.v7.graphics.Palette;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -128,17 +127,15 @@ public class GameDetailRow extends LinearLayout {
 		dataView.setText("");
 	}
 
-	public void colorIcon(Palette.Swatch swatch) {
-		iconView.setColorFilter(swatch.getRgb());
+	public void colorIcon(int rgb) {
+		iconView.setColorFilter(rgb);
 	}
 
-	public static final ButterKnife.Setter<GameDetailRow, Palette.Swatch> colorIconSetter =
-		new ButterKnife.Setter<GameDetailRow, Palette.Swatch>() {
+	public static final ButterKnife.Setter<GameDetailRow, Integer> rgbIconSetter =
+		new ButterKnife.Setter<GameDetailRow, Integer>() {
 			@Override
-			public void set(@NonNull GameDetailRow view, Palette.Swatch value, int index) {
-				if (value != null) {
-					view.colorIcon(value);
-				}
+			public void set(@NonNull GameDetailRow view, Integer value, int index) {
+				if (value != null) view.colorIcon(value);
 			}
 		};
 

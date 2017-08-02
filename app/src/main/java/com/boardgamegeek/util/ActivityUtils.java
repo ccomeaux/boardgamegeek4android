@@ -83,6 +83,7 @@ public class ActivityUtils {
 	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
+	public static final String KEY_DARK_COLOR = "DARK_COLOR";
 	public static final String KEY_COMMENTS = "COMMENTS";
 	public static final String LINK_AMAZON_COM = "www.amazon.com";
 	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";

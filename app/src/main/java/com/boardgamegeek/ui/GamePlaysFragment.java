@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -10,8 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.graphics.Palette;
-import android.support.v7.graphics.Palette.Swatch;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +21,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.GamePlays;
@@ -54,7 +54,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private String imageUrl;
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
-	@ColorInt private int iconColor;
+	@ColorInt private int iconColor = Color.TRANSPARENT;
 
 	Unbinder unbinder;
 	@BindView(R.id.plays_root) View playsRoot;
@@ -68,7 +68,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		R.id.icon_play_stats,
 		R.id.icon_colors
 	}) List<ImageView> colorizedIcons;
-	private Palette palette;
 
 	@Override
 	@DebugLog
@@ -78,6 +77,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
 	@DebugLog
@@ -177,9 +177,9 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 	@SuppressWarnings("unused")
 	@Subscribe
-	public void onEvent(GameActivity.PaletteEvent event) {
+	public void onEvent(ColorEvent event) {
 		if (event.getGameId() == Games.getGameId(gameUri)) {
-			palette = event.getPalette();
+			iconColor = event.getIconColor();
 			colorize();
 		}
 	}
@@ -194,10 +194,10 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	}
 
 	private void colorize() {
-		if (palette == null) return;
-		Palette.Swatch swatch = PaletteUtils.getIconSwatch(palette);
-		iconColor = swatch.getRgb();
-		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		if (!isAdded()) return;
+		if (iconColor != Color.TRANSPARENT) {
+			ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, iconColor);
+		}
 	}
 
 	@OnClick(R.id.plays_root)
@@ -219,10 +219,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		if (palette != null) {
-			final Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-			intent.putExtra(ActivityUtils.KEY_HEADER_COLOR, swatch.getRgb());
-		}
+		intent.putExtra(ActivityUtils.KEY_HEADER_COLOR, iconColor);
 		startActivity(intent);
 	}
 
