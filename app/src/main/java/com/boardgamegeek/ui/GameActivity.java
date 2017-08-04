@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -33,13 +34,17 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncGameTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.model.GameToRefresh;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
@@ -125,7 +130,7 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	@DebugLog
 	@Override
 	protected void setUpViewPager() {
-		adapter = new GamePagerAdapter(getSupportFragmentManager());
+		adapter = new GamePagerAdapter(getSupportFragmentManager(), this);
 		viewPager.setAdapter(adapter);
 		viewPager.addOnPageChangeListener(new OnPageChangeListener() {
 			@Override
@@ -262,9 +267,8 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	@DebugLog
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
-		Intent intent = ActivityUtils.createEditPlayIntent(this, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-		startActivityForResult(intent, REQUEST_EDIT_PLAY);
+		adapter.onFabClicked();
+
 	}
 
 	@Override
@@ -389,6 +393,10 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		}
 	}
 
+	interface TabListener {
+		void onFabClicked();
+	}
+
 	private final class GamePagerAdapter extends FragmentPagerAdapter {
 		public static final int INVALID_IMAGE_RES_ID = -1;
 
@@ -396,15 +404,17 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 			@StringRes private int titleResId;
 			private String className;
 			@DrawableRes private int imageResId;
+			private TabListener listener;
 
 			public Tab(int titleResId, String className) {
-				this(titleResId, className, INVALID_IMAGE_RES_ID);
+				this(titleResId, className, INVALID_IMAGE_RES_ID, null);
 			}
 
-			public Tab(int titleResId, String className, int imageResId) {
+			public Tab(int titleResId, String className, int imageResId, TabListener listener) {
 				this.titleResId = titleResId;
 				this.className = className;
 				this.imageResId = imageResId;
+				this.listener = listener;
 			}
 
 			public int getTitleResId() {
@@ -420,11 +430,13 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 			}
 		}
 
+		private Context context;
 		private List<Tab> tabs = new ArrayList<>();
 		private int currentPosition;
 
-		public GamePagerAdapter(FragmentManager fragmentManager) {
+		public GamePagerAdapter(FragmentManager fragmentManager, Context context) {
 			super(fragmentManager);
+			this.context = context;
 			updateTabs();
 		}
 
@@ -438,9 +450,29 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 			tabs.clear();
 			tabs.add(new Tab(R.string.title_description, GameFragment.class.getName()));
 			if (shouldShowCollection())
-				tabs.add(new Tab(R.string.title_collection, GameCollectionFragment.class.getName(), R.drawable.fab_add));
+				tabs.add(new Tab(
+					R.string.title_collection,
+					GameCollectionFragment.class.getName(),
+					R.drawable.fab_add,
+					new TabListener() {
+						@Override
+						public void onFabClicked() {
+							onCollectionFabClicked();
+						}
+					}
+				));
 			if (shouldShowPlays())
-				tabs.add(new Tab(R.string.title_plays, GamePlaysFragment.class.getName(), R.drawable.fab_log_play));
+				tabs.add(new Tab(
+					R.string.title_plays,
+					GamePlaysFragment.class.getName(),
+					R.drawable.fab_log_play,
+					new TabListener() {
+						@Override
+						public void onFabClicked() {
+							onPlayFabClicked();
+						}
+					})
+				);
 			tabs.add(new Tab(R.string.links, GameLinksFragment.class.getName()));
 		}
 
@@ -501,6 +533,34 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 					fab.hide();
 				}
 			}
+		}
+
+		public void onFabClicked() {
+			if (currentPosition < tabs.size()) {
+				TabListener listener = tabs.get(currentPosition).listener;
+				if (listener != null) listener.onFabClicked();
+			}
+		}
+
+		private void onCollectionFabClicked() {
+			CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
+				rootContainer,
+				new CollectionStatusDialogListener() {
+					@Override
+					public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
+						AddCollectionItemTask task = new AddCollectionItemTask(context, gameId, selectedStatuses, wishlistPriority);
+						TaskUtils.executeAsyncTask(task);
+					}
+				}
+			);
+			statusDialogFragment.setTitle(R.string.title_add_a_copy);
+			DialogUtils.showFragment(GameActivity.this, statusDialogFragment, "status_dialog");
+		}
+
+		private void onPlayFabClicked() {
+			Intent intent = ActivityUtils.createEditPlayIntent(context, gameId, gameName, thumbnailUrl, imageUrl);
+			intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+			startActivityForResult(intent, REQUEST_EDIT_PLAY);
 		}
 
 		@DebugLog

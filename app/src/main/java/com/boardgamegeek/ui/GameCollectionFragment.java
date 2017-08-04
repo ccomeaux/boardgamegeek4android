@@ -15,21 +15,13 @@ import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.tasks.AddCollectionItemTask;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.model.GameCollectionItem;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
@@ -96,22 +88,5 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-	}
-
-	@OnClick(R.id.collection_add_button)
-	void onAddToCollectionClick() {
-		CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
-			collectionContainer,
-			new CollectionStatusDialogListener() {
-				@Override
-				public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
-					int gameId = Games.getGameId(gameUri);
-					AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), gameId, selectedStatuses, wishlistPriority);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		);
-		statusDialogFragment.setTitle(R.string.title_add_a_copy);
-		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
 	}
 }
