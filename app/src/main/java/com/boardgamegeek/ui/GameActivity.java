@@ -44,7 +44,6 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -110,10 +109,6 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 				getContentResolver().update(gameUri, values, null, null);
 			}
 		});
-		if (PreferencesUtils.showLogPlay(this)) {
-			fab.setImageResource(R.drawable.fab_log_play);
-			PresentationUtils.ensureFabIsShown(fab);
-		}
 
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent()
@@ -441,11 +436,11 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 
 		private void updateTabs() {
 			tabs.clear();
-			tabs.add(new Tab(R.string.title_description, GameFragment.class.getName(), R.drawable.fab_log_play));
+			tabs.add(new Tab(R.string.title_description, GameFragment.class.getName()));
 			if (shouldShowCollection())
-				tabs.add(new Tab(R.string.title_collection, GameCollectionFragment.class.getName(), R.drawable.fab_done));
+				tabs.add(new Tab(R.string.title_collection, GameCollectionFragment.class.getName(), R.drawable.fab_add));
 			if (shouldShowPlays())
-				tabs.add(new Tab(R.string.title_plays, GamePlaysFragment.class.getName()));
+				tabs.add(new Tab(R.string.title_plays, GamePlaysFragment.class.getName(), R.drawable.fab_log_play));
 			tabs.add(new Tab(R.string.links, GameLinksFragment.class.getName()));
 		}
 
@@ -507,16 +502,16 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 				}
 			}
 		}
-	}
 
-	@DebugLog
-	private boolean shouldShowPlays() {
-		return Authenticator.isSignedIn(this) && PreferencesUtils.getSyncPlays(this);
-	}
+		@DebugLog
+		private boolean shouldShowPlays() {
+			return Authenticator.isSignedIn(getApplicationContext()) && PreferencesUtils.getSyncPlays(getApplicationContext());
+		}
 
-	@DebugLog
-	private boolean shouldShowCollection() {
-		String[] syncStatuses = PreferencesUtils.getSyncStatuses(this);
-		return Authenticator.isSignedIn(this) && syncStatuses != null && syncStatuses.length > 0;
+		@DebugLog
+		private boolean shouldShowCollection() {
+			String[] syncStatuses = PreferencesUtils.getSyncStatuses(getApplicationContext());
+			return Authenticator.isSignedIn(getApplicationContext()) && syncStatuses != null && syncStatuses.length > 0;
+		}
 	}
 }
