@@ -1,28 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/swipe_refresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
+	android:layout_height="match_parent"
+	app:layout_behavior="@string/appbar_scrolling_view_behavior"
 	tools:context=".ui.GameActivity">
 
-	<LinearLayout
+	<android.support.v4.widget.NestedScrollView
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:layout_height="wrap_content">
 
 		<LinearLayout
-			android:id="@+id/collection_container"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
 			android:paddingLeft="@dimen/material_margin_horizontal"
 			android:paddingRight="@dimen/material_margin_horizontal"
-			android:paddingTop="@dimen/padding_standard"/>
+			android:paddingTop="@dimen/padding_standard">
 
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/fab_buffer"
-			android:minHeight="@dimen/fab_buffer"/>
-	</LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+			<LinearLayout
+				android:id="@+id/collection_container"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"/>
+
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/sync_timestamp"
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:visibility="gone"
+				app:emptyMessage="@string/needs_updating"
+				app:format="@string/synced_prefix"
+				tools:text="Yesterday"
+				tools:visibility="visible"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/fab_buffer"
+				android:minHeight="@dimen/fab_buffer"/>
+		</LinearLayout>
+	</android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

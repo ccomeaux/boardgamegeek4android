@@ -32,7 +32,8 @@ public class GameCollectionItem {
 		Collection.COMMENT,
 		Collection.YEAR_PUBLISHED,
 		Collection.RATING,
-		Collection.IMAGE_URL
+		Collection.IMAGE_URL,
+		Collection.UPDATED
 	};
 
 	public static final Uri URI = Collection.CONTENT_URI;
@@ -51,6 +52,7 @@ public class GameCollectionItem {
 	private static final int YEAR_PUBLISHED = 16;
 	private static final int RATING = 17;
 	private static final int COLLECTION_IMAGE_URL = 18;
+	private static final int UPDATED = 19;
 
 	private long internalId;
 	private int collectionId;
@@ -63,6 +65,7 @@ public class GameCollectionItem {
 	private String comment;
 	private double rating;
 	private List<String> statuses;
+	private long syncTimestamp;
 
 	private GameCollectionItem() {
 	}
@@ -79,6 +82,7 @@ public class GameCollectionItem {
 		item.numberOfPlays = cursor.getInt(NUM_PLAYS);
 		item.comment = cursor.getString(COMMENT);
 		item.rating = cursor.getDouble(RATING);
+		item.syncTimestamp = cursor.getLong(UPDATED);
 
 		item.statuses = new ArrayList<>();
 		for (int i = STATUS_1; i <= STATUS_N; i++) {
@@ -140,6 +144,10 @@ public class GameCollectionItem {
 
 	public double getRating() {
 		return rating;
+	}
+
+	public long getSyncTimestamp() {
+		return syncTimestamp;
 	}
 
 	public List<String> getStatuses() {
