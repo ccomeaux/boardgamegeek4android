@@ -11,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,15 +23,19 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.GamePlays;
+import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -45,7 +51,7 @@ import hugo.weaving.DebugLog;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int GAME_TOKEN = 0;
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLOR_TOKEN = 2;
@@ -55,8 +61,10 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
+	private boolean isRefreshing;
 
 	Unbinder unbinder;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.plays_root) View playsRoot;
 	@BindView(R.id.plays_label) TextView playsLabel;
 	@BindView(R.id.plays_last_play) TextView lastPlayView;
@@ -88,11 +96,26 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 		colorize();
 
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+
 		getLoaderManager().restartLoader(GAME_TOKEN, null, this);
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLOR_TOKEN, null, this);
 
 		return rootView;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@DebugLog
@@ -151,6 +174,36 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@Override
+	public void onRefresh() {
+		if (!isRefreshing) {
+			updateRefreshStatus(true);
+			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), Games.getGameId(gameUri)));
+		} else {
+			updateRefreshStatus(false);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			updateRefreshStatus(false);
+		}
+	}
+
+	protected void updateRefreshStatus(boolean refreshing) {
+		this.isRefreshing = refreshing;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
+				}
+			});
+		}
 	}
 
 	@DebugLog
