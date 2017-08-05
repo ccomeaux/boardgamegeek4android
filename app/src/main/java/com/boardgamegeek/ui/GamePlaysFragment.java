@@ -48,6 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
 import icepick.State;
 
 import static android.view.View.GONE;
@@ -92,6 +93,8 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		gameUri = intent.getData();
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, Color.TRANSPARENT);
+
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@DebugLog
@@ -116,6 +119,12 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override

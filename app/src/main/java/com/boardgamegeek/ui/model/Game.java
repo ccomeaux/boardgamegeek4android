@@ -36,7 +36,9 @@ public class Game {
 		Games.STATS_NUMBER_COMMENTS,
 		Games.MIN_PLAYING_TIME,
 		Games.MAX_PLAYING_TIME,
-		Games.STARRED
+		Games.STARRED,
+		Games.POLLS_COUNT,
+		Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL
 	};
 
 	private static final int GAME_ID = 0;
@@ -65,6 +67,8 @@ public class Game {
 	private static final int MIN_PLAYING_TIME = 26;
 	private static final int MAX_PLAYING_TIME = 27;
 	private static final int STARRED = 28;
+	private static final int POLLS_COUNT = 29;
+	private static final int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 30;
 
 	public String Name;
 	public String ThumbnailUrl;
@@ -92,6 +96,8 @@ public class Game {
 	public String Subtype;
 	public boolean CustomPlayerSort;
 	public boolean IsFavorite;
+	private int pollsVoteCount;
+	private int suggestedPlayerCountPollVoteTotal;
 
 	private Game() {
 	}
@@ -124,6 +130,8 @@ public class Game {
 		game.Subtype = cursor.getString(SUBTYPE);
 		game.CustomPlayerSort = (cursor.getInt(CUSTOM_PLAYER_SORT) == 1);
 		game.IsFavorite = (cursor.getInt(STARRED) == 1);
+		game.pollsVoteCount = cursor.getInt(POLLS_COUNT);
+		game.suggestedPlayerCountPollVoteTotal = cursor.getInt(SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL);
 		return game;
 	}
 
@@ -136,5 +144,10 @@ public class Game {
 		max = Math.max(max, NumberWeights);
 		max = Math.max(max, NumberWishing);
 		return max;
+	}
+
+	@DebugLog
+	public int getPollsVoteCount() {
+		return pollsVoteCount + suggestedPlayerCountPollVoteTotal;
 	}
 }

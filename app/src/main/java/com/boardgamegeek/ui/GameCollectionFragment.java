@@ -35,6 +35,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.Icepick;
 import icepick.State;
 
 public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
@@ -58,6 +59,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
 		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@DebugLog
@@ -78,6 +80,12 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,12 +16,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
@@ -36,14 +31,9 @@ import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
-import com.boardgamegeek.tasks.sync.SyncGameTask;
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
-import com.boardgamegeek.ui.model.GameToRefresh;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
@@ -67,13 +57,8 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameActivity extends HeroTabActivity implements Callback, LoaderCallbacks<Cursor> {
-	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+public class GameActivity extends HeroTabActivity implements Callback {
 	private static final int REQUEST_EDIT_PLAY = 1;
-	private static final int REFRESH_STATUS_NONE = 0;
-	private static final int REFRESH_STATUS_GAME = 1;
-	private static final int REFRESH_STATUS_PLAYS = 1 << 1;
-	private static final int REFRESH_STATUS_COLLECTION = 1 << 2;
 
 	private int gameId;
 	private String gameName;
@@ -81,8 +66,6 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
-	private boolean mightNeedRefreshing;
-	private int refreshStatus;
 	private GamePagerAdapter adapter;
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
@@ -121,10 +104,6 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 				.putContentId(String.valueOf(gameId))
 				.putContentName(gameName));
 		}
-
-		mightNeedRefreshing = true;
-		LoaderManager lm = getSupportLoaderManager();
-		lm.restartLoader(0, null, this);
 	}
 
 	@DebugLog
@@ -259,112 +238,11 @@ public class GameActivity extends HeroTabActivity implements Callback, LoaderCal
 		}
 	}
 
-	//@Override
-	public void onRefresh() {
-		requestRefresh();
-	}
-
 	@DebugLog
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
 		adapter.onFabClicked();
 
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(this, Games.buildGameUri(gameId), null, null, null, null);
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (mightNeedRefreshing) {
-			if (cursor == null || !cursor.moveToFirst()) {
-				requestRefresh();
-			} else {
-				GameToRefresh game = GameToRefresh.fromCursor(cursor);
-				if (DateTimeUtils.howManyDaysOld(game.getSyncedTimestampInMillis()) > AGE_IN_DAYS_TO_REFRESH || game.getPollsVoteCount() == 0)
-					requestRefresh();
-			}
-		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-	}
-
-	@DebugLog
-	private void requestRefresh() {
-		if (triggerRefresh()) {
-			mightNeedRefreshing = false;
-			//updateRefreshStatus(true);
-		}
-	}
-
-	@DebugLog
-	public boolean triggerRefresh() {
-		if (refreshStatus == REFRESH_STATUS_NONE) {
-			refreshStatus = REFRESH_STATUS_GAME | REFRESH_STATUS_PLAYS | REFRESH_STATUS_COLLECTION;
-			TaskUtils.executeAsyncTask(new SyncGameTask(this, gameId));
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(this, gameId));
-			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(this, gameId));
-			return true;
-		}
-		return false;
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncCompleteEvent event) {
-		if (event.getGameId() == gameId) {
-			//updateRefreshStatus(false);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncGameTask.CompletedEvent event) {
-		if (event.getGameId() == gameId) {
-			finishSync(REFRESH_STATUS_GAME);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
-		if (event.getGameId() == gameId) {
-			finishSync(REFRESH_STATUS_PLAYS);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
-		if (event.getGameId() == gameId) {
-			finishSync(REFRESH_STATUS_COLLECTION);
-		}
-	}
-
-	private void finishSync(int syncType) {
-		refreshStatus &= ~syncType;
-		if (refreshStatus == REFRESH_STATUS_NONE) {
-			EventBus.getDefault().post(new SyncCompleteEvent(gameId));
-		}
-	}
-
-	public static class SyncCompleteEvent {
-		private final int gameId;
-
-		public SyncCompleteEvent(int gameId) {
-			this.gameId = gameId;
-		}
-
-		public int getGameId() {
-			return gameId;
-		}
 	}
 
 	public static class ColorEvent {

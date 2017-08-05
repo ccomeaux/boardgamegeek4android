@@ -13,6 +13,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.app.AlertDialog.Builder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -34,6 +36,7 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.FavoriteGameTask;
+import com.boardgamegeek.tasks.sync.SyncGameTask;
 import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
@@ -55,6 +58,7 @@ import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
@@ -69,6 +73,7 @@ import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +85,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
+import icepick.State;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -88,8 +94,9 @@ import timber.log.Timber;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int HELP_VERSION = 2;
+	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private static final int GAME_TOKEN = 0x11;
 	private static final int DESIGNER_TOKEN = 0x12;
@@ -109,6 +116,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	private Unbinder unbinder;
 
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.game_rating) TextView ratingView;
 	@BindView(R.id.game_description) TextView descriptionView;
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
@@ -181,6 +189,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@ColorInt private int iconColor = Color.TRANSPARENT;
 	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
+	private boolean isRefreshing;
+	@State boolean mightNeedRefreshing;
 
 	@Override
 	@DebugLog
@@ -215,6 +225,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		unbinder = ButterKnife.bind(this, rootView);
 
 		colorize();
+
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GAME_TOKEN, null, this);
@@ -407,6 +420,41 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@Override
+	public void onRefresh() {
+		requestRefresh();
+	}
+
+	@DebugLog
+	private void requestRefresh() {
+		if (!isRefreshing) {
+			updateRefreshStatus(true);
+			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), Games.getGameId(gameUri)));
+		} else {
+			updateRefreshStatus(false);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncGameTask.CompletedEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			updateRefreshStatus(false);
+		}
+	}
+
+	protected void updateRefreshStatus(boolean refreshing) {
+		this.isRefreshing = refreshing;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
+				}
+			});
+		}
+	}
+
 	@DebugLog
 	private void colorize() {
 		if (!isAdded()) return;
@@ -419,9 +467,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@DebugLog
 	private void onGameQueryComplete(Cursor cursor) {
-		if (cursor == null || !cursor.moveToFirst()) {
-			return;
-		}
+		if (cursor == null || !cursor.moveToFirst()) return;
 
 		Game game = Game.fromCursor(cursor);
 
@@ -462,6 +508,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final int maxUsers = game.getMaxUsers();
 		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
+
+		if (mightNeedRefreshing) {
+			mightNeedRefreshing = false;
+			if (DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH ||
+				game.getPollsVoteCount() == 0)
+				requestRefresh();
+		}
+
 	}
 
 	@DebugLog
