@@ -53,10 +53,12 @@ import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
 import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
+import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -117,6 +119,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private Unbinder unbinder;
 
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
+	@BindView(R.id.empty) TextView emptyView;
+	@BindView(R.id.game_info_root) View rootContainer;
 	@BindView(R.id.game_rating) TextView ratingView;
 	@BindView(R.id.game_description) TextView descriptionView;
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
@@ -228,6 +233,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+
+		idView.setText(String.valueOf(Games.getGameId(gameUri)));
+		updatedView.setTimestamp(0);
 
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GAME_TOKEN, null, this);
@@ -427,6 +435,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@DebugLog
 	private void requestRefresh() {
+		mightNeedRefreshing = false;
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
 			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), Games.getGameId(gameUri)));
@@ -467,55 +476,63 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@DebugLog
 	private void onGameQueryComplete(Cursor cursor) {
-		if (cursor == null || !cursor.moveToFirst()) return;
-
-		Game game = Game.fromCursor(cursor);
-
-		notifyChange(game);
-		gameName = game.Name;
-
-		yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
-
-		rankView.setText(PresentationUtils.describeRank(getContext(), game.Rank, BggService.RANK_TYPE_SUBTYPE, game.Subtype));
-		favoriteView.setImageResource(game.IsFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
-		favoriteView.setTag(R.id.favorite, game.IsFavorite);
-
-		ratingView.setText(PresentationUtils.describeRating(getContext(), game.Rating));
-		ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
-		ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
-
-		idView.setText(String.valueOf(game.Id));
-		updatedView.setTimestamp(game.Updated);
-		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
-		ScrimUtils.applyWhiteScrim(descriptionView);
-		numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.MinPlayers, game.MaxPlayers));
-
-		playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
-
-		playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
-
-		commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
-
-		weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
-		if (game.AverageWeight >= 1 && game.AverageWeight <= 5) {
-			weightScore.setText(PresentationUtils.describeScore(getContext(), game.AverageWeight));
-			ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.AverageWeight));
-			weightScore.setVisibility(VISIBLE);
-		} else {
-			weightScore.setVisibility(GONE);
-		}
-		weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
-
-		final int maxUsers = game.getMaxUsers();
-		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
-
-		if (mightNeedRefreshing) {
-			mightNeedRefreshing = false;
-			if (DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH ||
-				game.getPollsVoteCount() == 0)
+		if (cursor == null || !cursor.moveToFirst()) {
+			if (mightNeedRefreshing) {
+				mightNeedRefreshing = false;
 				requestRefresh();
-		}
+			}
+			progressBar.hide();
+			AnimationUtils.fadeIn(emptyView);
+		} else {
+			Game game = Game.fromCursor(cursor);
 
+			notifyChange(game);
+			gameName = game.Name;
+
+			yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
+
+			rankView.setText(PresentationUtils.describeRank(getContext(), game.Rank, BggService.RANK_TYPE_SUBTYPE, game.Subtype));
+			favoriteView.setImageResource(game.IsFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+			favoriteView.setTag(R.id.favorite, game.IsFavorite);
+
+			ratingView.setText(PresentationUtils.describeRating(getContext(), game.Rating));
+			ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
+			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
+
+			idView.setText(String.valueOf(game.Id));
+			updatedView.setTimestamp(game.Updated);
+			UIUtils.setTextMaybeHtml(descriptionView, game.Description);
+			ScrimUtils.applyWhiteScrim(descriptionView);
+			numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.MinPlayers, game.MaxPlayers));
+
+			playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
+
+			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
+
+			commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
+
+			weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
+			if (game.AverageWeight >= 1 && game.AverageWeight <= 5) {
+				weightScore.setText(PresentationUtils.describeScore(getContext(), game.AverageWeight));
+				ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.AverageWeight));
+				weightScore.setVisibility(VISIBLE);
+			} else {
+				weightScore.setVisibility(GONE);
+			}
+			weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
+
+			final int maxUsers = game.getMaxUsers();
+			userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
+
+			if (mightNeedRefreshing) {
+				mightNeedRefreshing = false;
+				if (DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH ||
+					game.getPollsVoteCount() == 0)
+					requestRefresh();
+			}
+			progressBar.hide();
+			AnimationUtils.fadeIn(rootContainer);
+		}
 	}
 
 	@DebugLog

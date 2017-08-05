@@ -326,7 +326,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		private void updateTabs() {
 			tabs.clear();
-			tabs.add(new Tab(R.string.title_description, GameFragment.class.getName()));
+			tabs.add(new Tab(R.string.title_info, GameFragment.class.getName()));
 			if (shouldShowCollection())
 				tabs.add(new Tab(
 					R.string.title_collection,
