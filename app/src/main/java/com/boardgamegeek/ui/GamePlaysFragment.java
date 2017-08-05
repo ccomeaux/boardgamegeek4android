@@ -26,8 +26,8 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
-import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.GamePlays;
+import com.boardgamegeek.ui.model.PlaysByGame;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PaletteUtils;
@@ -71,6 +71,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	@BindView(R.id.play_stats_root) View playStatsRoot;
 	@BindView(R.id.colors_root) View colorsRoot;
 	@BindView(R.id.game_colors_label) TextView colorsLabel;
+	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 	@BindViews({
 		R.id.icon_plays,
 		R.id.icon_play_stats,
@@ -130,13 +131,13 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		int gameId = Games.getGameId(gameUri);
 		switch (id) {
 			case GAME_TOKEN:
-				return new CursorLoader(getContext(), gameUri, Game.PROJECTION, null, null, null);
+				return new CursorLoader(getContext(), gameUri, GamePlays.PROJECTION, null, null, null);
 			case PLAYS_TOKEN:
 				return new CursorLoader(getContext(),
-					GamePlays.URI,
-					GamePlays.PROJECTION,
-					GamePlays.getSelection(getContext()),
-					GamePlays.getSelectionArgs(gameId),
+					PlaysByGame.URI,
+					PlaysByGame.PROJECTION,
+					PlaysByGame.getSelection(getContext()),
+					PlaysByGame.getSelectionArgs(gameId),
 					null);
 			case COLOR_TOKEN:
 				return new CursorLoader(getContext(),
@@ -153,12 +154,13 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		if (getActivity() == null) return;
 		switch (loader.getId()) {
 			case GAME_TOKEN:
-				if (cursor == null && cursor.moveToFirst()) {
-					Game game = Game.fromCursor(cursor);
-					gameName = game.Name;
-					imageUrl = game.ImageUrl;
-					thumbnailUrl = game.ThumbnailUrl;
-					arePlayersCustomSorted = game.CustomPlayerSort;
+				if (cursor != null && cursor.moveToFirst()) {
+					GamePlays game = GamePlays.fromCursor(cursor);
+					gameName = game.getName();
+					imageUrl = game.getImageUrl();
+					thumbnailUrl = game.getThumbnailUrl();
+					arePlayersCustomSorted = game.arePlayersCustomSorted();
+					syncTimestampView.setTimestamp(game.getUpdated());
 				}
 				break;
 			case PLAYS_TOKEN:
@@ -208,10 +210,10 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
-		if (cursor.moveToFirst()) {
+		if (cursor != null && cursor.moveToFirst()) {
 			playsRoot.setVisibility(VISIBLE);
 
-			GamePlays plays = GamePlays.fromCursor(cursor);
+			PlaysByGame plays = PlaysByGame.fromCursor(cursor);
 
 			String description = PresentationUtils.describePlayCount(getActivity(), plays.getCount());
 			if (!TextUtils.isEmpty(description)) {

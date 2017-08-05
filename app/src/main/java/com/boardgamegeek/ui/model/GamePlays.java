@@ -1,57 +1,60 @@
 package com.boardgamegeek.ui.model;
 
-
-import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.CursorUtils;
-import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.SelectionBuilder;
+import com.boardgamegeek.provider.BggContract.Games;
 
 public class GamePlays {
 	public static final String[] PROJECTION = {
-		Plays._ID,
-		Plays.MAX_DATE,
-		Plays.SUM_QUANTITY
+		Games.GAME_NAME,
+		Games.IMAGE_URL,
+		Games.THUMBNAIL_URL,
+		Games.UPDATED_PLAYS,
+		Games.CUSTOM_PLAYER_SORT
 	};
 
-	public static final Uri URI = Plays.CONTENT_URI;
+	private static final int GAME_NAME = 0;
+	private static final int IMAGE_URL = 1;
+	private static final int THUMBNAIL_URL = 2;
+	private static final int UPDATED_PLAYS = 3;
+	private static final int CUSTOM_PLAYER_SORT = 4;
 
-	private static final int MAX_DATE = 1;
-	private static final int SUM_QUANTITY = 2;
-
-	private long maxDate;
-	private int count;
+	private String name;
+	private String imageUrl;
+	private String thumbnailUrl;
+	private long updated;
+	private boolean customPlayerSort;
 
 	private GamePlays() {
 	}
 
 	public static GamePlays fromCursor(Cursor cursor) {
-		GamePlays gamePlays = new GamePlays();
-		gamePlays.maxDate = CursorUtils.getDateInMillis(cursor, MAX_DATE);
-		gamePlays.count = cursor.getInt(SUM_QUANTITY);
-		return gamePlays;
+		GamePlays game = new GamePlays();
+		game.name = cursor.getString(GAME_NAME);
+		game.imageUrl = cursor.getString(IMAGE_URL);
+		game.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
+		game.updated = cursor.getLong(UPDATED_PLAYS);
+		game.customPlayerSort = (cursor.getInt(CUSTOM_PLAYER_SORT) == 1);
+		return game;
 	}
 
-	public static String getSelection(Context context) {
-		String selection = String.format("%s=? AND %s", Plays.OBJECT_ID, SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
-		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-			selection += String.format(" AND %s!=1", Plays.INCOMPLETE);
-		}
-		return selection;
+	public String getName() {
+		return name;
 	}
 
-	public static String[] getSelectionArgs(int gameId) {
-		return new String[] { String.valueOf(gameId) };
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
-	public long getMaxDateInMillis() {
-		return maxDate;
+	public String getThumbnailUrl() {
+		return thumbnailUrl;
 	}
 
-	public int getCount() {
-		return count;
+	public long getUpdated() {
+		return updated;
+	}
+
+	public boolean arePlayersCustomSorted() {
+		return customPlayerSort;
 	}
 }
