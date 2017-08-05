@@ -22,10 +22,12 @@ import com.boardgamegeek.ui.model.GameCollectionItem;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -33,11 +35,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.State;
 
 public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final int AGE_IN_DAYS_TO_REFRESH = 3;
+
 	private Uri gameUri;
 	private String gameName;
 	private boolean isRefreshing;
+	@State boolean mightNeedRefreshing = true;
 
 	Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -68,6 +74,18 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		return rootView;
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
+	}
+
 	@DebugLog
 	@Override
 	public void onDestroyView() {
@@ -78,7 +96,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		int gameId = Games.getGameId(gameUri);
-		return new CursorLoader(getActivity(), GameCollectionItem.URI, GameCollectionItem.PROJECTION, GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
+		return new CursorLoader(getContext(), GameCollectionItem.URI, GameCollectionItem.PROJECTION, GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
 	}
 
 	@Override
@@ -92,7 +110,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 				oldestSyncTimestamp = Math.min(item.getSyncTimestamp(), oldestSyncTimestamp);
 
-				GameCollectionRow row = new GameCollectionRow(getActivity());
+				GameCollectionRow row = new GameCollectionRow(getContext());
 				row.bind(item.getInternalId(), Games.getGameId(gameUri), gameName, item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
 				row.setThumbnail(item.getThumbnailUrl());
 				row.setStatus(item.getStatuses(), item.getNumberOfPlays(), item.getRating(), item.getComment());
@@ -109,6 +127,12 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			} else {
 				syncTimestampView.setVisibility(View.GONE);
 			}
+
+			if (mightNeedRefreshing) {
+				mightNeedRefreshing = false;
+				if (DateTimeUtils.howManyDaysOld(oldestSyncTimestamp) > AGE_IN_DAYS_TO_REFRESH)
+					requestRefresh();
+			}
 		}
 	}
 
@@ -118,6 +142,10 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	public void onRefresh() {
+		requestRefresh();
+	}
+
+	private void requestRefresh() {
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
 			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), Games.getGameId(gameUri)));

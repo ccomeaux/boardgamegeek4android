@@ -30,6 +30,7 @@ import com.boardgamegeek.ui.model.GamePlays;
 import com.boardgamegeek.ui.model.PlaysByGame;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -47,6 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
+import icepick.State;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -54,7 +56,9 @@ import static android.view.View.VISIBLE;
 public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int GAME_TOKEN = 0;
 	private static final int PLAYS_TOKEN = 1;
-	private static final int COLOR_TOKEN = 2;
+	private static final int COLORS_TOKEN = 2;
+	private static final int AGE_IN_DAYS_TO_REFRESH = 1;
+
 	private Uri gameUri;
 	private String gameName;
 	private String imageUrl;
@@ -62,6 +66,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private boolean arePlayersCustomSorted;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
 	private boolean isRefreshing;
+	@State boolean mightNeedRefreshing = true;
 
 	Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -102,7 +107,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 		getLoaderManager().restartLoader(GAME_TOKEN, null, this);
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
-		getLoaderManager().restartLoader(COLOR_TOKEN, null, this);
+		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 
 		return rootView;
 	}
@@ -139,7 +144,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 					PlaysByGame.getSelection(getContext()),
 					PlaysByGame.getSelectionArgs(gameId),
 					null);
-			case COLOR_TOKEN:
+			case COLORS_TOKEN:
 				return new CursorLoader(getContext(),
 					GameColorAdapter.createUri(gameId),
 					GameColorAdapter.PROJECTION,
@@ -154,22 +159,13 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		if (getActivity() == null) return;
 		switch (loader.getId()) {
 			case GAME_TOKEN:
-				if (cursor != null && cursor.moveToFirst()) {
-					GamePlays game = GamePlays.fromCursor(cursor);
-					gameName = game.getName();
-					imageUrl = game.getImageUrl();
-					thumbnailUrl = game.getThumbnailUrl();
-					arePlayersCustomSorted = game.arePlayersCustomSorted();
-					syncTimestampView.setTimestamp(game.getUpdated());
-				}
+				onGameQueryComplete(cursor);
 				break;
 			case PLAYS_TOKEN:
 				onPlaysQueryComplete(cursor);
 				break;
-			case COLOR_TOKEN:
-				colorsRoot.setVisibility(VISIBLE);
-				int count = cursor == null ? 0 : cursor.getCount();
-				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
+			case COLORS_TOKEN:
+				onColorsQueryComplete(cursor);
 				break;
 		}
 	}
@@ -180,6 +176,10 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 	@Override
 	public void onRefresh() {
+		requestRefresh();
+	}
+
+	private void requestRefresh() {
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
 			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), Games.getGameId(gameUri)));
@@ -208,6 +208,23 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		}
 	}
 
+	private void onGameQueryComplete(Cursor cursor) {
+		if (cursor != null && cursor.moveToFirst()) {
+			GamePlays game = GamePlays.fromCursor(cursor);
+			gameName = game.getName();
+			imageUrl = game.getImageUrl();
+			thumbnailUrl = game.getThumbnailUrl();
+			arePlayersCustomSorted = game.arePlayersCustomSorted();
+			syncTimestampView.setTimestamp(game.getSyncTimestamp());
+
+			if (mightNeedRefreshing) {
+				mightNeedRefreshing = false;
+				if (DateTimeUtils.howManyDaysOld(game.getSyncTimestamp()) > AGE_IN_DAYS_TO_REFRESH)
+					requestRefresh();
+			}
+		}
+	}
+
 	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor != null && cursor.moveToFirst()) {
@@ -228,6 +245,12 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 				lastPlayView.setVisibility(GONE);
 			}
 		}
+	}
+
+	private void onColorsQueryComplete(Cursor cursor) {
+		colorsRoot.setVisibility(VISIBLE);
+		int count = cursor == null ? 0 : cursor.getCount();
+		colorsLabel.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.colors_suffix, count, count));
 	}
 
 	@SuppressWarnings("unused")
@@ -258,7 +281,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	@OnClick(R.id.plays_root)
 	@DebugLog
 	public void onPlaysClick() {
-		Intent intent = ActivityUtils.createGamePlaysIntent(getActivity(),
+		Intent intent = ActivityUtils.createGamePlaysIntent(getContext(),
 			gameUri,
 			gameName,
 			imageUrl,
@@ -271,7 +294,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	@OnClick(R.id.play_stats_root)
 	@DebugLog
 	public void onPlayStatsClick() {
-		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
+		Intent intent = new Intent(getContext(), GamePlayStatsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		intent.putExtra(ActivityUtils.KEY_HEADER_COLOR, iconColor);
@@ -281,7 +304,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	@OnClick(R.id.colors_root)
 	@DebugLog
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), GameColorsActivity.class);
+		Intent intent = new Intent(getContext(), GameColorsActivity.class);
 		intent.setData(gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
