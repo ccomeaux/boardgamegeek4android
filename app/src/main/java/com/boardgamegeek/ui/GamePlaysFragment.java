@@ -253,6 +253,8 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 			} else {
 				lastPlayView.setVisibility(GONE);
 			}
+
+			playStatsRoot.setVisibility(plays.getCount() == 0 ? GONE : VISIBLE);
 		}
 	}
 

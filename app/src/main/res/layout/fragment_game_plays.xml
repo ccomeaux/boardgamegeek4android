@@ -65,7 +65,9 @@
 				style="@style/CardRow.Clickable"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal">
+				android:orientation="horizontal"
+				android:visibility="gone"
+				tools:visibility="visible">
 
 				<ImageView
 					android:id="@+id/icon_play_stats"
