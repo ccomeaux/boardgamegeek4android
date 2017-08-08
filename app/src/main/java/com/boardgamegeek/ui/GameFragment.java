@@ -282,7 +282,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private ShowcaseViewWizard setUpShowcaseViewWizard() {
 		ShowcaseViewWizard wizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION);
 		wizard.addTarget(R.string.help_game_menu, Target.NONE);
-		wizard.addTarget(R.string.help_game_log_play, new SafeViewTarget(R.id.fab, getActivity()));
 		wizard.addTarget(R.string.help_game_poll, new SafeViewTarget(R.id.number_of_players, getActivity()));
 		wizard.addTarget(-1, new SafeViewTarget(R.id.player_age_root, getActivity()));
 		return wizard;
