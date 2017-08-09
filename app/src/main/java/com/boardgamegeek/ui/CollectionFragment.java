@@ -41,7 +41,7 @@ import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
-import com.boardgamegeek.events.GameShortcutCreatedEvent;
+import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.provider.BggContract;
@@ -272,7 +272,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (isCreatingShortcut) {
-			EventBus.getDefault().post(new GameShortcutCreatedEvent(gameId, gameName, thumbnailUrl));
+			EventBus.getDefault().post(new GameShortcutRequestedEvent(gameId, gameName, thumbnailUrl));
 		} else {
 			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName));
 			setSelectedGameId(gameId);

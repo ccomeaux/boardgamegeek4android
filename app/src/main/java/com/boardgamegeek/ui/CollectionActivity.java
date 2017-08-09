@@ -23,7 +23,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
-import com.boardgamegeek.events.GameShortcutCreatedEvent;
+import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.util.ActivityUtils;
@@ -134,7 +134,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
-	public void onEvent(GameShortcutCreatedEvent event) {
+	public void onEvent(GameShortcutRequestedEvent event) {
 		Intent intent = ShortcutUtils.createGameIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		if (intent != null) {
 			setResult(RESULT_OK, intent);
