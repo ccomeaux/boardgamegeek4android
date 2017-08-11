@@ -19,7 +19,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.model.CollectionItem;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.ui.CollectionActivity;
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -86,7 +86,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 	@Override
 	protected Intent getNotificationIntent() {
 		if (currentGameId != BggContract.INVALID_ID) {
-			return ActivityUtils.createGameIntent(currentGameId, currentGameName);
+			return GameActivity.createIntent(currentGameId, currentGameName);
 		}
 		return super.getNotificationIntent();
 	}

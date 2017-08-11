@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.util.shortcut.CollectionShortcutTask;
 import com.boardgamegeek.util.shortcut.GameShortcutTask;
 
@@ -19,8 +20,6 @@ import java.io.File;
  * Helps create shortcuts.
  */
 public class ShortcutUtils {
-	public static final int DEFAULT_SHORTCUT_ICON = 0;
-
 	private ShortcutUtils() {
 	}
 
@@ -58,21 +57,18 @@ public class ShortcutUtils {
 
 	@Nullable
 	public static Intent createGameShortcutIntent(Context context, int gameId, String gameName) {
-		Intent intent = ActivityUtils.createGameIntent(gameId, gameName);
+		Intent intent = GameActivity.createIntent(gameId, gameName);
 		if (intent == null) return null;
 		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
-		return createShortcutIntent(context, gameName, intent, DEFAULT_SHORTCUT_ICON);
+		return createShortcutIntent(context, gameName, intent, R.drawable.ic_launcher);
 	}
 
 	@NonNull
 	public static Intent createShortcutIntent(Context context, String shortcutName, Intent intent, @DrawableRes int shortcutIconResId) {
-		if (shortcutIconResId == DEFAULT_SHORTCUT_ICON) shortcutIconResId = R.drawable.ic_launcher;
 		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-			Intent.ShortcutIconResource.fromContext(context, shortcutIconResId));
-
+		shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, shortcutIconResId));
 		return shortcut;
 	}
 }

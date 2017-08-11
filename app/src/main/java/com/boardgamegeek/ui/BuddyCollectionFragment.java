@@ -91,7 +91,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		super.onListItemClick(convertView, position, id);
 		int gameId = (int) convertView.getTag(R.id.id);
 		String gameName = (String) convertView.getTag(R.id.game_name);
-		ActivityUtils.launchGame(getActivity(), gameId, gameName);
+		GameActivity.start(getContext(), gameId, gameName);
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			if (index < adapter.getCount()) {
 				CollectionItem ci = adapter.getItem(index);
 				if (ci != null) {
-					ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
+					GameActivity.start(getContext(), ci.gameId, ci.gameName());
 					return true;
 				}
 				return false;

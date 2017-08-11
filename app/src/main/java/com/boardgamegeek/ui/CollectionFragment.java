@@ -315,7 +315,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_random_game:
 					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
-					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+					GameActivity.start(getContext(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
 				case R.id.menu_create_shortcut:
 					if (viewId > 0) {

@@ -26,7 +26,6 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -128,7 +127,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	@Subscribe
 	public void onEvent(GameSelectedEvent event) {
-		ActivityUtils.launchGame(this, event.getId(), event.getName());
+		GameActivity.start(this, event.getId(), event.getName());
 	}
 
 	@SuppressWarnings("unused")

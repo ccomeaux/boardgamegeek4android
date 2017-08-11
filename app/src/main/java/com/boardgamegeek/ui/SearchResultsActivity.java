@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.ActivityUtils;
 
 import icepick.Icepick;
 import icepick.State;
@@ -124,7 +123,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 				Toast.makeText(this, R.string.search_error_no_data, Toast.LENGTH_LONG).show();
 				finish();
 			} else {
-				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
+				GameActivity.start(this, Games.getGameId(uri), "");
 			}
 		} else if (action != null &&
 			(Intent.ACTION_SEARCH.equals(action) || "com.google.android.gms.actions.SEARCH_ACTION".equals(action))) {

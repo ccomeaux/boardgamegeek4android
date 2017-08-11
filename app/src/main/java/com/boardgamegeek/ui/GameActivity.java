@@ -1,11 +1,13 @@
 package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
@@ -19,6 +21,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.util.ActivityUtils;
@@ -41,6 +44,7 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GameActivity extends HeroActivity implements Callback {
+	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private int gameId;
 	private String gameName;
@@ -48,6 +52,22 @@ public class GameActivity extends HeroActivity implements Callback {
 	private String thumbnailUrl;
 	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
+
+	public static void start(Context context, int gameId, String gameName) {
+		final Intent starter = createIntent(gameId, gameName);
+		if (starter == null) return;
+		context.startActivity(starter);
+	}
+
+	@Nullable
+	public static Intent createIntent(int gameId, String gameName) {
+		if (gameId == BggContract.INVALID_ID) return null;
+		final Uri gameUri = Games.buildGameUri(gameId);
+		final Intent starter = new Intent(Intent.ACTION_VIEW, gameUri);
+		starter.putExtra(KEY_GAME_NAME, gameName);
+		return starter;
+	}
+
 
 	@DebugLog
 	@Override
@@ -65,7 +85,7 @@ public class GameActivity extends HeroActivity implements Callback {
 		}
 
 		gameId = Games.getGameId(gameUri);
-		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
+		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
 
 		new Handler().post(new Runnable() {
 			@Override
@@ -174,7 +194,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	private void changeName(String gameName) {
 		this.gameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
-			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			safelySetTitle(gameName);
 		}
 	}

@@ -8,7 +8,6 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
@@ -20,10 +19,10 @@ import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
 import com.boardgamegeek.ui.CollectionActivity;
+import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.GamePlaysActivity;
 import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
@@ -90,26 +89,11 @@ public class ActivityUtils {
 	private static final String BOARDGAME_PATH = "boardgame";
 	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
 
-	public static void launchGame(Context context, int gameId, String gameName) {
-		final Intent intent = createGameIntent(gameId, gameName);
-		if (intent == null) return;
-		context.startActivity(intent);
-	}
-
 	public static void navigateUpToGame(Context context, int gameId, String gameName) {
-		final Intent intent = createGameIntent(gameId, gameName);
+		final Intent intent = GameActivity.createIntent(gameId, gameName);
 		if (intent == null) return;
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
-	}
-
-	@Nullable
-	public static Intent createGameIntent(int gameId, String gameName) {
-		if (gameId == BggContract.INVALID_ID) return null;
-		final Uri gameUri = Games.buildGameUri(gameId);
-		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		return intent;
 	}
 
 	public static Intent createCollectionIntent(Context context, long viewId) {

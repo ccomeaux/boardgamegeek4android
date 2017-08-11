@@ -494,7 +494,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 							handled = callback.onItemClick(position);
 						}
 						if (!handled) {
-							ActivityUtils.launchGame(itemView.getContext(), game.id, game.name);
+							GameActivity.start(itemView.getContext(), game.id, game.name);
 						}
 					}
 				});

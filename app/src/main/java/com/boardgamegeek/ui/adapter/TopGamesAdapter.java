@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.TopGame;
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
@@ -71,7 +71,7 @@ public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHo
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.launchGame(itemView.getContext(), getGame().id, getGame().name);
+					GameActivity.start(itemView.getContext(), getGame().id, getGame().name);
 				}
 			});
 		}

@@ -312,7 +312,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@OnClick(R.id.header_container)
 	void viewGame() {
-		ActivityUtils.launchGame(getActivity(), play.gameId, play.gameName);
+		GameActivity.start(getContext(), play.gameId, play.gameName);
 	}
 
 	@OnClick(R.id.timer_end)
