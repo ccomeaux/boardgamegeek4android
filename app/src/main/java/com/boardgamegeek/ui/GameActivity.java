@@ -59,6 +59,13 @@ public class GameActivity extends HeroActivity implements Callback {
 		context.startActivity(starter);
 	}
 
+	public static void startUp(Context context, int gameId, String gameName) {
+		final Intent starter = createIntent(gameId, gameName);
+		if (starter == null) return;
+		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		context.startActivity(starter);
+	}
+
 	@Nullable
 	public static Intent createIntent(int gameId, String gameName) {
 		if (gameId == BggContract.INVALID_ID) return null;
@@ -68,6 +75,13 @@ public class GameActivity extends HeroActivity implements Callback {
 		return starter;
 	}
 
+	@Nullable
+	public static Intent createIntentAsShortcut(int gameId, String gameName) {
+		Intent intent = createIntent(gameId, gameName);
+		if (intent == null) return null;
+		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
+		return intent;
+	}
 
 	@DebugLog
 	@Override

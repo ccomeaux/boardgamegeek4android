@@ -22,7 +22,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
 import com.boardgamegeek.ui.CollectionActivity;
-import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.GamePlaysActivity;
 import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
@@ -88,13 +87,6 @@ public class ActivityUtils {
 	public static final String LINK_AMAZON_DE = "www.amazon.de";
 	private static final String BOARDGAME_PATH = "boardgame";
 	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
-
-	public static void navigateUpToGame(Context context, int gameId, String gameName) {
-		final Intent intent = GameActivity.createIntent(gameId, gameName);
-		if (intent == null) return;
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		context.startActivity(intent);
-	}
 
 	public static Intent createCollectionIntent(Context context, long viewId) {
 		return new Intent(context, CollectionActivity.class)

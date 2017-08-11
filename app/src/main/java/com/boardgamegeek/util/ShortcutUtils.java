@@ -57,10 +57,7 @@ public class ShortcutUtils {
 
 	@Nullable
 	public static Intent createGameShortcutIntent(Context context, int gameId, String gameName) {
-		Intent intent = GameActivity.createIntent(gameId, gameName);
-		if (intent == null) return null;
-		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
-		return createShortcutIntent(context, gameName, intent, R.drawable.ic_launcher);
+		return createShortcutIntent(context, gameName, GameActivity.createIntentAsShortcut(gameId, gameName), R.drawable.ic_launcher);
 	}
 
 	@NonNull
