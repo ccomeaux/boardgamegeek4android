@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.util.ShortcutUtils;
 
 public class CollectionShortcutTask extends ShortcutTask {
@@ -19,7 +19,7 @@ public class CollectionShortcutTask extends ShortcutTask {
 
 	@Override
 	protected Intent createIntent() {
-		Intent intent = ActivityUtils.createCollectionIntent(context, viewId);
+		Intent intent = CollectionActivity.createIntentAsShortcut(context, viewId);
 		return ShortcutUtils.createShortcutIntent(context, viewName, intent, R.drawable.ic_shortcut_ic_collection);
 	}
 }

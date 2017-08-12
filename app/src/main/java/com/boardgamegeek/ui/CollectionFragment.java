@@ -155,7 +155,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		isCreatingShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
+		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(intent.getAction());
 	}
 
 	@Override

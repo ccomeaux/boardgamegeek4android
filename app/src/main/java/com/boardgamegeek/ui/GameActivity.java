@@ -45,6 +45,7 @@ import timber.log.Timber;
 
 public class GameActivity extends HeroActivity implements Callback {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private int gameId;
 	private String gameName;
@@ -79,7 +80,9 @@ public class GameActivity extends HeroActivity implements Callback {
 	public static Intent createIntentAsShortcut(int gameId, String gameName) {
 		Intent intent = createIntent(gameId, gameName);
 		if (intent == null) return null;
-		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
+		intent.putExtra(KEY_FROM_SHORTCUT, true);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		return intent;
 	}
 
@@ -188,7 +191,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	}
 
 	private boolean shouldUpRecreateTask() {
-		return getIntent().getBooleanExtra(ActivityUtils.KEY_FROM_SHORTCUT, false);
+		return getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
 	}
 
 	@SuppressWarnings("unused")

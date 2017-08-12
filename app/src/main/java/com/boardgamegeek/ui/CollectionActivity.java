@@ -40,12 +40,20 @@ import icepick.Icepick;
 import icepick.State;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor> {
-	public static final String KEY_VIEW_ID = "VIEW_ID";
+	private static final String KEY_VIEW_ID = "VIEW_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	@State int viewIndex;
 	private Spinner spinner;
 	private boolean isCreatingShortcut;
+
+	public static Intent createIntentAsShortcut(Context context, long viewId) {
+		return new Intent(context, CollectionActivity.class)
+			.setAction(Intent.ACTION_VIEW)
+			.putExtra(KEY_VIEW_ID, viewId)
+			.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	}
 
 	@Override
 	@DebugLog
@@ -87,7 +95,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		spinner = (Spinner) findViewById(R.id.menu_spinner);
+		spinner = findViewById(R.id.menu_spinner);
 		bindSpinner();
 		return true;
 	}
@@ -135,9 +143,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Subscribe
 	public void onEvent(GameShortcutRequestedEvent event) {
 		Intent intent = ShortcutUtils.createGameIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
-		if (intent != null) {
-			setResult(RESULT_OK, intent);
-		}
+		setResult(RESULT_OK, intent);
 		finish();
 	}
 

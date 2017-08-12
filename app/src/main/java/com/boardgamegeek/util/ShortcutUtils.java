@@ -33,10 +33,9 @@ public class ShortcutUtils {
 		TaskUtils.executeAsyncTask(task);
 	}
 
-	@Nullable
+	@NonNull
 	public static Intent createGameIntent(Context context, int gameId, String gameName, String thumbnailUrl) {
-		Intent shortcut = createGameShortcutIntent(context, gameId, gameName);
-		if (shortcut == null) return null;
+		Intent shortcut = createShortcutIntent(context, gameName, GameActivity.createIntentAsShortcut(gameId, gameName));
 		File file = getThumbnailFile(context, thumbnailUrl);
 		if (file != null && file.exists()) {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
@@ -55,9 +54,9 @@ public class ShortcutUtils {
 		return null;
 	}
 
-	@Nullable
-	public static Intent createGameShortcutIntent(Context context, int gameId, String gameName) {
-		return createShortcutIntent(context, gameName, GameActivity.createIntentAsShortcut(gameId, gameName), R.drawable.ic_launcher);
+	@NonNull
+	public static Intent createShortcutIntent(Context context, String shortcutName, Intent intent) {
+		return createShortcutIntent(context, shortcutName, intent, R.drawable.ic_launcher);
 	}
 
 	@NonNull

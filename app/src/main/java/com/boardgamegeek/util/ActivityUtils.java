@@ -21,7 +21,6 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
-import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.GamePlaysActivity;
 import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
@@ -49,7 +48,6 @@ public class ActivityUtils {
 	public static final String KEY_END_PLAY = "END_PLAY";
 	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
-	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 	public static final String KEY_SORT = "SORT";
 	public static final String KEY_LOCATION = "LOCATION";
@@ -87,12 +85,6 @@ public class ActivityUtils {
 	public static final String LINK_AMAZON_DE = "www.amazon.de";
 	private static final String BOARDGAME_PATH = "boardgame";
 	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
-
-	public static Intent createCollectionIntent(Context context, long viewId) {
-		return new Intent(context, CollectionActivity.class)
-			.setAction(Intent.ACTION_VIEW)
-			.putExtra(CollectionActivity.KEY_VIEW_ID, viewId);
-	}
 
 	public static void startBuddyActivity(Context context, String username, String playerName) {
 		Intent intent = createBuddyIntent(context, username, playerName);

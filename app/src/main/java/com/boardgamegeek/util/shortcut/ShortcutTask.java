@@ -56,27 +56,26 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	private Bitmap fetchThumbnail() {
 		Bitmap bitmap = null;
 		File file = ShortcutUtils.getThumbnailFile(context, thumbnailUrl);
-		if (file != null) {
-			if (file.exists()) {
-				bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-			} else {
-				try {
-					bitmap = Picasso.with(context)
-						.load(thumbnailUrl)
-						.resizeDimen(R.dimen.shortcut_icon_size, R.dimen.shortcut_icon_size)
-						.centerCrop().get();
-				} catch (IOException e) {
-					Timber.e(e, "Error downloading the thumbnail.");
-				}
-				if (bitmap != null) {
-					try {
-						OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-						bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-						out.close();
-					} catch (IOException e) {
-						Timber.e(e, "Error saving the thumbnail file.");
-					}
-				}
+		if (file != null && file.exists()) {
+			bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+		} else {
+			try {
+				bitmap = Picasso.with(context)
+					.load(thumbnailUrl)
+					.resizeDimen(R.dimen.shortcut_icon_size, R.dimen.shortcut_icon_size)
+					.centerCrop()
+					.get();
+			} catch (IOException e) {
+				Timber.e(e, "Error downloading the thumbnail.");
+			}
+		}
+		if (bitmap != null && file != null) {
+			try {
+				OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+				out.close();
+			} catch (IOException e) {
+				Timber.e(e, "Error saving the thumbnail file.");
 			}
 		}
 		return bitmap;

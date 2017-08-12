@@ -18,7 +18,7 @@ public class FileUtils {
 	private FileUtils() {
 	}
 
-	/*
+	/**
 	 * Returns a usable filename from the specified URL.
 	 */
 	public static String getFileNameFromUrl(String url) {
