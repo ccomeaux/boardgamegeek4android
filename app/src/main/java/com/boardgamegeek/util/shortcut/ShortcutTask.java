@@ -2,14 +2,19 @@ package com.boardgamegeek.util.shortcut;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.squareup.picasso.Picasso;
 
 import java.io.BufferedOutputStream;
@@ -33,19 +38,45 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 		this.thumbnailUrl = HttpUtils.ensureScheme(thumbnailUrl);
 	}
 
+	protected abstract String getShortcutName();
+
 	protected abstract Intent createIntent();
+
+	protected int getShortcutIconResId() {
+		return R.drawable.ic_launcher;
+	}
+
+	protected abstract String getId();
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		Intent shortcutIntent = createIntent();
-		if (!TextUtils.isEmpty(thumbnailUrl)) {
-			Bitmap bitmap = fetchThumbnail();
-			if (bitmap != null) {
-				shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, bitmap);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+			if (shortcutManager.isRequestPinShortcutSupported()) {
+				ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
+					.setShortLabel(StringUtils.limitText(getShortcutName(), 10))
+					.setLongLabel(StringUtils.limitText(getShortcutName(), 25))
+					.setIntent(createIntent());
+				if (!TextUtils.isEmpty(thumbnailUrl)) {
+					Bitmap bitmap = fetchThumbnail();
+					if (bitmap != null) {
+						builder.setIcon(Icon.createWithAdaptiveBitmap(bitmap));
+					} else {
+						builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
+					}
+				}
+				shortcutManager.requestPinShortcut(builder.build(), null);
 			}
+		} else {
+			Intent shortcutIntent = ShortcutUtils.createShortcutIntent(context, getShortcutName(), createIntent(), getShortcutIconResId());
+			if (!TextUtils.isEmpty(thumbnailUrl)) {
+				Bitmap bitmap = fetchThumbnail();
+				if (bitmap != null) {
+					shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, bitmap);
+				}
+			}
+			context.sendBroadcast(shortcutIntent);
 		}
-
-		context.sendBroadcast(shortcutIntent);
 		return null;
 	}
 
