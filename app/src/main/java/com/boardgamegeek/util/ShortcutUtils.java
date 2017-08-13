@@ -2,7 +2,6 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,7 +9,6 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.util.shortcut.CollectionShortcutTask;
 import com.boardgamegeek.util.shortcut.GameShortcutTask;
 
@@ -31,16 +29,6 @@ public class ShortcutUtils {
 	public static void createGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
 		GameShortcutTask task = new GameShortcutTask(context, gameId, gameName, thumbnailUrl);
 		TaskUtils.executeAsyncTask(task);
-	}
-
-	@NonNull
-	public static Intent createGameIntent(Context context, int gameId, String gameName, String thumbnailUrl) {
-		Intent shortcut = createShortcutIntent(context, gameName, GameActivity.createIntentAsShortcut(gameId, gameName));
-		File file = getThumbnailFile(context, thumbnailUrl);
-		if (file != null && file.exists()) {
-			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
-		}
-		return shortcut;
 	}
 
 	@Nullable

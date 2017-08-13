@@ -64,6 +64,8 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 					} else {
 						builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
 					}
+				} else {
+					builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
 				}
 				shortcutManager.requestPinShortcut(builder.build(), null);
 			}

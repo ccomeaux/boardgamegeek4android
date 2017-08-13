@@ -63,6 +63,7 @@ public class GameActivity extends HeroActivity implements Callback {
 	public static void startUp(Context context, int gameId, String gameName) {
 		final Intent starter = createIntent(gameId, gameName);
 		if (starter == null) return;
+		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(starter);
 	}
