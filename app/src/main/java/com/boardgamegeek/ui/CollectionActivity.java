@@ -2,7 +2,12 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -28,12 +33,15 @@ import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.Subscribe;
+
+import java.io.File;
 
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
@@ -142,8 +150,30 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	@Subscribe
 	public void onEvent(GameShortcutRequestedEvent event) {
-		Intent intent = ShortcutUtils.createGameIntent(this, event.getId(), event.getName(), event.getThumbnailUrl());
-		setResult(RESULT_OK, intent);
+		Intent shortcutIntent = GameActivity.createIntentAsShortcut(event.getId(), event.getName());
+		if (shortcutIntent != null) {
+			Intent intent;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+				ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, "game-" + event.getId())
+					.setShortLabel(StringUtils.limitText(event.getName(), 10))
+					.setIntent(shortcutIntent);
+				File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
+				if (file != null && file.exists()) {
+					builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
+				} else {
+					builder.setIcon(Icon.createWithResource(this, R.drawable.ic_adaptive_game));
+				}
+				intent = shortcutManager.createShortcutResultIntent(builder.build());
+			} else {
+				intent = ShortcutUtils.createShortcutIntent(this, event.getName(), shortcutIntent);
+				File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
+				if (file != null && file.exists()) {
+					intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
+				}
+			}
+			setResult(RESULT_OK, intent);
+		}
 		finish();
 	}
 
