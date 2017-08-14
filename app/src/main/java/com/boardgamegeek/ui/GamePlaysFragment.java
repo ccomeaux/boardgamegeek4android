@@ -231,6 +231,8 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 				if (DateTimeUtils.howManyDaysOld(game.getSyncTimestamp()) > AGE_IN_DAYS_TO_REFRESH)
 					requestRefresh();
 			}
+		} else {
+			syncTimestampView.setTimestamp(System.currentTimeMillis());
 		}
 	}
 

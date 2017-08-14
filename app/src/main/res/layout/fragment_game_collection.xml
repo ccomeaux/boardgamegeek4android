@@ -33,11 +33,9 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="right"
-				android:visibility="gone"
 				app:emptyMessage="@string/needs_updating"
 				app:format="@string/synced_prefix"
-				tools:text="Yesterday"
-				tools:visibility="visible"/>
+				tools:text="Yesterday"/>
 
 			<View
 				android:layout_width="match_parent"

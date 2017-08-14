@@ -195,7 +195,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
 	private boolean isRefreshing;
-	@State boolean mightNeedRefreshing;
+	@State boolean mightNeedRefreshing = true;
 
 	@Override
 	@DebugLog
@@ -481,6 +481,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				requestRefresh();
 			}
 			progressBar.hide();
+			AnimationUtils.fadeOut(rootContainer);
 			AnimationUtils.fadeIn(emptyView);
 		} else {
 			Game game = Game.fromCursor(cursor);
@@ -530,6 +531,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 					requestRefresh();
 			}
 			progressBar.hide();
+			AnimationUtils.fadeOut(emptyView);
 			AnimationUtils.fadeIn(rootContainer);
 		}
 	}

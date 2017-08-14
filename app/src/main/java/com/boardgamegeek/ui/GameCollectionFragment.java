@@ -129,18 +129,15 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				collectionContainer.addView(row);
 			} while (cursor.moveToNext());
 
-			if (oldestSyncTimestamp != Long.MAX_VALUE) {
-				syncTimestampView.setVisibility(View.VISIBLE);
-				syncTimestampView.setTimestamp(oldestSyncTimestamp);
-			} else {
-				syncTimestampView.setVisibility(View.GONE);
-			}
+			syncTimestampView.setTimestamp(oldestSyncTimestamp);
 
 			if (mightNeedRefreshing) {
 				mightNeedRefreshing = false;
 				if (DateTimeUtils.howManyDaysOld(oldestSyncTimestamp) > AGE_IN_DAYS_TO_REFRESH)
 					requestRefresh();
 			}
+		} else {
+			syncTimestampView.setTimestamp(System.currentTimeMillis());
 		}
 	}
 
