@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekListComment;
 import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -37,7 +36,7 @@ public class GeekListCommentsFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		comments = intent.getParcelableArrayListExtra(ActivityUtils.KEY_COMMENTS);
+		comments = intent.getParcelableArrayListExtra(GeekListItemActivity.KEY_COMMENTS);
 	}
 
 	@DebugLog
