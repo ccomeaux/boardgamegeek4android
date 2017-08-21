@@ -161,8 +161,8 @@ dependencies {
 
     compile 'org.jsoup:jsoup:1.10.3'
 
-    provided "com.google.auto.value:auto-value:1.4.1"
-    apt "com.google.auto.value:auto-value:1.4.1"
+    provided "com.google.auto.value:auto-value:1.5"
+    apt "com.google.auto.value:auto-value:1.5"
 
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava:1.2.10'
