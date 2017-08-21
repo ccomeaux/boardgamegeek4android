@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.text.NumberFormat;
@@ -39,11 +38,11 @@ public class ArticleFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		user = intent.getStringExtra(ActivityUtils.KEY_USER);
-		postDate = intent.getLongExtra(ActivityUtils.KEY_POST_DATE, 0);
-		editDate = intent.getLongExtra(ActivityUtils.KEY_EDIT_DATE, 0);
-		editCount = intent.getIntExtra(ActivityUtils.KEY_EDIT_COUNT, 0);
-		body = intent.getStringExtra(ActivityUtils.KEY_BODY);
+		user = intent.getStringExtra(ArticleActivity.KEY_USER);
+		postDate = intent.getLongExtra(ArticleActivity.KEY_POST_DATE, 0);
+		editDate = intent.getLongExtra(ArticleActivity.KEY_EDIT_DATE, 0);
+		editCount = intent.getIntExtra(ArticleActivity.KEY_EDIT_COUNT, 0);
+		body = intent.getStringExtra(ArticleActivity.KEY_BODY);
 	}
 
 	@Override

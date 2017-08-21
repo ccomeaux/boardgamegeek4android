@@ -531,7 +531,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			row.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.startBuddyActivity(getActivity(), player.username, player.name);
+					BuddyActivity.start(getContext(), player.username, player.name);
 				}
 			});
 			return row;

@@ -28,7 +28,6 @@ import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.ThreadSafeResponse;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -48,6 +47,10 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	private static final int SMOOTH_SCROLL_THRESHOLD = 10;
 	private ThreadRecyclerViewAdapter adapter;
 	private int threadId;
+	private int forumId;
+	private String forumTitle;
+	private int gameId;
+	private String gameName;
 	private ShowcaseView showcaseView;
 	private int currentAdapterPosition = 0;
 	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
@@ -63,7 +66,11 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
+		threadId = intent.getIntExtra(ThreadActivity.KEY_THREAD_ID, BggContract.INVALID_ID);
+		forumId = intent.getIntExtra(ThreadActivity.KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(ThreadActivity.KEY_FORUM_TITLE);
+		gameId = intent.getIntExtra(ThreadActivity.KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(ThreadActivity.KEY_GAME_NAME);
 	}
 
 	@Override
@@ -212,7 +219,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		if (adapter == null) {
-			adapter = new ThreadRecyclerViewAdapter(getActivity(), data.getArticles());
+			adapter = new ThreadRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, gameId, gameName);
 			recyclerView.setAdapter(adapter);
 		}
 

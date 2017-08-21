@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.ui.ForumActivity;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -105,7 +103,6 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 		public void bind(final Forum forum) {
 			if (forum == null) return;
 
-			final Context context = itemView.getContext();
 			forumTitleView.setText(forum.title);
 			numberOfThreadsView.setText(numberFormat.format(forum.numberOfThreads));
 			lastPostDateView.setTimestamp(forum.lastPostDate());
@@ -113,12 +110,7 @@ public class ForumsRecyclerViewAdapter extends RecyclerView.Adapter<ForumsRecycl
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intent = new Intent(context, ForumActivity.class);
-					intent.putExtra(ActivityUtils.KEY_FORUM_ID, forum.id);
-					intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forum.title);
-					intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-					context.startActivity(intent);
+					ForumActivity.start(v.getContext(), forum.id, forum.title, gameId, gameName);
 				}
 			});
 		}

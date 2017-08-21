@@ -24,7 +24,6 @@ import com.boardgamegeek.ui.adapter.ForumRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.ForumThreads;
 import com.boardgamegeek.ui.model.PaginatedData;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -56,10 +55,10 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		forumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
-		forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
-		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		forumId = intent.getIntExtra(ForumActivity.KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(ForumActivity.KEY_FORUM_TITLE);
+		gameId = intent.getIntExtra(ForumActivity.KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(ForumActivity.KEY_GAME_NAME);
 	}
 
 	@Nullable

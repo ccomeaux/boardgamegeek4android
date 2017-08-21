@@ -51,16 +51,6 @@ public class ActivityUtils {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_USER = "USER";
 	public static final String KEY_USERNAME = "USERNAME";
-	public static final String KEY_FORUM_ID = "FORUM_ID";
-	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	public static final String KEY_THREAD_ID = "THREAD_ID";
-	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
-	public static final String KEY_ARTICLE_ID = "ARTICLE_ID";
-	public static final String KEY_POST_DATE = "POST_DATE";
-	public static final String KEY_EDIT_DATE = "EDIT_DATE";
-	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
-	public static final String KEY_BODY = "BODY";
-	public static final String KEY_LINK = "LINK";
 	public static final String KEY_TYPE = "TYPE";
 	public static final String KEY_ID = "ID";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
