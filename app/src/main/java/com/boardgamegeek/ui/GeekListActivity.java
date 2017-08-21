@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekListResponse>> {
+	public static final String KEY_ID = "GEEK_LIST_ID";
+	public static final String KEY_TITLE = "GEEK_LIST_TITLE";
 	private static final int LOADER_ID = 1;
 	private int geekListId;
 	private String geekListTitle;
@@ -42,12 +45,31 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	private String descriptionFragmentTag;
 	private String itemsFragmentTag;
 
+	public static void start(Context context, int id, String title) {
+		Intent starter = createIntent(context, id, title);
+		context.startActivity(starter);
+	}
+
+	public static void startUp(Context context, int id, String title) {
+		Intent starter = createIntent(context, id, title);
+		starter.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		context.startActivity(starter);
+	}
+
+	@NonNull
+	private static Intent createIntent(Context context, int id, String title) {
+		Intent starter = new Intent(context, GeekListActivity.class);
+		starter.putExtra(KEY_ID, id);
+		starter.putExtra(KEY_TITLE, title);
+		return starter;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = getIntent();
-		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
+		geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID);
+		geekListTitle = intent.getStringExtra(KEY_TITLE);
 		safelySetTitle(geekListTitle);
 
 		if (savedInstanceState == null) {

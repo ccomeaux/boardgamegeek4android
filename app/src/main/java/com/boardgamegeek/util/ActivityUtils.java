@@ -62,16 +62,7 @@ public class ActivityUtils {
 	public static final String KEY_BODY = "BODY";
 	public static final String KEY_LINK = "LINK";
 	public static final String KEY_TYPE = "TYPE";
-	public static final String KEY_ID = "GEEK_LIST_ID";
-	public static final String KEY_ORDER = "GEEK_LIST_ORDER";
-	public static final String KEY_NAME = "GEEK_LIST_NAME";
-	public static final String KEY_THUMBS = "GEEK_LIST_THUMBS";
-	public static final String KEY_IMAGE_ID = "GEEK_LIST_IMAGE_ID";
-	public static final String KEY_POSTED_DATE = "GEEK_LIST_POSTED_DATE";
-	public static final String KEY_EDITED_DATE = "GEEK_LIST_EDITED_DATE";
-	public static final String KEY_OBJECT_ID = "GEEK_LIST_OBJECT_ID";
-	public static final String KEY_OBJECT_URL = "GEEK_LIST_OBJECT_URL";
-	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
+	public static final String KEY_ID = "ID";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
 	public static final String KEY_DARK_COLOR = "DARK_COLOR";

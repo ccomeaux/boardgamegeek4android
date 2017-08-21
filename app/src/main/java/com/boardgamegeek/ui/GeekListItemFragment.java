@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
@@ -58,14 +57,14 @@ public class GeekListItemFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		order = intent.getIntExtra(ActivityUtils.KEY_ORDER, 0);
-		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
-		type = intent.getStringExtra(ActivityUtils.KEY_TYPE);
-		username = intent.getStringExtra(ActivityUtils.KEY_USERNAME);
-		numberOfThumbs = intent.getIntExtra(ActivityUtils.KEY_THUMBS, 0);
-		postedDate = intent.getLongExtra(ActivityUtils.KEY_POSTED_DATE, 0);
-		editedDate = intent.getLongExtra(ActivityUtils.KEY_EDITED_DATE, 0);
-		body = intent.getStringExtra(ActivityUtils.KEY_BODY);
+		order = intent.getIntExtra(GeekListItemActivity.KEY_ORDER, 0);
+		geekListTitle = intent.getStringExtra(GeekListItemActivity.KEY_TITLE);
+		type = intent.getStringExtra(GeekListItemActivity.KEY_TYPE);
+		username = intent.getStringExtra(GeekListItemActivity.KEY_USERNAME);
+		numberOfThumbs = intent.getIntExtra(GeekListItemActivity.KEY_THUMBS, 0);
+		postedDate = intent.getLongExtra(GeekListItemActivity.KEY_POSTED_DATE, 0);
+		editedDate = intent.getLongExtra(GeekListItemActivity.KEY_EDITED_DATE, 0);
+		body = intent.getStringExtra(GeekListItemActivity.KEY_BODY);
 		xmlConverter = new XmlConverter();
 	}
 

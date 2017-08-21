@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -18,7 +17,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.model.GeekList;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ImageUtils;
 
@@ -152,25 +150,7 @@ public class GeekListItemsFragment extends Fragment {
 					@Override
 					public void onClick(View v) {
 						if (item.getObjectId() != BggContract.INVALID_ID) {
-							Intent intent = new Intent(context, GeekListItemActivity.class);
-							intent.putExtra(ActivityUtils.KEY_ID, geekList.id());
-							intent.putExtra(ActivityUtils.KEY_TITLE, geekList.title());
-							intent.putExtra(ActivityUtils.KEY_ORDER, order);
-							intent.putExtra(ActivityUtils.KEY_NAME, item.getObjectName());
-							if (item.getObjectTypeResId() != GeekListItem.INVALID_OBJECT_TYPE_RES_ID) {
-								intent.putExtra(ActivityUtils.KEY_TYPE, context.getString(item.getObjectTypeResId()));
-							}
-							intent.putExtra(ActivityUtils.KEY_IMAGE_ID, item.imageId());
-							intent.putExtra(ActivityUtils.KEY_USERNAME, item.getUsername());
-							intent.putExtra(ActivityUtils.KEY_THUMBS, item.getThumbCount());
-							intent.putExtra(ActivityUtils.KEY_POSTED_DATE, item.getPostDate());
-							intent.putExtra(ActivityUtils.KEY_EDITED_DATE, item.getEditDate());
-							intent.putExtra(ActivityUtils.KEY_BODY, item.getBody());
-							intent.putExtra(ActivityUtils.KEY_OBJECT_URL, item.getObjectUrl());
-							intent.putExtra(ActivityUtils.KEY_OBJECT_ID, item.getObjectId());
-							intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, item.isBoardGame());
-							intent.putParcelableArrayListExtra(ActivityUtils.KEY_COMMENTS, item.getComments());
-							context.startActivity(intent);
+							GeekListItemActivity.start(context, geekList, item, order);
 						}
 					}
 				});
