@@ -129,7 +129,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 				finish();
 				return true;
 			case R.id.menu_view_image:
-				ActivityUtils.startImageActivity(this, imageUrl);
+				ImageActivity.start(this, imageUrl);
 				return true;
 			case R.id.menu_delete:
 				DialogUtils.createThemedBuilder(this)

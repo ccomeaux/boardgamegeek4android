@@ -23,7 +23,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
 import com.boardgamegeek.ui.GamePlaysActivity;
-import com.boardgamegeek.ui.ImageActivity;
 import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
@@ -250,16 +249,6 @@ public class ActivityUtils {
 		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(KEY_IMAGE_URL, imageUrl);
 		return intent;
-	}
-
-	public static void startImageActivity(Context context, String imageUrl) {
-		if (TextUtils.isEmpty(imageUrl)) {
-			Timber.w("Missing the required image URL.");
-			return;
-		}
-		Intent intent = new Intent(context, ImageActivity.class);
-		intent.putExtra(KEY_IMAGE_URL, imageUrl);
-		context.startActivity(intent);
 	}
 
 	public static void logQuickPlay(Context context, int gameId, String gameName) {

@@ -216,7 +216,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 				ActivityUtils.logQuickPlay(this, gameId, gameName);
 				return true;
 			case R.id.menu_view_image:
-				ActivityUtils.startImageActivity(this, imageUrl);
+				ImageActivity.start(this, imageUrl);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
