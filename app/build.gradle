@@ -137,8 +137,8 @@ dependencies {
 
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
-        transitive = true;
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true
     }
 
     compile('com.mikepenz:aboutlibraries:5.9.5@aar') {
