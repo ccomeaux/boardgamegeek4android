@@ -18,6 +18,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
+import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 
 public class NotificationUtils {
@@ -189,7 +190,7 @@ public class NotificationUtils {
 	private static void buildAndNotifyPlaying(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName, NotificationUtils.CHANNEL_ID_PLAYING);
 
-		Intent intent = ActivityUtils.createPlayIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		Intent intent = PlayActivity.createIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 

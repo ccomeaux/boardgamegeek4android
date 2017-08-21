@@ -84,7 +84,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event);
+		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")

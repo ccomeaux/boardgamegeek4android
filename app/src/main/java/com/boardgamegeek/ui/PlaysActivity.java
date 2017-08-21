@@ -11,7 +11,6 @@ import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -56,7 +55,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event);
+		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")

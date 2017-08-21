@@ -29,6 +29,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
+import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -90,7 +91,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				currentImageUrlForNotification,
 				currentThumbnailUrlForNotification);
 		}
-		return ActivityUtils.createPlayIntent(context,
+		return PlayActivity.createIntent(context,
 			currentInternalId,
 			currentGameIdForNotification,
 			currentGameNameForNotification,

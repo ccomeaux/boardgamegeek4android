@@ -132,14 +132,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		internalId = intent.getLongExtra(PlayActivity.KEY_ID, BggContract.INVALID_ID);
 		if (internalId == BggContract.INVALID_ID) return;
 
-		play = new Play(intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID),
-			intent.getStringExtra(ActivityUtils.KEY_GAME_NAME));
+		play = new Play(intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID), intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
 
-		thumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);
-		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+		thumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
+		imageUrl = intent.getStringExtra(PlayActivity.KEY_IMAGE_URL);
 	}
 
 	@Override
