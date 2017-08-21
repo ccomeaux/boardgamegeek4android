@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ShareCompat;
@@ -23,7 +22,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.BuddyActivity;
 import com.boardgamegeek.ui.GamePlaysActivity;
-import com.boardgamegeek.ui.LocationActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
@@ -65,7 +63,6 @@ public class ActivityUtils {
 	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
 	public static final String KEY_BODY = "BODY";
 	public static final String KEY_LINK = "LINK";
-	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
 	public static final String KEY_TYPE = "TYPE";
 	public static final String KEY_ID = "GEEK_LIST_ID";
 	public static final String KEY_ORDER = "GEEK_LIST_ORDER";
@@ -113,13 +110,6 @@ public class ActivityUtils {
 		Intent intent = new Intent(context, BuddyActivity.class);
 		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
 		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
-		return intent;
-	}
-
-	@NonNull
-	public static Intent createLocationIntent(Context context, String locationName) {
-		Intent intent = new Intent(context, LocationActivity.class);
-		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, locationName);
 		return intent;
 	}
 

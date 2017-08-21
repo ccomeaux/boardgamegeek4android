@@ -360,10 +360,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intent = ActivityUtils.createLocationIntent(
-						getActivity(),
-						(String) v.getTag(R.id.name));
-					startActivity(intent);
+					LocationActivity.start(getContext(), (String) v.getTag(R.id.name));
 				}
 			});
 		}

@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,9 +33,17 @@ import org.greenrobot.eventbus.ThreadMode;
 import hugo.weaving.DebugLog;
 
 public class LocationActivity extends SimpleSinglePaneActivity {
+	private static final String KEY_LOCATION_NAME = "LOCATION_NAME";
+
 	private int playCount;
 	private String locationName;
 	private EditTextDialogFragment editTextDialogFragment;
+
+	public static void start(Context context, String locationName) {
+		Intent starter = new Intent(context, LocationActivity.class);
+		starter.putExtra(KEY_LOCATION_NAME, locationName);
+		context.startActivity(starter);
+	}
 
 	@DebugLog
 	@Override
@@ -42,7 +51,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		locationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
+		locationName = intent.getStringExtra(KEY_LOCATION_NAME);
 		setSubtitle();
 
 		if (savedInstanceState == null) {
@@ -69,7 +78,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_LOCATION);
-		arguments.putString(ActivityUtils.KEY_LOCATION, intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME));
+		arguments.putString(ActivityUtils.KEY_LOCATION, intent.getStringExtra(KEY_LOCATION_NAME));
 		return arguments;
 	}
 
@@ -106,7 +115,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event);
+		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")
@@ -122,7 +131,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(@NonNull RenameLocationTask.Event event) {
 		locationName = event.getLocationName();
-		getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, locationName);
+		getIntent().putExtra(KEY_LOCATION_NAME, locationName);
 		setSubtitle();
 		// recreate fragment to load the list with the new location
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
