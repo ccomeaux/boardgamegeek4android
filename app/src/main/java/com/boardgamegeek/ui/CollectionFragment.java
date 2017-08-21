@@ -41,7 +41,7 @@ import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
-import com.boardgamegeek.events.GameShortcutCreatedEvent;
+import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.provider.BggContract;
@@ -155,7 +155,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		isCreatingShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
+		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(intent.getAction());
 	}
 
 	@Override
@@ -272,7 +272,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (isCreatingShortcut) {
-			EventBus.getDefault().post(new GameShortcutCreatedEvent(gameId, gameName, thumbnailUrl));
+			EventBus.getDefault().post(new GameShortcutRequestedEvent(gameId, gameName, thumbnailUrl));
 		} else {
 			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName));
 			setSelectedGameId(gameId);
@@ -315,7 +315,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_random_game:
 					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
-					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+					GameActivity.start(getContext(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
 				case R.id.menu_create_shortcut:
 					if (viewId > 0) {

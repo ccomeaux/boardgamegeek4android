@@ -257,7 +257,7 @@ public class PreferencesUtils {
 		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.title_play_stats, PlayStats.class)
+			.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStats.class)
 			.setContentText(message)
 			.setContentIntent(pi);
 		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, id, builder);

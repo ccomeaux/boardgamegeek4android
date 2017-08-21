@@ -73,7 +73,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToGame(this, gameId, gameName);
+				GameActivity.startUp(this, gameId, gameName);
 				finish();
 				return true;
 		}

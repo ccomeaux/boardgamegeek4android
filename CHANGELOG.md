@@ -5,8 +5,10 @@ Coming Soon...
 --------------
  * Filter collection by recommended player counts
  * UI changes (improvements?)
+ * Support Android O
+   * App shortcuts
+   * Notifications
  * More play stats
- * App shortcuts for collection views
  * Corrected and improved backup/restore
  * Sync improvements
  * Bug fixes

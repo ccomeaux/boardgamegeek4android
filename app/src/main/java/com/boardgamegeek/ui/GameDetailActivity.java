@@ -49,7 +49,7 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 				if (gameId == BggContract.INVALID_ID) {
 					onBackPressed();
 				} else {
-					ActivityUtils.navigateUpToGame(this, gameId, gameName);
+					GameActivity.startUp(this, gameId, gameName);
 				}
 				finish();
 				return true;

@@ -3,7 +3,7 @@ package com.boardgamegeek.util.shortcut;
 import android.content.Context;
 import android.content.Intent;
 
-import com.boardgamegeek.util.ShortcutUtils;
+import com.boardgamegeek.ui.GameActivity;
 
 public class GameShortcutTask extends ShortcutTask {
 	private final int gameId;
@@ -16,7 +16,17 @@ public class GameShortcutTask extends ShortcutTask {
 	}
 
 	@Override
+	protected String getShortcutName() {
+		return gameName;
+	}
+
+	@Override
 	protected Intent createIntent() {
-		return ShortcutUtils.createGameShortcutIntent(context, gameId, gameName);
+		return GameActivity.createIntentAsShortcut(gameId, gameName);
+	}
+
+	@Override
+	protected String getId() {
+		return "game-" + gameId;
 	}
 }

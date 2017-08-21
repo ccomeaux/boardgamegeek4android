@@ -72,7 +72,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 				return true;
 			case R.id.menu_view:
 				if (isBoardGame) {
-					ActivityUtils.launchGame(this, objectId, objectName);
+					GameActivity.start(this, objectId, objectName);
 				} else {
 					ActivityUtils.link(this, url);
 				}

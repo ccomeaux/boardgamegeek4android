@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener;
@@ -28,6 +29,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.GameInfoChangedEvent;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
@@ -58,8 +60,9 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GameActivity extends HeroTabActivity implements Callback {
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	private static final int REQUEST_EDIT_PLAY = 1;
-
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
@@ -69,6 +72,39 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	private GamePagerAdapter adapter;
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
+
+	public static void start(Context context, int gameId, String gameName) {
+		final Intent starter = createIntent(gameId, gameName);
+		if (starter == null) return;
+		context.startActivity(starter);
+	}
+
+	public static void startUp(Context context, int gameId, String gameName) {
+		final Intent starter = createIntent(gameId, gameName);
+		if (starter == null) return;
+		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		context.startActivity(starter);
+	}
+
+	@Nullable
+	public static Intent createIntent(int gameId, String gameName) {
+		if (gameId == BggContract.INVALID_ID) return null;
+		final Uri gameUri = Games.buildGameUri(gameId);
+		final Intent starter = new Intent(Intent.ACTION_VIEW, gameUri);
+		starter.putExtra(KEY_GAME_NAME, gameName);
+		return starter;
+	}
+
+	@Nullable
+	public static Intent createIntentAsShortcut(int gameId, String gameName) {
+		Intent intent = createIntent(gameId, gameName);
+		if (intent == null) return null;
+		intent.putExtra(KEY_FROM_SHORTCUT, true);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		return intent;
+	}
 
 	@DebugLog
 	@Override
@@ -86,7 +122,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		}
 
 		gameId = Games.getGameId(gameUri);
-		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
+		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
 
 		new Handler().post(new Runnable() {
 			@Override
@@ -187,7 +223,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	}
 
 	private boolean shouldUpRecreateTask() {
-		return getIntent().getBooleanExtra(ActivityUtils.KEY_FROM_SHORTCUT, false);
+		return getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
 	}
 
 	@SuppressWarnings("unused")
@@ -209,7 +245,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	private void changeName(String gameName) {
 		this.gameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
-			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			safelySetTitle(gameName);
 		}
 	}

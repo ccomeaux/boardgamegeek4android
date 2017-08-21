@@ -1,6 +1,8 @@
 package com.boardgamegeek;
 
 import android.app.Application;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 import android.text.TextUtils;
@@ -9,6 +11,7 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.NotificationUtils;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -59,6 +62,9 @@ public class BggApplication extends Application {
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
 			.downloader(new OkHttp3Downloader(HttpUtils.getHttpClientWithCache(this)))
 			.build());
+
+		if (VERSION.SDK_INT >= VERSION_CODES.O)
+			NotificationUtils.createNotificationChannels(getApplicationContext());
 	}
 
 	private void initializeFabric() {
