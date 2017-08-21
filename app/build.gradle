@@ -141,7 +141,7 @@ dependencies {
         transitive = true
     }
 
-    compile('com.mikepenz:aboutlibraries:5.9.5@aar') {
+    compile('com.mikepenz:aboutlibraries:5.9.7@aar') {
         transitive = true
     }
 
