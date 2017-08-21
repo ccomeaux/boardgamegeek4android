@@ -41,7 +41,7 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class GameCollectionActivity extends HeroActivity implements Callback {
+public class GameCollectionItemActivity extends HeroActivity implements Callback {
 	private long internalId;
 	private int gameId;
 	private String gameName;
@@ -92,9 +92,9 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 		if (isInEditMode && isItemUpdated) {
 			DialogUtils.createDiscardDialog(this, R.string.collection_item, false, false, new OnDiscardListener() {
 				public void onDiscard() {
-					ResetCollectionItemTask task = new ResetCollectionItemTask(GameCollectionActivity.this, internalId, gameId);
+					ResetCollectionItemTask task = new ResetCollectionItemTask(GameCollectionItemActivity.this, internalId, gameId);
 					TaskUtils.executeAsyncTask(task);
-					GameCollectionActivity.super.onBackPressed();
+					GameCollectionItemActivity.super.onBackPressed();
 				}
 			}).show();
 		} else {
@@ -105,7 +105,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane() {
-		return new GameCollectionFragment();
+		return new GameCollectionItemFragment();
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 					.setMessage(R.string.are_you_sure_delete_collection_item)
 					.setPositiveButton(R.string.delete, new OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							TaskUtils.executeAsyncTask(new DeleteCollectionItemTask(GameCollectionActivity.this, internalId));
+							TaskUtils.executeAsyncTask(new DeleteCollectionItemTask(GameCollectionItemActivity.this, internalId));
 							finish();
 						}
 					})
@@ -157,7 +157,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@DebugLog
 	@Override
 	public void onSuccessfulImageLoad(Palette palette) {
-		((GameCollectionFragment) getFragment()).onPaletteGenerated(palette);
+		((GameCollectionItemFragment) getFragment()).onPaletteGenerated(palette);
 		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
 		fab.show();
 	}
@@ -170,7 +170,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		if (((GameCollectionFragment) getFragment()).triggerRefresh()) {
+		if (((GameCollectionItemFragment) getFragment()).triggerRefresh()) {
 			updateRefreshStatus(true);
 		}
 	}
@@ -212,7 +212,7 @@ public class GameCollectionActivity extends HeroActivity implements Callback {
 	}
 
 	private void setEditMode() {
-		((GameCollectionFragment) getFragment()).enableEditMode(isInEditMode);
+		((GameCollectionItemFragment) getFragment()).enableEditMode(isInEditMode);
 		fab.setImageResource(isInEditMode ? R.drawable.fab_done : R.drawable.fab_edit);
 	}
 }

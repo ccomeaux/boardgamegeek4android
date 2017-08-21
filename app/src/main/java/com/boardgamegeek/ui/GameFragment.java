@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -12,9 +13,9 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.app.AlertDialog.Builder;
-import android.support.v7.graphics.Palette;
-import android.support.v7.graphics.Palette.Swatch;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,58 +23,50 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
-import com.boardgamegeek.provider.BggContract.Artists;
-import com.boardgamegeek.provider.BggContract.Categories;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
-import com.boardgamegeek.provider.BggContract.GamePolls;
-import com.boardgamegeek.provider.BggContract.GameRanks;
-import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.GamesExpansions;
-import com.boardgamegeek.provider.BggContract.Mechanics;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncGameTask;
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
-import com.boardgamegeek.ui.adapter.GameColorAdapter;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
+import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
-import com.boardgamegeek.ui.widget.GameCollectionRow;
+import com.boardgamegeek.ui.model.Game;
+import com.boardgamegeek.ui.model.GameArtist;
+import com.boardgamegeek.ui.model.GameBaseGame;
+import com.boardgamegeek.ui.model.GameCategory;
+import com.boardgamegeek.ui.model.GameDesigner;
+import com.boardgamegeek.ui.model.GameExpansion;
+import com.boardgamegeek.ui.model.GameList;
+import com.boardgamegeek.ui.model.GameMechanic;
+import com.boardgamegeek.ui.model.GamePublisher;
+import com.boardgamegeek.ui.model.GameRank;
+import com.boardgamegeek.ui.model.GameSuggestedAge;
+import com.boardgamegeek.ui.model.GameSuggestedLanguage;
+import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
+import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
-import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -94,6 +87,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
+import icepick.State;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -102,24 +96,32 @@ import timber.log.Timber;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int SYNC_NONE = 0;
-	private static final int SYNC_GAME = 1;
-	private static final int SYNC_PLAYS = 1 << 1;
-	private static final int SYNC_COLLECTION = 1 << 2;
+
+	private static final int GAME_TOKEN = 0x11;
+	private static final int DESIGNER_TOKEN = 0x12;
+	private static final int ARTIST_TOKEN = 0x13;
+	private static final int PUBLISHER_TOKEN = 0x14;
+	private static final int CATEGORY_TOKEN = 0x15;
+	private static final int MECHANIC_TOKEN = 0x16;
+	private static final int EXPANSION_TOKEN = 0x17;
+	private static final int BASE_GAME_TOKEN = 0x18;
+	private static final int RANK_TOKEN = 0x19;
+	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
+	private static final int SUGGESTED_AGE_TOKEN = 0x24;
+	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
 
 	private Uri gameUri;
 	private String gameName;
-	private String imageUrl;
-	private String thumbnailUrl;
-	private boolean arePlayersCustomSorted;
-	private boolean mightNeedRefreshing;
-	private int isRefreshing;
 
 	private Unbinder unbinder;
 
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
+	@BindView(R.id.empty) TextView emptyView;
+	@BindView(R.id.game_info_root) View rootContainer;
 	@BindView(R.id.game_rating) TextView ratingView;
 	@BindView(R.id.game_description) TextView descriptionView;
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
@@ -146,17 +148,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	@BindView(R.id.game_info_mechanics) GameDetailRow mechanicsView;
 	@BindView(R.id.game_info_expansions) GameDetailRow expansionsView;
 	@BindView(R.id.game_info_base_games) GameDetailRow baseGamesView;
-
-	@BindView(R.id.collection_card) View collectionCard;
-	@BindView(R.id.collection_container) ViewGroup collectionContainer;
-
-	@BindView(R.id.plays_card) View playsCard;
-	@BindView(R.id.plays_root) View playsRoot;
-	@BindView(R.id.plays_label) TextView playsLabel;
-	@BindView(R.id.plays_last_play) TextView lastPlayView;
-	@BindView(R.id.play_stats_root) View playStatsRoot;
-	@BindView(R.id.colors_root) View colorsRoot;
-	@BindView(R.id.game_colors_label) TextView colorsLabel;
 
 	@BindView(R.id.game_ratings_votes) TextView ratingsVotes;
 
@@ -193,27 +184,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		R.id.icon_play_time,
 		R.id.icon_number_of_players,
 		R.id.icon_player_age,
-		R.id.icon_plays,
-		R.id.icon_play_stats,
-		R.id.icon_colors,
 		R.id.icon_forums,
 		R.id.icon_comments,
 		R.id.icon_weight,
 		R.id.icon_language_dependence,
 		R.id.icon_users,
-		R.id.icon_link_bgg,
-		R.id.icon_link_bg_prices,
-		R.id.icon_link_amazon,
-		R.id.icon_link_ebay
 	}) List<ImageView> colorizedIcons;
-	@BindViews({
-		R.id.collection_add_button
-	}) List<Button> colorizedButtons;
 
-	@ColorInt private int iconColor;
-	private Palette palette;
-	private Palette.Swatch darkSwatch;
+	@ColorInt private int iconColor = Color.TRANSPARENT;
+	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
+	private boolean isRefreshing;
+	@State boolean mightNeedRefreshing = true;
 
 	@Override
 	@DebugLog
@@ -224,9 +206,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameUri = intent.getData();
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, Color.TRANSPARENT);
+		darkColor = intent.getIntExtra(ActivityUtils.KEY_DARK_COLOR, Color.TRANSPARENT);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -247,19 +231,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 		colorize();
 
-		mightNeedRefreshing = true;
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+
+		idView.setText(String.valueOf(Games.getGameId(gameUri)));
+		updatedView.setTimestamp(0);
+
 		LoaderManager lm = getLoaderManager();
-		lm.restartLoader(GameQuery._TOKEN, null, this);
-		lm.restartLoader(RankQuery._TOKEN, null, this);
-		if (shouldShowPlays()) {
-			lm.restartLoader(PlaysQuery._TOKEN, null, this);
-		}
-		if (PreferencesUtils.showLogPlay(getActivity())) {
-			lm.restartLoader(ColorQuery._TOKEN, null, this);
-		}
-		lm.restartLoader(LanguagePollQuery._TOKEN, null, this);
-		lm.restartLoader(AgePollQuery._TOKEN, null, this);
-		lm.restartLoader(SuggestedPlayerCountQuery._TOKEN, null, this);
+		lm.restartLoader(GAME_TOKEN, null, this);
+		lm.restartLoader(RANK_TOKEN, null, this);
+		lm.restartLoader(SUGGESTED_LANGUAGE_TOKEN, null, this);
+		lm.restartLoader(SUGGESTED_AGE_TOKEN, null, this);
+		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
@@ -299,7 +282,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private ShowcaseViewWizard setUpShowcaseViewWizard() {
 		ShowcaseViewWizard wizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION);
 		wizard.addTarget(R.string.help_game_menu, Target.NONE);
-		wizard.addTarget(R.string.help_game_log_play, new SafeViewTarget(R.id.fab, getActivity()));
 		wizard.addTarget(R.string.help_game_poll, new SafeViewTarget(R.id.number_of_players, getActivity()));
 		wizard.addTarget(-1, new SafeViewTarget(R.id.player_age_root, getActivity()));
 		return wizard;
@@ -311,73 +293,41 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		CursorLoader loader = null;
 		int gameId = Games.getGameId(gameUri);
 		switch (id) {
-			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), gameUri, GameQuery.PROJECTION, null, null, null);
+			case GAME_TOKEN:
+				loader = new CursorLoader(getActivity(), gameUri, Game.PROJECTION, null, null, null);
 				break;
-			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId), DesignerQuery.PROJECTION, null, null, null);
+			case DESIGNER_TOKEN:
+				loader = new CursorLoader(getActivity(), GameDesigner.buildUri(gameId), GameDesigner.PROJECTION, null, null, null);
 				break;
-			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(gameId), ArtistQuery.PROJECTION, null, null, null);
+			case ARTIST_TOKEN:
+				loader = new CursorLoader(getActivity(), GameArtist.buildUri(gameId), GameArtist.PROJECTION, null, null, null);
 				break;
-			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(gameId), PublisherQuery.PROJECTION, null, null, null);
+			case PUBLISHER_TOKEN:
+				loader = new CursorLoader(getActivity(), GamePublisher.buildUri(gameId), GamePublisher.PROJECTION, null, null, null);
 				break;
-			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(gameId), CategoryQuery.PROJECTION, null, null, null);
+			case CATEGORY_TOKEN:
+				loader = new CursorLoader(getActivity(), GameCategory.buildUri(gameId), GameCategory.PROJECTION, null, null, null);
 				break;
-			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(gameId), MechanicQuery.PROJECTION, null, null, null);
+			case MECHANIC_TOKEN:
+				loader = new CursorLoader(getActivity(), GameMechanic.buildUri(gameId), GameMechanic.PROJECTION, null, null, null);
 				break;
-			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
+			case EXPANSION_TOKEN:
+				loader = new CursorLoader(getActivity(), GameExpansion.buildUri(gameId), GameExpansion.PROJECTION, GameExpansion.getSelection(), GameExpansion.getSelectionArgs(), null);
 				break;
-			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
+			case BASE_GAME_TOKEN:
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
-			case RankQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildRanksUri(gameId), RankQuery.PROJECTION, null, null, null);
+			case RANK_TOKEN:
+				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
 				break;
-			case CollectionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+			case SUGGESTED_LANGUAGE_TOKEN:
+				loader = new CursorLoader(getActivity(), GameSuggestedLanguage.buildUri(gameId), GameSuggestedLanguage.PROJECTION, null, null, GameSuggestedLanguage.SORT);
 				break;
-			case PlaysQuery._TOKEN:
-				// retrieve plays that aren't pending delete (optionally only completed plays)
-				String selection = String.format("%s=? AND %s", Plays.OBJECT_ID, SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
-				if (!PreferencesUtils.logPlayStatsIncomplete(getActivity())) {
-					selection += String.format(" AND %s!=1", Plays.INCOMPLETE);
-				}
-				loader = new CursorLoader(getActivity(),
-					Plays.CONTENT_URI,
-					PlaysQuery.PROJECTION,
-					selection,
-					new String[] { String.valueOf(gameId) },
-					null);
+			case SUGGESTED_AGE_TOKEN:
+				loader = new CursorLoader(getActivity(), GameSuggestedAge.buildUri(gameId), GameSuggestedAge.PROJECTION, null, null, GameSuggestedAge.SORT);
 				break;
-			case ColorQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId), GameColorAdapter.PROJECTION, null, null, null);
-				break;
-			case LanguagePollQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Games.buildPollResultsResultUri(gameId, PollFragment.LANGUAGE_DEPENDENCE),
-					LanguagePollQuery.PROJECTION,
-					null,
-					null,
-					LanguagePollQuery.SORT);
-				break;
-			case AgePollQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Games.buildPollResultsResultUri(gameId, PollFragment.SUGGESTED_PLAYER_AGE),
-					AgePollQuery.PROJECTION,
-					null,
-					null,
-					AgePollQuery.SORT);
-				break;
-			case SuggestedPlayerCountQuery._TOKEN:
-				loader = new CursorLoader(getActivity(),
-					Games.buildSuggestedPlayerCountPollResultsUri(gameId),
-					SuggestedPlayerCountQuery.PROJECTION,
-					null, null, null);
+			case SUGGESTED_PLAYER_COUNT_TOKEN:
+				loader = new CursorLoader(getActivity(), GameSuggestedPlayerCount.buildUri(gameId), GameSuggestedPlayerCount.PROJECTION, null, null, null);
 				break;
 			default:
 				Timber.w("Invalid query token=%s", id);
@@ -392,62 +342,49 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
-			case GameQuery._TOKEN:
+			case GAME_TOKEN:
 				onGameQueryComplete(cursor);
 				LoaderManager lm = getLoaderManager();
-				if (shouldShowCollection()) lm.restartLoader(CollectionQuery._TOKEN, null, this);
-				lm.restartLoader(DesignerQuery._TOKEN, null, this);
-				lm.restartLoader(ArtistQuery._TOKEN, null, this);
-				lm.restartLoader(PublisherQuery._TOKEN, null, this);
-				lm.restartLoader(CategoryQuery._TOKEN, null, this);
-				lm.restartLoader(MechanicQuery._TOKEN, null, this);
-				lm.restartLoader(ExpansionQuery._TOKEN, null, this);
-				lm.restartLoader(BaseGameQuery._TOKEN, null, this);
+				lm.restartLoader(DESIGNER_TOKEN, null, this);
+				lm.restartLoader(ARTIST_TOKEN, null, this);
+				lm.restartLoader(PUBLISHER_TOKEN, null, this);
+				lm.restartLoader(CATEGORY_TOKEN, null, this);
+				lm.restartLoader(MECHANIC_TOKEN, null, this);
+				lm.restartLoader(EXPANSION_TOKEN, null, this);
+				lm.restartLoader(BASE_GAME_TOKEN, null, this);
 				fetchForumInfo();
 				break;
-			case DesignerQuery._TOKEN:
-				onListQueryComplete(cursor, designersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID);
+			case DESIGNER_TOKEN:
+				onListQueryComplete(cursor, designersView);
 				break;
-			case ArtistQuery._TOKEN:
-				onListQueryComplete(cursor, artistsView, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_ID);
+			case ARTIST_TOKEN:
+				onListQueryComplete(cursor, artistsView);
 				break;
-			case PublisherQuery._TOKEN:
-				onListQueryComplete(cursor, publishersView, PublisherQuery.PUBLISHER_NAME, PublisherQuery.PUBLISHER_ID);
+			case PUBLISHER_TOKEN:
+				onListQueryComplete(cursor, publishersView);
 				break;
-			case CategoryQuery._TOKEN:
-				onListQueryComplete(cursor, categoriesView, CategoryQuery.CATEGORY_NAME, CategoryQuery.CATEGORY_ID);
+			case CATEGORY_TOKEN:
+				onListQueryComplete(cursor, categoriesView);
 				break;
-			case MechanicQuery._TOKEN:
-				onListQueryComplete(cursor, mechanicsView, MechanicQuery.MECHANIC_NAME, MechanicQuery.MECHANIC_ID);
+			case MECHANIC_TOKEN:
+				onListQueryComplete(cursor, mechanicsView);
 				break;
-			case ExpansionQuery._TOKEN:
-				onListQueryComplete(cursor, expansionsView, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
+			case EXPANSION_TOKEN:
+				onListQueryComplete(cursor, expansionsView);
 				break;
-			case BaseGameQuery._TOKEN:
-				onListQueryComplete(cursor, baseGamesView, BaseGameQuery.EXPANSION_NAME, BaseGameQuery.EXPANSION_ID);
+			case BASE_GAME_TOKEN:
+				onListQueryComplete(cursor, baseGamesView);
 				break;
-			case RankQuery._TOKEN:
+			case RANK_TOKEN:
 				onRankQueryComplete(cursor);
 				break;
-			case CollectionQuery._TOKEN:
-				onCollectionQueryComplete(cursor);
-				break;
-			case PlaysQuery._TOKEN:
-				onPlaysQueryComplete(cursor);
-				break;
-			case ColorQuery._TOKEN:
-				playsCard.setVisibility(VISIBLE);
-				colorsRoot.setVisibility(VISIBLE);
-				int count = cursor == null ? 0 : cursor.getCount();
-				colorsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.colors_suffix, count, count));
-				break;
-			case LanguagePollQuery._TOKEN:
+			case SUGGESTED_LANGUAGE_TOKEN:
 				onLanguagePollQueryComplete(cursor);
 				break;
-			case AgePollQuery._TOKEN:
+			case SUGGESTED_AGE_TOKEN:
 				onAgePollQueryComplete(cursor);
 				break;
-			case SuggestedPlayerCountQuery._TOKEN:
+			case SUGGESTED_PLAYER_COUNT_TOKEN:
 				onPlayerCountQueryComplete(cursor);
 				break;
 			default:
@@ -490,100 +427,113 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@Override
+	public void onRefresh() {
+		requestRefresh();
+	}
+
 	@DebugLog
-	public void onPaletteGenerated(Palette palette) {
-		this.palette = palette;
-		colorize();
+	private void requestRefresh() {
+		mightNeedRefreshing = false;
+		if (!isRefreshing) {
+			updateRefreshStatus(true);
+			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), Games.getGameId(gameUri)));
+		} else {
+			updateRefreshStatus(false);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncGameTask.CompletedEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			updateRefreshStatus(false);
+		}
+	}
+
+	protected void updateRefreshStatus(boolean refreshing) {
+		this.isRefreshing = refreshing;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
+				}
+			});
+		}
 	}
 
 	@DebugLog
 	private void colorize() {
-		if (palette == null || colorizedRows == null || !isAdded()) return;
+		if (!isAdded()) return;
 
-		Palette.Swatch swatch = PaletteUtils.getIconSwatch(palette);
-		iconColor = swatch.getRgb();
-		ButterKnife.apply(colorizedRows, GameDetailRow.colorIconSetter, swatch);
-		ButterKnife.apply(colorizedIcons, PaletteUtils.colorIconSetter, swatch);
-		ButterKnife.apply(colorizedButtons, PaletteUtils.colorButtonSetter, swatch);
-		darkSwatch = PaletteUtils.getDarkSwatch(palette);
-
-		ScrimUtils.applyWhiteScrim(descriptionView);
+		if (iconColor != Color.TRANSPARENT) {
+			if (colorizedRows != null) ButterKnife.apply(colorizedRows, GameDetailRow.rgbIconSetter, iconColor);
+			if (colorizedIcons != null) ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, iconColor);
+		}
 	}
 
 	@DebugLog
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			if (mightNeedRefreshing) {
-				triggerRefresh();
+				mightNeedRefreshing = false;
+				requestRefresh();
 			}
-			return;
-		}
-
-		Game game = new Game(cursor);
-
-		notifyChange(game);
-		gameName = game.Name;
-		imageUrl = game.ImageUrl;
-		thumbnailUrl = game.ThumbnailUrl;
-		arePlayersCustomSorted = game.CustomPlayerSort;
-
-		yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
-
-		rankView.setText(PresentationUtils.describeRank(getContext(), game.Rank, BggService.RANK_TYPE_SUBTYPE, game.Subtype));
-		favoriteView.setImageResource(game.IsFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
-		favoriteView.setTag(R.id.favorite, game.IsFavorite);
-
-		ratingView.setText(PresentationUtils.describeRating(getContext(), game.Rating));
-		ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
-		ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
-
-		idView.setText(String.valueOf(game.Id));
-		updatedView.setTimestamp(game.Updated);
-		UIUtils.setTextMaybeHtml(descriptionView, game.Description);
-		numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.MinPlayers, game.MaxPlayers));
-
-		playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
-
-		playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
-
-		commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
-
-		weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
-		if (game.AverageWeight >= 1 && game.AverageWeight <= 5) {
-			weightScore.setText(PresentationUtils.describeScore(getContext(), game.AverageWeight));
-			ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.AverageWeight));
-			weightScore.setVisibility(VISIBLE);
+			progressBar.hide();
+			AnimationUtils.fadeOut(rootContainer);
+			AnimationUtils.fadeIn(emptyView);
 		} else {
-			weightScore.setVisibility(GONE);
+			Game game = Game.fromCursor(cursor);
+
+			notifyChange(game);
+			gameName = game.Name;
+
+			yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
+
+			rankView.setText(PresentationUtils.describeRank(getContext(), game.Rank, BggService.RANK_TYPE_SUBTYPE, game.Subtype));
+			favoriteView.setImageResource(game.IsFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+			favoriteView.setTag(R.id.favorite, game.IsFavorite);
+
+			ratingView.setText(PresentationUtils.describeRating(getContext(), game.Rating));
+			ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
+			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
+
+			idView.setText(String.valueOf(game.Id));
+			updatedView.setTimestamp(game.Updated);
+			UIUtils.setTextMaybeHtml(descriptionView, game.Description);
+			ScrimUtils.applyWhiteScrim(descriptionView);
+			numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.MinPlayers, game.MaxPlayers));
+
+			playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
+
+			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
+
+			commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
+
+			weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
+			if (game.AverageWeight >= 1 && game.AverageWeight <= 5) {
+				weightScore.setText(PresentationUtils.describeScore(getContext(), game.AverageWeight));
+				ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.AverageWeight));
+				weightScore.setVisibility(VISIBLE);
+			} else {
+				weightScore.setVisibility(GONE);
+			}
+			weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
+
+			final int maxUsers = game.getMaxUsers();
+			userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
+
+			if (mightNeedRefreshing) {
+				mightNeedRefreshing = false;
+				if (DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH ||
+					game.getPollsVoteCount() == 0)
+					requestRefresh();
+			}
+			progressBar.hide();
+			AnimationUtils.fadeOut(emptyView);
+			AnimationUtils.fadeIn(rootContainer);
 		}
-		weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
-
-		final int maxUsers = game.getMaxUsers();
-		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
-
-		if (shouldShowPlays()) {
-			playsCard.setVisibility(VISIBLE);
-			playStatsRoot.setVisibility(VISIBLE);
-		}
-
-		if (mightNeedRefreshing &&
-			(game.PollsCount == 0 ||
-				game.SuggestedPlayerCountPollVoteTotal == 0 ||
-				DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
-			triggerRefresh();
-		}
-		mightNeedRefreshing = false;
-	}
-
-	@DebugLog
-	private boolean shouldShowCollection() {
-		String[] syncStatuses = PreferencesUtils.getSyncStatuses(getContext());
-		return Authenticator.isSignedIn(getActivity()) && syncStatuses != null && syncStatuses.length > 0;
-	}
-
-	@DebugLog
-	private boolean shouldShowPlays() {
-		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getContext());
 	}
 
 	@DebugLog
@@ -593,13 +543,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@DebugLog
-	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex, int idColumnIndex) {
+	private void onListQueryComplete(Cursor cursor, GameDetailRow view) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(GONE);
 			view.clear();
 		} else {
 			view.setVisibility(VISIBLE);
-			view.bind(cursor, nameColumnIndex, idColumnIndex, Games.getGameId(gameUri), gameName);
+			view.bind(cursor, GameList.NAME_COLUMN_INDEX, GameList.ID_COLUMN_INDEX, Games.getGameId(gameUri), gameName);
 		}
 	}
 
@@ -609,13 +559,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			if (cursor != null && cursor.getCount() > 0) {
 				CharSequence cs = null;
 				while (cursor.moveToNext()) {
-					Rank rank = new Rank(cursor);
-					if (!BggService.RANK_TYPE_SUBTYPE.equals(rank.Type)) {
+					GameRank rank = GameRank.fromCursor(cursor);
+					if (rank.isFamilyType()) {
 						if (cs != null) {
 							cs = PresentationUtils.getText(getContext(), R.string.rank_div, cs,
-								PresentationUtils.describeRank(getContext(), rank.Rank, rank.Type, rank.Name));
+								PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName()));
 						} else {
-							cs = PresentationUtils.describeRank(getContext(), rank.Rank, rank.Type, rank.Name);
+							cs = PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName());
 						}
 					}
 				}
@@ -632,103 +582,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	}
 
 	@DebugLog
-	private void onCollectionQueryComplete(Cursor cursor) {
-		if (cursor != null && cursor.moveToFirst()) {
-			collectionCard.setVisibility(VISIBLE);
-			collectionContainer.removeAllViews();
-			do {
-				GameCollectionRow row = new GameCollectionRow(getActivity());
-
-				final long internalId = cursor.getLong(CollectionQuery._ID);
-				final int gameId = Games.getGameId(gameUri);
-				final int collectionId = cursor.getInt(CollectionQuery.COLLECTION_ID);
-				final int yearPublished = cursor.getInt(CollectionQuery.YEAR_PUBLISHED);
-				final String imageUrl = cursor.getString(CollectionQuery.COLLECTION_IMAGE_URL);
-				row.bind(internalId, gameId, gameName, collectionId, yearPublished, imageUrl);
-
-				final String thumbnailUrl = cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL_URL);
-				final String collectionName = cursor.getString(CollectionQuery.COLLECTION_NAME);
-				final int collectionYearPublished = cursor.getInt(CollectionQuery.COLLECTION_YEAR);
-				final int numberOfPlays = cursor.getInt(CollectionQuery.NUM_PLAYS);
-				final String comment = cursor.getString(CollectionQuery.COMMENT);
-				final double rating = cursor.getDouble(CollectionQuery.RATING);
-				List<String> status = new ArrayList<>();
-				for (int i = CollectionQuery.STATUS_1; i <= CollectionQuery.STATUS_N; i++) {
-					if (cursor.getInt(i) == 1) {
-						if (i == CollectionQuery.STATUS_WISHLIST) {
-							status.add(PresentationUtils.describeWishlist(getActivity(),
-								cursor.getInt(CollectionQuery.STATUS_WISHLIST_PRIORITY)));
-						} else {
-							int index = i - CollectionQuery.STATUS_1;
-							status.add(getResources().getStringArray(R.array.collection_status_filter_entries)[index]);
-						}
-					}
-				}
-
-				row.setThumbnail(thumbnailUrl);
-				row.setStatus(status, numberOfPlays, rating, comment);
-				row.setDescription(collectionName, collectionYearPublished);
-				row.setComment(comment);
-				row.setRating(rating);
-
-				collectionContainer.addView(row);
-			} while (cursor.moveToNext());
-		} else {
-			collectionCard.setVisibility(GONE);
-		}
-	}
-
-	@OnClick(R.id.collection_add_button)
-	void onAddToCollectionClick() {
-		CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
-			collectionContainer,
-			new CollectionStatusDialogListener() {
-				@Override
-				public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
-					int gameId = Games.getGameId(gameUri);
-					AddCollectionItemTask task = new AddCollectionItemTask(getActivity(), gameId, selectedStatuses, wishlistPriority);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		);
-		statusDialogFragment.setTitle(R.string.title_add_a_copy);
-		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
-	}
-
-	@DebugLog
-	private void onPlaysQueryComplete(Cursor cursor) {
-		if (cursor.moveToFirst()) {
-			playsCard.setVisibility(VISIBLE);
-			playsRoot.setVisibility(VISIBLE);
-
-			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
-			long date = CursorUtils.getDateInMillis(cursor, PlaysQuery.MAX_DATE);
-
-			String description = PresentationUtils.describePlayCount(getActivity(), sum);
-			if (!TextUtils.isEmpty(description)) {
-				description = " (" + description + ")";
-			}
-			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, sum, sum, description));
-
-			if (date > 0) {
-				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(date)));
-				lastPlayView.setVisibility(VISIBLE);
-			} else {
-				lastPlayView.setVisibility(GONE);
-			}
-		}
-	}
-
-	@DebugLog
 	private void onLanguagePollQueryComplete(Cursor cursor) {
-		int totalLevel = 0;
 		int totalVotes = 0;
+		int totalLevel = 0;
 		if (cursor != null) {
 			while (cursor.moveToNext()) {
-				totalVotes = cursor.getInt(LanguagePollQuery.POLL_TOTAL_VOTES);
-				int level = (cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_LEVEL) - 1) % 5 + 1;
-				int votes = cursor.getInt(LanguagePollQuery.POLL_RESULTS_RESULT_VOTES);
-				totalLevel += votes * level;
+				GameSuggestedLanguage gsl = GameSuggestedLanguage.fromCursor(cursor);
+				totalVotes = Math.max(totalVotes, gsl.getTotalVotes());
+				totalLevel += gsl.getVotes() * gsl.getLevel();
 			}
 		}
 		double score = (double) totalLevel / totalVotes;
@@ -750,12 +611,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		int maxVotes = 0;
 		int totalVotes = 0;
 		if (cursor != null && cursor.moveToFirst()) {
-			totalVotes = cursor.getInt(AgePollQuery.POLL_TOTAL_VOTES);
 			do {
-				String value = cursor.getString(AgePollQuery.POLL_RESULTS_RESULT_VALUE);
-				int votes = cursor.getInt(AgePollQuery.POLL_RESULTS_RESULT_VOTES);
-
-				if (votes > maxVotes) currentValue = value;
+				GameSuggestedAge gsa = GameSuggestedAge.fromCursor(cursor);
+				totalVotes = Math.max(totalVotes, gsa.getTotalVotes());
+				if (gsa.getVotes() > maxVotes) {
+					maxVotes = gsa.getVotes();
+					currentValue = gsa.getValue();
+				}
 			} while (cursor.moveToNext());
 		}
 
@@ -770,18 +632,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private void onPlayerCountQueryComplete(Cursor cursor) {
 		int totalVotes = 0;
 		if (cursor != null && cursor.moveToFirst()) {
-			totalVotes = cursor.getInt(SuggestedPlayerCountQuery.TOTAL_VOTE_COUNT);
-
 			List<Integer> bestCounts = new ArrayList<>();
 			List<Integer> recommendedCounts = new ArrayList<>();
 			do {
-				int playerCount = cursor.getInt(SuggestedPlayerCountQuery.PLAYER_COUNT);
-				int recommendation = cursor.getInt(SuggestedPlayerCountQuery.RECOMMENDATION);
-				if (recommendation == PlayerCountRecommendation.BEST) {
-					bestCounts.add(playerCount);
-					recommendedCounts.add(playerCount);
-				} else if (recommendation == PlayerCountRecommendation.RECOMMENDED) {
-					recommendedCounts.add(playerCount);
+				GameSuggestedPlayerCount suggestedPlayerCount = GameSuggestedPlayerCount.fromCursor(cursor);
+				totalVotes = Math.max(totalVotes, suggestedPlayerCount.getTotalVotes());
+				if (suggestedPlayerCount.getRecommendation() == PlayerCountRecommendation.BEST) {
+					bestCounts.add(suggestedPlayerCount.getPlayerCount());
+					recommendedCounts.add(suggestedPlayerCount.getPlayerCount());
+				} else if (suggestedPlayerCount.getRecommendation() == PlayerCountRecommendation.RECOMMENDED) {
+					recommendedCounts.add(suggestedPlayerCount.getPlayerCount());
 				}
 			} while (cursor.moveToNext());
 
@@ -827,42 +687,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 			.show();
 	}
 
-	@OnClick(R.id.plays_root)
-	@DebugLog
-	public void onPlaysClick() {
-		Intent intent = ActivityUtils.createGamePlaysIntent(getActivity(),
-			gameUri,
-			gameName,
-			imageUrl,
-			thumbnailUrl,
-			arePlayersCustomSorted,
-			iconColor);
-		startActivity(intent);
-	}
-
-	@OnClick(R.id.play_stats_root)
-	@DebugLog
-	public void onPlayStatsClick() {
-		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		if (palette != null) {
-			final Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-			intent.putExtra(ActivityUtils.KEY_HEADER_COLOR, swatch.getRgb());
-		}
-		startActivity(intent);
-	}
-
-	@OnClick(R.id.colors_root)
-	@DebugLog
-	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), GameColorsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
-		startActivity(intent);
-	}
-
 	@OnClick(R.id.forums_root)
 	@DebugLog
 	public void onForumsClick() {
@@ -895,7 +719,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	public void onUsersClick() {
 		Bundle arguments = new Bundle(1);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putInt(ActivityUtils.KEY_ICON_COLOR, darkSwatch.getRgb());
+		arguments.putInt(ActivityUtils.KEY_ICON_COLOR, darkColor);
 		DialogUtils.launchDialog(this, new GameUsersDialogFragment(), "users-dialog", arguments);
 	}
 
@@ -911,34 +735,18 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	@SuppressWarnings("unused")
 	@Subscribe
-	public void onEvent(CollectionItemUpdatedEvent event) {
-		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+	public void onEvent(ColorEvent event) {
+		if (event.getGameId() == Games.getGameId(gameUri)) {
+			iconColor = event.getIconColor();
+			darkColor = event.getDarkColor();
+			colorize();
+		}
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
-	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_amazon_uk, R.id.link_amazon_de, R.id.link_ebay })
-	void onLinkClick(View view) {
-		switch (view.getId()) {
-			case R.id.link_bgg:
-				ActivityUtils.linkBgg(getActivity(), Games.getGameId(gameUri));
-				break;
-			case R.id.link_bg_prices:
-				ActivityUtils.linkBgPrices(getActivity(), gameName);
-				break;
-			case R.id.link_amazon:
-				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_COM);
-				break;
-			case R.id.link_amazon_uk:
-				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_UK);
-				break;
-			case R.id.link_amazon_de:
-				ActivityUtils.linkAmazon(getActivity(), gameName, ActivityUtils.LINK_AMAZON_DE);
-				break;
-			case R.id.link_ebay:
-				ActivityUtils.linkEbay(getActivity(), gameName);
-				break;
-		}
+	@Subscribe
+	public void onEvent(CollectionItemUpdatedEvent event) {
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 	}
 
 	@OnClick({ R.id.player_age_root })
@@ -956,352 +764,5 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor> {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
 		DialogUtils.launchDialog(this, new SuggestedPlayerCountPollFragment(), "suggested-player-count-poll-dialog", arguments);
-	}
-
-
-	@DebugLog
-	public boolean triggerRefresh() {
-		mightNeedRefreshing = false;
-		if (isRefreshing == SYNC_NONE) {
-			isRefreshing = SYNC_GAME | SYNC_PLAYS | SYNC_COLLECTION;
-			int gameId = Games.getGameId(gameUri);
-			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), gameId));
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
-			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
-			return true;
-		}
-		return false;
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
-			finishSync(SYNC_GAME);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
-			finishSync(SYNC_PLAYS);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
-			finishSync(SYNC_COLLECTION);
-		}
-	}
-
-	private void finishSync(int syncType) {
-		isRefreshing &= ~syncType;
-		if (isRefreshing == SYNC_NONE) {
-			EventBus.getDefault().post(new SyncCompleteEvent(Games.getGameId(gameUri)));
-		}
-	}
-
-	public static class SyncCompleteEvent {
-		private final int gameId;
-
-		public SyncCompleteEvent(int gameId) {
-			this.gameId = gameId;
-		}
-
-		public int getGameId() {
-			return gameId;
-		}
-	}
-
-	private interface GameQuery {
-		int _TOKEN = 0x11;
-
-		String[] PROJECTION = {
-			Games.GAME_ID,
-			Games.STATS_AVERAGE,
-			Games.YEAR_PUBLISHED,
-			Games.MIN_PLAYERS,
-			Games.MAX_PLAYERS,
-			Games.PLAYING_TIME,
-			Games.MINIMUM_AGE,
-			Games.DESCRIPTION,
-			Games.STATS_USERS_RATED,
-			Games.UPDATED,
-			Games.GAME_RANK,
-			Games.GAME_NAME,
-			Games.THUMBNAIL_URL,
-			Games.STATS_BAYES_AVERAGE,
-			Games.STATS_MEDIAN,
-			Games.STATS_STANDARD_DEVIATION,
-			Games.STATS_NUMBER_WEIGHTS,
-			Games.STATS_AVERAGE_WEIGHT,
-			Games.STATS_NUMBER_OWNED,
-			Games.STATS_NUMBER_TRADING,
-			Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING,
-			Games.POLLS_COUNT,
-			Games.IMAGE_URL,
-			Games.SUBTYPE,
-			Games.CUSTOM_PLAYER_SORT,
-			Games.STATS_NUMBER_COMMENTS,
-			Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-			Games.MIN_PLAYING_TIME,
-			Games.MAX_PLAYING_TIME,
-			Games.STARRED
-		};
-
-		int GAME_ID = 0;
-		int STATS_AVERAGE = 1;
-		int YEAR_PUBLISHED = 2;
-		int MIN_PLAYERS = 3;
-		int MAX_PLAYERS = 4;
-		int PLAYING_TIME = 5;
-		int MINIMUM_AGE = 6;
-		int DESCRIPTION = 7;
-		int STATS_USERS_RATED = 8;
-		int UPDATED = 9;
-		int GAME_RANK = 10;
-		int GAME_NAME = 11;
-		int THUMBNAIL_URL = 12;
-		int STATS_NUMBER_WEIGHTS = 16;
-		int STATS_AVERAGE_WEIGHT = 17;
-		int STATS_NUMBER_OWNED = 18;
-		int STATS_NUMBER_TRADING = 19;
-		int STATS_NUMBER_WANTING = 20;
-		int STATS_NUMBER_WISHING = 21;
-		int POLLS_COUNT = 22;
-		int IMAGE_URL = 23;
-		int SUBTYPE = 24;
-		int CUSTOM_PLAYER_SORT = 25;
-		int STATS_NUMBER_COMMENTS = 26;
-		int SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 27;
-		int MIN_PLAYING_TIME = 28;
-		int MAX_PLAYING_TIME = 29;
-		int STARRED = 30;
-	}
-
-	private interface DesignerQuery {
-		int _TOKEN = 0x12;
-		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
-		int DESIGNER_ID = 0;
-		int DESIGNER_NAME = 1;
-	}
-
-	private interface ArtistQuery {
-		int _TOKEN = 0x13;
-		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
-		int ARTIST_ID = 0;
-		int ARTIST_NAME = 1;
-	}
-
-	private interface PublisherQuery {
-		int _TOKEN = 0x14;
-		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
-		int PUBLISHER_ID = 0;
-		int PUBLISHER_NAME = 1;
-	}
-
-	private interface CategoryQuery {
-		int _TOKEN = 0x15;
-		String[] PROJECTION = { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
-		int CATEGORY_ID = 0;
-		int CATEGORY_NAME = 1;
-	}
-
-	private interface MechanicQuery {
-		int _TOKEN = 0x16;
-		String[] PROJECTION = { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
-		int MECHANIC_ID = 0;
-		int MECHANIC_NAME = 1;
-	}
-
-	private interface ExpansionQuery {
-		int _TOKEN = 0x17;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		int EXPANSION_ID = 0;
-		int EXPANSION_NAME = 1;
-	}
-
-	private interface BaseGameQuery {
-		int _TOKEN = 0x18;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		int EXPANSION_ID = 0;
-		int EXPANSION_NAME = 1;
-	}
-
-	private interface RankQuery {
-		int _TOKEN = 0x19;
-		String[] PROJECTION = {
-			GameRanks.GAME_RANK_NAME,
-			GameRanks.GAME_RANK_VALUE,
-			GameRanks.GAME_RANK_TYPE
-		};
-		int GAME_RANK_NAME = 0;
-		int GAME_RANK_VALUE = 1;
-		int GAME_RANK_TYPE = 2;
-	}
-
-	private interface CollectionQuery {
-		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_THUMBNAIL_URL, Collection.STATUS_OWN,
-			Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE, Collection.STATUS_WANT,
-			Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST, Collection.STATUS_WANT_TO_PLAY,
-			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS,
-			Collection.COMMENT, Games.YEAR_PUBLISHED, Collection.RATING, Collection.IMAGE_URL };
-		int _TOKEN = 0x20;
-		int _ID = 0;
-		int COLLECTION_ID = 1;
-		int COLLECTION_NAME = 2;
-		int COLLECTION_YEAR = 3;
-		int COLLECTION_THUMBNAIL_URL = 4;
-		int STATUS_1 = 5;
-		int STATUS_N = 12;
-		int STATUS_WISHLIST = 10;
-		int STATUS_WISHLIST_PRIORITY = 13;
-		int NUM_PLAYS = 14;
-		int COMMENT = 15;
-		int YEAR_PUBLISHED = 16;
-		int RATING = 17;
-		int COLLECTION_IMAGE_URL = 18;
-	}
-
-	private interface PlaysQuery {
-		String[] PROJECTION = { Plays._ID, Plays.MAX_DATE, Plays.SUM_QUANTITY, Plays.MAX_DATE };
-		int _TOKEN = 0x21;
-		int MAX_DATE = 1;
-		int SUM_QUANTITY = 2;
-	}
-
-	private interface ColorQuery {
-		int _TOKEN = 0x22;
-	}
-
-	private interface LanguagePollQuery {
-		String[] PROJECTION = {
-			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
-			GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL,
-			GamePolls.POLL_TOTAL_VOTES
-		};
-		int _TOKEN = 0x23;
-		int POLL_RESULTS_RESULT_VOTES = 0;
-		int POLL_RESULTS_RESULT_LEVEL = 1;
-		int POLL_TOTAL_VOTES = 2;
-		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
-	}
-
-	private interface AgePollQuery {
-		String[] PROJECTION = {
-			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
-			GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
-			GamePolls.POLL_TOTAL_VOTES
-		};
-		int _TOKEN = 0x24;
-		int POLL_RESULTS_RESULT_VOTES = 0;
-		int POLL_RESULTS_RESULT_VALUE = 1;
-		int POLL_TOTAL_VOTES = 2;
-		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, " + GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
-	}
-
-	private interface SuggestedPlayerCountQuery {
-		int _TOKEN = 0x25;
-		String[] PROJECTION = {
-			GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-			GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT,
-			GameSuggestedPlayerCountPollPollResults.RECOMMENDATION,
-		};
-		int TOTAL_VOTE_COUNT = 0;
-		int PLAYER_COUNT = 1;
-		int RECOMMENDATION = 2;
-	}
-
-	private class Game {
-		final String Name;
-		final String ThumbnailUrl;
-		final String ImageUrl;
-		final int Id;
-		final double Rating;
-		final int YearPublished;
-		final int MinPlayers;
-		final int MaxPlayers;
-		final int PlayingTime;
-		final int MinPlayingTime;
-		final int MaxPlayingTime;
-		final int MinimumAge;
-		final String Description;
-		final int UsersRated;
-		final int UsersCommented;
-		final long Updated;
-		final int Rank;
-		final double AverageWeight;
-		final int NumberWeights;
-		final int NumberOwned;
-		final int NumberTrading;
-		final int NumberWanting;
-		final int NumberWishing;
-		final int PollsCount;
-		final String Subtype;
-		final boolean CustomPlayerSort;
-		final int SuggestedPlayerCountPollVoteTotal;
-		final boolean IsFavorite;
-
-		public Game(Cursor cursor) {
-			Name = cursor.getString(GameQuery.GAME_NAME);
-			ThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
-			ImageUrl = cursor.getString(GameQuery.IMAGE_URL);
-			Id = cursor.getInt(GameQuery.GAME_ID);
-			Rating = cursor.getDouble(GameQuery.STATS_AVERAGE);
-			YearPublished = cursor.getInt(GameQuery.YEAR_PUBLISHED);
-			MinPlayers = cursor.getInt(GameQuery.MIN_PLAYERS);
-			MaxPlayers = cursor.getInt(GameQuery.MAX_PLAYERS);
-			PlayingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-			MinPlayingTime = cursor.getInt(GameQuery.MIN_PLAYING_TIME);
-			MaxPlayingTime = cursor.getInt(GameQuery.MAX_PLAYING_TIME);
-			MinimumAge = cursor.getInt(GameQuery.MINIMUM_AGE);
-			Description = cursor.getString(GameQuery.DESCRIPTION);
-			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);
-			UsersCommented = cursor.getInt(GameQuery.STATS_NUMBER_COMMENTS);
-			Updated = cursor.getLong(GameQuery.UPDATED);
-			Rank = cursor.getInt(GameQuery.GAME_RANK);
-			AverageWeight = cursor.getDouble(GameQuery.STATS_AVERAGE_WEIGHT);
-			NumberWeights = cursor.getInt(GameQuery.STATS_NUMBER_WEIGHTS);
-			NumberOwned = cursor.getInt(GameQuery.STATS_NUMBER_OWNED);
-			NumberTrading = cursor.getInt(GameQuery.STATS_NUMBER_TRADING);
-			NumberWanting = cursor.getInt(GameQuery.STATS_NUMBER_WANTING);
-			NumberWishing = cursor.getInt(GameQuery.STATS_NUMBER_WISHING);
-			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
-			Subtype = cursor.getString(GameQuery.SUBTYPE);
-			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
-			SuggestedPlayerCountPollVoteTotal = cursor.getInt(GameQuery.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL);
-			IsFavorite = (cursor.getInt(GameQuery.STARRED) == 1);
-		}
-
-		@DebugLog
-		public int getMaxUsers() {
-			int max = Math.max(UsersRated, UsersCommented);
-			max = Math.max(max, NumberOwned);
-			max = Math.max(max, NumberTrading);
-			max = Math.max(max, NumberWanting);
-			max = Math.max(max, NumberWeights);
-			max = Math.max(max, NumberWishing);
-			return max;
-		}
-	}
-
-	private class Rank {
-		final String Name;
-		final int Rank;
-		final String Type;
-
-		Rank(Cursor cursor) {
-			Name = cursor.getString(RankQuery.GAME_RANK_NAME);
-			Rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
-			Type = cursor.getString(RankQuery.GAME_RANK_TYPE);
-		}
 	}
 }

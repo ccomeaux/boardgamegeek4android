@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
-import com.boardgamegeek.ui.GameCollectionActivity;
+import com.boardgamegeek.ui.GameCollectionItemActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -61,7 +61,7 @@ public class GameCollectionRow extends LinearLayout {
 		setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getContext(), GameCollectionActivity.class);
+				Intent intent = new Intent(getContext(), GameCollectionItemActivity.class);
 				intent.putExtra(ActivityUtils.KEY_INTERNAL_ID, internalId);
 				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
 				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
