@@ -93,8 +93,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
+		buddyName = intent.getStringExtra(BuddyActivity.KEY_BUDDY_NAME);
+		playerName = intent.getStringExtra(BuddyActivity.KEY_PLAYER_NAME);
 	}
 
 	@Override

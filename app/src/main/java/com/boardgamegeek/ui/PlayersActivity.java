@@ -10,7 +10,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayerSelectedEvent;
 import com.boardgamegeek.events.PlayersCountChangedEvent;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
@@ -95,7 +94,7 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 
 	@Subscribe
 	public void onEvent(PlayerSelectedEvent event) {
-		ActivityUtils.startBuddyActivity(this, event.getUsername(), event.getName());
+		BuddyActivity.start(this, event.getUsername(), event.getDisplayName());
 	}
 
 	@Subscribe(sticky = true)

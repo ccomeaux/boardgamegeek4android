@@ -1,8 +1,10 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -18,7 +20,6 @@ import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -31,10 +32,44 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class BuddyActivity extends SimpleSinglePaneActivity {
+	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+
 	private String name;
 	private String username;
+
+	public static void start(Context context, String username, String playerName) {
+		Intent starter = createIntent(context, username, playerName);
+		if (starter != null) context.startActivity(starter);
+	}
+
+	public static void startUp(Context context, String username) {
+		startUp(context, username, null);
+	}
+
+	public static void startUp(Context context, String username, String playerName) {
+		Intent intent = createIntent(context, username, playerName);
+		if (intent != null) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			context.startActivity(intent);
+		}
+
+	}
+
+	@Nullable
+	public static Intent createIntent(Context context, String username, String playerName) {
+		if (TextUtils.isEmpty(username) && TextUtils.isEmpty(playerName)) {
+			Timber.w("Unable to create a BuddyActivity intent - missing both a username and a player name");
+			return null;
+		}
+		Intent intent = new Intent(context, BuddyActivity.class);
+		intent.putExtra(KEY_BUDDY_NAME, username);
+		intent.putExtra(KEY_PLAYER_NAME, playerName);
+		return intent;
+	}
 
 	@Override
 	@DebugLog
@@ -44,8 +79,8 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
-		name = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
-		username = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		name = getIntent().getStringExtra(KEY_PLAYER_NAME);
+		username = getIntent().getStringExtra(KEY_BUDDY_NAME);
 
 		if (TextUtils.isEmpty(name) && TextUtils.isEmpty(username)) finish();
 
@@ -108,7 +143,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	public void onEvent(AddUsernameToPlayerTask.Event event) {
 		if (event.isSuccessful()) {
 			username = event.getUsername();
-			getIntent().putExtra(ActivityUtils.KEY_BUDDY_NAME, username);
+			getIntent().putExtra(KEY_BUDDY_NAME, username);
 			setSubtitle();
 
 			recreateFragment();
@@ -130,7 +165,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(@NonNull RenamePlayerTask.Event event) {
 		name = event.getPlayerName();
-		getIntent().putExtra(ActivityUtils.KEY_PLAYER_NAME, name);
+		getIntent().putExtra(KEY_PLAYER_NAME, name);
 		setSubtitle();
 
 		recreateFragment();

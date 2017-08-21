@@ -335,8 +335,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.startBuddyActivity(
-						getActivity(),
+					BuddyActivity.start(getContext(),
 						(String) v.getTag(R.id.username),
 						(String) v.getTag(R.id.name));
 				}

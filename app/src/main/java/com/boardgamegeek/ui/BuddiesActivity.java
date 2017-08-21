@@ -7,7 +7,6 @@ import android.view.Menu;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.BuddiesCountChangedEvent;
 import com.boardgamegeek.events.BuddySelectedEvent;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -66,6 +65,6 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(BuddySelectedEvent event) {
-		ActivityUtils.startBuddyActivity(this, event.getBuddyName(), event.getBuddyFullName());
+		BuddyActivity.start(this, event.getBuddyName(), event.getBuddyFullName());
 	}
 }

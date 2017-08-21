@@ -73,7 +73,7 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, buddyName);
+				BuddyActivity.startUp(this, buddyName);
 				finish();
 				return true;
 		}
@@ -84,7 +84,7 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event);
+		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")

@@ -359,7 +359,7 @@ public class PlayerColorsActivity extends BaseActivity {
 					.show();
 				break;
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, buddyName, playerName);
+				BuddyActivity.startUp(this, buddyName, playerName);
 				finish();
 				return true;
 		}

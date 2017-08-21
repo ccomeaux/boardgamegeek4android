@@ -51,7 +51,7 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, buddyName);
+				BuddyActivity.startUp(this, buddyName);
 				finish();
 				return true;
 		}
