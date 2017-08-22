@@ -27,7 +27,6 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -59,7 +58,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		Uri uri = intent.getData();
 		gameId = Games.getGameId(uri);
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		gameName = intent.getStringExtra(GameForumsActivity.KEY_GAME_NAME);
 	}
 
 	@Nullable
@@ -96,20 +95,18 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		if (getActivity() == null) return;
 
 		if (adapter == null) {
-			adapter = new ForumsRecyclerViewAdapter(getActivity(),
-				data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(),
-				gameId, gameName);
+			adapter = new ForumsRecyclerViewAdapter(getContext(), data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(), gameId, gameName);
 			recyclerView.setAdapter(adapter);
 		}
 
 		if (data.hasError()) {
 			emptyView.setText(data.getErrorMessage());
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(getContext(), emptyView, isResumed());
 		} else {
 			if (adapter.getItemCount() == 0) {
-				AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+				AnimationUtils.fadeIn(getContext(), emptyView, isResumed());
 			} else {
-				AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+				AnimationUtils.fadeIn(getContext(), recyclerView, isResumed());
 			}
 		}
 		progressView.hide();

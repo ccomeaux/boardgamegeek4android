@@ -690,10 +690,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick(R.id.forums_root)
 	@DebugLog
 	public void onForumsClick() {
-		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		startActivity(intent);
+		GameForumsActivity.start(getContext(), gameUri, gameName);
 	}
 
 	@OnClick(R.id.language_dependence_root)

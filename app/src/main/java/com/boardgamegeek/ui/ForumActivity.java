@@ -91,16 +91,11 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				Intent intent;
 				if (gameId == BggContract.INVALID_ID) {
-					intent = new Intent(this, ForumsActivity.class);
+					ForumsActivity.startUp(this);
 				} else {
-					intent = new Intent(this, GameForumsActivity.class);
-					intent.setData(Games.buildGameUri(gameId));
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+					GameForumsActivity.startUp(this, Games.buildGameUri(gameId), gameName);
 				}
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
 				finish();
 				return true;
 			case R.id.menu_view:
