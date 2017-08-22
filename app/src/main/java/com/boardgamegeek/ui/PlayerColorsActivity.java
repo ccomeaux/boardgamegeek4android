@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,7 +44,6 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.ui.PlayerColorsActivity.RecyclerViewAdapter.ColorViewHolder;
 import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.model.PlayerColor;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -65,6 +65,9 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class PlayerColorsActivity extends BaseActivity {
+	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+
 	private QueryHandler queryHandler;
 	private String buddyName;
 	private String playerName;
@@ -118,6 +121,13 @@ public class PlayerColorsActivity extends BaseActivity {
 		}
 	}
 
+	public static void start(Context context, String buddyName, String playerName) {
+		Intent starter = new Intent(context, PlayerColorsActivity.class);
+		starter.putExtra(KEY_BUDDY_NAME, buddyName);
+		starter.putExtra(KEY_PLAYER_NAME, playerName);
+		context.startActivity(starter);
+	}
+
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -126,8 +136,8 @@ public class PlayerColorsActivity extends BaseActivity {
 		setContentView(R.layout.activity_player_colors);
 		ButterKnife.bind(this);
 
-		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		playerName = getIntent().getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
+		buddyName = getIntent().getStringExtra(KEY_BUDDY_NAME);
+		playerName = getIntent().getStringExtra(KEY_PLAYER_NAME);
 		if (TextUtils.isEmpty(buddyName) && TextUtils.isEmpty(playerName)) {
 			Timber.w("Can't launch - missing both buddy name and username.");
 			finish();

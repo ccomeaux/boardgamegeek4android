@@ -37,7 +37,6 @@ import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -259,23 +258,16 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick() {
 		if (isUser()) {
-			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
-			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-			startActivity(intent);
+			BuddyPlaysActivity.start(getContext(), buddyName);
 		} else {
-			Intent intent = new Intent(getActivity(), PlayerPlaysActivity.class);
-			intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
-			startActivity(intent);
+			PlayerPlaysActivity.start(getContext(), playerName);
 		}
 	}
 
 	@DebugLog
 	@OnClick(R.id.colors_root)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
-		startActivity(intent);
+		PlayerColorsActivity.start(getContext(), buddyName, playerName);
 	}
 
 	private void onBuddyQueryComplete(Cursor cursor) {

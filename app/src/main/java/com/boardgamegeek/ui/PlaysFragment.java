@@ -84,6 +84,7 @@ import timber.log.Timber;
 public class PlaysFragment extends StickyHeaderListFragment
 	implements LoaderCallbacks<Cursor>, MultiChoiceModeListener, OnDateSetListener {
 	public static final String KEY_MODE = "MODE";
+	public static final String KEY_MODE_VALUE = "MODE_VALUE";
 	public static final int FILTER_TYPE_STATUS_ALL = -2;
 	public static final int FILTER_TYPE_STATUS_UPDATE = 1;
 	public static final int FILTER_TYPE_STATUS_DIRTY = 2;
@@ -132,9 +133,13 @@ public class PlaysFragment extends StickyHeaderListFragment
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		Uri uri = intent.getData();
 		int iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, 0);
+
 		mode = MODE_ALL;
 		gameId = BggContract.INVALID_ID;
 		buddyName = "";
+		playerName = "";
+		locationName = "";
+
 		if (uri != null) {
 			if (Games.isGameUri(uri)) {
 				mode = MODE_GAME;
@@ -159,16 +164,15 @@ public class PlaysFragment extends StickyHeaderListFragment
 				getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
 				break;
 			case MODE_BUDDY:
-				buddyName = getArguments().getString(ActivityUtils.KEY_BUDDY_NAME);
+				buddyName = getArguments().getString(PlaysFragment.KEY_MODE_VALUE);
 				this.uri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_PLAYER:
-				buddyName = "";
-				playerName = getArguments().getString(ActivityUtils.KEY_PLAYER_NAME);
+				playerName = getArguments().getString(PlaysFragment.KEY_MODE_VALUE);
 				this.uri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_LOCATION:
-				locationName = getArguments().getString(ActivityUtils.KEY_LOCATION);
+				locationName = getArguments().getString(PlaysFragment.KEY_MODE_VALUE);
 				break;
 		}
 
@@ -663,7 +667,7 @@ public class PlaysFragment extends StickyHeaderListFragment
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();

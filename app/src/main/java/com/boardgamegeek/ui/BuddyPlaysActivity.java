@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,7 +12,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -21,15 +21,22 @@ import org.greenrobot.eventbus.Subscribe;
 import hugo.weaving.DebugLog;
 
 public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private String buddyName;
 	private int numberOfPlays = -1;
+
+	public static void start(Context context, String buddyName) {
+		Intent starter = new Intent(context, BuddyPlaysActivity.class);
+		starter.putExtra(KEY_BUDDY_NAME, buddyName);
+		context.startActivity(starter);
+	}
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		buddyName = getIntent().getStringExtra(KEY_BUDDY_NAME);
 
 		if (!TextUtils.isEmpty(buddyName)) {
 			ActionBar bar = getSupportActionBar();
@@ -53,6 +60,7 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_BUDDY);
+		arguments.putString(PlaysFragment.KEY_MODE_VALUE, getIntent().getStringExtra(KEY_BUDDY_NAME));
 		return arguments;
 	}
 

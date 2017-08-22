@@ -18,7 +18,6 @@ import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -78,7 +77,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_LOCATION);
-		arguments.putString(ActivityUtils.KEY_LOCATION, intent.getStringExtra(KEY_LOCATION_NAME));
+		arguments.putString(PlaysFragment.KEY_MODE_VALUE, intent.getStringExtra(KEY_LOCATION_NAME));
 		return arguments;
 	}
 
