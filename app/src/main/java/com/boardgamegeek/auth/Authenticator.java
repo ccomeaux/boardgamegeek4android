@@ -11,7 +11,6 @@ import android.accounts.NetworkErrorException;
 import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.LoginActivity;
-import com.boardgamegeek.util.ActivityUtils;
 
 import java.io.IOException;
 
@@ -46,7 +44,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	@Override
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
 		Timber.v("Adding account: accountType=%s, authTokenType=%s", accountType, authTokenType);
-		return createLoginIntent(response, null);
+		return LoginActivity.createIntentBundle(context, response, null);
 	}
 
 	@Nullable
@@ -102,7 +100,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// If we get here, then we couldn't access the user's password - so we need to re-prompt them for their
 		// credentials. We do that by creating an intent to display our AuthenticatorActivity panel.
 		Timber.i("Expired credentials...");
-		return createLoginIntent(response, account.name);
+		return LoginActivity.createIntentBundle(context, response, account.name);
 	}
 
 	@Nullable
@@ -261,18 +259,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		result.putString(AccountManager.KEY_ACCOUNT_TYPE, Authenticator.ACCOUNT_TYPE);
 		result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
 		return result;
-	}
-
-	@NonNull
-	private Bundle createLoginIntent(AccountAuthenticatorResponse response, String accountName) {
-		final Intent intent = new Intent(context, LoginActivity.class);
-		if (!TextUtils.isEmpty(accountName)) {
-			intent.putExtra(ActivityUtils.KEY_USERNAME, accountName);
-		}
-		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-		final Bundle bundle = new Bundle();
-		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-		return bundle;
 	}
 
 	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, @SuppressWarnings("SameParameterValue") String key) {

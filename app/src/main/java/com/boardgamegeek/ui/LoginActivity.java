@@ -2,12 +2,15 @@ package com.boardgamegeek.ui;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog.Builder;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -21,7 +24,6 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.TaskUtils;
 
 import butterknife.BindView;
@@ -34,6 +36,8 @@ import timber.log.Timber;
  * Activity which displays a login screen to the user, offering registration as well.
  */
 public class LoginActivity extends AccountAuthenticatorActivity {
+	private static final String KEY_USERNAME = "USERNAME";
+
 	private String username;
 	private String password;
 
@@ -47,6 +51,18 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private AccountManager accountManager;
 	private boolean isRequestingNewAccount;
 
+	@NonNull
+	public static Bundle createIntentBundle(Context context, AccountAuthenticatorResponse response, String accountName) {
+		final Intent intent = new Intent(context, LoginActivity.class);
+		if (!TextUtils.isEmpty(accountName)) {
+			intent.putExtra(KEY_USERNAME, accountName);
+		}
+		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+		final Bundle bundle = new Bundle();
+		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+		return bundle;
+	}
+
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +73,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		ButterKnife.bind(this);
 
 		accountManager = AccountManager.get(this);
-		username = getIntent().getStringExtra(ActivityUtils.KEY_USER);
+		username = getIntent().getStringExtra(KEY_USERNAME);
 
 		isRequestingNewAccount = username == null;
 

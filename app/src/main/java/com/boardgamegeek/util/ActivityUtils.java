@@ -44,8 +44,6 @@ public class ActivityUtils {
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 	public static final String KEY_SORT = "SORT";
-	public static final String KEY_USER = "USER";
-	public static final String KEY_USERNAME = "USERNAME";
 	public static final String KEY_TYPE = "TYPE";
 	public static final String KEY_ID = "ID";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
