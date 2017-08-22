@@ -252,9 +252,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@DebugLog
 	@OnClick(R.id.collection_root)
 	public void onCollectionClick() {
-		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		startActivity(intent);
+		BuddyCollectionActivity.start(getContext(), buddyName);
 	}
 
 	@DebugLog

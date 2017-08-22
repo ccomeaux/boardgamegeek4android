@@ -59,7 +59,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		buddyName = intent.getStringExtra(BuddyActivity.KEY_BUDDY_NAME);
 
 		if (TextUtils.isEmpty(buddyName)) {
 			Timber.w("Missing buddy name.");

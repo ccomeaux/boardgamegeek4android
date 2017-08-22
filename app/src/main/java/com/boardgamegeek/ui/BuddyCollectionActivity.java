@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,7 +9,6 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
-import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -18,14 +18,21 @@ import org.greenrobot.eventbus.ThreadMode;
 import hugo.weaving.DebugLog;
 
 public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
+	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private String buddyName;
+
+	public static void start(Context context, String buddyName) {
+		Intent starter = new Intent(context, BuddyCollectionActivity.class);
+		starter.putExtra(KEY_BUDDY_NAME, buddyName);
+		context.startActivity(starter);
+	}
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		buddyName = getIntent().getStringExtra(KEY_BUDDY_NAME);
 
 		if (!TextUtils.isEmpty(buddyName)) {
 			ActionBar bar = getSupportActionBar();
