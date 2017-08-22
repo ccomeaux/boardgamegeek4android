@@ -711,10 +711,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick(R.id.users_count_root)
 	@DebugLog
 	public void onUsersClick() {
-		Bundle arguments = new Bundle(1);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putInt(ActivityUtils.KEY_ICON_COLOR, darkColor);
-		DialogUtils.launchDialog(this, new GameUsersDialogFragment(), "users-dialog", arguments);
+		GameUsersDialogFragment.launch(this, Games.getGameId(gameUri), darkColor);
 	}
 
 	@DebugLog
