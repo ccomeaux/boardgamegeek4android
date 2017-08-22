@@ -24,7 +24,6 @@ import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GameComments;
 import com.boardgamegeek.ui.model.PaginatedData;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -57,7 +56,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		gameId = Games.getGameId(intent.getData());
-		isSortedByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
+		isSortedByRating = intent.getIntExtra(CommentsActivity.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
 	}
 
 	@DebugLog

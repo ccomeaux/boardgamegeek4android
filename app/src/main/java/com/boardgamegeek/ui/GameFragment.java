@@ -705,10 +705,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick(R.id.comments_root)
 	@DebugLog
 	public void onCommentsClick() {
-		Intent intent = new Intent(getActivity(), CommentsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		startActivity(intent);
+		CommentsActivity.startComments(getContext(), gameUri, gameName);
 	}
 
 	@OnClick(R.id.users_count_root)
@@ -723,11 +720,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	@OnClick(R.id.ratings_root)
 	public void onRatingsClick() {
-		Intent intent = new Intent(getActivity(), CommentsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_RATING);
-		startActivity(intent);
+		CommentsActivity.startRating(getContext(), gameUri, gameName);
 	}
 
 	@SuppressWarnings("unused")

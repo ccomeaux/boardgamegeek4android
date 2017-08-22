@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -9,7 +11,6 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -17,16 +18,35 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	public static final int SORT_USER = 0;
 	public static final int SORT_RATING = 1;
 
+	public static final String KEY_SORT = "SORT";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+
 	private int gameId;
 	private String gameName;
+
+	public static void startComments(Context context, Uri gameUri, String gameName) {
+		Intent starter = new Intent(context, CommentsActivity.class);
+		starter.setData(gameUri);
+		starter.putExtra(KEY_GAME_NAME, gameName);
+		starter.putExtra(KEY_SORT, CommentsActivity.SORT_USER);
+		context.startActivity(starter);
+	}
+
+	public static void startRating(Context context, Uri gameUri, String gameName) {
+		Intent starter = new Intent(context, CommentsActivity.class);
+		starter.setData(gameUri);
+		starter.putExtra(KEY_GAME_NAME, gameName);
+		starter.putExtra(KEY_SORT, CommentsActivity.SORT_RATING);
+		context.startActivity(starter);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		gameId = BggContract.Games.getGameId(getIntent().getData());
-		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		int sort = getIntent().getIntExtra(ActivityUtils.KEY_SORT, SORT_USER);
+		gameName = getIntent().getStringExtra(KEY_GAME_NAME);
+		int sort = getIntent().getIntExtra(KEY_SORT, SORT_USER);
 
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
