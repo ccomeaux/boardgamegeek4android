@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -24,6 +25,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.IntegerValueFormatter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.mikephil.charting.animation.Easing.EasingOption;
 import com.github.mikephil.charting.charts.PieChart;
@@ -46,9 +48,10 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
+	private static final String KEY_TYPE = "TYPE";
+	private static final String KEY_GAME_ID = "GAME_ID";
 	public static final String LANGUAGE_DEPENDENCE = "language_dependence";
 	public static final String SUGGESTED_PLAYER_AGE = "suggested_playerage";
-
 	private static final Format FORMAT = new DecimalFormat("#0");
 
 	private String pollType;
@@ -61,6 +64,20 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@BindView(R.id.poll_scroll) ScrollView scrollView;
 	@BindView(R.id.pie_chart) PieChart pieChart;
 
+	public static void launchLanguageDependence(Fragment fragment, int gameId) {
+		Bundle arguments = new Bundle(2);
+		arguments.putInt(KEY_GAME_ID, gameId);
+		arguments.putString(KEY_TYPE, PollFragment.LANGUAGE_DEPENDENCE);
+		DialogUtils.launchDialog(fragment, new PollFragment(), "poll-dialog-language", arguments);
+	}
+
+	public static void launchSuggestedPlayerAge(Fragment fragment, int gameId) {
+		Bundle arguments = new Bundle(2);
+		arguments.putInt(KEY_GAME_ID, gameId);
+		arguments.putString(KEY_TYPE, PollFragment.SUGGESTED_PLAYER_AGE);
+		DialogUtils.launchDialog(fragment, new PollFragment(), "poll-dialog-player-age", arguments);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,7 +86,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		if (gameId == BggContract.INVALID_ID) dismiss();
 
-		pollType = intent.getStringExtra(ActivityUtils.KEY_TYPE);
+		pollType = intent.getStringExtra(KEY_TYPE);
 		pollResultUri = Games.buildPollResultsResultUri(gameId, pollType);
 	}
 

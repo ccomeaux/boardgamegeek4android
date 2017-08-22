@@ -4,10 +4,10 @@ package com.boardgamegeek.ui.model;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.PollFragment;
 
 public class GameSuggestedAge {
 	public static final String[] PROJECTION = {
@@ -39,7 +39,7 @@ public class GameSuggestedAge {
 	}
 
 	public static Uri buildUri(int gameId) {
-		return Games.buildPollResultsResultUri(gameId, PollFragment.SUGGESTED_PLAYER_AGE);
+		return Games.buildPollResultsResultUri(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE);
 	}
 
 	public int getTotalVotes() {

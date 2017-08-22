@@ -4,10 +4,10 @@ package com.boardgamegeek.ui.model;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.PollFragment;
 
 public class GameSuggestedLanguage {
 	public static final String[] PROJECTION = {
@@ -39,7 +39,7 @@ public class GameSuggestedLanguage {
 	}
 
 	public static Uri buildUri(int gameId) {
-		return Games.buildPollResultsResultUri(gameId, PollFragment.LANGUAGE_DEPENDENCE);
+		return Games.buildPollResultsResultUri(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE);
 	}
 
 	public int getTotalVotes() {

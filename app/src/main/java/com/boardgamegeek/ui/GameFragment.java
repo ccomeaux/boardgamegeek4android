@@ -699,10 +699,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick(R.id.language_dependence_root)
 	@DebugLog
 	public void onLanguageDependenceClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, PollFragment.LANGUAGE_DEPENDENCE);
-		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
+		PollFragment.launchLanguageDependence(this, Games.getGameId(gameUri));
 	}
 
 	@OnClick(R.id.comments_root)
@@ -752,17 +749,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick({ R.id.player_age_root })
 	@DebugLog
 	public void onPollClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, PollFragment.SUGGESTED_PLAYER_AGE);
-		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
+		PollFragment.launchSuggestedPlayerAge(this, Games.getGameId(gameUri));
 	}
 
 	@OnClick({ R.id.number_of_players_root })
 	@DebugLog
 	public void onSuggestedPlayerCountPollClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		DialogUtils.launchDialog(this, new SuggestedPlayerCountPollFragment(), "suggested-player-count-poll-dialog", arguments);
+		SuggestedPlayerCountPollFragment.launch(this, Games.getGameId(gameUri));
 	}
 }

@@ -291,6 +291,8 @@ public class BggContract {
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String FRAGMENT_PLAYS = "plays";
 	public static final String QUERY_KEY_LIMIT = "limit";
+	public static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
+	public static final String POLL_TYPE_SUGGESTED_PLAYER_AGE = "suggested_playerage";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
