@@ -87,13 +87,23 @@ public class ImageUtils {
 	private static void safelyLoadImage(final ImageView imageView,
 										final Queue<String> imageUrls,
 										final Callback callback) {
-		String imageUrl = imageUrls.poll();
-		if (TextUtils.isEmpty(imageUrl)) {
-			if (callback != null) {
-				callback.onFailedImageLoad();
+		String savedUrl = (String) imageView.getTag(R.id.url);
+		String url = null;
+		if (!TextUtils.isEmpty(savedUrl)) {
+			if (imageUrls.contains(savedUrl)) {
+				url = savedUrl;
+			} else {
+				imageView.setTag(R.id.url, null);
 			}
+		}
+		if (TextUtils.isEmpty(url)) {
+			url = imageUrls.poll();
+		}
+		if (TextUtils.isEmpty(url)) {
+			if (callback != null) callback.onFailedImageLoad();
 			return;
 		}
+		final String imageUrl = url;
 		Picasso
 			.with(imageView.getContext())
 			.load(HttpUtils.ensureScheme(imageUrl))
@@ -101,9 +111,10 @@ public class ImageUtils {
 			.into(imageView, new com.squareup.picasso.Callback() {
 				@Override
 				public void onSuccess() {
-					Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-					Palette palette = PaletteTransformation.getPalette(bitmap);
+					imageView.setTag(R.id.url, imageUrl);
 					if (callback != null) {
+						Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+						Palette palette = PaletteTransformation.getPalette(bitmap);
 						callback.onSuccessfulImageLoad(palette);
 					}
 				}
