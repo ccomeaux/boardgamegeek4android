@@ -9,32 +9,34 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.model.GeekListComment;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ScrimUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import java.util.ArrayList;
+
 public class GeekListItemActivity extends HeroTabActivity {
-	public static final String KEY_ID = "GEEK_LIST_ID";
-	public static final String KEY_ORDER = "GEEK_LIST_ORDER";
-	public static final String KEY_TITLE = "GEEK_LIST_TITLE";
-	public static final String KEY_TYPE = "GEEK_LIST_TYPE";
-	public static final String KEY_USERNAME = "GEEK_LIST_USERNAME";
-	public static final String KEY_NAME = "GEEK_LIST_NAME";
-	public static final String KEY_THUMBS = "GEEK_LIST_THUMBS";
-	public static final String KEY_IMAGE_ID = "GEEK_LIST_IMAGE_ID";
-	public static final String KEY_POSTED_DATE = "GEEK_LIST_POSTED_DATE";
-	public static final String KEY_EDITED_DATE = "GEEK_LIST_EDITED_DATE";
-	public static final String KEY_BODY = "GEEK_LIST_BODY";
-	public static final String KEY_OBJECT_ID = "GEEK_LIST_OBJECT_ID";
-	public static final String KEY_OBJECT_URL = "GEEK_LIST_OBJECT_URL";
-	public static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
-	public static final String KEY_COMMENTS = "GEEK_LIST_COMMENTS";
+	private static final String KEY_ID = "GEEK_LIST_ID";
+	private static final String KEY_ORDER = "GEEK_LIST_ORDER";
+	private static final String KEY_TITLE = "GEEK_LIST_TITLE";
+	private static final String KEY_TYPE = "GEEK_LIST_TYPE";
+	private static final String KEY_USERNAME = "GEEK_LIST_USERNAME";
+	private static final String KEY_NAME = "GEEK_LIST_NAME";
+	private static final String KEY_THUMBS = "GEEK_LIST_THUMBS";
+	private static final String KEY_IMAGE_ID = "GEEK_LIST_IMAGE_ID";
+	private static final String KEY_POSTED_DATE = "GEEK_LIST_POSTED_DATE";
+	private static final String KEY_EDITED_DATE = "GEEK_LIST_EDITED_DATE";
+	private static final String KEY_BODY = "GEEK_LIST_BODY";
+	private static final String KEY_OBJECT_ID = "GEEK_LIST_OBJECT_ID";
+	private static final String KEY_OBJECT_URL = "GEEK_LIST_OBJECT_URL";
+	private static final String KEY_IS_BOARD_GAME = "GEEK_LIST_IS_BOARD_GAME";
+	private static final String KEY_COMMENTS = "GEEK_LIST_COMMENTS";
 
 	private int geekListId;
 	private String geekListTitle;
@@ -42,6 +44,14 @@ public class GeekListItemActivity extends HeroTabActivity {
 	private String objectName;
 	private String url;
 	private boolean isBoardGame;
+	private int order;
+	private String type;
+	private String username;
+	private int numberOfThumbs;
+	private long postedDate;
+	private long editedDate;
+	private String body;
+	private ArrayList<GeekListComment> comments;
 
 	public static void start(Context context, GeekList geekList, GeekListItem item, int order) {
 		Intent starter = new Intent(context, GeekListItemActivity.class);
@@ -76,6 +86,14 @@ public class GeekListItemActivity extends HeroTabActivity {
 		objectName = intent.getStringExtra(KEY_NAME);
 		url = intent.getStringExtra(KEY_OBJECT_URL);
 		isBoardGame = intent.getBooleanExtra(KEY_IS_BOARD_GAME, false);
+		order = intent.getIntExtra(KEY_ORDER, 0);
+		type = intent.getStringExtra(KEY_TYPE);
+		username = intent.getStringExtra(KEY_USERNAME);
+		numberOfThumbs = intent.getIntExtra(KEY_THUMBS, 0);
+		postedDate = intent.getLongExtra(KEY_POSTED_DATE, 0);
+		editedDate = intent.getLongExtra(KEY_EDITED_DATE, 0);
+		body = intent.getStringExtra(KEY_BODY);
+		comments = intent.getParcelableArrayListExtra(KEY_COMMENTS);
 		int imageId = intent.getIntExtra(KEY_IMAGE_ID, BggContract.INVALID_ID);
 
 		safelySetTitle(objectName);
@@ -138,18 +156,10 @@ public class GeekListItemActivity extends HeroTabActivity {
 
 		@Override
 		public Fragment getItem(int position) {
-			if (position == 0) {
-				return Fragment.instantiate(
-					GeekListItemActivity.this,
-					GeekListItemFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
-			}
-			if (position == 1) {
-				return Fragment.instantiate(
-					GeekListItemActivity.this,
-					GeekListCommentsFragment.class.getName(),
-					UIUtils.intentToFragmentArguments(getIntent()));
-			}
+			if (position == 0)
+				return GeekListItemFragment.newInstance(order, geekListTitle, type, username, numberOfThumbs, postedDate, editedDate, body);
+			if (position == 1)
+				return GeekListCommentsFragment.newInstance(comments);
 			return null;
 		}
 

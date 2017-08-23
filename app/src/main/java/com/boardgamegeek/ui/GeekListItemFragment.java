@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -22,6 +21,15 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 public class GeekListItemFragment extends Fragment {
+	private static final String KEY_ORDER = "GEEK_LIST_ORDER";
+	private static final String KEY_TITLE = "GEEK_LIST_TITLE";
+	private static final String KEY_TYPE = "GEEK_LIST_TYPE";
+	private static final String KEY_USERNAME = "GEEK_LIST_USERNAME";
+	private static final String KEY_THUMBS = "GEEK_LIST_THUMBS";
+	private static final String KEY_POSTED_DATE = "GEEK_LIST_POSTED_DATE";
+	private static final String KEY_EDITED_DATE = "GEEK_LIST_EDITED_DATE";
+	private static final String KEY_BODY = "GEEK_LIST_BODY";
+
 	private int order;
 	private String geekListTitle;
 	private String type;
@@ -53,26 +61,49 @@ public class GeekListItemFragment extends Fragment {
 		R.id.edited_date
 	}) List<TextView> colorizedTextViews;
 
+	public static GeekListItemFragment newInstance(int order, String title, String type, String username, int numberOfThumbs, long postedDate, long editedDate, String body) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_ORDER, order);
+		args.putString(KEY_TITLE, title);
+		args.putString(KEY_TYPE, type);
+		args.putString(KEY_USERNAME, username);
+		args.putInt(KEY_THUMBS, numberOfThumbs);
+		args.putLong(KEY_POSTED_DATE, postedDate);
+		args.putLong(KEY_EDITED_DATE, editedDate);
+		args.putString(KEY_BODY, body);
+
+		GeekListItemFragment fragment = new GeekListItemFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		order = intent.getIntExtra(GeekListItemActivity.KEY_ORDER, 0);
-		geekListTitle = intent.getStringExtra(GeekListItemActivity.KEY_TITLE);
-		type = intent.getStringExtra(GeekListItemActivity.KEY_TYPE);
-		username = intent.getStringExtra(GeekListItemActivity.KEY_USERNAME);
-		numberOfThumbs = intent.getIntExtra(GeekListItemActivity.KEY_THUMBS, 0);
-		postedDate = intent.getLongExtra(GeekListItemActivity.KEY_POSTED_DATE, 0);
-		editedDate = intent.getLongExtra(GeekListItemActivity.KEY_EDITED_DATE, 0);
-		body = intent.getStringExtra(GeekListItemActivity.KEY_BODY);
+		readBundle(getArguments());
 		xmlConverter = new XmlConverter();
+	}
+
+	private void readBundle(Bundle bundle) {
+		order = bundle.getInt(KEY_ORDER, 0);
+		geekListTitle = bundle.getString(KEY_TITLE);
+		type = bundle.getString(KEY_TYPE);
+		username = bundle.getString(KEY_USERNAME);
+		numberOfThumbs = bundle.getInt(KEY_THUMBS, 0);
+		postedDate = bundle.getLong(KEY_POSTED_DATE, 0);
+		editedDate = bundle.getLong(KEY_EDITED_DATE, 0);
+		body = bundle.getString(KEY_BODY);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
+		populateUi();
+		return rootView;
+	}
 
+	private void populateUi() {
 		orderView.setText(String.valueOf(order));
 		geekListTitleView.setText(geekListTitle);
 		typeView.setText(type);
@@ -89,7 +120,6 @@ public class GeekListItemFragment extends Fragment {
 			datetimeDividerView.setVisibility(View.VISIBLE);
 			editedDateView.setTimestamp(editedDate);
 		}
-		return rootView;
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,8 +15,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekListComment;
 import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.UIUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,22 +25,26 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class GeekListCommentsFragment extends Fragment {
+	private static final String KEY_COMMENTS = "GEEK_LIST_COMMENTS";
+
 	private List<GeekListComment> comments;
 	private Unbinder unbinder;
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		comments = intent.getParcelableArrayListExtra(GeekListItemActivity.KEY_COMMENTS);
+	public static GeekListCommentsFragment newInstance(ArrayList<GeekListComment> comments) {
+		Bundle args = new Bundle();
+		args.putParcelableArrayList(KEY_COMMENTS, comments);
+		GeekListCommentsFragment fragment = new GeekListCommentsFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		comments = getArguments().getParcelableArrayList(KEY_COMMENTS);
 		View rootView = inflater.inflate(R.layout.fragment_geeklist_comments, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
