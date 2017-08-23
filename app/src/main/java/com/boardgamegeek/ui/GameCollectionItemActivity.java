@@ -173,7 +173,9 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		if (((GameCollectionItemFragment) getFragment()).triggerRefresh()) {
+		if (isInEditMode) {
+			updateRefreshStatus(false);
+		} else if (((GameCollectionItemFragment) getFragment()).triggerRefresh()) {
 			updateRefreshStatus(true);
 		}
 	}
