@@ -36,6 +36,10 @@ public class GeekListItemsFragment extends Fragment {
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
+	public static GeekListItemsFragment newInstance() {
+		return new GeekListItemsFragment();
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
