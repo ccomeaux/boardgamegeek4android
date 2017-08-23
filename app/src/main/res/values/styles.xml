@@ -587,4 +587,27 @@
 		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
+
+	<style name="EditCheckbox">
+		<item name="android:layout_marginLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:layout_marginRight">@dimen/material_margin_horizontal</item>
+		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="EditSpinner">
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
+		<item name="android:spinnerItemStyle">@style/EditSpinnerItemStyle</item>
+		<item name="android:spinnerDropDownItemStyle">@style/EditSpinnerDropDownItemStyle</item>
+	</style>
+
+	<style name="EditSpinnerItemStyle" parent="Base.Widget.AppCompat.TextView.SpinnerItem">
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="EditSpinnerDropDownItemStyle" parent="Base.Widget.AppCompat.DropDownItem.Spinner">
+		<item name="android:textSize">14sp</item>
+	</style>
 </resources>

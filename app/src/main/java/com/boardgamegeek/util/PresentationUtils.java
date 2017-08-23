@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
+import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 /**
@@ -470,4 +471,25 @@ public class PresentationUtils {
 		view.setFocusable(true);
 		view.setVisibility(View.VISIBLE);
 	}
+
+	public static final ButterKnife.Action<View> setVisible = new ButterKnife.Action<View>() {
+		@Override
+		public void apply(@NonNull View view, int index) {
+			view.setVisibility(View.VISIBLE);
+		}
+	};
+
+	public static final ButterKnife.Action<View> setGone = new ButterKnife.Action<View>() {
+		@Override
+		public void apply(@NonNull View view, int index) {
+			view.setVisibility(View.GONE);
+		}
+	};
+
+	public static final ButterKnife.Setter<View, Boolean> setVisibility = new ButterKnife.Setter<View, Boolean>() {
+		@Override
+		public void set(@NonNull View view, Boolean value, int index) {
+			view.setVisibility(value ? View.VISIBLE : View.GONE);
+		}
+	};
 }
