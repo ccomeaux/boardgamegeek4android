@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -17,10 +18,15 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
+import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -31,8 +37,6 @@ import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemTextTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
@@ -63,7 +67,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnItemSelected;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
@@ -75,10 +81,20 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
 	private Unbinder unbinder;
+	@BindView(R.id.root_container) ViewGroup rootContainer;
 	@BindView(R.id.year) TextView year;
-	@BindView(R.id.info_bar) View infoBar;
-	@BindView(R.id.status_container) ViewGroup statusContainer;
 	@BindView(R.id.status) TextView statusView;
+
+	@BindView(R.id.want_to_buy) CheckBox wantToBuyView;
+	@BindView(R.id.preordered) CheckBox preorderedView;
+	@BindView(R.id.own) CheckBox ownView;
+	@BindView(R.id.want_to_play) CheckBox wantToPlayView;
+	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
+	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
+	@BindView(R.id.for_trade) CheckBox forTradeView;
+	@BindView(R.id.wishlist) CheckBox wishlistView;
+	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
+
 	@BindView(R.id.last_modified) TimestampView lastModified;
 	@BindView(R.id.rating_container) View ratingContainer;
 	@BindView(R.id.rating) TextView rating;
@@ -98,11 +114,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.collection_id) TextView id;
 	@BindView(R.id.updated) TimestampView updated;
 	@BindViews({
-		R.id.status,
-		R.id.last_modified,
-		R.id.year
-	}) List<TextView> colorizedTextViews;
-	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
 	}) List<TextView> colorizedHeaders;
@@ -112,7 +123,30 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.want_parts_card,
 		R.id.has_parts_card
 	}) List<TextEditorCard> textEditorCards;
-	private CollectionStatusDialogFragment statusDialogFragment;
+	@BindViews({
+		R.id.want_to_buy,
+		R.id.preordered,
+		R.id.own,
+		R.id.want_to_play,
+		R.id.previously_owned,
+		R.id.want_in_trade,
+		R.id.for_trade,
+		R.id.wishlist,
+		R.id.wishlist_priority
+	}) List<View> editFields;
+	@BindViews({
+		R.id.status
+	}) List<View> viewOnlyFields;
+	@BindViews({
+		R.id.want_to_buy,
+		R.id.preordered,
+		R.id.own,
+		R.id.want_to_play,
+		R.id.previously_owned,
+		R.id.want_in_trade,
+		R.id.for_trade,
+		R.id.wishlist
+	}) List<CheckBox> statusViews;
 	private EditTextDialogFragment commentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
@@ -242,7 +276,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	public void enableEditMode(boolean enable) {
 		boolean clickable = enable && isItemEditable;
-		statusContainer.setClickable(clickable);
+
+		ButterKnife.apply(viewOnlyFields, PresentationUtils.setVisibility, !enable);
+		ButterKnife.apply(editFields, PresentationUtils.setVisibility, enable);
+
 		commentContainer.setClickable(clickable);
 		ratingContainer.setClickable(clickable);
 		privateInfoContainer.setClickable(clickable);
@@ -250,7 +287,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		conditionCard.enableEditMode(clickable);
 		wantPartsCard.enableEditMode(clickable);
 		hasPartsCard.enableEditMode(clickable);
-		if (!enable && needsUploading) {
+	}
+
+	public void syncChanges() {
+		if (needsUploading) {
 			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
 		}
@@ -263,6 +303,16 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		needsUploading = true;
 	}
 
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@DebugLog
+	@Subscribe
+	public void onEvent(CollectionItemResetEvent event) {
+		if (event.getInternalId() == internalId) {
+			needsUploading = false;
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+		}
+	}
+
 	@DebugLog
 	public void onPaletteGenerated(Palette palette) {
 		this.palette = palette;
@@ -271,43 +321,49 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void colorize(Palette palette) {
-		if (palette == null || !isAdded()) {
-			return;
-		}
-		@SuppressWarnings("deprecation") Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
-		infoBar.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = PaletteUtils.getHeaderSwatch(palette);
+		if (palette == null || !isAdded()) return;
+		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 		ButterKnife.apply(textEditorCards, TextEditorCard.headerColorSetter, swatch);
 	}
 
-	@OnClick(R.id.status_container)
-	public void onStatusClick() {
-		ensureCollectionStatusDialogFragment();
-		//noinspection unchecked
-		statusDialogFragment.setSelectedStatuses((List<String>) statusView.getTag(R.id.status));
-		statusDialogFragment.setWishlistPriority((int) statusView.getTag(R.id.wishlist_priority));
-		DialogUtils.showFragment(getActivity(), statusDialogFragment, "status_dialog");
+	@OnClick(R.id.status)
+	@OnCheckedChanged({
+		R.id.want_to_buy,
+		R.id.preordered,
+		R.id.own,
+		R.id.want_to_play,
+		R.id.previously_owned,
+		R.id.want_in_trade,
+		R.id.for_trade,
+		R.id.wishlist
+	})
+	void onStatusCheckChanged(CompoundButton view) {
+		if (view.getVisibility() != View.VISIBLE) return;
+		updateStatuses();
 	}
 
-	@DebugLog
-	private void ensureCollectionStatusDialogFragment() {
-		if (statusDialogFragment == null) {
-			statusDialogFragment = CollectionStatusDialogFragment.newInstance(
-				statusContainer,
-				new CollectionStatusDialogListener() {
-					@Override
-					public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
-						UpdateCollectionItemStatusTask task =
-							new UpdateCollectionItemStatusTask(getActivity(),
-								gameId, collectionId, internalId,
-								selectedStatuses, wishlistPriority);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
+	@OnItemSelected(R.id.wishlist_priority)
+	void onWishlistPriorityClicked() {
+		if (wishlistPriorityView.getVisibility() != View.VISIBLE) return;
+		updateStatuses();
+	}
+
+	private void updateStatuses() {
+		List<String> statuses = new ArrayList<>();
+		for (CheckBox checkBox : statusViews) {
+			if (checkBox.isChecked()) {
+				String status = (String) checkBox.getTag();
+				if (!TextUtils.isEmpty(status)) statuses.add(status);
+			}
 		}
+		int wishlistPriority = wishlistView.isChecked() ?
+			wishlistPriorityView.getSelectedItemPosition() + 1 : 0;
+		UpdateCollectionItemStatusTask task =
+			new UpdateCollectionItemStatusTask(getActivity(),
+				gameId, collectionId, internalId,
+				statuses, wishlistPriority);
+		TaskUtils.executeAsyncTask(task);
 	}
 
 	@DebugLog
@@ -481,7 +537,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		isItemEditable = true;
 
-		year.setText(item.getYearDescription());
+		year.setText(PresentationUtils.describeYear(getContext(), item.year));
 		lastModified.setTimestamp(item.dirtyTimestamp > 0 ? item.dirtyTimestamp :
 			item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
 
@@ -493,6 +549,20 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		statusView.setText(item.getStatusDescription());
 		statusView.setTag(R.id.status, item.getStatuses());
 		statusView.setTag(R.id.wishlist_priority, item.getWishlistPriority());
+
+		wantToBuyView.setChecked(item.wantToBuy);
+		preorderedView.setChecked(item.preordered);
+		ownView.setChecked(item.own);
+		wantToPlayView.setChecked(item.wantToPlay);
+		previouslyOwnedView.setChecked(item.previouslyOwned);
+		wantInTradeView.setChecked(item.wantInTrade);
+		forTradeView.setChecked(item.forTrade);
+		wishlistView.setChecked(item.wishlist);
+
+		if (wishlistPriorityView.getAdapter() == null)
+			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
+		wishlistPriorityView.setSelection(item.wishlistPriority - 1);
+		wishlistPriorityView.setEnabled(item.wishlist);
 
 		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
 		PresentationUtils.setTextOrHide(comment, item.comment);
@@ -524,24 +594,62 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		updated.setTimestamp(item.updated);
 	}
 
+	private static class WishlistPriorityAdapter extends ArrayAdapter<String> {
+		public WishlistPriorityAdapter(Context context) {
+			super(context,
+				android.R.layout.simple_spinner_item,
+				context.getResources().getStringArray(R.array.wishlist_priority_finite));
+			setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		}
+	}
+
 	private class CollectionItem {
 		static final int _TOKEN = 0x31;
 
-		final String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.COLLECTION_SORT_NAME, Collection.COMMENT, Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-			Collection.PRIVATE_INFO_PRICE_PAID, Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
-			Collection.PRIVATE_INFO_CURRENT_VALUE, Collection.PRIVATE_INFO_QUANTITY,
-			Collection.PRIVATE_INFO_ACQUISITION_DATE, Collection.PRIVATE_INFO_ACQUIRED_FROM,
-			Collection.PRIVATE_INFO_COMMENT, Collection.LAST_MODIFIED, Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.COLLECTION_IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED, Collection.CONDITION,
-			Collection.HASPARTS_LIST, Collection.WANTPARTS_LIST, Collection.WISHLIST_COMMENT, Collection.RATING,
-			Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE,
-			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
-			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
-			Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP,
-			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP, Collection.COLLECTION_DIRTY_TIMESTAMP,
-			Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, Collection.WANT_PARTS_DIRTY_TIMESTAMP,
-			Collection.HAS_PARTS_DIRTY_TIMESTAMP };
+		final String[] PROJECTION = {
+			Collection._ID,
+			Collection.COLLECTION_ID,
+			Collection.COLLECTION_NAME,
+			Collection.COLLECTION_SORT_NAME,
+			Collection.COMMENT,
+			Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+			Collection.PRIVATE_INFO_PRICE_PAID,
+			Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+			Collection.PRIVATE_INFO_CURRENT_VALUE,
+			Collection.PRIVATE_INFO_QUANTITY,
+			Collection.PRIVATE_INFO_ACQUISITION_DATE,
+			Collection.PRIVATE_INFO_ACQUIRED_FROM,
+			Collection.PRIVATE_INFO_COMMENT,
+			Collection.LAST_MODIFIED,
+			Collection.COLLECTION_THUMBNAIL_URL,
+			Collection.COLLECTION_IMAGE_URL,
+			Collection.COLLECTION_YEAR_PUBLISHED,
+			Collection.CONDITION,
+			Collection.HASPARTS_LIST,
+			Collection.WANTPARTS_LIST,
+			Collection.WISHLIST_COMMENT,
+			Collection.RATING,
+			Collection.UPDATED,
+			Collection.STATUS_OWN,
+			Collection.STATUS_PREVIOUSLY_OWNED,
+			Collection.STATUS_FOR_TRADE,
+			Collection.STATUS_WANT,
+			Collection.STATUS_WANT_TO_BUY,
+			Collection.STATUS_WISHLIST,
+			Collection.STATUS_WANT_TO_PLAY,
+			Collection.STATUS_PREORDERED,
+			Collection.STATUS_WISHLIST_PRIORITY,
+			Collection.NUM_PLAYS,
+			Collection.RATING_DIRTY_TIMESTAMP,
+			Collection.COMMENT_DIRTY_TIMESTAMP,
+			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+			Collection.STATUS_DIRTY_TIMESTAMP,
+			Collection.COLLECTION_DIRTY_TIMESTAMP,
+			Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+			Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
+			Collection.WANT_PARTS_DIRTY_TIMESTAMP,
+			Collection.HAS_PARTS_DIRTY_TIMESTAMP
+		};
 
 		final int _ID = 0;
 		final int COLLECTION_ID = 1;
@@ -567,12 +675,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		final int RATING = 21;
 		final int UPDATED = 22;
 		final int STATUS_OWN = 23;
-		// int STATUS_PREVIOUSLY_OWNED = 24;
-		// int STATUS_FOR_TRADE = 25;
-		// int STATUS_WANT = 26;
-		// int STATUS_WANT_TO_BUY = 27;
+		final int STATUS_PREVIOUSLY_OWNED = 24;
+		final int STATUS_FOR_TRADE = 25;
+		final int STATUS_WANT = 26;
+		final int STATUS_WANT_TO_BUY = 27;
 		final int STATUS_WISHLIST = 28;
-		// int STATUS_WANT_TO_PLAY = 29;
+		final int STATUS_WANT_TO_PLAY = 29;
 		final int STATUS_PRE_ORDERED = 30;
 		final int STATUS_WISHLIST_PRIORITY = 31;
 		final int NUM_PLAYS = 32;
@@ -617,6 +725,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		int numPlays;
 		private ArrayList<String> statusDescriptions;
 		private ArrayList<String> statuses;
+		private boolean own;
+		private boolean previouslyOwned;
+		private boolean wantToBuy;
+		private boolean wantToPlay;
+		private boolean preordered;
+		private boolean wantInTrade;
+		private boolean forTrade;
+		private boolean wishlist;
 		private long dirtyTimestamp;
 		private long wishlistCommentDirtyTimestamp;
 		private long tradeConditionDirtyTimestamp;
@@ -633,6 +749,16 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			internalId = cursor.getLong(_ID);
 			name = cursor.getString(COLLECTION_NAME);
 			// sortName = cursor.getString(COLLECTION_SORT_NAME);
+
+			own = cursor.getInt(STATUS_OWN) == 1;
+			previouslyOwned = cursor.getInt(STATUS_PREVIOUSLY_OWNED) == 1;
+			wantToBuy = cursor.getInt(STATUS_WANT_TO_BUY) == 1;
+			wantToPlay = cursor.getInt(STATUS_WANT_TO_PLAY) == 1;
+			preordered = cursor.getInt(STATUS_PRE_ORDERED) == 1;
+			wantInTrade = cursor.getInt(STATUS_WANT) == 1;
+			forTrade = cursor.getInt(STATUS_FOR_TRADE) == 1;
+			wishlist = cursor.getInt(STATUS_WISHLIST) == 1;
+
 			comment = cursor.getString(COMMENT);
 			commentTimestamp = cursor.getLong(COMMENT_DIRTY_TIMESTAMP);
 			rating = cursor.getDouble(RATING);
@@ -694,10 +820,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		String getRatingDescription() {
 			return PresentationUtils.describePersonalRating(getActivity(), rating);
-		}
-
-		String getYearDescription() {
-			return PresentationUtils.describeYear(getActivity(), year);
 		}
 
 		int getWishlistPriority() {

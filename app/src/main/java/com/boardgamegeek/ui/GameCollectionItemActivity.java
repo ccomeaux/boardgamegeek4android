@@ -78,7 +78,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	@Override
 	protected void onResume() {
 		super.onResume();
-		setEditMode();
+		displayEditMode();
 	}
 
 	@Override
@@ -89,14 +89,17 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 
 	@Override
 	public void onBackPressed() {
-		if (isInEditMode && isItemUpdated) {
-			DialogUtils.createDiscardDialog(this, R.string.collection_item, false, false, new OnDiscardListener() {
-				public void onDiscard() {
-					ResetCollectionItemTask task = new ResetCollectionItemTask(GameCollectionItemActivity.this, internalId, gameId);
-					TaskUtils.executeAsyncTask(task);
-					GameCollectionItemActivity.super.onBackPressed();
-				}
-			}).show();
+		if (isInEditMode) {
+			if (isItemUpdated) {
+				DialogUtils.createDiscardDialog(this, R.string.collection_item, false, false, new OnDiscardListener() {
+					public void onDiscard() {
+						TaskUtils.executeAsyncTask(new ResetCollectionItemTask(GameCollectionItemActivity.this, internalId));
+						toggleEditMode();
+					}
+				}).show();
+			} else {
+				toggleEditMode();
+			}
 		} else {
 			super.onBackPressed();
 		}
@@ -170,7 +173,9 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	@DebugLog
 	@Override
 	public void onRefresh() {
-		if (((GameCollectionItemFragment) getFragment()).triggerRefresh()) {
+		if (isInEditMode) {
+			updateRefreshStatus(false);
+		} else if (((GameCollectionItemFragment) getFragment()).triggerRefresh()) {
 			updateRefreshStatus(true);
 		}
 	}
@@ -207,11 +212,16 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	@DebugLog
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
-		isInEditMode = !isInEditMode;
-		setEditMode();
+		if (isInEditMode) ((GameCollectionItemFragment) getFragment()).syncChanges();
+		toggleEditMode();
 	}
 
-	private void setEditMode() {
+	private void toggleEditMode() {
+		isInEditMode = !isInEditMode;
+		displayEditMode();
+	}
+
+	private void displayEditMode() {
 		((GameCollectionItemFragment) getFragment()).enableEditMode(isInEditMode);
 		fab.setImageResource(isInEditMode ? R.drawable.fab_done : R.drawable.fab_edit);
 	}
