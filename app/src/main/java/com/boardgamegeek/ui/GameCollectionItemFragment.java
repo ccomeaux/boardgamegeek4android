@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
+import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -244,7 +245,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		conditionCard.enableEditMode(clickable);
 		wantPartsCard.enableEditMode(clickable);
 		hasPartsCard.enableEditMode(clickable);
-		if (!enable && needsUploading) {
+	}
+
+	public void syncChanges() {
+		if (needsUploading) {
 			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
 		}
@@ -255,6 +259,16 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@Subscribe
 	public void onEvent(CollectionItemUpdatedEvent event) {
 		needsUploading = true;
+	}
+
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@DebugLog
+	@Subscribe
+	public void onEvent(CollectionItemResetEvent event) {
+		if (event.getInternalId() == internalId) {
+			needsUploading = false;
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+		}
 	}
 
 	@DebugLog

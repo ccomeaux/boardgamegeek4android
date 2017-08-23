@@ -6,19 +6,18 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
-import com.boardgamegeek.util.TaskUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	private final Context context;
 	private final long internalId;
-	private final int gameId;
 
-	public ResetCollectionItemTask(Context context, long internalId, int gameId) {
+	public ResetCollectionItemTask(Context context, long internalId) {
 		this.context = context.getApplicationContext();
 		this.internalId = internalId;
-		this.gameId = gameId;
 	}
 
 	@NonNull
@@ -43,7 +42,7 @@ public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		if (result) {
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(context, gameId));
+			EventBus.getDefault().post(new CollectionItemResetEvent(internalId));
 		}
 	}
 }
