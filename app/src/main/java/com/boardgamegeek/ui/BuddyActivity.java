@@ -35,8 +35,8 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class BuddyActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
-	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	private static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 
 	private String name;
 	private String username;
@@ -98,7 +98,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@Override
 	@DebugLog
 	protected Fragment onCreatePane(Intent intent) {
-		return new BuddyFragment();
+		return BuddyFragment.newInstance(username, name);
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
@@ -27,7 +26,6 @@ import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
@@ -44,6 +42,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<CollectionResponse>> {
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 
 	private BuddyCollectionAdapter adapter;
@@ -54,12 +53,20 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private String[] statusValues;
 	private String[] statusEntries;
 
+	public static BuddyCollectionFragment newInstance(String username) {
+		Bundle args = new Bundle();
+		args.putString(KEY_BUDDY_NAME, username);
+
+		BuddyCollectionFragment fragment = new BuddyCollectionFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		buddyName = intent.getStringExtra(BuddyActivity.KEY_BUDDY_NAME);
+		buddyName = getArguments().getString(KEY_BUDDY_NAME);
 
 		if (TextUtils.isEmpty(buddyName)) {
 			Timber.w("Missing buddy name.");
@@ -168,7 +175,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (adapter != null) {
 			adapter.clear();
 		}
-		getActivity().supportInvalidateOptionsMenu();
+		getActivity().invalidateOptionsMenu();
 		setListShown(false);
 		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
@@ -196,7 +203,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			adapter.setCollection(list);
 		}
 		adapter.notifyDataSetChanged();
-		getActivity().supportInvalidateOptionsMenu();
+		getActivity().invalidateOptionsMenu();
 
 		if (data == null) {
 			setEmptyText(getString(R.string.empty_buddy_collection));

@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,7 +41,6 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.squareup.picasso.Picasso;
 
@@ -60,6 +58,9 @@ import icepick.State;
 import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	private static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
 	private static final int TOKEN = 0;
@@ -86,14 +87,20 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private int defaultTextColor;
 	private int lightTextColor;
 
+	public static BuddyFragment newInstance(String username, String playerName) {
+		Bundle args = new Bundle();
+		args.putString(KEY_BUDDY_NAME, username);
+		args.putString(KEY_PLAYER_NAME, playerName);
+
+		BuddyFragment fragment = new BuddyFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		buddyName = intent.getStringExtra(BuddyActivity.KEY_BUDDY_NAME);
-		playerName = intent.getStringExtra(BuddyActivity.KEY_PLAYER_NAME);
 	}
 
 	@Override
@@ -104,6 +111,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		readBundle(getArguments());
+
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
@@ -134,6 +143,11 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 
 		return rootView;
+	}
+
+	private void readBundle(Bundle args) {
+		buddyName = args.getString(KEY_BUDDY_NAME);
+		playerName = args.getString(KEY_PLAYER_NAME);
 	}
 
 	private boolean isUser() {

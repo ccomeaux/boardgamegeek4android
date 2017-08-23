@@ -65,6 +65,7 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionStatusChangedEvent event) {
