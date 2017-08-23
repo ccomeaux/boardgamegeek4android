@@ -187,9 +187,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onLoadFinished(Loader<SafeResponse<CollectionResponse>> loader, SafeResponse<CollectionResponse> data) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		List<CollectionItem> list = (data == null || data.getBody() == null) ?
 			new ArrayList<CollectionItem>() :
@@ -209,6 +207,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			setEmptyText(getString(R.string.empty_buddy_collection));
 		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
+		} else if (data.getBody().totalitems == 0) {
+			setEmptyText(getString(R.string.empty_buddy_collection));
 		} else {
 			if (isResumed()) {
 				setListShown(true);

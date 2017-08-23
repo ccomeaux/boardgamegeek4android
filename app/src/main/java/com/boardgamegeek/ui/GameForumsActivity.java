@@ -15,7 +15,7 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
 public class GameForumsActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
 
 	private int gameId;
 	private String gameName;
@@ -63,7 +63,7 @@ public class GameForumsActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new ForumsFragment();
+		return ForumsFragment.newInstance(gameId, gameName);
 	}
 
 	@Override

@@ -27,7 +27,7 @@ public class ForumsActivity extends TopLevelSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane() {
-		return new ForumsFragment();
+		return ForumsFragment.newInstance();
 	}
 
 	@Override

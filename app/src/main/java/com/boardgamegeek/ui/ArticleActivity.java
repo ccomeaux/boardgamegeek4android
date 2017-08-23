@@ -17,19 +17,19 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 
 public class ArticleActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_FORUM_ID = "FORUM_ID";
-	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_USER = "USER";
-	public static final String KEY_THREAD_ID = "THREAD_ID";
-	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
-	public static final String KEY_ARTICLE_ID = "ARTICLE_ID";
-	public static final String KEY_POST_DATE = "POST_DATE";
-	public static final String KEY_EDIT_DATE = "EDIT_DATE";
-	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
-	public static final String KEY_BODY = "BODY";
-	public static final String KEY_LINK = "LINK";
+	private static final String KEY_FORUM_ID = "FORUM_ID";
+	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_USER = "USER";
+	private static final String KEY_THREAD_ID = "THREAD_ID";
+	private static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
+	private static final String KEY_ARTICLE_ID = "ARTICLE_ID";
+	private static final String KEY_POST_DATE = "POST_DATE";
+	private static final String KEY_EDIT_DATE = "EDIT_DATE";
+	private static final String KEY_EDIT_COUNT = "EDIT_COUNT";
+	private static final String KEY_BODY = "BODY";
+	private static final String KEY_LINK = "LINK";
 
 	private int threadId;
 	private String threadSubject;
@@ -39,6 +39,11 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private String gameName;
 	private String link;
 	private int articleId;
+	private String user;
+	private long postDate;
+	private long editDate;
+	private int editCount;
+	private String body;
 
 	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int gameId, String gameName, Article article) {
 		Intent starter = new Intent(context, ArticleActivity.class);
@@ -71,6 +76,11 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		link = intent.getStringExtra(KEY_LINK);
 		articleId = intent.getIntExtra(KEY_ARTICLE_ID, BggContract.INVALID_ID);
+		user = intent.getStringExtra(KEY_USER);
+		postDate = intent.getLongExtra(KEY_POST_DATE, 0);
+		editDate = intent.getLongExtra(KEY_EDIT_DATE, 0);
+		editCount = intent.getIntExtra(KEY_EDIT_COUNT, 0);
+		body = intent.getStringExtra(KEY_BODY);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -92,7 +102,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new ArticleFragment();
+		return ArticleFragment.newInstance(user, postDate, editDate, editCount, body);
 	}
 
 	@Override

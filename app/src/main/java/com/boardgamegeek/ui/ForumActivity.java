@@ -17,14 +17,15 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
 public class ForumActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_FORUM_ID = "FORUM_ID";
-	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_FORUM_ID = "FORUM_ID";
+	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
 
 	private int gameId;
 	private String gameName;
 	private int forumId;
+	private String forumTitle;
 
 	public static void start(Context context, int forumId, String forumTitle, int gameId, String gameName) {
 		Intent starter = createIntent(context, forumId, forumTitle, gameId, gameName);
@@ -52,10 +53,10 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		String forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
 
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
@@ -79,7 +80,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new ForumFragment();
+		return ForumFragment.newInstance(forumId, forumTitle, gameId, gameName);
 	}
 
 	@Override

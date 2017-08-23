@@ -17,12 +17,12 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 
 public class ThreadActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_FORUM_ID = "FORUM_ID";
-	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THREAD_ID = "THREAD_ID";
-	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
+	private static final String KEY_FORUM_ID = "FORUM_ID";
+	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_THREAD_ID = "THREAD_ID";
+	private static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
 
 	private int threadId;
 	private String threadSubject;
@@ -87,7 +87,7 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new ThreadFragment();
+		return ThreadFragment.newInstance(threadId, forumId, forumTitle, gameId, gameName);
 	}
 
 	@Override
