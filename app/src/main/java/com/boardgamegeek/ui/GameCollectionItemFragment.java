@@ -75,9 +75,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
 	private Unbinder unbinder;
+	@BindView(R.id.root_container) ViewGroup rootContainer;
 	@BindView(R.id.year) TextView year;
-	@BindView(R.id.info_bar) View infoBar;
-	@BindView(R.id.status_container) ViewGroup statusContainer;
 	@BindView(R.id.status) TextView statusView;
 	@BindView(R.id.last_modified) TimestampView lastModified;
 	@BindView(R.id.rating_container) View ratingContainer;
@@ -97,11 +96,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
 	@BindView(R.id.collection_id) TextView id;
 	@BindView(R.id.updated) TimestampView updated;
-	@BindViews({
-		R.id.status,
-		R.id.last_modified,
-		R.id.year
-	}) List<TextView> colorizedTextViews;
 	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
@@ -242,7 +236,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	public void enableEditMode(boolean enable) {
 		boolean clickable = enable && isItemEditable;
-		statusContainer.setClickable(clickable);
+		statusView.setClickable(clickable);
 		commentContainer.setClickable(clickable);
 		ratingContainer.setClickable(clickable);
 		privateInfoContainer.setClickable(clickable);
@@ -271,18 +265,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void colorize(Palette palette) {
-		if (palette == null || !isAdded()) {
-			return;
-		}
-		@SuppressWarnings("deprecation") Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette, getResources().getColor(R.color.info_background));
-		infoBar.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(colorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = PaletteUtils.getHeaderSwatch(palette);
+		if (palette == null || !isAdded()) return;
+		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 		ButterKnife.apply(textEditorCards, TextEditorCard.headerColorSetter, swatch);
 	}
 
-	@OnClick(R.id.status_container)
+	@OnClick(R.id.status)
 	public void onStatusClick() {
 		ensureCollectionStatusDialogFragment();
 		//noinspection unchecked
@@ -295,7 +284,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void ensureCollectionStatusDialogFragment() {
 		if (statusDialogFragment == null) {
 			statusDialogFragment = CollectionStatusDialogFragment.newInstance(
-				statusContainer,
+				rootContainer,
 				new CollectionStatusDialogListener() {
 					@Override
 					public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
@@ -481,7 +470,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		isItemEditable = true;
 
-		year.setText(item.getYearDescription());
+		year.setText(PresentationUtils.describeYear(getContext(), item.year));
 		lastModified.setTimestamp(item.dirtyTimestamp > 0 ? item.dirtyTimestamp :
 			item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
 
@@ -694,10 +683,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		String getRatingDescription() {
 			return PresentationUtils.describePersonalRating(getActivity(), rating);
-		}
-
-		String getYearDescription() {
-			return PresentationUtils.describeYear(getActivity(), year);
 		}
 
 		int getWishlistPriority() {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+	android:id="@+id/root_container"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -9,48 +10,26 @@
 	android:orientation="vertical"
 	tools:context=".ui.GameCollectionItemActivity">
 
-	<LinearLayout
-		android:id="@+id/info_bar"
-		style="@style/InfoBar"
+	<TextView
+		android:id="@+id/status"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal"
-		android:orientation="horizontal">
+		android:background="?attr/selectableItemBackground"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/padding_extra"
+		android:textAppearance="@style/Text"
+		android:textStyle="bold"
+		tools:text="Own"/>
 
-		<LinearLayout
-			android:id="@+id/status_container"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:background="?attr/selectableItemBackground"
-			android:gravity="center"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/status"
-				style="@style/Text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:textStyle="bold"
-				tools:text="Own"/>
-
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/last_modified"
-				style="@style/Text.Footnote"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				app:format="@string/last_modified_prefix"
-				app:hideWhenEmpty="true"
-				tools:text="Last modified Yesterday"/>
-		</LinearLayout>
-
-		<TextView
-			android:id="@+id/year"
-			style="@style/Text.Primary"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			tools:text="1996"/>
-	</LinearLayout>
+	<TextView
+		android:id="@+id/year"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text"
+		tools:text="2004"/>
 
 	<android.support.v7.widget.CardView
 		android:id="@+id/rating_comment_container"
@@ -158,9 +137,9 @@
 
 				<TextView
 					android:id="@+id/private_info"
-					style="@style/Text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:textAppearance="@style/Text"
 					tools:text="Acquired on Jan 1, 1999"/>
 
 				<TextView
@@ -172,10 +151,10 @@
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/private_info_timestamp"
-				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="right"
+				android:textAppearance="@style/Text.Footnote2"
 				app:hideWhenEmpty="true"
 				tools:text="Yesterday"/>
 		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
@@ -209,32 +188,35 @@
 		android:layout_height="wrap_content"
 		app:headerText="@string/has_parts_list"/>
 
-	<LinearLayout
+	<com.boardgamegeek.ui.widget.TimestampView
+		android:id="@+id/last_modified"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center"
-		android:minHeight="@dimen/game_detail_row_height"
-		android:orientation="horizontal"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text.Footnote"
+		app:format="@string/last_modified_prefix"
+		app:hideWhenEmpty="true"
+		tools:text="Last modified Yesterday"/>
+
+	<TextView
+		android:id="@+id/collection_id"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text.Footnote2"
+		tools:text="123456"/>
+
+	<com.boardgamegeek.ui.widget.TimestampView
+		android:id="@+id/updated"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/fab_buffer"
 		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal">
-
-		<TextView
-			android:id="@+id/collection_id"
-			style="@style/Text.Footnote2"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			tools:text="123456"/>
-
-		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/updated"
-			style="@style/Text.Footnote2"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:gravity="right"
-			app:emptyMessage="@string/needs_updating"
-			app:format="@string/updated_prefix"
-			tools:text="Updated: 3 days ago"/>
-	</LinearLayout>
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text.Footnote2"
+		app:emptyMessage="@string/needs_updating"
+		app:format="@string/synced_prefix"
+		tools:text="Synced: 3 days ago"/>
 </LinearLayout>
