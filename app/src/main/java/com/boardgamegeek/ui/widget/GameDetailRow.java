@@ -112,12 +112,7 @@ public class GameDetailRow extends LinearLayout {
 				if (uri != null) {
 					getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
 				} else {
-					Intent intent = new Intent(getContext(), GameDetailActivity.class);
-					intent.putExtra(ActivityUtils.KEY_TITLE, label);
-					intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, queryToken);
-					getContext().startActivity(intent);
+					GameDetailActivity.start(getContext(), label, gameId, gameName, queryToken);
 				}
 			}
 		});

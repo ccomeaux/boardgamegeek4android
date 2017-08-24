@@ -32,7 +32,6 @@ import timber.log.Timber;
 
 public class ActivityUtils {
 	public static final String KEY_INTERNAL_ID = "_ID";
-	public static final String KEY_TITLE = "TITLE";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_COLLECTION_ID = "COLLECTION_ID";
@@ -42,7 +41,6 @@ public class ActivityUtils {
 	public static final String KEY_END_PLAY = "END_PLAY";
 	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
-	public static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 	public static final String KEY_ID = "ID";
 	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
