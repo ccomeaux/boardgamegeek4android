@@ -15,20 +15,20 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
 public class CommentsActivity extends SimpleSinglePaneActivity {
-	public static final int SORT_USER = 0;
-	public static final int SORT_RATING = 1;
-
-	public static final String KEY_SORT = "SORT";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_SORT_TYPE = "SORT_TYPE";
+	private static final int SORT_TYPE_USER = 0;
+	private static final int SORT_TYPE_RATING = 1;
 
 	private int gameId;
 	private String gameName;
+	private int sortType;
 
 	public static void startComments(Context context, Uri gameUri, String gameName) {
 		Intent starter = new Intent(context, CommentsActivity.class);
 		starter.setData(gameUri);
 		starter.putExtra(KEY_GAME_NAME, gameName);
-		starter.putExtra(KEY_SORT, CommentsActivity.SORT_USER);
+		starter.putExtra(KEY_SORT_TYPE, SORT_TYPE_USER);
 		context.startActivity(starter);
 	}
 
@@ -36,7 +36,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 		Intent starter = new Intent(context, CommentsActivity.class);
 		starter.setData(gameUri);
 		starter.putExtra(KEY_GAME_NAME, gameName);
-		starter.putExtra(KEY_SORT, CommentsActivity.SORT_RATING);
+		starter.putExtra(KEY_SORT_TYPE, SORT_TYPE_RATING);
 		context.startActivity(starter);
 	}
 
@@ -46,11 +46,11 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 
 		gameId = BggContract.Games.getGameId(getIntent().getData());
 		gameName = getIntent().getStringExtra(KEY_GAME_NAME);
-		int sort = getIntent().getIntExtra(KEY_SORT, SORT_USER);
+		sortType = getIntent().getIntExtra(KEY_SORT_TYPE, SORT_TYPE_USER);
 
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			if (sort == SORT_RATING) {
+			if (sortType == SORT_TYPE_RATING) {
 				actionBar.setTitle(R.string.title_ratings);
 			}
 			if (!TextUtils.isEmpty(gameName)) {
@@ -68,7 +68,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new CommentsFragment();
+		return CommentsFragment.newInstance(gameId, sortType == SORT_TYPE_RATING);
 	}
 
 	@Override
