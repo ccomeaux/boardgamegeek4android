@@ -110,10 +110,6 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		final ActionBar supportActionBar = getSupportActionBar();
-		if (supportActionBar != null) {
-			supportActionBar.setDisplayHomeAsUpEnabled(true);
-		}
 
 		final Uri gameUri = getIntent().getData();
 		if (gameUri == null) {
@@ -123,6 +119,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		gameId = Games.getGameId(gameUri);
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+
+		initializeViewPager();
 
 		new Handler().post(new Runnable() {
 			@Override

@@ -35,7 +35,9 @@ public abstract class HeroTabActivity extends DrawerActivity {
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
+	}
 
+	protected void initializeViewPager() {
 		setUpViewPager();
 		tabLayout.setupWithViewPager(viewPager);
 	}

@@ -96,6 +96,8 @@ public class GeekListItemActivity extends HeroTabActivity {
 		comments = intent.getParcelableArrayListExtra(KEY_COMMENTS);
 		int imageId = intent.getIntExtra(KEY_IMAGE_ID, BggContract.INVALID_ID);
 
+		initializeViewPager();
+
 		safelySetTitle(objectName);
 
 		if (savedInstanceState == null) {
