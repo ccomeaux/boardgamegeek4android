@@ -20,7 +20,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -44,7 +43,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -314,17 +312,17 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		private final class Tab {
 			@StringRes private int titleResId;
-			private String className;
+			private Fragment fragment;
 			@DrawableRes private int imageResId;
 			private TabListener listener;
 
-			public Tab(int titleResId, String className) {
-				this(titleResId, className, INVALID_IMAGE_RES_ID, null);
+			public Tab(int titleResId, Fragment fragment) {
+				this(titleResId, fragment, INVALID_IMAGE_RES_ID, null);
 			}
 
-			public Tab(int titleResId, String className, int imageResId, TabListener listener) {
+			public Tab(int titleResId, Fragment fragment, int imageResId, TabListener listener) {
 				this.titleResId = titleResId;
-				this.className = className;
+				this.fragment = fragment;
 				this.imageResId = imageResId;
 				this.listener = listener;
 			}
@@ -333,8 +331,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 				return titleResId;
 			}
 
-			public String getClassName() {
-				return className;
+			public Fragment getFragment() {
+				return fragment;
 			}
 
 			public int getImageResId() {
@@ -360,11 +358,11 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		private void updateTabs() {
 			tabs.clear();
-			tabs.add(new Tab(R.string.title_info, GameFragment.class.getName()));
+			tabs.add(new Tab(R.string.title_info, GameFragment.newInstance(gameId, gameName, iconColor, darkColor)));
 			if (shouldShowCollection())
 				tabs.add(new Tab(
 					R.string.title_collection,
-					GameCollectionFragment.class.getName(),
+					GameCollectionFragment.newInstance(gameId, gameName),
 					R.drawable.fab_add,
 					new TabListener() {
 						@Override
@@ -376,7 +374,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			if (shouldShowPlays())
 				tabs.add(new Tab(
 					R.string.title_plays,
-					GamePlaysFragment.class.getName(),
+					GamePlaysFragment.newInstance(gameId, gameName, iconColor),
 					R.drawable.fab_log_play,
 					new TabListener() {
 						@Override
@@ -385,7 +383,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 						}
 					})
 				);
-			tabs.add(new Tab(R.string.links, GameLinksFragment.class.getName()));
+			tabs.add(new Tab(R.string.links, GameLinksFragment.newInstance(gameId, gameName, iconColor)));
 		}
 
 		@Override
@@ -399,13 +397,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		@Override
 		public Fragment getItem(int position) {
 			if (position < tabs.size()) {
-				String className = tabs.get(position).getClassName();
-				if (!TextUtils.isEmpty(className)) {
-					Bundle args = UIUtils.intentToFragmentArguments(getIntent());
-					args.putInt(ActivityUtils.KEY_ICON_COLOR, iconColor);
-					args.putInt(ActivityUtils.KEY_DARK_COLOR, darkColor);
-					return Fragment.instantiate(GameActivity.this, className, args);
-				}
+				return tabs.get(position).getFragment();
 			}
 			return null;
 		}

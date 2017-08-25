@@ -42,9 +42,7 @@ public class ActivityUtils {
 	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	public static final String KEY_ID = "ID";
-	public static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
-	public static final String KEY_DARK_COLOR = "DARK_COLOR";
 	public static final String LINK_AMAZON_COM = "www.amazon.com";
 	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";
 	public static final String LINK_AMAZON_DE = "www.amazon.de";

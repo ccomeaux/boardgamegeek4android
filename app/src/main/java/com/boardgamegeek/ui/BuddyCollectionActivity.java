@@ -18,7 +18,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import hugo.weaving.DebugLog;
 
 public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private String buddyName;
 
 	public static void start(Context context, String buddyName) {

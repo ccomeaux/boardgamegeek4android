@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui;
 
 
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -16,16 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.ui.model.GameCollectionItem;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -39,9 +35,11 @@ import icepick.Icepick;
 import icepick.State;
 
 public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 3;
 
-	private Uri gameUri;
+	private int gameId;
 	private String gameName;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
@@ -51,15 +49,26 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 
+	public static GameCollectionFragment newInstance(int gameId, String gameName) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
+		GameCollectionFragment fragment = new GameCollectionFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		gameUri = intent.getData();
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
+	}
+
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = bundle.getString(KEY_GAME_NAME);
 	}
 
 	@DebugLog
@@ -103,7 +112,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		int gameId = Games.getGameId(gameUri);
 		return new CursorLoader(getContext(), GameCollectionItem.URI, GameCollectionItem.PROJECTION, GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
 	}
 
@@ -119,7 +127,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				oldestSyncTimestamp = Math.min(item.getSyncTimestamp(), oldestSyncTimestamp);
 
 				GameCollectionRow row = new GameCollectionRow(getContext());
-				row.bind(item.getInternalId(), Games.getGameId(gameUri), gameName, item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
+				row.bind(item.getInternalId(), gameId, gameName, item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
 				row.setThumbnail(item.getThumbnailUrl());
 				row.setStatus(item.getStatuses(), item.getNumberOfPlays(), item.getRating(), item.getComment());
 				row.setDescription(item.getCollectionName(), item.getCollectionYearPublished());
@@ -153,7 +161,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private void requestRefresh() {
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), Games.getGameId(gameUri)));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
 		} else {
 			updateRefreshStatus(false);
 		}
@@ -162,7 +170,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
+		if (event.getGameId() == gameId) {
 			updateRefreshStatus(false);
 		}
 	}
