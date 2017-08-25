@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -21,7 +22,6 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.DeleteCollectionItemTask;
 import com.boardgamegeek.tasks.ResetCollectionItemTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.DialogUtils.OnDiscardListener;
 import com.boardgamegeek.util.ImageUtils;
@@ -42,12 +42,30 @@ import icepick.Icepick;
 import icepick.State;
 
 public class GameCollectionItemActivity extends HeroActivity implements Callback {
+	private static final String KEY_INTERNAL_ID = "_ID";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_COLLECTION_ID = "COLLECTION_ID";
+	private static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
+	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private long internalId;
 	private int gameId;
 	private String gameName;
+	private int collectionId;
 	private String imageUrl;
 	@State boolean isInEditMode;
 	private boolean isItemUpdated;
+
+	public static void start(Context context, long internalId, int gameId, String gameName, int collectionId, String collectionName, String imageUrl) {
+		Intent starter = new Intent(context, GameCollectionItemActivity.class);
+		starter.putExtra(KEY_INTERNAL_ID, internalId);
+		starter.putExtra(KEY_GAME_ID, gameId);
+		starter.putExtra(KEY_GAME_NAME, gameName);
+		starter.putExtra(KEY_COLLECTION_ID, collectionId);
+		starter.putExtra(KEY_COLLECTION_NAME, collectionName);
+		starter.putExtra(KEY_IMAGE_URL, imageUrl);
+		context.startActivity(starter);
+	}
 
 	@DebugLog
 	@Override
@@ -55,12 +73,12 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		int collectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
-		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		internalId = intent.getLongExtra(ActivityUtils.KEY_INTERNAL_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		String collectionName = intent.getStringExtra(ActivityUtils.KEY_COLLECTION_NAME);
-		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+		internalId = intent.getLongExtra(KEY_INTERNAL_ID, BggContract.INVALID_ID);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID);
+		String collectionName = intent.getStringExtra(KEY_COLLECTION_NAME);
+		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
@@ -108,7 +126,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane() {
-		return new GameCollectionItemFragment();
+		return GameCollectionItemFragment.newInstance(gameId, collectionId);
 	}
 
 	@Override

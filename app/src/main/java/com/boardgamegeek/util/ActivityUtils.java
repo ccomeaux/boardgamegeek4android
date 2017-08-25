@@ -31,11 +31,8 @@ import java.util.List;
 import timber.log.Timber;
 
 public class ActivityUtils {
-	public static final String KEY_INTERNAL_ID = "_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_COLLECTION_ID = "COLLECTION_ID";
-	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_END_PLAY = "END_PLAY";
