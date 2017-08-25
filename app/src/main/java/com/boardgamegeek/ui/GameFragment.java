@@ -56,11 +56,9 @@ import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
@@ -686,9 +684,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick(R.id.game_rank_root)
 	@DebugLog
 	public void onRankClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, gameId);
-		DialogUtils.launchDialog(this, new RanksFragment(), "ranks-dialog", arguments);
+		RanksFragment.launch(this, gameId);
 	}
 
 	@SuppressLint("InflateParams")
