@@ -25,7 +25,6 @@ import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollRe
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -36,6 +35,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class SuggestedPlayerCountPollFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
 	private Uri uri;
 	private Unbinder unbinder;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
@@ -47,7 +47,7 @@ public class SuggestedPlayerCountPollFragment extends DialogFragment implements 
 
 	public static void launch(Fragment fragment, int gameId) {
 		Bundle arguments = new Bundle(1);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, gameId);
+		arguments.putInt(KEY_GAME_ID, gameId);
 		DialogUtils.launchDialog(fragment, new SuggestedPlayerCountPollFragment(), "suggested-player-count-poll-dialog", arguments);
 	}
 
@@ -56,7 +56,7 @@ public class SuggestedPlayerCountPollFragment extends DialogFragment implements 
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId);
 	}
 

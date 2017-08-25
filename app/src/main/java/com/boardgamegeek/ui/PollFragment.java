@@ -83,7 +83,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		if (gameId == BggContract.INVALID_ID) dismiss();
 
 		pollType = intent.getStringExtra(KEY_TYPE);

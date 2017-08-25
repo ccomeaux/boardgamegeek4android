@@ -19,7 +19,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.StatBar;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -53,7 +52,6 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		arguments.putInt(KEY_GAME_ID, gameId);
 		arguments.putInt(KEY_DARK_COLOR, darkColor);
 		DialogUtils.launchDialog(fragment, new GameUsersDialogFragment(), "users-dialog", arguments);
-
 	}
 
 	@Override
@@ -61,7 +59,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		if (gameId == BggContract.INVALID_ID) dismiss();
 		barColor = intent.getIntExtra(KEY_DARK_COLOR, Color.TRANSPARENT);
 		uri = Games.buildGameUri(gameId);

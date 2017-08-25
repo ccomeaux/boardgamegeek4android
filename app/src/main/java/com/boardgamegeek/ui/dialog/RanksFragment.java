@@ -21,7 +21,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.GameRankRow;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -32,6 +31,7 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
 	private Uri uri;
 	private Unbinder unbinder;
 	@BindView(R.id.unranked) TextView unrankedView;
@@ -42,7 +42,7 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 
 	public static void launch(Fragment fragment, int gameId) {
 		Bundle arguments = new Bundle(1);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, gameId);
+		arguments.putInt(KEY_GAME_ID, gameId);
 		DialogUtils.launchDialog(fragment, new RanksFragment(), "ranks-dialog", arguments);
 	}
 
@@ -51,7 +51,7 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		if (gameId == BggContract.INVALID_ID) dismiss();
 		uri = Games.buildRanksUri(gameId);
 	}
