@@ -12,8 +12,6 @@ import com.boardgamegeek.util.NetworkUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.IOException;
-
 import hugo.weaving.DebugLog;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -60,12 +58,12 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 				hasMorePages = hasMorePages(response.body());
 			} while (hasMorePages);
 			finishSync();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Timber.w(e,
 				context.getString(R.string.msg_update_exception),
 				context.getString(getTypeDescriptionResId()),
 				e.getMessage());
-			return (e.getLocalizedMessage());
+			return e.getLocalizedMessage();
 		}
 		return "";
 	}
