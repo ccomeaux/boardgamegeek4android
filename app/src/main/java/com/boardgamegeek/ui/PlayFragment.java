@@ -72,6 +72,11 @@ import icepick.Icepick;
 import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_ID = "ID";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_IMAGE_URL = "IMAGE_URL";
+	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int PLAY_QUERY_TOKEN = 0x01;
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
@@ -124,6 +129,18 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	};
 
+	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl) {
+		Bundle args = new Bundle();
+		args.putLong(KEY_ID, internalId);
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
+		args.putString(KEY_IMAGE_URL, imageUrl);
+		args.putString(KEY_THUMBNAIL_URL, thumbnailUrl);
+		PlayFragment fragment = new PlayFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -132,20 +149,20 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		internalId = intent.getLongExtra(PlayActivity.KEY_ID, BggContract.INVALID_ID);
+		internalId = intent.getLongExtra(KEY_ID, BggContract.INVALID_ID);
 		if (internalId == BggContract.INVALID_ID) return;
 
-		play = new Play(intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID), intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
+		play = new Play(intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID), intent.getStringExtra(KEY_GAME_NAME));
 
-		thumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
-		imageUrl = intent.getStringExtra(PlayActivity.KEY_IMAGE_URL);
+		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, container, false);
 
-		playersView = (ListView) rootView.findViewById(android.R.id.list);
+		playersView = rootView.findViewById(android.R.id.list);
 		playersView.setHeaderDividersEnabled(false);
 		playersView.setFooterDividersEnabled(false);
 

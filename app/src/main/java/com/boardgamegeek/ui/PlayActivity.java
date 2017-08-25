@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -18,11 +19,16 @@ import org.greenrobot.eventbus.Subscribe;
 import icepick.Icepick;
 
 public class PlayActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_ID = "ID";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_IMAGE_URL = "IMAGE_URL";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_ID = "ID";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_IMAGE_URL = "IMAGE_URL";
+	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private long internalId = BggContract.INVALID_ID;
+	private int gameId = BggContract.INVALID_ID;
+	private String gameName;
+	private String thumbnailUrl;
+	private String imageUrl;
 
 	public static void start(Context context, PlaySelectedEvent event) {
 		Intent intent = createIntent(context, event.getInternalId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
@@ -42,6 +48,12 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		internalId = getIntent().getLongExtra(KEY_ID, BggContract.INVALID_ID);
+		if (internalId == BggContract.INVALID_ID) finish();
+		gameId = getIntent().getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = getIntent().getStringExtra(KEY_GAME_NAME);
+		thumbnailUrl = getIntent().getStringExtra(KEY_THUMBNAIL_URL);
+		imageUrl = getIntent().getStringExtra(KEY_IMAGE_URL);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		EventBus.getDefault().removeStickyEvent(PlaySelectedEvent.class);
@@ -60,7 +72,7 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new PlayFragment();
+		return PlayFragment.newInstance(internalId, gameId, gameName, imageUrl, thumbnailUrl);
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
