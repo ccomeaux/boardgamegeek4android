@@ -279,8 +279,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 	public static class ColorEvent {
 		private final int gameId;
-		@ColorInt private int iconColor;
-		@ColorInt private int darkColor;
+		@ColorInt private final int iconColor;
+		@ColorInt private final int darkColor;
 
 		public ColorEvent(int gameId, int iconColor, int darkColor) {
 			this.gameId = gameId;
@@ -311,10 +311,10 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		public static final int INVALID_IMAGE_RES_ID = -1;
 
 		private final class Tab {
-			@StringRes private int titleResId;
-			private Fragment fragment;
-			@DrawableRes private int imageResId;
-			private TabListener listener;
+			@StringRes private final int titleResId;
+			private final Fragment fragment;
+			@DrawableRes private final int imageResId;
+			private final TabListener listener;
 
 			public Tab(int titleResId, Fragment fragment) {
 				this(titleResId, fragment, INVALID_IMAGE_RES_ID, null);
@@ -340,8 +340,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			}
 		}
 
-		private Context context;
-		private List<Tab> tabs = new ArrayList<>();
+		private final Context context;
+		private final List<Tab> tabs = new ArrayList<>();
 		private int currentPosition;
 
 		public GamePagerAdapter(FragmentManager fragmentManager, Context context) {
@@ -417,11 +417,6 @@ public class GameActivity extends HeroTabActivity implements Callback {
 				if (resId != INVALID_IMAGE_RES_ID) {
 					if (fab.isShown()) {
 						fab.hide(new OnVisibilityChangedListener() {
-							@Override
-							public void onShown(FloatingActionButton fab) {
-								super.onShown(fab);
-							}
-
 							@Override
 							public void onHidden(FloatingActionButton fab) {
 								super.onHidden(fab);
