@@ -567,7 +567,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), game.id, game.name, null, null, false);
+				LogPlayActivity.logPlay(getContext(), game.id, game.name, null, null, false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

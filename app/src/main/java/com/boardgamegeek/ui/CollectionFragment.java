@@ -920,7 +920,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
+				LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

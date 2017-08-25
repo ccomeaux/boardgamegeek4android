@@ -584,9 +584,7 @@ public class PlaysFragment extends StickyHeaderListFragment
 
 	@Override
 	protected void onFabClicked() {
-		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-		startActivity(intent);
+		LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, arePlayersCustomSorted);
 	}
 
 	public void filter(int type, String description) {
@@ -782,7 +780,7 @@ public class PlaysFragment extends StickyHeaderListFragment
 				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
 				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-				ActivityUtils.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
+				LogPlayActivity.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
 				return true;
 			case R.id.menu_delete:
 				mode.finish();

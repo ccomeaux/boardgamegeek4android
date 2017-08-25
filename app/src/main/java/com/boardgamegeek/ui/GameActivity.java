@@ -60,7 +60,6 @@ import timber.log.Timber;
 public class GameActivity extends HeroTabActivity implements Callback {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
-	private static final int REQUEST_EDIT_PLAY = 1;
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
@@ -453,9 +452,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		}
 
 		private void onPlayFabClicked() {
-			Intent intent = ActivityUtils.createEditPlayIntent(context, gameId, gameName, thumbnailUrl, imageUrl);
-			intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-			startActivityForResult(intent, REQUEST_EDIT_PLAY);
+			LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, arePlayersCustomSorted);
 		}
 
 		@DebugLog

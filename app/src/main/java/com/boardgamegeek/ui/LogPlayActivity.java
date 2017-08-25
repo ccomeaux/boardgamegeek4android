@@ -83,7 +83,6 @@ import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -99,6 +98,7 @@ import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.AddFieldEvent;
+import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
@@ -123,6 +123,14 @@ import icepick.State;
 import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity {
+	private static final String KEY_ID = "ID";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_IMAGE_URL = "IMAGE_URL";
+	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
+	private static final String KEY_END_PLAY = "END_PLAY";
+	private static final String KEY_REMATCH = "REMATCH";
 	private static final int HELP_VERSION = 3;
 	private static final int REQUEST_ADD_PLAYER = 1;
 	private static final int REQUEST_EDIT_PLAYER = 2;
@@ -178,6 +186,45 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	private boolean isLaunchingActivity;
 	private boolean shouldSaveOnPause = true;
+
+	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
+		Intent intent = createIntent(context, BggContract.INVALID_ID, gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
+		context.startActivity(intent);
+	}
+
+	public static void editPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		PlayManipulationEvent.log("Edit", gameName);
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, false);
+		context.startActivity(intent);
+	}
+
+	public static void endPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, false);
+		intent.putExtra(KEY_END_PLAY, true);
+		context.startActivity(intent);
+	}
+
+	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
+		context.startActivity(intent);
+	}
+
+	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, false);
+		intent.putExtra(KEY_REMATCH, true);
+		return intent;
+	}
+
+	private static Intent createIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
+		Intent intent = new Intent(context, LogPlayActivity.class);
+		intent.putExtra(KEY_ID, internalId);
+		intent.putExtra(KEY_GAME_ID, gameId);
+		intent.putExtra(KEY_GAME_NAME, gameName);
+		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
+		return intent;
+	}
 
 	private final View.OnClickListener actionBarListener = new View.OnClickListener() {
 		@Override
@@ -235,7 +282,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					if (play.getPlayerCount() > 0) {
 						arePlayersCustomSorted = play.arePlayersCustomSorted();
 					} else {
-						arePlayersCustomSorted = getIntent().getBooleanExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, false);
+						arePlayersCustomSorted = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 					}
 					setModelIfDone(token);
 					break;
@@ -444,13 +491,13 @@ public class LogPlayActivity extends AppCompatActivity {
 		queryHandler = new QueryHandler(getContentResolver());
 
 		final Intent intent = getIntent();
-		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		isRequestingToEndPlay = intent.getBooleanExtra(ActivityUtils.KEY_END_PLAY, false);
-		isRequestingRematch = intent.getBooleanExtra(ActivityUtils.KEY_REMATCH, false);
-		thumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);
-		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+		internalId = intent.getLongExtra(KEY_ID, BggContract.INVALID_ID);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		isRequestingToEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
+		isRequestingRematch = intent.getBooleanExtra(KEY_REMATCH, false);
+		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 
 		if (gameId <= 0) {
 			String message = "Can't log a play without a game ID.";
@@ -627,7 +674,7 @@ public class LogPlayActivity extends AppCompatActivity {
 			} else {
 				// Starting a new play
 				shouldDeletePlayOnActivityCancel = true;
-				arePlayersCustomSorted = getIntent().getBooleanExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, false);
+				arePlayersCustomSorted = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 			}
 			queryHandler.startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId), new String[] { GameColors.COLOR }, null, null, null);
 		}

@@ -19,8 +19,6 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.GamePlaysActivity;
-import com.boardgamegeek.ui.LogPlayActivity;
-import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.ShareEvent;
@@ -35,10 +33,7 @@ public class ActivityUtils {
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	public static final String KEY_END_PLAY = "END_PLAY";
-	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
-	public static final String KEY_ID = "ID";
 	public static final String KEY_ICON_COLOR = "ICON_COLOR";
 	public static final String LINK_AMAZON_COM = "www.amazon.com";
 	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";
@@ -108,54 +103,11 @@ public class ActivityUtils {
 	public static Intent createGamePlaysIntent(Context context, Uri gameUri, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, int iconColor) {
 		Intent intent = new Intent(context, GamePlaysActivity.class);
 		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
-		intent.putExtra(ActivityUtils.KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-		intent.putExtra(ActivityUtils.KEY_ICON_COLOR, iconColor);
-		return intent;
-	}
-
-	public static void editPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		PlayManipulationEvent.log("Edit", gameName);
-		Intent intent = createEditPlayIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
-		context.startActivity(intent);
-	}
-
-	public static void endPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createEditPlayIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(KEY_END_PLAY, true);
-		context.startActivity(intent);
-	}
-
-	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
-		context.startActivity(intent);
-	}
-
-	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createEditPlayIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(KEY_REMATCH, true);
-		return intent;
-	}
-
-	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
-		Intent intent = createEditPlayIntent(context, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
-		context.startActivity(intent);
-	}
-
-	public static Intent createEditPlayIntent(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		return createEditPlayIntent(context, BggContract.INVALID_ID, gameId, gameName, thumbnailUrl, imageUrl);
-	}
-
-	public static Intent createEditPlayIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.putExtra(KEY_ID, internalId);
-		intent.putExtra(KEY_GAME_ID, gameId);
 		intent.putExtra(KEY_GAME_NAME, gameName);
-		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		intent.putExtra(KEY_ICON_COLOR, iconColor);
 		return intent;
 	}
 
