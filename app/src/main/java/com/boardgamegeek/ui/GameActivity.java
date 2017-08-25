@@ -257,17 +257,13 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			darkColor = darkSwatch.getRgb();
 			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor));
 			fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
-			if (PreferencesUtils.showLogPlay(this)) {
-				adapter.displayFab();
-			}
+			adapter.displayFab();
 		}
 	}
 
 	@Override
 	public void onFailedImageLoad() {
-		if (PreferencesUtils.showLogPlay(this)) {
-			adapter.displayFab();
-		}
+		adapter.displayFab();
 	}
 
 	@DebugLog
