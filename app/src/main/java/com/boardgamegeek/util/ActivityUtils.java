@@ -18,7 +18,6 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.ui.GamePlaysActivity;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.ShareEvent;
@@ -29,12 +28,6 @@ import java.util.List;
 import timber.log.Timber;
 
 public class ActivityUtils {
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_IMAGE_URL = "IMAGE_URL";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
-	public static final String KEY_ICON_COLOR = "ICON_COLOR";
 	public static final String LINK_AMAZON_COM = "www.amazon.com";
 	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";
 	public static final String LINK_AMAZON_DE = "www.amazon.de";
@@ -94,21 +87,6 @@ public class ActivityUtils {
 			.putContentType("GeekList")
 			.putContentName(title)
 			.putContentId(String.valueOf(id)));
-	}
-
-	public static Intent createGamePlaysIntent(Context context, Uri gameUri, String gameName, String imageUrl, String thumbnailUrl) {
-		return createGamePlaysIntent(context, gameUri, gameName, imageUrl, thumbnailUrl, false, 0);
-	}
-
-	public static Intent createGamePlaysIntent(Context context, Uri gameUri, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, int iconColor) {
-		Intent intent = new Intent(context, GamePlaysActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(KEY_GAME_NAME, gameName);
-		intent.putExtra(KEY_IMAGE_URL, imageUrl);
-		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
-		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-		intent.putExtra(KEY_ICON_COLOR, iconColor);
-		return intent;
 	}
 
 	public static void logQuickPlay(Context context, int gameId, String gameName) {

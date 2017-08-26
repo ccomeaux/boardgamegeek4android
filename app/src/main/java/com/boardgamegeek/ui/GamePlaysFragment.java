@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -29,7 +28,6 @@ import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.model.GamePlays;
 import com.boardgamegeek.ui.model.PlaysByGame;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -306,14 +304,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	@OnClick(R.id.plays_root)
 	@DebugLog
 	public void onPlaysClick() {
-		Intent intent = ActivityUtils.createGamePlaysIntent(getContext(),
-			Games.buildGameUri(gameId),
-			gameName,
-			imageUrl,
-			thumbnailUrl,
-			arePlayersCustomSorted,
-			iconColor);
-		startActivity(intent);
+		GamePlaysActivity.start(getContext(), gameId, gameName, imageUrl, thumbnailUrl, arePlayersCustomSorted, iconColor);
 	}
 
 	@OnClick(R.id.play_stats_root)

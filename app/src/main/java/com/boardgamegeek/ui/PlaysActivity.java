@@ -34,7 +34,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new PlaysFragment();
+		return PlaysFragment.newInstance();
 	}
 
 	@Override

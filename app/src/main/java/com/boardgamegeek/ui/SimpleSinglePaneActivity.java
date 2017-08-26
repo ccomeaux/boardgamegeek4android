@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.UIUtils;
 
 /**
  * A non-top-level DrawerActivity that supports a single pane.
@@ -59,9 +58,5 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 
 	public Fragment getFragment() {
 		return fragment;
-	}
-
-	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
-		return arguments;
 	}
 }

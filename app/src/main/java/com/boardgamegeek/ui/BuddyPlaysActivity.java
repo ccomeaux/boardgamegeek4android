@@ -57,14 +57,7 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new PlaysFragment();
-	}
-
-	@Override
-	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
-		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_BUDDY);
-		arguments.putString(PlaysFragment.KEY_MODE_VALUE, getIntent().getStringExtra(KEY_BUDDY_NAME));
-		return arguments;
+		return PlaysFragment.newInstanceForBuddy(buddyName);
 	}
 
 	@Override
