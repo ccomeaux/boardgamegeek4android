@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -20,7 +19,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
@@ -33,6 +31,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_DARK_COLOR = "DARK_COLOR";
 
+	private int gameId;
 	private Uri uri;
 	@ColorInt private int barColor;
 	private Unbinder unbinder;
@@ -57,12 +56,14 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		readBundle(getArguments());
 		if (gameId == BggContract.INVALID_ID) dismiss();
-		barColor = intent.getIntExtra(KEY_DARK_COLOR, Color.TRANSPARENT);
 		uri = Games.buildGameUri(gameId);
+	}
+
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		barColor = bundle.getInt(KEY_DARK_COLOR, Color.TRANSPARENT);
 	}
 
 	@Override

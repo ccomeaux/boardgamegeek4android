@@ -23,7 +23,6 @@ import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.IntegerValueFormatter;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -54,6 +53,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	public static final String SUGGESTED_PLAYER_AGE = "suggested_playerage";
 	private static final Format FORMAT = new DecimalFormat("#0");
 
+	private int gameId;
 	private String pollType;
 	private Uri pollResultUri;
 	private int[] chartColors;
@@ -81,13 +81,14 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		readBundle(getArguments());
 		if (gameId == BggContract.INVALID_ID) dismiss();
-
-		pollType = intent.getStringExtra(KEY_TYPE);
 		pollResultUri = Games.buildPollResultsResultUri(gameId, pollType);
+	}
+
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		pollType = bundle.getString(KEY_TYPE);
 	}
 
 	@Override

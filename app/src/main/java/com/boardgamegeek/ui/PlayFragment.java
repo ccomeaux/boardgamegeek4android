@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -144,18 +143,16 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
 		setHasOptionsMenu(true);
+	}
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		internalId = intent.getLongExtra(KEY_ID, BggContract.INVALID_ID);
-		if (internalId == BggContract.INVALID_ID) return;
-
-		play = new Play(intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID), intent.getStringExtra(KEY_GAME_NAME));
-
-		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
-		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+	private void readBundle(Bundle bundle) {
+		internalId = bundle.getLong(KEY_ID, BggContract.INVALID_ID);
+		play = new Play(bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID), bundle.getString(KEY_GAME_NAME));
+		thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
+		imageUrl = bundle.getString(KEY_IMAGE_URL);
 	}
 
 	@Override
