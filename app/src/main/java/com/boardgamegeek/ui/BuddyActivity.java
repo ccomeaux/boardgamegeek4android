@@ -75,15 +75,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		final ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-		name = getIntent().getStringExtra(KEY_PLAYER_NAME);
-		username = getIntent().getStringExtra(KEY_BUDDY_NAME);
-
 		if (TextUtils.isEmpty(name) && TextUtils.isEmpty(username)) finish();
-
 		setSubtitle();
 
 		EventBus.getDefault().removeStickyEvent(BuddySelectedEvent.class);
@@ -93,6 +85,12 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 				.putContentId(username)
 				.putContentName(name));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		name = intent.getStringExtra(KEY_PLAYER_NAME);
+		username = intent.getStringExtra(KEY_BUDDY_NAME);
 	}
 
 	@Override

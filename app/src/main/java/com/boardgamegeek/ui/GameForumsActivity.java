@@ -43,9 +43,6 @@ public class GameForumsActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		gameId = Games.getGameId(getIntent().getData());
-		gameName = getIntent().getStringExtra(KEY_GAME_NAME);
-
 		if (!TextUtils.isEmpty(gameName)) {
 			ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
@@ -59,6 +56,12 @@ public class GameForumsActivity extends SimpleSinglePaneActivity {
 				.putContentId(String.valueOf(gameId))
 				.putContentName(gameName));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		gameId = Games.getGameId(intent.getData());
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
 	}
 
 	@Override

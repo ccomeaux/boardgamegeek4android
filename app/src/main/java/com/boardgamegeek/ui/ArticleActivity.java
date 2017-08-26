@@ -67,21 +67,6 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = getIntent();
-		threadId = intent.getIntExtra(KEY_THREAD_ID, 0);
-		threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT);
-		forumId = intent.getIntExtra(KEY_FORUM_ID, 0);
-		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
-		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(KEY_GAME_NAME);
-		link = intent.getStringExtra(KEY_LINK);
-		articleId = intent.getIntExtra(KEY_ARTICLE_ID, BggContract.INVALID_ID);
-		user = intent.getStringExtra(KEY_USER);
-		postDate = intent.getLongExtra(KEY_POST_DATE, 0);
-		editDate = intent.getLongExtra(KEY_EDIT_DATE, 0);
-		editCount = intent.getIntExtra(KEY_EDIT_COUNT, 0);
-		body = intent.getStringExtra(KEY_BODY);
-
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			if (TextUtils.isEmpty(gameName)) {
@@ -98,6 +83,23 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				.putContentId(String.valueOf(articleId))
 				.putContentName(threadSubject));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID);
+		threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT);
+		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		link = intent.getStringExtra(KEY_LINK);
+		articleId = intent.getIntExtra(KEY_ARTICLE_ID, BggContract.INVALID_ID);
+		user = intent.getStringExtra(KEY_USER);
+		postDate = intent.getLongExtra(KEY_POST_DATE, 0);
+		editDate = intent.getLongExtra(KEY_EDIT_DATE, 0);
+		editCount = intent.getIntExtra(KEY_EDIT_COUNT, 0);
+		body = intent.getStringExtra(KEY_BODY);
 	}
 
 	@Override

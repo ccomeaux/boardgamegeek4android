@@ -58,14 +58,6 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = getIntent();
-		threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID);
-		threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT);
-		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
-		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
-		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(KEY_GAME_NAME);
-
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			if (TextUtils.isEmpty(gameName)) {
@@ -83,6 +75,16 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				.putContentName(threadSubject)
 				.putContentId(String.valueOf(threadId)));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID);
+		threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT);
+		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
 	}
 
 	@Override

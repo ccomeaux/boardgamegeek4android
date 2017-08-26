@@ -23,11 +23,12 @@ import org.greenrobot.eventbus.ThreadMode;
 import timber.log.Timber;
 
 public class ProducerActivity extends SimpleSinglePaneActivity {
+	private Uri uri;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Uri uri = getIntent().getData();
 		String contentType = getContentType(uri);
 		if (TextUtils.isEmpty(contentType)) {
 			Timber.w("Unexpected URI: %s", uri);
@@ -44,6 +45,11 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 		}
 	}
 
+	@Override
+	protected void readIntent(Intent intent) {
+		uri = intent.getData();
+	}
+
 	private String getContentType(Uri uri) {
 		if (Designers.isDesignerUri(uri)) {
 			return getString(R.string.title_designer);
@@ -57,7 +63,7 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new ProducerFragment();
+		return ProducerFragment.newInstance(uri);
 	}
 
 	@SuppressWarnings("unused")

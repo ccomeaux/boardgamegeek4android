@@ -18,6 +18,7 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Game.Comment;
 import com.boardgamegeek.model.ThingResponse;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GameComments;
@@ -74,7 +75,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	private void readBundle(Bundle bundle) {
-		gameId = bundle.getInt(KEY_GAME_ID);
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		isSortedByRating = bundle.getBoolean(KEY_SORT_BY_RATING);
 	}
 

@@ -20,6 +20,7 @@ import hugo.weaving.DebugLog;
 
 public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+	private String name;
 	private int playCount = -1;
 
 	public static void start(Context context, String playerName) {
@@ -32,14 +33,17 @@ public class PlayerPlaysActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		String name = getIntent().getStringExtra(KEY_PLAYER_NAME);
 		setSubtitle(name);
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent()
 				.putContentType("PlayerPlays")
 				.putContentName(name));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		name = intent.getStringExtra(KEY_PLAYER_NAME);
 	}
 
 	@NonNull

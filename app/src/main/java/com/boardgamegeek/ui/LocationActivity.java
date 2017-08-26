@@ -49,8 +49,6 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = getIntent();
-		locationName = intent.getStringExtra(KEY_LOCATION_NAME);
 		setSubtitle();
 
 		if (savedInstanceState == null) {
@@ -60,6 +58,11 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 		}
 
 		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		locationName = intent.getStringExtra(KEY_LOCATION_NAME);
 	}
 
 	@DebugLog
@@ -74,18 +77,8 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@NonNull
 	@DebugLog
 	@Override
-	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
-		final Intent intent = getIntent();
-		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_LOCATION);
-		arguments.putString(PlaysFragment.KEY_MODE_VALUE, intent.getStringExtra(KEY_LOCATION_NAME));
-		return arguments;
-	}
-
-	@NonNull
-	@DebugLog
-	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new PlaysFragment();
+		return PlaysFragment.newInstanceForLocation(locationName);
 	}
 
 	@DebugLog

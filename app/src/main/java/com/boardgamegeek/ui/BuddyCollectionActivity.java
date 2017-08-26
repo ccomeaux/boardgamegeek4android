@@ -32,8 +32,6 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		buddyName = getIntent().getStringExtra(KEY_BUDDY_NAME);
-
 		if (!TextUtils.isEmpty(buddyName)) {
 			ActionBar bar = getSupportActionBar();
 			if (bar != null) {
@@ -45,6 +43,11 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 				.putContentType("BuddyCollection")
 				.putContentId(buddyName));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		buddyName = intent.getStringExtra(KEY_BUDDY_NAME);
 	}
 
 	@DebugLog

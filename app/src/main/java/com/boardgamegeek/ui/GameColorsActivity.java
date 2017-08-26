@@ -38,10 +38,6 @@ public class GameColorsActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		gameId = getIntent().getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = getIntent().getStringExtra(KEY_GAME_NAME);
-		iconColor = getIntent().getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT);
-
 		if (!TextUtils.isEmpty(gameName)) {
 			ActionBar supportActionBar = getSupportActionBar();
 			if (supportActionBar != null) {
@@ -55,6 +51,13 @@ public class GameColorsActivity extends SimpleSinglePaneActivity {
 				.putContentId(String.valueOf(gameId))
 				.putContentName(gameName));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
 	@NonNull

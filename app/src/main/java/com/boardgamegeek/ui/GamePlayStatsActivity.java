@@ -34,10 +34,6 @@ public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		gameId = getIntent().getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = getIntent().getStringExtra(KEY_GAME_NAME);
-		headerColor = getIntent().getIntExtra(KEY_HEADER_COLOR, getResources().getColor(R.color.accent));
-
 		if (!TextUtils.isEmpty(gameName)) {
 			ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
@@ -51,6 +47,13 @@ public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
 				.putContentId(String.valueOf(gameId))
 				.putContentName(gameName));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		headerColor = intent.getIntExtra(KEY_HEADER_COLOR, getResources().getColor(R.color.accent));
 	}
 
 	@Override

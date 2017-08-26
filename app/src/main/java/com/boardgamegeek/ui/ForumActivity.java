@@ -52,12 +52,6 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = getIntent();
-		gameName = intent.getStringExtra(KEY_GAME_NAME);
-		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
-		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
-
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
@@ -76,6 +70,14 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 				.putContentId(String.valueOf(forumId))
 				.putContentName(forumTitle));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
 	}
 
 	@Override

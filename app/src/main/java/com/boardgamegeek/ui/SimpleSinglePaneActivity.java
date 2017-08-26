@@ -24,6 +24,8 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
+		readIntent(getIntent());
+
 		if (savedInstanceState == null) {
 			createFragment();
 		} else {
@@ -31,12 +33,12 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		}
 	}
 
+	protected void readIntent(Intent intent) {
+	}
+
 	protected void createFragment() {
 		fragment = onCreatePane(getIntent());
 		if (fragment != null) {
-			Bundle arguments = UIUtils.intentToFragmentArguments(getIntent());
-			arguments = onBeforeArgumentsSet(arguments);
-			fragment.setArguments(arguments);
 			getSupportFragmentManager()
 				.beginTransaction()
 				.add(R.id.root_container, fragment, TAG_SINGLE_PANE)
@@ -44,7 +46,7 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		}
 	}
 
-	protected  void recreateFragment() {
+	protected void recreateFragment() {
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
 	}

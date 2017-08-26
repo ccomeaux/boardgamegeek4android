@@ -32,15 +32,18 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
-		gameId = BggContract.Games.getGameId(getIntent().getData());
-		gameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
-
 		if (!TextUtils.isEmpty(gameName)) {
 			ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
 				actionBar.setSubtitle(gameName);
 			}
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		gameId = BggContract.Games.getGameId(intent.getData());
+		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 	}
 
 	@DebugLog

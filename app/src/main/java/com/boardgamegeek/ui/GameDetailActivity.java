@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -18,6 +17,7 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 
+	private String title;
 	private int gameId;
 	private String gameName;
 	private int queryToken;
@@ -35,12 +35,6 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = getIntent();
-		String title = intent.getStringExtra(KEY_TITLE);
-		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(KEY_GAME_NAME);
-		queryToken = intent.getIntExtra(KEY_QUERY_TOKEN, 0);
-
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setTitle(title);
@@ -52,6 +46,14 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 				.putContentType("GameDetail")
 				.putContentName(title));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		title = intent.getStringExtra(KEY_TITLE);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		queryToken = intent.getIntExtra(KEY_QUERY_TOKEN, 0);
 	}
 
 	@Override

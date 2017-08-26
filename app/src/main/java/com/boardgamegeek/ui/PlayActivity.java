@@ -48,12 +48,6 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		internalId = getIntent().getLongExtra(KEY_ID, BggContract.INVALID_ID);
-		if (internalId == BggContract.INVALID_ID) finish();
-		gameId = getIntent().getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = getIntent().getStringExtra(KEY_GAME_NAME);
-		thumbnailUrl = getIntent().getStringExtra(KEY_THUMBNAIL_URL);
-		imageUrl = getIntent().getStringExtra(KEY_IMAGE_URL);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		EventBus.getDefault().removeStickyEvent(PlaySelectedEvent.class);
@@ -62,6 +56,16 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 			final ContentViewEvent event = new ContentViewEvent().putContentType("Play");
 			Answers.getInstance().logContentView(event);
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		internalId = intent.getLongExtra(KEY_ID, BggContract.INVALID_ID);
+		if (internalId == BggContract.INVALID_ID) finish();
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,6 +38,7 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_URI = "URI";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 30;
 	private Uri uri;
 	private int token;
@@ -52,13 +52,19 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.description) TextView descriptionView;
 	@BindView(R.id.updated) TimestampView updatedView;
 
+	public static ProducerFragment newInstance(Uri uri) {
+		Bundle args = new Bundle();
+		args.putParcelable(KEY_URI, uri);
+		ProducerFragment fragment = new ProducerFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		uri = intent.getData();
-
+		readBundle(getArguments());
 		if (Designers.isDesignerUri(uri)) {
 			token = DesignerQuery._TOKEN;
 		} else if (Artists.isArtistUri(uri)) {
@@ -66,6 +72,10 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		} else if (Publishers.isPublisherUri(uri)) {
 			token = PublisherQuery._TOKEN;
 		}
+	}
+
+	private void readBundle(Bundle bundle) {
+		uri = bundle.getParcelable(KEY_URI);
 	}
 
 	@Override
