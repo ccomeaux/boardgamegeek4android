@@ -51,6 +51,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	private int gameId;
 	private String gameName;
 	private int collectionId;
+	private String collectionName;
 	private String imageUrl;
 	@State boolean isInEditMode;
 	private boolean isItemUpdated;
@@ -70,15 +71,6 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = getIntent();
-		internalId = intent.getLongExtra(KEY_INTERNAL_ID, BggContract.INVALID_ID);
-		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(KEY_GAME_NAME);
-		collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID);
-		String collectionName = intent.getStringExtra(KEY_COLLECTION_NAME);
-		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
-
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		safelySetTitle(collectionName);
@@ -90,6 +82,16 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 				.putContentName(collectionName));
 		}
 		PresentationUtils.ensureFabIsShown(fab);
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		internalId = intent.getLongExtra(KEY_INTERNAL_ID, BggContract.INVALID_ID);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID);
+		collectionName = intent.getStringExtra(KEY_COLLECTION_NAME);
+		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 	}
 
 	@Override
