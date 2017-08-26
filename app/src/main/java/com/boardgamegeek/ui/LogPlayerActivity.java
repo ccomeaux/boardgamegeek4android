@@ -5,7 +5,6 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -41,6 +40,7 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -197,7 +197,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			scoreView.requestFocus();
 		}
 		isNewPlayer = intent.getBooleanExtra(KEY_NEW_PLAYER, false);
-		fab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent))));
+		PresentationUtils.colorFab(fab, intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)));
 
 		if (savedInstanceState == null) {
 			player = intent.getParcelableExtra(KEY_PLAYER);

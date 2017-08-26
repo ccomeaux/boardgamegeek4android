@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -49,6 +48,7 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
 
 import java.util.ArrayList;
@@ -104,7 +104,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
-		colorFab();
+		PresentationUtils.colorFab(fab, iconColor);
 		setUpRecyclerView();
 		return rootView;
 	}
@@ -183,10 +183,8 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		readBundle(getArguments());
-		colorFab();
-
+		PresentationUtils.colorFab(fab, iconColor);
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 	}
 
@@ -338,13 +336,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			});
 		}
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
-	}
-
-	@DebugLog
-	private void colorFab() {
-		if (fab != null && iconColor != Color.TRANSPARENT) {
-			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
-		}
 	}
 
 	@DebugLog

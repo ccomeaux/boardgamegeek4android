@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -179,7 +178,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	@Override
 	public void onSuccessfulImageLoad(Palette palette) {
 		((GameCollectionItemFragment) getFragment()).onPaletteGenerated(palette);
-		fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
+		PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
 		fab.show();
 	}
 

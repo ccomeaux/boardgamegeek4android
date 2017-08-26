@@ -7,11 +7,12 @@ import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -132,7 +133,7 @@ public class PlaysFragment extends StickyHeaderListFragment
 		uri = Plays.CONTENT_URI;
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		Uri uri = intent.getData();
-		int iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, 0);
+		@ColorInt int iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT);
 
 		mode = MODE_ALL;
 		gameId = BggContract.INVALID_ID;
@@ -150,9 +151,7 @@ public class PlaysFragment extends StickyHeaderListFragment
 			mode = getArguments().getInt(PlaysFragment.KEY_MODE, mode);
 		}
 		showFab(mode == MODE_GAME);
-		if (fabView != null && iconColor != 0) {
-			fabView.setBackgroundTintList(ColorStateList.valueOf(iconColor));
-		}
+		PresentationUtils.colorFab(fabView, iconColor);
 
 		switch (mode) {
 			case MODE_GAME:

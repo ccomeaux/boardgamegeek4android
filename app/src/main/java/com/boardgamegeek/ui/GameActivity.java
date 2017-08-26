@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +39,7 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -255,7 +255,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			iconColor = iconSwatch.getRgb();
 			darkColor = darkSwatch.getRgb();
 			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor));
-			fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
+			PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
 			adapter.displayFab();
 		}
 	}

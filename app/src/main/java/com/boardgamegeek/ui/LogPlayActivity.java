@@ -1356,7 +1356,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						headerView.setBackgroundResource(R.color.black_overlay_light);
 
 						fabColor = PaletteUtils.getIconSwatch(palette).getRgb();
-						fab.setBackgroundTintList(ColorStateList.valueOf(fabColor));
+						PresentationUtils.colorFab(fab, fabColor);
 						fab.post(new Runnable() {
 							@Override
 							public void run() {
@@ -1653,7 +1653,6 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@Override
 			public void bind() {
-
 				ViewCompat.setBackgroundTintList(addPlayersButton, ColorStateList.valueOf(fabColor));
 			}
 
