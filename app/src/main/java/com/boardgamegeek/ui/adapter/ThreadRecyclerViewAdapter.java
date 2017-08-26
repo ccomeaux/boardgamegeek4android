@@ -25,10 +25,10 @@ import hugo.weaving.DebugLog;
 public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecyclerViewAdapter.ArticleViewHolder> {
 	private final int threadId;
 	private final String threadSubject;
-	private int forumId;
-	private String forumTitle;
-	private int gameId;
-	private String gameName;
+	private final int forumId;
+	private final String forumTitle;
+	private final int gameId;
+	private final String gameName;
 	private final List<Article> articles;
 	private final LayoutInflater inflater;
 

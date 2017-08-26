@@ -7,7 +7,7 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class GameDesigner extends GameList {
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		Designers._ID,
 		Designers.DESIGNER_ID,
 		Designers.DESIGNER_NAME

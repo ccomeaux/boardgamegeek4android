@@ -49,6 +49,12 @@ public class TopGamesFragment extends Fragment {
 		return rootView;
 	}
 
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
+	}
+
 	private void setUpRecyclerView() {
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 		recyclerView.setHasFixedSize(true);

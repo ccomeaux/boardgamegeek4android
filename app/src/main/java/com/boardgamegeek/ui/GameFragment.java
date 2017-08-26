@@ -328,7 +328,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				loader = new CursorLoader(getActivity(), GameExpansion.buildUri(gameId), GameExpansion.PROJECTION, GameExpansion.getSelection(), GameExpansion.getSelectionArgs(), null);
 				break;
 			case BASE_GAME_TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
+				loader = new CursorLoader(getActivity(), GameBaseGame.buildUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
 			case RANK_TOKEN:
 				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);

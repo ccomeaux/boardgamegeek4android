@@ -20,7 +20,7 @@ import butterknife.ButterKnife;
 
 public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHolder> {
 
-	List<TopGame> topGames;
+	private final List<TopGame> topGames;
 
 	public TopGamesAdapter(List<TopGame> topGames) {
 		this.topGames = topGames;

@@ -92,11 +92,13 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 		return R.string.title_players;
 	}
 
+	@SuppressWarnings("unused")
 	@Subscribe
 	public void onEvent(PlayerSelectedEvent event) {
 		BuddyActivity.start(this, event.getUsername(), event.getDisplayName());
 	}
 
+	@SuppressWarnings("unused")
 	@Subscribe(sticky = true)
 	public void onEvent(PlayersCountChangedEvent event) {
 		playerCount = event.getCount();

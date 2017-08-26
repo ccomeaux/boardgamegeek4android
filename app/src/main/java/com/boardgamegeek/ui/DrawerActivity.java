@@ -212,7 +212,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		String avatarUrl = AccountUtils.getAvatarUrl(this);
-		final ImageView imageView = (ImageView) view.findViewById(R.id.account_image);
+		final ImageView imageView = view.findViewById(R.id.account_image);
 		if (TextUtils.isEmpty(avatarUrl)) {
 			imageView.setVisibility(View.GONE);
 		} else {
@@ -246,8 +246,8 @@ public abstract class DrawerActivity extends BaseActivity {
 	private View makeNavDrawerItem(final int titleId, int iconId, ViewGroup container) {
 		View view = getLayoutInflater().inflate(R.layout.row_drawer, container, false);
 
-		TextView titleView = (TextView) view.findViewById(android.R.id.title);
-		ImageView iconView = (ImageView) view.findViewById(android.R.id.icon);
+		TextView titleView = view.findViewById(android.R.id.title);
+		ImageView iconView = view.findViewById(android.R.id.icon);
 
 		titleView.setText(titleId);
 		if (iconId != 0) {

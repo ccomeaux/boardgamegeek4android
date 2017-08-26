@@ -167,9 +167,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		return fragment;
 	}
 
-	private PlaysFragment() {
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

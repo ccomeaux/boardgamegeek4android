@@ -25,7 +25,7 @@ public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 		super.mapBody(body);
 		threadId = body.id;
 		threadSubject = body.subject;
-		if (body == null || body.articles == null) {
+		if (body.articles == null) {
 			articles = new ArrayList<>(0);
 		} else {
 			articles = new ArrayList<>(body.articles.size());

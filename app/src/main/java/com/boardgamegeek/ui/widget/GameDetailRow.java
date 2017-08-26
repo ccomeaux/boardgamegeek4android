@@ -25,7 +25,6 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
-import com.boardgamegeek.util.ActivityUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

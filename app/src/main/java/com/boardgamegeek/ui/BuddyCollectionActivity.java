@@ -53,7 +53,7 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new BuddyCollectionFragment();
+		return BuddyCollectionFragment.newInstance(buddyName);
 	}
 
 	@DebugLog

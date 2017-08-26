@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.tasks.ResetPlaysTask;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;

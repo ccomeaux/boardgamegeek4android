@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,7 +24,6 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.IntegerValueFormatter;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.github.mikephil.charting.animation.Easing.EasingOption;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;

@@ -56,7 +56,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	public static BuddyCollectionFragment newInstance(String username) {
 		Bundle args = new Bundle();
 		args.putString(KEY_BUDDY_NAME, username);
-
 		BuddyCollectionFragment fragment = new BuddyCollectionFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -291,7 +290,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
@@ -320,8 +319,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			public final TextView text;
 
 			public BuddyGameViewHolder(View view) {
-				title = (TextView) view.findViewById(android.R.id.title);
-				text = (TextView) view.findViewById(android.R.id.text1);
+				title = view.findViewById(android.R.id.title);
+				text = view.findViewById(android.R.id.text1);
 			}
 		}
 
