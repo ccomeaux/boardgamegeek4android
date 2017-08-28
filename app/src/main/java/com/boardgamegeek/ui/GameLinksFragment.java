@@ -4,6 +4,7 @@ package com.boardgamegeek.ui;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,15 +56,9 @@ public class GameLinksFragment extends Fragment {
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		EventBus.getDefault().unregister(this);
 	}
 
 	@DebugLog
@@ -87,6 +82,12 @@ public class GameLinksFragment extends Fragment {
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@SuppressWarnings("unused")

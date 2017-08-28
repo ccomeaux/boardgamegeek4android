@@ -307,27 +307,21 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		private final class Tab {
 			@StringRes private final int titleResId;
-			private final Fragment fragment;
 			@DrawableRes private final int imageResId;
 			private final TabListener listener;
 
-			public Tab(int titleResId, Fragment fragment) {
-				this(titleResId, fragment, INVALID_IMAGE_RES_ID, null);
+			public Tab(int titleResId) {
+				this(titleResId, INVALID_IMAGE_RES_ID, null);
 			}
 
-			public Tab(int titleResId, Fragment fragment, int imageResId, TabListener listener) {
+			public Tab(int titleResId, int imageResId, TabListener listener) {
 				this.titleResId = titleResId;
-				this.fragment = fragment;
 				this.imageResId = imageResId;
 				this.listener = listener;
 			}
 
 			public int getTitleResId() {
 				return titleResId;
-			}
-
-			public Fragment getFragment() {
-				return fragment;
 			}
 
 			public int getImageResId() {
@@ -353,11 +347,10 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		private void updateTabs() {
 			tabs.clear();
-			tabs.add(new Tab(R.string.title_info, GameFragment.newInstance(gameId, gameName, iconColor, darkColor)));
+			tabs.add(new Tab(R.string.title_info));
 			if (shouldShowCollection())
 				tabs.add(new Tab(
 					R.string.title_collection,
-					GameCollectionFragment.newInstance(gameId, gameName),
 					R.drawable.fab_add,
 					new TabListener() {
 						@Override
@@ -369,7 +362,6 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			if (shouldShowPlays())
 				tabs.add(new Tab(
 					R.string.title_plays,
-					GamePlaysFragment.newInstance(gameId, gameName, iconColor),
 					R.drawable.fab_log_play,
 					new TabListener() {
 						@Override
@@ -378,7 +370,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 						}
 					})
 				);
-			tabs.add(new Tab(R.string.links, GameLinksFragment.newInstance(gameId, gameName, iconColor)));
+			tabs.add(new Tab(R.string.links));
 		}
 
 		@Override
@@ -392,7 +384,16 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		@Override
 		public Fragment getItem(int position) {
 			if (position < tabs.size()) {
-				return tabs.get(position).getFragment();
+				switch (tabs.get(position).getTitleResId()) {
+					case R.string.title_info:
+						return GameFragment.newInstance(gameId, gameName, iconColor, darkColor);
+					case R.string.title_collection:
+						return GameCollectionFragment.newInstance(gameId, gameName);
+					case R.string.title_plays:
+						return GamePlaysFragment.newInstance(gameId, gameName, iconColor);
+					case R.string.links:
+						return GameLinksFragment.newInstance(gameId, gameName, iconColor);
+				}
 			}
 			return null;
 		}

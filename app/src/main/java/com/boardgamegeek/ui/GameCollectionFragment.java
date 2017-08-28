@@ -62,6 +62,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		EventBus.getDefault().register(this);
 		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
@@ -86,21 +87,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().register(this);
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		EventBus.getDefault().unregister(this);
 	}
 
 	@DebugLog
@@ -108,6 +97,12 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override

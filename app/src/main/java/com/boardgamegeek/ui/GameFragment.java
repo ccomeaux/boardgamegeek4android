@@ -213,6 +213,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		EventBus.getDefault().register(this);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		setHasOptionsMenu(true);
 		readBundle(getArguments());
@@ -223,18 +224,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		gameName = bundle.getString(KEY_GAME_NAME);
 		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
 		darkColor = bundle.getInt(KEY_DARK_COLOR, Color.TRANSPARENT);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -268,6 +257,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	public void onDestroyView() {
 		super.onDestroyView();
 		unbinder.unbind();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
