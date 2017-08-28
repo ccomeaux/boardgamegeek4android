@@ -111,7 +111,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@NonNull
 	@Override
 	protected Fragment onCreatePane(@NonNull Intent intent) {
-		return new SearchResultsFragment();
+		return  SearchResultsFragment.newInstance();
 	}
 
 	@Override
