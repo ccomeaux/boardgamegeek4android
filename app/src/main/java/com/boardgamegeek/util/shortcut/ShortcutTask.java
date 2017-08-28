@@ -43,7 +43,7 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	protected abstract Intent createIntent();
 
 	protected int getShortcutIconResId() {
-		return R.drawable.ic_launcher;
+		return R.drawable.ic_launcher_old;
 	}
 
 	protected abstract String getId();

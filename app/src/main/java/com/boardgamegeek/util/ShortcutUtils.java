@@ -44,7 +44,7 @@ public class ShortcutUtils {
 
 	@NonNull
 	public static Intent createShortcutIntent(Context context, String shortcutName, Intent intent) {
-		return createShortcutIntent(context, shortcutName, intent, R.drawable.ic_launcher);
+		return createShortcutIntent(context, shortcutName, intent, R.drawable.ic_launcher_old);
 	}
 
 	@NonNull
