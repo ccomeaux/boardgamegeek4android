@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,10 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private int gameId;
 	private String gameName;
+	private String imageUrl;
+	private String thumbnailUrl;
+	private boolean arePlayersCustomSorted;
+	@ColorInt private int iconColor;
 	@State int playCount = -1;
 
 	public static void start(Context context, int gameId, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
@@ -71,6 +76,10 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	protected void readIntent(Intent intent) {
 		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
+		iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
 	@DebugLog
@@ -83,7 +92,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return PlaysFragment.newInstanceForGame(gameId, gameName, null, null, false, 0);
+		return PlaysFragment.newInstanceForGame(gameId, gameName, imageUrl, thumbnailUrl, arePlayersCustomSorted, iconColor);
 	}
 
 	@Override
