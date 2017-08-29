@@ -8,6 +8,7 @@ Coming Soon...
  * Support Android O
    * App shortcuts
    * Notifications
+   * Adaptive icon
  * More play stats
  * Corrected and improved backup/restore
  * Sync improvements
