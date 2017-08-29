@@ -44,7 +44,7 @@ public class ShortcutUtils {
 
 	@NonNull
 	public static Intent createShortcutIntent(Context context, String shortcutName, Intent intent) {
-		return createShortcutIntent(context, shortcutName, intent, R.drawable.ic_launcher_old);
+		return createShortcutIntent(context, shortcutName, intent, R.mipmap.ic_launcher_foreground);
 	}
 
 	@NonNull
