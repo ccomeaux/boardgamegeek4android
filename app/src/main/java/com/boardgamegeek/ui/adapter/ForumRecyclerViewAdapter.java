@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.adapter;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,7 +12,6 @@ import com.boardgamegeek.model.Thread;
 import com.boardgamegeek.ui.ThreadActivity;
 import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 
 import java.text.NumberFormat;
 
@@ -64,14 +62,7 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intent = new Intent(context, ThreadActivity.class);
-					intent.putExtra(ActivityUtils.KEY_THREAD_ID, thread.id);
-					intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, thread.subject);
-					intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
-					intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
-					intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-					context.startActivity(intent);
+					ThreadActivity.start(context, thread.id, thread.subject, forumId, forumTitle, gameId, gameName);
 				}
 			});
 		}

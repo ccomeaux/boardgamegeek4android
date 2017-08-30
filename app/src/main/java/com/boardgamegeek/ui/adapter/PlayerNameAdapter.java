@@ -99,7 +99,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 			}
 		}
 
-		TextView subtitleView = (TextView) view.findViewById(R.id.player_subtitle);
+		TextView subtitleView = view.findViewById(R.id.player_subtitle);
 		if (subtitleView != null) {
 			if (TextUtils.isEmpty(result.subtitle)) {
 				subtitleView.setVisibility(View.GONE);
@@ -111,7 +111,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		view.setTag(result.username);
 
-		ImageView avatarView = (ImageView) view.findViewById(R.id.player_avatar);
+		ImageView avatarView = view.findViewById(R.id.player_avatar);
 		if (avatarView != null) {
 			//noinspection SuspiciousNameCombination
 			Picasso.with(getContext())

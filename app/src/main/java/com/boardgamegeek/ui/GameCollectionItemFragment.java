@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -45,7 +44,6 @@ import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogLi
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.TextEditorCard;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -54,7 +52,6 @@ import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -77,6 +74,8 @@ import icepick.State;
 import timber.log.Timber;
 
 public class GameCollectionItemFragment extends Fragment implements LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_COLLECTION_ID = "COLLECTION_ID";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
@@ -159,14 +158,26 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private boolean needsUploading;
 	@State boolean isItemEditable;
 
+	public static GameCollectionItemFragment newInstance(int gameId, int collectionId) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putInt(KEY_COLLECTION_ID, collectionId);
+		GameCollectionItemFragment fragment = new GameCollectionItemFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		collectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
+		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
+	}
+
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		collectionId = bundle.getInt(KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
 	@DebugLog
@@ -399,7 +410,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				@Override
 				public void onFinishEditDialog(String inputText) {
 					UpdateCollectionItemTextTask task =
-						new UpdateCollectionItemTextTask(getActivity(),
+						new UpdateCollectionItemTextTask(getContext(),
 							gameId, collectionId, internalId, inputText,
 							textColumn, timestampColumn);
 					TaskUtils.executeAsyncTask(task);

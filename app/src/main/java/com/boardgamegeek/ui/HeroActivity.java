@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -14,7 +15,6 @@ import android.widget.ImageView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import butterknife.BindView;
 
@@ -42,6 +42,8 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
+		readIntent(getIntent());
+
 		if (savedInstanceState == null) {
 			createFragment();
 		} else {
@@ -56,6 +58,8 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 		}
 	}
 
+	protected abstract void readIntent(Intent intent);
+
 	protected boolean isRefreshable() {
 		return true;
 	}
@@ -63,7 +67,6 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	protected void createFragment() {
 		fragment = onCreatePane();
 		if (fragment != null) {
-			fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
 			getSupportFragmentManager()
 				.beginTransaction()
 				.add(R.id.root_container, fragment, TAG_SINGLE_PANE)

@@ -7,7 +7,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Publishers;
 
 public class GamePublisher extends GameList {
-	public static String[] PROJECTION = {
+	public static final String[] PROJECTION = {
 		Publishers._ID,
 		Publishers.PUBLISHER_ID,
 		Publishers.PUBLISHER_NAME

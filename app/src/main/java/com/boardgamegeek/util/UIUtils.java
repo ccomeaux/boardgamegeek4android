@@ -1,9 +1,6 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Html;
 import android.text.Spanned;
@@ -22,64 +19,6 @@ import android.widget.TextView;
  * Various static methods for use on views and fragments.
  */
 public class UIUtils {
-	private static final String KEY_DATA = "_uri";
-	private static final String KEY_ACTION = "_action";
-
-	private UIUtils() {
-	}
-
-	/**
-	 * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
-	 */
-	public static Bundle intentToFragmentArguments(Intent intent) {
-		Bundle arguments = new Bundle();
-		if (intent == null) {
-			return arguments;
-		}
-
-		final Uri data = intent.getData();
-		if (data != null) {
-			arguments.putParcelable(KEY_DATA, data);
-		}
-
-		final String action = intent.getAction();
-		if (action != null) {
-			arguments.putString(KEY_ACTION, action);
-		}
-
-		final Bundle extras = intent.getExtras();
-		if (extras != null) {
-			arguments.putAll(intent.getExtras());
-		}
-
-		return arguments;
-	}
-
-	/**
-	 * Converts a fragment arguments bundle into an intent.
-	 */
-	public static Intent fragmentArgumentsToIntent(Bundle arguments) {
-		Intent intent = new Intent();
-		if (arguments == null) {
-			return intent;
-		}
-
-		final Uri data = arguments.getParcelable(KEY_DATA);
-		if (data != null) {
-			intent.setData(data);
-		}
-
-		final String action = arguments.getString(KEY_ACTION);
-		if (action != null) {
-			intent.setAction(action);
-		}
-
-		intent.putExtras(arguments);
-		intent.removeExtra(KEY_DATA);
-		intent.removeExtra(KEY_ACTION);
-		return intent;
-	}
-
 	public static void setActivatedCompat(View view, boolean activated) {
 		view.setActivated(activated);
 	}
@@ -136,8 +75,9 @@ public class UIUtils {
 	public static void finishingEditing(EditText editText) {
 		editText.setSelection(0, editText.getText().length());
 		editText.requestFocus();
-		((InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
-			.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+		InputMethodManager inputMethodManager = (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (inputMethodManager != null)
+			inputMethodManager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
 	}
 
 	public static void showMenuItem(Menu menu, int itemId, boolean visible) {

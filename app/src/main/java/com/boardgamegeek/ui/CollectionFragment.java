@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -97,6 +96,7 @@ import timber.log.Timber;
 
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener,
 	CollectionFilterDialog.OnFilterChangedListener, SaveViewDialogFragment.OnViewSavedListener, DeleteViewDialogFragment.OnViewDeletedListener {
+	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -126,10 +126,19 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionSorterFactory collectionSorterFactory;
 	private ShowcaseViewWizard showcaseViewWizard;
 
+	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
+		Bundle args = new Bundle();
+		args.putBoolean(KEY_IS_CREATING_SHORTCUT, isCreatingShortcut);
+		CollectionFragment fragment = new CollectionFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	@DebugLog
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		readBundle(getArguments());
 		setHasOptionsMenu(true);
 		if (savedInstanceState != null) {
 			Icepick.restoreInstanceState(this, savedInstanceState);
@@ -153,9 +162,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				}
 			}
 		}
+	}
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(intent.getAction());
+	private void readBundle(Bundle bundle) {
+		isCreatingShortcut = bundle.getBoolean(KEY_IS_CREATING_SHORTCUT);
 	}
 
 	@Override
@@ -786,7 +796,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
@@ -920,7 +930,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
+				LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

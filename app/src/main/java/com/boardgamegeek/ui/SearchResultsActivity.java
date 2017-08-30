@@ -36,7 +36,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onNewIntent(@NonNull Intent intent) {
 		super.onNewIntent(intent);
-		parseIntent(intent);
+		readIntent(intent);
 		if (searchView != null) {
 			String query = searchView.getQuery().toString();
 			if (!query.equals(searchText)) {
@@ -111,11 +111,11 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@NonNull
 	@Override
 	protected Fragment onCreatePane(@NonNull Intent intent) {
-		parseIntent(intent);
-		return new SearchResultsFragment();
+		return  SearchResultsFragment.newInstance();
 	}
 
-	private void parseIntent(@NonNull Intent intent) {
+	@Override
+	protected void readIntent(Intent intent) {
 		String action = intent.getAction();
 		if (action != null && Intent.ACTION_VIEW.equals(action)) {
 			Uri uri = intent.getData();

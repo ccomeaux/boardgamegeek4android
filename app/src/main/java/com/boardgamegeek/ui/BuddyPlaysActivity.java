@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,7 +12,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -21,15 +21,20 @@ import org.greenrobot.eventbus.Subscribe;
 import hugo.weaving.DebugLog;
 
 public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private String buddyName;
 	private int numberOfPlays = -1;
+
+	public static void start(Context context, String buddyName) {
+		Intent starter = new Intent(context, BuddyPlaysActivity.class);
+		starter.putExtra(KEY_BUDDY_NAME, buddyName);
+		context.startActivity(starter);
+	}
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		buddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 
 		if (!TextUtils.isEmpty(buddyName)) {
 			ActionBar bar = getSupportActionBar();
@@ -44,16 +49,15 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 		}
 	}
 
+	@Override
+	protected void readIntent(Intent intent) {
+		buddyName = intent.getStringExtra(KEY_BUDDY_NAME);
+	}
+
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new PlaysFragment();
-	}
-
-	@Override
-	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
-		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_BUDDY);
-		return arguments;
+		return PlaysFragment.newInstanceForBuddy(buddyName);
 	}
 
 	@Override
@@ -73,7 +77,7 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ActivityUtils.navigateUpToBuddy(this, buddyName);
+				BuddyActivity.startUp(this, buddyName);
 				finish();
 				return true;
 		}
@@ -84,7 +88,7 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event);
+		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")

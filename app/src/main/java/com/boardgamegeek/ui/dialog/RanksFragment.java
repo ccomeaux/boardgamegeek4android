@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -20,9 +20,8 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.GameRankRow;
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,6 +29,8 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private int gameId;
 	private Uri uri;
 	private Unbinder unbinder;
 	@BindView(R.id.unranked) TextView unrankedView;
@@ -38,14 +39,22 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 	@BindView(R.id.standard_deviation) TextView standardDeviationView;
 	@BindView(R.id.votes) TextView votesView;
 
+	public static void launch(Fragment fragment, int gameId) {
+		Bundle arguments = new Bundle(1);
+		arguments.putInt(KEY_GAME_ID, gameId);
+		DialogUtils.launchDialog(fragment, new RanksFragment(), "ranks-dialog", arguments);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		readBundle(getArguments());
 		if (gameId == BggContract.INVALID_ID) dismiss();
 		uri = Games.buildRanksUri(gameId);
+	}
+
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 	}
 
 	@Override

@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -24,9 +24,8 @@ import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollRe
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.DialogUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +33,8 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class SuggestedPlayerCountPollFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private int gameId;
 	private Uri uri;
 	private Unbinder unbinder;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
@@ -43,13 +44,21 @@ public class SuggestedPlayerCountPollFragment extends DialogFragment implements 
 	@BindView(R.id.poll_key_container) LinearLayout keyContainer;
 	@BindView(R.id.no_votes_switch) Switch noVotesSwitch;
 
+	public static void launch(Fragment fragment, int gameId) {
+		Bundle arguments = new Bundle(1);
+		arguments.putInt(KEY_GAME_ID, gameId);
+		DialogUtils.launchDialog(fragment, new SuggestedPlayerCountPollFragment(), "suggested-player-count-poll-dialog", arguments);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		readBundle(getArguments());
 		uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId);
+	}
+
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 	}
 
 	@Override

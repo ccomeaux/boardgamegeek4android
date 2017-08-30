@@ -1,6 +1,9 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
@@ -492,4 +495,10 @@ public class PresentationUtils {
 			view.setVisibility(value ? View.VISIBLE : View.GONE);
 		}
 	};
+
+	public static void colorFab(FloatingActionButton fab, @ColorInt int iconColor) {
+		if (fab != null && iconColor != Color.TRANSPARENT) {
+			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
+		}
+	}
 }

@@ -71,7 +71,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 		viewId = getIntent().getLongExtra(KEY_VIEW_ID, savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this));
 
-		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			if (isCreatingShortcut) {
@@ -91,6 +90,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Collection"));
 		}
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 	}
 
 	@Override
@@ -131,7 +135,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	@DebugLog
 	protected Fragment onCreatePane() {
-		return new CollectionFragment();
+		return CollectionFragment.newInstance(isCreatingShortcut);
 	}
 
 	@Override

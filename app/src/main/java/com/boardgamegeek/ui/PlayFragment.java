@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -72,6 +71,11 @@ import icepick.Icepick;
 import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_ID = "ID";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_IMAGE_URL = "IMAGE_URL";
+	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int PLAY_QUERY_TOKEN = 0x01;
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
@@ -124,29 +128,38 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	};
 
+	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl) {
+		Bundle args = new Bundle();
+		args.putLong(KEY_ID, internalId);
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
+		args.putString(KEY_IMAGE_URL, imageUrl);
+		args.putString(KEY_THUMBNAIL_URL, thumbnailUrl);
+		PlayFragment fragment = new PlayFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
 		setHasOptionsMenu(true);
+	}
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		internalId = intent.getLongExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		if (internalId == BggContract.INVALID_ID) return;
-
-		play = new Play(intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID),
-			intent.getStringExtra(ActivityUtils.KEY_GAME_NAME));
-
-		thumbnailUrl = intent.getStringExtra(ActivityUtils.KEY_THUMBNAIL_URL);
-		imageUrl = intent.getStringExtra(ActivityUtils.KEY_IMAGE_URL);
+	private void readBundle(Bundle bundle) {
+		internalId = bundle.getLong(KEY_ID, BggContract.INVALID_ID);
+		play = new Play(bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID), bundle.getString(KEY_GAME_NAME));
+		thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
+		imageUrl = bundle.getString(KEY_IMAGE_URL);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, container, false);
 
-		playersView = (ListView) rootView.findViewById(android.R.id.list);
+		playersView = rootView.findViewById(android.R.id.list);
 		playersView.setHeaderDividersEnabled(false);
 		playersView.setFooterDividersEnabled(false);
 
@@ -237,7 +250,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_edit:
 				PlayManipulationEvent.log("Edit", play.gameName);
-				ActivityUtils.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				LogPlayActivity.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				return true;
 			case R.id.menu_send:
 				play.updateTimestamp = System.currentTimeMillis();
@@ -263,7 +276,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			}
 			case R.id.menu_rematch:
 				PlayManipulationEvent.log("Rematch", play.gameName);
-				ActivityUtils.rematch(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -317,7 +330,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@OnClick(R.id.timer_end)
 	void onTimerClick() {
-		ActivityUtils.endPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		LogPlayActivity.endPlay(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 	}
 
 	@Override
@@ -531,7 +544,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			row.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.startBuddyActivity(getActivity(), player.username, player.name);
+					BuddyActivity.start(getContext(), player.username, player.name);
 				}
 			});
 			return row;

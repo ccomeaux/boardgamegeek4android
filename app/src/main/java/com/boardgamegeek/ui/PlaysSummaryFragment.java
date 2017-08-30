@@ -43,7 +43,6 @@ import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.ui.model.PlayerColor;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -335,8 +334,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.startBuddyActivity(
-						getActivity(),
+					BuddyActivity.start(getContext(),
 						(String) v.getTag(R.id.username),
 						(String) v.getTag(R.id.name));
 				}
@@ -360,10 +358,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intent = ActivityUtils.createLocationIntent(
-						getActivity(),
-						(String) v.getTag(R.id.name));
-					startActivity(intent);
+					LocationActivity.start(getContext(), (String) v.getTag(R.id.name));
 				}
 			});
 		}
@@ -428,9 +423,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	@OnClick(R.id.edit_colors_button)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(getActivity()));
-		startActivity(intent);
+		PlayerColorsActivity.start(getContext(), AccountUtils.getUsername(getActivity()), null);
 	}
 
 	@OnClick(R.id.more_play_stats_button)

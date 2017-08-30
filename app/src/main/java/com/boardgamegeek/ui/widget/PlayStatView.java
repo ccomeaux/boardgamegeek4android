@@ -72,7 +72,7 @@ public class PlayStatView extends TableRow {
 	public void onInfoClick() {
 		if (builder != null) {
 			AlertDialog dialog = builder.show();
-			TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+			TextView textView = dialog.findViewById(android.R.id.message);
 			if (textView != null) {
 				textView.setMovementMethod(LinkMovementMethod.getInstance());
 			}

@@ -32,6 +32,10 @@ public class GeekListDescriptionFragment extends Fragment {
 	@BindView(R.id.body) WebView bodyView;
 	private XmlConverter xmlConverter;
 
+	public static GeekListDescriptionFragment newInstance() {
+		return new GeekListDescriptionFragment();
+	}
+
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {

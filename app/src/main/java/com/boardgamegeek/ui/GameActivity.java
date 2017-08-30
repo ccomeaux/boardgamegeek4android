@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,7 +19,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -41,10 +39,10 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -62,7 +60,6 @@ import timber.log.Timber;
 public class GameActivity extends HeroTabActivity implements Callback {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
-	private static final int REQUEST_EDIT_PLAY = 1;
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
@@ -110,10 +107,6 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		final ActionBar supportActionBar = getSupportActionBar();
-		if (supportActionBar != null) {
-			supportActionBar.setDisplayHomeAsUpEnabled(true);
-		}
 
 		final Uri gameUri = getIntent().getData();
 		if (gameUri == null) {
@@ -123,6 +116,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		gameId = Games.getGameId(gameUri);
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+
+		initializeViewPager();
 
 		new Handler().post(new Runnable() {
 			@Override
@@ -216,7 +211,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 				ActivityUtils.logQuickPlay(this, gameId, gameName);
 				return true;
 			case R.id.menu_view_image:
-				ActivityUtils.startImageActivity(this, imageUrl);
+				ImageActivity.start(this, imageUrl);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -260,18 +255,14 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			iconColor = iconSwatch.getRgb();
 			darkColor = darkSwatch.getRgb();
 			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor));
-			fab.setBackgroundTintList(ColorStateList.valueOf(PaletteUtils.getIconSwatch(palette).getRgb()));
-			if (PreferencesUtils.showLogPlay(this)) {
-				adapter.displayFab();
-			}
+			PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
+			adapter.displayFab();
 		}
 	}
 
 	@Override
 	public void onFailedImageLoad() {
-		if (PreferencesUtils.showLogPlay(this)) {
-			adapter.displayFab();
-		}
+		adapter.displayFab();
 	}
 
 	@DebugLog
@@ -283,8 +274,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 	public static class ColorEvent {
 		private final int gameId;
-		@ColorInt private int iconColor;
-		@ColorInt private int darkColor;
+		@ColorInt private final int iconColor;
+		@ColorInt private final int darkColor;
 
 		public ColorEvent(int gameId, int iconColor, int darkColor) {
 			this.gameId = gameId;
@@ -315,18 +306,16 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		public static final int INVALID_IMAGE_RES_ID = -1;
 
 		private final class Tab {
-			@StringRes private int titleResId;
-			private String className;
-			@DrawableRes private int imageResId;
-			private TabListener listener;
+			@StringRes private final int titleResId;
+			@DrawableRes private final int imageResId;
+			private final TabListener listener;
 
-			public Tab(int titleResId, String className) {
-				this(titleResId, className, INVALID_IMAGE_RES_ID, null);
+			public Tab(int titleResId) {
+				this(titleResId, INVALID_IMAGE_RES_ID, null);
 			}
 
-			public Tab(int titleResId, String className, int imageResId, TabListener listener) {
+			public Tab(int titleResId, int imageResId, TabListener listener) {
 				this.titleResId = titleResId;
-				this.className = className;
 				this.imageResId = imageResId;
 				this.listener = listener;
 			}
@@ -335,17 +324,13 @@ public class GameActivity extends HeroTabActivity implements Callback {
 				return titleResId;
 			}
 
-			public String getClassName() {
-				return className;
-			}
-
 			public int getImageResId() {
 				return imageResId;
 			}
 		}
 
-		private Context context;
-		private List<Tab> tabs = new ArrayList<>();
+		private final Context context;
+		private final List<Tab> tabs = new ArrayList<>();
 		private int currentPosition;
 
 		public GamePagerAdapter(FragmentManager fragmentManager, Context context) {
@@ -362,11 +347,10 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		private void updateTabs() {
 			tabs.clear();
-			tabs.add(new Tab(R.string.title_info, GameFragment.class.getName()));
+			tabs.add(new Tab(R.string.title_info));
 			if (shouldShowCollection())
 				tabs.add(new Tab(
 					R.string.title_collection,
-					GameCollectionFragment.class.getName(),
 					R.drawable.fab_add,
 					new TabListener() {
 						@Override
@@ -378,7 +362,6 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			if (shouldShowPlays())
 				tabs.add(new Tab(
 					R.string.title_plays,
-					GamePlaysFragment.class.getName(),
 					R.drawable.fab_log_play,
 					new TabListener() {
 						@Override
@@ -387,7 +370,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 						}
 					})
 				);
-			tabs.add(new Tab(R.string.links, GameLinksFragment.class.getName()));
+			tabs.add(new Tab(R.string.links));
 		}
 
 		@Override
@@ -401,12 +384,15 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		@Override
 		public Fragment getItem(int position) {
 			if (position < tabs.size()) {
-				String className = tabs.get(position).getClassName();
-				if (!TextUtils.isEmpty(className)) {
-					Bundle args = UIUtils.intentToFragmentArguments(getIntent());
-					args.putInt(ActivityUtils.KEY_ICON_COLOR, iconColor);
-					args.putInt(ActivityUtils.KEY_DARK_COLOR, darkColor);
-					return Fragment.instantiate(GameActivity.this, className, args);
+				switch (tabs.get(position).getTitleResId()) {
+					case R.string.title_info:
+						return GameFragment.newInstance(gameId, gameName, iconColor, darkColor);
+					case R.string.title_collection:
+						return GameCollectionFragment.newInstance(gameId, gameName);
+					case R.string.title_plays:
+						return GamePlaysFragment.newInstance(gameId, gameName, iconColor);
+					case R.string.links:
+						return GameLinksFragment.newInstance(gameId, gameName, iconColor);
 				}
 			}
 			return null;
@@ -427,11 +413,6 @@ public class GameActivity extends HeroTabActivity implements Callback {
 				if (resId != INVALID_IMAGE_RES_ID) {
 					if (fab.isShown()) {
 						fab.hide(new OnVisibilityChangedListener() {
-							@Override
-							public void onShown(FloatingActionButton fab) {
-								super.onShown(fab);
-							}
-
 							@Override
 							public void onHidden(FloatingActionButton fab) {
 								super.onHidden(fab);
@@ -472,9 +453,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		}
 
 		private void onPlayFabClicked() {
-			Intent intent = ActivityUtils.createEditPlayIntent(context, gameId, gameName, thumbnailUrl, imageUrl);
-			intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-			startActivityForResult(intent, REQUEST_EDIT_PLAY);
+			LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, arePlayersCustomSorted);
 		}
 
 		@DebugLog

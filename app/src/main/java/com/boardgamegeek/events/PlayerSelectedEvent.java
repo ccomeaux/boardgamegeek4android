@@ -1,16 +1,16 @@
 package com.boardgamegeek.events;
 
 public class PlayerSelectedEvent {
-	private final String name;
+	private final String displayName;
 	private final String username;
 
-	public PlayerSelectedEvent(String name, String username) {
-		this.name = name;
+	public PlayerSelectedEvent(String displayName, String username) {
+		this.displayName = displayName;
 		this.username = username;
 	}
 
-	public String getName() {
-		return name;
+	public String getDisplayName() {
+		return displayName;
 	}
 
 	public String getUsername() {

@@ -77,7 +77,7 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 			return view;
 		}
 
-		TextView titleView = (TextView) view.findViewById(R.id.autocomplete_item);
+		TextView titleView = view.findViewById(R.id.autocomplete_item);
 		if (titleView != null) {
 			if (result.username == null) {
 				titleView.setVisibility(View.GONE);

@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,14 +18,12 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Game.Comment;
 import com.boardgamegeek.model.ThingResponse;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GameComments;
 import com.boardgamegeek.ui.model.PaginatedData;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
@@ -39,6 +36,8 @@ import icepick.State;
 import retrofit2.Call;
 
 public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_SORT_BY_RATING = "SORT";
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 5;
 	private GameCommentsRecyclerViewAdapter adapter;
@@ -50,23 +49,34 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
+	public static CommentsFragment newInstance(int gameId, boolean isSortedByRating) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putBoolean(KEY_SORT_BY_RATING, isSortedByRating);
+		CommentsFragment fragment = new CommentsFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		gameId = Games.getGameId(intent.getData());
-		isSortedByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
 	}
 
 	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		readBundle(getArguments());
 		View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
 		return rootView;
+	}
+
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		isSortedByRating = bundle.getBoolean(KEY_SORT_BY_RATING);
 	}
 
 	@Override

@@ -1,10 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -33,6 +31,7 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.FavoriteGameTask;
@@ -57,11 +56,9 @@ import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
@@ -97,6 +94,11 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_ICON_COLOR = "ICON_COLOR";
+	private static final String KEY_DARK_COLOR = "DARK_COLOR";
+
 	private static final int HELP_VERSION = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
@@ -112,9 +114,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
 	private static final int SUGGESTED_AGE_TOKEN = 0x24;
 	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
-
-	private Uri gameUri;
-	private String gameName;
 
 	private Unbinder unbinder;
 
@@ -191,36 +190,40 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		R.id.icon_users,
 	}) List<ImageView> colorizedIcons;
 
+	private int gameId;
+	private String gameName;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
 	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
 
+	public static GameFragment newInstance(int gameId, String gameName, @ColorInt int iconColor, @ColorInt int darkColor) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
+		args.putInt(KEY_ICON_COLOR, iconColor);
+		args.putInt(KEY_DARK_COLOR, darkColor);
+		GameFragment fragment = new GameFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		EventBus.getDefault().register(this);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		setHasOptionsMenu(true);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		gameUri = intent.getData();
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, Color.TRANSPARENT);
-		darkColor = intent.getIntExtra(ActivityUtils.KEY_DARK_COLOR, Color.TRANSPARENT);
+		readBundle(getArguments());
 	}
 
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		EventBus.getDefault().unregister(this);
+	private void readBundle(Bundle bundle) {
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = bundle.getString(KEY_GAME_NAME);
+		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
+		darkColor = bundle.getInt(KEY_DARK_COLOR, Color.TRANSPARENT);
 	}
 
 	@Override
@@ -234,7 +237,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
-		idView.setText(String.valueOf(Games.getGameId(gameUri)));
+		idView.setText(String.valueOf(gameId));
 		updatedView.setTimestamp(0);
 
 		LoaderManager lm = getLoaderManager();
@@ -254,6 +257,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	public void onDestroyView() {
 		super.onDestroyView();
 		unbinder.unbind();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -291,10 +300,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		int gameId = Games.getGameId(gameUri);
 		switch (id) {
 			case GAME_TOKEN:
-				loader = new CursorLoader(getActivity(), gameUri, Game.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), Game.PROJECTION, null, null, null);
 				break;
 			case DESIGNER_TOKEN:
 				loader = new CursorLoader(getActivity(), GameDesigner.buildUri(gameId), GameDesigner.PROJECTION, null, null, null);
@@ -315,7 +323,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				loader = new CursorLoader(getActivity(), GameExpansion.buildUri(gameId), GameExpansion.PROJECTION, GameExpansion.getSelection(), GameExpansion.getSelectionArgs(), null);
 				break;
 			case BASE_GAME_TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
+				loader = new CursorLoader(getActivity(), GameBaseGame.buildUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
 			case RANK_TOKEN:
 				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
@@ -397,10 +405,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		if (forumsLastPostDateView.getVisibility() == VISIBLE) return;
 
 		BggService bggService = Adapter.createForXml();
-		Call<ForumListResponse> call = bggService.forumList(BggService.FORUM_TYPE_THING, Games.getGameId(gameUri));
+		Call<ForumListResponse> call = bggService.forumList(BggService.FORUM_TYPE_THING, gameId);
 		call.enqueue(new Callback<ForumListResponse>() {
 			@Override
-			public void onResponse(Call<ForumListResponse> call, Response<ForumListResponse> response) {
+			public void onResponse(@NonNull Call<ForumListResponse> call, @NonNull Response<ForumListResponse> response) {
 				if (response.isSuccessful() && forumsLastPostDateView != null) {
 					long lastPostDate = 0;
 					String title = "";
@@ -416,8 +424,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 
 			@Override
-			public void onFailure(Call<ForumListResponse> call, Throwable t) {
-				Timber.w("Failed fetching forum for game %s: %s", Games.getGameId(gameUri), t.getMessage());
+			public void onFailure(@NonNull Call<ForumListResponse> call, @NonNull Throwable t) {
+				Timber.w("Failed fetching forum for game %s: %s", gameId, t.getMessage());
 			}
 		});
 	}
@@ -437,7 +445,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		mightNeedRefreshing = false;
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
-			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), Games.getGameId(gameUri)));
+			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), gameId));
 		} else {
 			updateRefreshStatus(false);
 		}
@@ -446,7 +454,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncGameTask.CompletedEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
+		if (event.getGameId() == gameId) {
 			updateRefreshStatus(false);
 		}
 	}
@@ -549,7 +557,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			view.clear();
 		} else {
 			view.setVisibility(VISIBLE);
-			view.bind(cursor, GameList.NAME_COLUMN_INDEX, GameList.ID_COLUMN_INDEX, Games.getGameId(gameUri), gameName);
+			view.bind(cursor, GameList.NAME_COLUMN_INDEX, GameList.ID_COLUMN_INDEX, gameId, gameName);
 		}
 	}
 
@@ -665,15 +673,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	public void onFavoriteClick() {
 		boolean isFavorite = (boolean) favoriteView.getTag(R.id.favorite);
-		TaskUtils.executeAsyncTask(new FavoriteGameTask(getContext(), Games.getGameId(gameUri), !isFavorite));
+		TaskUtils.executeAsyncTask(new FavoriteGameTask(getContext(), gameId, !isFavorite));
 	}
 
 	@OnClick(R.id.game_rank_root)
 	@DebugLog
 	public void onRankClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		DialogUtils.launchDialog(this, new RanksFragment(), "ranks-dialog", arguments);
+		RanksFragment.launch(this, gameId);
 	}
 
 	@SuppressLint("InflateParams")
@@ -690,53 +696,37 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick(R.id.forums_root)
 	@DebugLog
 	public void onForumsClick() {
-		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		startActivity(intent);
+		GameForumsActivity.start(getContext(), Games.buildGameUri(gameId), gameName);
 	}
 
 	@OnClick(R.id.language_dependence_root)
 	@DebugLog
 	public void onLanguageDependenceClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, PollFragment.LANGUAGE_DEPENDENCE);
-		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
+		PollFragment.launchLanguageDependence(this, gameId);
 	}
 
 	@OnClick(R.id.comments_root)
 	@DebugLog
 	public void onCommentsClick() {
-		Intent intent = new Intent(getActivity(), CommentsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		startActivity(intent);
+		CommentsActivity.startComments(getContext(), Games.buildGameUri(gameId), gameName);
 	}
 
 	@OnClick(R.id.users_count_root)
 	@DebugLog
 	public void onUsersClick() {
-		Bundle arguments = new Bundle(1);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putInt(ActivityUtils.KEY_ICON_COLOR, darkColor);
-		DialogUtils.launchDialog(this, new GameUsersDialogFragment(), "users-dialog", arguments);
+		GameUsersDialogFragment.launch(this, gameId, darkColor);
 	}
 
 	@DebugLog
 	@OnClick(R.id.ratings_root)
 	public void onRatingsClick() {
-		Intent intent = new Intent(getActivity(), CommentsActivity.class);
-		intent.setData(gameUri);
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_RATING);
-		startActivity(intent);
+		CommentsActivity.startRating(getContext(), Games.buildGameUri(gameId), gameName);
 	}
 
 	@SuppressWarnings("unused")
 	@Subscribe
 	public void onEvent(ColorEvent event) {
-		if (event.getGameId() == Games.getGameId(gameUri)) {
+		if (event.getGameId() == gameId) {
 			iconColor = event.getIconColor();
 			darkColor = event.getDarkColor();
 			colorize();
@@ -752,17 +742,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick({ R.id.player_age_root })
 	@DebugLog
 	public void onPollClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		arguments.putString(ActivityUtils.KEY_TYPE, PollFragment.SUGGESTED_PLAYER_AGE);
-		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
+		PollFragment.launchSuggestedPlayerAge(this, gameId);
 	}
 
 	@OnClick({ R.id.number_of_players_root })
 	@DebugLog
 	public void onSuggestedPlayerCountPollClick() {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(gameUri));
-		DialogUtils.launchDialog(this, new SuggestedPlayerCountPollFragment(), "suggested-player-count-poll-dialog", arguments);
+		SuggestedPlayerCountPollFragment.launch(this, gameId);
 	}
 }

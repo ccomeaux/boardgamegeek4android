@@ -257,7 +257,7 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 			.setTitle(titleResId)
 			.setMessage(spannableMessage);
 		AlertDialog dialog = builder.show();
-		TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+		TextView textView = dialog.findViewById(android.R.id.message);
 		if (textView != null) {
 			textView.setMovementMethod(LinkMovementMethod.getInstance());
 		}
