@@ -1,5 +1,6 @@
 package com.boardgamegeek.util.shortcut;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
@@ -26,7 +27,7 @@ import java.io.OutputStream;
 import timber.log.Timber;
 
 public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
-	protected final Context context;
+	@SuppressLint("StaticFieldLeak") protected final Context context;
 	private final String thumbnailUrl;
 
 	public ShortcutTask(Context context) {
@@ -43,7 +44,7 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	protected abstract Intent createIntent();
 
 	protected int getShortcutIconResId() {
-		return R.drawable.ic_launcher;
+		return R.mipmap.ic_launcher_foreground;
 	}
 
 	protected abstract String getId();
@@ -52,7 +53,7 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	protected Void doInBackground(Void... params) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
-			if (shortcutManager.isRequestPinShortcutSupported()) {
+			if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
 				ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
 					.setShortLabel(StringUtils.limitText(getShortcutName(), 10))
 					.setLongLabel(StringUtils.limitText(getShortcutName(), 25))
