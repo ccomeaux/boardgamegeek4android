@@ -110,8 +110,6 @@
 	<string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
 	<string name="msg_color_success">You get a color and you get a color. Everybody gets a color!</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
-	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
-	<string name="are_you_sure_refresh_message">Are you sure you want to discard local changes?</string>
 	<string name="discard_new_message">"Are you sure you want to discard this %s?"</string>
 	<string name="discard_changes_message">"Are you sure you want to discard changes to this %s?"</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
@@ -420,7 +418,6 @@
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
-	<string name="unknown">Unknown</string>
 	<string name="unknown_weight">Unknown weight</string>
 	<string name="unknown_language">Unknown language dependence</string>
 	<string name="ages">Ages</string>
@@ -468,10 +465,8 @@
 	<string name="synced_prefix">Synced %s</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="average_rating_prefix">Average rating: <b>%s</b></string>
 	<string name="standard_deviation_prefix">Standard deviation: <b>%.3f</b></string>
 	<string name="by_prefix">by %s</string>
-	<string name="add">Add</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_custom_player_order">Custom</string>
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
@@ -494,7 +489,6 @@
 	<string name="help_title">Help</string>
 	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
 	<string name="help_game_menu">From here you can…\n- Share\n- Pin a shortcut on the home screen\n- View a larger version of the game image</string>
-	<string name="help_game_log_play">- Log plays</string>
 	<string name="help_game_poll">- View polls</string>
 	<string name="help_collection">Got lots of games? Why don\'t you…</string>
 	<string name="help_collection_sort">- Sort</string>
@@ -614,7 +608,6 @@
 	<string name="game">game</string>
 	<string name="play">play</string>
 	<string name="player">player</string>
-	<string name="select_file">Select File</string>
 	<string name="best">Best</string>
 	<string name="recommended">Recommended</string>
 
