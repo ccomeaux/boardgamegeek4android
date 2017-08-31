@@ -1,9 +1,11 @@
 package com.boardgamegeek.export;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
@@ -30,13 +32,13 @@ public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, In
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
 
-	protected final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable protected final Context context;
 	private final String type;
 	private final Uri uri;
 	private final List<T> items;
 
-	public JsonImportTask(Context context, String type, Uri uri) {
-		this.context = context.getApplicationContext();
+	public JsonImportTask(@Nullable Context context, String type, Uri uri) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.type = type;
 		this.uri = uri;
 		items = new ArrayList<>();
@@ -51,6 +53,8 @@ public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, In
 
 	@Override
 	protected String doInBackground(Void... params) {
+		if (context == null) return "Error.";
+
 		FileInputStream in;
 		ParcelFileDescriptor pfd = null;
 		if (uri == null) {

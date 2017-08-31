@@ -23,6 +23,7 @@ public class ResetGameTask extends ToastingAsyncTask {
 
 	@Override
 	protected Boolean doInBackground(Void... params) {
+		if (getContext() == null) return false;
 		ContentValues cv = new ContentValues(3);
 		cv.put(Games.UPDATED_LIST, 0);
 		cv.put(Games.UPDATED, 0);

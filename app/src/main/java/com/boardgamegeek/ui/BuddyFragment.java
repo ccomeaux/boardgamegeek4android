@@ -397,7 +397,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			@Override
 			public void onFinishEditDialog(String newNickname, boolean updatePlays) {
 				if (!TextUtils.isEmpty(newNickname)) {
-					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getContext(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
 					DataManipulationEvent.log("BuddyNickname", "Edit");
 				}

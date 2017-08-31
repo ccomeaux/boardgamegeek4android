@@ -66,6 +66,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 
 	@Override
 	protected void finishSync() {
+		if (context == null) return;
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
 		if (SyncService.isPlaysSyncUpToDate(context)) {

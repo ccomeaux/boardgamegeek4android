@@ -233,7 +233,8 @@ public class PreferencesUtils {
 		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}
 
-	public static void updatePlayStats(@NonNull Context context, PlayStats playStats) {
+	public static void updatePlayStats(@Nullable Context context, PlayStats playStats) {
+		if (context == null) return;
 		if (playStats == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();

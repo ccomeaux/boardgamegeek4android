@@ -1,10 +1,12 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArraySet;
 
 import com.boardgamegeek.auth.AccountUtils;
@@ -42,7 +44,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private static final int RANK = 2;
 	private static final int GAME_ID = 3;
 
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private static final int MIN_H_INDEX_ENTRIES = 3;
 	private static final int MAX_H_INDEX_ENTRIES = 6;
 	private int numberOfPlays;
@@ -61,8 +63,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private boolean isOwnedSynced;
 	private final double lambda;
 
-	public CalculatePlayStatsTask(Context context) {
-		this.context = context.getApplicationContext();
+	public CalculatePlayStatsTask(@Nullable Context context) {
+		this.context = context == null ? null : context.getApplicationContext();
 		lambda = Math.log(0.1) / -10;
 	}
 
@@ -70,35 +72,37 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	protected PlayStats doInBackground(Void... params) {
 		reset();
 
-		isOwnedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN);
-		boolean isPlayedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		if (context != null) {
+			isOwnedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN);
+			boolean isPlayedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
 
-		Set<Integer> ownedGameIds = getOwnedGameIds();
+			Set<Integer> ownedGameIds = getOwnedGameIds();
 
-		Cursor cursor = context.getContentResolver().query(
-			getUri(isOwnedSynced && isPlayedSynced),
-			PROJECTION,
-			getGameSelection(),
-			getGameSelectionArgs(),
-			getGameSortOrder());
+			Cursor cursor = context.getContentResolver().query(
+				getUri(isOwnedSynced && isPlayedSynced),
+				PROJECTION,
+				getGameSelection(),
+				getGameSelectionArgs(),
+				getGameSortOrder());
 
-		try {
-			if (cursor != null) calculateGameStats(cursor, ownedGameIds);
-		} finally {
-			if (cursor != null) cursor.close();
-		}
+			try {
+				if (cursor != null) calculateGameStats(cursor, ownedGameIds);
+			} finally {
+				if (cursor != null) cursor.close();
+			}
 
-		Cursor playerCursor = context.getContentResolver().query(
-			Plays.buildPlayersByUniquePlayerUri(),
-			Player.PROJECTION,
-			getPlayerSelection(context),
-			getPlayerSelectionArgs(context),
-			getPlayerSortOrder());
+			Cursor playerCursor = context.getContentResolver().query(
+				Plays.buildPlayersByUniquePlayerUri(),
+				Player.PROJECTION,
+				getPlayerSelection(context),
+				getPlayerSelectionArgs(context),
+				getPlayerSortOrder());
 
-		try {
-			if (playerCursor != null) calculatePlayerStats(playerCursor);
-		} finally {
-			if (playerCursor != null) playerCursor.close();
+			try {
+				if (playerCursor != null) calculatePlayerStats(playerCursor);
+			} finally {
+				if (playerCursor != null) playerCursor.close();
+			}
 		}
 
 		PlayStats playStats = new Builder()
@@ -201,7 +205,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	@NonNull
 	private Set<Integer> getOwnedGameIds() {
 		Set<Integer> ownedGameIds = new ArraySet<>();
-		if (isOwnedSynced) {
+		if (isOwnedSynced && context != null) {
 			Cursor collectionCursor = context.getContentResolver().query(
 				Collection.CONTENT_URI,
 				new String[] { Collection.GAME_ID },

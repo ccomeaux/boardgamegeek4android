@@ -1,7 +1,9 @@
 package com.boardgamegeek.tasks.sync;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
@@ -18,20 +20,21 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Void, Void, String> {
-	protected final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable protected final Context context;
 	protected final long startTime;
 	protected BggService bggService;
 	private Call<T> call;
 	private int page = 1;
 
-	SyncTask(Context context) {
-		this.context = context;
+	SyncTask(@Nullable Context context) {
+		this.context = context == null ? null : context.getApplicationContext();
 		startTime = System.currentTimeMillis();
 	}
 
 	@DebugLog
 	@Override
 	protected String doInBackground(Void... params) {
+		if (context == null) return "Error.";
 		bggService = createService();
 		if (!isRequestParamsValid())
 			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));

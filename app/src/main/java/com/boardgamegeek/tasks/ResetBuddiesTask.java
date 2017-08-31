@@ -29,7 +29,7 @@ public class ResetBuddiesTask extends ToastingAsyncTask {
 	@Override
 	protected Boolean doInBackground(Void... params) {
 		boolean success = SyncService.clearBuddies(getContext());
-		if (success) {
+		if (success && getContext() != null) {
 			int count = getContext().getContentResolver().delete(Buddies.CONTENT_URI, null, null);
 			//TODO remove buddy colors
 			Timber.i("Removed %d GeekBuddies", count);

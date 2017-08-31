@@ -3,6 +3,7 @@ package com.boardgamegeek.tasks;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -24,7 +25,7 @@ import timber.log.Timber;
  * Deletes all data in the local database.
  */
 public class ClearDatabaseTask extends ToastingAsyncTask {
-	private ContentResolver resolver;
+	@Nullable private ContentResolver resolver;
 
 	public ClearDatabaseTask(Context context) {
 		super(context);
@@ -42,11 +43,13 @@ public class ClearDatabaseTask extends ToastingAsyncTask {
 
 	@Override
 	protected void onPreExecute() {
-		resolver = getContext().getContentResolver();
+		resolver = getContext() == null ? null : getContext().getContentResolver();
 	}
 
 	@Override
 	protected Boolean doInBackground(Void... params) {
+		if (getContext() == null) return false;
+
 		boolean success = SyncService.clearCollection(getContext());
 		success &= SyncService.clearBuddies(getContext());
 		success &= SyncService.clearPlays(getContext());
@@ -63,15 +66,18 @@ public class ClearDatabaseTask extends ToastingAsyncTask {
 		count += delete(CollectionViews.CONTENT_URI);
 		Timber.i("Removed %d records", count);
 
-		count = 0;
-		count += resolver.delete(Thumbnails.CONTENT_URI, null, null);
-		count += resolver.delete(Avatars.CONTENT_URI, null, null);
-		Timber.i("Removed %d files", count);
+		if (resolver != null) {
+			count = 0;
+			count += resolver.delete(Thumbnails.CONTENT_URI, null, null);
+			count += resolver.delete(Avatars.CONTENT_URI, null, null);
+			Timber.i("Removed %d files", count);
+		}
 
 		return success;
 	}
 
 	private int delete(Uri uri) {
+		if (resolver == null) return 0;
 		int count = resolver.delete(uri, null, null);
 		Timber.i("Removed %1$d %2$s", count, uri.getLastPathSegment());
 		return count;

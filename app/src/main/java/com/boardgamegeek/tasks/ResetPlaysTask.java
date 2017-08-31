@@ -30,7 +30,7 @@ public class ResetPlaysTask extends ToastingAsyncTask {
 	@Override
 	protected Boolean doInBackground(Void... params) {
 		boolean success = SyncService.clearPlays(getContext());
-		if (success) {
+		if (success && getContext() != null) {
 			ContentValues values = new ContentValues(1);
 			values.put(Plays.SYNC_HASH_CODE, 0);
 			int count = getContext().getContentResolver().update(Plays.CONTENT_URI, values, null, null);
