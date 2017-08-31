@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -148,7 +149,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		setHasOptionsMenu(true);
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		internalId = bundle.getLong(KEY_ID, BggContract.INVALID_ID);
 		play = new Play(bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID), bundle.getString(KEY_GAME_NAME));
 		thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);

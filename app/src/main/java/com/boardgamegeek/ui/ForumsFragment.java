@@ -49,7 +49,10 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	public static ForumsFragment newInstance() {
-		return new ForumsFragment();
+		Bundle args = new Bundle();
+		ForumsFragment fragment = new ForumsFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	public static ForumsFragment newInstance(int gameId, String gameName) {
@@ -72,7 +75,8 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		return rootView;
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = bundle.getString(KEY_GAME_NAME);
 	}

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -64,7 +65,8 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		return rootView;
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID);
 		queryToken = bundle.getInt(KEY_QUERY_TOKEN);
 	}

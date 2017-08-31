@@ -73,7 +73,8 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 		return rootView;
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		forumId = bundle.getInt(KEY_FORUM_ID, BggContract.INVALID_ID);
 		forumTitle = bundle.getString(KEY_FORUM_TITLE);
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);

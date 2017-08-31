@@ -188,7 +188,8 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}

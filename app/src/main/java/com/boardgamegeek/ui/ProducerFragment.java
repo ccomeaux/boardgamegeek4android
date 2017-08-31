@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -74,7 +75,8 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		}
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		uri = bundle.getParcelable(KEY_URI);
 	}
 

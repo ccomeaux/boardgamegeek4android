@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -92,7 +93,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		return rootView;
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		threadId = bundle.getInt(KEY_THREAD_ID, BggContract.INVALID_ID);
 		forumId = bundle.getInt(KEY_FORUM_ID, BggContract.INVALID_ID);
 		forumTitle = bundle.getString(KEY_FORUM_TITLE);

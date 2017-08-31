@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
@@ -145,9 +146,10 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		return rootView;
 	}
 
-	private void readBundle(Bundle args) {
-		buddyName = args.getString(KEY_BUDDY_NAME);
-		playerName = args.getString(KEY_PLAYER_NAME);
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		buddyName = bundle.getString(KEY_BUDDY_NAME);
+		playerName = bundle.getString(KEY_PLAYER_NAME);
 	}
 
 	private boolean isUser() {

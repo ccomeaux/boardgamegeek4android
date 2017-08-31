@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,7 +80,8 @@ public class ArticleFragment extends Fragment {
 		unbinder.unbind();
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		user = bundle.getString(KEY_USER);
 		postDate = bundle.getLong(KEY_POST_DATE, 0);
 		editDate = bundle.getLong(KEY_EDIT_DATE, 0);

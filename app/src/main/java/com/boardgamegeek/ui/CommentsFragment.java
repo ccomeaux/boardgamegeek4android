@@ -74,7 +74,8 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		return rootView;
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		isSortedByRating = bundle.getBoolean(KEY_SORT_BY_RATING);
 	}

@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -84,7 +85,8 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		pollResultUri = Games.buildPollResultsResultUri(gameId, pollType);
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		pollType = bundle.getString(KEY_TYPE);
 	}

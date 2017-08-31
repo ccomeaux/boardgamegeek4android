@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,7 +85,8 @@ public class GeekListItemFragment extends Fragment {
 		xmlConverter = new XmlConverter();
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		order = bundle.getInt(KEY_ORDER, 0);
 		geekListTitle = bundle.getString(KEY_TITLE);
 		type = bundle.getString(KEY_TYPE);

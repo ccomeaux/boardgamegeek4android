@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -67,7 +68,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = bundle.getString(KEY_GAME_NAME);
 	}

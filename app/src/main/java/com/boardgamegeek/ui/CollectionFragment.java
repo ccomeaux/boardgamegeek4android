@@ -164,7 +164,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		isCreatingShortcut = bundle.getBoolean(KEY_IS_CREATING_SHORTCUT);
 	}
 

@@ -175,7 +175,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
-	private void readBundle(Bundle bundle) {
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		collectionId = bundle.getInt(KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
