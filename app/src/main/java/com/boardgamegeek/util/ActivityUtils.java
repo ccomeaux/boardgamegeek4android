@@ -105,10 +105,13 @@ public class ActivityUtils {
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {
-		if (TextUtils.isEmpty(gameName)) {
-			return;
-		}
+		if (TextUtils.isEmpty(gameName)) return;
 		link(context, "http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName));
+	}
+
+	public static void linkBgPricesUk(Context context, String gameName) {
+		if (TextUtils.isEmpty(gameName)) return;
+		link(context, "https://boardgameprices.co.uk/item/search?search=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkAmazon(Context context, String gameName, String domain) {

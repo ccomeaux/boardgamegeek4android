@@ -287,7 +287,8 @@
 	<string name="menu_view_image">View image</string>
 	<string name="links">Links</string>
 	<string name="link_bgg">BoardGameGeek</string>
-	<string name="link_bg_prices">Board Game Prices</string>
+	<string name="link_bg_prices">BoardGamePrices.com</string>
+	<string name="link_bg_prices_uk">BoardGamePrices.co.uk</string>
 	<string name="link_amazon">Amazon.com</string>
 	<string name="link_amazon_uk">Amazon.co.uk</string>
 	<string name="link_amazon_de">Amazon.de</string>
