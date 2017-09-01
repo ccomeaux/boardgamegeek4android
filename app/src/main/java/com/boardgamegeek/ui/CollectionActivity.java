@@ -8,7 +8,10 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -158,17 +161,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		if (shortcutIntent != null) {
 			Intent intent;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-				ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-				ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, "game-" + event.getId())
-					.setShortLabel(StringUtils.limitText(event.getName(), 10))
-					.setIntent(shortcutIntent);
-				File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
-				if (file != null && file.exists()) {
-					builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
-				} else {
-					builder.setIcon(Icon.createWithResource(this, R.drawable.ic_adaptive_game));
-				}
-				intent = shortcutManager.createShortcutResultIntent(builder.build());
+				intent = createShortcutForOreo(event, shortcutIntent);
 			} else {
 				intent = ShortcutUtils.createShortcutIntent(this, event.getName(), shortcutIntent);
 				File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
@@ -176,9 +169,26 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 					intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
 				}
 			}
-			setResult(RESULT_OK, intent);
+			if (intent != null) setResult(RESULT_OK, intent);
 		}
 		finish();
+	}
+
+	@RequiresApi(api = VERSION_CODES.O)
+	@Nullable
+	private Intent createShortcutForOreo(GameShortcutRequestedEvent event, Intent shortcutIntent) {
+		ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+		if (shortcutManager == null) return null;
+		ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, "game-" + event.getId())
+			.setShortLabel(StringUtils.limitText(event.getName(), 10))
+			.setIntent(shortcutIntent);
+		File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
+		if (file != null && file.exists()) {
+			builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
+		} else {
+			builder.setIcon(Icon.createWithResource(this, R.drawable.ic_adaptive_game));
+		}
+		return shortcutManager.createShortcutResultIntent(builder.build());
 	}
 
 	@SuppressWarnings("unused")

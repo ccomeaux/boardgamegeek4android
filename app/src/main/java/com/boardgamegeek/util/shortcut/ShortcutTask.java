@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -52,24 +54,7 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	@Override
 	protected Void doInBackground(Void... params) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
-			if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
-				ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
-					.setShortLabel(StringUtils.limitText(getShortcutName(), 10))
-					.setLongLabel(StringUtils.limitText(getShortcutName(), 25))
-					.setIntent(createIntent());
-				if (!TextUtils.isEmpty(thumbnailUrl)) {
-					Bitmap bitmap = fetchThumbnail();
-					if (bitmap != null) {
-						builder.setIcon(Icon.createWithAdaptiveBitmap(bitmap));
-					} else {
-						builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
-					}
-				} else {
-					builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
-				}
-				shortcutManager.requestPinShortcut(builder.build(), null);
-			}
+			createShortcutForOreo();
 		} else {
 			Intent shortcutIntent = ShortcutUtils.createShortcutIntent(context, getShortcutName(), createIntent(), getShortcutIconResId());
 			if (!TextUtils.isEmpty(thumbnailUrl)) {
@@ -81,6 +66,28 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 			context.sendBroadcast(shortcutIntent);
 		}
 		return null;
+	}
+
+	@RequiresApi(api = VERSION_CODES.O)
+	private void createShortcutForOreo() {
+		ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+		if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
+			ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
+				.setShortLabel(StringUtils.limitText(getShortcutName(), 10))
+				.setLongLabel(StringUtils.limitText(getShortcutName(), 25))
+				.setIntent(createIntent());
+			if (!TextUtils.isEmpty(thumbnailUrl)) {
+				Bitmap bitmap = fetchThumbnail();
+				if (bitmap != null) {
+					builder.setIcon(Icon.createWithAdaptiveBitmap(bitmap));
+				} else {
+					builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
+				}
+			} else {
+				builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
+			}
+			shortcutManager.requestPinShortcut(builder.build(), null);
+		}
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package com.boardgamegeek.tasks;
 
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.ShortcutInfo;
@@ -15,6 +14,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -73,7 +73,7 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 		}
 	}
 
-	@TargetApi(VERSION_CODES.N_MR1)
+	@RequiresApi(VERSION_CODES.N_MR1)
 	private void setShortcuts() {
 		if (context == null) return;
 		List<ShortcutInfo> shortcuts = new ArrayList<>(SHORTCUT_COUNT);
@@ -97,7 +97,7 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 		shortcutManager.setDynamicShortcuts(shortcuts);
 	}
 
-	@TargetApi(VERSION_CODES.N_MR1)
+	@RequiresApi(VERSION_CODES.N_MR1)
 	@NonNull
 	private ShortcutInfo createShortcutInfo(long viewId, @NonNull String viewName) {
 		return new ShortcutInfo.Builder(context, createShortcutName(viewId))
