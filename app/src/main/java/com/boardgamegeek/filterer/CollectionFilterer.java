@@ -10,7 +10,7 @@ import com.boardgamegeek.util.StringUtils;
 
 public abstract class CollectionFilterer {
 	protected static final String DELIMITER = ":";
-	protected Context context;
+	protected final Context context;
 
 	public CollectionFilterer(@NonNull Context context) {
 		this.context = context;
