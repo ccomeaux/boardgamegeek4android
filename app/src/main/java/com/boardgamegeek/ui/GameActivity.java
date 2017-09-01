@@ -231,7 +231,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 			ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 		}
 		thumbnailUrl = event.getThumbnailUrl();
-		arePlayersCustomSorted = event.arePlayersCustomSorted();
+		arePlayersCustomSorted = event.getArePlayersCustomSorted();
 		isFavorite = event.isFavorite();
 		ScrimUtils.applyDarkScrim(scrimView);
 	}

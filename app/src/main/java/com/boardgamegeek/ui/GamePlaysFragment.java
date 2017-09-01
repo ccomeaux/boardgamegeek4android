@@ -288,7 +288,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public void onEvent(GameInfoChangedEvent event) {
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
-		arePlayersCustomSorted = event.arePlayersCustomSorted();
+		arePlayersCustomSorted = event.getArePlayersCustomSorted();
 	}
 
 	private void colorize() {
