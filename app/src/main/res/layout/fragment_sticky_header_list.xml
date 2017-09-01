@@ -12,6 +12,14 @@
 		android:layout_height="match_parent"
 		android:background="@android:color/white">
 
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"/>
+
 		<android.support.design.widget.CoordinatorLayout
 			android:id="@+id/list_container"
 			android:layout_width="match_parent"
@@ -64,14 +72,6 @@
 				app:pressedTranslationZ="@dimen/fab_translation"
 				app:rippleColor="@color/medium_blue"
 				tools:visibility="visible"/>
-
-			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-				android:id="@+id/progress"
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:gravity="center"/>
 		</android.support.design.widget.CoordinatorLayout>
 	</FrameLayout>
 </android.support.v4.widget.SwipeRefreshLayout>
