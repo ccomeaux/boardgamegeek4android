@@ -5,7 +5,7 @@ Version 6.5
 -----------
  * Filter collection by recommended player counts
  * UI changes (improvements?)
- * Support Android O
+ * Support Android Oreo
    * App shortcuts
    * Notifications
    * Adaptive icon
