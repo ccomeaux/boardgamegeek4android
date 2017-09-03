@@ -11,6 +11,7 @@ import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
@@ -29,15 +30,15 @@ import java.io.OutputStream;
 import timber.log.Timber;
 
 public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
-	@SuppressLint("StaticFieldLeak") protected final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable protected final Context context;
 	private final String thumbnailUrl;
 
-	public ShortcutTask(Context context) {
+	public ShortcutTask(@Nullable Context context) {
 		this(context, null);
 	}
 
-	public ShortcutTask(Context context, String thumbnailUrl) {
-		this.context = context.getApplicationContext();
+	public ShortcutTask(@Nullable Context context, String thumbnailUrl) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.thumbnailUrl = HttpUtils.ensureScheme(thumbnailUrl);
 	}
 
@@ -51,8 +52,10 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 
 	protected abstract String getId();
 
+	@Nullable
 	@Override
 	protected Void doInBackground(Void... params) {
+		if (context == null) return null;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createShortcutForOreo();
 		} else {
@@ -70,6 +73,7 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 
 	@RequiresApi(api = VERSION_CODES.O)
 	private void createShortcutForOreo() {
+		if (context == null) return;
 		ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 		if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
 			ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
@@ -94,6 +98,7 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	protected void onPostExecute(Void nothing) {
 	}
 
+	@Nullable
 	private Bitmap fetchThumbnail() {
 		Bitmap bitmap = null;
 		File file = ShortcutUtils.getThumbnailFile(context, thumbnailUrl);
