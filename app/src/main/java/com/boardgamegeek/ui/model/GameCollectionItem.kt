@@ -9,45 +9,58 @@ import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.PresentationUtils
 import java.util.*
 
-class GameCollectionItem private constructor() {
-
-    var internalId: Long = 0
-        private set
-    var collectionId: Int = 0
-        private set
-    var yearPublished: Int = 0
-        private set
-    var imageUrl: String? = null
-        private set
-    var thumbnailUrl: String? = null
-        private set
-    var collectionName: String? = null
-        private set
-    var collectionYearPublished: Int = 0
-        private set
-    var numberOfPlays: Int = 0
-        private set
-    var comment: String? = null
-        private set
-    var rating: Double = 0.toDouble()
-        private set
-    private var statuses: MutableList<String> = ArrayList(0)
-    var syncTimestamp: Long = 0
-        private set
-
-    fun getStatuses(): List<String>? {
-        return statuses
-    }
+data class GameCollectionItem(
+        val internalId: Long,
+        val collectionId: Int,
+        val collectionName: String,
+        val collectionYearPublished: Int,
+        val yearPublished: Int,
+        val imageUrl: String,
+        val thumbnailUrl: String,
+        val comment: String,
+        val numberOfPlays: Int,
+        val rating: Double,
+        val syncTimestamp: Long,
+        val statuses: List<String>
+) {
 
     companion object {
-        val projection = arrayOf(Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME, Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_THUMBNAIL_URL, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE, Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST, Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS, Collection.COMMENT, Collection.YEAR_PUBLISHED, Collection.RATING, Collection.IMAGE_URL, Collection.UPDATED)
-
         val uri: Uri = Collection.CONTENT_URI
+
+        val selection: String
+            get() = "collection.${Collection.GAME_ID}=?"
+
+        fun getSelectionArgs(gameId: Int): Array<String> {
+            return arrayOf(gameId.toString())
+        }
+
+        val projection = arrayOf(
+                Collection._ID,
+                Collection.COLLECTION_ID,
+                Collection.COLLECTION_NAME,
+                Collection.COLLECTION_YEAR_PUBLISHED,
+                Collection.COLLECTION_THUMBNAIL_URL,
+                Collection.STATUS_OWN,
+                Collection.STATUS_PREVIOUSLY_OWNED,
+                Collection.STATUS_FOR_TRADE,
+                Collection.STATUS_WANT,
+                Collection.STATUS_WANT_TO_BUY,
+                Collection.STATUS_WISHLIST,
+                Collection.STATUS_WANT_TO_PLAY,
+                Collection.STATUS_PREORDERED,
+                Collection.STATUS_WISHLIST_PRIORITY,
+                Collection.NUM_PLAYS,
+                Collection.COMMENT,
+                Collection.YEAR_PUBLISHED,
+                Collection.RATING,
+                Collection.IMAGE_URL,
+                Collection.UPDATED
+        )
 
         private val _ID = 0
         private val COLLECTION_ID = 1
         private val COLLECTION_NAME = 2
-        private val COLLECTION_YEAR = 3
+        private val COLLECTION_YEAR_PUBLISHED = 3
         private val COLLECTION_THUMBNAIL_URL = 4
         private val STATUS_1 = 5
         private val STATUS_N = 12
@@ -61,37 +74,31 @@ class GameCollectionItem private constructor() {
         private val UPDATED = 19
 
         fun fromCursor(context: Context, cursor: Cursor): GameCollectionItem {
-            val item = GameCollectionItem()
-            item.internalId = cursor.getLong(_ID)
-            item.collectionId = cursor.getInt(COLLECTION_ID)
-            item.yearPublished = cursor.getInt(YEAR_PUBLISHED)
-            item.imageUrl = cursor.getString(COLLECTION_IMAGE_URL)
-            item.thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL)
-            item.collectionName = cursor.getString(COLLECTION_NAME)
-            item.collectionYearPublished = cursor.getInt(COLLECTION_YEAR)
-            item.numberOfPlays = cursor.getInt(NUM_PLAYS)
-            item.comment = cursor.getString(COMMENT)
-            item.rating = cursor.getDouble(RATING)
-            item.syncTimestamp = cursor.getLong(UPDATED)
-
-            item.statuses = ArrayList()
+            val statuses = ArrayList<String>()
             (STATUS_1..STATUS_N)
                     .filter { cursor.getInt(it) == 1 }
                     .forEach {
                         if (it == STATUS_WISH_LIST) {
-                            item.statuses.add(PresentationUtils.describeWishlist(context, cursor.getInt(STATUS_WISH_LIST_PRIORITY)))
+                            statuses.add(PresentationUtils.describeWishlist(context, cursor.getInt(STATUS_WISH_LIST_PRIORITY)))
                         } else {
-                            item.statuses.add(context.resources.getStringArray(R.array.collection_status_filter_entries)[it - STATUS_1])
+                            statuses.add(context.resources.getStringArray(R.array.collection_status_filter_entries)[it - STATUS_1])
                         }
                     }
-            return item
-        }
 
-        val selection: String
-            get() = "collection.${Collection.GAME_ID}=?"
-
-        fun getSelectionArgs(gameId: Int): Array<String> {
-            return arrayOf(gameId.toString())
+            return GameCollectionItem(
+                    cursor.getLong(_ID),
+                    cursor.getInt(COLLECTION_ID),
+                    cursor.getString(COLLECTION_NAME) ?: "",
+                    cursor.getInt(COLLECTION_YEAR_PUBLISHED),
+                    cursor.getInt(YEAR_PUBLISHED),
+                    cursor.getString(COLLECTION_IMAGE_URL) ?: "",
+                    cursor.getString(COLLECTION_THUMBNAIL_URL) ?: "",
+                    cursor.getString(COMMENT) ?: "",
+                    cursor.getInt(NUM_PLAYS),
+                    cursor.getDouble(RATING),
+                    cursor.getLong(UPDATED),
+                    statuses
+            )
         }
     }
 }
