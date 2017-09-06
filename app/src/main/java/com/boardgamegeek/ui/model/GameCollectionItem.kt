@@ -13,6 +13,7 @@ data class GameCollectionItem(
         val internalId: Long,
         val collectionId: Int,
         val collectionName: String,
+        val gameName: String,
         val collectionYearPublished: Int,
         val yearPublished: Int,
         val imageUrl: String,
@@ -54,7 +55,8 @@ data class GameCollectionItem(
                 Collection.YEAR_PUBLISHED,
                 Collection.RATING,
                 Collection.IMAGE_URL,
-                Collection.UPDATED
+                Collection.UPDATED,
+                Collection.GAME_NAME
         )
 
         private val _ID = 0
@@ -72,6 +74,7 @@ data class GameCollectionItem(
         private val RATING = 17
         private val COLLECTION_IMAGE_URL = 18
         private val UPDATED = 19
+        private val GAME_NAME = 20
 
         fun fromCursor(context: Context, cursor: Cursor): GameCollectionItem {
             val statuses = ArrayList<String>()
@@ -89,6 +92,7 @@ data class GameCollectionItem(
                     cursor.getLong(_ID),
                     cursor.getInt(COLLECTION_ID),
                     cursor.getString(COLLECTION_NAME) ?: "",
+                    cursor.getString(GAME_NAME) ?: "",
                     cursor.getInt(COLLECTION_YEAR_PUBLISHED),
                     cursor.getInt(YEAR_PUBLISHED),
                     cursor.getString(COLLECTION_IMAGE_URL) ?: "",

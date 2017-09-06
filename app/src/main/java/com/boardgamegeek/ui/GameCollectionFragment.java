@@ -125,7 +125,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				oldestSyncTimestamp = Math.min(item.getSyncTimestamp(), oldestSyncTimestamp);
 
 				GameCollectionRow row = new GameCollectionRow(getContext());
-				row.bind(item.getInternalId(), gameId, gameName, item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
+				row.bind(item.getInternalId(), gameId, item.getGameName(), item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
 				row.setThumbnail(item.getThumbnailUrl());
 				row.setStatus(item.getStatuses(), item.getNumberOfPlays(), item.getRating(), item.getComment());
 				row.setDescription(item.getCollectionName(), item.getCollectionYearPublished());
