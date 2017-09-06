@@ -109,7 +109,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(getContext(), GameCollectionItem.URI, GameCollectionItem.PROJECTION, GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
+		return new CursorLoader(getContext(), GameCollectionItem.Companion.getUri(), GameCollectionItem.Companion.getProjection(), GameCollectionItem.Companion.getSelection(), GameCollectionItem.Companion.getSelectionArgs(gameId), null);
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			long oldestSyncTimestamp = Long.MAX_VALUE;
 			collectionContainer.removeAllViews();
 			do {
-				GameCollectionItem item = GameCollectionItem.fromCursor(getContext(), cursor);
+				GameCollectionItem item = GameCollectionItem.Companion.fromCursor(getContext(), cursor);
 
 				oldestSyncTimestamp = Math.min(item.getSyncTimestamp(), oldestSyncTimestamp);
 
