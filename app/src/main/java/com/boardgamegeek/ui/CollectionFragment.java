@@ -282,7 +282,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onListItemClick(View view, int position, long id) {
 		final Cursor cursor = (Cursor) adapter.getItem(position);
 		final int gameId = cursor.getInt(Query.GAME_ID);
-		final String gameName = cursor.getString(Query.COLLECTION_NAME);
+		final String gameName = cursor.getString(Query.GAME_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (isCreatingShortcut) {
 			EventBus.getDefault().post(new GameShortcutRequestedEvent(gameId, gameName, thumbnailUrl));
@@ -330,7 +330,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_random_game:
 					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
-					GameActivity.start(getContext(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+					GameActivity.start(getContext(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.GAME_NAME));
 					return true;
 				case R.id.menu_create_shortcut:
 					if (viewId > 0) {
