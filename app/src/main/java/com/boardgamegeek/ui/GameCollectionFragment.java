@@ -37,11 +37,9 @@ import icepick.State;
 
 public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 3;
 
 	private int gameId;
-	private String gameName;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
 
@@ -50,10 +48,9 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 
-	public static GameCollectionFragment newInstance(int gameId, String gameName) {
+	public static GameCollectionFragment newInstance(int gameId) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
-		args.putString(KEY_GAME_NAME, gameName);
 		GameCollectionFragment fragment = new GameCollectionFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -71,7 +68,6 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = bundle.getString(KEY_GAME_NAME);
 	}
 
 	@DebugLog
