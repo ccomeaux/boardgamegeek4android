@@ -61,12 +61,12 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	public void setData(GeekList geekList) {
 		if (geekList == null) return;
-		usernameView.setText(geekList.username());
-		itemCountView.setText(String.valueOf(geekList.numberOfItems()));
-		thumbCountView.setText(String.valueOf(geekList.numberOfThumbs()));
-		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.description()));
-		postedDateView.setTimestamp(geekList.postTicks());
-		editedDateView.setTimestamp(geekList.editTicks());
+		usernameView.setText(geekList.getUsername());
+		itemCountView.setText(String.valueOf(geekList.getNumberOfItems()));
+		thumbCountView.setText(String.valueOf(geekList.getNumberOfThumbs()));
+		UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(geekList.getDescription()));
+		postedDateView.setTimestamp(geekList.getPostTicks());
+		editedDateView.setTimestamp(geekList.getEditTicks());
 
 		container.setVisibility(View.VISIBLE);
 		progressBar.hide();
