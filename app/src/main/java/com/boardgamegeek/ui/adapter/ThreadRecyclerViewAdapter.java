@@ -63,13 +63,13 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 	public long getItemId(int position) {
 		Article article = articles.get(position);
 		if (article == null) return RecyclerView.NO_ID;
-		return (long) article.id();
+		return (long) article.getId();
 	}
 
 	public int getPosition(int articleId) {
 		if (articles == null) return RecyclerView.NO_POSITION;
 		for (int i = 0; i < articles.size(); i++) {
-			if (articles.get(i).id() == articleId) return i;
+			if (articles.get(i).getId() == articleId) return i;
 		}
 		return RecyclerView.NO_POSITION;
 	}
@@ -91,20 +91,20 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 		public void bind(final Article article) {
 			if (article == null) return;
 
-			usernameView.setText(article.username());
-			postDateView.setTimestamp(article.postTicks());
-			if (article.editTicks() != article.postTicks()) {
-				editDateView.setTimestamp(article.editTicks());
+			usernameView.setText(article.getUsername());
+			postDateView.setTimestamp(article.getPostTicks());
+			if (article.getEditTicks() != article.getPostTicks()) {
+				editDateView.setTimestamp(article.getEditTicks());
 				editDateView.setVisibility(View.VISIBLE);
 				dateDivider.setVisibility(View.VISIBLE);
 			} else {
 				editDateView.setVisibility(View.GONE);
 				dateDivider.setVisibility(View.GONE);
 			}
-			if (TextUtils.isEmpty(article.body())) {
+			if (TextUtils.isEmpty(article.getBody())) {
 				bodyView.setText("");
 			} else {
-				UIUtils.setTextMaybeHtml(bodyView, article.body().trim());
+				UIUtils.setTextMaybeHtml(bodyView, article.getBody().trim());
 			}
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
