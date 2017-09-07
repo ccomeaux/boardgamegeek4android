@@ -18,31 +18,37 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.04000002"
+		app:layout_constraintVertical_bias="0.0"
 		app:srcCompat="@drawable/thumbnail_image_empty"/>
 
 	<TextView
 		android:id="@+id/status"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
+		android:layout_marginEnd="16dp"
 		android:layout_marginStart="16dp"
 		android:textAppearance="@style/Text"
 		android:textStyle="bold"
+		android:maxLines="2"
 		app:layout_constraintBottom_toTopOf="@+id/description"
+		app:layout_constraintEnd_toStartOf="@+id/rating"
+		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toEndOf="@+id/thumbnail"
 		app:layout_constraintTop_toTopOf="@+id/thumbnail"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="Own"/>
+		tools:text="Own, Previously Owned, and Want to Play"/>
 
 	<TextView
 		android:id="@+id/description"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="0dp"
+		android:layout_marginEnd="16dp"
 		android:layout_marginStart="16dp"
 		android:maxLines="2"
 		android:textAppearance="@style/Text.Secondary"
 		app:layout_constraintBottom_toBottomOf="@+id/thumbnail"
+		app:layout_constraintEnd_toStartOf="@+id/rating"
+		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toEndOf="@+id/thumbnail"
 		app:layout_constraintTop_toBottomOf="@+id/status"
 		tools:text="Terra Mystica (2015)"/>
