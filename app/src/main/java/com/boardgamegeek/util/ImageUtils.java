@@ -4,8 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.boardgamegeek.R;
@@ -25,7 +23,6 @@ public class ImageUtils {
 	public static final String SUFFIX_SMALL = "_t";
 	public static final String SUFFIX_MEDIUM = "_md";
 	//private static final String SUFFIX_LARGE = "_lg";
-	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
 
 	private ImageUtils() {
 	}
@@ -141,24 +138,6 @@ public class ImageUtils {
 			return imageUrl + suffix;
 		} else {
 			return imageUrl.substring(0, dot) + suffix + imageUrl.substring(dot, imageUrl.length());
-		}
-	}
-
-	/**
-	 * Resize the resizableView based on a standard aspect ratio, up to a maximum height
-	 */
-	public static void resizeImagePerAspectRatio(View image, int maxHeight, View resizableView) {
-		if (image == null) return;
-		if (resizableView == null) return;
-
-		int height = (int) (image.getWidth() / IMAGE_ASPECT_RATIO);
-		height = Math.min(height, maxHeight);
-
-		ViewGroup.LayoutParams lp;
-		lp = resizableView.getLayoutParams();
-		if (lp.height != height) {
-			lp.height = height;
-			resizableView.setLayoutParams(lp);
 		}
 	}
 

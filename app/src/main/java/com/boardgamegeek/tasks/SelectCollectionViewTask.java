@@ -2,7 +2,6 @@ package com.boardgamegeek.tasks;
 
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.ShortcutInfo;
@@ -15,6 +14,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -30,7 +30,7 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 	private static final int SHORTCUT_COUNT = 3;
 	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final long viewId;
-	private final ShortcutManager shortcutManager;
+	@Nullable private final ShortcutManager shortcutManager;
 
 	public SelectCollectionViewTask(@Nullable Context context, long viewId) {
 		this.context = context == null ? null : context.getApplicationContext();
@@ -42,11 +42,12 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 		}
 	}
 
+	@Nullable
 	@Override
 	protected Void doInBackground(Void... params) {
 		if (context == null) return null;
 		updateSelection();
-		if (VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
+		if (shortcutManager != null && VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
 			shortcutManager.reportShortcutUsed(createShortcutName(viewId));
 			setShortcuts();
 		}
@@ -73,9 +74,9 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 		}
 	}
 
-	@TargetApi(VERSION_CODES.N_MR1)
+	@RequiresApi(VERSION_CODES.N_MR1)
 	private void setShortcuts() {
-		if (context == null) return;
+		if (context == null || shortcutManager == null) return;
 		List<ShortcutInfo> shortcuts = new ArrayList<>(SHORTCUT_COUNT);
 		Cursor cursor = null;
 		try {
@@ -97,7 +98,7 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 		shortcutManager.setDynamicShortcuts(shortcuts);
 	}
 
-	@TargetApi(VERSION_CODES.N_MR1)
+	@RequiresApi(VERSION_CODES.N_MR1)
 	@NonNull
 	private ShortcutInfo createShortcutInfo(long viewId, @NonNull String viewName) {
 		return new ShortcutInfo.Builder(context, createShortcutName(viewId))

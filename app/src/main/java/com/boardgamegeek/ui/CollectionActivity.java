@@ -8,7 +8,11 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -65,7 +69,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@Override
 	@DebugLog
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
@@ -122,7 +126,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (item.getItemId() == R.id.menu_search) {
 			Intent intent = new Intent(this, SearchResultsActivity.class);
 			startActivity(intent);
@@ -146,29 +150,19 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
-	public void onEvent(GameSelectedEvent event) {
+	public void onEvent(@NonNull GameSelectedEvent event) {
 		GameActivity.start(this, event.getId(), event.getName());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
-	public void onEvent(GameShortcutRequestedEvent event) {
+	public void onEvent(@NonNull GameShortcutRequestedEvent event) {
 		Intent shortcutIntent = GameActivity.createIntentAsShortcut(event.getId(), event.getName());
 		if (shortcutIntent != null) {
 			Intent intent;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-				ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-				ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, "game-" + event.getId())
-					.setShortLabel(StringUtils.limitText(event.getName(), 10))
-					.setIntent(shortcutIntent);
-				File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
-				if (file != null && file.exists()) {
-					builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
-				} else {
-					builder.setIcon(Icon.createWithResource(this, R.drawable.ic_adaptive_game));
-				}
-				intent = shortcutManager.createShortcutResultIntent(builder.build());
+				intent = createShortcutForOreo(event, shortcutIntent);
 			} else {
 				intent = ShortcutUtils.createShortcutIntent(this, event.getName(), shortcutIntent);
 				File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
@@ -176,19 +170,37 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 					intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
 				}
 			}
-			setResult(RESULT_OK, intent);
+			if (intent != null) setResult(RESULT_OK, intent);
 		}
 		finish();
+	}
+
+	@RequiresApi(api = VERSION_CODES.O)
+	@Nullable
+	private Intent createShortcutForOreo(@NonNull GameShortcutRequestedEvent event, @NonNull Intent shortcutIntent) {
+		ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+		if (shortcutManager == null) return null;
+		ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, "game-" + event.getId())
+			.setShortLabel(StringUtils.limitText(event.getName(), 10))
+			.setIntent(shortcutIntent);
+		File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
+		if (file != null && file.exists()) {
+			builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
+		} else {
+			builder.setIcon(Icon.createWithResource(this, R.drawable.ic_adaptive_game));
+		}
+		return shortcutManager.createShortcutResultIntent(builder.build());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
-	public void onEvent(CollectionViewRequestedEvent event) {
+	public void onEvent(@NonNull CollectionViewRequestedEvent event) {
 		viewId = event.getViewId();
 		viewIndex = findViewIndex(viewId);
 	}
 
+	@Nullable
 	@Override
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -201,7 +213,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
 		if (loader.getId() == Query._TOKEN) {
 			if (adapter == null) {
 				adapter = new CollectionViewAdapter(this, cursor);
@@ -270,9 +282,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	private static class CollectionViewAdapter extends SimpleCursorAdapter {
-		private final LayoutInflater inflater;
+		@Nullable private final LayoutInflater inflater;
 
-		public CollectionViewAdapter(Context context, Cursor cursor) {
+		public CollectionViewAdapter(@NonNull Context context, Cursor cursor) {
 			super(context,
 				R.layout.actionbar_spinner_item,
 				cursor,
@@ -288,6 +300,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			return super.getCount() + 1;
 		}
 
+		@Nullable
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (position == 0) {
@@ -301,6 +314,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			}
 		}
 
+		@Nullable
 		@Override
 		public View getDropDownView(int position, View convertView, ViewGroup parent) {
 			if (position == 0) {
@@ -310,7 +324,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			}
 		}
 
-		private View createDefaultItem(View convertView, ViewGroup parent, int layout) {
+		@Nullable
+		private View createDefaultItem(@Nullable View convertView, ViewGroup parent, int layout) {
 			View v;
 			if (convertView == null) {
 				v = inflater.inflate(layout, parent, false);
@@ -321,11 +336,10 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			return v;
 		}
 
+		@Nullable
 		@Override
 		public Object getItem(int position) {
-			if (position == 0) {
-				return null;
-			}
+			if (position == 0) return null;
 			return super.getItem(position - 1);
 		}
 

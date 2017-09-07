@@ -43,6 +43,7 @@ public class NotificationUtils {
 	public static void createNotificationChannels(Context context) {
 		if (context == null) return;
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		if (notificationManager == null) return;
 
 		NotificationChannel channel = new NotificationChannel(
 			NotificationUtils.CHANNEL_ID_SYNC_PROGRESS,
