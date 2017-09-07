@@ -204,16 +204,16 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 
 		if (body == null) return;
 
-		geekList = GeekList.builder()
-			.setId(body.id)
-			.setTitle(TextUtils.isEmpty(body.title) ? "" : body.title.trim())
-			.setUsername(body.username)
-			.setDescription(body.description)
-			.setNumberOfItems(StringUtils.parseInt(body.numitems))
-			.setNumberOfThumbs(StringUtils.parseInt(body.thumbs))
-			.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekListResponse.FORMAT))
-			.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekListResponse.FORMAT))
-			.build();
+		geekList = new GeekList(
+			body.id,
+			TextUtils.isEmpty(body.title) ? "" : body.title.trim(),
+			body.username,
+			body.description,
+			StringUtils.parseInt(body.numitems),
+			StringUtils.parseInt(body.thumbs),
+			DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekListResponse.FORMAT),
+			DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekListResponse.FORMAT)
+		);
 		geekListItems = body.getItems();
 
 		setDescription();
@@ -239,7 +239,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		if (itemsFragment != null) {
 			if (!TextUtils.isEmpty(errorMessage)) {
 				itemsFragment.setError(errorMessage);
-			} else if (geekList.numberOfItems() == 0 || geekListItems.size() == 0) {
+			} else if (geekList.getNumberOfItems() == 0 || geekListItems.size() == 0) {
 				itemsFragment.setError();
 			} else {
 				itemsFragment.setData(geekList, geekListItems);

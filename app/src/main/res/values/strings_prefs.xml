@@ -96,16 +96,6 @@
 	<string name="pref_about_trello_board">Trello Board</string>
 	<string name="pref_about_bgg_thread">BoardGameGeek Thread</string>
 
-	<string name="define_int_AutoValue"></string>
-	<string name="library_AutoValue_author">Google</string>
-	<string name="library_AutoValue_authorWebsite">https://github.com/google</string>
-	<string name="library_AutoValue_libraryName">AutoValue</string>
-	<string name="library_AutoValue_libraryDescription">Generated immutable value classes for Java 1.6+.</string>
-	<string name="library_AutoValue_libraryVersion">1.4</string>
-	<string name="library_AutoValue_licenseId">apache_2_0</string>
-	<string name="library_AutoValue_isOpenSource">true</string>
-	<string name="library_AutoValue_repositoryLink">https://github.com/google/auto</string>
-
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>

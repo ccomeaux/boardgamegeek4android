@@ -102,7 +102,6 @@ public class SettingsActivity extends DrawerActivity {
 							.withLibraries(
 								"AndroidIcons",
 								"AndroidRandomColor",
-								"AutoValue",
 								"Hugo",
 								"Jsoup",
 								"LeakCanary",
