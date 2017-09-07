@@ -409,9 +409,7 @@ public class Play {
 	}
 
 	public double getHighScore() {
-		if (getPlayerCount() == 0) {
-			return 0.0;
-		}
+		if (getPlayerCount() == 0) return 0.0;
 
 		double highScore = Double.MIN_VALUE;
 		for (Player player : players) {
@@ -439,10 +437,17 @@ public class Play {
 		startTime = System.currentTimeMillis();
 	}
 
+	public void resume() {
+		startTime = System.currentTimeMillis() - length * DateUtils.MINUTE_IN_MILLIS;
+		length = 0;
+	}
+
 	public void end() {
 		if (startTime > 0) {
 			length = DateTimeUtils.howManyMinutesOld(startTime);
 			startTime = 0;
+		} else {
+			length = 0;
 		}
 	}
 

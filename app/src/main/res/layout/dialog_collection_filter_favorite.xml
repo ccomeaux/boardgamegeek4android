@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical">
+
+	<RadioButton
+		android:id="@+id/favorite"
+		style="@style/DialogRadioButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/favorites"/>
+
+	<RadioButton
+		android:id="@+id/not_favorite"
+		style="@style/DialogRadioButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/not_favorites"/>
+</RadioGroup>

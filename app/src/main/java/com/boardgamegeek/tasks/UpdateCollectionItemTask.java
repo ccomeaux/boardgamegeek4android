@@ -1,8 +1,10 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
@@ -14,13 +16,13 @@ import org.greenrobot.eventbus.EventBus;
 import hugo.weaving.DebugLog;
 
 public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Void> {
-	protected final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	protected final int gameId;
 	protected final int collectionId;
 	protected long internalId;
 
-	public UpdateCollectionItemTask(Context context, int gameId, int collectionId, long internalId) {
-		this.context = context;
+	public UpdateCollectionItemTask(@Nullable Context context, int gameId, int collectionId, long internalId) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.gameId = gameId;
 		this.collectionId = collectionId;
 		this.internalId = internalId;
@@ -29,6 +31,7 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 	@DebugLog
 	@Override
 	protected Void doInBackground(Void... params) {
+		if (context == null) return null;
 		final ContentResolver resolver = context.getContentResolver();
 		if (internalId == 0) {
 			internalId = getCollectionItemInternalId(resolver, collectionId, gameId);

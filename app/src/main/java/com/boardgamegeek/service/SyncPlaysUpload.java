@@ -28,14 +28,18 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.tasks.CalculatePlayStatsTask;
+import com.boardgamegeek.ui.GamePlaysActivity;
+import com.boardgamegeek.ui.LogPlayActivity;
+import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.ui.PlaysActivity;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 
 import java.util.List;
 
@@ -81,19 +85,19 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@DebugLog
 	@Override
 	protected Intent getNotificationIntent() {
-		if (currentInternalId == BggContract.INVALID_ID) {
-			return ActivityUtils.createGamePlaysIntent(context,
-				Games.buildGameUri(currentGameIdForNotification),
+		if (currentInternalId == BggContract.INVALID_ID)
+			return GamePlaysActivity.createIntent(context,
+				currentGameIdForNotification,
 				currentGameNameForNotification,
 				currentImageUrlForNotification,
 				currentThumbnailUrlForNotification);
-		}
-		return ActivityUtils.createPlayIntent(context,
-			currentInternalId,
-			currentGameIdForNotification,
-			currentGameNameForNotification,
-			currentThumbnailUrlForNotification,
-			currentImageUrlForNotification);
+		else
+			return PlayActivity.createIntent(context,
+				currentInternalId,
+				currentGameIdForNotification,
+				currentGameNameForNotification,
+				currentThumbnailUrlForNotification,
+				currentImageUrlForNotification);
 	}
 
 	@DebugLog
@@ -117,7 +121,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		deletePendingPlays(syncResult);
 		updatePendingPlays(syncResult);
 		if (SyncService.isPlaysSyncUpToDate(context)) {
-			SyncService.calculateAndUpdateHIndex(context);
+			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
 	}
 
@@ -392,10 +396,12 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	@Override
 	protected Action createMessageAction() {
 		if (currentInternalId != BggContract.INVALID_ID) {
-			Intent intent = ActivityUtils.createRematchIntent(context,
+			Intent intent = LogPlayActivity.createRematchIntent(context,
 				currentInternalId,
 				currentGameIdForNotification,
-				currentGameNameForNotification, null, null);
+				currentGameNameForNotification,
+				currentThumbnailUrlForNotification,
+				currentImageUrlForNotification);
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			NotificationCompat.Action.Builder builder = new NotificationCompat.Action.Builder(
 				R.drawable.ic_replay_black_24dp,

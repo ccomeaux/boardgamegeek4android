@@ -3,16 +3,20 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -22,7 +26,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.PlaySelectedEvent;
+import com.boardgamegeek.events.SyncCompleteEvent;
+import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -36,20 +43,22 @@ import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.ui.model.PlayerColor;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
 
-public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final int PLAYS_TOKEN = 1;
 	private static final int PLAY_COUNT_TOKEN = 2;
 	private static final int PLAYERS_TOKEN = 3;
@@ -57,17 +66,27 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int COLORS_TOKEN = 5;
 	private static final int PLAYS_IN_PROGRESS_TOKEN = 6;
 
+	private static final int NUMBER_OF_PLAYS_SHOWN = 5;
+	private static final int NUMBER_OF_PLAYERS_SHOWN = 5;
+	private static final int NUMBER_OF_LOCATIONS_SHOWN = 5;
+
+	private int numberOfPlaysInProgress;
+	private boolean isRefreshing;
+
 	private Unbinder unbinder;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.card_plays) View playsCard;
 	@BindView(R.id.plays_subtitle_in_progress) TextView playsInProgressSubtitle;
 	@BindView(R.id.plays_in_progress_container) LinearLayout playsInProgressContainer;
 	@BindView(R.id.plays_subtitle_recent) TextView recentPlaysSubtitle;
 	@BindView(R.id.plays_container) LinearLayout recentPlaysContainer;
-	@BindView(R.id.card_footer_plays) TextView playsFooter;
+	@BindView(R.id.more_plays_button) Button morePlaysButton;
 	@BindView(R.id.card_players) View playersCard;
 	@BindView(R.id.players_container) LinearLayout playersContainer;
 	@BindView(R.id.card_locations) View locationsCard;
 	@BindView(R.id.locations_container) LinearLayout locationsContainer;
+	@BindView(R.id.more_players_button) Button morePlayersButton;
+	@BindView(R.id.more_locations_button) Button moreLocationsButton;
 	@BindView(R.id.card_colors) View colorsCard;
 	@BindView(R.id.colors_hint) View colorsHint;
 	@BindView(R.id.color_container) LinearLayout colorContainer;
@@ -80,7 +99,10 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		unbinder = ButterKnife.bind(this, rootView);
 
-		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.h_index_prefix, PreferencesUtils.getHIndex(getActivity())));
+		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+
+		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(getActivity())));
 
 		long oldestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
 		long newestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
@@ -115,6 +137,20 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		getLoaderManager().restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
 	}
 
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@DebugLog
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
+	}
+
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
@@ -137,7 +173,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case PLAYS_TOKEN:
 				playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getActivity(),
-					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, "3").build(),
+					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
 					PlayModel.PROJECTION,
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
 					null,
@@ -147,21 +183,33 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				loader = new CursorLoader(getActivity(),
 					Plays.CONTENT_SIMPLE_URI,
 					new String[] { Plays.SUM_QUANTITY },
-					null, null, null);
+					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
+					null,
+					null);
 				break;
 			case PLAYERS_TOKEN:
 				PlayersSorter playersSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_QUANTITY);
 				loader = new CursorLoader(getActivity(),
-					Plays.buildPlayersByUniquePlayerUri().buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, "4").build(),
+					Plays.buildPlayersByUniquePlayerUri()
+						.buildUpon()
+						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYERS_SHOWN))
+						.build(),
 					Player.PROJECTION,
-					null, null, playersSorter.getOrderByClause());
+					PlayPlayers.USER_NAME + "!=?",
+					new String[] { AccountUtils.getUsername(getActivity()) },
+					playersSorter.getOrderByClause());
 				break;
 			case LOCATIONS_TOKEN:
 				LocationsSorter locationsSorter = LocationsSorterFactory.create(getActivity(), LocationsSorterFactory.TYPE_QUANTITY);
 				loader = new CursorLoader(getActivity(),
-					Plays.buildLocationsUri().buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, "4").build(),
+					Plays.buildLocationsUri()
+						.buildUpon()
+						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_LOCATIONS_SHOWN))
+						.build(),
 					Location.PROJECTION,
-					null, null, locationsSorter.getOrderByClause());
+					SelectionBuilder.whereNotNullOrEmpty(Plays.LOCATION),
+					null,
+					locationsSorter.getOrderByClause());
 				break;
 			case COLORS_TOKEN:
 				String username = AccountUtils.getUsername(getActivity());
@@ -208,26 +256,23 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void onPlaysInProgressQueryComplete(Cursor cursor) {
-		if (cursor == null) {
-			return;
-		}
-
-		final int visibility = cursor.getCount() == 0 ? View.GONE : View.VISIBLE;
+		numberOfPlaysInProgress = cursor == null ? 0 : cursor.getCount();
+		final int visibility = numberOfPlaysInProgress == 0 ? View.GONE : View.VISIBLE;
 		playsInProgressSubtitle.setVisibility(visibility);
 		playsInProgressContainer.setVisibility(visibility);
 		recentPlaysSubtitle.setVisibility(visibility);
 
 		playsInProgressContainer.removeAllViews();
-		while (cursor.moveToNext()) {
-			playsCard.setVisibility(View.VISIBLE);
-			addPlayToContainer(cursor, playsInProgressContainer);
+		if (numberOfPlaysInProgress > 0) {
+			while (cursor != null && cursor.moveToNext()) {
+				playsCard.setVisibility(View.VISIBLE);
+				addPlayToContainer(cursor, playsInProgressContainer);
+			}
 		}
 	}
 
 	private void onPlaysQueryComplete(Cursor cursor) {
-		if (cursor == null) {
-			return;
-		}
+		if (cursor == null) return;
 
 		recentPlaysContainer.removeAllViews();
 		while (cursor.moveToNext()) {
@@ -262,29 +307,23 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void onPlayCountQueryComplete(Cursor cursor) {
-		if (cursor == null) {
-			return;
-		}
-
+		morePlaysButton.setVisibility(View.VISIBLE);
+		morePlaysButton.setText(R.string.more);
+		if (cursor == null) return;
 		if (cursor.moveToFirst()) {
-			setQuantityTextView(playsFooter, R.plurals.plays_suffix, cursor.getInt(0));
+			int morePlaysCount = cursor.getInt(0) - NUMBER_OF_PLAYS_SHOWN;
+			if (morePlaysCount > 0) {
+				morePlaysButton.setText(String.format(getString(R.string.more_suffix), morePlaysCount));
+			}
 		}
 	}
 
 	private void onPlayersQueryComplete(Cursor cursor) {
-		if (cursor == null) {
-			return;
-		}
+		if (cursor == null) return;
 
-		String accountUsername = AccountUtils.getUsername(getActivity());
-		int count = 0;
 		playersContainer.removeAllViews();
 		while (cursor.moveToNext()) {
 			Player player = Player.fromCursor(cursor);
-
-			if (accountUsername != null && accountUsername.equals(player.getUsername())) {
-				continue;
-			}
 
 			playersCard.setVisibility(View.VISIBLE);
 			View view = createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
@@ -295,33 +334,21 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.startBuddyActivity(
-						getActivity(),
+					BuddyActivity.start(getContext(),
 						(String) v.getTag(R.id.username),
 						(String) v.getTag(R.id.name));
 				}
 			});
-
-			count++;
-			if (count >= 3) {
-				break;
-			}
 		}
 	}
 
 	private void onLocationsQueryComplete(Cursor cursor) {
-		if (cursor == null) {
-			return;
-		}
+		if (cursor == null) return;
 
-		int count = 0;
+		moreLocationsButton.setVisibility(View.VISIBLE);
 		locationsContainer.removeAllViews();
 		while (cursor.moveToNext()) {
 			Location location = Location.fromCursor(cursor);
-
-			if (TextUtils.isEmpty(location.getName())) {
-				continue;
-			}
 
 			locationsCard.setVisibility(View.VISIBLE);
 			View view = createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
@@ -331,17 +358,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intent = ActivityUtils.createLocationIntent(
-						getActivity(),
-						(String) v.getTag(R.id.name));
-					startActivity(intent);
+					LocationActivity.start(getContext(), (String) v.getTag(R.id.name));
 				}
 			});
-
-			count++;
-			if (count >= 3) {
-				break;
-			}
 		}
 	}
 
@@ -355,10 +374,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	private View createRowWithPlayCount(LinearLayout container, String title, int playCount) {
 		return createRow(container, title, getResources().getQuantityString(R.plurals.plays_suffix, playCount, playCount));
-	}
-
-	private void setQuantityTextView(TextView textView, int resId, int count) {
-		textView.setText(getResources().getQuantityString(resId, count, count));
 	}
 
 	private void onColorsQueryComplete(Cursor cursor) {
@@ -391,32 +406,66 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	@SuppressWarnings("unused")
-	@OnClick(R.id.card_footer_plays)
+	@OnClick(R.id.more_plays_button)
 	public void onPlaysClick() {
 		startActivity(new Intent(getActivity(), PlaysActivity.class));
 	}
 
-	@SuppressWarnings("unused")
-	@OnClick(R.id.card_footer_players)
+	@OnClick(R.id.more_players_button)
 	public void onPlayersClick() {
 		startActivity(new Intent(getActivity(), PlayersActivity.class));
 	}
 
-	@OnClick(R.id.card_footer_locations)
+	@OnClick(R.id.more_locations_button)
 	public void onLocationsClick() {
 		startActivity(new Intent(getActivity(), LocationsActivity.class));
 	}
 
-	@OnClick(R.id.card_footer_colors)
+	@OnClick(R.id.edit_colors_button)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(getActivity()));
-		startActivity(intent);
+		PlayerColorsActivity.start(getContext(), AccountUtils.getUsername(getActivity()), null);
 	}
 
-	@OnClick(R.id.card_footer_stats)
+	@OnClick(R.id.more_play_stats_button)
 	public void onStatsClick() {
 		startActivity(new Intent(getActivity(), PlayStatsActivity.class));
+	}
+
+	@Override
+	public void onRefresh() {
+		if (!isRefreshing) {
+			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
+		} else {
+			updateRefreshStatus(false);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(@NonNull SyncEvent event) {
+		if ((event.getType() & SyncService.FLAG_SYNC_PLAYS) == SyncService.FLAG_SYNC_PLAYS) {
+			updateRefreshStatus(true);
+		}
+	}
+
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(SyncCompleteEvent event) {
+		updateRefreshStatus(false);
+	}
+
+	@DebugLog
+	private void updateRefreshStatus(boolean value) {
+		this.isRefreshing = value;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
+				}
+			});
+		}
 	}
 }

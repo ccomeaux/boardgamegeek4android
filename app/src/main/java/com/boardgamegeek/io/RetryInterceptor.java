@@ -1,6 +1,8 @@
 package com.boardgamegeek.io;
 
 
+import android.support.annotation.NonNull;
+
 import com.boardgamegeek.io.ExponentialBackOff.Builder;
 
 import java.io.IOException;
@@ -33,7 +35,7 @@ public class RetryInterceptor implements Interceptor {
 	}
 
 	@Override
-	public Response intercept(Chain chain) throws IOException {
+	public Response intercept(@NonNull Chain chain) throws IOException {
 		resetBackOff();
 		Request originalRequest = chain.request();
 		Response response = chain.proceed(originalRequest);

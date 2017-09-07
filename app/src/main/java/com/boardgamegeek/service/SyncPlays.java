@@ -12,9 +12,11 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
+import com.boardgamegeek.util.TaskUtils;
 
 import java.io.IOException;
 
@@ -37,7 +39,7 @@ public class SyncPlays extends SyncTask {
 	}
 
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) throws IOException {
+	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing plays...");
 		try {
 			if (!PreferencesUtils.getSyncPlays(context)) {
@@ -65,7 +67,7 @@ public class SyncPlays extends SyncTask {
 				deleteUnupdatedPlaysBefore(oldestDate);
 				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
-			SyncService.calculateAndUpdateHIndex(context);
+			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		} finally {
 			Timber.i("...complete!");
 		}

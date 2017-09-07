@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,13 +21,10 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
 
@@ -40,6 +35,8 @@ import hugo.weaving.DebugLog;
 import retrofit2.Call;
 
 public class ForumsFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<ForumListResponse>> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int LOADER_ID = 0;
 
 	private int gameId;
@@ -51,24 +48,37 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-	@Override
-	@DebugLog
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public static ForumsFragment newInstance() {
+		Bundle args = new Bundle();
+		ForumsFragment fragment = new ForumsFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		Uri uri = intent.getData();
-		gameId = Games.getGameId(uri);
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+	public static ForumsFragment newInstance(int gameId, String gameName) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
+
+		ForumsFragment fragment = new ForumsFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		readBundle(getArguments());
 		View rootView = inflater.inflate(R.layout.fragment_forums, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
 		return rootView;
+	}
+
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = bundle.getString(KEY_GAME_NAME);
 	}
 
 	@Override
@@ -93,25 +103,21 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	@DebugLog
 	public void onLoadFinished(Loader<SafeResponse<ForumListResponse>> loader, SafeResponse<ForumListResponse> data) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		if (adapter == null) {
-			adapter = new ForumsRecyclerViewAdapter(getActivity(),
-				data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(),
-				gameId, gameName);
+			adapter = new ForumsRecyclerViewAdapter(getContext(), data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(), gameId, gameName);
 			recyclerView.setAdapter(adapter);
 		}
 
 		if (data.hasError()) {
 			emptyView.setText(data.getErrorMessage());
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(getContext(), emptyView, isResumed());
 		} else {
 			if (adapter.getItemCount() == 0) {
-				AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+				AnimationUtils.fadeIn(getContext(), emptyView, isResumed());
 			} else {
-				AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+				AnimationUtils.fadeIn(getContext(), recyclerView, isResumed());
 			}
 		}
 		progressView.hide();

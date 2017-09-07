@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -19,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -27,9 +27,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +35,8 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GameDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 	private GameDetailAdapter adapter;
 	private int gameId;
 	private int queryToken;
@@ -48,6 +48,15 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
+	public static GameDetailFragment newInstance(int gameId, int queryToken) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putInt(KEY_QUERY_TOKEN, queryToken);
+		GameDetailFragment fragment = new GameDetailFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_details, container, false);
@@ -56,13 +65,17 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		return rootView;
 	}
 
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		gameId = bundle.getInt(KEY_GAME_ID);
+		queryToken = bundle.getInt(KEY_QUERY_TOKEN);
+	}
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		queryToken = intent.getIntExtra(ActivityUtils.KEY_QUERY_TOKEN, BggContract.INVALID_ID);
+		readBundle(getArguments());
 
 		makeQuery();
 

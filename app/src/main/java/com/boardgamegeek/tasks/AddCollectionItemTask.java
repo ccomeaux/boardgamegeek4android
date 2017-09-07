@@ -1,11 +1,13 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
@@ -17,14 +19,15 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
+
 public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final int gameId;
 	private final List<String> statuses;
 	private final int wishlistPriority;
 
-	public AddCollectionItemTask(Context context, int gameId, List<String> statuses, int wishlistPriority) {
-		this.context = context;
+	public AddCollectionItemTask(@Nullable Context context, int gameId, List<String> statuses, int wishlistPriority) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.gameId = gameId;
 		this.statuses = statuses;
 		this.wishlistPriority = wishlistPriority;
@@ -32,10 +35,11 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 
 	@Override
 	protected Long doInBackground(Void... params) {
-		long internalId = 0;
-		final ContentResolver resolver = context.getContentResolver();
+		if (context == null) return null;
 
+		long internalId;
 		Cursor cursor = null;
+		final ContentResolver resolver = context.getContentResolver();
 		try {
 			cursor = resolver.query(Games.buildGameUri(gameId),
 				new String[] { Games.GAME_NAME, Games.GAME_SORT_NAME, Games.YEAR_PUBLISHED, Games.IMAGE_URL, Games.THUMBNAIL_URL },

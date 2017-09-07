@@ -7,6 +7,7 @@ import android.util.TypedValue;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.service.SyncService;
 
 public class SignOutPreference extends DialogPreference {
 
@@ -15,6 +16,7 @@ public class SignOutPreference extends DialogPreference {
 		TypedValue typedValue = new TypedValue();
 		getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);
 		setDialogIcon(typedValue.resourceId);
+		setDialogTitle(getTitle() + "?");
 		setDialogLayoutResource(R.layout.widget_dialogpreference_textview);
 	}
 
@@ -31,6 +33,7 @@ public class SignOutPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
+			SyncService.cancelSync(getContext());
 			Authenticator.signOut(getContext());
 			notifyChanged();
 		}

@@ -19,6 +19,36 @@
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:text="@string/collection_filter_personal"/>
+
+		<CheckBox
+			android:id="@+id/collection_status"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_collection_name"
+			android:text="@string/menu_collection_status"/>
+
+		<CheckBox
+			android:id="@+id/my_rating"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_filter_type_my_rating"
+			android:text="@string/menu_my_rating"/>
+
+		<CheckBox
+			android:id="@+id/play_count"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_filter_type_play_count"
+			android:text="@string/menu_play_count"/>
+
+		<TextView
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
 			android:text="@string/collection_filter_stats"/>
 
 		<CheckBox
@@ -69,6 +99,14 @@
 			android:tag="@string/collection_filter_type_suggested_age"
 			android:text="@string/menu_suggested_age"/>
 
+		<CheckBox
+			android:id="@+id/recommended_player_count"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_filter_type_recommended_player_count"
+			android:text="@string/menu_recommended_player_count"/>
+
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
@@ -111,30 +149,14 @@
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/collection_filter_personal"/>
+			android:text="@string/collection_sort_local"/>
 
 		<CheckBox
-			android:id="@+id/collection_status"
+			android:id="@+id/favorite"
 			style="@style/DialogCheckbox"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_collection_name"
-			android:text="@string/menu_collection_status"/>
-
-		<CheckBox
-			android:id="@+id/my_rating"
-			style="@style/DialogCheckbox"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_filter_type_my_rating"
-			android:text="@string/menu_my_rating"/>
-
-		<CheckBox
-			android:id="@+id/play_count"
-			style="@style/DialogCheckbox"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_filter_type_play_count"
-			android:text="@string/menu_play_count"/>
+			android:tag="@string/collection_filter_type_favorite"
+			android:text="@string/menu_favorite"/>
 	</LinearLayout>
 </ScrollView>

@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,12 +10,27 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.model.Article;
 import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 
 public class ArticleActivity extends SimpleSinglePaneActivity {
+	private static final String KEY_FORUM_ID = "FORUM_ID";
+	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_USER = "USER";
+	private static final String KEY_THREAD_ID = "THREAD_ID";
+	private static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
+	private static final String KEY_ARTICLE_ID = "ARTICLE_ID";
+	private static final String KEY_POST_DATE = "POST_DATE";
+	private static final String KEY_EDIT_DATE = "EDIT_DATE";
+	private static final String KEY_EDIT_COUNT = "EDIT_COUNT";
+	private static final String KEY_BODY = "BODY";
+	private static final String KEY_LINK = "LINK";
+
 	private int threadId;
 	private String threadSubject;
 	private int forumId;
@@ -23,20 +39,33 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private String gameName;
 	private String link;
 	private int articleId;
+	private String user;
+	private long postDate;
+	private long editDate;
+	private int editCount;
+	private String body;
+
+	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int gameId, String gameName, Article article) {
+		Intent starter = new Intent(context, ArticleActivity.class);
+		starter.putExtra(KEY_THREAD_ID, threadId);
+		starter.putExtra(KEY_THREAD_SUBJECT, threadSubject);
+		starter.putExtra(KEY_FORUM_ID, forumId);
+		starter.putExtra(KEY_FORUM_TITLE, forumTitle);
+		starter.putExtra(KEY_GAME_ID, gameId);
+		starter.putExtra(KEY_GAME_NAME, gameName);
+		starter.putExtra(KEY_USER, article.username());
+		starter.putExtra(KEY_POST_DATE, article.postTicks());
+		starter.putExtra(KEY_EDIT_DATE, article.editTicks());
+		starter.putExtra(KEY_EDIT_COUNT, article.numberOfEdits());
+		starter.putExtra(KEY_BODY, article.body());
+		starter.putExtra(KEY_LINK, article.link());
+		starter.putExtra(KEY_ARTICLE_ID, article.id());
+		context.startActivity(starter);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = getIntent();
-		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, 0);
-		threadSubject = intent.getStringExtra(ActivityUtils.KEY_THREAD_SUBJECT);
-		forumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, 0);
-		forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
-		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
-		link = intent.getStringExtra(ActivityUtils.KEY_LINK);
-		articleId = intent.getIntExtra(ActivityUtils.KEY_ARTICLE_ID, BggContract.INVALID_ID);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -57,8 +86,25 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
+	protected void readIntent(Intent intent) {
+		threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID);
+		threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT);
+		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
+		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		link = intent.getStringExtra(KEY_LINK);
+		articleId = intent.getIntExtra(KEY_ARTICLE_ID, BggContract.INVALID_ID);
+		user = intent.getStringExtra(KEY_USER);
+		postDate = intent.getLongExtra(KEY_POST_DATE, 0);
+		editDate = intent.getLongExtra(KEY_EDIT_DATE, 0);
+		editCount = intent.getIntExtra(KEY_EDIT_COUNT, 0);
+		body = intent.getStringExtra(KEY_BODY);
+	}
+
+	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new ArticleFragment();
+		return ArticleFragment.newInstance(user, postDate, editDate, editCount, body);
 	}
 
 	@Override
@@ -70,15 +116,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				Intent intent = new Intent(this, ThreadActivity.class);
-				intent.putExtra(ActivityUtils.KEY_THREAD_ID, threadId);
-				intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, threadSubject);
-				intent.putExtra(ActivityUtils.KEY_FORUM_ID, forumId);
-				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, forumTitle);
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
+				ThreadActivity.startUp(this, threadId, threadSubject, forumId, forumTitle, gameId, gameName);
 				finish();
 				return true;
 			case R.id.menu_view:

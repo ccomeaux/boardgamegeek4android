@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,7 +18,6 @@ import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -32,17 +32,23 @@ import org.greenrobot.eventbus.ThreadMode;
 import hugo.weaving.DebugLog;
 
 public class LocationActivity extends SimpleSinglePaneActivity {
+	private static final String KEY_LOCATION_NAME = "LOCATION_NAME";
+
 	private int playCount;
 	private String locationName;
 	private EditTextDialogFragment editTextDialogFragment;
+
+	public static void start(Context context, String locationName) {
+		Intent starter = new Intent(context, LocationActivity.class);
+		starter.putExtra(KEY_LOCATION_NAME, locationName);
+		context.startActivity(starter);
+	}
 
 	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = getIntent();
-		locationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
 		setSubtitle();
 
 		if (savedInstanceState == null) {
@@ -52,6 +58,11 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 		}
 
 		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
+	}
+
+	@Override
+	protected void readIntent(Intent intent) {
+		locationName = intent.getStringExtra(KEY_LOCATION_NAME);
 	}
 
 	@DebugLog
@@ -66,18 +77,8 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@NonNull
 	@DebugLog
 	@Override
-	protected Bundle onBeforeArgumentsSet(@NonNull Bundle arguments) {
-		final Intent intent = getIntent();
-		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_LOCATION);
-		arguments.putString(ActivityUtils.KEY_LOCATION, intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME));
-		return arguments;
-	}
-
-	@NonNull
-	@DebugLog
-	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return new PlaysFragment();
+		return PlaysFragment.newInstanceForLocation(locationName);
 	}
 
 	@DebugLog
@@ -106,7 +107,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event);
+		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")
@@ -122,7 +123,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(@NonNull RenameLocationTask.Event event) {
 		locationName = event.getLocationName();
-		getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, locationName);
+		getIntent().putExtra(KEY_LOCATION_NAME, locationName);
 		setSubtitle();
 		// recreate fragment to load the list with the new location
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();

@@ -1,0 +1,55 @@
+package com.boardgamegeek.export;
+
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
+import android.text.TextUtils;
+
+import com.boardgamegeek.export.model.Color;
+import com.boardgamegeek.export.model.Game;
+import com.boardgamegeek.provider.BggContract.GameColors;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ResolverUtils;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameImportTask extends JsonImportTask<Game> {
+	public GameImportTask(Context context, Uri uri) {
+		super(context, Constants.TYPE_GAMES, uri);
+	}
+
+	@Override
+	protected Game parseItem(Gson gson, JsonReader reader) {
+		return gson.fromJson(reader, Game.class);
+	}
+
+	@Override
+	protected void importRecord(Game game, int version) {
+		ContentResolver resolver = context.getContentResolver();
+
+		int gameId = game.getGameId();
+		if (ResolverUtils.rowExists(resolver, Games.buildGameUri(gameId))) {
+			final Uri gameColorsUri = Games.buildColorsUri(gameId);
+
+			resolver.delete(gameColorsUri, null, null);
+
+			List<ContentValues> values = new ArrayList<>();
+			for (Color color : game.getColors()) {
+				if (!TextUtils.isEmpty(color.getColor())) {
+					ContentValues cv = new ContentValues();
+					cv.put(GameColors.COLOR, color.getColor());
+					values.add(cv);
+				}
+			}
+
+			if (values.size() > 0) {
+				ContentValues[] array = {};
+				resolver.bulkInsert(gameColorsUri, values.toArray(array));
+			}
+		}
+	}
+}

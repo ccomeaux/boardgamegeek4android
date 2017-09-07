@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/swipe_refresh"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	app:layout_behavior="@string/appbar_scrolling_view_behavior"
+	tools:context=".ui.GameActivity">
+
+	<android.support.v4.widget.NestedScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal"
+			android:paddingTop="@dimen/padding_standard">
+
+			<LinearLayout
+				android:id="@+id/plays_root"
+				style="@style/CardRow.Clickable"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<ImageView
+					android:id="@+id/icon_plays"
+					style="@style/Icon"
+					android:src="@drawable/ic_plays"/>
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:gravity="center_vertical"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/plays_label"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:maxLines="1"
+						android:text="@string/title_plays"
+						android:textAppearance="@style/Text"/>
+
+					<TextView
+						android:id="@+id/plays_last_play"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:maxLines="1"
+						android:textAppearance="@style/Text.Secondary"
+						tools:text="Last play was yesterday"/>
+				</LinearLayout>
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/play_stats_root"
+				style="@style/CardRow.Clickable"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<ImageView
+					android:id="@+id/icon_play_stats"
+					style="@style/Icon"
+					android:src="@drawable/ic_play_stats"/>
+
+				<TextView
+					android:id="@+id/play_stats_label"
+					style="@style/CardRowContent"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:maxLines="1"
+					android:text="@string/title_play_stats"
+					android:textAppearance="@style/Text"/>
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/colors_root"
+				style="@style/CardRow.Clickable"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<ImageView
+					android:id="@+id/icon_colors"
+					style="@style/Icon"
+					android:src="@drawable/ic_colors"/>
+
+				<TextView
+					android:id="@+id/game_colors_label"
+					style="@style/CardRowContent"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:maxLines="1"
+					android:text="@string/title_colors"
+					android:textAppearance="@style/Text"/>
+			</LinearLayout>
+
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/sync_timestamp"
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				app:emptyMessage="@string/needs_updating"
+				app:format="@string/synced_prefix"
+				tools:text="Yesterday"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/fab_buffer"
+				android:minHeight="@dimen/fab_buffer"/>
+		</LinearLayout>
+	</android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

@@ -14,5 +14,7 @@
 	<item name="menu_pick_start_player" type="id"/>
 	<item name="menu_random_start_player" type="id"/>
 	<item name="menu_random_player_order" type="id"/>
+	<!-- image -->
+	<item name="url" type="id"/>
 
 </resources>

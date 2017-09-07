@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.accounts.Account;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -19,13 +20,19 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
-import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import hugo.weaving.DebugLog;
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
@@ -86,14 +93,22 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 	}
 
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CompletedEvent event) {
+		Account account = Authenticator.getAccount(this);
+		if (account != null && event.getUsername().equals(account.name)) {
+			refreshDrawer();
+		}
+	}
+
 	protected void onSignInSuccess() {
 		refreshDrawer();
 	}
 
 	private void refreshDrawer() {
-		if (drawerList == null) {
-			return;
-		}
+		if (drawerList == null) return;
 
 		drawerList.removeAllViews();
 		drawerList.addView(makeNavDrawerBuffer(drawerList));
@@ -121,7 +136,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
 
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_data, R.drawable.ic_data, drawerList));
+		drawerList.addView(makeNavDrawerItem(R.string.title_backup, R.drawable.ic_data, drawerList));
 		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings, drawerList));
 		drawerList.addView(makeNavDrawerSpacer(drawerList));
 	}
@@ -159,7 +174,7 @@ public abstract class DrawerActivity extends BaseActivity {
 				case R.string.title_signin:
 					startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_SIGN_IN);
 					break;
-				case R.string.title_data:
+				case R.string.title_backup:
 					startActivity(new Intent(this, DataActivity.class));
 					break;
 				case R.string.title_settings:
@@ -183,8 +198,9 @@ public abstract class DrawerActivity extends BaseActivity {
 		String username = AccountUtils.getUsername(this);
 		if (TextUtils.isEmpty(fullName)) {
 			if (TextUtils.isEmpty(username)) {
-				if (Authenticator.isSignedIn(this)) {
-					UpdateService.start(this, UpdateService.SYNC_TYPE_BUDDY_SELF, null);
+				Account account = Authenticator.getAccount(this);
+				if (account != null) {
+					TaskUtils.executeAsyncTask(new SyncUserTask(this, account.name));
 				}
 				return null;
 			} else {
@@ -196,7 +212,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		String avatarUrl = AccountUtils.getAvatarUrl(this);
-		final ImageView imageView = (ImageView) view.findViewById(R.id.account_image);
+		final ImageView imageView = view.findViewById(R.id.account_image);
 		if (TextUtils.isEmpty(avatarUrl)) {
 			imageView.setVisibility(View.GONE);
 		} else {
@@ -230,8 +246,8 @@ public abstract class DrawerActivity extends BaseActivity {
 	private View makeNavDrawerItem(final int titleId, int iconId, ViewGroup container) {
 		View view = getLayoutInflater().inflate(R.layout.row_drawer, container, false);
 
-		TextView titleView = (TextView) view.findViewById(android.R.id.title);
-		ImageView iconView = (ImageView) view.findViewById(android.R.id.icon);
+		TextView titleView = view.findViewById(android.R.id.title);
+		ImageView iconView = view.findViewById(android.R.id.icon);
 
 		titleView.setText(titleId);
 		if (iconId != 0) {

@@ -1,9 +1,9 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -28,11 +28,9 @@ import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.ThreadSafeResponse;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
@@ -43,11 +41,20 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<ThreadSafeResponse> {
+	private static final String KEY_FORUM_ID = "FORUM_ID";
+	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_THREAD_ID = "THREAD_ID";
 	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 103;
 	private static final int SMOOTH_SCROLL_THRESHOLD = 10;
 	private ThreadRecyclerViewAdapter adapter;
 	private int threadId;
+	private int forumId;
+	private String forumTitle;
+	private int gameId;
+	private String gameName;
 	private ShowcaseView showcaseView;
 	private int currentAdapterPosition = 0;
 	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
@@ -57,21 +64,42 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
+	public static ThreadFragment newInstance(int threadId, int forumId, String forumTitle, int gameId, String gameName) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_THREAD_ID, threadId);
+		args.putInt(KEY_FORUM_ID, forumId);
+		args.putString(KEY_FORUM_TITLE, forumTitle);
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
+
+		ThreadFragment fragment = new ThreadFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		threadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		readBundle(getArguments());
 		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
 		return rootView;
+	}
+
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		threadId = bundle.getInt(KEY_THREAD_ID, BggContract.INVALID_ID);
+		forumId = bundle.getInt(KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = bundle.getString(KEY_FORUM_TITLE);
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = bundle.getString(KEY_GAME_NAME);
 	}
 
 	@Override
@@ -95,8 +123,8 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onDestroyView() {
-		unbinder.unbind();
 		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -212,7 +240,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		if (adapter == null) {
-			adapter = new ThreadRecyclerViewAdapter(getActivity(), data.getArticles());
+			adapter = new ThreadRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, gameId, gameName);
 			recyclerView.setAdapter(adapter);
 		}
 

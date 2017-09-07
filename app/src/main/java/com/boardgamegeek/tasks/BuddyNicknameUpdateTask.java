@@ -1,9 +1,11 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -25,15 +27,15 @@ import java.util.List;
  */
 public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME + "!=?";
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final String username;
 	private final String nickname;
 	private final boolean shouldUpdatePlays;
 	private final ArrayList<ContentProviderOperation> batch;
 	private final long startTime;
 
-	public BuddyNicknameUpdateTask(Context context, String username, String nickname, boolean shouldUpdatePlays) {
-		this.context = (context == null ? null : context.getApplicationContext());
+	public BuddyNicknameUpdateTask(@Nullable Context context, String username, String nickname, boolean shouldUpdatePlays) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.username = username;
 		this.nickname = nickname;
 		this.shouldUpdatePlays = shouldUpdatePlays;
@@ -43,9 +45,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 
 	@Override
 	protected String doInBackground(Void... params) {
-		if (context == null) {
-			return "";
-		}
+		if (context == null) return "";
 
 		String result;
 		batch.clear();
@@ -81,6 +81,7 @@ public class BuddyNicknameUpdateTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private int updatePlays() {
+		if (context == null) return 0;
 		final ContentResolver resolver = context.getContentResolver();
 		List<Long> internalIds = ResolverUtils.queryLongs(resolver,
 			Plays.buildPlayersByPlayUri(),

@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/root_container"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:animateLayoutChanges="true"
+	android:orientation="vertical"
+	tools:context=".ui.GameCollectionItemActivity">
+
+	<TextView
+		android:id="@+id/year"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/padding_extra"
+		android:textAppearance="@style/Text"
+		tools:text="2004"/>
+
+	<TextView
+		android:id="@+id/status"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackground"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text"
+		android:textStyle="bold"
+		tools:text="Own"/>
+
+	<CheckBox
+		android:id="@+id/want_to_buy"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="want_to_buy"
+		android:text="@string/collection_status_want_to_buy"
+		android:visibility="gone"
+		tools:visibility="invisible"/>
+
+	<CheckBox
+		android:id="@+id/preordered"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="preordered"
+		android:text="@string/collection_status_preordered"
+		android:visibility="gone"
+		tools:visibility="invisible"/>
+
+	<CheckBox
+		android:id="@+id/own"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="own"
+		android:text="@string/collection_status_own"
+		android:visibility="gone"
+		tools:visibility="invisible"/>
+
+	<CheckBox
+		android:id="@+id/want_to_play"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="want_to_play"
+		android:text="@string/collection_status_want_to_play"
+		android:visibility="gone"
+		tools:visibility="invisible"/>
+
+	<CheckBox
+		android:id="@+id/previously_owned"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="previously_owned"
+		android:text="@string/collection_status_prev_owned"
+		android:visibility="gone"
+		tools:visibility="invisible"/>
+
+	<android.support.v7.widget.CardView
+		android:id="@+id/rating_comment_container"
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_gravity="center_vertical"
+			android:baselineAligned="false"
+			android:orientation="horizontal">
+
+			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+				android:id="@+id/comment_container"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_weight="1"
+				android:foreground="?attr/selectableItemBackgroundBorderless"
+				android:gravity="center_vertical"
+				android:minHeight="@dimen/edit_row_height"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/add_comment"
+					style="@style/Text.Header.Card"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/add_comment"/>
+
+				<TextView
+					android:id="@+id/comment"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
+
+				<com.boardgamegeek.ui.widget.TimestampView
+					android:id="@+id/comment_timestamp"
+					style="@style/Text.Footnote2"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:hideWhenEmpty="true"
+					tools:text="Yesterday"/>
+			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+
+			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+				android:id="@+id/rating_container"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="top|right"
+				android:layout_marginLeft="@dimen/padding_standard"
+				android:foreground="?attr/selectableItemBackgroundBorderless"
+				android:gravity="center_vertical"
+				android:minHeight="@dimen/edit_row_height"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/rating"
+					style="@style/RatingLarge"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right"
+					tools:background="#0f0"
+					tools:text="9.5"/>
+
+				<com.boardgamegeek.ui.widget.TimestampView
+					android:id="@+id/rating_timestamp"
+					style="@style/Text.Footnote2"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right"
+					app:hideWhenEmpty="true"
+					tools:text="Yesterday"/>
+			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+
+		</LinearLayout>
+	</android.support.v7.widget.CardView>
+
+	<android.support.v7.widget.CardView
+		android:id="@+id/private_info_container"
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:foreground="?attr/selectableItemBackgroundBorderless"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/card_header_private_info"
+				style="@style/Text.Header.Card"
+				android:layout_width="match_parent"
+				android:text="@string/private_info"/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				android:paddingBottom="@dimen/padding_half">
+
+				<TextView
+					android:id="@+id/private_info"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:textAppearance="@style/Text"
+					tools:text="Acquired on Jan 1, 1999"/>
+
+				<TextView
+					android:id="@+id/private_info_comments"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					tools:text="Don't tell anyone my true feelings about this game."/>
+			</LinearLayout>
+
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/private_info_timestamp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:textAppearance="@style/Text.Footnote2"
+				app:hideWhenEmpty="true"
+				tools:text="Yesterday"/>
+		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+	</android.support.v7.widget.CardView>
+
+	<CheckBox
+		android:id="@+id/wishlist"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="wishlist"
+		android:text="@string/collection_status_wishlist"
+		android:visibility="gone"
+		tools:visibility="visible"/>
+
+	<Spinner
+		android:id="@+id/wishlist_priority"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:visibility="gone"
+		app:theme="@style/EditSpinner"
+		tools:visibility="visible"/>
+
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/wishlist_card"
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:headerText="@string/wishlist_comment"/>
+
+	<CheckBox
+		android:id="@+id/want_in_trade"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="want"
+		android:text="@string/collection_status_want_in_trade"
+		android:visibility="gone"
+		tools:visibility="invisible"/>
+
+	<CheckBox
+		android:id="@+id/for_trade"
+		style="@style/EditCheckbox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:tag="for_trade"
+		android:text="@string/collection_status_for_trade"
+		android:visibility="gone"
+		tools:visibility="invisible"/>
+
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/condition_card"
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:headerText="@string/trade_condition"/>
+
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/want_parts_card"
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:headerText="@string/want_parts_list"/>
+
+	<com.boardgamegeek.ui.widget.TextEditorCard
+		android:id="@+id/has_parts_card"
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:headerText="@string/has_parts_list"/>
+
+	<com.boardgamegeek.ui.widget.TimestampView
+		android:id="@+id/last_modified"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text.Footnote"
+		app:format="@string/last_modified_prefix"
+		app:hideWhenEmpty="true"
+		tools:text="Last modified Yesterday"/>
+
+	<TextView
+		android:id="@+id/collection_id"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text.Footnote2"
+		tools:text="123456"/>
+
+	<com.boardgamegeek.ui.widget.TimestampView
+		android:id="@+id/updated"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingBottom="@dimen/fab_buffer"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:textAppearance="@style/Text.Footnote2"
+		app:emptyMessage="@string/needs_updating"
+		app:format="@string/synced_prefix"
+		tools:text="Synced: 3 days ago"/>
+</LinearLayout>

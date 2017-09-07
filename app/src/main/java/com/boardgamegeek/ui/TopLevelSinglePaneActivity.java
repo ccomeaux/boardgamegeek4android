@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.UIUtils;
 
 public abstract class TopLevelSinglePaneActivity extends TopLevelActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
@@ -15,11 +14,16 @@ public abstract class TopLevelSinglePaneActivity extends TopLevelActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		readIntent(getIntent());
+
 		if (savedInstanceState == null) {
 			parseIntent(getIntent());
 		} else {
 			fragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
+	}
+
+	protected void readIntent(Intent intent) {
 	}
 
 	@Override
@@ -39,7 +43,6 @@ public abstract class TopLevelSinglePaneActivity extends TopLevelActivity {
 
 	private void parseIntent(Intent intent) {
 		fragment = onCreatePane();
-		fragment.setArguments(UIUtils.intentToFragmentArguments(intent));
 		getSupportFragmentManager().beginTransaction().add(R.id.root_container, fragment, TAG_SINGLE_PANE).commit();
 	}
 }

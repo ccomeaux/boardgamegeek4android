@@ -46,23 +46,24 @@
 	<string name="pref_sync_sign_out">Sign out</string>
 	<string name="pref_sync_sign_out_pos">Sign out</string>
 	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out?</string>
-	<string name="pref_sync_clear">Clear data</string>
+	<string name="pref_sync_clear">Clear local data</string>
 	<string name="pref_sync_clear_pos">Clear</string>
-	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed. But you can re-sync.</string>
+	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed, but you can always re-sync.</string>
 	<string name="pref_sync_clear_success">Clear complete</string>
 	<string name="pref_sync_clear_failure">Clear unsuccessful - are you sure you\'re signed in\?</string>
-	<string name="pref_sync_reset_collection">Sync entire collection</string>
-	<string name="pref_sync_reset_plays">Sync all plays</string>
+	<string name="pref_sync_reset_collection">Re-sync entire collection</string>
+	<string name="pref_sync_re_sync_plays">Re-sync all plays</string>
 	<string name="pref_sync_reset_buddies">Re-sync GeekBuddies</string>
-	<string name="pref_sync_reset_pos">Sync</string>
+	<string name="pref_sync_reset_pos">Re-sync</string>
 	<string name="pref_sync_reset_collection_info_message">This will force a complete sync on collection data. Normally only recently modified collection items are synced. This may take a while, but it is recommended if all collection items aren\'t appearing.</string>
-	<string name="pref_sync_reset_plays_info_message">This will force a complete sync on play data. Normally only recent plays are synced. This may take a while, but it is recommended if all plays aren\'t appearing.</string>
+	<string name="pref_sync_re_sync_plays_info_message">This will force a complete sync on all play data. (Normally only recent plays are synced.) This may take a while, but it is recommended if all plays aren\'t appearing.</string>
 	<string name="pref_sync_reset_buddies_info_message">This will delete all GeekBuddies, then force a complete sync. This may take a while, but it is recommended if all GeekBuddies aren\'t appearing.</string>
 	<string name="pref_sync_reset_success">Sync started</string>
 	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
-	<string name="pref_sync_timestamps">Timestamps</string>
-	<string name="pref_sync_timestamps_collection_full">Last Full Collection Sync</string>
-	<string name="pref_sync_timestamps_collection_partial">Last Partial Collection Sync</string>
+	<string name="pref_sync_timestamps">View sync status</string>
+	<string name="pref_sync_timestamps_title">Sync status</string>
+	<string name="pref_sync_timestamps_collection_full">Full</string>
+	<string name="pref_sync_timestamps_collection_partial">Partial</string>
 	<string name="pref_sync_timestamps_plays_newest_date">Newest Synced Play Date</string>
 	<string name="pref_sync_timestamps_plays_oldest_date">Oldest Synced Play Date</string>
 	<string name="pref_sync_timestamps_buddy">Last Buddy Sync</string>
@@ -95,6 +96,16 @@
 	<string name="pref_about_trello_board">Trello Board</string>
 	<string name="pref_about_bgg_thread">BoardGameGeek Thread</string>
 
+	<string name="define_int_AutoValue"></string>
+	<string name="library_AutoValue_author">Google</string>
+	<string name="library_AutoValue_authorWebsite">https://github.com/google</string>
+	<string name="library_AutoValue_libraryName">AutoValue</string>
+	<string name="library_AutoValue_libraryDescription">Generated immutable value classes for Java 1.6+.</string>
+	<string name="library_AutoValue_libraryVersion">1.4</string>
+	<string name="library_AutoValue_licenseId">apache_2_0</string>
+	<string name="library_AutoValue_isOpenSource">true</string>
+	<string name="library_AutoValue_repositoryLink">https://github.com/google/auto</string>
+
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
@@ -110,18 +121,10 @@
 	<string name="library_PhotoView_authorWebsite">https://chris.banes.me</string>
 	<string name="library_PhotoView_libraryName">PhotoView</string>
 	<string name="library_PhotoView_libraryDescription">Implementation of ImageView for Android that supports zooming, by various touch gestures.</string>
-	<string name="library_PhotoView_libraryVersion">1.2.3</string>
+	<string name="library_PhotoView_libraryVersion">1.2.4</string>
 	<string name="library_PhotoView_licenseId">apache_2_0</string>
 	<string name="library_PhotoView_isOpenSource">true</string>
 	<string name="library_PhotoView_repositoryLink">https://github.com/chrisbanes/PhotoView</string>
-
-	<string name="define_int_RangeSeekBar"></string>
-	<string name="library_RangeSeekBar_author">Stephan Tittel</string>
-	<string name="library_RangeSeekBar_libraryName">range-seek-bar</string>
-	<string name="library_RangeSeekBar_libraryDescription">A slider widget for Android allowing to set a minimum and maximum value on a numerical range.</string>
-	<string name="library_RangeSeekBar_licenseId">apache_2_0</string>
-	<string name="library_RangeSeekBar_isOpenSource">true</string>
-	<string name="library_RangeSeekBar_repositoryLink">https://code.google.com/p/range-seek-bar</string>
 
 	<string name="define_int_AndroidIcons"></string>
 	<string name="library_AndroidIcons_author">Opoloo</string>

@@ -55,21 +55,21 @@ public class ForegroundImageView extends ImageView {
 		super(context, attrs, defStyle);
 
 		final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundImageView, defStyle, 0);
+		try {
+			final Drawable d = a.getDrawable(R.styleable.ForegroundImageView_android_foreground);
+			foregroundPadding = a.getBoolean(R.styleable.ForegroundImageView_foregroundInsidePadding, false);
 
-		final Drawable d = a.getDrawable(R.styleable.ForegroundImageView_android_foreground);
-		foregroundPadding = a.getBoolean(R.styleable.ForegroundImageView_android_foregroundInsidePadding, false);
-
-		// Apply foreground padding for nine patches automatically
-		if (!foregroundPadding && getBackground() instanceof NinePatchDrawable) {
-			final NinePatchDrawable npd = (NinePatchDrawable) getBackground();
-			if (npd != null && npd.getPadding(rectPadding)) {
-				foregroundPadding = true;
+			// Apply foreground padding for nine patches automatically
+			if (!foregroundPadding && getBackground() instanceof NinePatchDrawable) {
+				final NinePatchDrawable npd = (NinePatchDrawable) getBackground();
+				if (npd != null && npd.getPadding(rectPadding)) {
+					foregroundPadding = true;
+				}
 			}
+			setForeground(d);
+		} finally {
+			a.recycle();
 		}
-
-		setForeground(d);
-
-		a.recycle();
 	}
 
 	/**

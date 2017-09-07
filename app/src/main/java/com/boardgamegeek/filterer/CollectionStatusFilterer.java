@@ -40,34 +40,34 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	@Override
 	public String getDisplayText() {
 		String[] entries = context.getResources().getStringArray(R.array.collection_status_filter_entries);
-		String displayText = "";
+		StringBuilder displayText = new StringBuilder();
 
 		for (int i = 0; i < selectedStatuses.length; i++) {
 			if (selectedStatuses[i]) {
 				if (displayText.length() > 0) {
-					displayText += " " + (shouldJoinWithOr ? "|" : "&") + " ";
+					displayText.append(" ").append(shouldJoinWithOr ? "|" : "&").append(" ");
 				}
-				displayText += entries[i];
+				displayText.append(entries[i]);
 			}
 		}
 
-		return displayText;
+		return displayText.toString();
 	}
 
 	@Override
 	public String getSelection() {
 		String[] values = context.getResources().getStringArray(R.array.collection_status_filter_values);
-		String selection = "";
+		StringBuilder selection = new StringBuilder();
 
 		for (int i = 0; i < selectedStatuses.length; i++) {
 			if (selectedStatuses[i]) {
 				if (selection.length() > 0) {
-					selection += " " + (shouldJoinWithOr ? "OR" : "AND") + " ";
+					selection.append(" ").append((shouldJoinWithOr ? "OR" : "AND")).append(" ");
 				}
-				selection += values[i] + "=?";
+				selection.append(values[i]).append("=?");
 			}
 		}
-		return selection;
+		return selection.toString();
 	}
 
 	public boolean[] getSelectedStatuses() {
@@ -77,14 +77,12 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	@NonNull
 	@Override
 	public String flatten() {
-		String s = (shouldJoinWithOr ? "1" : "0");
+		StringBuilder sb = new StringBuilder(shouldJoinWithOr ? "1" : "0");
 		for (boolean selected : selectedStatuses) {
-			if (s.length() > 0) {
-				s += DELIMITER;
-			}
-			s += (selected ? "1" : "0");
+			if (sb.length() > 0) sb.append(DELIMITER);
+			sb.append(selected ? "1" : "0");
 		}
-		return s;
+		return sb.toString();
 	}
 
 	@Override

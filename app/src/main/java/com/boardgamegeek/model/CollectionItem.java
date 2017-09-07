@@ -31,6 +31,8 @@ public class CollectionItem {
 		@Attribute(required = false) public int maxplayers;
 
 		@Attribute(required = false) public int playingtime;
+		@Attribute(required = false) public int minplaytime;
+		@Attribute(required = false) public int maxplaytime;
 
 		@Attribute private String numowned;
 

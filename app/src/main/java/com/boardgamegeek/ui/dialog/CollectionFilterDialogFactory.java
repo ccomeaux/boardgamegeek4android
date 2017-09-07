@@ -25,6 +25,8 @@ public class CollectionFilterDialogFactory {
 		dialogs.add(new ExpansionStatusFilterDialog());
 		dialogs.add(new PlayCountFilterDialog());
 		dialogs.add(new MyRatingFilterDialog());
+		dialogs.add(new RecommendedPlayerCountFilterDialog());
+		dialogs.add(new FavoriteFilterDialog());
 	}
 
 	@Nullable

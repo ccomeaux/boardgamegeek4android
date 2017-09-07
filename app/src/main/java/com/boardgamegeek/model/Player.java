@@ -11,6 +11,8 @@ import com.boardgamegeek.util.StringUtils;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
+import java.text.DecimalFormat;
+
 @Root(name = "player")
 public class Player implements Parcelable {
 	public static final double DEFAULT_RATING = 0.0;
@@ -100,6 +102,13 @@ public class Player implements Parcelable {
 
 	public void setSeat(int value) {
 		setStartingPosition(String.valueOf(value));
+	}
+
+	public String getRatingDescription() {
+		if (rating > 1.0 && rating <= 10.0) {
+			return new DecimalFormat("0.#").format(rating);
+		}
+		return "";
 	}
 
 	public String getDescription() {

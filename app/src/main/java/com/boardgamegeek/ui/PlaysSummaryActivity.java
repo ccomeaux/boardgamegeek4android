@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.tasks.ResetPlaysTask;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.crashlytics.android.answers.Answers;
@@ -45,12 +44,18 @@ public class PlaysSummaryActivity extends TopLevelSinglePaneActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.re_sync) {
-			DialogUtils.createConfirmationDialog(this, R.string.pref_sync_reset_plays_info_message, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					TaskUtils.executeAsyncTask(new ResetPlaysTask(PlaysSummaryActivity.this));
-				}
-			}).show();
+			DialogUtils.createThemedBuilder(this)
+				.setTitle(getString(R.string.pref_sync_re_sync_plays) + "?")
+				.setMessage(R.string.pref_sync_re_sync_plays_info_message)
+				.setPositiveButton(R.string.re_sync, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						TaskUtils.executeAsyncTask(new ResetPlaysTask(PlaysSummaryActivity.this));
+					}
+				})
+				.setNegativeButton(R.string.cancel, null)
+				.setCancelable(true)
+				.show();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -60,6 +65,6 @@ public class PlaysSummaryActivity extends TopLevelSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(PlaySelectedEvent event) {
-		ActivityUtils.startPlayActivity(this, event);
+		PlayActivity.start(this, event);
 	}
 }

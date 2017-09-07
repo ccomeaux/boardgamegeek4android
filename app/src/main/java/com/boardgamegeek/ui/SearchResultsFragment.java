@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,7 +48,6 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.SearchEvent;
@@ -99,6 +97,13 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		}
 	};
 
+	public static SearchResultsFragment newInstance() {
+		Bundle args = new Bundle();
+		SearchResultsFragment fragment = new SearchResultsFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -119,9 +124,9 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		super.onActivityCreated(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		if (intent.hasExtra(SearchManager.QUERY)) {
-			previousSearchText = intent.getStringExtra(SearchManager.QUERY);
+		Bundle arguments = getArguments();
+		if (arguments != null && arguments.containsKey(SearchManager.QUERY)) {
+			previousSearchText = arguments.getString(SearchManager.QUERY);
 		}
 
 		getLoaderManager().initLoader(LOADER_ID, getLoaderBundle(previousSearchText, previousShouldSearchExact), SearchResultsFragment.this);
@@ -494,7 +499,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 							handled = callback.onItemClick(position);
 						}
 						if (!handled) {
-							ActivityUtils.launchGame(itemView.getContext(), game.id, game.name);
+							GameActivity.start(itemView.getContext(), game.id, game.name);
 						}
 					}
 				});
@@ -567,7 +572,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), game.id, game.name, null, null, false);
+				LogPlayActivity.logPlay(getContext(), game.id, game.name, null, null, false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

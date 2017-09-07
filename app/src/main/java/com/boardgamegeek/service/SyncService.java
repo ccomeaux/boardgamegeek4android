@@ -6,17 +6,13 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.model.PlayStats;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";
@@ -26,7 +22,8 @@ public class SyncService extends Service {
 	public static final int FLAG_SYNC_BUDDIES = 1 << 2;
 	public static final int FLAG_SYNC_PLAYS_DOWNLOAD = 1 << 3;
 	public static final int FLAG_SYNC_PLAYS_UPLOAD = 1 << 4;
-	public static final int FLAG_SYNC_COLLECTION = FLAG_SYNC_COLLECTION_DOWNLOAD | FLAG_SYNC_COLLECTION_UPLOAD;
+	public static final int FLAG_SYNC_GAMES = 1 << 5;
+	public static final int FLAG_SYNC_COLLECTION = FLAG_SYNC_COLLECTION_DOWNLOAD | FLAG_SYNC_COLLECTION_UPLOAD | FLAG_SYNC_GAMES;
 	public static final int FLAG_SYNC_PLAYS = FLAG_SYNC_PLAYS_DOWNLOAD | FLAG_SYNC_PLAYS_UPLOAD;
 	public static final int FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION | FLAG_SYNC_BUDDIES | FLAG_SYNC_PLAYS;
 	public static final String ACTION_CANCEL_SYNC = "com.boardgamegeek.ACTION_SYNC_CANCEL";
@@ -112,32 +109,6 @@ public class SyncService extends Service {
 			return true;
 		}
 		return false;
-	}
-
-	public static void calculateAndUpdateHIndex(@NonNull Context context) {
-		int hIndex = calculateHIndex(context);
-		PreferencesUtils.updateHIndex(context, hIndex);
-	}
-
-	private static int calculateHIndex(@NonNull Context context) {
-		Cursor cursor = null;
-		try {
-			cursor = context.getContentResolver().query(
-				PlayStats.getUri(),
-				PlayStats.PROJECTION,
-				PlayStats.getSelection(context),
-				PlayStats.getSelectionArgs(context),
-				PlayStats.getSortOrder());
-			if (cursor != null) {
-				PlayStats stats = PlayStats.fromCursor(cursor);
-				return stats.getHIndex();
-			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
-		return PreferencesUtils.INVALID_H_INDEX;
 	}
 
 	public static boolean isPlaysSyncUpToDate(Context context) {

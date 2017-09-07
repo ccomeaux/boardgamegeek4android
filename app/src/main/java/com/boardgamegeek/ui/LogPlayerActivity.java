@@ -5,7 +5,6 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -41,6 +40,7 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -69,6 +69,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_FAB_COLOR = "FAB_COLOR";
 	public static final String KEY_POSITION = "POSITION";
+	public static final String KEY_NEW_PLAYER = "NEW_PLAYER";
 	public static final int INVALID_POSITION = -1;
 
 	private static final int HELP_VERSION = 2;
@@ -113,6 +114,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@State boolean userHasShownNew;
 	@State boolean userHasShownWin;
 	private int autoPosition;
+	private boolean isNewPlayer;
 	private ArrayList<String> usedColors;
 	private ArrayList<String> colors;
 
@@ -194,7 +196,8 @@ public class LogPlayerActivity extends AppCompatActivity {
 			userHasShownScore = true;
 			scoreView.requestFocus();
 		}
-		fab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent))));
+		isNewPlayer = intent.getBooleanExtra(KEY_NEW_PLAYER, false);
+		PresentationUtils.colorFab(fab, intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)));
 
 		if (savedInstanceState == null) {
 			player = intent.getParcelableExtra(KEY_PLAYER);
@@ -514,7 +517,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			setResult(RESULT_CANCELED);
 			finish();
 		} else {
-			DialogUtils.createCancelDialog(this).show();
+			DialogUtils.createDiscardDialog(this, R.string.player, isNewPlayer).show();
 		}
 	}
 

@@ -1,18 +1,19 @@
 package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.ui.ArticleActivity;
+import com.boardgamegeek.ui.loader.ThreadSafeResponse;
 import com.boardgamegeek.ui.model.Article;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
@@ -22,11 +23,23 @@ import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecyclerViewAdapter.ArticleViewHolder> {
+	private final int threadId;
+	private final String threadSubject;
+	private final int forumId;
+	private final String forumTitle;
+	private final int gameId;
+	private final String gameName;
 	private final List<Article> articles;
 	private final LayoutInflater inflater;
 
-	public ThreadRecyclerViewAdapter(Context context, List<Article> articles) {
-		this.articles = articles;
+	public ThreadRecyclerViewAdapter(Context context, ThreadSafeResponse thread, int forumId, String forumTitle, int gameId, String gameName) {
+		threadId = thread.getThreadId();
+		threadSubject = thread.getThreadSubject();
+		this.forumId = forumId;
+		this.forumTitle = forumTitle;
+		this.gameId = gameId;
+		this.gameName = gameName;
+		articles = thread.getArticles();
 		inflater = LayoutInflater.from(context);
 		setHasStableIds(true);
 	}
@@ -75,13 +88,11 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			ButterKnife.bind(this, itemView);
 		}
 
-		public void bind(Article article) {
+		public void bind(final Article article) {
 			if (article == null) return;
 
 			usernameView.setText(article.username());
-			editDateView.setTimestamp(article.editTicks());
 			postDateView.setTimestamp(article.postTicks());
-			UIUtils.setTextMaybeHtml(bodyView, article.body());
 			if (article.editTicks() != article.postTicks()) {
 				editDateView.setTimestamp(article.editTicks());
 				editDateView.setVisibility(View.VISIBLE);
@@ -95,15 +106,12 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			} else {
 				UIUtils.setTextMaybeHtml(bodyView, article.body().trim());
 			}
-			Bundle bundle = new Bundle();
-			bundle.putString(ActivityUtils.KEY_USER, article.username());
-			bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postTicks());
-			bundle.putLong(ActivityUtils.KEY_EDIT_DATE, article.editTicks());
-			bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.numberOfEdits());
-			bundle.putString(ActivityUtils.KEY_BODY, article.body());
-			bundle.putString(ActivityUtils.KEY_LINK, article.link());
-			bundle.putInt(ActivityUtils.KEY_ARTICLE_ID, article.id());
-			viewButton.setTag(bundle);
+			itemView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					ArticleActivity.start(v.getContext(), threadId, threadSubject, forumId, forumTitle, gameId, gameName, article);
+				}
+			});
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package com.boardgamegeek.io;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.boardgamegeek.util.HelpUtils;
 
@@ -20,7 +21,7 @@ public class UserAgentInterceptor implements Interceptor {
 
 	@DebugLog
 	@Override
-	public Response intercept(Chain chain) throws IOException {
+	public Response intercept(@NonNull Chain chain) throws IOException {
 		Request originalRequest = chain.request();
 		Request request = originalRequest.newBuilder()
 			.header("User-Agent", constructUserAgent())

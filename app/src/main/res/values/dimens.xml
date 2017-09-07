@@ -17,7 +17,7 @@
 	<dimen name="edit_row_height">48dp</dimen>
 	<dimen name="game_detail_row_height">48dp</dimen>
 	<dimen name="edit_label_width">56dp</dimen>
-	<dimen name="player_row_height">48dp</dimen>
+	<dimen name="player_row_height">56dp</dimen>
 	<dimen name="drawer_item_height">48dp</dimen>
 	<dimen name="thumbnail_list_size">56dp</dimen>
 	<dimen name="thumbnail_list_size_small">40dp</dimen>
@@ -32,6 +32,7 @@
 	<dimen name="image_header_height">64dp</dimen>
 	<dimen name="drawer_width">304dp</dimen>
 	<dimen name="material_margin_horizontal">16dp</dimen>
+	<dimen name="material_margin_dialog">24dp</dimen>
 	<dimen name="material_margin_horizontal_thumbnail">8dp</dimen>
 	<dimen name="material_margin_horizontal_webview_container">8dp</dimen>
 	<dimen name="material_margin_horizontal_card">8dp</dimen>
@@ -45,6 +46,7 @@
 	<dimen name="material_elevation">8dp</dimen>
 	<dimen name="material_elevation_subtle">4dp</dimen>
 	<dimen name="card_row_height">48dp</dimen>
+	<dimen name="card_header_height">64dp</dimen>
 	<dimen name="shortcut_icon_size">48dp</dimen>
 	<dimen name="divider_height">1dp</dimen>
 	<dimen name="drawer_header_account_height">56dp</dimen>

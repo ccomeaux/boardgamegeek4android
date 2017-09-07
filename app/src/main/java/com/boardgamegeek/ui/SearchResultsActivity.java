@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.ActivityUtils;
 
 import icepick.Icepick;
 import icepick.State;
@@ -37,7 +36,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onNewIntent(@NonNull Intent intent) {
 		super.onNewIntent(intent);
-		parseIntent(intent);
+		readIntent(intent);
 		if (searchView != null) {
 			String query = searchView.getQuery().toString();
 			if (!query.equals(searchText)) {
@@ -112,11 +111,11 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@NonNull
 	@Override
 	protected Fragment onCreatePane(@NonNull Intent intent) {
-		parseIntent(intent);
-		return new SearchResultsFragment();
+		return  SearchResultsFragment.newInstance();
 	}
 
-	private void parseIntent(@NonNull Intent intent) {
+	@Override
+	protected void readIntent(Intent intent) {
 		String action = intent.getAction();
 		if (action != null && Intent.ACTION_VIEW.equals(action)) {
 			Uri uri = intent.getData();
@@ -124,7 +123,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 				Toast.makeText(this, R.string.search_error_no_data, Toast.LENGTH_LONG).show();
 				finish();
 			} else {
-				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
+				GameActivity.start(this, Games.getGameId(uri), "");
 			}
 		} else if (action != null &&
 			(Intent.ACTION_SEARCH.equals(action) || "com.google.android.gms.actions.SEARCH_ACTION".equals(action))) {

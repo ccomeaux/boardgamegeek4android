@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,7 +40,7 @@ import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
-import com.boardgamegeek.events.GameShortcutCreatedEvent;
+import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.provider.BggContract;
@@ -68,6 +67,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -96,6 +96,7 @@ import timber.log.Timber;
 
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener,
 	CollectionFilterDialog.OnFilterChangedListener, SaveViewDialogFragment.OnViewSavedListener, DeleteViewDialogFragment.OnViewDeletedListener {
+	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -125,10 +126,19 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionSorterFactory collectionSorterFactory;
 	private ShowcaseViewWizard showcaseViewWizard;
 
+	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
+		Bundle args = new Bundle();
+		args.putBoolean(KEY_IS_CREATING_SHORTCUT, isCreatingShortcut);
+		CollectionFragment fragment = new CollectionFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	@DebugLog
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		readBundle(getArguments());
 		setHasOptionsMenu(true);
 		if (savedInstanceState != null) {
 			Icepick.restoreInstanceState(this, savedInstanceState);
@@ -152,9 +162,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				}
 			}
 		}
+	}
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		isCreatingShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		isCreatingShortcut = bundle.getBoolean(KEY_IS_CREATING_SHORTCUT);
 	}
 
 	@Override
@@ -230,6 +242,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	private void requery() {
+		progressBar.show();
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
 	}
 
@@ -270,7 +283,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (isCreatingShortcut) {
-			EventBus.getDefault().post(new GameShortcutCreatedEvent(gameId, gameName, thumbnailUrl));
+			EventBus.getDefault().post(new GameShortcutRequestedEvent(gameId, gameName, thumbnailUrl));
 		} else {
 			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName));
 			setSelectedGameId(gameId);
@@ -282,10 +295,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final Menu menu = footerToolbar.getMenu();
 		if (isCreatingShortcut) {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
+			menu.findItem(R.id.menu_create_shortcut).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
 		} else {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(true);
+			menu.findItem(R.id.menu_create_shortcut).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
@@ -293,10 +308,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
 			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
 			final boolean hasItems = adapter != null && adapter.getCount() > 0;
+			final boolean hasViewSelected = viewId > 0;
 
 			menu.findItem(R.id.menu_collection_view_save).setEnabled(hasFiltersApplied || hasSortApplied);
 			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 			menu.findItem(R.id.menu_collection_random_game).setEnabled(hasItems);
+			menu.findItem(R.id.menu_create_shortcut).setEnabled(hasViewSelected);
 		}
 	}
 
@@ -309,8 +326,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_random_game:
 					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
-					ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+					GameActivity.start(getContext(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 					return true;
+				case R.id.menu_create_shortcut:
+					if (viewId > 0) {
+						ShortcutUtils.createCollectionShortcut(getContext(), viewId, viewName);
+						return true;
+					}
+					break;
 				case R.id.menu_collection_view_save:
 					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
 					dialog.setOnViewSavedListener(CollectionFragment.this);
@@ -369,24 +392,27 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (id == Query._TOKEN) {
 			StringBuilder where = new StringBuilder();
 			String[] args = {};
+			StringBuilder having = new StringBuilder();
 			if (viewId == 0 && filters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
 				for (CollectionFilterer filter : filters) {
 					if (filter != null) {
 						if (!TextUtils.isEmpty(filter.getSelection())) {
-							if (where.length() > 0) {
-								where.append(" AND ");
-							}
+							if (where.length() > 0) where.append(" AND ");
 							where.append("(").append(filter.getSelection()).append(")");
 							args = StringUtils.concatenate(args, filter.getSelectionArgs());
+						}
+						if (!TextUtils.isEmpty(filter.getHaving())) {
+							if (having.length() > 0) having.append(" AND ");
+							having.append("(").append(filter.getHaving()).append(")");
 						}
 					}
 				}
 			}
 			loader = new CursorLoader(getActivity(),
-				Collection.CONTENT_URI,
-				sorter == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, sorter.getColumns()),
+				Collection.buildUri(having.toString()),
+				getProjection(),
 				where.toString(),
 				args,
 				sorter == null ? null : sorter.getOrderByClause());
@@ -396,6 +422,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 		}
 		return loader;
+	}
+
+	private String[] getProjection() {
+		String[] projection = sorter == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, sorter.getColumns());
+		for (CollectionFilterer filter : filters) {
+			projection = StringUtils.unionArrays(projection, filter.getColumns());
+		}
+		return projection;
 	}
 
 	private String buildDefaultWhereClause() {
@@ -464,17 +498,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
 			if (adapter == null) {
 				adapter = new CollectionAdapter(getActivity());
 				setListAdapter(adapter);
-			} else {
-				setProgressShown(false);
 			}
 			adapter.changeCursor(cursor);
 			restoreScrollState();
@@ -489,6 +519,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 			bindFilterButtons();
 			invalidateMenu();
+			progressBar.hide();
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
 				viewName = cursor.getString(ViewQuery.NAME);
@@ -633,7 +664,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private void bindFilterButtons() {
 		filterButtonContainer.removeAllViews();
 
-		final LayoutInflater layoutInflater = getLayoutInflater(null);
+		final LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 		for (CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.getDisplayText())) {
 				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
@@ -690,7 +721,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void setView(long viewId) {
 		if (this.viewId != viewId) {
-			setProgressShown(true);
+			progressBar.show();
 			this.viewId = viewId;
 			resetScrollState();
 			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
@@ -700,7 +731,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void clearView() {
 		if (viewId != 0) {
-			setProgressShown(true);
 			viewId = 0;
 			viewName = "";
 			resetScrollState();
@@ -716,7 +746,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		@DebugLog
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
-			inflater = getActivity().getLayoutInflater();
+			inflater = LayoutInflater.from(context);
 		}
 
 		@Override
@@ -740,12 +770,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+			boolean isFavorite = cursor.getInt(Query.STARRED) == 1;
 			final long timestamp = sorter.getTimestamp(cursor);
 
 			UIUtils.setActivatedCompat(view, collectionId == selectedCollectionId);
 			holder.nameView.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.yearView.setText(PresentationUtils.describeYear(getActivity(), year));
 			holder.timestampView.setTimestamp(timestamp);
+			holder.favoriteView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
 			PresentationUtils.setTextOrHide(holder.infoView, sorter == null ? "" : sorter.getDisplayInfo(cursor));
 			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl, holder.thumbnailView);
 		}
@@ -765,7 +797,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
@@ -780,6 +812,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			@BindView(R.id.info) TextView infoView;
 			@BindView(R.id.timestamp) TimestampView timestampView;
 			@BindView(R.id.thumbnail) ImageView thumbnailView;
+			@BindView(R.id.favorite) ImageView favoriteView;
 
 			public ViewHolder(@NonNull View view) {
 				ButterKnife.bind(this, view);
@@ -793,10 +826,20 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	private interface Query {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.THUMBNAIL_URL, Collection.IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED,
-			Games.CUSTOM_PLAYER_SORT };
+		String[] PROJECTION = {
+			Collection._ID,
+			Collection.COLLECTION_ID,
+			Collection.COLLECTION_NAME,
+			Collection.YEAR_PUBLISHED,
+			Collection.GAME_NAME,
+			Games.GAME_ID,
+			Collection.COLLECTION_THUMBNAIL_URL,
+			Collection.THUMBNAIL_URL,
+			Collection.IMAGE_URL,
+			Collection.COLLECTION_YEAR_PUBLISHED,
+			Games.CUSTOM_PLAYER_SORT,
+			Games.STARRED
+		};
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -809,12 +852,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int IMAGE_URL = 8;
 		int COLLECTION_YEAR_PUBLISHED = 9;
 		int CUSTOM_PLAYER_SORT = 10;
+		int STARRED = 11;
 	}
 
 	private interface ViewQuery {
 		int _TOKEN = 0x02;
-		String[] PROJECTION = { CollectionViewFilters._ID, CollectionViewFilters.NAME, CollectionViewFilters.SORT_TYPE,
-			CollectionViewFilters.TYPE, CollectionViewFilters.DATA, };
+		String[] PROJECTION = {
+			CollectionViewFilters._ID,
+			CollectionViewFilters.NAME,
+			CollectionViewFilters.SORT_TYPE,
+			CollectionViewFilters.TYPE,
+			CollectionViewFilters.DATA
+		};
 
 		// int _ID = 0;
 		int NAME = 1;
@@ -882,7 +931,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
+				LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

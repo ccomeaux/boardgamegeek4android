@@ -1,8 +1,9 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
@@ -20,15 +21,14 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask;
+import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
@@ -37,13 +37,11 @@ import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.squareup.picasso.Picasso;
 
@@ -61,6 +59,9 @@ import icepick.State;
 import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	private static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
 	private static final int TOKEN = 0;
@@ -87,14 +88,20 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private int defaultTextColor;
 	private int lightTextColor;
 
+	public static BuddyFragment newInstance(String username, String playerName) {
+		Bundle args = new Bundle();
+		args.putString(KEY_BUDDY_NAME, username);
+		args.putString(KEY_PLAYER_NAME, playerName);
+
+		BuddyFragment fragment = new BuddyFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 	}
 
 	@Override
@@ -105,6 +112,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		readBundle(getArguments());
+
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
@@ -137,6 +146,12 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		return rootView;
 	}
 
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		buddyName = bundle.getString(KEY_BUDDY_NAME);
+		playerName = bundle.getString(KEY_PLAYER_NAME);
+	}
+
 	private boolean isUser() {
 		return !TextUtils.isEmpty(buddyName);
 	}
@@ -161,27 +176,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		super.onDestroyView();
 	}
 
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateEvent event) {
-		isRefreshing = event.getType() == UpdateService.SYNC_TYPE_BUDDY;
-		updateRefreshStatus();
-	}
-
-	@SuppressWarnings("unused")
 	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateCompleteEvent event) {
-		isRefreshing = false;
-		updateRefreshStatus();
-	}
-
-	private void updateRefreshStatus() {
+	private void updateRefreshStatus(boolean value) {
+		isRefreshing = value;
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					swipeRefreshLayout.setRefreshing(isRefreshing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
 				}
 			});
 		}
@@ -214,10 +216,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				}
 				break;
 			case COLORS_TOKEN:
-				loader = new CursorLoader(getActivity(),
-					isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName),
-					PlayerColor.PROJECTION,
-					null, null, null);
+				if (!TextUtils.isEmpty(buddyName) || !TextUtils.isEmpty(playerName)) {
+					Uri uri = isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName);
+					loader = new CursorLoader(getActivity(),
+						uri,
+						PlayerColor.PROJECTION,
+						null, null, null);
+				}
 				break;
 		}
 		return loader;
@@ -226,9 +231,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
 			case TOKEN:
@@ -264,32 +267,23 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@DebugLog
 	@OnClick(R.id.collection_root)
 	public void onCollectionClick() {
-		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		startActivity(intent);
+		BuddyCollectionActivity.start(getContext(), buddyName);
 	}
 
 	@DebugLog
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick() {
 		if (isUser()) {
-			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
-			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-			startActivity(intent);
+			BuddyPlaysActivity.start(getContext(), buddyName);
 		} else {
-			Intent intent = new Intent(getActivity(), PlayerPlaysActivity.class);
-			intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
-			startActivity(intent);
+			PlayerPlaysActivity.start(getContext(), playerName);
 		}
 	}
 
 	@DebugLog
 	@OnClick(R.id.colors_root)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
-		startActivity(intent);
+		PlayerColorsActivity.start(getContext(), buddyName, playerName);
 	}
 
 	private void onBuddyQueryComplete(Cursor cursor) {
@@ -377,19 +371,24 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@DebugLog
 	private void requestRefresh() {
-		if (!hasBeenRefreshed) {
-			forceRefresh();
-			hasBeenRefreshed = true;
+		if (!isRefreshing) {
+			if (hasBeenRefreshed) {
+				updateRefreshStatus(false);
+			} else {
+				forceRefresh();
+			}
 		}
 	}
 
 	@DebugLog
 	public void forceRefresh() {
 		if (isUser()) {
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, buddyName);
+			updateRefreshStatus(true);
+			TaskUtils.executeAsyncTask(new SyncUserTask(getActivity(), buddyName));
 		} else {
 			Timber.w("Something tried to refresh a player that wasn't a user!");
 		}
+		hasBeenRefreshed = true;
 	}
 
 	@DebugLog
@@ -398,7 +397,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			@Override
 			public void onFinishEditDialog(String newNickname, boolean updatePlays) {
 				if (!TextUtils.isEmpty(newNickname)) {
-					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getContext(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
 					DataManipulationEvent.log("BuddyNickname", "Edit");
 				}
@@ -421,5 +420,14 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		});
 		editTextDialogFragment.setText(oldName);
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_player");
+	}
+
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(CompletedEvent event) {
+		if (event.getUsername().equals(buddyName)) {
+			updateRefreshStatus(false);
+		}
 	}
 }

@@ -3,6 +3,7 @@ package com.boardgamegeek.util;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
 
 import java.util.Arrays;
@@ -10,10 +11,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Provides utility methods for dealing with strings.
  */
 public class StringUtils {
+	private static final int INVALID_RANGE = -1;
+	private static final String RANGE_COMMA = ", ";
+	private static final String RANGE_DASH = " - ";
+
 	private StringUtils() {
 	}
 
@@ -126,12 +133,8 @@ public class StringUtils {
 	 * Concatenates 2 arrays of strings into 1.
 	 */
 	public static String[] concatenate(String[] array1, String[] array2) {
-		if (array1 == null) {
-			return array2;
-		}
-		if (array2 == null) {
-			return array1;
-		}
+		if (array1 == null) return array2;
+		if (array2 == null) return array1;
 		String[] result = new String[array1.length + array2.length];
 		System.arraycopy(array1, 0, result, 0, array1.length);
 		System.arraycopy(array2, 0, result, array1.length, array2.length);
@@ -142,12 +145,8 @@ public class StringUtils {
 	 * Returns a union of 2 arrays, ensuring that each string exists only once.
 	 */
 	public static String[] unionArrays(String[] array1, String[] array2) {
-		if (array1 == null) {
-			return array2;
-		}
-		if (array2 == null) {
-			return array1;
-		}
+		if (array1 == null) return array2;
+		if (array2 == null) return array1;
 		Set<String> set = new LinkedHashSet<>();
 		set.addAll(Arrays.asList(array1));
 		set.addAll(Arrays.asList(array2));
@@ -182,6 +181,45 @@ public class StringUtils {
 		return sb.toString();
 	}
 
+	@DebugLog
+	public static String formatRange(List<Integer> list) {
+		if (list == null) return "";
+		if (list.size() == 0) return "";
+		if (list.size() == 1) return String.valueOf(list.get(0));
+
+		int first = INVALID_RANGE;
+		int last = INVALID_RANGE;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < list.size(); i++) {
+			int current = list.get(i);
+			if (first == INVALID_RANGE) {
+				first = current;
+			} else if (current - 1 == list.get(i - 1)) {
+				last = current;
+			} else if (last != INVALID_RANGE) {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first).append(RANGE_DASH).append(last);
+				first = INVALID_RANGE;
+				last = INVALID_RANGE;
+			} else {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first);
+				first = current;
+				last = INVALID_RANGE;
+			}
+		}
+		if (first != INVALID_RANGE) {
+			if (last != INVALID_RANGE) {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first).append(RANGE_DASH).append(last);
+			} else {
+				if (sb.length() > 0) sb.append(RANGE_COMMA);
+				sb.append(first);
+			}
+		}
+		return sb.toString();
+	}
+
 	/**
 	 * Append bold text to a {@link android.text.SpannableStringBuilder}
 	 */
@@ -189,5 +227,11 @@ public class StringUtils {
 		sb.append(boldText);
 		sb.setSpan(new StyleSpan(Typeface.BOLD), sb.length() - boldText.length(), sb.length(),
 			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	}
+
+	public static String limitText(String text, int length) {
+		if (TextUtils.isEmpty(text)) return "";
+		if (text.length() <= length) return text;
+		return text.substring(0, length);
 	}
 }

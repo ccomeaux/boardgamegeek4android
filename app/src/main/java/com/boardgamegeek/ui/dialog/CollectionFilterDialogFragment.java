@@ -50,7 +50,9 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		R.id.year_published,
 		R.id.play_time,
 		R.id.suggested_age,
-		R.id.average_weight
+		R.id.average_weight,
+		R.id.recommended_player_count,
+		R.id.favorite
 	}) List<AppCompatCheckBox> checkBoxes;
 
 	@DebugLog
@@ -133,7 +135,10 @@ public class CollectionFilterDialogFragment extends DialogFragment {
 		R.id.year_published,
 		R.id.play_time,
 		R.id.suggested_age,
-		R.id.average_weight })
+		R.id.average_weight,
+		R.id.recommended_player_count,
+		R.id.favorite
+	})
 	void onClick(View view) {
 		int type = StringUtils.parseInt(view.getTag().toString(), -1);
 		if (type != -1) {

@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -15,8 +14,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
-import com.boardgamegeek.ui.GameCollectionActivity;
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.ui.GameCollectionItemActivity;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -61,14 +59,7 @@ public class GameCollectionRow extends LinearLayout {
 		setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getContext(), GameCollectionActivity.class);
-				intent.putExtra(ActivityUtils.KEY_INTERNAL_ID, internalId);
-				intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-				intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, collectionId);
-				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, collectionName);
-				intent.putExtra(ActivityUtils.KEY_IMAGE_URL, imageUrl);
-				getContext().startActivity(intent);
+				GameCollectionItemActivity.start(getContext(), internalId, gameId, gameName, collectionId, collectionName, imageUrl);
 			}
 		});
 	}
@@ -148,7 +139,7 @@ public class GameCollectionRow extends LinearLayout {
 			ratingView.setVisibility(View.GONE);
 		} else {
 			ratingView.setText(PresentationUtils.describePersonalRating(getContext(), rating));
-			ColorUtils.setViewBackground(ratingView, ColorUtils.getRatingColor(rating));
+			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(rating));
 			ratingView.setVisibility(View.VISIBLE);
 		}
 	}

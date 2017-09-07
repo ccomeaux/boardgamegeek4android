@@ -10,7 +10,7 @@ import com.boardgamegeek.util.StringUtils;
 
 public abstract class CollectionFilterer {
 	protected static final String DELIMITER = ":";
-	protected Context context;
+	protected final Context context;
 
 	public CollectionFilterer(@NonNull Context context) {
 		this.context = context;
@@ -27,14 +27,23 @@ public abstract class CollectionFilterer {
 
 	public abstract String getDisplayText();
 
+	public String[] getColumns() {
+		return null;
+	}
+
 	public abstract String getSelection();
 
 	public abstract String[] getSelectionArgs();
 
+	public String getHaving() {
+		return null;
+	}
+
 	public abstract String flatten();
 
 	public boolean isValid() {
-		return !TextUtils.isEmpty(getDisplayText()) && !TextUtils.isEmpty(getSelection());
+		return !TextUtils.isEmpty(getDisplayText()) &&
+			(!TextUtils.isEmpty(getSelection()) || !TextUtils.isEmpty(getHaving()));
 	}
 
 	@Override

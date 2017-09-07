@@ -66,7 +66,6 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.current_value
 	}) List<RadioButton> radioButtons;
 	@BindView(R.id.play_date) View playDateRadioButton;
-	@BindView(R.id.play_date_message) View playDateMessageView;
 
 	@DebugLog
 	public CollectionSortDialogFragment() {
@@ -89,14 +88,12 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 	@Override
 	@NonNull
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-		View rootView = layoutInflater.inflate(R.layout.dialog_collection_sort, root, false);
+		View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_collection_sort, root, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
 		if (!PreferencesUtils.getSyncPlays(getContext())) {
 			if (findSelectedRadioButton() != playDateRadioButton) {
 				playDateRadioButton.setVisibility(View.GONE);
-				playDateMessageView.setVisibility(View.GONE);
 			}
 		}
 		setChecked();

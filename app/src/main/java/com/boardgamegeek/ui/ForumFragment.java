@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,9 +23,7 @@ import com.boardgamegeek.ui.adapter.ForumRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.ForumThreads;
 import com.boardgamegeek.ui.model.PaginatedData;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
@@ -36,6 +33,10 @@ import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
 public class ForumFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
+	private static final String KEY_FORUM_ID = "FORUM_ID";
+	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 3;
 
@@ -50,25 +51,34 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-	@Override
-	@DebugLog
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public static ForumFragment newInstance(int forumId, String forumTitle, int gameId, String gameName) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_FORUM_ID, forumId);
+		args.putString(KEY_FORUM_TITLE, forumTitle);
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		forumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
-		forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
-		gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		ForumFragment fragment = new ForumFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		readBundle(getArguments());
 		View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
 		return rootView;
+	}
+
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		forumId = bundle.getInt(KEY_FORUM_ID, BggContract.INVALID_ID);
+		forumTitle = bundle.getString(KEY_FORUM_TITLE);
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = bundle.getString(KEY_GAME_NAME);
 	}
 
 	@Override

@@ -173,6 +173,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 
 			tasks.add(new SyncCollectionUnupdated(context, service));
+		}
+		if ((type & SyncService.FLAG_SYNC_GAMES) == SyncService.FLAG_SYNC_GAMES) {
 			tasks.add(new SyncGamesRemove(context, service));
 			tasks.add(new SyncGamesOldest(context, service));
 			tasks.add(new SyncGamesUnupdated(context, service));
@@ -219,7 +221,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (messageId != ServiceTask.NO_NOTIFICATION) {
 			CharSequence text = context.getText(messageId);
 			NotificationCompat.Builder builder = NotificationUtils
-				.createNotificationBuilder(context, R.string.sync_notification_title_error)
+				.createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
 				.setContentText(text)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
@@ -232,9 +234,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 	@DebugLog
 	private void notifySyncIsCancelled(int messageId) {
-		if (!shouldShowNotifications) {
-			return;
-		}
+		if (!shouldShowNotifications) return;
 
 		CharSequence contextText = "";
 		if (messageId != SyncTask.NO_NOTIFICATION) {
@@ -242,7 +242,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_cancel)
+			.createNotificationBuilder(context, R.string.sync_notification_title_cancel, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
 			.setContentText(contextText)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE);
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);

@@ -12,19 +12,13 @@
 		android:layout_height="match_parent"
 		android:background="@android:color/white">
 
-		<LinearLayout
-			android:id="@+id/progressContainer"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:gravity="center"
-			android:orientation="vertical"
-			android:visibility="gone">
-
-			<ProgressBar
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
-		</LinearLayout>
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"/>
 
 		<android.support.design.widget.CoordinatorLayout
 			android:id="@+id/list_container"
@@ -79,6 +73,5 @@
 				app:rippleColor="@color/medium_blue"
 				tools:visibility="visible"/>
 		</android.support.design.widget.CoordinatorLayout>
-
 	</FrameLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

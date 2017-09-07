@@ -80,8 +80,8 @@ public class SyncBuddiesList extends SyncTask {
 
 			BuddyPersister persister = new BuddyPersister(context);
 			int count = 0;
-			count += persister.saveList(Buddy.fromUser(user));
-			count += persister.saveList(user.getBuddies());
+			count += persister.saveBuddy(Buddy.fromUser(user));
+			count += persister.saveBuddies(user.getBuddies());
 			syncResult.stats.numEntries += count;
 			Timber.i("Synced %,d buddies", count);
 

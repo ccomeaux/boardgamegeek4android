@@ -243,7 +243,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 							handled = callback.onItemClick(position);
 						}
 						if (!handled) {
-							ActivityUtils.launchGame(itemView.getContext(), gameId, gameName);
+							GameActivity.start(getContext(), gameId, gameName);
 						}
 					}
 				});
@@ -315,7 +315,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, false);
+				LogPlayActivity.logPlay(getContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

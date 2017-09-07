@@ -6,28 +6,6 @@
 		<item name="android:paddingTop">@dimen/padding_small</item>
 	</style>
 
-	<style name="InfoBar">
-		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
-		<item name="android:background">@color/info_background</item>
-		<item name="android:minHeight">48dp</item>
-		<item name="android:gravity">center</item>
-	</style>
-
-	<style name="InfoBarItem" parent="@android:style/TextAppearance">
-		<item name="android:paddingBottom">@dimen/padding_half</item>
-		<item name="android:paddingLeft">@dimen/padding_half</item>
-		<item name="android:paddingRight">@dimen/padding_half</item>
-		<item name="android:paddingTop">@dimen/padding_standard</item>
-		<item name="android:layout_gravity">center_vertical|left</item>
-		<item name="android:gravity">center</item>
-		<item name="android:drawablePadding">@dimen/padding_half</item>
-		<item name="android:minHeight">@dimen/edit_row_height</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:textSize">14sp</item>
-	</style>
-
 	<style name="DialogCheckbox">
 		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
 		<item name="android:textSize">18sp</item>
@@ -49,6 +27,11 @@
 		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:background">?attr/selectableItemBackground</item>
+	</style>
+
+	<style name="SmallColoredButton" parent="Widget.AppCompat.Button.Colored">
+		<item name="android:minHeight">32dp</item>
+		<item name="android:textSize">12sp</item>
 	</style>
 
 	<style name="Text.Code" parent="@android:style/TextAppearance">
@@ -102,6 +85,10 @@
 	<style name="Text.Secondary" parent="@style/TextAppearance.AppCompat.Body1">
 		<item name="android:textColor">@color/secondary_text</item>
 		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="Text.Secondary.Small">
+		<item name="android:textSize">12sp</item>
 	</style>
 
 	<style name="Text.Secondary.Inverse">
@@ -259,13 +246,6 @@
 		<item name="android:gravity">center_vertical</item>
 	</style>
 
-	<style name="Text.Subtitle.Card">
-		<item name="android:textStyle">bold</item>
-		<item name="android:textSize">14sp</item>
-		<item name="android:gravity">bottom</item>
-		<item name="android:layout_height">40dp</item>
-	</style>
-
 	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
 		<item name="android:textAllCaps">true</item>
 		<item name="android:textColor">@color/secondary_text</item>
@@ -408,7 +388,7 @@
 		<item name="android:background">@color/no_image</item>
 	</style>
 
-	<style name="RatingLarge" parent="@style/Text.Title">
+	<style name="RatingLarge" parent="@style/Text.Subtitle">
 		<item name="android:paddingBottom">@dimen/padding_half</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
@@ -484,6 +464,7 @@
 
 	<style name="CardRow.Clickable">
 		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:clickable">true</item>
 		<item name="android:descendantFocusability">blocksDescendants</item>
 	</style>
 
@@ -605,5 +586,28 @@
 		<item name="android:drawableTint">@color/secondary_text</item>
 		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
 		<item name="android:textColor">@color/secondary_text</item>
+	</style>
+
+	<style name="EditCheckbox">
+		<item name="android:layout_marginLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:layout_marginRight">@dimen/material_margin_horizontal</item>
+		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="EditSpinner">
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
+		<item name="android:spinnerItemStyle">@style/EditSpinnerItemStyle</item>
+		<item name="android:spinnerDropDownItemStyle">@style/EditSpinnerDropDownItemStyle</item>
+	</style>
+
+	<style name="EditSpinnerItemStyle" parent="Base.Widget.AppCompat.TextView.SpinnerItem">
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="EditSpinnerDropDownItemStyle" parent="Base.Widget.AppCompat.DropDownItem.Spinner">
+		<item name="android:textSize">14sp</item>
 	</style>
 </resources>

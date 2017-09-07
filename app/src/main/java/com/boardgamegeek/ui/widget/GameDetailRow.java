@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.v7.graphics.Palette;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -26,7 +25,6 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
-import com.boardgamegeek.util.ActivityUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -113,12 +111,7 @@ public class GameDetailRow extends LinearLayout {
 				if (uri != null) {
 					getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
 				} else {
-					Intent intent = new Intent(getContext(), GameDetailActivity.class);
-					intent.putExtra(ActivityUtils.KEY_TITLE, label);
-					intent.putExtra(ActivityUtils.KEY_GAME_ID, gameId);
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, queryToken);
-					getContext().startActivity(intent);
+					GameDetailActivity.start(getContext(), label, gameId, gameName, queryToken);
 				}
 			}
 		});
@@ -128,17 +121,15 @@ public class GameDetailRow extends LinearLayout {
 		dataView.setText("");
 	}
 
-	public void colorIcon(Palette.Swatch swatch) {
-		iconView.setColorFilter(swatch.getRgb());
+	public void colorIcon(int rgb) {
+		iconView.setColorFilter(rgb);
 	}
 
-	public static final ButterKnife.Setter<GameDetailRow, Palette.Swatch> colorIconSetter =
-		new ButterKnife.Setter<GameDetailRow, Palette.Swatch>() {
+	public static final ButterKnife.Setter<GameDetailRow, Integer> rgbIconSetter =
+		new ButterKnife.Setter<GameDetailRow, Integer>() {
 			@Override
-			public void set(@NonNull GameDetailRow view, Palette.Swatch value, int index) {
-				if (value != null) {
-					view.colorIcon(value);
-				}
+			public void set(@NonNull GameDetailRow view, Integer value, int index) {
+				if (value != null) view.colorIcon(value);
 			}
 		};
 

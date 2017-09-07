@@ -33,6 +33,8 @@ public class BggContract {
 		String MIN_PLAYERS = "min_players";
 		String MAX_PLAYERS = "max_players";
 		String PLAYING_TIME = "playing_time";
+		String MIN_PLAYING_TIME = "min_playing_time";
+		String MAX_PLAYING_TIME = "max_playing_time";
 		String NUM_PLAYS = "num_of_plays";
 		String MINIMUM_AGE = "age";
 		String DESCRIPTION = "description";
@@ -54,6 +56,8 @@ public class BggContract {
 		String UPDATED_PLAYS = "updated_plays";
 		String CUSTOM_PLAYER_SORT = "custom_player_sort";
 		String GAME_RANK = "game_rank";
+		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
+		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
 	}
 
 	interface GameRanksColumns {
@@ -182,6 +186,15 @@ public class BggContract {
 		String POLL_RESULTS_RESULT_SORT_INDEX = "pollresultsresult_sortindex";
 	}
 
+	interface GameSuggestedPlayerCountPollResultsColumns {
+		String PLAYER_COUNT = "player_count";
+		String SORT_INDEX = "sort_index";
+		String BEST_VOTE_COUNT = "best_vote_count";
+		String RECOMMENDED_VOTE_COUNT = "recommended_vote_count";
+		String NOT_RECOMMENDED_VOTE_COUNT = "not_recommended_vote_count";
+		String RECOMMENDATION = "recommendation";
+	}
+
 	interface GameColorsColumns {
 		String COLOR = "color";
 	}
@@ -229,6 +242,8 @@ public class BggContract {
 		String NAME = "name";
 		String STARRED = "starred";
 		String SORT_TYPE = "sort_type";
+		String SELECTED_COUNT = "selected_count";
+		String SELECTED_TIMESTAMP = "selected_timestamp";
 	}
 
 	interface CollectionViewFiltersColumns {
@@ -255,6 +270,7 @@ public class BggContract {
 	private static final String PATH_POLLS = "polls";
 	private static final String PATH_POLL_RESULTS = "results";
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
+	public static final String PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS = "suggestedplayercountpollresults";
 	public static final String PATH_THUMBNAILS = "thumbnails";
 	public static final String PATH_AVATARS = "avatars";
 	public static final String PATH_COLORS = "colors";
@@ -271,8 +287,12 @@ public class BggContract {
 	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String QUERY_VALUE_PLAY = "play";
+	public static final String QUERY_KEY_HAVING = "having";
 	public static final String FRAGMENT_SIMPLE = "simple";
+	public static final String FRAGMENT_PLAYS = "plays";
 	public static final String QUERY_KEY_LIMIT = "limit";
+	public static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
+	public static final String POLL_TYPE_SUGGESTED_PLAYER_AGE = "suggested_playerage";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -292,6 +312,7 @@ public class BggContract {
 
 	public static class Games implements GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build();
+		public static final Uri CONTENT_PLAYS_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_PLAYS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game";
@@ -420,8 +441,17 @@ public class BggContract {
 		}
 
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key, String key2) {
-			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName)
+				.appendPath(PATH_POLL_RESULTS).appendPath(key)
 				.appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
+		}
+
+		public static Uri buildSuggestedPlayerCountPollResultsUri(int gameId) {
+			return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).build();
+		}
+
+		public static Uri buildSuggestedPlayerCountPollResultsUri(int gameId, String playerCount) {
+			return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).appendPath(playerCount).build();
 		}
 
 		public static Uri buildColorsUri(int gameId) {
@@ -501,6 +531,19 @@ public class BggContract {
 				}
 			}
 			return "";
+		}
+
+		public static String createRecommendedPlayerCountColumn(String playerCount) {
+			return Games.PLAYER_COUNT_RECOMMENDATION_PREFIX + playerCount;
+		}
+
+		public static String getRecommendedPlayerCountFromColumn(String column) {
+			if (column.startsWith(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX)) {
+				String delimiter = Games.PLAYER_COUNT_RECOMMENDATION_PREFIX.substring(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX.length() - 1);
+				String[] parts = column.split(delimiter);
+				return parts[parts.length - 1];
+			}
+			return null;
 		}
 	}
 
@@ -640,8 +683,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = GamesExpansionsColumns.EXPANSION_NAME + COLLATE_NOCASE + " ASC";
 	}
 
-	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns,
-		SyncListColumns {
+	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
@@ -651,6 +693,11 @@ public class BggContract {
 
 		public static Uri buildUri(long id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
+		}
+
+		public static Uri buildUri(String having) {
+			if (TextUtils.isEmpty(having)) return CONTENT_URI;
+			return CONTENT_URI.buildUpon().appendQueryParameter(QUERY_KEY_HAVING, having).build();
 		}
 
 		public static long getId(Uri uri) {
@@ -745,6 +792,13 @@ public class BggContract {
 			}
 			return 0;
 		}
+	}
+
+	public static class GameSuggestedPlayerCountPollPollResults implements GameSuggestedPlayerCountPollResultsColumns, GamesColumns, BaseColumns {
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll.playercount";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepoll.playercount";
+
+		public static final String DEFAULT_SORT = GameSuggestedPlayerCountPollResultsColumns.SORT_INDEX + " ASC";
 	}
 
 	public static class GamePolls implements GamePollsColumns, GamesColumns, BaseColumns {

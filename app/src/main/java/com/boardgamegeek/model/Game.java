@@ -234,9 +234,19 @@ public class Game {
 	@ElementList(inline = true, required = false) public List<Poll> polls;
 
 	@Path("playingtime") @Attribute(name = "value") private String playingtime;
+	@Path("minplaytime") @Attribute(name = "value") private String minplaytime;
+	@Path("maxplaytime") @Attribute(name = "value") private String maxplaytime;
 
 	public int getPlayingTime() {
 		return StringUtils.parseInt(playingtime, 0);
+	}
+
+	public int getMinPlayingTime() {
+		return StringUtils.parseInt(minplaytime, 0);
+	}
+
+	public int getMaxPlayingTime() {
+		return StringUtils.parseInt(maxplaytime, 0);
 	}
 
 	@Path("minage") @Attribute(name = "value") private String minage;
@@ -328,7 +338,7 @@ public class Game {
 
 	private List<Link> getLinks(String type) {
 		List<Link> list = new ArrayList<>();
-		if (!TextUtils.isEmpty(type)) {
+		if (!TextUtils.isEmpty(type) && links != null && links.size() > 0) {
 			for (Link link : links) {
 				if (type.equals(link.type)) {
 					list.add(link);

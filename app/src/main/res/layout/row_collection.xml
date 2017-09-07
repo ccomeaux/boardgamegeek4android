@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.boardgamegeek.ui.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-												  xmlns:app="http://schemas.android.com/apk/res-auto"
-												  xmlns:tools="http://schemas.android.com/tools"
-												  android:layout_width="match_parent"
-												  android:layout_height="wrap_content"
-												  android:background="@drawable/checkable_background"
-												  android:orientation="vertical">
+<com.boardgamegeek.ui.widget.CheckableFrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/checkable_background"
+	android:orientation="vertical">
 
 	<LinearLayout
 		style="@style/RowContainer.WithThumbnail"
@@ -31,7 +32,7 @@
 				android:id="@+id/name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+				android:textAppearance="@style/Text.Primary"
 				tools:text="Terra Mystica"/>
 
 			<TextView
@@ -41,9 +42,19 @@
 				android:layout_alignLeft="@id/name"
 				android:layout_alignStart="@id/name"
 				android:layout_below="@id/name"
-				android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-				android:textColor="@color/secondary_text"
+				android:textAppearance="@style/Text.Secondary"
 				tools:text="2012"/>
+
+			<ImageView
+				android:id="@+id/favorite"
+				android:layout_width="12dp"
+				android:layout_height="12dp"
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
+				android:src="@drawable/ic_favorite"
+				android:visibility="gone"
+				tools:visibility="visible"/>
 
 			<TextView
 				android:id="@+id/info"
@@ -52,7 +63,7 @@
 				android:layout_alignParentEnd="true"
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/name"
-				android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+				android:textAppearance="@style/Text"
 				tools:text="8.0"/>
 
 			<com.boardgamegeek.ui.widget.TimestampView
@@ -62,7 +73,7 @@
 				android:layout_alignParentEnd="true"
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/name"
-				android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+				android:textAppearance="@style/Text"
 				app:hideWhenEmpty="true"
 				tools:text="4 hours ago"/>
 		</RelativeLayout>

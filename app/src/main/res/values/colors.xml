@@ -5,7 +5,6 @@
 	<color name="light_blue">#ffe7ecf1</color>
 	<color name="orange">#ffff7807</color>
 	<color name="light_blue_transparent">#aae7ecf1</color>
-	<color name="medium_blue_transparent">#cc405898</color>
 
 	<color name="primary">@color/dark_blue</color>
 	<color name="primary_dark">#ff232753</color>
@@ -19,6 +18,7 @@
 	<color name="inverse_text_body">#deffffff</color>
 
 	<color name="black_overlay">#CC000000</color>
+	<color name="white_overlay">#CCFFFFFF</color>
 	<color name="black_overlay_light">#6000</color>
 	<color name="no_image">#808080</color>
 	<color name="navdrawer_icon_tint">#75ffffff</color>

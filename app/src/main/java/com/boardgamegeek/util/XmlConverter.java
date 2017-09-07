@@ -382,7 +382,7 @@ public class XmlConverter {
 		private final Pattern pattern;
 
 		public UrlReplacer() {
-			pattern = Pattern.compile("\\[url\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile("\\[url](.*?)\\[/url]", Pattern.CASE_INSENSITIVE);
 		}
 
 		@Override
@@ -413,7 +413,7 @@ public class XmlConverter {
 		private final Pattern pattern;
 
 		public UrlReplacer2() {
-			pattern = Pattern.compile("\\[url=(.*?)\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile("\\[url=(.*?)](.*?)\\[/url]", Pattern.CASE_INSENSITIVE);
 		}
 
 		@Override
@@ -454,7 +454,7 @@ public class XmlConverter {
 		private final Pattern pattern;
 
 		public GeekUrlReplacer() {
-			pattern = Pattern.compile("\\[geekurl=(.*?)\\](.*?)\\[/geekurl\\]", Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile("\\[geekurl=(.*?)](.*?)\\[/geekurl]", Pattern.CASE_INSENSITIVE);
 		}
 
 		@Override

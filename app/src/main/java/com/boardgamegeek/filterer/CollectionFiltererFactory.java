@@ -29,6 +29,8 @@ public class CollectionFiltererFactory {
 		filterers.add(new ExpansionStatusFilterer(context));
 		filterers.add(new PlayCountFilterer(context));
 		filterers.add(new MyRatingFilterer(context));
+		filterers.add(new RecommendedPlayerCountFilterer(context));
+		filterers.add(new FavoriteFilterer(context));
 	}
 
 	@Nullable

@@ -12,6 +12,8 @@ import java.util.List;
 import retrofit2.Call;
 
 public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
+	private int threadId;
+	private String threadSubject;
 	private List<Article> articles;
 
 	public ThreadSafeResponse(Call<ThreadResponse> call) {
@@ -21,7 +23,9 @@ public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 	@Override
 	protected void mapBody(ThreadResponse body) {
 		super.mapBody(body);
-		if (body == null || body.articles == null) {
+		threadId = body.id;
+		threadSubject = body.subject;
+		if (body.articles == null) {
 			articles = new ArrayList<>(0);
 		} else {
 			articles = new ArrayList<>(body.articles.size());
@@ -37,6 +41,14 @@ public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 					.build());
 			}
 		}
+	}
+
+	public int getThreadId() {
+		return threadId;
+	}
+
+	public String getThreadSubject() {
+		return threadSubject;
 	}
 
 	public List<Article> getArticles() {

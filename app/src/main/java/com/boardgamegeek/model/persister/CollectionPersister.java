@@ -248,13 +248,15 @@ public class CollectionPersister {
 			values.put(Games.MIN_PLAYERS, item.statistics.minplayers);
 			values.put(Games.MAX_PLAYERS, item.statistics.maxplayers);
 			values.put(Games.PLAYING_TIME, item.statistics.playingtime);
+			values.put(Games.MIN_PLAYING_TIME, item.statistics.minplaytime);
+			values.put(Games.MAX_PLAYING_TIME, item.statistics.maxplaytime);
 			values.put(Games.STATS_NUMBER_OWNED, item.statistics.numberOwned());
 		}
 		return values;
 	}
 
 	@DebugLog
-	private ContentValues toCollectionValues(CollectionItem item, SyncCandidate candidate) {
+	private ContentValues toCollectionValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
 		if (!isBriefSync && includePrivateInfo && includeStats) {
 			values.put(Collection.UPDATED, updateTime);
@@ -318,7 +320,7 @@ public class CollectionPersister {
 
 	@DebugLog
 	private void addItemToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
-		ContentValues values = toCollectionValues(item, candidate);
+		ContentValues values = toCollectionValues(item);
 		ContentProviderOperation.Builder cpo;
 		if (candidate.getInternalId() != BggContract.INVALID_ID) {
 			cpo = createUpdateOperation(values, batch, candidate);

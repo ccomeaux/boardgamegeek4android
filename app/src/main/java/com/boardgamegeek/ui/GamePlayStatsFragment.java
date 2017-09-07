@@ -1,12 +1,13 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -41,14 +43,13 @@ import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.ui.widget.ScoreGraphView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.github.mikephil.charting.animation.Easing.EasingOption;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.data.BarData;
@@ -82,12 +83,15 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int gameId;
 
 	private int playingTime;
 	private double personalRating;
+	private boolean gameOwned;
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
@@ -124,25 +128,28 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}) List<ImageView> colorizedIcons;
 
 	private Transition playerTransition;
-	private int headerColor;
+	@ColorInt private int headerColor;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		Uri uri = intent.getData();
-		gameId = Games.getGameId(uri);
-		headerColor = intent.getIntExtra(ActivityUtils.KEY_HEADER_COLOR, R.color.accent);
+	public static GamePlayStatsFragment newInstance(int gameId, @ColorInt int headerColor) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putInt(KEY_HEADER_COLOR, headerColor);
+		GamePlayStatsFragment fragment = new GamePlayStatsFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		readBundle(getArguments());
+
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.rgbTextViewSetter, headerColor);
-		ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, headerColor);
+		if (headerColor != Color.TRANSPARENT) {
+			ButterKnife.apply(colorizedHeaders, PaletteUtils.rgbTextViewSetter, headerColor);
+			ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, headerColor);
+		}
 
 		playCountChart.setDrawGridBackground(false);
 		playCountChart.getAxisRight().setValueFormatter(new IntegerYAxisValueFormatter());
@@ -157,6 +164,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		return rootView;
+	}
+
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		headerColor = bundle.getInt(KEY_HEADER_COLOR, getResources().getColor(R.color.accent));
 	}
 
 	@Override
@@ -178,15 +191,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		String[] selectionArgs = { String.valueOf(gameId) };
 		switch (id) {
 			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", selectionArgs, null);
+				loader = new CursorLoader(getContext(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", selectionArgs, null);
 				loader.setUpdateThrottle(5000);
 				break;
 			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlayQuery.PROJECTION, playSelection, selectionArgs, Plays.DATE + " ASC");
+				loader = new CursorLoader(getContext(), Plays.CONTENT_URI, PlayQuery.PROJECTION, playSelection, selectionArgs, Plays.DATE + " ASC");
 				loader.setUpdateThrottle(5000);
 				break;
 			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayersUri(), PlayerQuery.PROJECTION, playSelection, selectionArgs, null);
+				loader = new CursorLoader(getContext(), Plays.buildPlayersUri(), PlayerQuery.PROJECTION, playSelection, selectionArgs, null);
 				loader.setUpdateThrottle(5000);
 				break;
 		}
@@ -203,8 +216,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				if (cursor == null || !cursor.moveToFirst()) {
 					playingTime = 0;
 					personalRating = 0.0;
+					gameOwned = false;
 				} else {
 					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
+					gameOwned = cursor.getInt(GameQuery.STATUS_OWN) > 0;
 					double ratingSum = 0;
 					int ratingCount = 0;
 					do {
@@ -398,12 +413,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
 			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
 		}
-		addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+
+		if (gameOwned) {
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+		}
+
 		int hIndexOffset = stats.getHIndexOffset();
 		if (hIndexOffset == -1) {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_in));
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_in));
 		} else {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_h_index_offset_out).value(hIndexOffset));
+			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_out).value(hIndexOffset));
 		}
 	}
 
@@ -453,6 +472,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public void onHighScoreClick() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_high_scorers).setMessage(stats.getHighScorers());
+		builder.show();
+	}
+
+	@OnClick(R.id.players_skill_help)
+	public void onPlayersClick() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+		builder.setTitle(R.string.title_players_skill).setMessage(R.string.player_skill_info);
 		builder.show();
 	}
 
@@ -940,7 +966,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double calculateUtilization() {
-			return 1 - Math.exp(-lambda * playCount);
+			return MathUtils.cdf(playCount, lambda);
 		}
 
 		public int calculateFhm() {
@@ -960,7 +986,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getHIndexOffset() {
-			int hIndex = PreferencesUtils.getHIndex(getActivity());
+			int hIndex = PreferencesUtils.getGameHIndex(getActivity());
 			if (playCount >= hIndex) {
 				return -1;
 			} else {
@@ -1151,8 +1177,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface GameQuery {
 		int _TOKEN = 0x02;
-		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME };
+		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME, Collection.STATUS_OWN };
 		int RATING = 1;
 		int PLAYING_TIME = 2;
+		int STATUS_OWN = 3;
 	}
 }

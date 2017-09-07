@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,7 +26,6 @@ import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekListResponse>> {
+	private static final String KEY_ID = "GEEK_LIST_ID";
+	private static final String KEY_TITLE = "GEEK_LIST_TITLE";
 	private static final int LOADER_ID = 1;
 	private int geekListId;
 	private String geekListTitle;
@@ -42,12 +44,31 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	private String descriptionFragmentTag;
 	private String itemsFragmentTag;
 
+	public static void start(Context context, int id, String title) {
+		Intent starter = createIntent(context, id, title);
+		context.startActivity(starter);
+	}
+
+	public static void startUp(Context context, int id, String title) {
+		Intent starter = createIntent(context, id, title);
+		starter.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		context.startActivity(starter);
+	}
+
+	@NonNull
+	private static Intent createIntent(Context context, int id, String title) {
+		Intent starter = new Intent(context, GeekListActivity.class);
+		starter.putExtra(KEY_ID, id);
+		starter.putExtra(KEY_TITLE, title);
+		return starter;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = getIntent();
-		geekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
-		geekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
+		geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID);
+		geekListTitle = intent.getStringExtra(KEY_TITLE);
 		safelySetTitle(geekListTitle);
 
 		if (savedInstanceState == null) {
@@ -86,14 +107,14 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	protected void setUpViewPager() {
 		GeekListPagerAdapter adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
 		viewPager.setAdapter(adapter);
-		adapter.addTab(GeekListDescriptionFragment.class, UIUtils.intentToFragmentArguments(getIntent()), R.string.title_description, new ItemInstantiatedCallback() {
+		adapter.addTab(GeekListDescriptionFragment.newInstance(), R.string.title_description, new ItemInstantiatedCallback() {
 			@Override
 			public void itemInstantiated(String tag) {
 				descriptionFragmentTag = tag;
 				setDescription();
 			}
 		});
-		adapter.addTab(GeekListItemsFragment.class, UIUtils.intentToFragmentArguments(getIntent()), R.string.title_items, new ItemInstantiatedCallback() {
+		adapter.addTab(GeekListItemsFragment.newInstance(), R.string.title_items, new ItemInstantiatedCallback() {
 			@Override
 			public void itemInstantiated(String tag) {
 				itemsFragmentTag = tag;
@@ -108,14 +129,12 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 
 	private final static class GeekListPagerAdapter extends FragmentPagerAdapter {
 		static final class TabInfo {
-			private final Class<?> fragmentClass;
-			private final Bundle args;
+			private final Fragment fragment;
 			@StringRes private final int titleRes;
 			private final ItemInstantiatedCallback callback;
 
-			TabInfo(Class<?> fragmentClass, Bundle args, int titleRes, ItemInstantiatedCallback callback) {
-				this.fragmentClass = fragmentClass;
-				this.args = args;
+			TabInfo(Fragment fragment, int titleRes, ItemInstantiatedCallback callback) {
+				this.fragment = fragment;
 				this.titleRes = titleRes;
 				this.callback = callback;
 			}
@@ -130,8 +149,8 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 			tabs.clear();
 		}
 
-		public void addTab(Class<?> fragmentClass, Bundle args, @StringRes int titleRes, ItemInstantiatedCallback callback) {
-			tabs.add(new TabInfo(fragmentClass, args, titleRes, callback));
+		public void addTab(Fragment fragment, @StringRes int titleRes, ItemInstantiatedCallback callback) {
+			tabs.add(new TabInfo(fragment, titleRes, callback));
 			notifyDataSetChanged();
 		}
 
@@ -146,7 +165,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		public Fragment getItem(int position) {
 			TabInfo tabInfo = tabs.get(position);
 			if (tabInfo == null) return null;
-			return Fragment.instantiate(context, tabInfo.fragmentClass.getName(), tabInfo.args);
+			return tabInfo.fragment;
 		}
 
 		@Override

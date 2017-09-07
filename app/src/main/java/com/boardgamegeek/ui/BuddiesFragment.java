@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -87,15 +86,11 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		Uri buddiesUri = UIUtils.fragmentArgumentsToIntent(data).getData();
-		if (buddiesUri == null) {
-			buddiesUri = Buddies.CONTENT_URI;
-		}
-
-		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri,
+		CursorLoader loader = new CursorLoader(getContext(),
+			Buddies.CONTENT_URI,
 			Buddy.PROJECTION,
 			Buddies.BUDDY_ID + "!=? AND " + Buddies.BUDDY_FLAG + "=1",
-			new String[] { Authenticator.getUserId(getActivity()) },
+			new String[] { Authenticator.getUserId(getContext()) },
 			null);
 		loader.setUpdateThrottle(2000);
 		return loader;
@@ -183,7 +178,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();

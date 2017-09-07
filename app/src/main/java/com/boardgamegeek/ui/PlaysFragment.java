@@ -1,22 +1,25 @@
 package com.boardgamegeek.ui;
 
 import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,33 +32,31 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
+import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask;
+import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.model.PlayModel;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
 import com.boardgamegeek.util.fabric.SortEvent;
@@ -78,8 +79,15 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import timber.log.Timber;
 
-public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
-	public static final String KEY_MODE = "MODE";
+public class PlaysFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener, OnDateSetListener {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_IMAGE_URL = "IMAGE_URL";
+	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
+	private static final String KEY_ICON_COLOR = "ICON_COLOR";
+	private static final String KEY_MODE = "MODE";
+	private static final String KEY_MODE_VALUE = "MODE_VALUE";
 	public static final int FILTER_TYPE_STATUS_ALL = -2;
 	public static final int FILTER_TYPE_STATUS_UPDATE = 1;
 	public static final int FILTER_TYPE_STATUS_DIRTY = 2;
@@ -87,11 +95,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public static final int FILTER_TYPE_STATUS_PENDING = 4;
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
-	public static final int MODE_BUDDY = 2;
-	public static final int MODE_PLAYER = 3;
-	public static final int MODE_LOCATION = 4;
+	private static final int MODE_BUDDY = 2;
+	private static final int MODE_PLAYER = 3;
+	private static final int MODE_LOCATION = 4;
 	private static final int PLAY_QUERY_TOKEN = 0x21;
 	private static final int HELP_VERSION = 2;
+
 	private PlayAdapter adapter;
 	private Uri uri;
 	private int gameId;
@@ -99,17 +108,64 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String thumbnailUrl;
 	private String imageUrl;
 	private boolean arePlayersCustomSorted;
-	private String buddyName;
-	private String playerName;
-	private String locationName;
 	private int filterType = FILTER_TYPE_STATUS_ALL;
 	private Sorter sorter;
 	private boolean hasAutoSyncTriggered;
 	private int mode = MODE_ALL;
+	private String modeValue;
 	private final LinkedHashSet<Integer> selectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem sendMenuItem;
 	private MenuItem editMenuItem;
 	private ShowcaseView showcaseView;
+
+	public static PlaysFragment newInstance() {
+		Bundle args = new Bundle();
+		args.putInt(KEY_MODE, MODE_ALL);
+		PlaysFragment fragment = new PlaysFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	public static PlaysFragment newInstanceForGame(int gameId, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_MODE, MODE_GAME);
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putString(KEY_GAME_NAME, gameName);
+		args.putString(KEY_IMAGE_URL, imageUrl);
+		args.putString(KEY_THUMBNAIL_URL, thumbnailUrl);
+		args.putBoolean(KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
+		args.putInt(KEY_ICON_COLOR, iconColor);
+		PlaysFragment fragment = new PlaysFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	public static PlaysFragment newInstanceForLocation(String locationName) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_MODE, MODE_LOCATION);
+		args.putString(KEY_MODE_VALUE, locationName);
+		PlaysFragment fragment = new PlaysFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	public static PlaysFragment newInstanceForBuddy(String username) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_MODE, MODE_BUDDY);
+		args.putString(KEY_MODE_VALUE, username);
+		PlaysFragment fragment = new PlaysFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	public static PlaysFragment newInstanceForPlayer(String playerName) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_MODE, MODE_PLAYER);
+		args.putString(KEY_MODE_VALUE, playerName);
+		PlaysFragment fragment = new PlaysFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -125,48 +181,34 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		sorter = PlaysSorterFactory.create(getActivity(), sortType);
 
 		uri = Plays.CONTENT_URI;
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		Uri uri = intent.getData();
-		int iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, 0);
-		mode = MODE_ALL;
-		gameId = BggContract.INVALID_ID;
-		buddyName = "";
-		if (uri != null) {
-			if (Games.isGameUri(uri)) {
-				mode = MODE_GAME;
-			} else if (Buddies.isBuddyUri(uri)) {
-				mode = MODE_BUDDY;
-			}
-		} else {
-			mode = getArguments().getInt(PlaysFragment.KEY_MODE, mode);
-		}
-		showFab(mode == MODE_GAME);
-		if (fabView != null && iconColor != 0) {
-			fabView.setBackgroundTintList(ColorStateList.valueOf(iconColor));
-		}
+		Bundle bundle = getArguments();
 
+		mode = bundle.getInt(KEY_MODE, mode);
 		switch (mode) {
 			case MODE_GAME:
-				gameId = Games.getGameId(uri);
-				gameName = getArguments().getString(ActivityUtils.KEY_GAME_NAME);
-				thumbnailUrl = getArguments().getString(ActivityUtils.KEY_THUMBNAIL_URL);
-				imageUrl = getArguments().getString(ActivityUtils.KEY_IMAGE_URL);
-				arePlayersCustomSorted = getArguments().getBoolean(ActivityUtils.KEY_CUSTOM_PLAYER_SORT);
-				getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
+				gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+				gameName = bundle.getString(KEY_GAME_NAME);
+				thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
+				imageUrl = bundle.getString(KEY_IMAGE_URL);
+				arePlayersCustomSorted = bundle.getBoolean(KEY_CUSTOM_PLAYER_SORT);
+				getLoaderManager().restartLoader(GameQuery._TOKEN, bundle, this);
 				break;
 			case MODE_BUDDY:
-				buddyName = getArguments().getString(ActivityUtils.KEY_BUDDY_NAME);
+				modeValue = bundle.getString(PlaysFragment.KEY_MODE_VALUE);
 				this.uri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_PLAYER:
-				buddyName = "";
-				playerName = getArguments().getString(ActivityUtils.KEY_PLAYER_NAME);
+				modeValue = bundle.getString(PlaysFragment.KEY_MODE_VALUE);
 				this.uri = Plays.buildPlayersByPlayUri();
 				break;
 			case MODE_LOCATION:
-				locationName = getArguments().getString(ActivityUtils.KEY_LOCATION);
+				modeValue = bundle.getString(PlaysFragment.KEY_MODE_VALUE);
 				break;
 		}
+		@ColorInt int iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
+
+		PresentationUtils.colorFab(fabView, iconColor);
+		showFab(mode == MODE_GAME);
 
 		setEmptyText(getString(getEmptyStringResource()));
 		requery();
@@ -252,7 +294,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				filter(FILTER_TYPE_STATUS_PENDING, title);
 				return true;
 			case R.id.menu_refresh_on:
-				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
+				DatePickerFragment datePickerFragment = new DatePickerFragment();
+				datePickerFragment.setListener(this);
+				datePickerFragment.show(getActivity().getSupportFragmentManager(), "datePicker");
 				return true;
 			case R.id.menu_help:
 				showHelp();
@@ -276,15 +320,22 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateEvent event) {
-		isSyncing((event.getType() == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.getType() == UpdateService.SYNC_TYPE_PLAYS_DATE));
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPlaysByDateTask.CompletedEvent event) {
+		isSyncing(false);
 	}
 
-	@SuppressWarnings({ "UnusedParameters", "unused" })
-	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-	public void onEvent(UpdateCompleteEvent event) {
-		isSyncing(false);
+	@SuppressWarnings("unused")
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
+		if (mode == MODE_GAME && event.getGameId() == gameId) {
+			isSyncing(false);
+			if (!TextUtils.isEmpty(event.getErrorMessage())) {
+				Toast.makeText(getContext(), event.getErrorMessage(), Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 
 	@Override
@@ -357,27 +408,30 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		requery();
 	}
 
-	public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-		// HACK prevent onDateSet from firing twice
-		private boolean alreadyCalled = false;
+	public static class DatePickerFragment extends DialogFragment {
+		private OnDateSetListener listener;
 
 		@Override
 		@NonNull
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			final Calendar calendar = Calendar.getInstance();
-			return new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+			return new DatePickerDialog(getActivity(),
+				listener,
+				calendar.get(Calendar.YEAR),
+				calendar.get(Calendar.MONTH),
 				calendar.get(Calendar.DAY_OF_MONTH));
 		}
 
-		public void onDateSet(DatePicker view, int year, int month, int day) {
-			if (alreadyCalled) {
-				return;
-			}
-			alreadyCalled = true;
-
-			String date = DateTimeUtils.formatDateForApi(year, month, day);
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_DATE, date);
+		public void setListener(OnDateSetListener listener) {
+			this.listener = listener;
 		}
+	}
+
+	@Override
+	public void onDateSet(DatePicker view, int year, int month, int day) {
+		isSyncing(true);
+		String date = DateTimeUtils.formatDateForApi(year, month, day);
+		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask(getContext(), date));
 	}
 
 	private int getEmptyStringResource() {
@@ -455,7 +509,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case MODE_BUDDY:
 				return PlayPlayers.USER_NAME + "=?";
 			case MODE_PLAYER:
-				return PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME + "=?";
+				return PlayPlayers.USER_NAME + "='' AND play_players." + PlayPlayers.NAME + "=?";
 			case MODE_LOCATION:
 				return Plays.LOCATION + "=?";
 		}
@@ -465,21 +519,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String[] selectionArgs() {
 		switch (mode) {
 			case MODE_ALL:
-				if (filterType == FILTER_TYPE_STATUS_ALL) {
-					return null;
-				} else if (filterType == FILTER_TYPE_STATUS_PENDING) {
-					return null;
-				} else {
-					return null;
-				}
+				return null;
 			case MODE_GAME:
 				return new String[] { String.valueOf(gameId) };
 			case MODE_BUDDY:
-				return new String[] { buddyName };
 			case MODE_PLAYER:
-				return new String[] { buddyName, playerName };
 			case MODE_LOCATION:
-				return new String[] { locationName };
+				return new String[] { modeValue };
 		}
 		return null;
 	}
@@ -546,6 +592,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	@DebugLog
 	@Override
 	public void triggerRefresh() {
+		if (isSyncing) return;
 		switch (mode) {
 			case MODE_ALL:
 			case MODE_BUDDY:
@@ -554,17 +601,16 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
 				break;
 			case MODE_GAME:
+				isSyncing(true);
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-				UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, gameId);
+				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
 				break;
 		}
 	}
 
 	@Override
 	protected void onFabClicked() {
-		Intent intent = ActivityUtils.createEditPlayIntent(getActivity(), gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(ActivityUtils.KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
-		startActivity(intent);
+		LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, arePlayersCustomSorted);
 	}
 
 	public void filter(int type, String description) {
@@ -645,7 +691,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
@@ -739,38 +785,43 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (!selectedPlaysPositions.iterator().hasNext()) {
-			return false;
-		}
+		if (!selectedPlaysPositions.iterator().hasNext()) return false;
 		switch (item.getItemId()) {
 			case R.id.menu_send:
 				mode.finish();
-				DialogUtils.createConfirmationDialog(getActivity(),
-					getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()),
-					new DialogInterface.OnClickListener() {
+				new AlertDialog.Builder(getContext())
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()))
+					.setCancelable(true)
+					.setNegativeButton(R.string.cancel, null)
+					.setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
 						}
-					}).show();
+					})
+					.show();
 				return true;
 			case R.id.menu_edit:
 				mode.finish();
 				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
 				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
 				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-				ActivityUtils.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
+				LogPlayActivity.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
 				return true;
 			case R.id.menu_delete:
 				mode.finish();
-				DialogUtils.createConfirmationDialog(
-					getActivity(),
-					getResources()
-						.getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()),
-					new DialogInterface.OnClickListener() {
+				new AlertDialog.Builder(getContext())
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()))
+					.setCancelable(true)
+					.setNegativeButton(R.string.cancel, null)
+					.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
 						}
-					}).show();
+					})
+					.show();
+
 				return true;
 		}
 		return false;

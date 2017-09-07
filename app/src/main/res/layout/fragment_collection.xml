@@ -12,20 +12,6 @@
 		android:layout_height="match_parent"
 		android:background="@android:color/white">
 
-		<LinearLayout
-			android:id="@+id/progressContainer"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:gravity="center"
-			android:orientation="vertical"
-			android:visibility="gone">
-
-			<ProgressBar
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
-		</LinearLayout>
-
 		<FrameLayout
 			android:id="@+id/list_container"
 			android:layout_width="match_parent"
@@ -130,5 +116,13 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:visibility="gone"/>
+
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"/>
 	</FrameLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

@@ -11,7 +11,6 @@ import com.boardgamegeek.events.LocationSelectedEvent;
 import com.boardgamegeek.events.LocationSortChangedEvent;
 import com.boardgamegeek.events.LocationsCountChangedEvent;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
@@ -86,8 +85,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Subscribe
 	public void onEvent(LocationSelectedEvent event) {
-		Intent intent = ActivityUtils.createLocationIntent(this, event.getLocationName());
-		startActivity(intent);
+		LocationActivity.start(this, event.getLocationName());
 	}
 
 	@SuppressWarnings("unused")

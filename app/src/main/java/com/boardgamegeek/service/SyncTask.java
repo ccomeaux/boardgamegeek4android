@@ -16,8 +16,6 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
-import java.io.IOException;
-
 import timber.log.Timber;
 
 public abstract class SyncTask extends ServiceTask {
@@ -34,7 +32,7 @@ public abstract class SyncTask extends ServiceTask {
 
 	public abstract int getSyncType();
 
-	public abstract void execute(Account account, SyncResult syncResult) throws IOException;
+	public abstract void execute(Account account, SyncResult syncResult);
 
 	public void cancel() {
 		isCancelled = true;
@@ -71,7 +69,7 @@ public abstract class SyncTask extends ServiceTask {
 
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title)
+			.createNotificationBuilder(context, R.string.sync_notification_title, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
 			.setContentText(message)
 			.setPriority(NotificationCompat.PRIORITY_LOW)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -91,7 +89,7 @@ public abstract class SyncTask extends ServiceTask {
 		if (!PreferencesUtils.getSyncShowErrors(context)) return;
 
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_error)
+			.createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
 			.setContentText(message)
 			.setPriority(NotificationCompat.PRIORITY_HIGH)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);

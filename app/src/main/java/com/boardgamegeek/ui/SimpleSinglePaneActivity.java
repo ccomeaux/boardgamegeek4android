@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.UIUtils;
 
 /**
  * A non-top-level DrawerActivity that supports a single pane.
@@ -24,6 +23,8 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
+		readIntent(getIntent());
+
 		if (savedInstanceState == null) {
 			createFragment();
 		} else {
@@ -31,12 +32,12 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		}
 	}
 
+	protected void readIntent(Intent intent) {
+	}
+
 	protected void createFragment() {
 		fragment = onCreatePane(getIntent());
 		if (fragment != null) {
-			Bundle arguments = UIUtils.intentToFragmentArguments(getIntent());
-			arguments = onBeforeArgumentsSet(arguments);
-			fragment.setArguments(arguments);
 			getSupportFragmentManager()
 				.beginTransaction()
 				.add(R.id.root_container, fragment, TAG_SINGLE_PANE)
@@ -44,7 +45,7 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		}
 	}
 
-	protected  void recreateFragment() {
+	protected void recreateFragment() {
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
 	}
@@ -57,9 +58,5 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 
 	public Fragment getFragment() {
 		return fragment;
-	}
-
-	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
-		return arguments;
 	}
 }

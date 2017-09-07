@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+Version 6.5
+-----------
+ * Filter collection by recommended player counts
+ * UI changes (improvements?)
+ * Support Android Oreo
+   * App shortcuts
+   * Notifications
+   * Adaptive icon
+ * More play stats
+ * Corrected and improved backup/restore
+ * Sync improvements
+ * Link to BoardGamePrices.co.uk
+ * Bug fixes
+
 Version 6.4.2
 -------------
  * Bug fixes
