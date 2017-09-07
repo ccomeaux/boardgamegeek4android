@@ -106,7 +106,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			} else {
 				UIUtils.setTextMaybeHtml(bodyView, article.getBody().trim());
 			}
-			itemView.setOnClickListener(new OnClickListener() {
+			viewButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					ArticleActivity.start(v.getContext(), threadId, threadSubject, forumId, forumTitle, gameId, gameName, article);
