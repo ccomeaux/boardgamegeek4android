@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 
-import com.boardgamegeek.events.CollectionItemUpdatedEvent;
+import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -19,8 +19,10 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
+import timber.log.Timber;
 
-public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
+
+public class AddCollectionItemTask extends AsyncTask<Void, Void, Integer> {
 	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final int gameId;
 	private final List<String> statuses;
@@ -34,10 +36,9 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 	}
 
 	@Override
-	protected Long doInBackground(Void... params) {
+	protected Integer doInBackground(Void... params) {
 		if (context == null) return null;
 
-		long internalId;
 		Cursor cursor = null;
 		final ContentResolver resolver = context.getContentResolver();
 		try {
@@ -72,11 +73,12 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 			values.put(Collection.STATUS_DIRTY_TIMESTAMP, System.currentTimeMillis());
 
 			Uri response = resolver.insert(Collection.CONTENT_URI, values);
-			internalId = response == null ? BggContract.INVALID_ID : StringUtils.parseLong(response.getLastPathSegment(), BggContract.INVALID_ID);
+			long internalId = response == null ? BggContract.INVALID_ID : StringUtils.parseLong(response.getLastPathSegment(), BggContract.INVALID_ID);
+			Timber.d("Collection item added for game %s (%s) (internal ID = %s)", gameName, gameId, internalId);
 		} finally {
 			if (cursor != null) cursor.close();
 		}
-		return internalId;
+		return gameId;
 	}
 
 	private void putValue(ContentValues values, String statusColumn) {
@@ -93,9 +95,9 @@ public class AddCollectionItemTask extends AsyncTask<Void, Void, Long> {
 	}
 
 	@Override
-	protected void onPostExecute(Long internalId) {
-		if (internalId != null) {
-			EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
+	protected void onPostExecute(Integer gameId) {
+		if (gameId != null) {
+			EventBus.getDefault().post(new CollectionItemAddedEvent(gameId));
 		}
 	}
 }
