@@ -10,9 +10,9 @@ buildscript {
 }
 
 def versionMajor = 6
-def versionMinor = 5
+def versionMinor = 6
 def versionPatch = 0
-def versionBuild = 7
+def versionBuild = 0
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
