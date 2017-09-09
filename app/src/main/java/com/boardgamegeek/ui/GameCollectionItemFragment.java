@@ -303,7 +303,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	public void syncChanges() {
 		if (needsUploading) {
-			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+			SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
 			needsUploading = false;
 		}
 	}
