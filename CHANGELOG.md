@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.5.1
+-------------
+ * Bug fixes
+
 Version 6.5
 -----------
  * Filter collection by recommended player counts

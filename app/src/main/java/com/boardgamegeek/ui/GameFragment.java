@@ -26,7 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.CollectionItemUpdatedEvent;
+import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -737,8 +737,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@SuppressWarnings("unused")
 	@Subscribe
-	public void onEvent(CollectionItemUpdatedEvent event) {
-		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+	public void onEvent(CollectionItemAddedEvent event) {
+		if (event.getGameId() == gameId) {
+			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD);
+		}
 	}
 
 	@OnClick({ R.id.player_age_root })

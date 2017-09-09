@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -69,17 +71,13 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static CharSequence describePastDaySpan(long time) {
-		if (time == 0) {
-			return "";
-		}
+		if (time == 0) return "";
 		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS);
 	}
 
 	@DebugLog
 	public static String describeYear(@Nullable Context context, int year) {
-		if (context == null) {
-			return "";
-		}
+		if (context == null) return "";
 		if (year > 0) {
 			return context.getString(R.string.year_positive, String.valueOf(year));
 		} else if (year == Constants.YEAR_UNKNOWN) {
@@ -91,12 +89,8 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static String describeWishlist(@Nullable Context context, int priority) {
-		if (context == null) {
-			return "";
-		}
-		if (priority < 0 || priority > 5) {
-			return context.getString(R.string.wishlist);
-		}
+		if (context == null) return "";
+		if (priority < 0 || priority > 5) return context.getString(R.string.wishlist);
 		return context.getResources().getStringArray(R.array.wishlist_priority)[priority];
 	}
 
@@ -142,9 +136,7 @@ public class PresentationUtils {
 	@DebugLog
 	public static CharSequence describePlayerAge(Context context, String value) {
 		int age = StringUtils.parseInt(value, -1);
-		if (age > -1) {
-			return getText(context, R.string.age_community_plus, age);
-		}
+		if (age > -1) return getText(context, R.string.age_community_plus, age);
 		return getText(context, R.string.age_community, value);
 	}
 
@@ -315,24 +307,18 @@ public class PresentationUtils {
 
 	@NonNull
 	public static String describeMoney(String currency, double amount) {
-		if (TextUtils.isEmpty(currency) && amount == 0.0) {
-			return "";
-		}
+		if (TextUtils.isEmpty(currency) && amount == 0.0) return "";
 		return describeCurrency(currency) + MONEY_FORMAT.format(amount);
 	}
 
 	@NonNull
 	public static String describeMoneyWithoutDecimals(String currency, double amount) {
-		if (TextUtils.isEmpty(currency) && amount == 0.0) {
-			return "";
-		}
+		if (TextUtils.isEmpty(currency) && amount == 0.0) return "";
 		return describeCurrency(currency) + (int) amount;
 	}
 
 	private static String describeCurrency(@Nullable String currency) {
-		if (currency == null) {
-			return "$";
-		}
+		if (currency == null) return "$";
 		switch (currency) {
 			case "USD":
 			case "CAD":
@@ -367,9 +353,7 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static String describePlayer(String name, String username) {
-		if (TextUtils.isEmpty(username)) {
-			return name;
-		}
+		if (TextUtils.isEmpty(username)) return name;
 		return name + " (" + username + ")";
 	}
 
@@ -462,7 +446,11 @@ public class PresentationUtils {
 
 	@DebugLog
 	public static void setSelectableBackgroundBorderless(View view) {
-		setSelectableBackground(view, android.R.attr.selectableItemBackgroundBorderless);
+		if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+			setSelectableBackground(view, android.R.attr.selectableItemBackgroundBorderless);
+		} else {
+			setSelectableBackground(view);
+		}
 	}
 
 	@DebugLog
