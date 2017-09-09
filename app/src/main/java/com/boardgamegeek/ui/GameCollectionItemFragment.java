@@ -358,6 +358,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@OnItemSelected(R.id.wishlist_priority)
 	void onWishlistPriorityClicked() {
 		if (wishlistPriorityView.getVisibility() != View.VISIBLE) return;
+		if (!wishlistView.isChecked()) return;
 		updateStatuses();
 	}
 
@@ -573,7 +574,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		if (wishlistPriorityView.getAdapter() == null)
 			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
-		wishlistPriorityView.setSelection(item.wishlistPriority - 1);
+		if (item.wishlist)
+			wishlistPriorityView.setSelection(item.wishlistPriority - 1);
 		wishlistPriorityView.setEnabled(item.wishlist);
 
 		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
