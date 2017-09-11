@@ -13,6 +13,7 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -45,6 +46,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.empty) TextView emptyView;
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 
@@ -113,6 +115,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		if (getActivity() == null) return;
 		long syncTimestamp = 0;
 		if (cursor != null && cursor.moveToFirst()) {
+			emptyView.setVisibility(View.GONE);
 			long oldestSyncTimestamp = Long.MAX_VALUE;
 			collectionContainer.removeAllViews();
 			do {
@@ -134,6 +137,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			syncTimestampView.setTimestamp(oldestSyncTimestamp);
 			syncTimestamp = oldestSyncTimestamp;
 		} else {
+			emptyView.setVisibility(View.VISIBLE);
 			syncTimestampView.setTimestamp(System.currentTimeMillis());
 		}
 

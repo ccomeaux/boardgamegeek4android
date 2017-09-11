@@ -142,6 +142,10 @@
 
 	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
 
+	<style name="Text.Empty" parent="@style/TextAppearance.AppCompat.Subhead">
+		<item name="android:textColor">@color/secondary_text</item>
+	</style>
+
 	<style name="Text.Label">
 		<item name="android:paddingTop">@dimen/padding_standard</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>

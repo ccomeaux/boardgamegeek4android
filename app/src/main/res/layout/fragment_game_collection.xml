@@ -19,6 +19,16 @@
 			android:orientation="vertical"
 			android:paddingTop="@dimen/padding_standard">
 
+			<TextView
+				android:id="@+id/empty"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="@dimen/material_margin_horizontal"
+				android:text="@string/empty_game_collection"
+				android:textAppearance="@style/Text.Empty"
+				android:visibility="gone"
+				tools:visibility="visible"/>
+
 			<LinearLayout
 				android:id="@+id/collection_container"
 				android:layout_width="match_parent"

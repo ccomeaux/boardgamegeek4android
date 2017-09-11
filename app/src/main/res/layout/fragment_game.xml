@@ -31,10 +31,9 @@
 				android:id="@+id/empty"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:gravity="center"
 				android:padding="@dimen/material_margin_horizontal"
 				android:text="@string/empty_game"
-				android:textAppearance="@style/Text.Headline"
+				android:textAppearance="@style/Text.Empty"
 				android:visibility="gone"
 				tools:visibility="visible"/>
 
