@@ -339,7 +339,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		ButterKnife.apply(textEditorCards, TextEditorCard.headerColorSetter, swatch);
 	}
 
-	@OnClick(R.id.status)
 	@OnCheckedChanged({
 		R.id.want_to_buy,
 		R.id.preordered,
