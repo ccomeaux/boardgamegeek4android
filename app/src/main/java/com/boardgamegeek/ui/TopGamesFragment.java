@@ -82,8 +82,10 @@ public class TopGamesFragment extends Fragment {
 						AnimationUtils.fadeIn(emptyView);
 					} else {
 						adapter = new TopGamesAdapter(topGames);
-						recyclerView.setAdapter(adapter);
-						AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+						if (recyclerView != null) {
+							recyclerView.setAdapter(adapter);
+							AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+						}
 					}
 					progressView.hide();
 				}

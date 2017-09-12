@@ -723,14 +723,6 @@ public class BggContract {
 		public static String getBuddyName(Uri uri) {
 			return uri.getPathSegments().get(1);
 		}
-
-		public static boolean isBuddyUri(Uri uri) {
-			if (uri == null) {
-				return false;
-			}
-			List<String> segments = uri.getPathSegments();
-			return segments != null && segments.size() > 0 && PATH_BUDDIES.equals(segments.get(0));
-		}
 	}
 
 	public static class PlayerColors implements PlayerColorsColumns, BaseColumns {
