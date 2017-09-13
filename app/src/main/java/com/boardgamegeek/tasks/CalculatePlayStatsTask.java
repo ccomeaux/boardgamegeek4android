@@ -52,8 +52,9 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private int numberOfQuarters;
 	private int numberOfDimes;
 	private int numberOfNickels;
-	private int numberOfZeroes;
-	private final List<Integer> ownedPlayCounts = new ArrayList<>();
+	private final List<Integer> ownedGamePlayCountsSorted = new ArrayList<>();
+	private int numberOfOwnedGamesThatHaveEarnedTheirKeep;
+	private int numberOfOwnedUnplayedGames;
 	private int gameHIndex = 0;
 	private final List<HIndexEntry> hIndexGames = new ArrayList<>();
 	private int playerHIndex;
@@ -132,8 +133,9 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		numberOfQuarters = 0;
 		numberOfDimes = 0;
 		numberOfNickels = 0;
-		numberOfZeroes = 0;
-		ownedPlayCounts.clear();
+		ownedGamePlayCountsSorted.clear();
+		numberOfOwnedGamesThatHaveEarnedTheirKeep = 0;
+		numberOfOwnedUnplayedGames = 0;
 		gameHIndex = 0;
 		hIndexGames.clear();
 		playerHIndex = 0;
@@ -143,6 +145,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	}
 
 	private void calculateGameStats(Cursor cursor, Set<Integer> ownedGameIds) {
+		final int PLAY_COUNT_TO_EARN_KEEP = 10;
 		int hIndexCounter = 0;
 		while (cursor.moveToNext()) {
 			int playCount = cursor.getInt(SUM_QUANTITY);
@@ -151,16 +154,18 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			int gameId = cursor.getInt(GAME_ID);
 
 			numberOfPlays += playCount;
-			if (ownedGameIds.contains(gameId)) {
-				ownedPlayCounts.add(playCount);
-				totalCdf += MathUtils.cdf(playCount, lambda);
-			}
 			if (playCount > 0) numberOfPlayedGames++;
-
 			if (playCount >= 25) numberOfQuarters++;
 			else if (playCount >= 10) numberOfDimes++;
 			else if (playCount >= 5) numberOfNickels++;
-			else if (playCount == 0) numberOfZeroes++;
+
+			if (ownedGameIds.contains(gameId)) {
+				ownedGamePlayCountsSorted.add(playCount);
+				totalCdf += MathUtils.cdf(playCount, lambda);
+				if (playCount == 0) numberOfOwnedUnplayedGames++;
+				if (playCount >= PLAY_COUNT_TO_EARN_KEEP)
+					numberOfOwnedGamesThatHaveEarnedTheirKeep++;
+			}
 
 			if (playCount > 0 && rank >= 1 && rank <= 100) top100count++;
 
@@ -370,29 +375,32 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		return entries;
 	}
 
+	private int getNumberOfOwnedPlayedGames() {
+		return ownedGamePlayCountsSorted == null ? 0 : ownedGamePlayCountsSorted.size();
+	}
+
 	private int getFriendless() {
 		if (!isOwnedSynced) return PlayStats.INVALID_FRIENDLESS;
-		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
-		int numberOfTens = numberOfDimes + numberOfQuarters;
-		if (numberOfTens == ownedPlayCounts.size()) {
-			return ownedPlayCounts.get(ownedPlayCounts.size() - 1);
+		if (getNumberOfOwnedPlayedGames() == 0) return 0;
+		if (numberOfOwnedGamesThatHaveEarnedTheirKeep >= ownedGamePlayCountsSorted.size()) {
+			return ownedGamePlayCountsSorted.get(ownedGamePlayCountsSorted.size() - 1);
 		} else {
-			int friendless = ownedPlayCounts.get(ownedPlayCounts.size() - numberOfTens - 1);
+			int friendless = ownedGamePlayCountsSorted.get(ownedGamePlayCountsSorted.size() - numberOfOwnedGamesThatHaveEarnedTheirKeep - 1);
 			if (friendless == 0)
-				return numberOfTens - numberOfZeroes;
+				return numberOfOwnedGamesThatHaveEarnedTheirKeep - numberOfOwnedUnplayedGames;
 			return friendless;
 		}
 	}
 
 	private double getUtilization() {
 		if (!isOwnedSynced) return PlayStats.INVALID_UTILIZATION;
-		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
-		return totalCdf / ownedPlayCounts.size();
+		if (getNumberOfOwnedPlayedGames() == 0) return 0;
+		return totalCdf / getNumberOfOwnedPlayedGames();
 	}
 
 	private double getCfm() {
 		if (!isOwnedSynced) return PlayStats.INVALID_CFM;
-		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
-		return MathUtils.invcdf(totalCdf / ownedPlayCounts.size(), lambda);
+		if (getNumberOfOwnedPlayedGames() == 0) return 0;
+		return MathUtils.invcdf(totalCdf / getNumberOfOwnedPlayedGames(), lambda);
 	}
 }
