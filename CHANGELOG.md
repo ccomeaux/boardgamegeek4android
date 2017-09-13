@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.6
+-----------
+* More UI polish
+
 Version 6.5.3
 -------------
  * Correct Friendless calculation (and prevent crash)
