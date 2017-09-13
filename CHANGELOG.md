@@ -3,7 +3,7 @@ Release Notes
 
 Version 6.5.3
 -------------
- * Bug fixes
+ * Correct Friendless calculation (and prevent crash)
 
 Version 6.5.2
 -------------
