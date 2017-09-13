@@ -232,10 +232,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			return null;
 		}
 		return new CursorLoader(getActivity(),
-			CollectionItem.URI,
-			CollectionItem.PROJECTION,
-			CollectionItem.getSelection(collectionId),
-			CollectionItem.getSelectionArgs(collectionId, gameId),
+			CollectionItem.Companion.getUri(),
+			CollectionItem.Companion.getProjection(),
+			CollectionItem.Companion.getSelection(collectionId),
+			CollectionItem.Companion.getSelectionArgs(collectionId, gameId),
 			null);
 	}
 
@@ -254,7 +254,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				return;
 			}
 
-			CollectionItem item = new CollectionItem(getContext(), cursor);
+			CollectionItem item = CollectionItem.Companion.fromCursor(cursor);
 			internalId = item.getInternalId();
 			updateUi(item);
 
