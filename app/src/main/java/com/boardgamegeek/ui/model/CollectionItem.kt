@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.model
 
 
 import android.database.Cursor
+import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Collection
 
 class CollectionItem(
@@ -49,7 +50,7 @@ class CollectionItem(
 ) {
 
     companion object {
-        val uri = Collection.CONTENT_URI
+        val uri: Uri = Collection.CONTENT_URI
 
         fun getSelection(collectionId: Int): String {
             return if (collectionId != 0) {
@@ -68,10 +69,47 @@ class CollectionItem(
         }
 
         val projection = arrayOf(Collection._ID,
-                Collection.COLLECTION_ID, Collection.COLLECTION_NAME, Collection.COLLECTION_SORT_NAME, Collection.COMMENT, Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-                Collection.PRIVATE_INFO_PRICE_PAID, Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, Collection.PRIVATE_INFO_CURRENT_VALUE, Collection.PRIVATE_INFO_QUANTITY,
-                Collection.PRIVATE_INFO_ACQUISITION_DATE, Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.PRIVATE_INFO_COMMENT, Collection.LAST_MODIFIED,
-                Collection.COLLECTION_THUMBNAIL_URL, Collection.COLLECTION_IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED, Collection.CONDITION, Collection.HASPARTS_LIST, Collection.WANTPARTS_LIST, Collection.WISHLIST_COMMENT, Collection.RATING, Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE, Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST, Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP, Collection.COLLECTION_DIRTY_TIMESTAMP, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, Collection.WANT_PARTS_DIRTY_TIMESTAMP, Collection.HAS_PARTS_DIRTY_TIMESTAMP)
+                Collection.COLLECTION_ID,
+                Collection.COLLECTION_NAME,
+                Collection.COLLECTION_SORT_NAME,
+                Collection.COMMENT,
+                Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+                Collection.PRIVATE_INFO_PRICE_PAID,
+                Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+                Collection.PRIVATE_INFO_CURRENT_VALUE,
+                Collection.PRIVATE_INFO_QUANTITY,
+                Collection.PRIVATE_INFO_ACQUISITION_DATE,
+                Collection.PRIVATE_INFO_ACQUIRED_FROM,
+                Collection.PRIVATE_INFO_COMMENT,
+                Collection.LAST_MODIFIED,
+                Collection.COLLECTION_THUMBNAIL_URL,
+                Collection.COLLECTION_IMAGE_URL,
+                Collection.COLLECTION_YEAR_PUBLISHED,
+                Collection.CONDITION,
+                Collection.HASPARTS_LIST,
+                Collection.WANTPARTS_LIST,
+                Collection.WISHLIST_COMMENT,
+                Collection.RATING,
+                Collection.UPDATED,
+                Collection.STATUS_OWN,
+                Collection.STATUS_PREVIOUSLY_OWNED,
+                Collection.STATUS_FOR_TRADE,
+                Collection.STATUS_WANT,
+                Collection.STATUS_WANT_TO_BUY,
+                Collection.STATUS_WISHLIST,
+                Collection.STATUS_WANT_TO_PLAY,
+                Collection.STATUS_PREORDERED,
+                Collection.STATUS_WISHLIST_PRIORITY,
+                Collection.NUM_PLAYS,
+                Collection.RATING_DIRTY_TIMESTAMP,
+                Collection.COMMENT_DIRTY_TIMESTAMP,
+                Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+                Collection.STATUS_DIRTY_TIMESTAMP,
+                Collection.COLLECTION_DIRTY_TIMESTAMP,
+                Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+                Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
+                Collection.WANT_PARTS_DIRTY_TIMESTAMP,
+                Collection.HAS_PARTS_DIRTY_TIMESTAMP)
 
         private val _ID = 0
         private val COLLECTION_ID = 1
@@ -117,7 +155,7 @@ class CollectionItem(
         private val HAS_PARTS_DIRTY_TIMESTAMP = 41
 
         fun fromCursor(cursor: Cursor): CollectionItem {
-            val item = CollectionItem(
+            return CollectionItem(
                     cursor.getInt(COLLECTION_ID),
                     cursor.getLong(_ID),
                     cursor.getString(COLLECTION_NAME),
@@ -160,7 +198,6 @@ class CollectionItem(
                     cursor.getLong(WANT_PARTS_DIRTY_TIMESTAMP),
                     cursor.getLong(HAS_PARTS_DIRTY_TIMESTAMP)
             )
-            return item
         }
     }
 }

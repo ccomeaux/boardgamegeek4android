@@ -82,8 +82,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	private Unbinder unbinder;
 	@BindView(R.id.root_container) ViewGroup rootContainer;
-	@BindView(R.id.year) TextView year;
 	@BindView(R.id.status) TextView statusView;
+	@BindView(R.id.rating_container) View ratingContainer;
+	@BindView(R.id.rating) TextView rating;
+	@BindView(R.id.rating_timestamp) TimestampView ratingTimestampView;
 
 	@BindView(R.id.want_to_buy) CheckBox wantToBuyView;
 	@BindView(R.id.preordered) CheckBox preorderedView;
@@ -95,10 +97,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.wishlist) CheckBox wishlistView;
 	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
 
-	@BindView(R.id.last_modified) TimestampView lastModified;
-	@BindView(R.id.rating_container) View ratingContainer;
-	@BindView(R.id.rating) TextView rating;
-	@BindView(R.id.rating_timestamp) TimestampView ratingTimestampView;
 	@BindView(R.id.comment_container) ViewGroup commentContainer;
 	@BindView(R.id.add_comment) View addCommentView;
 	@BindView(R.id.comment) TextView comment;
@@ -111,8 +109,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.condition_card) TextEditorCard conditionCard;
 	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
 	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
+	@BindView(R.id.last_modified) TimestampView lastModified;
 	@BindView(R.id.collection_id) TextView id;
 	@BindView(R.id.updated) TimestampView updated;
+
 	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
@@ -540,7 +540,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		isItemEditable = true;
 
-		year.setText(PresentationUtils.describeYear(getContext(), item.getYear()));
 		lastModified.setTimestamp(item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() :
 			item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime());
 
