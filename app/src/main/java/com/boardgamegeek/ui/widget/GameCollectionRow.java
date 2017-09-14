@@ -37,6 +37,7 @@ public class GameCollectionRow extends LinearLayout {
 	private String collectionName;
 	private int collectionId;
 	private int yearPublished;
+	private int collectionYearPublished;
 	private String imageUrl;
 
 	public GameCollectionRow(Context context) {
@@ -48,7 +49,8 @@ public class GameCollectionRow extends LinearLayout {
 
 	@OnClick
 	public void onClick() {
-		GameCollectionItemActivity.start(getContext(), internalId, gameId, gameName, collectionId, collectionName, imageUrl);
+		GameCollectionItemActivity.start(getContext(), internalId, gameId, gameName, collectionId, collectionName, imageUrl,
+			yearPublished, collectionYearPublished);
 	}
 
 	public void bind(long internalId, int gameId, String gameName, int collectionId, int yearPublished, String imageUrl) {
@@ -78,13 +80,14 @@ public class GameCollectionRow extends LinearLayout {
 
 	public void setDescription(String name, int yearPublished) {
 		collectionName = name;
+		collectionYearPublished = yearPublished;
 		String description = "";
 		if ((!TextUtils.isEmpty(name) && !name.equals(gameName)) ||
 			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
 			if (yearPublished == Constants.YEAR_UNKNOWN) {
 				description = name;
 			} else {
-				description = name + " (" + PresentationUtils.describeYear(getContext(), yearPublished) + ")";
+				description = String.format("%s (%s)", name, PresentationUtils.describeYear(getContext(), yearPublished));
 			}
 
 		}
