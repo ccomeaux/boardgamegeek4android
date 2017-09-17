@@ -115,6 +115,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
+		long syncTimestamp = 0;
 		if (cursor != null && cursor.moveToFirst()) {
 			long oldestSyncTimestamp = Long.MAX_VALUE;
 			collectionContainer.removeAllViews();
@@ -135,14 +136,16 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			} while (cursor.moveToNext());
 
 			syncTimestampView.setTimestamp(oldestSyncTimestamp);
-
-			if (mightNeedRefreshing) {
-				mightNeedRefreshing = false;
-				if (DateTimeUtils.howManyDaysOld(oldestSyncTimestamp) > AGE_IN_DAYS_TO_REFRESH)
-					requestRefresh();
-			}
+			syncTimestamp = oldestSyncTimestamp;
 		} else {
 			syncTimestampView.setTimestamp(System.currentTimeMillis());
+		}
+
+		if (mightNeedRefreshing) {
+			mightNeedRefreshing = false;
+			if (DateTimeUtils.howManyDaysOld(syncTimestamp) > AGE_IN_DAYS_TO_REFRESH) {
+				requestRefresh();
+			}
 		}
 	}
 
