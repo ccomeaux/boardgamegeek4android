@@ -5,6 +5,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
+import android.os.StrictMode.VmPolicy;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
@@ -73,14 +74,25 @@ public class BggApplication extends Application {
 	}
 
 	private void enableStrictMode() {
-		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+		final VmPolicy.Builder builder = new VmPolicy.Builder()
+			.detectActivityLeaks()
+			.detectLeakedClosableObjects()
+			.detectLeakedSqlLiteObjects()
+			.penaltyLog();
+		if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) {
+			builder.detectFileUriExposure().detectLeakedRegistrationObjects();
+		}
+		if (VERSION.SDK_INT >= VERSION_CODES.M) {
+			builder.detectCleartextNetwork();
+		}
+		if (VERSION.SDK_INT >= VERSION_CODES.O) {
+			builder.detectContentUriWithoutPermission();
+		}
+		StrictMode.setVmPolicy(builder.build());
+		StrictMode.setThreadPolicy(new Builder()
 			.detectAll()
 			.penaltyLog()
+			.penaltyFlashScreen()
 			.build());
-		Builder builder = new Builder()
-			.detectAll()
-			.penaltyLog();
-		builder.penaltyFlashScreen();
-		StrictMode.setThreadPolicy(builder.build());
 	}
 }
