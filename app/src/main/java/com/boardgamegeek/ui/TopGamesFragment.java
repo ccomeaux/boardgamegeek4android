@@ -78,6 +78,7 @@ public class TopGamesFragment extends Fragment {
 			.subscribe(new SingleSubscriber<List<TopGame>>() {
 				@Override
 				public void onSuccess(List<TopGame> topGames) {
+					if (!isAdded()) return;
 					if (topGames.isEmpty()) {
 						AnimationUtils.fadeIn(emptyView);
 					} else {
@@ -87,17 +88,18 @@ public class TopGamesFragment extends Fragment {
 							AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 						}
 					}
-					progressView.hide();
+					if (progressView != null) progressView.hide();
 				}
 
 				@Override
 				public void onError(Throwable error) {
 					Timber.e(error, "Error loading top games");
-					if (isAdded()) {
+					if (!isAdded()) return;
+					if (emptyView != null) {
 						emptyView.setText(getString(R.string.empty_http_error, error.getLocalizedMessage()));
+						AnimationUtils.fadeIn(emptyView);
 					}
-					AnimationUtils.fadeIn(emptyView);
-					progressView.hide();
+					if (progressView != null) progressView.hide();
 				}
 			});
 	}
