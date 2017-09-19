@@ -347,7 +347,16 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		private void updateTabs() {
 			tabs.clear();
-			tabs.add(new Tab(R.string.title_info));
+			tabs.add(new Tab(
+				R.string.title_info,
+				R.drawable.fab_log_play,
+				new TabListener() {
+					@Override
+					public void onFabClicked() {
+						onPlayFabClicked();
+					}
+				}
+			));
 			if (shouldShowCollection())
 				tabs.add(new Tab(
 					R.string.title_collection,
