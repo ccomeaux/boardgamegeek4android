@@ -85,9 +85,6 @@ public class BggApplication extends Application {
 		if (VERSION.SDK_INT >= VERSION_CODES.M) {
 			builder.detectCleartextNetwork();
 		}
-		if (VERSION.SDK_INT >= VERSION_CODES.O) {
-			builder.detectContentUriWithoutPermission();
-		}
 		StrictMode.setVmPolicy(builder.build());
 		StrictMode.setThreadPolicy(new Builder()
 			.detectAll()
