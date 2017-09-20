@@ -121,6 +121,7 @@ public class PlayBuilder {
 	 */
 	public static Play copy(Play play) {
 		Play copy = new Play(play.gameId, play.gameName);
+		copy.playId = play.playId;
 		copy.setDate(play.getDate());
 		copy.quantity = play.quantity;
 		copy.length = play.length;

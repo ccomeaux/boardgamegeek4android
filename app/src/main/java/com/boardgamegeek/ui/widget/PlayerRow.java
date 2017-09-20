@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -60,7 +61,8 @@ public class PlayerRow extends LinearLayout {
 		int horizontalPadding = getResources().getDimensionPixelSize(R.dimen.material_margin_horizontal);
 		int verticalPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
 		setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
-
+		setFocusable(false);
+		setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		PresentationUtils.setSelectableBackground(this);
 
 		ButterKnife.bind(this);

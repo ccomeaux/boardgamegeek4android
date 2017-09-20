@@ -127,7 +127,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		// Store values at the time of the login attempt.
 		if (isRequestingNewAccount) {
-			username = usernameView.getText().toString();
+			username = usernameView.getText().toString().trim();
 		}
 		password = passwordView.getText().toString();
 
