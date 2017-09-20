@@ -459,7 +459,6 @@ public class PresentationUtils {
 		view.getContext().getTheme().resolveAttribute(backgroundResId, outValue, true);
 		view.setBackgroundResource(outValue.resourceId);
 		view.setClickable(true);
-		view.setFocusable(true);
 		view.setVisibility(View.VISIBLE);
 	}
 
