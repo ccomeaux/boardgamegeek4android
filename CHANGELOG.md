@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 6.5.4
+-------------
+ * Restore the log play button to the first tab of the game screen
+ * Don't crash when changing focus while logging a play
+ * Bug fixes
+
 Version 6.5.3
 -------------
  * Correct Friendless calculation (and prevent crash)

@@ -417,9 +417,7 @@ public class PreferencesUtils {
 
 	private static String[] getStringArray(Context context, String key, String[] defValue) {
 		String value = getString(context, key, null);
-		if (value == null) {
-			return defValue;
-		}
+		if (value == null) return defValue;
 		return MultiSelectListPreference.parseStoredValue(value);
 	}
 }

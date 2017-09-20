@@ -305,16 +305,14 @@ public class MultiSelectListPreference extends DialogPreference {
 		};
 	}
 
+	@NonNull
 	public static String[] parseStoredValue(String value) {
-		if (TextUtils.isEmpty(value)) {
-			return null;
-		} else {
-			return value.split(SEPARATOR);
-		}
+		return TextUtils.isEmpty(value) ? new String[0] : value.split(SEPARATOR);
 	}
 
 	/**
 	 * Builds a persistable string from the set of string values
+	 *
 	 * @param values Set of values to convert to a string.
 	 * @return A string representation of the values to persist in preferences.
 	 */

@@ -24,13 +24,14 @@ public class SearchSuggestProvider extends BaseProvider {
 	private static ArrayMap<String, String> buildSuggestionProjectionMap() {
 		ArrayMap<String, String> map = new ArrayMap<>();
 		map.put(BaseColumns._ID, BaseColumns._ID);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Collection.COLLECTION_NAME + " AS "
-			+ SearchManager.SUGGEST_COLUMN_TEXT_1);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, "IFNULL(CASE WHEN " + Collection.COLLECTION_YEAR_PUBLISHED
-			+ "=0 THEN NULL ELSE " + Collection.COLLECTION_YEAR_PUBLISHED + " END, '?') AS "
-			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.COLLECTION + "." + Collection.GAME_ID + " AS "
-			+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1,
+			String.format("%s AS %s", Collection.COLLECTION_NAME, SearchManager.SUGGEST_COLUMN_TEXT_1));
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2,
+			String.format("IFNULL(CASE WHEN %s=0 THEN NULL ELSE %s END, '?') AS %s", Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_YEAR_PUBLISHED, SearchManager.SUGGEST_COLUMN_TEXT_2));
+		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID,
+			String.format("%s.%s AS %s", Tables.COLLECTION, Collection.GAME_ID, SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID));
+		map.put(SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA,
+			String.format("%s.%s AS %s", Tables.COLLECTION, Collection.COLLECTION_NAME, SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA));
 		//		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.COLLECTION + "."
 		//			+ Collection.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
 		//			+ SearchManager.SUGGEST_COLUMN_ICON_2);
@@ -58,8 +59,8 @@ public class SearchSuggestProvider extends BaseProvider {
 		qb.setTables(Tables.COLLECTION);
 		qb.setProjectionMap(sSuggestionProjectionMap);
 		if (!TextUtils.isEmpty(query)) {
-			qb.appendWhere("(" + Tables.COLLECTION + "." + Collection.COLLECTION_NAME + " like '" + query + "%' OR "
-				+ Tables.COLLECTION + "." + Collection.COLLECTION_NAME + " like '% " + query + "%')");
+			qb.appendWhere(String.format("(%s.%s like '%s%%' OR %s.%s like '%% %s%%')",
+				Tables.COLLECTION, Collection.COLLECTION_NAME, query, Tables.COLLECTION, Collection.COLLECTION_NAME, query));
 		}
 		Cursor cursor = qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, getSortOrder(sortOrder), uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT));
 		cursor.setNotificationUri(resolver, uri);

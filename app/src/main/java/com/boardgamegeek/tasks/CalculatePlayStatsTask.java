@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArraySet;
+import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.PlayStatsUpdatedEvent;
@@ -284,20 +285,28 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 	@NonNull
 	private static String getPlayerSelection(Context context) {
-		String selection = SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
-			PlayPlayers.USER_NAME + "!=?";
+		StringBuilder sb = new StringBuilder(SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
 
-		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-			selection += " AND " + SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE);
+		if (!TextUtils.isEmpty(AccountUtils.getUsername(context))) {
+			sb
+				.append(" AND ")
+				.append(PlayPlayers.USER_NAME)
+				.append("!=?");
 		}
 
-		return selection;
+		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
+			sb.append(" AND ").append(SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE));
+		}
+
+		return sb.toString();
 	}
 
-	@NonNull
+	@Nullable
 	private static String[] getPlayerSelectionArgs(Context context) {
+		final String username = AccountUtils.getUsername(context);
+		if (TextUtils.isEmpty(username)) return null;
 		List<String> args = new ArrayList<>();
-		args.add(AccountUtils.getUsername(context));
+		args.add(username);
 		return args.toArray(new String[args.size()]);
 	}
 
