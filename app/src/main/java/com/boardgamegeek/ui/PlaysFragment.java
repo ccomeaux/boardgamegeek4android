@@ -227,7 +227,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		Cursor cursor = (Cursor) adapter.getItem(position);
 		if (cursor != null) {
 			long internalId = cursor.getInt(cursor.getColumnIndex(Plays._ID));
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			PlayModel play = PlayModel.Companion.fromCursor(cursor, getContext());
 			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
 		}
 	}
@@ -472,7 +472,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		if (id == PLAY_QUERY_TOKEN) {
 			loader = new CursorLoader(getActivity(),
 				uri,
-				sorter == null ? PlayModel.PROJECTION : StringUtils.unionArrays(PlayModel.PROJECTION, sorter.getColumns()),
+				sorter == null ? PlayModel.Companion.getProjection() : StringUtils.unionArrays(PlayModel.Companion.getProjection(), sorter.getColumns()),
 				selection(),
 				selectionArgs(),
 				sorter == null ? null : sorter.getOrderByClause());
@@ -643,7 +643,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			PlayModel play = PlayModel.Companion.fromCursor(cursor, getContext());
 
 			String info = PresentationUtils.describePlayDetails(getActivity(),
 				mode != MODE_GAME ? play.getDate() : null,
@@ -774,7 +774,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		boolean allPending = true;
 		for (int pos : selectedPlaysPositions) {
 			Cursor cursor = (Cursor) adapter.getItem(pos);
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			PlayModel play = PlayModel.Companion.fromCursor(cursor, getContext());
 			boolean pending = play.getDirtyTimestamp() > 0;
 			allPending = allPending && pending;
 		}
@@ -805,7 +805,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 				mode.finish();
 				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
 				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+				PlayModel play = PlayModel.Companion.fromCursor(cursor, getContext());
 				LogPlayActivity.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
 				return true;
 			case R.id.menu_delete:
