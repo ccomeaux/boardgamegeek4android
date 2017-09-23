@@ -70,7 +70,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int NUMBER_OF_PLAYERS_SHOWN = 5;
 	private static final int NUMBER_OF_LOCATIONS_SHOWN = 5;
 
-	private int numberOfPlaysInProgress;
 	private boolean isRefreshing;
 
 	private Unbinder unbinder;
@@ -256,7 +255,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void onPlaysInProgressQueryComplete(Cursor cursor) {
-		numberOfPlaysInProgress = cursor == null ? 0 : cursor.getCount();
+		int numberOfPlaysInProgress = cursor == null ? 0 : cursor.getCount();
 		final int visibility = numberOfPlaysInProgress == 0 ? View.GONE : View.VISIBLE;
 		playsInProgressSubtitle.setVisibility(visibility);
 		playsInProgressContainer.setVisibility(visibility);
@@ -264,10 +263,10 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		playsInProgressContainer.removeAllViews();
 		if (numberOfPlaysInProgress > 0) {
-			while (cursor != null && cursor.moveToNext()) {
-				playsCard.setVisibility(View.VISIBLE);
+			while (cursor.moveToNext()) {
 				addPlayToContainer(cursor, playsInProgressContainer);
 			}
+			playsCard.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -275,10 +274,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		if (cursor == null) return;
 
 		recentPlaysContainer.removeAllViews();
-		while (cursor.moveToNext()) {
+		if (cursor.moveToFirst()) {
+			do {
+				addPlayToContainer(cursor, recentPlaysContainer);
+			} while (cursor.moveToNext());
 			playsCard.setVisibility(View.VISIBLE);
 			recentPlaysContainer.setVisibility(View.VISIBLE);
-			addPlayToContainer(cursor, recentPlaysContainer);
 		}
 	}
 
@@ -365,7 +366,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private View createRow(LinearLayout container, String title, String text) {
-		View view = getLayoutInflater(null).inflate(R.layout.row_player_summary, container, false);
+		View view = getLayoutInflater().inflate(R.layout.row_player_summary, container, false);
 		container.addView(view);
 		((TextView) view.findViewById(android.R.id.title)).setText(title);
 		((TextView) view.findViewById(android.R.id.text1)).setText(text);

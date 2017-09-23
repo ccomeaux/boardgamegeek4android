@@ -71,9 +71,7 @@
 						android:layout_height="wrap_content"
 						android:divider="@drawable/list_divider"
 						android:orientation="vertical"
-						android:showDividers="middle"
-						android:visibility="gone"
-						tools:visibility="visible"/>
+						android:showDividers="middle"/>
 
 					<TextView
 						android:id="@+id/plays_subtitle_recent"
@@ -91,9 +89,7 @@
 						android:layout_height="wrap_content"
 						android:divider="@drawable/list_divider"
 						android:orientation="vertical"
-						android:showDividers="middle"
-						android:visibility="gone"
-						tools:visibility="visible"/>
+						android:showDividers="middle"/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
