@@ -237,7 +237,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	@NonNull
 	private static Uri getUri(boolean byGames) {
 		return byGames ?
-			Games.CONTENT_PLAYS_URI.buildUpon().build() :
+			Games.CONTENT_PLAYS_URI :
 			Plays.CONTENT_URI.buildUpon()
 				.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, Plays.OBJECT_ID)
 				.build();
@@ -245,21 +245,21 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 	@NonNull
 	private String getGameSelection() {
-		String selection = SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
+		StringBuilder selection = new StringBuilder(SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
 
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-			selection += " AND " + SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE);
+			selection.append(" AND ").append(SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE));
 		}
 
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
-			selection += " AND (" + Games.SUBTYPE + "=? OR " + Games.SUBTYPE + " IS NULL)";
+			selection.append(" AND (").append(Games.SUBTYPE).append("=? OR ").append(Games.SUBTYPE).append(" IS NULL)");
 		} else if (!PreferencesUtils.logPlayStatsExpansions(context) ||
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
-			selection += " AND (" + Games.SUBTYPE + "!=? OR " + Games.SUBTYPE + " IS NULL)";
+			selection.append(" AND (").append(Games.SUBTYPE).append("!=? OR ").append(Games.SUBTYPE).append(" IS NULL)");
 		}
 
-		return selection;
+		return selection.toString();
 	}
 
 	@NonNull
