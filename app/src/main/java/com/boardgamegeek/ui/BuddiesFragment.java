@@ -10,6 +10,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -44,12 +45,13 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (PreferencesUtils.getSyncBuddies(getActivity())) {
-			setEmptyText(getString(R.string.empty_buddies));
-		} else {
-			setEmptyText(getString(R.string.empty_buddies_sync_off));
-		}
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setEmptyText();
 	}
 
 	@DebugLog
@@ -74,7 +76,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	@Override
 	protected void triggerRefresh() {
-		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_BUDDIES);
+		SyncService.sync(getContext(), SyncService.FLAG_SYNC_BUDDIES);
 	}
 
 	@DebugLog
@@ -89,7 +91,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		CursorLoader loader = new CursorLoader(getContext(),
 			Buddies.CONTENT_URI,
 			Buddy.PROJECTION,
-			Buddies.BUDDY_ID + "!=? AND " + Buddies.BUDDY_FLAG + "=1",
+			String.format("%s!=? AND %s=1", Buddies.BUDDY_ID, Buddies.BUDDY_FLAG),
 			new String[] { Authenticator.getUserId(getContext()) },
 			null);
 		loader.setUpdateThrottle(2000);
@@ -99,9 +101,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		int token = loader.getId();
 		if (token == TOKEN) {
@@ -122,6 +122,23 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.changeCursor(null);
+	}
+
+	private void setEmptyText() {
+		if (PreferencesUtils.getSyncBuddies(getActivity())) {
+			setEmptyText(getString(R.string.empty_buddies));
+			setEmptyButton("", null);
+		} else {
+			setEmptyText(getString(R.string.empty_buddies_sync_off));
+			setEmptyButton(getText(R.string.sync), new OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					PreferencesUtils.setSyncBuddies(getContext());
+					setEmptyText();
+					triggerRefresh();
+				}
+			});
+		}
 	}
 
 	public class BuddiesAdapter extends CursorAdapter implements StickyListHeadersAdapter {

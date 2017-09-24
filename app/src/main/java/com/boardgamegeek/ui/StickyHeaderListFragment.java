@@ -9,8 +9,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
@@ -265,6 +267,12 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			listView.setEmptyView(emptyContainer);
 		}
 		emptyText = text;
+	}
+
+	public void setEmptyButton(CharSequence text, OnClickListener l) {
+		emptyButton.setText(text);
+		emptyButton.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		emptyButton.setOnClickListener(l);
 	}
 
 	public void setListShown(boolean shown) {
