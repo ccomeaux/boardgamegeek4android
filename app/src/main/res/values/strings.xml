@@ -390,6 +390,7 @@
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
 	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
+	<string name="msg_play_sync">You are not currently syncing your plays. Would you like to enable that feature now?</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>

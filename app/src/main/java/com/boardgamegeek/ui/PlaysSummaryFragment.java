@@ -74,6 +74,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.card_sync) View syncCard;
 	@BindView(R.id.card_plays) View playsCard;
 	@BindView(R.id.plays_subtitle_in_progress) TextView playsInProgressSubtitle;
 	@BindView(R.id.plays_in_progress_container) LinearLayout playsInProgressContainer;
@@ -103,23 +104,14 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(getActivity())));
 
-		long oldestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
-		long newestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
-		if (oldestDate == 0 && newestDate == 0) {
-			syncStatusView.setText(R.string.plays_sync_status_none);
-		} else if (oldestDate == 0) {
-			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_new),
-				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else if (newestDate == 0) {
-			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_old),
-				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else {
-			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_range),
-				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
-				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		}
-
 		return rootView;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		bindStatusMessage();
+		bindSyncCard();
 	}
 
 	@Override
@@ -252,6 +244,31 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				cursor.close();
 				break;
 		}
+	}
+
+	private void bindStatusMessage() {
+		long oldestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
+		long newestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
+		if (oldestDate == 0 && newestDate == 0) {
+			syncStatusView.setText(R.string.plays_sync_status_none);
+		} else if (oldestDate == 0) {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_new),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else if (newestDate == 0) {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_old),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_range),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		}
+	}
+
+	private void bindSyncCard() {
+		syncCard.setVisibility(PreferencesUtils.getSyncPlays(getContext()) ||
+			PreferencesUtils.getSyncPlaysTimestamp(getContext()) > 0 ?
+			View.GONE :
+			View.VISIBLE);
 	}
 
 	private void onPlaysInProgressQueryComplete(Cursor cursor) {
@@ -407,6 +424,20 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@OnClick(R.id.sync)
+	public void onSyncClick() {
+		PreferencesUtils.setSyncPlays(getContext());
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
+		PreferencesUtils.setSyncPlaysTimestamp(getContext());
+		bindSyncCard();
+	}
+
+	@OnClick(R.id.sync_cancel)
+	public void onSyncCancelClick() {
+		PreferencesUtils.setSyncPlaysTimestamp(getContext());
+		bindSyncCard();
+	}
+
 	@OnClick(R.id.more_plays_button)
 	public void onPlaysClick() {
 		startActivity(new Intent(getActivity(), PlaysActivity.class));
@@ -445,7 +476,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(@NonNull SyncEvent event) {
-		if ((event.getType() & SyncService.FLAG_SYNC_PLAYS) == SyncService.FLAG_SYNC_PLAYS) {
+		if (((event.getType() & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) ||
+			((event.getType() & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
 			updateRefreshStatus(true);
 		}
 	}
