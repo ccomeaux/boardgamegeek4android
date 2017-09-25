@@ -197,7 +197,7 @@
 
 				<Button
 					android:id="@+id/settings_collection_status"
-					style="@style/Widget.AppCompat.Button.Colored"
+					style="@style/ColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="right|center_vertical"

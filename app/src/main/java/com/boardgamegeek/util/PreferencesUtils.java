@@ -43,6 +43,9 @@ public class PreferencesUtils {
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	private static final String KEY_SYNC_STATUSES = "syncStatuses";
+	private static final String KEY_SYNC_PLAYS = "syncPlays";
+	private static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
+	private static final String KEY_SYNC_BUDDIES = "syncBuddies";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
 	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
@@ -198,11 +201,27 @@ public class PreferencesUtils {
 	}
 
 	public static boolean getSyncPlays(Context context) {
-		return getBoolean(context, "syncPlays", false);
+		return getBoolean(context, KEY_SYNC_PLAYS, false);
+	}
+
+	public static boolean setSyncPlays(Context context) {
+		return putBoolean(context, KEY_SYNC_PLAYS, true);
+	}
+
+	public static long getSyncPlaysTimestamp(Context context) {
+		return getLong(context, KEY_SYNC_PLAYS_TIMESTAMP, 0);
+	}
+
+	public static boolean setSyncPlaysTimestamp(Context context) {
+		return putLong(context, KEY_SYNC_PLAYS_TIMESTAMP, System.currentTimeMillis());
 	}
 
 	public static boolean getSyncBuddies(Context context) {
-		return getBoolean(context, "syncBuddies", false);
+		return getBoolean(context, KEY_SYNC_BUDDIES, false);
+	}
+
+	public static boolean setSyncBuddies(Context context) {
+		return putBoolean(context, KEY_SYNC_BUDDIES, true);
 	}
 
 	public static boolean getSyncShowNotifications(Context context) {
