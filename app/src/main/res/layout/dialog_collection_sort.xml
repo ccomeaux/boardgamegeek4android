@@ -18,6 +18,75 @@
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:text="@string/collection_sort_personal"/>
+
+		<RadioButton
+			android:id="@+id/my_rating"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_my_rating"/>
+
+		<RadioButton
+			android:id="@+id/wishlist_priority"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_wishlist_priority"/>
+
+		<RadioButton
+			android:id="@+id/play_count_desc"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_play_count_desc"/>
+
+		<RadioButton
+			android:id="@+id/play_count_asc"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_play_count_asc"/>
+
+		<RadioButton
+			android:id="@+id/play_date"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_play_date_max"/>
+
+		<RadioButton
+			android:id="@+id/acquisition_date"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_acquisition_date"/>
+
+		<RadioButton
+			android:id="@+id/acquired_from"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_acquired_from"/>
+
+		<RadioButton
+			android:id="@+id/price_paid"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_price_paid"/>
+
+		<RadioButton
+			android:id="@+id/current_value"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_current_value"/>
+
+		<TextView
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
 			android:text="@string/collection_sort_stats"/>
 
 		<RadioButton
@@ -87,7 +156,8 @@
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_geek_rating"/>
+			android:tag="@string/collection_sort_type_geek_rating"
+			android:visibility="gone"/>
 
 		<RadioButton
 			android:id="@+id/average_rating"
@@ -109,75 +179,6 @@
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:tag="@string/collection_sort_type_average_weight_desc"/>
-
-		<TextView
-			style="@style/Text.Header.Section.Dialog"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/collection_sort_personal"/>
-
-		<RadioButton
-			android:id="@+id/my_rating"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_my_rating"/>
-
-		<RadioButton
-			android:id="@+id/wishlist_priority"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_wishlist_priority"/>
-
-		<RadioButton
-			android:id="@+id/play_count_desc"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_count_desc"/>
-
-		<RadioButton
-			android:id="@+id/play_count_asc"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_count_asc"/>
-
-		<RadioButton
-			android:id="@+id/play_date"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_date_max"/>
-		
-		<RadioButton
-			android:id="@+id/acquisition_date"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_acquisition_date"/>
-
-		<RadioButton
-			android:id="@+id/acquired_from"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_acquired_from"/>
-
-		<RadioButton
-			android:id="@+id/price_paid"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_price_paid"/>
-
-		<RadioButton
-			android:id="@+id/current_value"
-			style="@style/DialogRadioButton"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_current_value"/>
 
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
