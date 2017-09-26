@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.ui.CollectionActivity;
+import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
@@ -102,8 +103,8 @@ public class SelectCollectionViewTask extends AsyncTask<Void, Void, Void> {
 	@NonNull
 	private ShortcutInfo createShortcutInfo(long viewId, @NonNull String viewName) {
 		return new ShortcutInfo.Builder(context, createShortcutName(viewId))
-			.setShortLabel(StringUtils.limitText(viewName, 10))
-			.setLongLabel(StringUtils.limitText(viewName, 25))
+			.setShortLabel(StringUtils.limitText(viewName, ShortcutUtils.SHORT_LABEL_LENGTH))
+			.setLongLabel(StringUtils.limitText(viewName, ShortcutUtils.LONG_LABEL_LENGTH))
 			.setIcon(Icon.createWithResource(context, R.drawable.ic_shortcut_ic_collection))
 			.setIntent(CollectionActivity.createIntentAsShortcut(context, viewId))
 			.build();
