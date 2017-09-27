@@ -9,6 +9,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.StringUtils;
 
+import java.util.Locale;
+
 public class RecommendedPlayerCountFilterer extends CollectionFilterer {
 	public static final int RECOMMENDED = 1;
 	public static final int BEST = 2;
@@ -39,6 +41,15 @@ public class RecommendedPlayerCountFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
+		return context.getString(R.string.recommended_player_count_description_abbr,
+			(recommendation == RecommendedPlayerCountFilterer.BEST) ?
+				context.getString(R.string.best) :
+				context.getString(R.string.good),
+			String.format(Locale.getDefault(), "%,d", playerCount));
+	}
+
+	@Override
+	public String getDescription() {
 		@StringRes int recommendationResId = recommendation == RecommendedPlayerCountFilterer.BEST ? R.string.best : R.string.recommended;
 		return context.getResources().getQuantityString(R.plurals.recommended_player_count_description, playerCount, context.getString(recommendationResId), playerCount);
 	}

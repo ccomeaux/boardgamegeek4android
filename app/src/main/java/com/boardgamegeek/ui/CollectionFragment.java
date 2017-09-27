@@ -511,7 +511,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 			final int rowCount = cursor.getCount();
 			final String sortDescription = sorter == null ? "" :
-				String.format(getActivity().getString(R.string.sort_description), sorter.getDescription());
+				String.format(getActivity().getString(R.string.by_prefix), sorter.getDescription());
 			rowCountView.setText(String.format(Locale.getDefault(), "%,d", rowCount));
 			sortDescriptionView.setText(sortDescription);
 			EventBus.getDefault().post(new CollectionCountChangedEvent(rowCount));
@@ -965,19 +965,15 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private String createViewDescription(Sorter sort, List<CollectionFilterer> filters) {
-		StringBuilder text = new StringBuilder();
+		StringBuilder text = new StringBuilder(getString(R.string.filtered_by));
 		for (CollectionFilterer filter : filters) {
 			if (filter != null) {
-				if (text.length() > 0) {
-					text.append("\n");
-				}
-				text.append(filter.getDisplayText());
+				text.append("\n");
+				text.append(filter.getDescription());
 			}
 		}
-		if (text.length() > 0) {
-			text.append("\n");
-		}
-		text.append(getString(R.string.by_prefix, sort.getDescription()));
+		if (text.length() > 0) text.append("\n\n");
+		text.append(getString(R.string.sort_description, sort.getDescription()));
 		return text.toString();
 	}
 

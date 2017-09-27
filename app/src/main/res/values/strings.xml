@@ -22,6 +22,7 @@
 	<string name="collection_item">Collection Item</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
+	<string name="average_weight">Weight</string>
 	<string name="sync_pending_update">Update pending</string>
 	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_draft">Draft</string>
@@ -88,6 +89,7 @@
 	<string name="low_score">Low Score</string>
 	<string name="average_score">Average Score</string>
 	<string name="average_winning_score">Average Winning Score</string>
+	<string name="average_rating">Average rating</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -376,7 +378,8 @@
 	<string name="menu_add_username">Add username</string>
 	<string name="menu_scroll_to_last_read">Scroll to last read</string>
 	<string name="menu_scroll_to_bottom">Scroll to bottom</string>
-	<string name="sort_description">by %s</string>
+	<string name="sort_description">Sorted by %s</string>
+	<string name="filtered_by">Filtered by</string>
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
@@ -429,6 +432,7 @@
 	<string name="player_range_suffix" tools:ignore="PluralsCandidate"><b>%1$,d-%2$,d</b> players</string>
 	<string name="best_prefix">Best with <b>%s</b></string>
 	<string name="recommended_prefix">Good with <b>%s</b></string>
+	<string name="recommended_player_count_description_abbr">%s with %s</string>
 	<string name="mins_unknown"><b>\?</b> mins</string>
 	<string name="mins_suffix"><b>%,d</b> mins</string>
 	<string name="hrs_suffix"><b>%,d</b> hrs</string>
@@ -461,8 +465,10 @@
 	<string name="age_community">Community: <b>%s</b></string>
 	<string name="age_community_plus">Community: <b>%d+</b></string>
 	<string name="name">Name</string>
+	<string name="ranked">Ranked</string>
 	<string name="unranked">Unranked</string>
 	<string name="unranked_prefix">Unranked %s</string>
+	<string name="unranked_abbr">\?</string>
 	<string name="updated_prefix">Updated %s</string>
 	<string name="saved_prefix">Saved %s</string>
 	<string name="synced_prefix">Synced %s</string>
@@ -478,6 +484,9 @@
 	<string name="generic_player">Player #%d</string>
 	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
+	<string name="unrated_abbr">\?</string>
+	<string name="undefined">Undefined</string>
+	<string name="undefined_abbr">\?</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
 	<string name="number_to_text">ABC</string>
@@ -615,6 +624,7 @@
 	<string name="player">player</string>
 	<string name="best">Best</string>
 	<string name="recommended">Recommended</string>
+	<string name="good">Good</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -717,7 +727,7 @@
 		<item quantity="other">\u0020with %,d players</item>
 	</plurals>
 	<plurals name="recommended_player_count_description">
-		<item quantity="one">%1$s for %2$,d player</item>
-		<item quantity="other">%1$s for %2$,d players</item>
+		<item quantity="one">%1$s with %2$,d player</item>
+		<item quantity="other">%1$s with %2$,d players</item>
 	</plurals>
 </resources>

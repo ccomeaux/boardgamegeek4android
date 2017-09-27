@@ -2,11 +2,14 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.Locale;
 
 public class GeekRankingFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
@@ -60,43 +63,40 @@ public class GeekRankingFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		String minText = String.valueOf(min);
-		String maxText = String.valueOf(max);
+		return describeRange(R.string.unranked_abbr);
+	}
 
+	@Override
+	public String getDescription() {
+		return context.getString(R.string.ranked) + " " + describeRange(R.string.unranked);
+	}
+
+	private String describeRange(@StringRes int unrankedResId) {
 		String text;
 		if (min >= MAX_RANGE) {
-			text = MAX_RANGE + "+";
+			text = String.format(Locale.getDefault(), "%,d", MAX_RANGE) + "+";
 		} else if (min == max) {
-			text = maxText;
+			text = String.format(Locale.getDefault(), "%,d", max);
 		} else {
-			text = minText + "-" + maxText;
+			text = String.format(Locale.getDefault(), "%,d-%,d", min, max);
 		}
-		if (includeUnranked) {
-			text += " (+?)";
-		}
+		if (includeUnranked) text += String.format(" (+%s)", context.getString(unrankedResId));
 		return "#" + text;
 	}
 
 	@Override
 	public String getSelection() {
-		String selection;
-		if (min >= MAX_RANGE) {
-			selection = Games.GAME_RANK + ">=?";
-		} else {
-			selection = "(" + Games.GAME_RANK + ">=? AND " + Games.GAME_RANK + "<=?)";
-		}
-		if (includeUnranked) {
-			selection += " OR " + Games.GAME_RANK + "=0 OR " + Games.GAME_RANK + " IS NULL";
-		}
+		String selection = min >= MAX_RANGE ?
+			String.format("%s>=?", Games.GAME_RANK) :
+			String.format("(%1$s>=? AND %1$s<=?)", Games.GAME_RANK);
+		if (includeUnranked) selection += String.format(" OR %1$s=0 OR %1$s IS NULL", Games.GAME_RANK);
 		return selection;
 	}
 
 	@Override
 	public String[] getSelectionArgs() {
-		if (min >= MAX_RANGE) {
-			return new String[] { String.valueOf(MAX_RANGE) };
-		} else {
-			return new String[] { String.valueOf(min), String.valueOf(max) };
-		}
+		return min >= MAX_RANGE ?
+			new String[] { String.valueOf(MAX_RANGE) } :
+			new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 }

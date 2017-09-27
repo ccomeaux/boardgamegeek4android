@@ -1,13 +1,15 @@
 package com.boardgamegeek.filterer;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.Locale;
 
 public class AverageRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
@@ -43,43 +45,36 @@ public class AverageRatingFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		Resources r = context.getResources();
-		String minText = String.valueOf(min);
-		String maxText = String.valueOf(max);
+		return context.getResources().getString(R.string.average) + " " + describeRange(R.string.unrated_abbr);
+	}
 
-		String text;
-		if (min == max) {
-			text = maxText;
-		} else {
-			text = minText + "-" + maxText;
-		}
-		if (includeUnrated) {
-			text += " (+" + context.getString(R.string.unrated) + ")";
-		}
-		return r.getString(R.string.average) + " " + text;
+	@Override
+	public String getDescription() {
+		return context.getResources().getString(R.string.average_rating) + " " + describeRange(R.string.unrated);
+	}
+
+	private String describeRange(@StringRes int unratedResId) {
+		String text = min == max ?
+			String.format(Locale.getDefault(),"%.1f", max) :
+			String.format(Locale.getDefault(), "%.1f-%.1f", min, max);
+		if (includeUnrated) text += String.format(" (+%s)", context.getString(unratedResId));
+		return text;
 	}
 
 	@Override
 	public String getSelection() {
-		String selection;
-		if (min == max) {
-			selection = Games.STATS_AVERAGE + "=?";
-		} else {
-			selection = "(" + Games.STATS_AVERAGE + ">=? AND " + Games.STATS_AVERAGE + "<=?)";
-		}
-		if (includeUnrated) {
-			selection += " OR " + Games.STATS_AVERAGE + "=0 OR " + Games.STATS_AVERAGE + " IS NULL";
-		}
+		String selection = min == max ?
+			String.format("%s=?", Games.STATS_AVERAGE) :
+			String.format("(%1$s>=? AND %1$s<=?)", Games.STATS_AVERAGE);
+		if (includeUnrated) selection += String.format(" OR %1$s=0 OR %1$s IS NULL", Games.STATS_AVERAGE);
 		return selection;
 	}
 
 	@Override
 	public String[] getSelectionArgs() {
-		if (min == max) {
-			return new String[] { String.valueOf(min) };
-		} else {
-			return new String[] { String.valueOf(min), String.valueOf(max) };
-		}
+		return min == max ?
+			new String[] { String.valueOf(min) } :
+			new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 
 	public double getMin() {
