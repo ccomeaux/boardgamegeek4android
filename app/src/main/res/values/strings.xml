@@ -20,6 +20,7 @@
 	<string name="expansions">Expansions</string>
 	<string name="base_games">Base Games</string>
 	<string name="collection_item">Collection Item</string>
+	<string name="published_prefix">Published %1$s %2$s</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="average_weight">Weight</string>
@@ -103,6 +104,9 @@
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
+	<string name="in">in</string>
+	<string name="before">before</string>
+	<string name="after">after</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
@@ -302,8 +306,8 @@
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status_">Collection status…</string>
 	<string name="menu_collection_status">Collection Status</string>
-	<string name="menu_collection_name">Collection Name</string>
-	<string name="menu_expansion_status">Subtype</string>
+	<string name="menu_collection_name">Name</string>
+	<string name="menu_expansion_status">Game/Expansion/Accessory</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="favorites">Favorites</string>
 	<string name="not_favorites">Not favorites</string>
@@ -323,7 +327,7 @@
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
 	<string name="collection_sort_wishlist_priority">Wishlist Priority</string>
 	<string name="collection_sort_year_published">Year Published</string>
-	<string name="collection_filter_stats">Stats</string>
+	<string name="collection_filter_stats">Info</string>
 	<string name="collection_filter_community">Community</string>
 	<string name="collection_filter_personal">Personal</string>
 	<string name="collection_sort_stats">Stats</string>
@@ -424,10 +428,14 @@
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
+	<string name="unknown">Unknown</string>
+	<string name="unknown_abbr">\?</string>
 	<string name="unknown_weight">Unknown weight</string>
 	<string name="unknown_language">Unknown language dependence</string>
 	<string name="ages">Ages</string>
 	<string name="ages_unknown">Unknown ages</string>
+	<string name="and_up_suffix">%,d and up</string>
+	<string name="and_up_suffix_abbr">%,d+</string>
 	<string name="player_range_unknown"><b>\?</b> players</string>
 	<string name="player_range_suffix" tools:ignore="PluralsCandidate"><b>%1$,d-%2$,d</b> players</string>
 	<string name="best_prefix">Best with <b>%s</b></string>
@@ -465,6 +473,7 @@
 	<string name="age_community">Community: <b>%s</b></string>
 	<string name="age_community_plus">Community: <b>%d+</b></string>
 	<string name="name">Name</string>
+	<string name="named_prefix">Named \"%s\"</string>
 	<string name="ranked">Ranked</string>
 	<string name="unranked">Unranked</string>
 	<string name="unranked_prefix">Unranked %s</string>
@@ -610,6 +619,7 @@
 	<string name="plays_sync_status_old">Plays have been synced since %s.</string>
 	<string name="plays_sync_status_range">Plays have been synced between %1$s and %2$s.</string>
 	<string name="starts_with">Starts with</string>
+	<string name="starts_with_prefix">Starts with \"%s\"</string>
 	<string name="msg_offline">Offline</string>
 	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
 	<string name="msg_update_invalid_response">Invalid %s received</string>

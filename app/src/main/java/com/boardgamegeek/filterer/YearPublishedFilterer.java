@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -9,6 +10,7 @@ import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 public class YearPublishedFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1970;
@@ -46,7 +48,7 @@ public class YearPublishedFilterer extends CollectionFilterer {
 		String maxText = String.valueOf(max);
 
 		if (min == MIN_RANGE && max == MAX_RANGE) {
-			text = "ALL";
+			text = "";
 		} else if (min == MIN_RANGE) {
 			text = maxText + "-";
 		} else if (max == MAX_RANGE) {
@@ -61,20 +63,42 @@ public class YearPublishedFilterer extends CollectionFilterer {
 	}
 
 	@Override
-	public String getSelection() {
-		String selection;
+	public String getDescription() {
+		@StringRes int prepositionResId;
+		String year;
 		if (min == MIN_RANGE && max == MAX_RANGE) {
-			selection = "";
+			return "";
 		} else if (min == MIN_RANGE) {
-			selection = Games.YEAR_PUBLISHED + "<=?";
+			prepositionResId = R.string.before;
+			year = String.valueOf(max + 1);
 		} else if (max == MAX_RANGE) {
-			selection = Games.YEAR_PUBLISHED + ">=?";
+			prepositionResId = R.string.after;
+			year = String.valueOf(min - 1);
 		} else if (min == max) {
-			selection = Games.YEAR_PUBLISHED + "=?";
+			prepositionResId = R.string.in;
+			year = String.valueOf(max);
 		} else {
-			selection = "(" + Games.YEAR_PUBLISHED + ">=? AND " + Games.YEAR_PUBLISHED + "<=?)";
+			prepositionResId = R.string.in;
+			year = String.valueOf(min) + "-" + String.valueOf(max);
 		}
-		return selection;
+		return context.getString(R.string.published_prefix, context.getString(prepositionResId), year);
+	}
+
+	@Override
+	public String getSelection() {
+		String format;
+		if (min == MIN_RANGE && max == MAX_RANGE) {
+			format = "";
+		} else if (min == MIN_RANGE) {
+			format = "%1$s<=?";
+		} else if (max == MAX_RANGE) {
+			format = "%1$s>=?";
+		} else if (min == max) {
+			format = "%1$s=?";
+		} else {
+			format = "(%1$s>=? AND %1$s<=?)";
+		}
+		return String.format(Locale.getDefault(), format, Games.YEAR_PUBLISHED);
 	}
 
 	@Override

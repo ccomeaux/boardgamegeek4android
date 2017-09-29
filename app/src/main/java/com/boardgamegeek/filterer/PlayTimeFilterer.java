@@ -2,11 +2,14 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.Locale;
 
 public class PlayTimeFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
@@ -42,44 +45,42 @@ public class PlayTimeFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		String text;
-		String minText = String.valueOf(min);
-		String maxText = String.valueOf(max);
-
-		if (max == MAX_RANGE) {
-			text = minText + "+";
-		} else if (min == max) {
-			text = maxText;
-		} else {
-			text = minText + "-" + maxText;
-		}
-		if (includeUndefined) {
-			text += " (+?)";
-		}
-		return text + " " + context.getResources().getString(R.string.minutes_abbr);
+		return describe(R.string.unknown_abbr);
 	}
 
 	@Override
-	public String getSelection() {
-		String selection;
+	public String getDescription() {
+		return describe(R.string.unknown);
+	}
+
+	@NonNull
+	private String describe(@StringRes int unknownResId) {
+		String text;
 		if (max == MAX_RANGE) {
-			selection = "(" + Games.PLAYING_TIME + ">=?)";
+			text = context.getString(R.string.and_up_suffix_abbr, min);
+		} else if (min == max) {
+			text = String.format(Locale.getDefault(), "%,d", max);
 		} else {
-			selection = "(" + Games.PLAYING_TIME + ">=? AND " + Games.PLAYING_TIME + "<=?)";
+			text = String.format(Locale.getDefault(), "%,d-%,d", min, max);
 		}
-		if (includeUndefined) {
-			selection += " OR " + Games.PLAYING_TIME + " IS NULL";
-		}
-		return selection;
+		text += " " + context.getString(R.string.minutes_abbr);
+		if (includeUndefined) text += String.format(" (+%s)", context.getString(unknownResId));
+		return text;
+	}
+
+
+	@Override
+	public String getSelection() {
+		String format = max == MAX_RANGE ? "(%1$s>=?)" : "(%1$s>=? AND %1$s<=?)";
+		if (includeUndefined) format += " OR %1$s IS NULL";
+		return String.format(format, Games.PLAYING_TIME);
 	}
 
 	@Override
 	public String[] getSelectionArgs() {
-		if (max == MAX_RANGE) {
-			return new String[] { String.valueOf(min) };
-		} else {
-			return new String[] { String.valueOf(min), String.valueOf(max) };
-		}
+		return max == MAX_RANGE ?
+			new String[] { String.valueOf(min) } :
+			new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 
 	public int getMin() {

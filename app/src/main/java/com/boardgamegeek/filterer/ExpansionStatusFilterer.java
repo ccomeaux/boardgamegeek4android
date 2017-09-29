@@ -48,11 +48,7 @@ public class ExpansionStatusFilterer extends CollectionFilterer {
 	@Override
 	public String getSelection() {
 		String value = getSelectedFromStringArray(R.array.expansion_status_filter_values);
-		if (!TextUtils.isEmpty(value)) {
-			return Games.SUBTYPE + "=?";
-		} else {
-			return "";
-		}
+		return !TextUtils.isEmpty(value) ? Games.SUBTYPE + "=?" : "";
 	}
 
 	@Override
