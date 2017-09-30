@@ -64,7 +64,7 @@
 	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
-	<string name="plays">Plays</string>
+	<string name="plays">plays</string>
 	<string name="played">Played</string>
 	<string name="rated">Rated</string>
 	<string name="commented">Commented</string>
@@ -83,14 +83,15 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
-	<string name="my_rating">My Rating</string>
+	<string name="my_rating">My rating</string>
+	<string name="my_rating_abbr">Me</string>
 	<string name="rating_hint">Rating</string>
-	<string name="average">Average</string>
 	<string name="high_score">High Score</string>
 	<string name="low_score">Low Score</string>
 	<string name="average_score">Average Score</string>
 	<string name="average_winning_score">Average Winning Score</string>
 	<string name="average_rating">Average rating</string>
+	<string name="average_rating_abbr">Avg.</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -107,6 +108,7 @@
 	<string name="in">in</string>
 	<string name="before">before</string>
 	<string name="after">after</string>
+	<string name="status_of_prefix">Status of %s</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
@@ -305,7 +307,7 @@
 	<string name="menu_collection_view_save">Save view…</string>
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status_">Collection status…</string>
-	<string name="menu_collection_status">Collection Status</string>
+	<string name="menu_collection_status">Status</string>
 	<string name="menu_collection_name">Name</string>
 	<string name="menu_expansion_status">Game/Expansion/Accessory</string>
 	<string name="menu_number_of_players">Number of Players</string>
@@ -329,10 +331,10 @@
 	<string name="collection_sort_year_published">Year Published</string>
 	<string name="collection_filter_stats">Info</string>
 	<string name="collection_filter_community">Community</string>
-	<string name="collection_filter_personal">Personal</string>
-	<string name="collection_sort_stats">Stats</string>
+	<string name="collection_filter_personal">Collection</string>
+	<string name="collection_sort_stats">Info</string>
 	<string name="collection_sort_community">Community</string>
-	<string name="collection_sort_personal">Personal</string>
+	<string name="collection_sort_personal">Collection</string>
 	<string name="collection_sort_local">Local</string>
 	<string name="collection_sort_acquired_from">Acquired From</string>
 	<string name="collection_sort_price_paid">Price Paid</string>

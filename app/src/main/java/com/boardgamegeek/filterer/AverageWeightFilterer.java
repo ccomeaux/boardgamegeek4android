@@ -63,9 +63,9 @@ public class AverageWeightFilterer extends CollectionFilterer {
 
 	@Override
 	public String getSelection() {
-		String selection = String.format("(%1$s>=? AND %1$s<=?)", Games.STATS_AVERAGE_WEIGHT);
-		if (includeUndefined) selection += String.format(" OR %1$s=0 OR %1$s IS NULL", Games.STATS_AVERAGE_WEIGHT);
-		return selection;
+		String format = min == max ? "%1$s=?" : "(%1$s>=? AND %1$s<=?)";
+		if (includeUndefined) format += " OR %1$s=0 OR %1$s IS NULL";
+		return String.format(Locale.getDefault(), format, Games.STATS_AVERAGE_WEIGHT);
 	}
 
 	@Override

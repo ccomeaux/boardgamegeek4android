@@ -45,7 +45,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		return context.getResources().getString(R.string.average) + " " + describeRange(R.string.unrated_abbr);
+		return context.getResources().getString(R.string.average_rating_abbr) + " " + describeRange(R.string.unrated_abbr);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class AverageRatingFilterer extends CollectionFilterer {
 
 	private String describeRange(@StringRes int unratedResId) {
 		String text = min == max ?
-			String.format(Locale.getDefault(),"%.1f", max) :
+			String.format(Locale.getDefault(), "%.1f", max) :
 			String.format(Locale.getDefault(), "%.1f-%.1f", min, max);
 		if (includeUnrated) text += String.format(" (+%s)", context.getString(unratedResId));
 		return text;
@@ -63,11 +63,9 @@ public class AverageRatingFilterer extends CollectionFilterer {
 
 	@Override
 	public String getSelection() {
-		String selection = min == max ?
-			String.format("%s=?", Games.STATS_AVERAGE) :
-			String.format("(%1$s>=? AND %1$s<=?)", Games.STATS_AVERAGE);
-		if (includeUnrated) selection += String.format(" OR %1$s=0 OR %1$s IS NULL", Games.STATS_AVERAGE);
-		return selection;
+		String format = min == max ? "%1$s=?" : "(%1$s>=? AND %1$s<=?)";
+		if (includeUnrated) format += " OR %1$s=0 OR %1$s IS NULL";
+		return String.format(Locale.getDefault(), format, Games.STATS_AVERAGE);
 	}
 
 	@Override
