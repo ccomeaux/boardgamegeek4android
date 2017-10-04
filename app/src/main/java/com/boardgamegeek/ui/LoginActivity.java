@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog.Builder;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -41,7 +42,9 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private String username;
 	private String password;
 
+	@BindView(R.id.username_container) TextInputLayout usernameContainer;
 	@BindView(R.id.username) EditText usernameView;
+	@BindView(R.id.password_container) TextInputLayout passwordContainer;
 	@BindView(R.id.password) EditText passwordView;
 	@BindView(R.id.login_form) View loginFormView;
 	@BindView(R.id.login_status) View loginStatusView;
@@ -122,8 +125,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 
 		// Reset errors.
-		usernameView.setError(null);
-		passwordView.setError(null);
+		usernameContainer.setError(null);
+		passwordContainer.setError(null);
 
 		// Store values at the time of the login attempt.
 		if (isRequestingNewAccount) {
@@ -134,12 +137,12 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		View focusView = null;
 
 		if (TextUtils.isEmpty(password)) {
-			passwordView.setError(getString(R.string.error_field_required));
+			passwordContainer.setError(getString(R.string.error_field_required));
 			focusView = passwordView;
 		}
 
 		if (TextUtils.isEmpty(username)) {
-			usernameView.setError(getString(R.string.error_field_required));
+			usernameContainer.setError(getString(R.string.error_field_required));
 			focusView = usernameView;
 		}
 
@@ -198,7 +201,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			if (bggCookieJar != null) {
 				createAccount(bggCookieJar);
 			} else {
-				passwordView.setError(getString(R.string.error_incorrect_password));
+				passwordContainer.setError(getString(R.string.error_incorrect_password));
 				passwordView.requestFocus();
 			}
 		}
@@ -230,7 +233,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 				if (existingAccount != null && existingAccount.name.equals(account.name)) {
 					accountManager.setPassword(account, password);
 				} else {
-					passwordView.setError(getString(R.string.error_account_not_added));
+					passwordContainer.setError(getString(R.string.error_account_not_added));
 					return;
 				}
 			}
