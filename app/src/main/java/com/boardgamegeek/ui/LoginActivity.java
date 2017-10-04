@@ -86,7 +86,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-				if (actionId == R.id.login || actionId == EditorInfo.IME_NULL) {
+				if (actionId == R.integer.login_action_id || actionId == EditorInfo.IME_NULL) {
 					attemptLogin();
 					return true;
 				}
