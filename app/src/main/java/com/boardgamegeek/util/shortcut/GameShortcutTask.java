@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.boardgamegeek.ui.GameActivity;
+import com.boardgamegeek.util.ShortcutUtils;
 
 public class GameShortcutTask extends ShortcutTask {
 	private final int gameId;
@@ -27,6 +28,6 @@ public class GameShortcutTask extends ShortcutTask {
 
 	@Override
 	protected String getId() {
-		return "game-" + gameId;
+		return ShortcutUtils.createGameShortcutId(gameId);
 	}
 }

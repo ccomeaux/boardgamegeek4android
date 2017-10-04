@@ -77,8 +77,8 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 		ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 		if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
 			ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
-				.setShortLabel(StringUtils.limitText(getShortcutName(), 10))
-				.setLongLabel(StringUtils.limitText(getShortcutName(), 25))
+				.setShortLabel(StringUtils.limitText(getShortcutName(), ShortcutUtils.SHORT_LABEL_LENGTH))
+				.setLongLabel(StringUtils.limitText(getShortcutName(), ShortcutUtils.LONG_LABEL_LENGTH))
 				.setIntent(createIntent());
 			if (!TextUtils.isEmpty(thumbnailUrl)) {
 				Bitmap bitmap = fetchThumbnail();

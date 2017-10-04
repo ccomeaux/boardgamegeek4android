@@ -311,9 +311,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		winsDataSet.setColor(ContextCompat.getColor(getContext(), R.color.orange));
 		dataSets.add(winsDataSet);
 
-		BarData data = new BarData(playersLabels, dataSets);
-		playCountChart.setData(data);
-		playCountChart.animateY(1000, EasingOption.EaseInOutBack);
+		if (playersLabels.size() > 0) {
+			BarData data = new BarData(playersLabels, dataSets);
+			playCountChart.setData(data);
+			playCountChart.animateY(1000, EasingOption.EaseInOutBack);
+			playCountChart.setVisibility(View.VISIBLE);
+		} else {
+			playCountChart.setVisibility(View.GONE);
+		}
 
 		if (stats.hasScores()) {
 			lowScoreView.setText(SCORE_FORMAT.format(stats.getLowScore()));

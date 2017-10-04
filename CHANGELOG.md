@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.5.5
+-------------
+ * Bug fixes
+
 Version 6.5.4
 -------------
  * Restore the log play button to the first tab of the game screen

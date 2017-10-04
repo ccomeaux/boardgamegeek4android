@@ -328,9 +328,11 @@ public class Game {
 	}
 
 	public int getRank() {
-		for (Rank rank : statistics.ranks) {
-			if ("subtype".equals(rank.type)) {
-				return rank.getValue();
+		if (statistics != null && statistics.ranks != null) {
+			for (Rank rank : statistics.ranks) {
+				if ("subtype".equals(rank.type)) {
+					return rank.getValue();
+				}
 			}
 		}
 		return Integer.MAX_VALUE;

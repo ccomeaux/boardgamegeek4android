@@ -601,8 +601,10 @@
 	<string name="msg_offline">Offline</string>
 	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
 	<string name="msg_update_invalid_response">Invalid %s received</string>
-	<string name="msg_update_unsuccessful_response">Unsuccessful fetching %1$s with HTTP response code: %2$d</string>
+	<string name="msg_sync_unsuccessful_response">Unsuccessful fetching %1$s with HTTP response code: %2$d</string>
 	<string name="msg_update_exception">Exception fetching %1$s: %2$s</string>
+	<string name="msg_sync_response_500">There\'s a problem with BGG. Be patient while they fix it. (Error: %d)</string>
+	<string name="msg_sync_response_429">Rate limit exceeded.</string>
 	<string name="profile_updated">Profile updated</string>
 	<string name="this_many">this many</string>
 	<string name="game">game</string>

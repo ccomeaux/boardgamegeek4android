@@ -43,6 +43,7 @@
 			android:orientation="vertical">
 
 			<android.support.design.widget.TextInputLayout
+				android:id="@+id/username_container"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
@@ -56,6 +57,7 @@
 			</android.support.design.widget.TextInputLayout>
 
 			<android.support.design.widget.TextInputLayout
+				android:id="@+id/password_container"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:passwordToggleEnabled="true">
@@ -65,7 +67,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:hint="@string/prompt_password"
-					android:imeActionId="@+id/login"
+					android:imeActionId="@integer/login_action_id"
 					android:imeActionLabel="@string/action_sign_in"
 					android:imeOptions="actionUnspecified"
 					android:inputType="textPassword"

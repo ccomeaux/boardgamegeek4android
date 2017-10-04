@@ -10,4 +10,6 @@
 
 	<integer name="game_info_weight_sum">4</integer>
 	<integer name="geek_list_header_lines">5</integer>
+	
+	<integer name="login_action_id">142</integer>
 </resources>

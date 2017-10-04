@@ -18,8 +18,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.TaskUtils;
 
-import java.io.IOException;
-
 import retrofit2.Call;
 import retrofit2.Response;
 import timber.log.Timber;
@@ -93,7 +91,7 @@ public class SyncPlays extends SyncTask {
 					syncResult.stats.numIoExceptions++;
 					return true;
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				showError(String.format("Unsuccessful plays fetch with exception: %s", e.getLocalizedMessage()));
 				syncResult.stats.numIoExceptions++;
 				return true;
