@@ -47,7 +47,7 @@ def gitBranchName = { ->
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.1'
+    buildToolsVersion '26.0.2'
 
     lintOptions {
         baseline file("lint-baseline.xml")
