@@ -16,6 +16,7 @@ import java.io.IOException;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 public class AuthInterceptor implements Interceptor {
 	private final Context context;
@@ -31,18 +32,17 @@ public class AuthInterceptor implements Interceptor {
 		AccountManager accountManager = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(accountManager);
 		if (account != null) {
-			final String authToken;
 			try {
-				authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
+				final String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true);
 				if (!TextUtils.isEmpty(account.name) && !TextUtils.isEmpty(authToken)) {
-					final String cookieValue = "bggusername=" + HttpUtils.encode(account.name) + "; bggpassword=" + authToken;
+					final String cookieValue = String.format("bggusername=%s; bggpassword=%s", HttpUtils.encode(account.name), authToken);
 					Request request = originalRequest.newBuilder().addHeader("Cookie", cookieValue).build();
 					return chain.proceed(request);
 				}
-			} catch (OperationCanceledException | AuthenticatorException ignored) {
+			} catch (OperationCanceledException | AuthenticatorException | SecurityException e) {
+				Timber.w(e);
 			}
 		}
 		return chain.proceed(originalRequest);
 	}
-
 }

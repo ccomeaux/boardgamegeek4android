@@ -54,7 +54,14 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 							context.getString(getTypeDescriptionResId())); // TODO: 3/26/17 include key
 					}
 				} else {
-					return context.getString(R.string.msg_update_unsuccessful_response,
+					Timber.w("Received response %s while syncing %s.", response.code(), context.getString(getTypeDescriptionResId()));
+					if (response.code() >= 500) {
+						return context.getString(R.string.msg_sync_response_500, response.code());
+					}
+					if (response.code() == 429) {
+						return context.getString(R.string.msg_sync_response_429);
+					}
+					return context.getString(R.string.msg_sync_unsuccessful_response,
 						context.getString(getTypeDescriptionResId()),
 						response.code());
 				}

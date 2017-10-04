@@ -180,8 +180,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	private Intent createShortcutForOreo(@NonNull GameShortcutRequestedEvent event, @NonNull Intent shortcutIntent) {
 		ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
 		if (shortcutManager == null) return null;
-		ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, "game-" + event.getId())
-			.setShortLabel(StringUtils.limitText(event.getName(), 10))
+		ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, ShortcutUtils.createGameShortcutId(event.getId()))
+			.setShortLabel(StringUtils.limitText(event.getName(), ShortcutUtils.SHORT_LABEL_LENGTH))
+			.setLongLabel(StringUtils.limitText(event.getName(), ShortcutUtils.LONG_LABEL_LENGTH))
 			.setIntent(shortcutIntent);
 		File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
 		if (file != null && file.exists()) {

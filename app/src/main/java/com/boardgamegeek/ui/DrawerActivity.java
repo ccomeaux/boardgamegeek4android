@@ -97,9 +97,11 @@ public abstract class DrawerActivity extends BaseActivity {
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CompletedEvent event) {
-		Account account = Authenticator.getAccount(this);
-		if (account != null && event.getUsername().equals(account.name)) {
-			refreshDrawer();
+		if (!TextUtils.isEmpty(event.getErrorMessage())) {
+			Account account = Authenticator.getAccount(this);
+			if (account != null && event.getUsername().equals(account.name)) {
+				refreshDrawer();
+			}
 		}
 	}
 

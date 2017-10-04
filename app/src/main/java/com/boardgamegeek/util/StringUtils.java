@@ -20,6 +20,7 @@ public class StringUtils {
 	private static final int INVALID_RANGE = -1;
 	private static final String RANGE_COMMA = ", ";
 	private static final String RANGE_DASH = " - ";
+	public static final String TRUNCATED_TEXT_SUFFIX = "..";
 
 	private StringUtils() {
 	}
@@ -232,6 +233,8 @@ public class StringUtils {
 	public static String limitText(String text, int length) {
 		if (TextUtils.isEmpty(text)) return "";
 		if (text.length() <= length) return text;
+		if (length > TRUNCATED_TEXT_SUFFIX.length())
+			return text.substring(0, length - TRUNCATED_TEXT_SUFFIX.length()) + TRUNCATED_TEXT_SUFFIX;
 		return text.substring(0, length);
 	}
 }

@@ -18,6 +18,9 @@ import java.io.File;
  * Helps create shortcuts.
  */
 public class ShortcutUtils {
+	public static final int SHORT_LABEL_LENGTH = 14;
+	public static final int LONG_LABEL_LENGTH = 25;
+
 	private ShortcutUtils() {
 	}
 
@@ -54,5 +57,9 @@ public class ShortcutUtils {
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, shortcutIconResId));
 		return shortcut;
+	}
+
+	public static String createGameShortcutId(int gameId) {
+		return "game-" + gameId;
 	}
 }
