@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
 	<string name="weight_1_text">Light</string>
 	<string name="weight_2_text">Medium Light</string>
@@ -426,7 +426,7 @@
 	<string name="ages">Ages</string>
 	<string name="ages_unknown">Unknown ages</string>
 	<string name="player_range_unknown"><b>\?</b> players</string>
-	<string name="player_range_suffix"><b>%1$,d - %2$,d</b> players</string>
+	<string name="player_range_suffix" tools:ignore="PluralsCandidate"><b>%1$,d-%2$,d</b> players</string>
 	<string name="best_prefix">Best with <b>%s</b></string>
 	<string name="recommended_prefix">Good with <b>%s</b></string>
 	<string name="mins_unknown"><b>\?</b> mins</string>
@@ -479,7 +479,7 @@
 	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
 	<string name="one_more">1 more</string>
-	<string name="some_more">%,d more</string>
+	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
 	<string name="number_to_text">ABC</string>
 	<string name="text_to_number">123</string>
 	<string name="close">Close</string>
