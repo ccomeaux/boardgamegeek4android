@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
@@ -63,6 +64,7 @@ import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
@@ -298,11 +300,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			menu.findItem(R.id.menu_create_shortcut).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
+			menu.findItem(R.id.menu_share).setVisible(false);
 		} else {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(true);
 			menu.findItem(R.id.menu_create_shortcut).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(true);
 			menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
+			menu.findItem(R.id.menu_share).setVisible(true);
 
 			final boolean hasFiltersApplied = (filters.size() > 0);
 			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
@@ -314,10 +318,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 			menu.findItem(R.id.menu_collection_random_game).setEnabled(hasItems);
 			menu.findItem(R.id.menu_create_shortcut).setEnabled(hasViewSelected);
+			menu.findItem(R.id.menu_share).setEnabled(hasItems);
 		}
 	}
 
-	@NonNull
 	final OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
 		@DebugLog
 		@Override
@@ -343,6 +347,43 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(getActivity());
 					ddf.setOnViewDeletedListener(CollectionFragment.this);
 					ddf.show(getFragmentManager(), "delete_view");
+					return true;
+				case R.id.menu_share:
+					final String username = AccountUtils.getUsername(getContext());
+					final String subject = getString(R.string.share_collection_subject, username);
+
+					StringBuilder text = new StringBuilder();
+
+					if (viewId > 0 && !TextUtils.isEmpty(viewName)) {
+						text.append(viewName);
+					} else if (filters.size() > 0) {
+						text.append(getString(R.string.title_filtered_collection));
+					} else {
+						text.append(getString(R.string.title_collection));
+					}
+					text.append(String.format("\nhttps://www.boardgamegeek.com/collection/user/%s\n\n", HttpUtils.encode(username)));
+
+					final Cursor c = adapter.getCursor();
+					int currentPosition = c.getPosition();
+					int gameCount = 0;
+					final int MAX_GAMES = 10;
+					if (c.moveToFirst()) {
+						do {
+							gameCount++;
+							text.append(ActivityUtils.formatGameLink(c.getInt(Query.GAME_ID), c.getString(Query.COLLECTION_NAME)));
+							if (gameCount >= MAX_GAMES) {
+								int leftOverCount = c.getCount() - MAX_GAMES;
+								if (leftOverCount > 0) {
+									text.append(getString(R.string.and_more, leftOverCount)).append("\n");
+								}
+								break;
+							}
+						} while (c.moveToNext());
+					}
+					c.moveToPosition(currentPosition);
+					text.append("\n").append(createViewDescription(sorter, filters));
+
+					ActivityUtils.share(getActivity(), subject, text.toString(), R.string.title_share_collection);
 					return true;
 				case R.id.menu_collection_sort:
 					final CollectionSortDialogFragment sortFragment =
@@ -964,15 +1005,21 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return false;
 	}
 
+	@NonNull
 	private String createViewDescription(Sorter sort, List<CollectionFilterer> filters) {
-		StringBuilder text = new StringBuilder(getString(R.string.filtered_by));
-		for (CollectionFilterer filter : filters) {
-			if (filter != null) {
-				text.append("\n");
-				text.append(filter.getDescription());
+		StringBuilder text = new StringBuilder();
+
+		if (filters.size() > 0) {
+			text.append(getString(R.string.filtered_by));
+			for (CollectionFilterer filter : filters) {
+				if (filter != null) {
+					text.append("\n");
+					text.append(filter.getDescription());
+				}
 			}
+			if (text.length() > 0) text.append("\n\n");
 		}
-		if (text.length() > 0) text.append("\n\n");
+
 		text.append(getString(R.string.sort_description, sort.getDescription()));
 		return text.toString();
 	}

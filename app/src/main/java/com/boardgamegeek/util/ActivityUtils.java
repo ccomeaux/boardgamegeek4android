@@ -75,7 +75,7 @@ public class ActivityUtils {
 			.putContentId(String.valueOf(StringUtils.formatList(gameIds))));
 	}
 
-	private static String formatGameLink(int id, String name) {
+	public static String formatGameLink(int id, String name) {
 		return String.format("%s (%s)\n", name, createBggUri(BOARDGAME_PATH, id));
 	}
 

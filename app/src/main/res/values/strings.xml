@@ -130,6 +130,7 @@
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
+	<string name="title_filtered_collection">Filtered Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_settings">Settings</string>
 	<string name="title_geeklists">GeekLists</string>
@@ -406,6 +407,8 @@
 	<string name="title_share">Share</string>
 	<string name="title_share_game">Share Game</string>
 	<string name="title_share_games">Share Games</string>
+	<string name="title_share_collection">Share Collection</string>
+	<string name="share_collection_subject">%s\'s Collection on BoardGameGeek for Android</string>
 	<string name="share_game_subject">%s on BoardGameGeek</string>
 	<string name="share_game_text">I found this game using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_games_subject">Games on BoardGameGeek</string>
@@ -500,6 +503,7 @@
 	<string name="undefined_abbr">\?</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
+	<string name="and_more">…and %,d more</string>
 	<string name="number_to_text">ABC</string>
 	<string name="text_to_number">123</string>
 	<string name="close">Close</string>
