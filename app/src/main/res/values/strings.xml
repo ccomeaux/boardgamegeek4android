@@ -20,8 +20,10 @@
 	<string name="expansions">Expansions</string>
 	<string name="base_games">Base Games</string>
 	<string name="collection_item">Collection Item</string>
+	<string name="published_prefix">Published %1$s %2$s</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
+	<string name="average_weight">Weight</string>
 	<string name="sync_pending_update">Update pending</string>
 	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_draft">Draft</string>
@@ -62,7 +64,7 @@
 	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
-	<string name="plays">Plays</string>
+	<string name="plays">plays</string>
 	<string name="played">Played</string>
 	<string name="rated">Rated</string>
 	<string name="commented">Commented</string>
@@ -81,13 +83,15 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
-	<string name="my_rating">My Rating</string>
+	<string name="my_rating">My rating</string>
+	<string name="my_rating_abbr">Me</string>
 	<string name="rating_hint">Rating</string>
-	<string name="average">Average</string>
 	<string name="high_score">High Score</string>
 	<string name="low_score">Low Score</string>
 	<string name="average_score">Average Score</string>
 	<string name="average_winning_score">Average Winning Score</string>
+	<string name="average_rating">Average rating</string>
+	<string name="average_rating_abbr">Avg.</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -101,6 +105,10 @@
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
+	<string name="in">in</string>
+	<string name="before">before</string>
+	<string name="after">after</string>
+	<string name="status_of_prefix">Status of %s</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
@@ -122,6 +130,7 @@
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
+	<string name="title_filtered_collection">Filtered Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_settings">Settings</string>
 	<string name="title_geeklists">GeekLists</string>
@@ -299,9 +308,9 @@
 	<string name="menu_collection_view_save">Save view…</string>
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status_">Collection status…</string>
-	<string name="menu_collection_status">Collection Status</string>
-	<string name="menu_collection_name">Collection Name</string>
-	<string name="menu_expansion_status">Subtype</string>
+	<string name="menu_collection_status">Status</string>
+	<string name="menu_collection_name">Name</string>
+	<string name="menu_expansion_status">Game/Expansion/Accessory</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="favorites">Favorites</string>
 	<string name="not_favorites">Not favorites</string>
@@ -321,12 +330,12 @@
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
 	<string name="collection_sort_wishlist_priority">Wishlist Priority</string>
 	<string name="collection_sort_year_published">Year Published</string>
-	<string name="collection_filter_stats">Stats</string>
+	<string name="collection_filter_stats">Info</string>
 	<string name="collection_filter_community">Community</string>
-	<string name="collection_filter_personal">Personal</string>
-	<string name="collection_sort_stats">Stats</string>
+	<string name="collection_filter_personal">Collection</string>
+	<string name="collection_sort_stats">Info</string>
 	<string name="collection_sort_community">Community</string>
-	<string name="collection_sort_personal">Personal</string>
+	<string name="collection_sort_personal">Collection</string>
 	<string name="collection_sort_local">Local</string>
 	<string name="collection_sort_acquired_from">Acquired From</string>
 	<string name="collection_sort_price_paid">Price Paid</string>
@@ -376,7 +385,8 @@
 	<string name="menu_add_username">Add username</string>
 	<string name="menu_scroll_to_last_read">Scroll to last read</string>
 	<string name="menu_scroll_to_bottom">Scroll to bottom</string>
-	<string name="sort_description">by %s</string>
+	<string name="sort_description">Sorted by %s</string>
+	<string name="filtered_by">Filtered by</string>
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
@@ -397,6 +407,8 @@
 	<string name="title_share">Share</string>
 	<string name="title_share_game">Share Game</string>
 	<string name="title_share_games">Share Games</string>
+	<string name="title_share_collection">Share Collection</string>
+	<string name="share_collection_subject">%s\'s Collection on BoardGameGeek for Android</string>
 	<string name="share_game_subject">%s on BoardGameGeek</string>
 	<string name="share_game_text">I found this game using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_games_subject">Games on BoardGameGeek</string>
@@ -421,14 +433,19 @@
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
+	<string name="unknown">Unknown</string>
+	<string name="unknown_abbr">\?</string>
 	<string name="unknown_weight">Unknown weight</string>
 	<string name="unknown_language">Unknown language dependence</string>
 	<string name="ages">Ages</string>
 	<string name="ages_unknown">Unknown ages</string>
+	<string name="and_up_suffix">%,d and up</string>
+	<string name="and_up_suffix_abbr">%,d+</string>
 	<string name="player_range_unknown"><b>\?</b> players</string>
 	<string name="player_range_suffix" tools:ignore="PluralsCandidate"><b>%1$,d-%2$,d</b> players</string>
 	<string name="best_prefix">Best with <b>%s</b></string>
 	<string name="recommended_prefix">Good with <b>%s</b></string>
+	<string name="recommended_player_count_description_abbr">%s with %s</string>
 	<string name="mins_unknown"><b>\?</b> mins</string>
 	<string name="mins_suffix"><b>%,d</b> mins</string>
 	<string name="hrs_suffix"><b>%,d</b> hrs</string>
@@ -461,8 +478,11 @@
 	<string name="age_community">Community: <b>%s</b></string>
 	<string name="age_community_plus">Community: <b>%d+</b></string>
 	<string name="name">Name</string>
+	<string name="named_prefix">Named \"%s\"</string>
+	<string name="ranked">Ranked</string>
 	<string name="unranked">Unranked</string>
 	<string name="unranked_prefix">Unranked %s</string>
+	<string name="unranked_abbr">\?</string>
 	<string name="updated_prefix">Updated %s</string>
 	<string name="saved_prefix">Saved %s</string>
 	<string name="synced_prefix">Synced %s</string>
@@ -478,8 +498,12 @@
 	<string name="generic_player">Player #%d</string>
 	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
+	<string name="unrated_abbr">\?</string>
+	<string name="undefined">Undefined</string>
+	<string name="undefined_abbr">\?</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
+	<string name="and_more">…and %,d more</string>
 	<string name="number_to_text">ABC</string>
 	<string name="text_to_number">123</string>
 	<string name="close">Close</string>
@@ -601,6 +625,7 @@
 	<string name="plays_sync_status_old">Plays have been synced since %s.</string>
 	<string name="plays_sync_status_range">Plays have been synced between %1$s and %2$s.</string>
 	<string name="starts_with">Starts with</string>
+	<string name="starts_with_prefix">Starts with \"%s\"</string>
 	<string name="msg_offline">Offline</string>
 	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
 	<string name="msg_update_invalid_response">Invalid %s received</string>
@@ -615,6 +640,7 @@
 	<string name="player">player</string>
 	<string name="best">Best</string>
 	<string name="recommended">Recommended</string>
+	<string name="good">Good</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -717,7 +743,7 @@
 		<item quantity="other">\u0020with %,d players</item>
 	</plurals>
 	<plurals name="recommended_player_count_description">
-		<item quantity="one">%1$s for %2$,d player</item>
-		<item quantity="other">%1$s for %2$,d players</item>
+		<item quantity="one">%1$s with %2$,d player</item>
+		<item quantity="other">%1$s with %2$,d players</item>
 	</plurals>
 </resources>

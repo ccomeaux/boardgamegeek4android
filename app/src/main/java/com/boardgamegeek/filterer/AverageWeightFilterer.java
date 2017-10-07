@@ -2,11 +2,14 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.Locale;
 
 public class AverageWeightFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
@@ -42,35 +45,34 @@ public class AverageWeightFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		String minText = String.valueOf(min);
-		String maxText = String.valueOf(max);
+		return context.getString(R.string.weight) + " " + describeRange(R.string.undefined_abbr);
+	}
 
-		String text;
-		if (min == max) {
-			text = maxText;
-		} else {
-			text = minText + "-" + maxText;
-		}
-		if (includeUndefined) {
-			text += " (+?)";
-		}
+	@Override
+	public String getDescription() {
+		return context.getString(R.string.average_weight) + " " + describeRange(R.string.undefined);
+	}
 
-		return context.getString(R.string.weight) + " " + text;
+	private String describeRange(@StringRes int unratedResId) {
+		String text = min == max ?
+			String.format(Locale.getDefault(), "%.1f", max) :
+			String.format(Locale.getDefault(), "%.1f-%.1f", min, max);
+		if (includeUndefined) text += String.format(" (+%s)", context.getString(unratedResId));
+		return text;
 	}
 
 	@Override
 	public String getSelection() {
-		String selection;
-		selection = "(" + Games.STATS_AVERAGE_WEIGHT + ">=? AND " + Games.STATS_AVERAGE_WEIGHT + "<=?)";
-		if (includeUndefined) {
-			selection += " OR " + Games.STATS_AVERAGE_WEIGHT + "=0 OR " + Games.STATS_AVERAGE_WEIGHT + " IS NULL";
-		}
-		return selection;
+		String format = min == max ? "%1$s=?" : "(%1$s>=? AND %1$s<=?)";
+		if (includeUndefined) format += " OR %1$s=0 OR %1$s IS NULL";
+		return String.format(Locale.getDefault(), format, Games.STATS_AVERAGE_WEIGHT);
 	}
 
 	@Override
 	public String[] getSelectionArgs() {
-		return new String[] { String.valueOf(min), String.valueOf(max) };
+		return min == max ?
+			new String[] { String.valueOf(max) } :
+			new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 
 	public double getMin() {

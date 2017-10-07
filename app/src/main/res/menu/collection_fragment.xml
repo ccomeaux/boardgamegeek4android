@@ -27,6 +27,11 @@
 		android:title="@string/menu_collection_view_delete"
 		app:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/menu_share"
+		android:icon="@drawable/menu_share"
+		android:title="@string/menu_share"
+		app:showAsAction="never"/>
+	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="@drawable/menu_random"
 		android:title="@string/menu_collection_random_game"

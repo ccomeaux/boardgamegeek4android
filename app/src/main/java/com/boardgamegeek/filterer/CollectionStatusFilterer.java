@@ -55,6 +55,11 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 	}
 
 	@Override
+	public String getDescription() {
+		return context.getString(R.string.status_of_prefix, super.getDescription());
+	}
+
+	@Override
 	public String getSelection() {
 		String[] values = context.getResources().getStringArray(R.array.collection_status_filter_values);
 		StringBuilder selection = new StringBuilder();

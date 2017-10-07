@@ -41,7 +41,9 @@ public class ActivityUtils {
 			.setText(text.trim())
 			.setChooserTitle(titleResId)
 			.createChooserIntent();
-		activity.startActivity(intent);
+		if (intent.resolveActivity(activity.getPackageManager()) != null) {
+			activity.startActivity(intent);
+		}
 	}
 
 	public static void shareGame(Activity activity, int gameId, String gameName, String method) {
@@ -75,7 +77,7 @@ public class ActivityUtils {
 			.putContentId(String.valueOf(StringUtils.formatList(gameIds))));
 	}
 
-	private static String formatGameLink(int id, String name) {
+	public static String formatGameLink(int id, String name) {
 		return String.format("%s (%s)\n", name, createBggUri(BOARDGAME_PATH, id));
 	}
 
