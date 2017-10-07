@@ -349,6 +349,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					ddf.show(getFragmentManager(), "delete_view");
 					return true;
 				case R.id.menu_share:
+					final String newLine = "\n";
 					final String username = AccountUtils.getUsername(getContext());
 					final String subject = getString(R.string.share_collection_subject, username);
 
@@ -361,7 +362,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					} else {
 						text.append(getString(R.string.title_collection));
 					}
-					text.append(String.format("\nhttps://www.boardgamegeek.com/collection/user/%s\n\n", HttpUtils.encode(username)));
+					text.append(newLine)
+						.append(String.format("https://www.boardgamegeek.com/collection/user/%s", HttpUtils.encode(username)))
+						.append(newLine)
+						.append(newLine);
 
 					final Cursor c = adapter.getCursor();
 					int currentPosition = c.getPosition();
@@ -374,14 +378,17 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 							if (gameCount >= MAX_GAMES) {
 								int leftOverCount = c.getCount() - MAX_GAMES;
 								if (leftOverCount > 0) {
-									text.append(getString(R.string.and_more, leftOverCount)).append("\n");
+									text.append(getString(R.string.and_more, leftOverCount))
+										.append(newLine);
 								}
 								break;
 							}
 						} while (c.moveToNext());
 					}
 					c.moveToPosition(currentPosition);
-					text.append("\n").append(createViewDescription(sorter, filters));
+
+					text.append(newLine)
+						.append(createViewDescription(sorter, filters));
 
 					ActivityUtils.share(getActivity(), subject, text.toString(), R.string.title_share_collection);
 					return true;

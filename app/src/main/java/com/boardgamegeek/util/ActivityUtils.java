@@ -41,7 +41,9 @@ public class ActivityUtils {
 			.setText(text.trim())
 			.setChooserTitle(titleResId)
 			.createChooserIntent();
-		activity.startActivity(intent);
+		if (intent.resolveActivity(activity.getPackageManager()) != null) {
+			activity.startActivity(intent);
+		}
 	}
 
 	public static void shareGame(Activity activity, int gameId, String gameName, String method) {
