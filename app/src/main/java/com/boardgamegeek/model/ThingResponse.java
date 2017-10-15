@@ -1,5 +1,7 @@
 package com.boardgamegeek.model;
 
+import android.support.annotation.NonNull;
+
 import org.simpleframework.xml.ElementList;
 
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ public class ThingResponse {
 	@ElementList(name = "items", inline = true, required = false)
 	private List<Game> games;
 
+	@NonNull
 	public List<Game> getGames() {
 		if (games == null) {
 			return new ArrayList<>();
