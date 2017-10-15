@@ -7,6 +7,7 @@
 	<string name="login_progress_signing_in">Signing in&#8230;</string>
 	<string name="error_incorrect_password">This password is incorrect</string>
 	<string name="error_account_not_added">Couldn\'t add account. They\'re like the Highlander, there can be only one.</string>
+	<string name="error_account_name_mismatch">The existing account for %s doesn\'t match the one requested for %s.</string>
 	<string name="error_field_required">This field is required</string>
 
 </resources>
