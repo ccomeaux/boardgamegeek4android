@@ -124,8 +124,8 @@ dependencies {
         exclude group: 'xpp3', module: 'xpp3'
     }
 
-    compile 'com.squareup.okhttp3:okhttp:3.8.1'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.9.0'
 
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
