@@ -114,7 +114,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'com.android.support:support-annotations:26.1.0'
 
-    compile 'com.google.code.gson:gson:2.8.1'
+    compile 'com.google.code.gson:gson:2.8.2'
 
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
