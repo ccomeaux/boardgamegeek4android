@@ -12,7 +12,7 @@ buildscript {
 def versionMajor = 6
 def versionMinor = 5
 def versionPatch = 6
-def versionBuild = 1
+def versionBuild = 2
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
