@@ -7,6 +7,7 @@
 
 	<ImageView
 		style="@style/Icon"
+		android:contentDescription="@string/location"
 		android:focusable="false"
 		android:src="@drawable/ic_location"/>
 

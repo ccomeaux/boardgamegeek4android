@@ -9,6 +9,7 @@
 		android:id="@+id/timer_toggle"
 		style="@style/Icon"
 		android:background="?attr/selectableItemBackgroundBorderless"
+		android:contentDescription="@string/timer"
 		android:src="@drawable/ic_timer"/>
 
 	<FrameLayout

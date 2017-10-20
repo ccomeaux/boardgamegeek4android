@@ -2,6 +2,7 @@
 <LinearLayout
 	style="@style/FormRow"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
@@ -12,5 +13,7 @@
 		android:layout_height="wrap_content"
 		android:checked="false"
 		android:paddingLeft="@dimen/edit_label_width"
-		android:text="@string/incomplete"/>
+		android:paddingStart="@dimen/edit_label_width"
+		android:text="@string/incomplete"
+		tools:ignore="RtlSymmetry"/>
 </LinearLayout>

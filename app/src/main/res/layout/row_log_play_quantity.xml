@@ -8,6 +8,7 @@
 
 	<ImageView
 		style="@style/Icon"
+		android:contentDescription="@string/quantity"
 		android:focusable="false"
 		android:src="@drawable/ic_quantity"/>
 
