@@ -3,7 +3,8 @@
 	style="@style/FormRow"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:focusable="false">
 
 	<android.support.design.widget.TextInputLayout
 		android:id="@+id/log_play_comments_root"

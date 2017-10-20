@@ -15,12 +15,14 @@
 		android:id="@+id/log_play_length_container_inner"
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
-		android:layout_weight="1">
+		android:layout_weight="1"
+		android:focusable="false">
 
 		<EditText
 			android:id="@+id/log_play_length"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:focusable="true"
 			android:gravity="center_vertical"
 			android:hint="@string/length_hint"
 			android:inputType="number"
@@ -31,6 +33,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:background="@color/light_blue_transparent"
+			android:focusable="false"
 			android:gravity="center"
 			android:maxLines="1"
 			android:textAppearance="@style/Text.Big"/>
