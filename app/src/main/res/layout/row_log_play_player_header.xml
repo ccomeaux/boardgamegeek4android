@@ -12,6 +12,7 @@
 		android:id="@+id/assign_colors"
 		style="@style/Icon"
 		android:background="?attr/selectableItemBackgroundBorderless"
+		android:contentDescription="@string/colors"
 		android:src="@drawable/ic_colors"/>
 
 	<TextView
@@ -27,5 +28,6 @@
 		android:id="@+id/player_sort"
 		style="@style/Icon.Right"
 		android:background="?attr/selectableItemBackgroundBorderless"
+		android:contentDescription="@string/sort"
 		android:src="@drawable/ic_sort"/>
 </LinearLayout>

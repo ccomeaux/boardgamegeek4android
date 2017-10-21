@@ -60,7 +60,7 @@ public class GamePersister {
 		boolean avoidBatching = PreferencesUtils.getAvoidBatching(context);
 		int recordCount = 0;
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		if (games != null) {
+		if (games != null && games.size() > 0) {
 
 			DesignerPersister designerPersister = new DesignerPersister();
 			ArtistPersister artistPersister = new ArtistPersister();

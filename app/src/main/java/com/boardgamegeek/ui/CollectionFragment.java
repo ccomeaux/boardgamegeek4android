@@ -491,12 +491,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 		StringBuilder where = new StringBuilder();
 		for (String status : statuses) {
-			if (TextUtils.isEmpty(status)) {
-				continue;
-			}
-			if (where.length() > 0) {
-				where.append(" OR ");
-			}
+			if (TextUtils.isEmpty(status)) continue;
+			if (where.length() > 0) where.append(" OR ");
 			switch (status) {
 				case "own":
 					where.append(Collection.STATUS_OWN).append("=1");
