@@ -230,11 +230,14 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		if (isRequestingNewAccount) {
 			if (!accountManager.addAccountExplicitly(account, password, userData)) {
 				Account existingAccount = Authenticator.getAccount(accountManager);
-				if (existingAccount != null && existingAccount.name.equals(account.name)) {
-					accountManager.setPassword(account, password);
-				} else {
+				if (existingAccount == null) {
 					passwordContainer.setError(getString(R.string.error_account_not_added));
 					return;
+				} else if (!existingAccount.name.equals(account.name)) {
+					passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
+					return;
+				} else {
+					accountManager.setPassword(account, password);
 				}
 			}
 		} else {

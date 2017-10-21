@@ -77,6 +77,7 @@
 	<string name="delete">Delete</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
+	<string name="colors">Colors</string>
 	<string name="team_color">Team/Color</string>
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
@@ -406,6 +407,7 @@
 	<string name="share_thread_article_game_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
+	<string name="timer">Timer</string>
 	<string name="times">times</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
@@ -608,6 +610,7 @@
 	<string name="profile_updated">Profile updated</string>
 	<string name="this_many">this many</string>
 	<string name="game">game</string>
+	<string name="games">games</string>
 	<string name="play">play</string>
 	<string name="player">player</string>
 	<string name="best">Best</string>

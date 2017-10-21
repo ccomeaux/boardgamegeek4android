@@ -39,17 +39,11 @@ public class CollectionProvider extends BasicProvider {
 							GameSuggestedPlayerCountPollPollResults.GAME_ID,
 							playerCount));
 				}
-				if (TextUtils.isEmpty(groupBy)) {
-					groupBy = Collection.GAME_ID;
-				}
+				if (TextUtils.isEmpty(groupBy)) groupBy = Collection.GAME_ID;
 			}
 		}
 
-		if (!TextUtils.isEmpty(groupBy)) {
-			builder.groupBy(groupBy);
-		} else {
-			builder.groupBy(Collection.COLLECTION_ID);
-		}
+		if (!TextUtils.isEmpty(groupBy)) builder.groupBy(groupBy);
 
 		String having = uri.getQueryParameter(BggContract.QUERY_KEY_HAVING);
 		builder.having(having);

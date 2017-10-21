@@ -8,12 +8,18 @@ import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.ThingRequest;
-import com.boardgamegeek.io.ThingResponse;
+import com.boardgamegeek.model.Game;
+import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.model.GameList;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
@@ -43,17 +49,54 @@ public abstract class SyncGames extends SyncTask {
 					}
 					updateProgressNotification(detail);
 
-					ThingResponse response = new ThingRequest(service, gameList.getIds()).execute();
-					if (response.hasError()) {
-						showError(response.getError());
+					Call<ThingResponse> call = service.thing(gameList.getIds(), 1);
+					try {
+						Response<ThingResponse> response = call.execute();
+						if (response.isSuccessful()) {
+							final List<Game> games = response.body() == null ? new ArrayList<Game>(0) : response.body().getGames();
+							if (games.size() > 0) {
+								int count = new GamePersister(context).save(games, detail);
+								syncResult.stats.numUpdates += games.size();
+								Timber.i("...saved %,d rows for %,d games", count, games.size());
+							} else {
+								Timber.i("...no games returned");
+								break;
+							}
+						} else {
+							Timber.w("Received response %s while syncing games.", response.code());
+							if (response.code() >= 500) {
+								showError(context.getString(R.string.msg_sync_response_500, response.code()));
+								return;
+							} else if (response.code() == 429) {
+								showError(context.getString(R.string.msg_sync_response_429));
+								if (wasSleepInterrupted(5000)) return;
+							} else {
+								showError(context.getString(R.string.msg_sync_unsuccessful_response,
+									context.getString(R.string.game),
+									response.code()));
+								return;
+							}
+						}
+					} catch (IOException e) {
+						showError(e.getLocalizedMessage());
 						syncResult.stats.numIoExceptions++;
 						break;
-					} else if (response.getNumberOfGames() > 0) {
-						int count = new GamePersister(context).save(response.getGames(), detail);
-						syncResult.stats.numUpdates += response.getNumberOfGames();
-						Timber.i("...saved %,d rows for %,d games", count, response.getNumberOfGames());
-					} else {
-						Timber.i("...no games returned ");
+					} catch (RuntimeException e) {
+						Throwable cause = e.getCause();
+						if (cause instanceof ClassNotFoundException &&
+							cause.getMessage().startsWith("Didn't find class \"messagebox error\" on path")) {
+							syncResult.stats.numParseExceptions++;
+							Timber.i("Invalid list of game IDs: %s", gameList.getIds());
+							for (int i = 0; i < gameList.getSize(); i++) {
+								final boolean shouldBreak = syncGame(gameList.getId(i), syncResult, gameList.getName(i));
+								if (shouldBreak) break;
+							}
+						} else {
+							Timber.w(e);
+							showError(e.getLocalizedMessage());
+							syncResult.stats.numParseExceptions++;
+							break;
+						}
 					}
 				} else {
 					Timber.i(getExitLogMessage());
@@ -63,6 +106,39 @@ public abstract class SyncGames extends SyncTask {
 		} finally {
 			Timber.i("...complete!");
 		}
+	}
+
+	private boolean syncGame(Integer id, @NonNull SyncResult syncResult, String gameName) {
+		Call<ThingResponse> call = service.thing(id, 1);
+		try {
+			Response<ThingResponse> response = call.execute();
+			if (response.isSuccessful()) {
+				final List<Game> games = response.body() == null ? new ArrayList<Game>(0) : response.body().getGames();
+				String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName);
+				int count = new GamePersister(context).save(games, detail);
+				syncResult.stats.numUpdates += games.size();
+				Timber.i("...saved %,d rows for %,d games", count, games.size());
+			} else {
+				Timber.w("Received response %s while syncing games.", response.code());
+				if (response.code() >= 500) {
+					showError(context.getString(R.string.msg_sync_response_500, response.code()));
+					return true;
+				} else if (response.code() == 429) {
+					showError(context.getString(R.string.msg_sync_response_429));
+					if (wasSleepInterrupted(5000)) return true;
+				} else {
+					showError(context.getString(R.string.msg_sync_unsuccessful_response,
+						context.getString(R.string.game),
+						response.code()));
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			showError(e.getLocalizedMessage());
+			syncResult.stats.numIoExceptions++;
+			return true;
+		}
+		return false;
 	}
 
 	protected int getMaxFetchCount() {
