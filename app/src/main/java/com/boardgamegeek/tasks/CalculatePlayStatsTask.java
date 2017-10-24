@@ -75,8 +75,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		reset();
 
 		if (context != null) {
-			isOwnedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN);
-			boolean isPlayedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
+			isOwnedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_OWN);
+			boolean isPlayedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
 
 			Set<Integer> ownedGameIds = getOwnedGameIds();
 
