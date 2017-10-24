@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Collection
 
-class CollectionItem(
+data class CollectionItem(
         var id: Int,
         var internalId: Long,
         var name: String,
@@ -200,4 +200,11 @@ class CollectionItem(
             )
         }
     }
+
+    val safeWishlistPriorty: Int
+        get() {
+            if (wishlistPriority < 1) return 1
+            if (wishlistPriority > 5) return 5
+            return wishlistPriority;
+        }
 }
