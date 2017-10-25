@@ -18,6 +18,7 @@
 			android:layout_height="wrap_content"
 			android:hint="@string/comments"
 			android:imeOptions="actionDone"
+			android:importantForAutofill="noExcludeDescendants"
 			android:inputType="textMultiLine|textAutoCorrect|textCapSentences"/>
 	</android.support.design.widget.TextInputLayout>
 </LinearLayout>

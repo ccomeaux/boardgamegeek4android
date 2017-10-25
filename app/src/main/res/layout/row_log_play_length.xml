@@ -26,6 +26,7 @@
 			android:focusable="true"
 			android:gravity="center_vertical"
 			android:hint="@string/length_hint"
+			android:importantForAutofill="noExcludeDescendants"
 			android:inputType="number"
 			android:textAppearance="@style/Text.Big"/>
 
