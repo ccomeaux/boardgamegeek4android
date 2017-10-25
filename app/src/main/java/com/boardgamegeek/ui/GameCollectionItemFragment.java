@@ -87,6 +87,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.rating) TextView rating;
 	@BindView(R.id.rating_timestamp) TimestampView ratingTimestampView;
 
+	@BindView(R.id.wishlist_container) ViewGroup wishlistContainer;
+	@BindView(R.id.wishlist_view_container) ViewGroup wishlistViewContainer;
+	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
+	@BindView(R.id.wishlist_comment_header) TextView wishlistCommentHeaderView;
+	@BindView(R.id.wishlist_comment) TextView wishlistCommentView;
+
 	@BindView(R.id.want_to_buy) CheckBox wantToBuyView;
 	@BindView(R.id.preordered) CheckBox preorderedView;
 	@BindView(R.id.own) CheckBox ownView;
@@ -131,8 +137,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.previously_owned,
 		R.id.want_in_trade,
 		R.id.for_trade,
-		R.id.wishlist,
-		R.id.wishlist_priority
+		R.id.wishlist_edit_container
 	}) List<View> editFields;
 	@BindViews({
 		R.id.status
@@ -278,18 +283,26 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	public void enableEditMode(boolean enable) {
-		boolean clickable = enable && isItemEditable;
+		boolean isEditable = enable && isItemEditable;
 
-		ButterKnife.apply(viewOnlyFields, PresentationUtils.setVisibility, !enable);
-		ButterKnife.apply(editFields, PresentationUtils.setVisibility, enable);
+		ButterKnife.apply(viewOnlyFields, PresentationUtils.setVisibility, !isEditable);
+		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEditable);
 
-		commentContainer.setClickable(clickable);
-		ratingContainer.setClickable(clickable);
-		privateInfoContainer.setClickable(clickable);
-		wishlistCard.enableEditMode(clickable);
-		conditionCard.enableEditMode(clickable);
-		wantPartsCard.enableEditMode(clickable);
-		hasPartsCard.enableEditMode(clickable);
+		commentContainer.setClickable(isEditable);
+		ratingContainer.setClickable(isEditable);
+		privateInfoContainer.setClickable(isEditable);
+		wishlistCard.enableEditMode(isEditable);
+		conditionCard.enableEditMode(isEditable);
+		wantPartsCard.enableEditMode(isEditable);
+		hasPartsCard.enableEditMode(isEditable);
+
+		if (isEditable) {
+			wishlistViewContainer.setVisibility(View.GONE);
+		} else {
+			ButterKnife.apply(wishlistViewContainer, PresentationUtils.setVisibilityByTag);
+		}
+
+		ButterKnife.apply(wishlistContainer, PresentationUtils.setVisibilityByChildren);
 	}
 
 	public void syncChanges() {
@@ -540,15 +553,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		isItemEditable = true;
 
-		lastModified.setTimestamp(item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() :
-			item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime());
+		statusView.setText(getStatusDescription(item));
 
 		rating.setText(PresentationUtils.describePersonalRating(getActivity(), item.getRating()));
 		rating.setTag(MathUtils.constrain(item.getRating(), 0.0, 10.0));
 		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.getRating()));
 		ratingTimestampView.setTimestamp(item.getRatingTimestamp());
-
-		statusView.setText(getStatusDescription(item));
 
 		wantToBuyView.setChecked(item.isWantToBuy());
 		preorderedView.setChecked(item.isPreordered());
@@ -557,13 +567,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
 		wantInTradeView.setChecked(item.isWantInTrade());
 		forTradeView.setChecked(item.isForTrade());
-		wishlistView.setChecked(item.isWishlist());
 
-		if (wishlistPriorityView.getAdapter() == null)
-			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
-		if (item.isWishlist())
-			wishlistPriorityView.setSelection(item.getWishlistPriority() - 1);
-		wishlistPriorityView.setEnabled(item.isWishlist());
+		bindWishlist(item);
 
 		addCommentView.setVisibility(TextUtils.isEmpty(item.getComment()) ? View.VISIBLE : View.GONE);
 		PresentationUtils.setTextOrHide(comment, item.getComment());
@@ -590,9 +595,31 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		hasPartsCard.setContentText(item.getHasParts());
 		hasPartsCard.setTimestamp(item.getHasPartsDirtyTimestamp());
 
-		id.setText(String.valueOf(item.getId()));
-		id.setVisibility(item.getId() == 0 ? View.INVISIBLE : View.VISIBLE);
+		lastModified.setTimestamp(item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() :
+			item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime());
 		updated.setTimestamp(item.getUpdated());
+		PresentationUtils.setTextOrHide(id, item.getId());
+	}
+
+	private void bindWishlist(CollectionItem item) {
+		// view
+		if (item.isWishlist()) {
+			PresentationUtils.setTextOrHide(wishlistStatusView, PresentationUtils.describeWishlist(getContext(), item.getWishlistPriority()));
+			wishlistCommentHeaderView.setVisibility(View.GONE);
+		} else {
+			wishlistStatusView.setVisibility(View.GONE);
+			wishlistCommentHeaderView.setVisibility(TextUtils.isEmpty(item.getWishlistComment()) ? View.GONE : View.VISIBLE);
+		}
+		PresentationUtils.setTextOrHide(wishlistCommentView, item.getWishlistComment());
+		if (item.isWishlist() || !TextUtils.isEmpty(item.getWishlistComment()))
+			wishlistViewContainer.setTag(R.id.visibility, true);
+
+		// edit
+		wishlistView.setChecked(item.isWishlist());
+		if (wishlistPriorityView.getAdapter() == null)
+			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
+		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriorty() - 1);
+		wishlistPriorityView.setEnabled(item.isWishlist());
 	}
 
 	public String getStatusDescription(CollectionItem item) {
@@ -602,8 +629,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (item.isForTrade()) statusDescriptions.add(getString(R.string.collection_status_for_trade));
 		if (item.isWantInTrade()) statusDescriptions.add(getString(R.string.collection_status_want_in_trade));
 		if (item.isWantToBuy()) statusDescriptions.add(getString(R.string.collection_status_want_to_buy));
-		if (item.isWishlist())
-			statusDescriptions.add(PresentationUtils.describeWishlist(getContext(), item.getWishlistPriority()));
 		if (item.isWantToPlay()) statusDescriptions.add(getString(R.string.collection_status_want_to_play));
 		if (item.isPreordered()) statusDescriptions.add(getString(R.string.collection_status_preordered));
 

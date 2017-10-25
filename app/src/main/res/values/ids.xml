@@ -17,4 +17,6 @@
 	<!-- image -->
 	<item name="url" type="id"/>
 
+	<item name="visibility" type="id"/>
+
 </resources>

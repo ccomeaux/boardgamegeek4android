@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -380,6 +381,14 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
+	public static void setTextOrHide(@Nullable TextView view, int number) {
+		if (view != null) {
+			view.setText(String.valueOf(number));
+			view.setVisibility(number == 0 ? View.GONE : View.VISIBLE);
+		}
+	}
+
+	@DebugLog
 	public static void setTextOrHide(@Nullable TextView view, CharSequence text) {
 		if (view != null) {
 			view.setText(text);
@@ -480,6 +489,29 @@ public class PresentationUtils {
 		@Override
 		public void set(@NonNull View view, Boolean value, int index) {
 			view.setVisibility(value ? View.VISIBLE : View.GONE);
+		}
+	};
+
+	public static final ButterKnife.Action<View> setVisibilityByTag = new ButterKnife.Action<View>() {
+		@Override
+		public void apply(@NonNull View view, int index) {
+			final Object tag = view.getTag(R.id.visibility);
+			boolean isVisible = tag != null && (boolean) tag;
+			view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+		}
+	};
+
+	public static final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
+		@Override
+		public void apply(@NonNull ViewGroup view, int index) {
+			for (int i = 0; i < view.getChildCount(); i++) {
+				View child = view.getChildAt(i);
+				if (child.getVisibility() == View.VISIBLE) {
+					view.setVisibility(View.VISIBLE);
+					return;
+				}
+			}
+			view.setVisibility(View.GONE);
 		}
 	};
 
