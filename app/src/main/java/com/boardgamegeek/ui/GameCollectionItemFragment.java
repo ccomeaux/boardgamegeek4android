@@ -102,8 +102,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.trade_status) TextView tradeStatusView;
 	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
 	@BindView(R.id.for_trade) CheckBox forTradeView;
+	@BindView(R.id.trade_condition_header) View tradeConditionHeader;
 	@BindView(R.id.trade_condition) TextView tradeCondition;
+	@BindView(R.id.want_parts_header) View wantPartsHeader;
 	@BindView(R.id.want_parts) TextView wantParts;
+	@BindView(R.id.has_parts_header) View hasPartsHeader;
 	@BindView(R.id.has_parts) TextView hasParts;
 	@BindView(R.id.condition_card) TextEditorCard conditionCard;
 	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
@@ -130,6 +133,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
+		R.id.wishlist_comment_header,
+		R.id.trade_condition_header,
+		R.id.want_parts_header,
+		R.id.has_parts_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
 		R.id.wishlist_card,
@@ -180,6 +187,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private Palette palette;
 	private boolean needsUploading;
 	@State boolean isItemEditable;
+	private boolean isEditable;
 
 	public static GameCollectionItemFragment newInstance(int gameId, int collectionId) {
 		Bundle args = new Bundle();
@@ -300,21 +308,26 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	public void enableEditMode(boolean enable) {
-		boolean isEditable = enable && isItemEditable;
+		isEditable = enable;
+		bindVisibility();
+	}
 
-		ButterKnife.apply(viewOnlyFields, PresentationUtils.setVisibility, !isEditable);
-		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEditable);
+	private void bindVisibility() {
+		boolean isEdit = isEditable && isItemEditable;
 
-		commentContainer.setClickable(isEditable);
-		ratingContainer.setClickable(isEditable);
-		privateInfoContainer.setClickable(isEditable);
+		ButterKnife.apply(viewOnlyFields, PresentationUtils.setVisibility, !isEdit);
+		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
 
-		wishlistCard.enableEditMode(isEditable);
-		conditionCard.enableEditMode(isEditable);
-		wantPartsCard.enableEditMode(isEditable);
-		hasPartsCard.enableEditMode(isEditable);
+		commentContainer.setClickable(isEdit);
+		ratingContainer.setClickable(isEdit);
+		privateInfoContainer.setClickable(isEdit);
 
-		if (isEditable) {
+		wishlistCard.enableEditMode(isEdit);
+		conditionCard.enableEditMode(isEdit);
+		wantPartsCard.enableEditMode(isEdit);
+		hasPartsCard.enableEditMode(isEdit);
+
+		if (isEdit) {
 			ButterKnife.apply(visibleByTagViews, PresentationUtils.setGone);
 		} else {
 			ButterKnife.apply(visibleByTagViews, PresentationUtils.setVisibilityByTag);
@@ -608,6 +621,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime());
 		updated.setTimestamp(item.getUpdated());
 		PresentationUtils.setTextOrHide(id, item.getId());
+
+		bindVisibility();
 	}
 
 	private void bindWishlist(CollectionItem item) {
@@ -641,8 +656,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		tradeStatusView.setText(StringUtils.formatList(statusDescriptions));
 		if (item.isForTrade() || item.isWantInTrade())
 			tradeViewContainer.setTag(R.id.visibility, true);
+		tradeConditionHeader.setVisibility(TextUtils.isEmpty(item.getCondition()) ? View.GONE : View.VISIBLE);
 		PresentationUtils.setTextOrHide(tradeCondition, item.getCondition());
+		wantPartsHeader.setVisibility(TextUtils.isEmpty(item.getWantParts()) ? View.GONE : View.VISIBLE);
 		PresentationUtils.setTextOrHide(wantParts, item.getWantParts());
+		hasPartsHeader.setVisibility(TextUtils.isEmpty(item.getHasParts()) ? View.GONE : View.VISIBLE);
 		PresentationUtils.setTextOrHide(hasParts, item.getHasParts());
 
 		// edit

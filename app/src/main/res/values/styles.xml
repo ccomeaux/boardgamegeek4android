@@ -251,6 +251,7 @@
 	<style name="Text.Header.Card">
 		<item name="android:layout_height">32dp</item>
 		<item name="android:gravity">center_vertical</item>
+		<item name="android:maxLines">1</item>
 	</style>
 
 	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
