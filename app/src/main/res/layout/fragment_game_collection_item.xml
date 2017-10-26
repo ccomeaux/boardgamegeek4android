@@ -213,8 +213,7 @@
 		android:id="@+id/wishlist_container"
 		style="@style/Card"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="#00f">
+		android:layout_height="wrap_content">
 
 		<LinearLayout
 			android:id="@+id/wishlist_view_container"
@@ -284,46 +283,134 @@
 		</LinearLayout>
 	</android.support.v7.widget.CardView>
 
-	<CheckBox
-		android:id="@+id/want_in_trade"
-		style="@style/EditCheckbox"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:tag="want"
-		android:text="@string/collection_status_want_in_trade"
-		android:visibility="gone"
-		tools:visibility="invisible"/>
-
-	<CheckBox
-		android:id="@+id/for_trade"
-		style="@style/EditCheckbox"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:tag="for_trade"
-		android:text="@string/collection_status_for_trade"
-		android:visibility="gone"
-		tools:visibility="invisible"/>
-
-	<com.boardgamegeek.ui.widget.TextEditorCard
-		android:id="@+id/condition_card"
+	<android.support.v7.widget.CardView
+		android:id="@+id/trade_container"
 		style="@style/Card"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:headerText="@string/trade_condition"/>
+		android:layout_height="wrap_content">
 
-	<com.boardgamegeek.ui.widget.TextEditorCard
-		android:id="@+id/want_parts_card"
-		style="@style/Card"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:headerText="@string/want_parts_list"/>
+		<LinearLayout
+			android:id="@+id/trade_view_container"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:minHeight="@dimen/edit_row_height"
+			android:orientation="vertical">
 
-	<com.boardgamegeek.ui.widget.TextEditorCard
-		android:id="@+id/has_parts_card"
-		style="@style/Card"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:headerText="@string/has_parts_list"/>
+			<TextView
+				android:id="@+id/trade_status"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text.Title"
+				tools:text="For Trade"/>
+
+			<TextView
+				android:id="@+id/trade_condition_header"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:paddingTop="@dimen/padding_extra"
+				android:text="@string/trade_condition"
+				android:textAppearance="@style/Text.Subtitle"/>
+
+			<TextView
+				android:id="@+id/trade_condition"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text"
+				android:visibility="gone"
+				tools:text="All of the pieces are there, but painted brown."/>
+
+			<TextView
+				android:id="@+id/want_parts_header"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:paddingTop="@dimen/padding_extra"
+				android:text="@string/want_parts_list"
+				android:textAppearance="@style/Text.Subtitle"/>
+
+			<TextView
+				android:id="@+id/want_parts"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text"
+				android:visibility="gone"
+				tools:text="I need some more dice."/>
+
+			<TextView
+				android:id="@+id/has_parts_header"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:paddingTop="@dimen/padding_extra"
+				android:text="@string/has_parts_list"
+				android:textAppearance="@style/Text.Subtitle"/>
+
+			<TextView
+				android:id="@+id/has_parts"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text"
+				android:visibility="gone"
+				tools:text="I'm trying to get rid of the junky parts."/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/trade_edit_container"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:minHeight="@dimen/edit_row_height"
+			android:orientation="vertical"
+			android:visibility="gone">
+
+			<CheckBox
+				android:id="@+id/want_in_trade"
+				style="@style/EditCheckbox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:tag="want"
+				android:text="@string/collection_status_want_in_trade"
+				android:visibility="gone"
+				tools:visibility="invisible"/>
+
+			<CheckBox
+				android:id="@+id/for_trade"
+				style="@style/EditCheckbox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:tag="for_trade"
+				android:text="@string/collection_status_for_trade"
+				android:visibility="gone"
+				tools:visibility="invisible"/>
+
+			<com.boardgamegeek.ui.widget.TextEditorCard
+				android:id="@+id/condition_card"
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:headerText="@string/trade_condition"/>
+
+			<com.boardgamegeek.ui.widget.TextEditorCard
+				android:id="@+id/want_parts_card"
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:headerText="@string/want_parts_list"/>
+
+			<com.boardgamegeek.ui.widget.TextEditorCard
+				android:id="@+id/has_parts_card"
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:headerText="@string/has_parts_list"/>
+		</LinearLayout>
+	</android.support.v7.widget.CardView>
 
 	<LinearLayout
 		android:layout_width="match_parent"
