@@ -116,8 +116,8 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	}
 
 	private void bindCollectionStatusMessage() {
-		isOwnedSynced = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
-		isPlayedSynced = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		isOwnedSynced = PreferencesUtils.isStatusSetToSync(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
+		isPlayedSynced = PreferencesUtils.isStatusSetToSync(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
 		collectionStatusContainer.setVisibility(isOwnedSynced && isPlayedSynced ? View.GONE : View.VISIBLE);
 	}
 

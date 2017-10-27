@@ -161,7 +161,7 @@ public class PreferencesUtils {
 		return getStringArray(context, KEY_SYNC_STATUSES, context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
-	public static boolean isSyncStatus(Context context) {
+	public static boolean isCollectionSetToSync(Context context) {
 		String[] statuses = getSyncStatuses(context);
 		return statuses != null && statuses.length > 0;
 	}
@@ -169,14 +169,13 @@ public class PreferencesUtils {
 	/**
 	 * Determines if the specified status is set to be synced.
 	 */
-	public static boolean isSyncStatus(Context context, String status) {
-		if (TextUtils.isEmpty(status)) {
-			return false;
-		}
+	public static boolean isStatusSetToSync(Context context, String status) {
+		if (context == null) return false;
+		if (TextUtils.isEmpty(status)) return false;
+
 		String[] statuses = getSyncStatuses(context);
-		if (statuses == null) {
-			return false;
-		}
+		if (statuses == null) return false;
+
 		for (String s : statuses) {
 			if (s.equals(status)) {
 				return true;
@@ -187,11 +186,15 @@ public class PreferencesUtils {
 
 	public static boolean addSyncStatus(Context context, String status) {
 		if (TextUtils.isEmpty(status)) return false;
-		if (isSyncStatus(context, status)) return false;
+		if (isStatusSetToSync(context, status)) return false;
+
+		Set<String> set = new HashSet<>();
 
 		String[] statuses = getStringArray(context, KEY_SYNC_STATUSES, null);
-		Set<String> set = new HashSet<>();
-		set.addAll(Arrays.asList(statuses).subList(0, statuses.length));
+		if (statuses != null) {
+			set.addAll(Arrays.asList(statuses).subList(0, statuses.length));
+		}
+
 		set.add(status);
 
 		return putString(context, KEY_SYNC_STATUSES, MultiSelectListPreference.buildString(set));

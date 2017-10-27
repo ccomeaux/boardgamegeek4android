@@ -19,6 +19,7 @@
 		android:completionThreshold="1"
 		android:hint="@string/location_hint"
 		android:imeOptions="actionNext"
+		android:importantForAutofill="noExcludeDescendants"
 		android:inputType="textCapWords"
 		android:textAppearance="@style/Text.Big"
 		android:textColor="#000"/>

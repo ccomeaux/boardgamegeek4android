@@ -161,7 +161,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncCollectionUpload(context, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
-			if (PreferencesUtils.isSyncStatus(context)) {
+			if (PreferencesUtils.isCollectionSetToSync(context)) {
 				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
 					tasks.add(new SyncCollectionModifiedSince(context, service));
