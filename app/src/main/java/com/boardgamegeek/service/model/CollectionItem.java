@@ -278,7 +278,7 @@ public class CollectionItem {
 	}
 
 	public String getWishlistComment() {
-		return wishlistComment;
+		return wishlistComment == null ? "" : wishlistComment;
 	}
 
 	public long getWishlistCommentDirtyTimestamp() {
@@ -286,7 +286,7 @@ public class CollectionItem {
 	}
 
 	public String getTradeCondition() {
-		return tradeCondition;
+		return tradeCondition == null ? "" : tradeCondition;
 	}
 
 	public long getTradeConditionDirtyTimestamp() {
@@ -294,7 +294,7 @@ public class CollectionItem {
 	}
 
 	public String getWantParts() {
-		return wantParts;
+		return wantParts == null ? "" : wantParts;
 	}
 
 	public long getWantPartsDirtyTimestamp() {
@@ -302,7 +302,7 @@ public class CollectionItem {
 	}
 
 	public String getHasParts() {
-		return hasParts;
+		return hasParts == null ? "" : hasParts;
 	}
 
 	public long getHasPartsDirtyTimestamp() {

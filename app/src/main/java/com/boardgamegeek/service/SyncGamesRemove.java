@@ -46,7 +46,7 @@ public class SyncGamesRemove extends SyncTask {
 
 			ContentResolver resolver = context.getContentResolver();
 			String selection = "collection." + Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + "<?";
-			if (PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
+			if (PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
 				selection += " AND games." + Games.NUM_PLAYS + "=0";
 			}
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, selection,

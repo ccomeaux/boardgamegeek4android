@@ -6,6 +6,10 @@ Version 6.6
  * More UI polish
  * Share your collection
 
+Version 6.5.7
+-------------
+ * Bug fixes
+
 Version 6.5.6
 -------------
  * Bug fixes
