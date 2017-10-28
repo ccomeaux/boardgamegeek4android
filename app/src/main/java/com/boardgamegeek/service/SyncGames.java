@@ -137,6 +137,10 @@ public abstract class SyncGames extends SyncTask {
 			showError(e.getLocalizedMessage());
 			syncResult.stats.numIoExceptions++;
 			return true;
+		} catch (RuntimeException e) {
+			showError(e.getLocalizedMessage());
+			syncResult.stats.numParseExceptions++;
+			return false;
 		}
 		return false;
 	}
