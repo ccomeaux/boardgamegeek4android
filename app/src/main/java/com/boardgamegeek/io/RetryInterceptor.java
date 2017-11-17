@@ -14,9 +14,11 @@ import timber.log.Timber;
 
 public class RetryInterceptor implements Interceptor {
 	private static final int COLLECTION_REQUEST_PROCESSING = 202;
+	private static final int RATE_LIMIT_EXCEEDED = 429;
 	private static final int API_RATE_EXCEEDED = 503;
 
 	private final BackOff backOff202;
+	private final BackOff backOff429;
 	private final BackOff backOff503;
 
 	public RetryInterceptor() {
@@ -27,6 +29,10 @@ public class RetryInterceptor implements Interceptor {
 			.setRandomizationFactor(0.30)
 			.setMaxIntervalMillis(60000)
 			.setMaxElapsedTimeMillis(300000)
+			.build();
+		backOff429 = new FixedBackOff.Builder()
+			.setIntervalMillis(5000)
+			.setMaxBackOffCount(4)
 			.build();
 		backOff503 = new FixedBackOff.Builder()
 			.setIntervalMillis(5000)
@@ -57,12 +63,15 @@ public class RetryInterceptor implements Interceptor {
 
 	private void resetBackOff() {
 		backOff202.reset();
+		backOff429.reset();
 		backOff503.reset();
 	}
 
 	private long nextBackOffMillis(Response response) {
 		if (response.code() == COLLECTION_REQUEST_PROCESSING) {
 			return backOff202.nextBackOffMillis();
+		} else if (response.code() == RATE_LIMIT_EXCEEDED) {
+			return  backOff429.nextBackOffMillis();
 		} else if (response.code() == API_RATE_EXCEEDED) {
 			return backOff503.nextBackOffMillis();
 		}
