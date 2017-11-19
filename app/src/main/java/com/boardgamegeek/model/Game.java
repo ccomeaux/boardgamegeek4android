@@ -209,7 +209,7 @@ public class Game {
 
 	@Element(required = false) public String image;
 
-	@ElementList(inline = true) private List<Name> names;
+	@ElementList(inline = true, required = false) private List<Name> names;
 
 	@Element(required = false) private String description;
 
@@ -270,18 +270,22 @@ public class Game {
 	}
 
 	public String getName() {
-		for (Name name : names) {
-			if ("primary".equals(name.type)) {
-				return name.value;
+		if (names != null) {
+			for (Name name : names) {
+				if ("primary".equals(name.type)) {
+					return name.value;
+				}
 			}
 		}
 		return "";
 	}
 
 	public String getSortName() {
-		for (Name name : names) {
-			if ("primary".equals(name.type)) {
-				return StringUtils.createSortName(name.value, name.sortindex);
+		if (names != null) {
+			for (Name name : names) {
+				if ("primary".equals(name.type)) {
+					return StringUtils.createSortName(name.value, name.sortindex);
+				}
 			}
 		}
 		return "";

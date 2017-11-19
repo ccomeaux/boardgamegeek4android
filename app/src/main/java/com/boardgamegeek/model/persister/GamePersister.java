@@ -70,7 +70,15 @@ public class GamePersister {
 			ExpansionPersister expansionPersister = new ExpansionPersister();
 
 			for (Game game : games) {
-				if (gameIds.contains(game.id)) continue;
+				if (TextUtils.isEmpty(game.getName())) {
+					Timber.w("Missing name from game ID=%s", game.id);
+					continue;
+				}
+
+				if (gameIds.contains(game.id)) {
+					Timber.i("Skipping duplicate game ID=%s", game.id);
+					continue;
+				}
 				gameIds.add(game.id);
 
 				Timber.i("Saving game %s (%s)", game.getName(), game.id);
