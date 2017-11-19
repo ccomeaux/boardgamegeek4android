@@ -6,6 +6,10 @@ Version 6.6
  * More UI polish
  * Share your collection
 
+Version 6.5.9
+-------------
+ * Fix a couple of syncing bugs
+
 Version 6.5.8
 -------------
  * Bug fixes
