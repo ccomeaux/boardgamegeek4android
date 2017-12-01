@@ -3,8 +3,6 @@ package com.boardgamegeek.io;
 
 import android.support.annotation.NonNull;
 
-import com.boardgamegeek.io.ExponentialBackOff.Builder;
-
 import java.io.IOException;
 
 import okhttp3.Interceptor;
@@ -23,11 +21,11 @@ public class RetryInterceptor implements Interceptor {
 
 	public RetryInterceptor() {
 		super();
-		backOff202 = new Builder()
+		backOff202 = new ExponentialBackOff.Builder()
 			.setInitialIntervalMillis(1500)
 			.setMultiplier(2.5)
 			.setRandomizationFactor(0.30)
-			.setMaxIntervalMillis(60000)
+			.setMaxIntervalMillis(30000)
 			.setMaxElapsedTimeMillis(300000)
 			.build();
 		backOff429 = new FixedBackOff.Builder()
@@ -71,7 +69,7 @@ public class RetryInterceptor implements Interceptor {
 		if (response.code() == COLLECTION_REQUEST_PROCESSING) {
 			return backOff202.nextBackOffMillis();
 		} else if (response.code() == RATE_LIMIT_EXCEEDED) {
-			return  backOff429.nextBackOffMillis();
+			return backOff429.nextBackOffMillis();
 		} else if (response.code() == API_RATE_EXCEEDED) {
 			return backOff503.nextBackOffMillis();
 		}

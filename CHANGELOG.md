@@ -3,7 +3,7 @@ Release Notes
 
 Version 6.5.10
 --------------
- * More syncing bug fixes
+ * Bug fixes
 
 Version 6.5.9
 -------------
