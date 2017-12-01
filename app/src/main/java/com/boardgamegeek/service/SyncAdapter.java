@@ -96,7 +96,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
 				currentTask.updateProgressNotification();
 				currentTask.execute(account, syncResult);
-				EventBus.getDefault().post(new SyncCompleteEvent());
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
 			} catch (Exception e) {
 				Timber.e(e, "Syncing " + currentTask);
@@ -107,6 +106,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				}
 			}
 		}
+		EventBus.getDefault().post(new SyncCompleteEvent());
 		toggleReceiver(false);
 		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
 	}
