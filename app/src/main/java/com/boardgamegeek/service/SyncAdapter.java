@@ -106,9 +106,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				}
 			}
 		}
-		EventBus.getDefault().post(new SyncCompleteEvent());
-		toggleReceiver(false);
 		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
+		toggleReceiver(false);
+		EventBus.getDefault().post(new SyncCompleteEvent());
 	}
 
 	@DebugLog
