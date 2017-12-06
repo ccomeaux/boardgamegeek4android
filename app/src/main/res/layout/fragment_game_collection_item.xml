@@ -111,53 +111,79 @@
 		tools:visibility="invisible"/>
 
 	<android.support.v7.widget.CardView
-		android:id="@+id/rating_comment_container"
+		android:id="@+id/comment_container"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
 		<LinearLayout
+			android:id="@+id/comment_view_container"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_gravity="center_vertical"
-			android:baselineAligned="false"
-			android:orientation="horizontal">
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:minHeight="@dimen/edit_row_height"
+			android:orientation="vertical">
 
-			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
-				android:id="@+id/comment_container"
-				android:layout_width="0dp"
+			<TextView
+				android:id="@+id/view_comment"
+				style="@style/Text"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical"
-				android:layout_weight="1"
-				android:foreground="?attr/selectableItemBackgroundBorderless"
-				android:gravity="center_vertical"
-				android:minHeight="@dimen/edit_row_height"
-				android:orientation="vertical">
+				tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
 
-				<TextView
-					android:id="@+id/add_comment"
-					style="@style/Text.Header.Card"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/add_comment"/>
+			<TextView
+				android:id="@+id/view_comment_deleting"
+				style="@style/Text.Secondary"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/deleting_comment"
+				android:textStyle="italic"
+				android:visibility="gone"/>
 
-				<TextView
-					android:id="@+id/comment"
-					style="@style/Text"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
-
-				<com.boardgamegeek.ui.widget.TimestampView
-					android:id="@+id/comment_timestamp"
-					style="@style/Text.Footnote2"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					app:hideWhenEmpty="true"
-					tools:text="Yesterday"/>
-			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
-
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/comment_view_timestamp"
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:hideWhenEmpty="true"
+				tools:text="Yesterday"/>
 		</LinearLayout>
+
+		<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+			android:id="@+id/comment_edit_container"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:foreground="?attr/selectableItemBackgroundBorderless"
+			android:gravity="center_vertical"
+			android:minHeight="@dimen/edit_row_height"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/edit_comment"
+				style="@style/Text"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:drawableRight="@drawable/ic_action_edit_light"
+				tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
+
+			<TextView
+				android:id="@+id/add_comment"
+				style="@style/Text.Header.Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:drawableRight="@drawable/ic_action_edit_light"
+				android:text="@string/add_comment"
+				android:visibility="gone"/>
+
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/comment_edit_timestamp"
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:hideWhenEmpty="true"
+				tools:text="Yesterday"/>
+		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 	</android.support.v7.widget.CardView>
 
 	<android.support.v7.widget.CardView

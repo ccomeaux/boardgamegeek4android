@@ -82,10 +82,19 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	private Unbinder unbinder;
 	@BindView(R.id.root_container) ViewGroup rootContainer;
-	@BindView(R.id.status) TextView statusView;
+
+	// rating
 	@BindView(R.id.rating_container) View ratingContainer;
 	@BindView(R.id.rating) TextView rating;
 	@BindView(R.id.rating_timestamp) TimestampView ratingTimestampView;
+
+	// statuses
+	@BindView(R.id.status) TextView statusView;
+	@BindView(R.id.want_to_buy) CheckBox wantToBuyView;
+	@BindView(R.id.preordered) CheckBox preorderedView;
+	@BindView(R.id.own) CheckBox ownView;
+	@BindView(R.id.want_to_play) CheckBox wantToPlayView;
+	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
 
 	// wishlist
 	@BindView(R.id.wishlist_view_container) ViewGroup wishlistViewContainer;
@@ -112,16 +121,16 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
 	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
 
-	@BindView(R.id.want_to_buy) CheckBox wantToBuyView;
-	@BindView(R.id.preordered) CheckBox preorderedView;
-	@BindView(R.id.own) CheckBox ownView;
-	@BindView(R.id.want_to_play) CheckBox wantToPlayView;
-	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
-
+	// comment
 	@BindView(R.id.comment_container) ViewGroup commentContainer;
-	@BindView(R.id.add_comment) View addCommentView;
-	@BindView(R.id.comment) TextView comment;
-	@BindView(R.id.comment_timestamp) TimestampView commentTimestampView;
+	@BindView(R.id.comment_view_container) ViewGroup commentViewContainer;
+	@BindView(R.id.view_comment) TextView commentView;
+	@BindView(R.id.view_comment_deleting) TextView commentDeletingView;
+	@BindView(R.id.comment_view_timestamp) TimestampView commentViewTimestampView;
+	@BindView(R.id.edit_comment) TextView editCommentView;
+	@BindView(R.id.add_comment) TextView addCommentView;
+	@BindView(R.id.comment_edit_timestamp) TimestampView commentEditTimestampView;
+
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
 	@BindView(R.id.private_info) TextView privateInfo;
 	@BindView(R.id.private_info_comments) TextView privateInfoComments;
@@ -152,6 +161,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.previously_owned,
 		R.id.want_in_trade,
 		R.id.for_trade,
+		R.id.comment_edit_container,
 		R.id.wishlist_edit_container,
 		R.id.trade_edit_container
 	}) List<View> editFields;
@@ -159,10 +169,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.status
 	}) List<View> viewOnlyFields;
 	@BindViews({
+		R.id.comment_view_container,
 		R.id.wishlist_view_container,
 		R.id.trade_view_container
 	}) List<ViewGroup> visibleByTagViews;
 	@BindViews({
+		R.id.comment_container,
 		R.id.wishlist_container,
 		R.id.trade_container
 	}) List<ViewGroup> visibleByChildrenViews;
@@ -386,6 +398,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	})
 	void onStatusCheckChanged(CompoundButton view) {
 		if (view.getVisibility() != View.VISIBLE) return;
+		if (!isEditable) return;
 		updateStatuses();
 	}
 
@@ -393,6 +406,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	void onWishlistPriorityClicked() {
 		if (wishlistPriorityView.getVisibility() != View.VISIBLE) return;
 		if (!wishlistView.isChecked()) return;
+		if (!isEditable) return;
 		updateStatuses();
 	}
 
@@ -458,10 +472,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
-	@OnClick(R.id.comment_container)
+	@OnClick(R.id.comment_edit_container)
 	public void onCommentClick() {
 		ensureCommentDialogFragment();
-		commentDialogFragment.setText(comment.getText().toString());
+		commentDialogFragment.setText(commentView.getText().toString());
 		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
 	}
 
@@ -597,13 +611,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		wantToPlayView.setChecked(item.isWantToPlay());
 		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
 
+		bindComment(item);
 		bindWishlist(item);
-
 		bindTrade(item);
-
-		addCommentView.setVisibility(TextUtils.isEmpty(item.getComment()) ? View.VISIBLE : View.GONE);
-		PresentationUtils.setTextOrHide(comment, item.getComment());
-		commentTimestampView.setTimestamp(item.getCommentTimestamp());
 
 		privateInfo.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
 		privateInfo.setText(getPrivateInfo(item));
@@ -625,6 +635,18 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		bindVisibility();
 	}
 
+	private void bindComment(CollectionItem item) {
+		// view
+		PresentationUtils.setTextOrHide(commentView, item.getComment());
+		commentDeletingView.setVisibility(TextUtils.isEmpty(item.getComment()) && item.getCommentTimestamp() > 0 ? View.VISIBLE : View.GONE);
+		commentViewTimestampView.setTimestamp(item.getCommentTimestamp());
+		setVisibleTag(commentViewContainer, !TextUtils.isEmpty(item.getComment()) || item.getCommentTimestamp() > 0);
+		// edit
+		PresentationUtils.setTextOrHide(editCommentView, item.getComment());
+		addCommentView.setVisibility(TextUtils.isEmpty(item.getComment()) ? View.VISIBLE : View.GONE);
+		commentEditTimestampView.setTimestamp(item.getCommentTimestamp());
+	}
+
 	private void bindWishlist(CollectionItem item) {
 		// view
 		if (item.isWishlist()) {
@@ -635,8 +657,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			wishlistCommentHeaderView.setVisibility(TextUtils.isEmpty(item.getWishlistComment()) ? View.GONE : View.VISIBLE);
 		}
 		PresentationUtils.setTextOrHide(wishlistCommentView, item.getWishlistComment());
-		if (item.isWishlist() || !TextUtils.isEmpty(item.getWishlistComment()))
-			wishlistViewContainer.setTag(R.id.visibility, true);
+		setVisibleTag(wishlistViewContainer, item.isWishlist() || !TextUtils.isEmpty(item.getWishlistComment()));
 
 		// edit
 		wishlistView.setChecked(item.isWishlist());
@@ -654,14 +675,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (item.isForTrade()) statusDescriptions.add(getString(R.string.collection_status_for_trade));
 		if (item.isWantInTrade()) statusDescriptions.add(getString(R.string.collection_status_want_in_trade));
 		tradeStatusView.setText(StringUtils.formatList(statusDescriptions));
-		if (item.isForTrade() || item.isWantInTrade())
-			tradeViewContainer.setTag(R.id.visibility, true);
 		tradeConditionHeader.setVisibility(TextUtils.isEmpty(item.getCondition()) ? View.GONE : View.VISIBLE);
 		PresentationUtils.setTextOrHide(tradeCondition, item.getCondition());
 		wantPartsHeader.setVisibility(TextUtils.isEmpty(item.getWantParts()) ? View.GONE : View.VISIBLE);
 		PresentationUtils.setTextOrHide(wantParts, item.getWantParts());
 		hasPartsHeader.setVisibility(TextUtils.isEmpty(item.getHasParts()) ? View.GONE : View.VISIBLE);
 		PresentationUtils.setTextOrHide(hasParts, item.getHasParts());
+		setVisibleTag(tradeViewContainer, item.isForTrade() || item.isWantInTrade());
 
 		// edit
 		wantInTradeView.setChecked(item.isWantInTrade());
@@ -674,7 +694,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		hasPartsCard.setTimestamp(item.getHasPartsDirtyTimestamp());
 	}
 
-	public String getStatusDescription(CollectionItem item) {
+	private void setVisibleTag(View view, boolean isVisible) {
+		view.setTag(R.id.visibility, isVisible);
+	}
+
+	private String getStatusDescription(CollectionItem item) {
 		List<String> statusDescriptions = new ArrayList<>();
 		if (item.isOwn()) statusDescriptions.add(getString(R.string.collection_status_own));
 		if (item.isPreviouslyOwned()) statusDescriptions.add(getString(R.string.collection_status_prev_owned));
