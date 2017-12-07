@@ -16,14 +16,15 @@ constructor(context: Context,
             private val wishListPriority: Int) :
         UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
 
-    override fun updateResolver(resolver: ContentResolver, internalId: Long) {
-        val item = Item.fromResolver(resolver, internalId) ?: return
+    override fun updateResolver(resolver: ContentResolver, internalId: Long): Boolean {
+        val item = Item.fromResolver(resolver, internalId) ?: return false
         val values = ContentValues(10)
         val changed = updateValues(values, item)
         if (changed) {
             values.put(Collection.STATUS_DIRTY_TIMESTAMP, System.currentTimeMillis())
             resolver.update(Collection.buildUri(internalId), values, null, null)
         }
+        return changed
     }
 
     private fun updateValues(values: ContentValues, item: Item): Boolean {
@@ -63,9 +64,9 @@ constructor(context: Context,
     }
 
     @DebugLog
-    override fun onPostExecute(result: Boolean) {
+    override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
-        if (result) {
+        if (result == true) {
             Timber.i("Updated game ID $gameId, collection ID $collectionId with statuses \"$statuses\".")
         } else {
             Timber.i("No statuses to update for game ID $gameId, collection ID $collectionId.")
@@ -108,18 +109,18 @@ constructor(context: Context,
 
             fun fromResolver(contentResolver: ContentResolver, internalId: Long): Item? {
                 val cursor = contentResolver.query(Collection.buildUri(internalId), projection, null, null, null)
-                cursor.use { cursor ->
-                    if (cursor.moveToFirst()) {
+                cursor.use { c ->
+                    if (c.moveToFirst()) {
                         return Item(
-                                cursor.getInt(STATUS_OWN) == 1,
-                                cursor.getInt(STATUS_PRE_ORDERED) == 1,
-                                cursor.getInt(STATUS_FOR_TRADE) == 1,
-                                cursor.getInt(STATUS_WANT) == 1,
-                                cursor.getInt(STATUS_WANT_TO_PLAY) == 1,
-                                cursor.getInt(STATUS_WANT_TO_BUY) == 1,
-                                cursor.getInt(STATUS_WISH_LIST) == 1,
-                                cursor.getInt(STATUS_PREVIOUSLY_OWNED) == 1,
-                                cursor.getInt(STATUS_WISH_LIST_PRIORITY)
+                                c.getInt(STATUS_OWN) == 1,
+                                c.getInt(STATUS_PRE_ORDERED) == 1,
+                                c.getInt(STATUS_FOR_TRADE) == 1,
+                                c.getInt(STATUS_WANT) == 1,
+                                c.getInt(STATUS_WANT_TO_PLAY) == 1,
+                                c.getInt(STATUS_WANT_TO_BUY) == 1,
+                                c.getInt(STATUS_WISH_LIST) == 1,
+                                c.getInt(STATUS_PREVIOUSLY_OWNED) == 1,
+                                c.getInt(STATUS_WISH_LIST_PRIORITY)
                         )
                     }
                 }

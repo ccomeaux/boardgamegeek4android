@@ -23,7 +23,7 @@ public class UpdateCollectionItemPrivateInfoTask extends UpdateCollectionItemTas
 
 	@DebugLog
 	@Override
-	protected void updateResolver(@NonNull ContentResolver resolver, long internalId) {
+	protected boolean updateResolver(@NonNull ContentResolver resolver, long internalId) {
 		ContentValues values = new ContentValues(9);
 		values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, privateInfo.getPriceCurrency());
 		values.put(Collection.PRIVATE_INFO_PRICE_PAID, privateInfo.getPrice());
@@ -35,6 +35,7 @@ public class UpdateCollectionItemPrivateInfoTask extends UpdateCollectionItemTas
 		values.put(Collection.PRIVATE_INFO_COMMENT, privateInfo.getPrivateComment());
 		values.put(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, System.currentTimeMillis());
 		resolver.update(Collection.buildUri(internalId), values, null, null);
+		return true;
 	}
 
 	@DebugLog

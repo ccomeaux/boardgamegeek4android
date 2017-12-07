@@ -37,7 +37,7 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Boo
 			internalId = getCollectionItemInternalId(resolver, collectionId, gameId);
 		}
 		if (internalId != BggContract.INVALID_ID) {
-			updateResolver(resolver, internalId);
+			return updateResolver(resolver, internalId);
 		}
 		return false;
 	}
@@ -68,5 +68,5 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Boo
 		return internalId;
 	}
 
-	protected abstract void updateResolver(ContentResolver resolver, long internalId);
+	protected abstract boolean updateResolver(ContentResolver resolver, long internalId);
 }

@@ -25,11 +25,12 @@ public class UpdateCollectionItemTextTask extends UpdateCollectionItemTask {
 
 	@DebugLog
 	@Override
-	protected void updateResolver(@NonNull ContentResolver resolver, long internalId) {
+	protected boolean updateResolver(@NonNull ContentResolver resolver, long internalId) {
 		ContentValues values = new ContentValues(2);
 		values.put(textColumn, text);
 		values.put(timestampColumn, System.currentTimeMillis());
 		resolver.update(Collection.buildUri(internalId), values, null, null);
+		return true;
 	}
 
 	@DebugLog
