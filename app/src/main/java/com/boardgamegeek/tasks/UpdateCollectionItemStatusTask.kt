@@ -63,9 +63,13 @@ constructor(context: Context,
     }
 
     @DebugLog
-    override fun onPostExecute(result: Void?) {
+    override fun onPostExecute(result: Boolean) {
         super.onPostExecute(result)
-        Timber.i("Updated game ID %1\$s, collection ID %2\$s with statuses \"%3\$s\"", gameId, collectionId, statuses.toString())
+        if (result) {
+            Timber.i("Updated game ID $gameId, collection ID $collectionId with statuses \"$statuses\".")
+        } else {
+            Timber.i("No statuses to update for game ID $gameId, collection ID $collectionId.")
+        }
     }
 
     data class Item(

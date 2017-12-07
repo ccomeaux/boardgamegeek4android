@@ -15,7 +15,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import hugo.weaving.DebugLog;
 
-public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Void> {
+public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	protected final int gameId;
 	protected final int collectionId;
@@ -30,7 +30,7 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 
 	@DebugLog
 	@Override
-	protected Void doInBackground(Void... params) {
+	protected Boolean doInBackground(Void... params) {
 		if (context == null) return null;
 		final ContentResolver resolver = context.getContentResolver();
 		if (internalId == 0) {
@@ -39,12 +39,12 @@ public abstract class UpdateCollectionItemTask extends AsyncTask<Void, Void, Voi
 		if (internalId != BggContract.INVALID_ID) {
 			updateResolver(resolver, internalId);
 		}
-		return null;
+		return false;
 	}
 
 	@Override
-	protected void onPostExecute(Void aVoid) {
-		EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
+	protected void onPostExecute(Boolean result) {
+		if (result) EventBus.getDefault().post(new CollectionItemUpdatedEvent(internalId));
 	}
 
 	@DebugLog

@@ -17,7 +17,7 @@ public class UpdateCollectionItemPrivateInfoTask extends UpdateCollectionItemTas
 
 	@DebugLog
 	public UpdateCollectionItemPrivateInfoTask(Context context, int gameId, int collectionId, long internalId, PrivateInfo privateInfo) {
-		super(context, gameId, collectionId,internalId);
+		super(context, gameId, collectionId, internalId);
 		this.privateInfo = privateInfo;
 	}
 
@@ -39,8 +39,11 @@ public class UpdateCollectionItemPrivateInfoTask extends UpdateCollectionItemTas
 
 	@DebugLog
 	@Override
-	protected void onPostExecute(Void result) {
+	protected void onPostExecute(Boolean result) {
 		super.onPostExecute(result);
-		Timber.i("Updated game ID %1$s, collection ID %2$s with private info.", gameId, collectionId);
+		if (result)
+			Timber.i("Updated game ID %1$s, collection ID %2$s with private info.", gameId, collectionId);
+		else
+			Timber.i("No private info to update for game ID %1$s, collection ID %2$s.", gameId, collectionId);
 	}
 }

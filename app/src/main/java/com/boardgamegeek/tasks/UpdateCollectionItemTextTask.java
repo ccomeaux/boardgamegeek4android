@@ -34,8 +34,11 @@ public class UpdateCollectionItemTextTask extends UpdateCollectionItemTask {
 
 	@DebugLog
 	@Override
-	protected void onPostExecute(Void result) {
+	protected void onPostExecute(Boolean result) {
 		super.onPostExecute(result);
-		Timber.i("Updated game ID %1$s, collection ID %2$s with text \"%3$s\"", gameId, collectionId, text);
+		if (result)
+			Timber.i("Updated game ID %1$s, collection ID %2$s with text \"%3$s\"", gameId, collectionId, text);
+		else
+			Timber.i("No text to update for game ID %1$s, collection ID %2$s.", gameId, collectionId);
 	}
 }

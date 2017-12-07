@@ -30,8 +30,11 @@ public class UpdateCollectionItemRatingTask extends UpdateCollectionItemTask {
 
 	@DebugLog
 	@Override
-	protected void onPostExecute(Void result) {
+	protected void onPostExecute(Boolean result) {
 		super.onPostExecute(result);
-		Timber.i("Updated game ID %1$s, collection ID %2$s with rating %3$s", gameId, collectionId, rating);
+		if (result)
+			Timber.i("Updated game ID %1$s, collection ID %2$s with rating %3$s", gameId, collectionId, rating);
+		else
+			Timber.i("No rating to update for game ID %1$s, collection ID %2$s.", gameId, collectionId);
 	}
 }
