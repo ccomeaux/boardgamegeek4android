@@ -99,11 +99,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	// wishlist
 	@BindView(R.id.wishlist_view_container) ViewGroup wishlistViewContainer;
 	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
-	@BindView(R.id.wishlist_comment_header) TextView wishlistCommentHeaderView;
 	@BindView(R.id.wishlist_comment) TextView wishlistCommentView;
+	@BindView(R.id.wishlist_comment_view_timestamp) TimestampView wishlistCommentViewTimestampView;
+	@BindView(R.id.wishlist_edit_container) ViewGroup wishlistEditContainer;
 	@BindView(R.id.wishlist) CheckBox wishlistView;
 	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
-	@BindView(R.id.wishlist_card) TextEditorCard wishlistCard;
+	@BindView(R.id.edit_wishlist_comment) TextView editWishlistCommentView;
+	@BindView(R.id.add_wishlist_comment) TextView addWishlistCommentView;
+	@BindView(R.id.wishlist_comment_edit_timestamp) TimestampView wishlistCommentEditTimestampView;
 
 	// trade
 	@BindView(R.id.trade_container) ViewGroup tradeContainer;
@@ -142,13 +145,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
-		R.id.wishlist_comment_header,
+		R.id.wishlist_view_header,
+		R.id.wishlist_edit_header,
 		R.id.trade_condition_header,
 		R.id.want_parts_header,
 		R.id.has_parts_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
-		R.id.wishlist_card,
 		R.id.condition_card,
 		R.id.want_parts_card,
 		R.id.has_parts_card
@@ -189,6 +192,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.wishlist
 	}) List<CheckBox> statusViews;
 	private EditTextDialogFragment commentDialogFragment;
+	private EditTextDialogFragment wishlistCommentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private int gameId = BggContract.INVALID_ID;
@@ -334,7 +338,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		ratingContainer.setClickable(isEdit);
 		privateInfoContainer.setClickable(isEdit);
 
-		wishlistCard.enableEditMode(isEdit);
+		// TODO: 12/8/17 make wishlist comment clickable
+
 		conditionCard.enableEditMode(isEdit);
 		wantPartsCard.enableEditMode(isEdit);
 		hasPartsCard.enableEditMode(isEdit);
@@ -399,15 +404,47 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	void onStatusCheckChanged(CompoundButton view) {
 		if (view.getVisibility() != View.VISIBLE) return;
 		if (!isEditable) return;
+		if (view == wishlistView) {
+			wishlistPriorityView.setEnabled(wishlistView.isChecked());
+		}
 		updateStatuses();
 	}
 
 	@OnItemSelected(R.id.wishlist_priority)
-	void onWishlistPriorityClicked() {
+	void onWishlistPrioritySelected() {
 		if (wishlistPriorityView.getVisibility() != View.VISIBLE) return;
+		if (!wishlistPriorityView.isEnabled()) return;
 		if (!wishlistView.isChecked()) return;
 		if (!isEditable) return;
 		updateStatuses();
+	}
+
+	@DebugLog
+	@OnClick({ R.id.edit_wishlist_comment, R.id.add_wishlist_comment })
+	public void onWishlistCommentClick() {
+		ensureWishlistCommentDialogFragment();
+		wishlistCommentDialogFragment.setText(wishlistCommentView.getText().toString());
+		DialogUtils.showFragment(getActivity(), wishlistCommentDialogFragment, "wishlist_comment_dialog");
+	}
+
+	@DebugLog
+	private void ensureWishlistCommentDialogFragment() {
+		if (wishlistCommentDialogFragment == null) {
+			wishlistCommentDialogFragment = EditTextDialogFragment.newLongFormInstance(
+				R.string.wishlist_comment,
+				wishlistEditContainer,
+				new EditTextDialogListener() {
+					@Override
+					public void onFinishEditDialog(String inputText) {
+						UpdateCollectionItemTextTask task =
+							new UpdateCollectionItemTextTask(getActivity(),
+								gameId, collectionId, internalId, inputText,
+								Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
+						TaskUtils.executeAsyncTask(task);
+					}
+				}
+			);
+		}
 	}
 
 	private void updateStatuses() {
@@ -425,12 +462,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				gameId, collectionId, internalId,
 				statuses, wishlistPriority);
 		TaskUtils.executeAsyncTask(task);
-	}
-
-	@DebugLog
-	@OnClick(R.id.wishlist_card)
-	public void onWishlistCommentClick() {
-		onTextEditorClick(wishlistCard, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
@@ -651,22 +682,22 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		// view
 		if (item.isWishlist()) {
 			PresentationUtils.setTextOrHide(wishlistStatusView, PresentationUtils.describeWishlist(getContext(), item.getWishlistPriority()));
-			wishlistCommentHeaderView.setVisibility(View.GONE);
 		} else {
 			wishlistStatusView.setVisibility(View.GONE);
-			wishlistCommentHeaderView.setVisibility(TextUtils.isEmpty(item.getWishlistComment()) ? View.GONE : View.VISIBLE);
 		}
 		PresentationUtils.setTextOrHide(wishlistCommentView, item.getWishlistComment());
+		wishlistCommentViewTimestampView.setTimestamp(item.getWishlistCommentDirtyTimestamp());
 		setVisibleTag(wishlistViewContainer, item.isWishlist() || !TextUtils.isEmpty(item.getWishlistComment()));
 
 		// edit
-		wishlistView.setChecked(item.isWishlist());
 		if (wishlistPriorityView.getAdapter() == null)
 			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
 		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriorty() - 1);
 		wishlistPriorityView.setEnabled(item.isWishlist());
-		wishlistCard.setContentText(item.getWishlistComment());
-		wishlistCard.setTimestamp(item.getWishlistCommentDirtyTimestamp());
+		wishlistView.setChecked(item.isWishlist());
+		PresentationUtils.setTextOrHide(editWishlistCommentView, item.getWishlistComment());
+		addWishlistCommentView.setVisibility(TextUtils.isEmpty(item.getWishlistComment()) ? View.VISIBLE : View.GONE);
+		wishlistCommentEditTimestampView.setTimestamp(item.getWishlistCommentDirtyTimestamp());
 	}
 
 	private void bindTrade(CollectionItem item) {

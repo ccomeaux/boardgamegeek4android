@@ -39,16 +39,12 @@ constructor(context: Context, gameId: Int, collectionId: Int, internalId: Long, 
             val text: String
     ) {
         companion object {
-            val projection = arrayOf(
-                    Collection.RATING
-            )
-
             fun fromResolver(contentResolver: ContentResolver, internalId: Long, columnName: String): Item? {
                 val cursor = contentResolver.query(Collection.buildUri(internalId), arrayOf(columnName), null, null, null)
                 cursor.use { c ->
                     if (c.moveToFirst()) {
                         return Item(
-                                c.getString(0)
+                                c.getString(0) ?: ""
                         )
                     }
                 }

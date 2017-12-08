@@ -250,20 +250,18 @@
 			android:orientation="vertical">
 
 			<TextView
+				android:id="@+id/wishlist_view_header"
+				style="@style/Text.Header.Card"
+				android:layout_width="match_parent"
+				android:text="@string/wishlist"/>
+
+			<TextView
 				android:id="@+id/wishlist_status"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
-				android:textAppearance="@style/Text.Title"
+				android:textAppearance="@style/Text.Subtitle"
 				tools:text="Love to have"/>
-
-			<TextView
-				android:id="@+id/wishlist_comment_header"
-				style="@style/Text.Header.Card"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/wishlist_comment"
-				android:visibility="gone"/>
 
 			<TextView
 				android:id="@+id/wishlist_comment"
@@ -273,6 +271,14 @@
 				android:visibility="gone"
 				tools:text="Man, I can\t wait to get this game into my collection and play it a lot."
 				tools:visibility="visible"/>
+
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/wishlist_comment_view_timestamp"
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:hideWhenEmpty="true"
+				tools:text="Yesterday"/>
 		</LinearLayout>
 
 		<LinearLayout
@@ -284,26 +290,57 @@
 			android:orientation="vertical"
 			android:visibility="gone">
 
-			<CheckBox
-				android:id="@+id/wishlist"
-				style="@style/EditCheckbox"
+			<TextView
+				android:id="@+id/wishlist_edit_header"
+				style="@style/Text.Header.Card"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:tag="wishlist"
-				android:text="@string/collection_status_wishlist"/>
+				android:text="@string/wishlist"/>
 
-			<Spinner
-				android:id="@+id/wishlist_priority"
+			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:theme="@style/EditSpinner"/>
+				android:orientation="horizontal">
 
-			<com.boardgamegeek.ui.widget.TextEditorCard
-				android:id="@+id/wishlist_card"
-				style="@style/Card"
+				<CheckBox
+					android:id="@+id/wishlist"
+					style="@style/EditCheckbox.Card"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="wishlist"
+					android:text="@string/collection_status_wishlist"/>
+
+				<Spinner
+					android:id="@+id/wishlist_priority"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:theme="@style/EditSpinner.Card"/>
+			</LinearLayout>
+
+			<TextView
+				android:id="@+id/edit_wishlist_comment"
+				style="@style/Text.Clickable"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				app:headerText="@string/wishlist_comment"/>
+				android:drawableRight="@drawable/ic_action_edit_light"
+				tools:text="This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun! This game is fun!"/>
+
+			<TextView
+				android:id="@+id/add_wishlist_comment"
+				style="@style/Text.Clickable.Caps"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:drawableRight="@drawable/ic_action_edit_light"
+				android:text="@string/add_comment"
+				android:visibility="gone"/>
+
+			<com.boardgamegeek.ui.widget.TimestampView
+				android:id="@+id/wishlist_comment_edit_timestamp"
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:hideWhenEmpty="true"
+				tools:text="Yesterday"/>
 		</LinearLayout>
 	</android.support.v7.widget.CardView>
 
