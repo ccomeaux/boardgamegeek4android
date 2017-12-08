@@ -18,38 +18,36 @@ constructor(context: Context,
 
     override fun updateResolver(resolver: ContentResolver, internalId: Long): Boolean {
         val item = Item.fromResolver(resolver, internalId) ?: return false
-        val values = ContentValues(10)
-        val changed = updateValues(values, item)
-        if (changed) {
+        val values = updateValues(item)
+        if (values.size() > 0) {
             values.put(Collection.STATUS_DIRTY_TIMESTAMP, System.currentTimeMillis())
             resolver.update(Collection.buildUri(internalId), values, null, null)
-        }
-        return changed
-    }
-
-    private fun updateValues(values: ContentValues, item: Item): Boolean {
-        var changed = false
-        changed = changed || putValue(values, Collection.STATUS_OWN, item.owned)
-        changed = changed || putValue(values, Collection.STATUS_PREORDERED, item.preOrdered)
-        changed = changed || putValue(values, Collection.STATUS_FOR_TRADE, item.forTrade)
-        changed = changed || putValue(values, Collection.STATUS_WANT, item.wantInTrade)
-        changed = changed || putValue(values, Collection.STATUS_WANT_TO_PLAY, item.wantToPlay)
-        changed = changed || putValue(values, Collection.STATUS_WANT_TO_BUY, item.wantToBuy)
-        changed = changed || putValue(values, Collection.STATUS_PREVIOUSLY_OWNED, item.previouslyOwned)
-        changed = changed || putWishList(values, item)
-        return changed
-    }
-
-    private fun putValue(values: ContentValues, statusColumn: String, currentStatus: Boolean): Boolean {
-        val futureValue = statuses.contains(statusColumn)
-        if (currentStatus != futureValue) {
-            values.put(statusColumn, if (futureValue) 1 else 0)
             return true
         }
         return false
     }
 
-    private fun putWishList(values: ContentValues, item: Item): Boolean {
+    private fun updateValues(item: Item): ContentValues {
+        val values = ContentValues(10)
+        putStatus(values, Collection.STATUS_OWN, item.owned)
+        putStatus(values, Collection.STATUS_PREORDERED, item.preOrdered)
+        putStatus(values, Collection.STATUS_FOR_TRADE, item.forTrade)
+        putStatus(values, Collection.STATUS_WANT, item.wantInTrade)
+        putStatus(values, Collection.STATUS_WANT_TO_PLAY, item.wantToPlay)
+        putStatus(values, Collection.STATUS_WANT_TO_BUY, item.wantToBuy)
+        putStatus(values, Collection.STATUS_PREVIOUSLY_OWNED, item.previouslyOwned)
+        putWishList(values, item)
+        return values
+    }
+
+    private fun putStatus(values: ContentValues, statusColumn: String, currentStatus: Boolean) {
+        val futureValue = statuses.contains(statusColumn)
+        if (currentStatus != futureValue) {
+            values.put(statusColumn, if (futureValue) 1 else 0)
+        }
+    }
+
+    private fun putWishList(values: ContentValues, item: Item) {
         val futureValue = statuses.contains(Collection.STATUS_WISHLIST)
         if (futureValue != item.wishList && wishListPriority != item.wishListPriority) {
             if (statuses.contains(Collection.STATUS_WISHLIST)) {
@@ -58,9 +56,7 @@ constructor(context: Context,
             } else {
                 values.put(Collection.STATUS_WISHLIST, 0)
             }
-            return true
         }
-        return false
     }
 
     @DebugLog
