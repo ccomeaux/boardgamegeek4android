@@ -543,6 +543,7 @@
 	<string name="currently_worth">currently worth</string>
 	<string name="wishlist">Wishlist</string>
 	<string name="wishlist_comment">Wishlist Comment</string>
+	<string name="title_trade">Trade</string>
 	<string name="trade_condition">Trade Condition</string>
 	<string name="want_parts_list">Want Parts List</string>
 	<string name="has_parts_list">Has Parts List</string>

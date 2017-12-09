@@ -5,11 +5,12 @@ import android.content.res.TypedArray;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
-import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -17,10 +18,11 @@ import com.boardgamegeek.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TextEditorCard extends CardView {
+public class TextEditorCard extends FrameLayout {
 	@BindView(R.id.text_editor_header) TextView headerView;
 	@BindView(R.id.text_editor_content) TextView contentView;
 	@BindView(R.id.text_editor_timestamp) TimestampView timestampView;
+	@BindView(R.id.text_editor_image) ImageView imageView;
 	boolean isInEditMode;
 
 	public TextEditorCard(Context context) {
@@ -58,6 +60,7 @@ public class TextEditorCard extends CardView {
 
 	public void setTimestamp(long timestamp) {
 		timestampView.setTimestamp(timestamp);
+		setEditMode();
 	}
 
 	public String getContentText() {
@@ -89,10 +92,12 @@ public class TextEditorCard extends CardView {
 
 	private void setEditMode() {
 		if (isInEditMode) {
+			imageView.setVisibility(VISIBLE);
 			setVisibility(View.VISIBLE);
 			setClickable(true);
 		} else {
-			setVisibility(TextUtils.isEmpty(contentView.getText()) ? View.GONE : View.VISIBLE);
+			imageView.setVisibility(GONE);
+			setVisibility(TextUtils.isEmpty(contentView.getText()) && timestampView.getTimestamp() == 0 ? View.GONE : View.VISIBLE);
 			setClickable(false);
 		}
 	}

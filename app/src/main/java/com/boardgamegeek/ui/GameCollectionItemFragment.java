@@ -114,12 +114,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.trade_status) TextView tradeStatusView;
 	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
 	@BindView(R.id.for_trade) CheckBox forTradeView;
-	@BindView(R.id.trade_condition_header) View tradeConditionHeader;
-	@BindView(R.id.trade_condition) TextView tradeCondition;
-	@BindView(R.id.want_parts_header) View wantPartsHeader;
-	@BindView(R.id.want_parts) TextView wantParts;
-	@BindView(R.id.has_parts_header) View hasPartsHeader;
-	@BindView(R.id.has_parts) TextView hasParts;
 	@BindView(R.id.condition_card) TextEditorCard conditionCard;
 	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
 	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
@@ -147,9 +141,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.card_header_private_info,
 		R.id.wishlist_view_header,
 		R.id.wishlist_edit_header,
-		R.id.trade_condition_header,
-		R.id.want_parts_header,
-		R.id.has_parts_header
+		R.id.trade_view_header,
+		R.id.trade_edit_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
 		R.id.condition_card,
@@ -175,7 +168,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.comment_view_container,
 		R.id.wishlist_view_container,
 		R.id.trade_view_container
-	}) List<ViewGroup> visibleByTagViews;
+	}) List<View> visibleByTagViews;
 	@BindViews({
 		R.id.comment_container,
 		R.id.wishlist_container,
@@ -337,8 +330,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		commentContainer.setClickable(isEdit);
 		ratingContainer.setClickable(isEdit);
 		privateInfoContainer.setClickable(isEdit);
-
-		// TODO: 12/8/17 make wishlist comment clickable
 
 		conditionCard.enableEditMode(isEdit);
 		wantPartsCard.enableEditMode(isEdit);
@@ -706,12 +697,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (item.isForTrade()) statusDescriptions.add(getString(R.string.collection_status_for_trade));
 		if (item.isWantInTrade()) statusDescriptions.add(getString(R.string.collection_status_want_in_trade));
 		tradeStatusView.setText(StringUtils.formatList(statusDescriptions));
-		tradeConditionHeader.setVisibility(TextUtils.isEmpty(item.getCondition()) ? View.GONE : View.VISIBLE);
-		PresentationUtils.setTextOrHide(tradeCondition, item.getCondition());
-		wantPartsHeader.setVisibility(TextUtils.isEmpty(item.getWantParts()) ? View.GONE : View.VISIBLE);
-		PresentationUtils.setTextOrHide(wantParts, item.getWantParts());
-		hasPartsHeader.setVisibility(TextUtils.isEmpty(item.getHasParts()) ? View.GONE : View.VISIBLE);
-		PresentationUtils.setTextOrHide(hasParts, item.getHasParts());
 		setVisibleTag(tradeViewContainer, item.isForTrade() || item.isWantInTrade());
 
 		// edit
