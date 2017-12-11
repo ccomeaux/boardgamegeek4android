@@ -366,21 +366,13 @@
 				android:text="@string/title_trade"
 				android:textStyle="bold"/>
 
-			<LinearLayout
-				android:id="@+id/trade_view_container"
+			<TextView
+				android:id="@+id/trade_status"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:gravity="center_vertical"
-				android:orientation="vertical">
-
-				<TextView
-					android:id="@+id/trade_status"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:maxLines="1"
-					android:textAppearance="@style/Text.Subtitle"
-					tools:text="For Trade"/>
-			</LinearLayout>
+				android:maxLines="1"
+				android:textAppearance="@style/Text.Subtitle"
+				tools:text="For Trade"/>
 
 			<LinearLayout
 				android:id="@+id/trade_edit_container"

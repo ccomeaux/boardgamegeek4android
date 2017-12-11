@@ -110,7 +110,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	// trade
 	@BindView(R.id.trade_container) ViewGroup tradeContainer;
-	@BindView(R.id.trade_view_container) ViewGroup tradeViewContainer;
 	@BindView(R.id.trade_status) TextView tradeStatusView;
 	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
 	@BindView(R.id.for_trade) CheckBox forTradeView;
@@ -165,7 +164,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindViews({
 		R.id.comment_view_container,
 		R.id.wishlist_view_container,
-		R.id.trade_view_container
+		R.id.trade_status
 	}) List<View> visibleByTagViews;
 	@BindViews({
 		R.id.comment_container,
@@ -694,8 +693,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		List<String> statusDescriptions = new ArrayList<>();
 		if (item.isForTrade()) statusDescriptions.add(getString(R.string.collection_status_for_trade));
 		if (item.isWantInTrade()) statusDescriptions.add(getString(R.string.collection_status_want_in_trade));
-		tradeStatusView.setText(StringUtils.formatList(statusDescriptions));
-		setVisibleTag(tradeViewContainer, item.isForTrade() || item.isWantInTrade());
+		PresentationUtils.setTextOrHide(tradeStatusView, StringUtils.formatList(statusDescriptions));
+		setVisibleTag(tradeStatusView, item.isForTrade() || item.isWantInTrade());
 
 		// edit
 		wantInTradeView.setChecked(item.isWantInTrade());
