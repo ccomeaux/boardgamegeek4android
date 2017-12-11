@@ -139,10 +139,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindViews({
 		R.id.add_comment,
 		R.id.card_header_private_info,
-		R.id.wishlist_view_header,
-		R.id.wishlist_edit_header,
-		R.id.trade_view_header,
-		R.id.trade_edit_header
+		R.id.wishlist_header,
+		R.id.trade_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
 		R.id.condition_card,
@@ -341,7 +339,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			ButterKnife.apply(visibleByTagViews, PresentationUtils.setVisibilityByTag);
 		}
 
-		ButterKnife.apply(visibleByChildrenViews, PresentationUtils.setVisibilityByChildren);
+		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
 	}
 
 	public void syncChanges() {
@@ -789,4 +787,20 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		}
 	}
+
+	public static final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
+		@Override
+		public void apply(@NonNull ViewGroup view, int index) {
+			for (int i = 0; i < view.getChildCount(); i++) {
+				View child = view.getChildAt(i);
+				String tag = (String) child.getTag();
+				if (tag != null && tag.equals("header")) continue;
+				if (child.getVisibility() == View.VISIBLE) {
+					view.setVisibility(View.VISIBLE);
+					return;
+				}
+			}
+			view.setVisibility(View.GONE);
+		}
+	};
 }

@@ -501,20 +501,6 @@ public class PresentationUtils {
 		}
 	};
 
-	public static final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
-		@Override
-		public void apply(@NonNull ViewGroup view, int index) {
-			for (int i = 0; i < view.getChildCount(); i++) {
-				View child = view.getChildAt(i);
-				if (child.getVisibility() == View.VISIBLE) {
-					view.setVisibility(View.VISIBLE);
-					return;
-				}
-			}
-			view.setVisibility(View.GONE);
-		}
-	};
-
 	public static void colorFab(FloatingActionButton fab, @ColorInt int iconColor) {
 		if (fab != null && iconColor != Color.TRANSPARENT) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
