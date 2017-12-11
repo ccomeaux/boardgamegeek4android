@@ -97,16 +97,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
 
 	// wishlist
-	@BindView(R.id.wishlist_view_container) ViewGroup wishlistViewContainer;
 	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
-	@BindView(R.id.wishlist_comment) TextView wishlistCommentView;
-	@BindView(R.id.wishlist_comment_view_timestamp) TimestampView wishlistCommentViewTimestampView;
 	@BindView(R.id.wishlist_edit_container) ViewGroup wishlistEditContainer;
 	@BindView(R.id.wishlist) CheckBox wishlistView;
 	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
-	@BindView(R.id.edit_wishlist_comment) TextView editWishlistCommentView;
-	@BindView(R.id.add_wishlist_comment) TextView addWishlistCommentView;
-	@BindView(R.id.wishlist_comment_edit_timestamp) TimestampView wishlistCommentEditTimestampView;
+	@BindView(R.id.wishlist_comment_card) TextEditorCard wishlistCommentCard;
 
 	// trade
 	@BindView(R.id.trade_container) ViewGroup tradeContainer;
@@ -142,6 +137,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.trade_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
+		R.id.wishlist_comment_card,
 		R.id.condition_card,
 		R.id.want_parts_card,
 		R.id.has_parts_card
@@ -163,14 +159,16 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}) List<View> viewOnlyFields;
 	@BindViews({
 		R.id.comment_view_container,
-		R.id.wishlist_view_container,
+		R.id.wishlist_status,
 		R.id.trade_status
 	}) List<View> visibleByTagViews;
 	@BindViews({
-		R.id.comment_container,
+		R.id.comment_container
+	}) List<ViewGroup> visibleByChildrenViews;
+	@BindViews({
 		R.id.wishlist_container,
 		R.id.trade_container
-	}) List<ViewGroup> visibleByChildrenViews;
+	}) List<ViewGroup> visibleByGrandchildrenViews;
 	@BindViews({
 		R.id.want_to_buy,
 		R.id.preordered,
@@ -182,7 +180,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.wishlist
 	}) List<CheckBox> statusViews;
 	private EditTextDialogFragment commentDialogFragment;
-	private EditTextDialogFragment wishlistCommentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private int gameId = BggContract.INVALID_ID;
@@ -328,6 +325,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		ratingContainer.setClickable(isEdit);
 		privateInfoContainer.setClickable(isEdit);
 
+		wishlistCommentCard.enableEditMode(isEdit);
 		conditionCard.enableEditMode(isEdit);
 		wantPartsCard.enableEditMode(isEdit);
 		hasPartsCard.enableEditMode(isEdit);
@@ -339,6 +337,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 
 		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
+		ButterKnife.apply(visibleByGrandchildrenViews, setVisibilityByGrandchildren);
 	}
 
 	public void syncChanges() {
@@ -407,34 +406,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		updateStatuses();
 	}
 
-	@DebugLog
-	@OnClick({ R.id.edit_wishlist_comment, R.id.add_wishlist_comment })
-	public void onWishlistCommentClick() {
-		ensureWishlistCommentDialogFragment();
-		wishlistCommentDialogFragment.setText(wishlistCommentView.getText().toString());
-		DialogUtils.showFragment(getActivity(), wishlistCommentDialogFragment, "wishlist_comment_dialog");
-	}
-
-	@DebugLog
-	private void ensureWishlistCommentDialogFragment() {
-		if (wishlistCommentDialogFragment == null) {
-			wishlistCommentDialogFragment = EditTextDialogFragment.newLongFormInstance(
-				R.string.wishlist_comment,
-				wishlistEditContainer,
-				new EditTextDialogListener() {
-					@Override
-					public void onFinishEditDialog(String inputText) {
-						UpdateCollectionItemTextTask task =
-							new UpdateCollectionItemTextTask(getActivity(),
-								gameId, collectionId, internalId, inputText,
-								Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
-		}
-	}
-
 	private void updateStatuses() {
 		List<String> statuses = new ArrayList<>();
 		for (CheckBox checkBox : statusViews) {
@@ -450,6 +421,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				gameId, collectionId, internalId,
 				statuses, wishlistPriority);
 		TaskUtils.executeAsyncTask(task);
+	}
+
+	@DebugLog
+	@OnClick(R.id.wishlist_comment_card)
+	public void onWishlistCommentClick() {
+		onTextEditorClick(wishlistCommentCard, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
@@ -673,9 +650,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		} else {
 			wishlistStatusView.setVisibility(View.GONE);
 		}
-		PresentationUtils.setTextOrHide(wishlistCommentView, item.getWishlistComment());
-		wishlistCommentViewTimestampView.setTimestamp(item.getWishlistCommentDirtyTimestamp());
-		setVisibleTag(wishlistViewContainer, item.isWishlist() || !TextUtils.isEmpty(item.getWishlistComment()));
+		setVisibleTag(wishlistStatusView, item.isWishlist());
 
 		// edit
 		if (wishlistPriorityView.getAdapter() == null)
@@ -683,9 +658,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriorty() - 1);
 		wishlistPriorityView.setEnabled(item.isWishlist());
 		wishlistView.setChecked(item.isWishlist());
-		PresentationUtils.setTextOrHide(editWishlistCommentView, item.getWishlistComment());
-		addWishlistCommentView.setVisibility(TextUtils.isEmpty(item.getWishlistComment()) ? View.VISIBLE : View.GONE);
-		wishlistCommentEditTimestampView.setTimestamp(item.getWishlistCommentDirtyTimestamp());
+		wishlistCommentCard.setContentText(item.getWishlistComment());
+		wishlistCommentCard.setTimestamp(item.getWishlistCommentDirtyTimestamp());
 	}
 
 	private void bindTrade(CollectionItem item) {
@@ -797,6 +771,25 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				if (child.getVisibility() == View.VISIBLE) {
 					view.setVisibility(View.VISIBLE);
 					return;
+				}
+			}
+			view.setVisibility(View.GONE);
+		}
+	};
+
+	public static final ButterKnife.Action<ViewGroup> setVisibilityByGrandchildren = new ButterKnife.Action<ViewGroup>() {
+		@Override
+		public void apply(@NonNull ViewGroup view, int index) {
+			for (int i = 0; i < view.getChildCount(); i++) {
+				ViewGroup child = (ViewGroup) view.getChildAt(i);
+				for (int j = 0; j < child.getChildCount(); j++) {
+					View grandchild = child.getChildAt(j);
+					String tag = (String) grandchild.getTag();
+					if (tag != null && tag.equals("header")) continue;
+					if (grandchild.getVisibility() == View.VISIBLE) {
+						view.setVisibility(View.VISIBLE);
+						return;
+					}
 				}
 			}
 			view.setVisibility(View.GONE);
