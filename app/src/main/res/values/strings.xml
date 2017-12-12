@@ -195,8 +195,7 @@
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
-	<string name="add_comment">Add comment</string>
-	<string name="deleting_comment">Deleting comment</string>
+	<string name="comment">Comment</string>
 	<string name="title_sort">Sort by</string>
 	<string name="title_filter">Filter by</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>

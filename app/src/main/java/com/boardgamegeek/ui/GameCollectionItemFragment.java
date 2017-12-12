@@ -114,13 +114,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	// comment
 	@BindView(R.id.comment_container) ViewGroup commentContainer;
-	@BindView(R.id.comment_view_container) ViewGroup commentViewContainer;
-	@BindView(R.id.view_comment) TextView commentView;
-	@BindView(R.id.view_comment_deleting) TextView commentDeletingView;
-	@BindView(R.id.comment_view_timestamp) TimestampView commentViewTimestampView;
-	@BindView(R.id.edit_comment) TextView editCommentView;
-	@BindView(R.id.add_comment) TextView addCommentView;
-	@BindView(R.id.comment_edit_timestamp) TimestampView commentEditTimestampView;
+	@BindView(R.id.comment_card) TextEditorCard commentCard;
 
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
 	@BindView(R.id.private_info) TextView privateInfo;
@@ -131,12 +125,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.updated) TimestampView updated;
 
 	@BindViews({
-		R.id.add_comment,
 		R.id.card_header_private_info,
 		R.id.wishlist_header,
 		R.id.trade_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
+		R.id.comment_card,
 		R.id.wishlist_comment_card,
 		R.id.condition_card,
 		R.id.want_parts_card,
@@ -150,7 +144,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.previously_owned,
 		R.id.want_in_trade,
 		R.id.for_trade,
-		R.id.comment_edit_container,
 		R.id.wishlist_edit_container,
 		R.id.trade_edit_container
 	}) List<View> editFields;
@@ -158,7 +151,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.status
 	}) List<View> viewOnlyFields;
 	@BindViews({
-		R.id.comment_view_container,
 		R.id.wishlist_status,
 		R.id.trade_status
 	}) List<View> visibleByTagViews;
@@ -325,6 +317,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		ratingContainer.setClickable(isEdit);
 		privateInfoContainer.setClickable(isEdit);
 
+		commentCard.enableEditMode(isEdit);
 		wishlistCommentCard.enableEditMode(isEdit);
 		conditionCard.enableEditMode(isEdit);
 		wantPartsCard.enableEditMode(isEdit);
@@ -424,6 +417,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
+	@OnClick(R.id.comment_card)
+	public void onCommentClick() {
+		onTextEditorClick(commentCard, Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
+	}
+
+	@DebugLog
 	@OnClick(R.id.wishlist_comment_card)
 	public void onWishlistCommentClick() {
 		onTextEditorClick(wishlistCommentCard, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
@@ -465,34 +464,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		);
 		dialogFragment.setText(card.getContentText());
 		DialogUtils.showFragment(getActivity(), dialogFragment, card.toString());
-	}
-
-	@DebugLog
-	@OnClick(R.id.comment_edit_container)
-	public void onCommentClick() {
-		ensureCommentDialogFragment();
-		commentDialogFragment.setText(commentView.getText().toString());
-		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
-	}
-
-	@DebugLog
-	private void ensureCommentDialogFragment() {
-		if (commentDialogFragment == null) {
-			commentDialogFragment = EditTextDialogFragment.newLongFormInstance(
-				R.string.title_comments,
-				commentContainer,
-				new EditTextDialogListener() {
-					@Override
-					public void onFinishEditDialog(String inputText) {
-						UpdateCollectionItemTextTask task =
-							new UpdateCollectionItemTextTask(getActivity(),
-								gameId, collectionId, internalId, inputText,
-								Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
-		}
 	}
 
 	@DebugLog
@@ -632,15 +603,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	private void bindComment(CollectionItem item) {
-		// view
-		PresentationUtils.setTextOrHide(commentView, item.getComment());
-		commentDeletingView.setVisibility(TextUtils.isEmpty(item.getComment()) && item.getCommentTimestamp() > 0 ? View.VISIBLE : View.GONE);
-		commentViewTimestampView.setTimestamp(item.getCommentTimestamp());
-		setVisibleTag(commentViewContainer, !TextUtils.isEmpty(item.getComment()) || item.getCommentTimestamp() > 0);
-		// edit
-		PresentationUtils.setTextOrHide(editCommentView, item.getComment());
-		addCommentView.setVisibility(TextUtils.isEmpty(item.getComment()) ? View.VISIBLE : View.GONE);
-		commentEditTimestampView.setTimestamp(item.getCommentTimestamp());
+		commentCard.setContentText(item.getComment());
+		commentCard.setTimestamp(item.getCommentTimestamp());
 	}
 
 	private void bindWishlist(CollectionItem item) {
