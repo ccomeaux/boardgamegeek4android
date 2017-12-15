@@ -96,6 +96,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.want_to_play) CheckBox wantToPlayView;
 	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
 
+	// comment
+	@BindView(R.id.comment_card) TextEditorCard commentCard;
+
 	// wishlist
 	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
 	@BindView(R.id.wishlist_edit_container) ViewGroup wishlistEditContainer;
@@ -112,14 +115,17 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
 	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
 
-	// comment
-	@BindView(R.id.comment_container) ViewGroup commentContainer;
-	@BindView(R.id.comment_card) TextEditorCard commentCard;
-
+	// private info
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
-	@BindView(R.id.private_info) TextView privateInfo;
-	@BindView(R.id.private_info_comments) TextView privateInfoComments;
+	@BindView(R.id.private_info_view_container) ViewGroup privateInfoViewContainer;
+	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
+	@BindView(R.id.private_info_comments_view) TextView viewPrivateInfoCommentsView;
+	@BindView(R.id.private_info_edit_container) ViewGroup privateInfoEditContainer;
+	@BindView(R.id.private_info_edit) TextView editPrivateInfoView;
+	@BindView(R.id.private_info_comments_edit) TextView editPrivateInfoCommentsView;
 	@BindView(R.id.private_info_timestamp) TimestampView privateInfoTimestampView;
+
+	// footer
 	@BindView(R.id.last_modified) TimestampView lastModified;
 	@BindView(R.id.collection_id) TextView id;
 	@BindView(R.id.updated) TimestampView updated;
@@ -137,13 +143,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.has_parts_card
 	}) List<TextEditorCard> textEditorCards;
 	@BindViews({
-		R.id.want_to_buy,
-		R.id.preordered,
-		R.id.own,
-		R.id.want_to_play,
-		R.id.previously_owned,
-		R.id.want_in_trade,
-		R.id.for_trade,
+		R.id.status_edit_container,
+		R.id.private_info_edit_container,
 		R.id.wishlist_edit_container,
 		R.id.trade_edit_container
 	}) List<View> editFields;
@@ -151,13 +152,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.status
 	}) List<View> viewOnlyFields;
 	@BindViews({
+		R.id.status,
+		R.id.private_info_view_container,
 		R.id.wishlist_status,
 		R.id.trade_status
-	}) List<View> visibleByTagViews;
+	}) List<View> visibleByTagOrGoneViews;
 	@BindViews({
-		R.id.comment_container
-	}) List<ViewGroup> visibleByChildrenViews;
-	@BindViews({
+		R.id.private_info_container,
 		R.id.wishlist_container,
 		R.id.trade_container
 	}) List<ViewGroup> visibleByGrandchildrenViews;
@@ -171,7 +172,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.for_trade,
 		R.id.wishlist
 	}) List<CheckBox> statusViews;
-	private EditTextDialogFragment commentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private int gameId = BggContract.INVALID_ID;
@@ -310,12 +310,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindVisibility() {
 		boolean isEdit = isEditable && isItemEditable;
 
-		ButterKnife.apply(viewOnlyFields, PresentationUtils.setVisibility, !isEdit);
 		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
 
-		commentContainer.setClickable(isEdit);
 		ratingContainer.setClickable(isEdit);
-		privateInfoContainer.setClickable(isEdit);
 
 		commentCard.enableEditMode(isEdit);
 		wishlistCommentCard.enableEditMode(isEdit);
@@ -324,12 +321,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		hasPartsCard.enableEditMode(isEdit);
 
 		if (isEdit) {
-			ButterKnife.apply(visibleByTagViews, PresentationUtils.setGone);
+			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setGone);
 		} else {
-			ButterKnife.apply(visibleByTagViews, PresentationUtils.setVisibilityByTag);
+			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setVisibilityByTag);
 		}
 
-		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
 		ButterKnife.apply(visibleByGrandchildrenViews, setVisibilityByGrandchildren);
 	}
 
@@ -490,17 +486,17 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
-	@OnClick(R.id.private_info_container)
+	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
 		ensurePrivateInfoDialogFragment();
-		privateInfoDialogFragment.setPriceCurrency(String.valueOf(privateInfo.getTag(R.id.price_currency)));
-		privateInfoDialogFragment.setPrice(getDoubleFromTag(privateInfo, R.id.price));
-		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(privateInfo.getTag(R.id.current_value_currency)));
-		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(privateInfo, R.id.current_value));
-		privateInfoDialogFragment.setQuantity(getIntFromTag(privateInfo, R.id.quantity));
-		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(privateInfo.getTag(R.id.acquisition_date)));
-		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(privateInfo.getTag(R.id.acquired_from)));
-		privateInfoDialogFragment.setComment(privateInfoComments.getText().toString());
+		privateInfoDialogFragment.setPriceCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.price_currency)));
+		privateInfoDialogFragment.setPrice(getDoubleFromTag(editPrivateInfoView, R.id.price));
+		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.current_value_currency)));
+		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(editPrivateInfoView, R.id.current_value));
+		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
+		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
+		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
+		privateInfoDialogFragment.setComment(editPrivateInfoCommentsView.getText().toString());
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
 	}
 
@@ -520,7 +516,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void ensurePrivateInfoDialogFragment() {
 		if (privateInfoDialogFragment == null) {
 			privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
-				privateInfoContainer,
+				privateInfoEditContainer,
 				new PrivateInfoDialogListener() {
 					@Override
 					public void onFinishEditDialog(PrivateInfo privateInfo) {
@@ -565,34 +561,26 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		isItemEditable = true;
 
-		statusView.setText(getStatusDescription(item));
-
-		rating.setText(PresentationUtils.describePersonalRating(getActivity(), item.getRating()));
-		rating.setTag(MathUtils.constrain(item.getRating(), 0.0, 10.0));
-		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.getRating()));
-		ratingTimestampView.setTimestamp(item.getRatingTimestamp());
-
+		// statuses
+		final String statusDescription = getStatusDescription(item);
+		statusView.setText(TextUtils.isEmpty(statusDescription) ? getString(R.string.invalid_collection_status) : statusDescription);
+		setVisibleTag(statusView, !TextUtils.isEmpty(statusDescription));
 		wantToBuyView.setChecked(item.isWantToBuy());
 		preorderedView.setChecked(item.isPreordered());
 		ownView.setChecked(item.isOwn());
 		wantToPlayView.setChecked(item.isWantToPlay());
 		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
 
+		// rating
+		rating.setText(PresentationUtils.describePersonalRating(getActivity(), item.getRating()));
+		rating.setTag(MathUtils.constrain(item.getRating(), 0.0, 10.0));
+		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.getRating()));
+		ratingTimestampView.setTimestamp(item.getRatingTimestamp());
+
 		bindComment(item);
 		bindWishlist(item);
 		bindTrade(item);
-
-		privateInfo.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
-		privateInfo.setText(getPrivateInfo(item));
-		privateInfo.setTag(R.id.price_currency, item.getPriceCurrency());
-		privateInfo.setTag(R.id.price, item.getPrice());
-		privateInfo.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
-		privateInfo.setTag(R.id.current_value, item.getCurrentValue());
-		privateInfo.setTag(R.id.quantity, item.getQuantity());
-		privateInfo.setTag(R.id.acquisition_date, item.getAcquisitionDate());
-		privateInfo.setTag(R.id.acquired_from, item.getAcquiredFrom());
-		PresentationUtils.setTextOrHide(privateInfoComments, item.getPrivateComment());
-		privateInfoTimestampView.setTimestamp(item.getPrivateInfoTimestamp());
+		bindPrivateInfo(item);
 
 		lastModified.setTimestamp(item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() :
 			item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime());
@@ -645,6 +633,27 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		hasPartsCard.setTimestamp(item.getHasPartsDirtyTimestamp());
 	}
 
+	private void bindPrivateInfo(CollectionItem item) {
+		// view
+		PresentationUtils.setTextOrHide(viewPrivateInfoView, getPrivateInfo(item));
+		PresentationUtils.setTextOrHide(viewPrivateInfoCommentsView, item.getPrivateComment());
+		setVisibleTag(privateInfoViewContainer, hasPrivateInfo(item));
+
+		// edit
+		editPrivateInfoView.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
+		editPrivateInfoView.setText(getPrivateInfo(item));
+		editPrivateInfoView.setTag(R.id.price_currency, item.getPriceCurrency());
+		editPrivateInfoView.setTag(R.id.price, item.getPrice());
+		editPrivateInfoView.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
+		editPrivateInfoView.setTag(R.id.current_value, item.getCurrentValue());
+		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
+		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
+		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
+		PresentationUtils.setTextOrHide(editPrivateInfoCommentsView, item.getPrivateComment());
+
+		privateInfoTimestampView.setTimestamp(item.getPrivateInfoTimestamp());
+	}
+
 	private void setVisibleTag(View view, boolean isVisible) {
 		view.setTag(R.id.visibility, isVisible);
 	}
@@ -658,11 +667,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (item.isPreordered()) statusDescriptions.add(getString(R.string.collection_status_preordered));
 
 		String status = StringUtils.formatList(statusDescriptions);
-		if (TextUtils.isEmpty(status)) {
-			if (item.getNumberOfPlays() > 0) {
-				return getString(R.string.played);
-			}
-			return getString(R.string.invalid_collection_status);
+		if (TextUtils.isEmpty(status) && item.getNumberOfPlays() > 0) {
+			return getString(R.string.played);
 		}
 		return status;
 	}
@@ -708,7 +714,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		return sb;
 	}
 
-	boolean hasPrivateInfo(CollectionItem item) {
+	static boolean hasPrivateInfo(CollectionItem item) {
 		return item.getQuantity() > 1 ||
 			!TextUtils.isEmpty(item.getAcquisitionDate()) ||
 			!TextUtils.isEmpty(item.getAcquiredFrom()) ||
@@ -725,32 +731,26 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	public static final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
-		@Override
-		public void apply(@NonNull ViewGroup view, int index) {
-			for (int i = 0; i < view.getChildCount(); i++) {
-				View child = view.getChildAt(i);
-				String tag = (String) child.getTag();
-				if (tag != null && tag.equals("header")) continue;
-				if (child.getVisibility() == View.VISIBLE) {
-					view.setVisibility(View.VISIBLE);
-					return;
-				}
-			}
-			view.setVisibility(View.GONE);
-		}
-	};
-
 	public static final ButterKnife.Action<ViewGroup> setVisibilityByGrandchildren = new ButterKnife.Action<ViewGroup>() {
 		@Override
 		public void apply(@NonNull ViewGroup view, int index) {
 			for (int i = 0; i < view.getChildCount(); i++) {
-				ViewGroup child = (ViewGroup) view.getChildAt(i);
-				for (int j = 0; j < child.getChildCount(); j++) {
-					View grandchild = child.getChildAt(j);
-					String tag = (String) grandchild.getTag();
+				final View child = view.getChildAt(i);
+				if (child instanceof ViewGroup) {
+					ViewGroup childViewGroup = (ViewGroup) child;
+					for (int j = 0; j < childViewGroup.getChildCount(); j++) {
+						View grandchild = childViewGroup.getChildAt(j);
+						String tag = (String) grandchild.getTag();
+						if (tag != null && tag.equals("header")) continue;
+						if (grandchild.getVisibility() == View.VISIBLE) {
+							view.setVisibility(View.VISIBLE);
+							return;
+						}
+					}
+				} else {
+					String tag = (String) child.getTag();
 					if (tag != null && tag.equals("header")) continue;
-					if (grandchild.getVisibility() == View.VISIBLE) {
+					if (child.getVisibility() == View.VISIBLE) {
 						view.setVisibility(View.VISIBLE);
 						return;
 					}

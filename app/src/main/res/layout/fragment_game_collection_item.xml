@@ -10,117 +10,125 @@
 	android:orientation="vertical"
 	tools:context=".ui.GameCollectionItemActivity">
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
-		android:orientation="horizontal"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/padding_extra">
-
-		<TextView
-			android:id="@+id/status"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:background="?attr/selectableItemBackground"
-			android:maxLines="2"
-			android:textAppearance="@style/Text.Title"
-			tools:text="Own"/>
-
-		<com.boardgamegeek.ui.widget.ForegroundLinearLayout
-			android:id="@+id/rating_container"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="top|right"
-			android:layout_marginLeft="@dimen/padding_standard"
-			android:foreground="?attr/selectableItemBackgroundBorderless"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/rating"
-				style="@style/RatingLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				tools:background="#0f0"
-				tools:text="9.5"/>
-
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/rating_timestamp"
-				style="@style/Text.Footnote2"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				app:hideWhenEmpty="true"
-				tools:text="Yesterday"/>
-		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
-	</LinearLayout>
-
-	<CheckBox
-		android:id="@+id/want_to_buy"
-		style="@style/EditCheckbox"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:tag="want_to_buy"
-		android:text="@string/collection_status_want_to_buy"
-		android:visibility="gone"
-		tools:visibility="invisible"/>
-
-	<CheckBox
-		android:id="@+id/preordered"
-		style="@style/EditCheckbox"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:tag="preordered"
-		android:text="@string/collection_status_preordered"
-		android:visibility="gone"
-		tools:visibility="invisible"/>
-
-	<CheckBox
-		android:id="@+id/own"
-		style="@style/EditCheckbox"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:tag="own"
-		android:text="@string/collection_status_own"
-		android:visibility="gone"
-		tools:visibility="invisible"/>
-
-	<CheckBox
-		android:id="@+id/want_to_play"
-		style="@style/EditCheckbox"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:tag="want_to_play"
-		android:text="@string/collection_status_want_to_play"
-		android:visibility="gone"
-		tools:visibility="invisible"/>
-
-	<CheckBox
-		android:id="@+id/previously_owned"
-		style="@style/EditCheckbox"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:tag="previously_owned"
-		android:text="@string/collection_status_prev_owned"
-		android:visibility="gone"
-		tools:visibility="invisible"/>
-
 	<android.support.v7.widget.CardView
-		android:id="@+id/comment_container"
+		android:id="@+id/main_container"
 		style="@style/Card"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:paddingTop="@dimen/padding_extra">
 
-		<com.boardgamegeek.ui.widget.TextEditorCard
-			android:id="@+id/comment_card"
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerText="@string/comment"/>
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
+
+				<TextView
+					android:id="@+id/status"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:background="?attr/selectableItemBackground"
+					android:maxLines="2"
+					android:minHeight="32dp"
+					android:textAppearance="@style/Text.Title"
+					tools:text="Own"/>
+
+				<LinearLayout
+					android:id="@+id/status_edit_container"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					android:visibility="gone">
+
+					<CheckBox
+						android:id="@+id/want_to_buy"
+						style="@style/EditCheckbox.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:tag="want_to_buy"
+						android:text="@string/collection_status_want_to_buy"/>
+
+					<CheckBox
+						android:id="@+id/preordered"
+						style="@style/EditCheckbox.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:tag="preordered"
+						android:text="@string/collection_status_preordered"/>
+
+					<CheckBox
+						android:id="@+id/own"
+						style="@style/EditCheckbox.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:tag="own"
+						android:text="@string/collection_status_own"/>
+
+					<CheckBox
+						android:id="@+id/want_to_play"
+						style="@style/EditCheckbox.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:tag="want_to_play"
+						android:text="@string/collection_status_want_to_play"/>
+
+					<CheckBox
+						android:id="@+id/previously_owned"
+						style="@style/EditCheckbox.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:tag="previously_owned"
+						android:text="@string/collection_status_prev_owned"/>
+				</LinearLayout>
+
+				<android.support.v4.widget.Space
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1"/>
+
+				<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+					android:id="@+id/rating_container"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="top|right"
+					android:layout_marginLeft="@dimen/padding_standard"
+					android:foreground="?attr/selectableItemBackgroundBorderless"
+					android:gravity="center_vertical"
+					android:minHeight="@dimen/edit_row_height"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/rating"
+						style="@style/RatingLarge"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="right"
+						tools:background="#0f0"
+						tools:text="9.5"/>
+
+					<com.boardgamegeek.ui.widget.TimestampView
+						android:id="@+id/rating_timestamp"
+						style="@style/Text.Footnote2"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="right"
+						app:hideWhenEmpty="true"
+						tools:text="Yesterday"/>
+				</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+			</LinearLayout>
+
+			<com.boardgamegeek.ui.widget.TextEditorCard
+				android:id="@+id/comment_card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:headerText="@string/comment"/>
+		</LinearLayout>
 	</android.support.v7.widget.CardView>
 
 	<android.support.v7.widget.CardView
@@ -131,38 +139,79 @@
 		android:visibility="gone"
 		tools:visibility="visible">
 
-		<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:foreground="?attr/selectableItemBackgroundBorderless"
 			android:orientation="vertical">
 
 			<TextView
 				android:id="@+id/card_header_private_info"
 				style="@style/Text.Header.Card"
 				android:layout_width="match_parent"
+				android:tag="header"
 				android:text="@string/private_info"
 				android:textStyle="bold"/>
 
 			<LinearLayout
+				android:id="@+id/private_info_view_container"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingBottom="@dimen/padding_half">
+				android:orientation="vertical">
 
 				<TextView
-					android:id="@+id/private_info"
+					android:id="@+id/private_info_view"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:textAppearance="@style/Text"
 					tools:text="Acquired on Jan 1, 1999"/>
 
 				<TextView
-					android:id="@+id/private_info_comments"
+					android:id="@+id/private_info_comments_view"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:paddingBottom="@dimen/padding_half"
 					tools:text="Don't tell anyone my true feelings about this game."/>
 			</LinearLayout>
+
+			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+				android:id="@+id/private_info_edit_container"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:focusable="true"
+				android:foreground="?attr/selectableItemBackgroundBorderless"
+				android:gravity="center_vertical"
+				android:minHeight="@dimen/edit_row_height"
+				android:orientation="horizontal">
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/private_info_edit"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:textAppearance="@style/Text"
+						tools:text="Acquired on Jan 1, 1999"/>
+
+					<TextView
+						android:id="@+id/private_info_comments_edit"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:paddingBottom="@dimen/padding_half"
+						tools:text="Don't tell anyone my true feelings about this game."/>
+				</LinearLayout>
+
+				<ImageView
+					android:id="@+id/text_editor_image"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:contentDescription="@string/edit"
+					android:src="@drawable/ic_action_edit_light"/>
+			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/private_info_timestamp"
@@ -172,7 +221,7 @@
 				android:textAppearance="@style/Text.Footnote2"
 				app:hideWhenEmpty="true"
 				tools:text="Yesterday"/>
-		</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+		</LinearLayout>
 	</android.support.v7.widget.CardView>
 
 	<android.support.v7.widget.CardView
