@@ -81,7 +81,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
 	private Unbinder unbinder;
-	@BindView(R.id.root_container) ViewGroup rootContainer;
 
 	// rating
 	@BindView(R.id.rating_container) View ratingContainer;
@@ -101,13 +100,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	// wishlist
 	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
-	@BindView(R.id.wishlist_edit_container) ViewGroup wishlistEditContainer;
 	@BindView(R.id.wishlist) CheckBox wishlistView;
 	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
 	@BindView(R.id.wishlist_comment_card) TextEditorCard wishlistCommentCard;
 
 	// trade
-	@BindView(R.id.trade_container) ViewGroup tradeContainer;
 	@BindView(R.id.trade_status) TextView tradeStatusView;
 	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
 	@BindView(R.id.for_trade) CheckBox forTradeView;
@@ -126,9 +123,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.private_info_timestamp) TimestampView privateInfoTimestampView;
 
 	// footer
-	@BindView(R.id.last_modified) TimestampView lastModified;
-	@BindView(R.id.collection_id) TextView id;
-	@BindView(R.id.updated) TimestampView updated;
+	@BindView(R.id.last_modified) TimestampView lastModifiedView;
+	@BindView(R.id.collection_id) TextView idView;
+	@BindView(R.id.updated) TimestampView updatedView;
 
 	@BindViews({
 		R.id.card_header_private_info,
@@ -466,9 +463,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@OnClick(R.id.rating_container)
 	public void onRatingClick() {
 		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
-		if ("0".equals(output)) {
-			output = "";
-		}
+		if ("0".equals(output)) output = "";
 		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(getString(R.string.rating), output);
 		fragment.setMinValue(1.0);
 		fragment.setMaxValue(10.0);
@@ -477,8 +472,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			@Override
 			public void onDoneClick(String output) {
 				double rating = StringUtils.parseDouble(output);
-				UpdateCollectionItemRatingTask task =
-					new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
+				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
 				TaskUtils.executeAsyncTask(task);
 			}
 		});
@@ -558,10 +552,18 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	private void updateUi(CollectionItem item) {
 		notifyChange(item);
-
 		isItemEditable = true;
+		bindStatuses(item);
+		bindRating(item);
+		bindComment(item);
+		bindWishlist(item);
+		bindTrade(item);
+		bindPrivateInfo(item);
+		bindFooter(item);
+		bindVisibility();
+	}
 
-		// statuses
+	private void bindStatuses(CollectionItem item) {
 		final String statusDescription = getStatusDescription(item);
 		statusView.setText(TextUtils.isEmpty(statusDescription) ? getString(R.string.invalid_collection_status) : statusDescription);
 		setVisibleTag(statusView, !TextUtils.isEmpty(statusDescription));
@@ -570,24 +572,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		ownView.setChecked(item.isOwn());
 		wantToPlayView.setChecked(item.isWantToPlay());
 		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
+	}
 
-		// rating
+	private void bindRating(CollectionItem item) {
 		rating.setText(PresentationUtils.describePersonalRating(getActivity(), item.getRating()));
 		rating.setTag(MathUtils.constrain(item.getRating(), 0.0, 10.0));
 		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.getRating()));
 		ratingTimestampView.setTimestamp(item.getRatingTimestamp());
-
-		bindComment(item);
-		bindWishlist(item);
-		bindTrade(item);
-		bindPrivateInfo(item);
-
-		lastModified.setTimestamp(item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() :
-			item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime());
-		updated.setTimestamp(item.getUpdated());
-		PresentationUtils.setTextOrHide(id, item.getId());
-
-		bindVisibility();
 	}
 
 	private void bindComment(CollectionItem item) {
@@ -652,6 +643,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		PresentationUtils.setTextOrHide(editPrivateInfoCommentsView, item.getPrivateComment());
 
 		privateInfoTimestampView.setTimestamp(item.getPrivateInfoTimestamp());
+	}
+
+	private void bindFooter(CollectionItem item) {
+		final long defaultTimestamp = item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime();
+		final long timestamp = item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() : defaultTimestamp;
+		lastModifiedView.setTimestamp(timestamp);
+		updatedView.setTimestamp(item.getUpdated());
+		PresentationUtils.setTextOrHide(idView, item.getId());
 	}
 
 	private void setVisibleTag(View view, boolean isVisible) {
