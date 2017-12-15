@@ -35,7 +35,7 @@
 		<attr name="emptyMessage" format="string"/>
 		<attr name="hideWhenEmpty" format="boolean"/>
 	</declare-styleable>
-	<declare-styleable name="TextEditorCard">
+	<declare-styleable name="TextEditorView">
 		<attr name="headerText" format="string"/>
 	</declare-styleable>
 </resources>

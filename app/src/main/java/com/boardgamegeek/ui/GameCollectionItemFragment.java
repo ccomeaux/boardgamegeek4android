@@ -42,7 +42,7 @@ import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
-import com.boardgamegeek.ui.widget.TextEditorCard;
+import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -96,21 +96,21 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
 
 	// comment
-	@BindView(R.id.comment_card) TextEditorCard commentCard;
+	@BindView(R.id.comment) TextEditorView commentView;
 
 	// wishlist
 	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
 	@BindView(R.id.wishlist) CheckBox wishlistView;
 	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
-	@BindView(R.id.wishlist_comment_card) TextEditorCard wishlistCommentCard;
+	@BindView(R.id.wishlist_comment) TextEditorView wishlistCommentView;
 
 	// trade
 	@BindView(R.id.trade_status) TextView tradeStatusView;
 	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
 	@BindView(R.id.for_trade) CheckBox forTradeView;
-	@BindView(R.id.condition_card) TextEditorCard conditionCard;
-	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
-	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
+	@BindView(R.id.condition) TextEditorView conditionView;
+	@BindView(R.id.want_parts) TextEditorView wantPartsView;
+	@BindView(R.id.has_parts) TextEditorView hasPartsView;
 
 	// private info
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
@@ -133,12 +133,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.trade_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
-		R.id.comment_card,
-		R.id.wishlist_comment_card,
-		R.id.condition_card,
-		R.id.want_parts_card,
-		R.id.has_parts_card
-	}) List<TextEditorCard> textEditorCards;
+		R.id.comment,
+		R.id.wishlist_comment,
+		R.id.condition,
+		R.id.want_parts,
+		R.id.has_parts
+	}) List<TextEditorView> textEditorViews;
 	@BindViews({
 		R.id.status_edit_container,
 		R.id.private_info_edit_container,
@@ -311,11 +311,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		ratingContainer.setClickable(isEdit);
 
-		commentCard.enableEditMode(isEdit);
-		wishlistCommentCard.enableEditMode(isEdit);
-		conditionCard.enableEditMode(isEdit);
-		wantPartsCard.enableEditMode(isEdit);
-		hasPartsCard.enableEditMode(isEdit);
+		commentView.enableEditMode(isEdit);
+		wishlistCommentView.enableEditMode(isEdit);
+		conditionView.enableEditMode(isEdit);
+		wantPartsView.enableEditMode(isEdit);
+		hasPartsView.enableEditMode(isEdit);
 
 		if (isEdit) {
 			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setGone);
@@ -361,7 +361,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (palette == null || !isAdded()) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
-		ButterKnife.apply(textEditorCards, TextEditorCard.headerColorSetter, swatch);
+		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
 	}
 
 	@OnCheckedChanged({
@@ -410,40 +410,40 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
-	@OnClick(R.id.comment_card)
+	@OnClick(R.id.comment)
 	public void onCommentClick() {
-		onTextEditorClick(commentCard, Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
+		onTextEditorClick(commentView, Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	@OnClick(R.id.wishlist_comment_card)
+	@OnClick(R.id.wishlist_comment)
 	public void onWishlistCommentClick() {
-		onTextEditorClick(wishlistCommentCard, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
+		onTextEditorClick(wishlistCommentView, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	@OnClick(R.id.condition_card)
+	@OnClick(R.id.condition)
 	public void onConditionClick() {
-		onTextEditorClick(conditionCard, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
+		onTextEditorClick(conditionView, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	@OnClick(R.id.want_parts_card)
+	@OnClick(R.id.want_parts)
 	public void onWantPartsClick() {
-		onTextEditorClick(wantPartsCard, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
+		onTextEditorClick(wantPartsView, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	@OnClick(R.id.has_parts_card)
+	@OnClick(R.id.has_parts)
 	public void onHasPartsClick() {
-		onTextEditorClick(hasPartsCard, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
+		onTextEditorClick(hasPartsView, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	private void onTextEditorClick(TextEditorCard card, final String textColumn, final String timestampColumn) {
+	private void onTextEditorClick(TextEditorView view, final String textColumn, final String timestampColumn) {
 		EditTextDialogFragment dialogFragment = EditTextDialogFragment.newLongFormInstance(
-			card.getHeaderText(),
-			card,
+			view.getHeaderText(),
+			view,
 			new EditTextDialogListener() {
 				@Override
 				public void onFinishEditDialog(String inputText) {
@@ -455,8 +455,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				}
 			}
 		);
-		dialogFragment.setText(card.getContentText());
-		DialogUtils.showFragment(getActivity(), dialogFragment, card.toString());
+		dialogFragment.setText(view.getContentText());
+		DialogUtils.showFragment(getActivity(), dialogFragment, view.toString());
 	}
 
 	@DebugLog
@@ -582,8 +582,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	private void bindComment(CollectionItem item) {
-		commentCard.setContentText(item.getComment());
-		commentCard.setTimestamp(item.getCommentTimestamp());
+		commentView.setContent(item.getComment(), item.getCommentTimestamp());
 	}
 
 	private void bindWishlist(CollectionItem item) {
@@ -601,8 +600,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriorty() - 1);
 		wishlistPriorityView.setEnabled(item.isWishlist());
 		wishlistView.setChecked(item.isWishlist());
-		wishlistCommentCard.setContentText(item.getWishlistComment());
-		wishlistCommentCard.setTimestamp(item.getWishlistCommentDirtyTimestamp());
+
+		wishlistCommentView.setContent(item.getWishlistComment(), item.getWishlistCommentDirtyTimestamp());
 	}
 
 	private void bindTrade(CollectionItem item) {
@@ -616,12 +615,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		// edit
 		wantInTradeView.setChecked(item.isWantInTrade());
 		forTradeView.setChecked(item.isForTrade());
-		conditionCard.setContentText(item.getCondition());
-		conditionCard.setTimestamp(item.getTradeConditionDirtyTimestamp());
-		wantPartsCard.setContentText(item.getWantParts());
-		wantPartsCard.setTimestamp(item.getWantPartsDirtyTimestamp());
-		hasPartsCard.setContentText(item.getHasParts());
-		hasPartsCard.setTimestamp(item.getHasPartsDirtyTimestamp());
+
+		// both
+		conditionView.setContent(item.getCondition(), item.getTradeConditionDirtyTimestamp());
+		wantPartsView.setContent(item.getWantParts(), item.getWantPartsDirtyTimestamp());
+		hasPartsView.setContent(item.getHasParts(), item.getHasPartsDirtyTimestamp());
 	}
 
 	private void bindPrivateInfo(CollectionItem item) {
