@@ -37,17 +37,16 @@ import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
-import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
+import com.boardgamegeek.ui.widget.RatingView;
+import com.boardgamegeek.ui.widget.RatingView.Listener;
 import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -57,7 +56,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,14 +76,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private static final String KEY_COLLECTION_ID = "COLLECTION_ID";
 	private static final int _TOKEN = 0x31;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
 	private Unbinder unbinder;
 
 	// rating
-	@BindView(R.id.rating_container) View ratingContainer;
-	@BindView(R.id.rating) TextView rating;
-	@BindView(R.id.rating_timestamp) TimestampView ratingTimestampView;
+	@BindView(R.id.rating) RatingView rating;
 
 	// statuses
 	@BindView(R.id.status) TextView statusView;
@@ -210,6 +205,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
+		rating.setOnChangeListener(getActivity(), new Listener() {
+			@Override
+			public void onRatingChanged(double rating) {
+				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
+				TaskUtils.executeAsyncTask(task);
+			}
+		});
+
 		colorize(palette);
 
 		mightNeedRefreshing = true;
@@ -309,8 +312,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
 
-		ratingContainer.setClickable(isEdit);
-
+		rating.enableEditMode(isEdit);
 		commentView.enableEditMode(isEdit);
 		wishlistCommentView.enableEditMode(isEdit);
 		conditionView.enableEditMode(isEdit);
@@ -460,26 +462,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
-	@OnClick(R.id.rating_container)
-	public void onRatingClick() {
-		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
-		if ("0".equals(output)) output = "";
-		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(getString(R.string.rating), output);
-		fragment.setMinValue(1.0);
-		fragment.setMaxValue(10.0);
-		fragment.setMaxMantissa(6);
-		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-			@Override
-			public void onDoneClick(String output) {
-				double rating = StringUtils.parseDouble(output);
-				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
-				TaskUtils.executeAsyncTask(task);
-			}
-		});
-		DialogUtils.showFragment(getActivity(), fragment, "rating_dialog");
-	}
-
-	@DebugLog
 	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
 		ensurePrivateInfoDialogFragment();
@@ -575,10 +557,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	private void bindRating(CollectionItem item) {
-		rating.setText(PresentationUtils.describePersonalRating(getActivity(), item.getRating()));
-		rating.setTag(MathUtils.constrain(item.getRating(), 0.0, 10.0));
-		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.getRating()));
-		ratingTimestampView.setTimestamp(item.getRatingTimestamp());
+		rating.setContent(item.getRating(), item.getRatingTimestamp());
 	}
 
 	private void bindComment(CollectionItem item) {

@@ -38,4 +38,7 @@
 	<declare-styleable name="TextEditorView">
 		<attr name="headerText" format="string"/>
 	</declare-styleable>
+	<declare-styleable name="RatingView">
+		<attr name="hideWhenZero" format="boolean"/>
+	</declare-styleable>
 </resources>

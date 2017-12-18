@@ -92,35 +92,15 @@
 					android:layout_height="match_parent"
 					android:layout_weight="1"/>
 
-				<com.boardgamegeek.ui.widget.ForegroundLinearLayout
-					android:id="@+id/rating_container"
+				<com.boardgamegeek.ui.widget.RatingView
+					android:id="@+id/rating"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="top|right"
+					android:layout_gravity="top|end"
 					android:layout_marginLeft="@dimen/padding_standard"
-					android:foreground="?attr/selectableItemBackgroundBorderless"
-					android:gravity="center_vertical"
-					android:minHeight="@dimen/edit_row_height"
-					android:orientation="vertical">
-
-					<TextView
-						android:id="@+id/rating"
-						style="@style/RatingLarge"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="right"
-						tools:background="#0f0"
-						tools:text="9.5"/>
-
-					<com.boardgamegeek.ui.widget.TimestampView
-						android:id="@+id/rating_timestamp"
-						style="@style/Text.Footnote2"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="right"
-						app:hideWhenEmpty="true"
-						tools:text="Yesterday"/>
-				</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+					android:layout_marginStart="@dimen/padding_standard"
+					android:paddingTop="@dimen/padding_standard"
+					app:hideWhenZero="true"/>
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
