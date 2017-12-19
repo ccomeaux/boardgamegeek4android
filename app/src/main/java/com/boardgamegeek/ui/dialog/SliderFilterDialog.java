@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.appyvet.rangebar.RangeBar;
-import com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener;
-import com.appyvet.rangebar.RangeBar.PinTextFormatter;
+import com.appyvet.materialrangebar.RangeBar;
+import com.appyvet.materialrangebar.RangeBar.OnRangeBarChangeListener;
+import com.appyvet.materialrangebar.RangeBar.PinTextFormatter;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.util.MathUtils;
