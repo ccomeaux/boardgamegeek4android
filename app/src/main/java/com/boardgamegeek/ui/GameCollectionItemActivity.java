@@ -259,6 +259,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	}
 
 	private void displayEditMode() {
+		swipeRefreshLayout.setEnabled(!isInEditMode);
 		((GameCollectionItemFragment) getFragment()).enableEditMode(isInEditMode);
 		fab.setImageResource(isInEditMode ? R.drawable.fab_done : R.drawable.fab_edit);
 	}
