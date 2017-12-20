@@ -174,7 +174,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private Palette palette;
 	private boolean needsUploading;
 	@State boolean isItemEditable;
-	private boolean isEditable;
+	private boolean isInEditMode;
 
 	public static GameCollectionItemFragment newInstance(int gameId, int collectionId) {
 		Bundle args = new Bundle();
@@ -303,12 +303,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	public void enableEditMode(boolean enable) {
-		isEditable = enable;
+		isInEditMode = enable;
 		bindVisibility();
 	}
 
 	private void bindVisibility() {
-		boolean isEdit = isEditable && isItemEditable;
+		boolean isEdit = isInEditMode && isItemEditable;
 
 		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
 
@@ -322,7 +322,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (isEdit) {
 			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setGone);
 		} else {
-			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setVisibilityByTag);
+			ButterKnife.apply(visibleByTagOrGoneViews, setVisibilityByTag);
 		}
 
 		ButterKnife.apply(visibleByGrandchildrenViews, setVisibilityByGrandchildren);
@@ -378,7 +378,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	})
 	void onStatusCheckChanged(CompoundButton view) {
 		if (view.getVisibility() != View.VISIBLE) return;
-		if (!isEditable) return;
+		if (!isInEditMode) return;
 		if (view == wishlistView) {
 			wishlistPriorityView.setEnabled(wishlistView.isChecked());
 		}
@@ -390,7 +390,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (wishlistPriorityView.getVisibility() != View.VISIBLE) return;
 		if (!wishlistPriorityView.isEnabled()) return;
 		if (!wishlistView.isChecked()) return;
-		if (!isEditable) return;
+		if (!isInEditMode) return;
 		updateStatuses();
 	}
 
@@ -630,8 +630,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		PresentationUtils.setTextOrHide(idView, item.getId());
 	}
 
-	private void setVisibleTag(View view, boolean isVisible) {
+	private static void setVisibleTag(View view, boolean isVisible) {
 		view.setTag(R.id.visibility, isVisible);
+	}
+
+	private static boolean getVisibleTag(View view) {
+		final Object tag = view.getTag(R.id.visibility);
+		return tag != null && (boolean) tag;
 	}
 
 	private String getStatusDescription(CollectionItem item) {
@@ -707,7 +712,15 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	public static final ButterKnife.Action<ViewGroup> setVisibilityByGrandchildren = new ButterKnife.Action<ViewGroup>() {
+	private static final ButterKnife.Action<View> setVisibilityByTag = new ButterKnife.Action<View>() {
+		@Override
+		public void apply(@NonNull View view, int index) {
+			boolean isVisible = getVisibleTag(view);
+			view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+		}
+	};
+
+	private static final ButterKnife.Action<ViewGroup> setVisibilityByGrandchildren = new ButterKnife.Action<ViewGroup>() {
 		@Override
 		public void apply(@NonNull ViewGroup view, int index) {
 			for (int i = 0; i < view.getChildCount(); i++) {

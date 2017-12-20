@@ -492,15 +492,6 @@ public class PresentationUtils {
 		}
 	};
 
-	public static final ButterKnife.Action<View> setVisibilityByTag = new ButterKnife.Action<View>() {
-		@Override
-		public void apply(@NonNull View view, int index) {
-			final Object tag = view.getTag(R.id.visibility);
-			boolean isVisible = tag != null && (boolean) tag;
-			view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-		}
-	};
-
 	public static void colorFab(FloatingActionButton fab, @ColorInt int iconColor) {
 		if (fab != null && iconColor != Color.TRANSPARENT) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
