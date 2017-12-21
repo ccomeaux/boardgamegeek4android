@@ -74,13 +74,12 @@ import timber.log.Timber;
 public class GameCollectionItemFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_COLLECTION_ID = "COLLECTION_ID";
-	private static final int _TOKEN = 0x31;
+	private static final int _TOKEN = 0;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private Unbinder unbinder;
 
-	// rating
-	@BindView(R.id.rating) RatingView rating;
+	@BindView(R.id.main_container) ViewGroup mainContainer;
 
 	// statuses
 	@BindView(R.id.status) TextView statusView;
@@ -89,6 +88,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.own) CheckBox ownView;
 	@BindView(R.id.want_to_play) CheckBox wantToPlayView;
 	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
+
+	// rating
+	@BindView(R.id.rating) RatingView ratingView;
 
 	// comment
 	@BindView(R.id.comment) TextEditorView commentView;
@@ -150,6 +152,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.trade_status
 	}) List<View> visibleByTagOrGoneViews;
 	@BindViews({
+		R.id.main_container,
 		R.id.private_info_container,
 		R.id.wishlist_container,
 		R.id.trade_container
@@ -205,7 +208,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
-		rating.setOnChangeListener(getActivity(), new Listener() {
+		ratingView.setOnChangeListener(getActivity(), new Listener() {
 			@Override
 			public void onRatingChanged(double rating) {
 				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
@@ -253,9 +256,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != _TOKEN || collectionId == BggContract.INVALID_ID) {
-			return null;
-		}
+		if (id != _TOKEN || collectionId == BggContract.INVALID_ID) return null;
+
 		return new CursorLoader(getActivity(),
 			CollectionItem.Companion.getUri(),
 			CollectionItem.Companion.getProjection(),
@@ -267,15 +269,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		if (loader.getId() == _TOKEN) {
 			if (cursor == null || !cursor.moveToFirst()) {
-				if (mightNeedRefreshing) {
-					triggerRefresh();
-				}
+				if (mightNeedRefreshing) triggerRefresh();
 				return;
 			}
 
@@ -291,9 +289,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			mightNeedRefreshing = false;
 		} else {
 			Timber.d("Query complete, Not Actionable: %s", loader.getId());
-			if (cursor != null) {
-				cursor.close();
-			}
+			if (cursor != null) cursor.close();
 		}
 	}
 
@@ -312,7 +308,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
 
-		rating.enableEditMode(isEdit);
+		ratingView.enableEditMode(isEdit);
 		commentView.enableEditMode(isEdit);
 		wishlistCommentView.enableEditMode(isEdit);
 		conditionView.enableEditMode(isEdit);
@@ -526,41 +522,36 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
-	private void notifyChange(CollectionItem item) {
-		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getImageUrl(), item.getYear());
-		EventBus.getDefault().post(event);
-	}
-
-	@DebugLog
 	private void updateUi(CollectionItem item) {
 		notifyChange(item);
-		isItemEditable = true;
-		bindStatuses(item);
-		bindRating(item);
-		bindComment(item);
+		bindMainContainer(item);
 		bindWishlist(item);
 		bindTrade(item);
 		bindPrivateInfo(item);
 		bindFooter(item);
 		bindVisibility();
+		isItemEditable = true;
 	}
 
-	private void bindStatuses(CollectionItem item) {
+	@DebugLog
+	private void notifyChange(CollectionItem item) {
+		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getImageUrl(), item.getYear());
+		EventBus.getDefault().post(event);
+	}
+
+	private void bindMainContainer(CollectionItem item) {
 		final String statusDescription = getStatusDescription(item);
-		statusView.setText(TextUtils.isEmpty(statusDescription) ? getString(R.string.invalid_collection_status) : statusDescription);
+		PresentationUtils.setTextOrHide(statusView, statusDescription);
 		setVisibleTag(statusView, !TextUtils.isEmpty(statusDescription));
+		
 		wantToBuyView.setChecked(item.isWantToBuy());
 		preorderedView.setChecked(item.isPreordered());
 		ownView.setChecked(item.isOwn());
 		wantToPlayView.setChecked(item.isWantToPlay());
 		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
-	}
 
-	private void bindRating(CollectionItem item) {
-		rating.setContent(item.getRating(), item.getRatingTimestamp());
-	}
+		ratingView.setContent(item.getRating(), item.getRatingTimestamp());
 
-	private void bindComment(CollectionItem item) {
 		commentView.setContent(item.getComment(), item.getCommentTimestamp());
 	}
 
