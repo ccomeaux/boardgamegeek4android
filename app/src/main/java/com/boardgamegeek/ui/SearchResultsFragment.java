@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
@@ -235,6 +236,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 					public boolean onItemLongClick(int position) {
 						if (actionMode != null) return false;
 						actionMode = getActivity().startActionMode(SearchResultsFragment.this);
+						if (actionMode == null) return false;
 						toggleSelection(position);
 						return true;
 					}
@@ -551,8 +553,8 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 		int count = searchResultsAdapter.getSelectedItemCount();
-		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play).setVisible(Authenticator.isSignedIn(getContext()) && count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(Authenticator.isSignedIn(getContext()) && PreferencesUtils.showQuickLogPlay(getActivity()));
 		menu.findItem(R.id.menu_link).setVisible(count == 1);
 		return true;
 	}

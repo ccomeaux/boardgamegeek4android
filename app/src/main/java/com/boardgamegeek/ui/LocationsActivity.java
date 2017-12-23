@@ -48,7 +48,6 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_sort).setVisible(true);
 		if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
 			UIUtils.checkMenuItem(menu, R.id.menu_sort_quantity);
 		} else {

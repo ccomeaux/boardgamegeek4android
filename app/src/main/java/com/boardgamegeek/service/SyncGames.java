@@ -85,14 +85,12 @@ public abstract class SyncGames extends SyncTask {
 						Throwable cause = e.getCause();
 						if (cause instanceof ClassNotFoundException &&
 							cause.getMessage().startsWith("Didn't find class \"messagebox error\" on path")) {
-							syncResult.stats.numParseExceptions++;
 							Timber.i("Invalid list of game IDs: %s", gameList.getIds());
 							for (int i = 0; i < gameList.getSize(); i++) {
 								final boolean shouldBreak = syncGame(gameList.getId(i), syncResult, gameList.getName(i));
 								if (shouldBreak) break;
 							}
 						} else {
-							Timber.w(e);
 							showError(e.getLocalizedMessage());
 							syncResult.stats.numParseExceptions++;
 							break;
@@ -138,8 +136,16 @@ public abstract class SyncGames extends SyncTask {
 			syncResult.stats.numIoExceptions++;
 			return true;
 		} catch (RuntimeException e) {
-			showError(e.getLocalizedMessage());
-			syncResult.stats.numParseExceptions++;
+			Throwable cause = e.getCause();
+			if (cause instanceof ClassNotFoundException &&
+				cause.getMessage().startsWith("Didn't find class \"messagebox error\" on path")) {
+				Timber.i("Invalid game %s (%s)", gameName, id);
+				showError(e.getLocalizedMessage());
+				// otherwise just ignore this error
+			} else {
+				showError(e.getLocalizedMessage());
+				syncResult.stats.numParseExceptions++;
+			}
 			return false;
 		}
 		return false;
