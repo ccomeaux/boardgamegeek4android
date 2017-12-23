@@ -218,7 +218,6 @@
 	<string name="msg_import_failed_file_not_read">File \'%s\' can\'t be read.</string>
 	<string name="msg_import_failed_parse_json">Couldn\'t parse JSON.</string>
 	<string name="msg_import_failed_wrong_type">The imported file is the wrong type. Expected \'%1$s\', but got \'%2$s\'.</string>
-	<string name="favorite_colors_hint">Click to set your favorite colors when logging plays.</string>
 	<string name="backup_type_collection_view">Collection view</string>
 	<string name="backup_type_game">Game</string>
 	<string name="backup_type_user">User</string>

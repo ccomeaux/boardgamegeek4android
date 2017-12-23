@@ -88,7 +88,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@BindView(R.id.more_players_button) Button morePlayersButton;
 	@BindView(R.id.more_locations_button) Button moreLocationsButton;
 	@BindView(R.id.card_colors) View colorsCard;
-	@BindView(R.id.colors_hint) View colorsHint;
 	@BindView(R.id.color_container) LinearLayout colorContainer;
 	@BindView(R.id.h_index) TextView hIndexView;
 	@BindView(R.id.sync_status) TextView syncStatusView;
@@ -405,9 +404,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
 				colorContainer.addView(view);
 			}
+			colorsCard.setVisibility(View.VISIBLE);
+		} else {
+			colorsCard.setVisibility(View.GONE);
+
 		}
-		colorsHint.setVisibility(cursor.getCount() == 0 ? View.VISIBLE : View.GONE);
-		colorsCard.setVisibility(View.VISIBLE);
 	}
 
 	private ImageView createViewToBeColored() {
