@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.5.11
+--------------
+ * Prevent crash when applying some collection filters
+
 Version 6.5.10
 --------------
  * Bug fixes
