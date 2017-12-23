@@ -43,7 +43,7 @@
 	</style>
 
 	<style name="Text" parent="@style/TextAppearance.AppCompat.Body1">
-		<item name="textColor">@color/primary_text</item>
+		<item name="android:textColor">@color/primary_text</item>
 		<item name="android:textSize">14sp</item>
 	</style>
 

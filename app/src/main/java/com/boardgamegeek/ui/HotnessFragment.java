@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
@@ -100,19 +101,16 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				new Callback() {
 					@Override
 					public boolean onItemClick(int position) {
-						if (actionMode == null) {
-							return false;
-						}
+						if (actionMode == null) return false;
 						toggleSelection(position);
 						return true;
 					}
 
 					@Override
 					public boolean onItemLongClick(int position) {
-						if (actionMode != null) {
-							return false;
-						}
+						if (actionMode != null) return false;
 						actionMode = getActivity().startActionMode(HotnessFragment.this);
+						if (actionMode == null) return false;
 						toggleSelection(position);
 						return true;
 					}
@@ -295,8 +293,8 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 		int count = adapter.getSelectedItemCount();
-		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play).setVisible(Authenticator.isSignedIn(getContext()) && count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(Authenticator.isSignedIn(getContext()) && PreferencesUtils.showQuickLogPlay(getActivity()));
 		menu.findItem(R.id.menu_link).setVisible(count == 1);
 		return true;
 	}

@@ -39,9 +39,7 @@ public class ExponentialBackOff implements BackOff {
 	}
 
 	public long nextBackOffMillis() {
-		if (getElapsedTimeMillis() > maxElapsedTimeMillis) {
-			return STOP;
-		}
+		if (getElapsedTimeMillis() > maxElapsedTimeMillis) return STOP;
 		int randomizedInterval = getRandomValueFromInterval(randomizationFactor, Math.random(), currentIntervalMillis);
 		incrementCurrentInterval();
 		return randomizedInterval;

@@ -120,6 +120,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
+			NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
 		}
 
 		cursor = null;
@@ -134,6 +135,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
+			NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
 		}
 
 		cursor = null;
@@ -148,6 +150,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
+			NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
 		}
 	}
 
@@ -194,7 +197,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		final int count = cursor != null ? cursor.getCount() : 0;
 		String detail = context.getResources().getQuantityString(messageResId, count, count);
 		Timber.i(detail);
-		updateProgressNotification(detail);
+		if (count > 0) updateProgressNotification(detail);
 		return cursor;
 	}
 

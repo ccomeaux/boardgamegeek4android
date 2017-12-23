@@ -256,6 +256,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
 						Authenticator.clearPassword(context);
+						break;
 					} else {
 						syncResult.stats.numIoExceptions++;
 						notifyUploadError(response.getErrorMessage());
