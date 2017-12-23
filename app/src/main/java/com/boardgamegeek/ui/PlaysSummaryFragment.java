@@ -93,7 +93,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@BindView(R.id.sync_status) TextView syncStatusView;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
@@ -149,11 +149,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		if (getContext() == null) return null;
 		CursorLoader loader = null;
 		switch (id) {
 			case PLAYS_IN_PROGRESS_TOKEN:
-				PlaysSorter playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
-				loader = new CursorLoader(getActivity(),
+				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
+				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI,
 					PlayModel.Companion.getProjection(),
 					Plays.DIRTY_TIMESTAMP + ">0",
@@ -161,8 +162,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAYS_TOKEN:
-				playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
-				loader = new CursorLoader(getActivity(),
+				playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
+				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
 					PlayModel.Companion.getProjection(),
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
@@ -170,7 +171,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:
-				loader = new CursorLoader(getActivity(),
+				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_SIMPLE_URI,
 					new String[] { Plays.SUM_QUANTITY },
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
@@ -178,8 +179,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					null);
 				break;
 			case PLAYERS_TOKEN:
-				PlayersSorter playersSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_QUANTITY);
-				loader = new CursorLoader(getActivity(),
+				PlayersSorter playersSorter = PlayersSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_QUANTITY);
+				loader = new CursorLoader(getContext(),
 					Plays.buildPlayersByUniquePlayerUri()
 						.buildUpon()
 						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYERS_SHOWN))
@@ -190,8 +191,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					playersSorter.getOrderByClause());
 				break;
 			case LOCATIONS_TOKEN:
-				LocationsSorter locationsSorter = LocationsSorterFactory.create(getActivity(), LocationsSorterFactory.TYPE_QUANTITY);
-				loader = new CursorLoader(getActivity(),
+				LocationsSorter locationsSorter = LocationsSorterFactory.create(getContext(), LocationsSorterFactory.TYPE_QUANTITY);
+				loader = new CursorLoader(getContext(),
 					Plays.buildLocationsUri()
 						.buildUpon()
 						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_LOCATIONS_SHOWN))
@@ -204,7 +205,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case COLORS_TOKEN:
 				String username = AccountUtils.getUsername(getActivity());
 				if (!TextUtils.isEmpty(username)) {
-					loader = new CursorLoader(getActivity(),
+					loader = new CursorLoader(getContext(),
 						PlayerColors.buildUserUri(username),
 						PlayerColor.PROJECTION,
 						null, null, null);
@@ -301,7 +302,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	private void addPlayToContainer(Cursor cursor, LinearLayout container) {
 		long internalId = cursor.getLong(cursor.getColumnIndex(Plays._ID));
-		PlayModel play = PlayModel.Companion.fromCursor(cursor, getActivity());
+		PlayModel play = PlayModel.Companion.fromCursor(cursor, getContext());
 		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
 		view.setTag(R.id.id, internalId);
@@ -382,7 +383,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private View createRow(LinearLayout container, String title, String text) {
-		View view = getLayoutInflater().inflate(R.layout.row_player_summary, container, false);
+		View view = LayoutInflater.from(getContext()).inflate(R.layout.row_player_summary, container, false);
 		container.addView(view);
 		((TextView) view.findViewById(android.R.id.title)).setText(title);
 		((TextView) view.findViewById(android.R.id.text1)).setText(text);
