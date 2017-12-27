@@ -59,12 +59,12 @@ public class SyncBuddiesList extends SyncTask {
 			try {
 				Response<User> response = call.execute();
 				if (!response.isSuccessful()) {
-					showError(String.format("Unsuccessful user fetch with code: %s", response.code()));
+					showError(context.getString(R.string.msg_exception_user_code, account.name, String.valueOf(response.code())));
 					syncResult.stats.numIoExceptions++;
 				}
 				user = response.body();
 			} catch (IOException e) {
-				showError(String.format("Unsuccessful user fetch with exception: %s", e.getLocalizedMessage()));
+				showError(context.getString(R.string.msg_exception_user, account.name, e.getLocalizedMessage()));
 				syncResult.stats.numIoExceptions++;
 			}
 			if (user == null) {
