@@ -5,6 +5,7 @@ Version 6.6
 -----------
  * More UI polish
  * Share your collection
+ * You can now disable notifications of uploaded plays or collection items
 
 Version 6.5.11
 --------------

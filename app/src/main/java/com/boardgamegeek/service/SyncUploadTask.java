@@ -15,6 +15,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.LargeIconLoader;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
 import java.util.ArrayList;
@@ -46,6 +47,8 @@ public abstract class SyncUploadTask extends SyncTask {
 
 	@DebugLog
 	protected void notifyUser(final CharSequence title, final CharSequence message, final int id, String imageUrl, final String thumbnailUrl) {
+		if (!PreferencesUtils.getPlayUploadNotifications(context)) return;
+
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {

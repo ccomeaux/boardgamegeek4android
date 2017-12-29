@@ -21,6 +21,10 @@
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_sync_group_how">
 		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="sync_uploads"
+			android:title="@string/pref_sync_upload"/>
+		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="sync_notifications"
 			android:title="@string/pref_sync_notifications"/>

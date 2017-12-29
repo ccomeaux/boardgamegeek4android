@@ -227,6 +227,10 @@ public class PreferencesUtils {
 		return putBoolean(context, KEY_SYNC_BUDDIES, true);
 	}
 
+	public static boolean getPlayUploadNotifications(Context context) {
+		return getBoolean(context, "sync_uploads", true);
+	}
+
 	public static boolean getSyncShowNotifications(Context context) {
 		return getBoolean(context, "sync_notifications", false);
 	}
