@@ -50,7 +50,6 @@ public class PlayersActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_sort).setVisible(true);
 		PlayersFragment fragment = (PlayersFragment) getFragment();
 		if (fragment != null) {
 			switch (fragment.getSort()) {
