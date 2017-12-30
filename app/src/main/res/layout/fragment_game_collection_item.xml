@@ -21,13 +21,15 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:paddingTop="@dimen/padding_standard">
+			android:tag="container">
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
-				android:orientation="horizontal">
+				android:minHeight="@dimen/edit_row_height"
+				android:orientation="horizontal"
+				android:tag="container">
 
 				<TextView
 					android:id="@+id/status"
@@ -91,7 +93,8 @@
 				<android.support.v4.widget.Space
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
-					android:layout_weight="1"/>
+					android:layout_weight="1"
+					android:tag="header"/>
 
 				<com.boardgamegeek.ui.widget.RatingView
 					android:id="@+id/rating"
@@ -122,7 +125,8 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:orientation="vertical"
+			android:tag="container">
 
 			<TextView
 				android:id="@+id/card_header_private_info"
@@ -215,7 +219,8 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:orientation="vertical"
+			android:tag="container">
 
 			<TextView
 				android:id="@+id/wishlist_header"
@@ -278,7 +283,8 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:orientation="vertical"
+			android:tag="container">
 
 			<TextView
 				android:id="@+id/trade_header"

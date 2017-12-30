@@ -59,7 +59,7 @@ public class RatingView extends ForegroundLinearLayout {
 		ButterKnife.bind(this);
 
 		setVisibility(View.GONE);
-		setGravity(Gravity.TOP);
+		setGravity(Gravity.CENTER_VERTICAL);
 		setMinimumHeight(minHeight);
 		setOrientation(VERTICAL);
 		PresentationUtils.setSelectableBackgroundBorderless(this);

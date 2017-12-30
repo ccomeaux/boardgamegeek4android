@@ -156,7 +156,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.private_info_container,
 		R.id.wishlist_container,
 		R.id.trade_container
-	}) List<ViewGroup> visibleByGrandchildrenViews;
+	}) List<ViewGroup> visibleByChildrenViews;
 	@BindViews({
 		R.id.want_to_buy,
 		R.id.preordered,
@@ -204,7 +204,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
@@ -321,7 +321,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			ButterKnife.apply(visibleByTagOrGoneViews, setVisibilityByTag);
 		}
 
-		ButterKnife.apply(visibleByGrandchildrenViews, setVisibilityByGrandchildren);
+		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
 	}
 
 	public void syncChanges() {
@@ -543,7 +543,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		final String statusDescription = getStatusDescription(item);
 		PresentationUtils.setTextOrHide(statusView, statusDescription);
 		setVisibleTag(statusView, !TextUtils.isEmpty(statusDescription));
-		
+
 		wantToBuyView.setChecked(item.isWantToBuy());
 		preorderedView.setChecked(item.isPreordered());
 		ownView.setChecked(item.isOwn());
@@ -711,32 +711,42 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	};
 
-	private static final ButterKnife.Action<ViewGroup> setVisibilityByGrandchildren = new ButterKnife.Action<ViewGroup>() {
+	private static final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
 		@Override
 		public void apply(@NonNull ViewGroup view, int index) {
 			for (int i = 0; i < view.getChildCount(); i++) {
 				final View child = view.getChildAt(i);
-				if (child instanceof ViewGroup) {
-					ViewGroup childViewGroup = (ViewGroup) child;
-					for (int j = 0; j < childViewGroup.getChildCount(); j++) {
-						View grandchild = childViewGroup.getChildAt(j);
-						String tag = (String) grandchild.getTag();
-						if (tag != null && tag.equals("header")) continue;
-						if (grandchild.getVisibility() == View.VISIBLE) {
-							view.setVisibility(View.VISIBLE);
-							return;
-						}
-					}
-				} else {
-					String tag = (String) child.getTag();
-					if (tag != null && tag.equals("header")) continue;
-					if (child.getVisibility() == View.VISIBLE) {
-						view.setVisibility(View.VISIBLE);
-						return;
-					}
-				}
+				if (setVisibilityByChild(view, child)) return;
 			}
 			view.setVisibility(View.GONE);
 		}
 	};
+
+	private static boolean setVisibilityByChild(@NonNull ViewGroup view, View child) {
+		if (child instanceof ViewGroup) {
+			String tag = (String) child.getTag();
+			if (tag != null && tag.equals("container")) {
+				ViewGroup childViewGroup = (ViewGroup) child;
+				for (int j = 0; j < childViewGroup.getChildCount(); j++) {
+					View grandchild = childViewGroup.getChildAt(j);
+					if (setVisibilityByChild(view, grandchild)) return true;
+				}
+			} else {
+				if (setVisibilityByChildView(view, child)) return true;
+			}
+		} else {
+			if (setVisibilityByChildView(view, child)) return true;
+		}
+		return false;
+	}
+
+	private static boolean setVisibilityByChildView(View view, View v) {
+		String tag = (String) v.getTag();
+		if (tag != null && tag.equals("header")) return false;
+		if (v.getVisibility() == View.VISIBLE) {
+			view.setVisibility(View.VISIBLE);
+			return true;
+		}
+		return false;
+	}
 }
