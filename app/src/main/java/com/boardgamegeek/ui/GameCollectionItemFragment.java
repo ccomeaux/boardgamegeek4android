@@ -79,6 +79,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	private Unbinder unbinder;
 
+	@BindView(R.id.invalid_status) View invalidStatusView;
 	@BindView(R.id.main_container) ViewGroup mainContainer;
 
 	// statuses
@@ -322,6 +323,17 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 
 		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
+
+		invalidStatusView.setVisibility(getInvalidVisibility() ? View.VISIBLE : View.GONE);
+	}
+
+	private boolean getInvalidVisibility() {
+		for (View view : visibleByChildrenViews) {
+			if (view.getVisibility() == View.VISIBLE) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public void syncChanges() {
@@ -711,7 +723,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	};
 
-	private static final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
+	private final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
 		@Override
 		public void apply(@NonNull ViewGroup view, int index) {
 			for (int i = 0; i < view.getChildCount(); i++) {
