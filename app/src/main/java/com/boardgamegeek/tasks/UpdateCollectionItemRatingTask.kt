@@ -10,7 +10,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 
 class UpdateCollectionItemRatingTask @DebugLog
-constructor(context: Context, gameId: Int, collectionId: Int, internalId: Long, private val rating: Double) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
+constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long, private val rating: Double) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
 
     @DebugLog
     override fun updateResolver(resolver: ContentResolver, internalId: Long): Boolean {

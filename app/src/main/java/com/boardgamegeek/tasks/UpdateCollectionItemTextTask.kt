@@ -10,7 +10,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 
 class UpdateCollectionItemTextTask @DebugLog
-constructor(context: Context, gameId: Int, collectionId: Int, internalId: Long, private val text: String, private val textColumn: String, private val timestampColumn: String) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
+constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long, private val text: String, private val textColumn: String, private val timestampColumn: String) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
 
     @DebugLog
     override fun updateResolver(resolver: ContentResolver, internalId: Long): Boolean {

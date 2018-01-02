@@ -8,7 +8,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 
 class UpdateCollectionItemStatusTask @DebugLog
-constructor(context: Context,
+constructor(context: Context?,
             gameId: Int,
             collectionId: Int,
             internalId: Long,

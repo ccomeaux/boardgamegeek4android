@@ -212,7 +212,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		ratingView.setOnChangeListener(getActivity(), new Listener() {
 			@Override
 			public void onRatingChanged(double rating) {
-				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
+				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getContext(), gameId, collectionId, internalId, rating);
 				TaskUtils.executeAsyncTask(task);
 			}
 		});
@@ -257,9 +257,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != _TOKEN || collectionId == BggContract.INVALID_ID) return null;
+		if (id != _TOKEN ||
+			collectionId == BggContract.INVALID_ID ||
+			getContext() == null) return null;
 
-		return new CursorLoader(getActivity(),
+		return new CursorLoader(getContext(),
 			CollectionItem.Companion.getUri(),
 			CollectionItem.Companion.getProjection(),
 			CollectionItem.Companion.getSelection(collectionId),
@@ -413,7 +415,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		int wishlistPriority = wishlistView.isChecked() ?
 			wishlistPriorityView.getSelectedItemPosition() + 1 : 0;
 		UpdateCollectionItemStatusTask task =
-			new UpdateCollectionItemStatusTask(getActivity(),
+			new UpdateCollectionItemStatusTask(getContext(),
 				gameId, collectionId, internalId,
 				statuses, wishlistPriority);
 		TaskUtils.executeAsyncTask(task);
@@ -505,7 +507,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 					@Override
 					public void onFinishEditDialog(PrivateInfo privateInfo) {
 						UpdateCollectionItemPrivateInfoTask task =
-							new UpdateCollectionItemPrivateInfoTask(getActivity(), gameId, collectionId, internalId, privateInfo);
+							new UpdateCollectionItemPrivateInfoTask(getContext(), gameId, collectionId, internalId, privateInfo);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}

@@ -12,7 +12,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 
 class UpdateCollectionItemPrivateInfoTask @DebugLog
-constructor(context: Context, gameId: Int, collectionId: Int, internalId: Long, private val privateInfo: PrivateInfo) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
+constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long, private val privateInfo: PrivateInfo) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
 
     @DebugLog
     override fun updateResolver(resolver: ContentResolver, internalId: Long): Boolean {
