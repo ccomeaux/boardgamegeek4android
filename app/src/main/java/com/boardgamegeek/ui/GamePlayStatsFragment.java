@@ -7,6 +7,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -130,6 +131,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private Transition playerTransition;
 	@ColorInt private int headerColor;
+	private int[] bggColors;
 
 	public static GamePlayStatsFragment newInstance(int gameId, @ColorInt int headerColor) {
 		Bundle args = new Bundle();
@@ -141,7 +143,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
 
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
@@ -150,6 +152,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		if (headerColor != Color.TRANSPARENT) {
 			ButterKnife.apply(colorizedHeaders, PaletteUtils.rgbTextViewSetter, headerColor);
 			ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, headerColor);
+		}
+
+		if (getContext() != null) {
+			bggColors = new int[] {
+				ContextCompat.getColor(getContext(), R.color.orange),
+				ContextCompat.getColor(getContext(), R.color.dark_blue),
+				ContextCompat.getColor(getContext(), R.color.light_blue)
+			};
 		}
 
 		playCountChart.setDescription(null);
@@ -192,6 +202,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+		if (getContext() == null) return null;
 		CursorLoader loader = null;
 		String playSelection = Plays.OBJECT_ID + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
 		String[] selectionArgs = { String.valueOf(gameId) };
@@ -304,10 +315,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
 		playCountDataSet.setDrawValues(false);
 		playCountDataSet.setHighlightEnabled(false);
-		playCountDataSet.setColors(
-			ContextCompat.getColor(getContext(), R.color.orange),
-			ContextCompat.getColor(getContext(), R.color.dark_blue),
-			ContextCompat.getColor(getContext(), R.color.light_blue));
+		playCountDataSet.setColors(bggColors);
 		playCountDataSet.setStackLabels(new String[] {
 			getString(R.string.title_wins),
 			getString(R.string.winnable),
@@ -478,6 +486,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.high_score)
 	public void onHighScoreClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_high_scorers).setMessage(stats.getHighScorers());
 		builder.show();
@@ -485,6 +494,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.players_skill_help)
 	public void onPlayersClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_players_skill).setMessage(R.string.player_skill_info);
 		builder.show();

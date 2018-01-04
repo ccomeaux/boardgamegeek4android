@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
@@ -94,7 +95,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
@@ -111,7 +112,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
 		// size the graph to be 80% of the screen width
@@ -151,8 +152,8 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == Query._TOKEN) {
-			loader = new CursorLoader(getActivity(), pollResultUri, Query.PROJECTION, null, null, Query.SORT);
+		if (id == Query._TOKEN && getContext() != null) {
+			loader = new CursorLoader(getContext(), pollResultUri, Query.PROJECTION, null, null, Query.SORT);
 		}
 		return loader;
 	}
