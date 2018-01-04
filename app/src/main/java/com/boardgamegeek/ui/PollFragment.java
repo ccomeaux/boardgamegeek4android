@@ -28,10 +28,12 @@ import com.boardgamegeek.util.DialogUtils;
 import com.github.mikephil.charting.animation.Easing.EasingOption;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.Legend.LegendPosition;
+import com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment;
+import com.github.mikephil.charting.components.Legend.LegendVerticalAlignment;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
@@ -96,10 +98,11 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
-		pieChart.setDrawSliceText(false);
+		pieChart.setDrawEntryLabels(false);
 		pieChart.setRotationEnabled(false);
 		Legend legend = pieChart.getLegend();
-		legend.setPosition(LegendPosition.BELOW_CHART_LEFT);
+		legend.setHorizontalAlignment(LegendHorizontalAlignment.LEFT);
+		legend.setVerticalAlignment(LegendVerticalAlignment.BOTTOM);
 		legend.setWordWrapEnabled(true);
 		pieChart.setDescription(null);
 		pieChart.setOnChartValueSelectedListener(this);
@@ -179,8 +182,9 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	}
 
 	@Override
-	public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
-		if (e == null || pieChart == null) {
+	public void onValueSelected(Entry e, Highlight h) {
+		PieEntry pe = (PieEntry) e;
+		if (pe == null || pieChart == null) {
 			if (snackbar != null) {
 				snackbar.dismiss();
 			}
@@ -189,7 +193,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 		final View view = getView();
 		if (view != null) {
-			String message = getString(R.string.pie_chart_click_description, FORMAT.format(e.getVal()), pieChart.getXValue(e.getXIndex()));
+			String message = getString(R.string.pie_chart_click_description, FORMAT.format(pe.getY()), pe.getLabel());
 			snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
 			snackbar.show();
 		}
@@ -203,16 +207,11 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	}
 
 	private void createPieChart(Cursor cursor, int voteCount) {
-		List<String> labels = new ArrayList<>();
-		List<Entry> entries = new ArrayList<>();
-		int index = 0;
+		List<PieEntry> entries = new ArrayList<>();
 		do {
-			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
 			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-
-			labels.add(value);
-			entries.add(new Entry(votes, index));
-			index++;
+			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
+			entries.add(new PieEntry(votes, value));
 		} while (cursor.moveToNext());
 
 		PieDataSet dataSet = new PieDataSet(entries, "");
@@ -220,10 +219,10 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		if (chartColors != null) {
 			dataSet.setColors(chartColors);
 		} else {
-			dataSet.setColors(ColorUtils.createColors(index));
+			dataSet.setColors(ColorUtils.createColors(cursor.getCount()));
 		}
 
-		PieData data = new PieData(labels, dataSet);
+		PieData data = new PieData(dataSet);
 		pieChart.setData(data);
 		pieChart.setCenterText(getResources().getQuantityString(R.plurals.votes_suffix, voteCount, voteCount));
 

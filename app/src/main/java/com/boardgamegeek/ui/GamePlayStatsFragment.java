@@ -38,7 +38,6 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.ui.widget.IntegerYAxisValueFormatter;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
@@ -52,6 +51,8 @@ import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
 import com.github.mikephil.charting.animation.Easing.EasingOption;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -151,11 +152,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, headerColor);
 		}
 
-		playCountChart.setDrawGridBackground(false);
-		playCountChart.getAxisRight().setValueFormatter(new IntegerYAxisValueFormatter());
-		playCountChart.getAxisLeft().setEnabled(false);
-		playCountChart.getXAxis().setDrawGridLines(false);
 		playCountChart.setDescription(null);
+		playCountChart.setDrawGridBackground(false);
+		playCountChart.getAxisLeft().setEnabled(false);
+
+		YAxis yAxis = playCountChart.getAxisRight();
+		yAxis.setGranularity(1.0f);
+
+		XAxis xAxis = playCountChart.getXAxis();
+		xAxis.setGranularity(1.0f);
+		xAxis.setDrawGridLines(false);
 
 		if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
 			playerTransition = new AutoTransition();
@@ -286,33 +292,30 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_rate).value(stats.getPlayRate()));
 		}
 
-		ArrayList<String> playersLabels = new ArrayList<>();
 		ArrayList<BarEntry> playCountValues = new ArrayList<>();
-		ArrayList<BarEntry> winValues = new ArrayList<>();
-		int index = 0;
 		for (int i = stats.getMinPlayerCount(); i <= stats.getMaxPlayerCount(); i++) {
-			playersLabels.add(String.valueOf(i));
-			playCountValues.add(new BarEntry(new float[] { stats.getWinnablePlayCount(i), stats.getPlayCount(i) - stats.getWinnablePlayCount(i) }, index));
-			winValues.add(new BarEntry(stats.getWinCount(i), index));
-			index++;
+			final int winnablePlayCount = stats.getWinnablePlayCount(i);
+			final int wins = stats.getWinCount(i);
+			final int playCount = stats.getPlayCount(i);
+			playCountValues.add(new BarEntry(i, new float[] { wins, winnablePlayCount - wins, playCount - winnablePlayCount }));
 		}
 		ArrayList<IBarDataSet> dataSets = new ArrayList<>();
 
 		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
 		playCountDataSet.setDrawValues(false);
 		playCountDataSet.setHighlightEnabled(false);
-		playCountDataSet.setColors(new int[] { ContextCompat.getColor(getContext(), R.color.dark_blue), ContextCompat.getColor(getContext(), R.color.light_blue) });
-		playCountDataSet.setStackLabels(new String[] { getString(R.string.winnable), getString(R.string.all) });
+		playCountDataSet.setColors(
+			ContextCompat.getColor(getContext(), R.color.orange),
+			ContextCompat.getColor(getContext(), R.color.dark_blue),
+			ContextCompat.getColor(getContext(), R.color.light_blue));
+		playCountDataSet.setStackLabels(new String[] {
+			getString(R.string.title_wins),
+			getString(R.string.winnable),
+			getString(R.string.all) });
 		dataSets.add(playCountDataSet);
 
-		BarDataSet winsDataSet = new BarDataSet(winValues, getString(R.string.title_wins));
-		winsDataSet.setDrawValues(false);
-		winsDataSet.setHighlightEnabled(false);
-		winsDataSet.setColor(ContextCompat.getColor(getContext(), R.color.orange));
-		dataSets.add(winsDataSet);
-
-		if (playersLabels.size() > 0) {
-			BarData data = new BarData(playersLabels, dataSets);
+		if (playCountValues.size() > 0) {
+			BarData data = new BarData(dataSets);
 			playCountChart.setData(data);
 			playCountChart.animateY(1000, EasingOption.EaseInOutBack);
 			playCountChart.setVisibility(View.VISIBLE);
