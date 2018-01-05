@@ -473,6 +473,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.score_help)
 	public void onScoreHelpClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_scores).setView(R.layout.dialog_help_score);
 		builder.show();
@@ -480,6 +481,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.low_score)
 	public void onLowScoreClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_low_scorers).setMessage(stats.getLowScorers());
 		builder.show();

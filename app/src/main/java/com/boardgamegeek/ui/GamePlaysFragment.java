@@ -155,6 +155,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		if (getContext() == null) return null;
 		switch (id) {
 			case GAME_TOKEN:
 				return new CursorLoader(getContext(), Games.buildGameUri(gameId), GamePlays.PROJECTION, null, null, null);
