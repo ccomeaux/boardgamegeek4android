@@ -1,14 +1,21 @@
 package com.boardgamegeek.util;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
+import android.support.v7.graphics.Palette.Swatch;
+import android.support.v7.graphics.Target;
+import android.util.Pair;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.boardgamegeek.R;
 
 import butterknife.ButterKnife;
 
@@ -162,5 +169,61 @@ public class PaletteUtils {
 		}
 
 		return new Palette.Swatch(Color.BLACK, 0);
+	}
+
+	final static Target[] winsTargets = new Target[] {
+		Target.VIBRANT,
+		Target.LIGHT_VIBRANT,
+		Target.DARK_VIBRANT,
+		Target.LIGHT_MUTED,
+		Target.MUTED,
+		Target.DARK_MUTED
+	};
+
+	final static Target[] winnablePlaysTargets = new Target[] {
+		Target.DARK_VIBRANT,
+		Target.DARK_MUTED,
+		Target.MUTED,
+		Target.VIBRANT,
+		Target.LIGHT_VIBRANT,
+		Target.LIGHT_MUTED
+	};
+
+	final static Target[] allPlaysTargets = new Target[] {
+		Target.LIGHT_MUTED,
+		Target.LIGHT_VIBRANT,
+		Target.MUTED,
+		Target.VIBRANT,
+		Target.DARK_MUTED,
+		Target.DARK_VIBRANT
+	};
+
+	public static int[] getPlayCountColors(Palette palette, Context context) {
+		Pair<Integer, Target> winColor = getColor(palette, winsTargets);
+		Pair<Integer, Target> winnablePlaysColor = getColor(palette, winnablePlaysTargets, winColor.second);
+		Pair<Integer, Target> allPlaysColor = getColor(palette, allPlaysTargets, winColor.second, winnablePlaysColor.second);
+
+		return new int[] {
+			winColor.first == Color.TRANSPARENT ? ContextCompat.getColor(context, R.color.orange) : winColor.first,
+			winnablePlaysColor.first == Color.TRANSPARENT ? ContextCompat.getColor(context, R.color.dark_blue) : winnablePlaysColor.first,
+			allPlaysColor.first == Color.TRANSPARENT ? ContextCompat.getColor(context, R.color.light_blue) : allPlaysColor.first
+		};
+	}
+
+	private static Pair<Integer, Target> getColor(Palette palette, Target[] targets, Target... usedTargets) {
+		for (Target target : targets) {
+			boolean useTarget = true;
+			for (Target usedTarget : usedTargets) {
+				if (target == usedTarget) {
+					useTarget = false;
+					break;
+				}
+			}
+			if (useTarget) {
+				Swatch swatch = palette.getSwatchForTarget(target);
+				if (swatch != null) return Pair.create(swatch.getRgb(), target);
+			}
+		}
+		return Pair.create(Color.TRANSPARENT, null);
 	}
 }

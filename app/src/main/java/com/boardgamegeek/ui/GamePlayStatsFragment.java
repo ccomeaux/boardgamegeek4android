@@ -87,6 +87,7 @@ import timber.log.Timber;
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_HEADER_COLOR = "HEADER_COLOR";
+	private static final String KEY_PLAY_COUNT_COLORS = "PLAY_COUNT_COLORS";
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int gameId;
@@ -131,12 +132,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private Transition playerTransition;
 	@ColorInt private int headerColor;
+	@ColorInt private int[] playCountColors;
 	private int[] bggColors;
 
-	public static GamePlayStatsFragment newInstance(int gameId, @ColorInt int headerColor) {
+	public static GamePlayStatsFragment newInstance(int gameId, @ColorInt int headerColor, @ColorInt int[] playCountColors) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
 		args.putInt(KEY_HEADER_COLOR, headerColor);
+		args.putIntArray(KEY_PLAY_COUNT_COLORS, playCountColors);
 		GamePlayStatsFragment fragment = new GamePlayStatsFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -186,6 +189,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		headerColor = bundle.getInt(KEY_HEADER_COLOR, getResources().getColor(R.color.accent));
+		playCountColors = bundle.getIntArray(KEY_PLAY_COUNT_COLORS);
 	}
 
 	@Override
@@ -310,19 +314,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			final int playCount = stats.getPlayCount(i);
 			playCountValues.add(new BarEntry(i, new float[] { wins, winnablePlayCount - wins, playCount - winnablePlayCount }));
 		}
-		ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-
-		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
-		playCountDataSet.setDrawValues(false);
-		playCountDataSet.setHighlightEnabled(false);
-		playCountDataSet.setColors(bggColors);
-		playCountDataSet.setStackLabels(new String[] {
-			getString(R.string.title_wins),
-			getString(R.string.winnable),
-			getString(R.string.all) });
-		dataSets.add(playCountDataSet);
-
 		if (playCountValues.size() > 0) {
+			BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
+			playCountDataSet.setDrawValues(false);
+			playCountDataSet.setHighlightEnabled(false);
+			playCountDataSet.setColors(playCountColors == null ? bggColors : playCountColors);
+			playCountDataSet.setStackLabels(new String[] { getString(R.string.title_wins), getString(R.string.winnable), getString(R.string.all) });
+
+			ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+			dataSets.add(playCountDataSet);
+
 			BarData data = new BarData(dataSets);
 			playCountChart.setData(data);
 			playCountChart.animateY(1000, EasingOption.EaseInOutBack);
