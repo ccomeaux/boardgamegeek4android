@@ -891,11 +891,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getPlayCount(int playerCount) {
-			PlayerStats ps = getPersonalStats();
-			if (ps != null) {
-				return ps.getPlayCountByPlayerCount(playerCount);
+			if (playCountPerPlayerCount.containsKey(playerCount)) {
+				return playCountPerPlayerCount.get(playerCount);
+			} else {
+				return 0;
 			}
-			return 0;
 		}
 
 		private PlayerStats getPersonalStats() {
