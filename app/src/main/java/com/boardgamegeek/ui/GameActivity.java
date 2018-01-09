@@ -69,6 +69,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	private GamePagerAdapter adapter;
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
+	@ColorInt private int[] playCountColors;
 
 	public static void start(Context context, int gameId, String gameName) {
 		final Intent starter = createIntent(gameId, gameName);
@@ -254,7 +255,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 			iconColor = iconSwatch.getRgb();
 			darkColor = darkSwatch.getRgb();
-			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor));
+			playCountColors = PaletteUtils.getPlayCountColors(palette, getApplicationContext());
+			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor, playCountColors));
 			PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
 			adapter.displayFab();
 		}
@@ -269,18 +271,19 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
 		adapter.onFabClicked();
-
 	}
 
 	public static class ColorEvent {
 		private final int gameId;
 		@ColorInt private final int iconColor;
 		@ColorInt private final int darkColor;
+		@ColorInt private final int[] playCountColors;
 
-		public ColorEvent(int gameId, int iconColor, int darkColor) {
+		public ColorEvent(int gameId, int iconColor, int darkColor, int[] playCountColors) {
 			this.gameId = gameId;
 			this.iconColor = iconColor;
 			this.darkColor = darkColor;
+			this.playCountColors = playCountColors;
 		}
 
 		public int getGameId() {
@@ -295,6 +298,11 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		@ColorInt
 		public int getDarkColor() {
 			return darkColor;
+		}
+
+		@ColorInt
+		public int[] getPlayCountColors() {
+			return playCountColors;
 		}
 	}
 
@@ -399,7 +407,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 					case R.string.title_collection:
 						return GameCollectionFragment.newInstance(gameId, gameName);
 					case R.string.title_plays:
-						return GamePlaysFragment.newInstance(gameId, gameName, iconColor);
+						return GamePlaysFragment.newInstance(gameId, gameName, iconColor, playCountColors);
 					case R.string.links:
 						return GameLinksFragment.newInstance(gameId, gameName, iconColor);
 				}

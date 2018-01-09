@@ -39,11 +39,11 @@ public class DialogUtils {
 	}
 
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
-		FragmentTransaction ft = host.getFragmentManager().beginTransaction();
-		Fragment prev = host.getFragmentManager().findFragmentByTag(tag);
-		if (prev != null) {
-			ft.remove(prev);
-		}
+		final FragmentManager fragmentManager = host.getFragmentManager();
+		if (fragmentManager == null) return;
+		FragmentTransaction ft = fragmentManager.beginTransaction();
+		Fragment prev = fragmentManager.findFragmentByTag(tag);
+		if (prev != null) ft.remove(prev);
 		ft.addToBackStack(null);
 
 		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
