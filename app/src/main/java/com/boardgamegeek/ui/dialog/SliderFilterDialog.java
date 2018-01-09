@@ -124,7 +124,9 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	private void updateRange(int leftPinIndex, int rightPinIndex) {
-		rangeBar.setRangePinsByIndices(leftPinIndex, rightPinIndex);
+		int left = MathUtils.constrain(leftPinIndex, 0, rangeBar.getTickCount() - 1);
+		int right = MathUtils.constrain(rightPinIndex, 0, rangeBar.getTickCount() - 1);
+		rangeBar.setRangePinsByIndices(left, right);
 		// HACK to make the pins remain visible
 		rangeBar.setLeft(rangeBar.getLeft() + 1);
 	}
