@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -377,6 +378,14 @@ public class PresentationUtils {
 			info += context.getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
 		}
 		return info.trim();
+	}
+
+	@DebugLog
+	public static void setTextOrHide(@Nullable TextView view, int number) {
+		if (view != null) {
+			view.setText(String.valueOf(number));
+			view.setVisibility(number == 0 ? View.GONE : View.VISIBLE);
+		}
 	}
 
 	@DebugLog

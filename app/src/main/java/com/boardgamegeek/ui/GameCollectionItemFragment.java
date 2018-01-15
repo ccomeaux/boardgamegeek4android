@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -38,16 +37,16 @@ import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
-import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
+import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
-import com.boardgamegeek.ui.widget.TextEditorCard;
+import com.boardgamegeek.ui.widget.RatingView;
+import com.boardgamegeek.ui.widget.RatingView.Listener;
+import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -57,7 +56,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,66 +74,90 @@ import timber.log.Timber;
 public class GameCollectionItemFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_COLLECTION_ID = "COLLECTION_ID";
+	private static final int _TOKEN = 0;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final DecimalFormat RATING_EDIT_FORMAT = new DecimalFormat("0.#");
 
 	private Unbinder unbinder;
-	@BindView(R.id.root_container) ViewGroup rootContainer;
-	@BindView(R.id.year) TextView year;
-	@BindView(R.id.status) TextView statusView;
 
+	@BindView(R.id.invalid_status) View invalidStatusView;
+	@BindView(R.id.main_container) ViewGroup mainContainer;
+
+	// statuses
+	@BindView(R.id.status) TextView statusView;
 	@BindView(R.id.want_to_buy) CheckBox wantToBuyView;
 	@BindView(R.id.preordered) CheckBox preorderedView;
 	@BindView(R.id.own) CheckBox ownView;
 	@BindView(R.id.want_to_play) CheckBox wantToPlayView;
 	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
-	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
-	@BindView(R.id.for_trade) CheckBox forTradeView;
+
+	// rating
+	@BindView(R.id.rating) RatingView ratingView;
+
+	// comment
+	@BindView(R.id.comment) TextEditorView commentView;
+
+	// wishlist
+	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
 	@BindView(R.id.wishlist) CheckBox wishlistView;
 	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
+	@BindView(R.id.wishlist_comment) TextEditorView wishlistCommentView;
 
-	@BindView(R.id.last_modified) TimestampView lastModified;
-	@BindView(R.id.rating_container) View ratingContainer;
-	@BindView(R.id.rating) TextView rating;
-	@BindView(R.id.rating_timestamp) TimestampView ratingTimestampView;
-	@BindView(R.id.comment_container) ViewGroup commentContainer;
-	@BindView(R.id.add_comment) View addCommentView;
-	@BindView(R.id.comment) TextView comment;
-	@BindView(R.id.comment_timestamp) TimestampView commentTimestampView;
+	// trade
+	@BindView(R.id.trade_status) TextView tradeStatusView;
+	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
+	@BindView(R.id.for_trade) CheckBox forTradeView;
+	@BindView(R.id.condition) TextEditorView conditionView;
+	@BindView(R.id.want_parts) TextEditorView wantPartsView;
+	@BindView(R.id.has_parts) TextEditorView hasPartsView;
+
+	// private info
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
-	@BindView(R.id.private_info) TextView privateInfo;
-	@BindView(R.id.private_info_comments) TextView privateInfoComments;
+	@BindView(R.id.private_info_view_container) ViewGroup privateInfoViewContainer;
+	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
+	@BindView(R.id.private_info_comments_view) TextView viewPrivateInfoCommentsView;
+	@BindView(R.id.private_info_edit_container) ViewGroup privateInfoEditContainer;
+	@BindView(R.id.private_info_edit) TextView editPrivateInfoView;
+	@BindView(R.id.private_info_comments_edit) TextView editPrivateInfoCommentsView;
 	@BindView(R.id.private_info_timestamp) TimestampView privateInfoTimestampView;
-	@BindView(R.id.wishlist_card) TextEditorCard wishlistCard;
-	@BindView(R.id.condition_card) TextEditorCard conditionCard;
-	@BindView(R.id.want_parts_card) TextEditorCard wantPartsCard;
-	@BindView(R.id.has_parts_card) TextEditorCard hasPartsCard;
-	@BindView(R.id.collection_id) TextView id;
-	@BindView(R.id.updated) TimestampView updated;
+
+	// footer
+	@BindView(R.id.last_modified) TimestampView lastModifiedView;
+	@BindView(R.id.collection_id) TextView idView;
+	@BindView(R.id.updated) TimestampView updatedView;
+
 	@BindViews({
-		R.id.add_comment,
 		R.id.card_header_private_info,
+		R.id.wishlist_header,
+		R.id.trade_header
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
-		R.id.wishlist_card,
-		R.id.condition_card,
-		R.id.want_parts_card,
-		R.id.has_parts_card
-	}) List<TextEditorCard> textEditorCards;
+		R.id.comment,
+		R.id.wishlist_comment,
+		R.id.condition,
+		R.id.want_parts,
+		R.id.has_parts
+	}) List<TextEditorView> textEditorViews;
 	@BindViews({
-		R.id.want_to_buy,
-		R.id.preordered,
-		R.id.own,
-		R.id.want_to_play,
-		R.id.previously_owned,
-		R.id.want_in_trade,
-		R.id.for_trade,
-		R.id.wishlist,
-		R.id.wishlist_priority
+		R.id.status_edit_container,
+		R.id.private_info_edit_container,
+		R.id.wishlist_edit_container,
+		R.id.trade_edit_container
 	}) List<View> editFields;
 	@BindViews({
 		R.id.status
 	}) List<View> viewOnlyFields;
+	@BindViews({
+		R.id.status,
+		R.id.private_info_view_container,
+		R.id.wishlist_status,
+		R.id.trade_status
+	}) List<View> visibleByTagOrGoneViews;
+	@BindViews({
+		R.id.main_container,
+		R.id.private_info_container,
+		R.id.wishlist_container,
+		R.id.trade_container
+	}) List<ViewGroup> visibleByChildrenViews;
 	@BindViews({
 		R.id.want_to_buy,
 		R.id.preordered,
@@ -146,7 +168,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.for_trade,
 		R.id.wishlist
 	}) List<CheckBox> statusViews;
-	private EditTextDialogFragment commentDialogFragment;
 	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private int gameId = BggContract.INVALID_ID;
@@ -157,6 +178,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private Palette palette;
 	private boolean needsUploading;
 	@State boolean isItemEditable;
+	private boolean isInEditMode;
 
 	public static GameCollectionItemFragment newInstance(int gameId, int collectionId) {
 		Bundle args = new Bundle();
@@ -183,14 +205,22 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
+
+		ratingView.setOnChangeListener(getActivity(), new Listener() {
+			@Override
+			public void onRatingChanged(double rating) {
+				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getContext(), gameId, collectionId, internalId, rating);
+				TaskUtils.executeAsyncTask(task);
+			}
+		});
 
 		colorize(palette);
 
 		mightNeedRefreshing = true;
-		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
+		getLoaderManager().restartLoader(_TOKEN, getArguments(), this);
 
 		return rootView;
 	}
@@ -227,57 +257,42 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != CollectionItem._TOKEN || collectionId == BggContract.INVALID_ID) {
-			return null;
-		}
-		if (collectionId != 0) {
-			return new CursorLoader(getActivity(),
-				Collection.CONTENT_URI,
-				new CollectionItem().PROJECTION,
-				Collection.COLLECTION_ID + "=?",
-				new String[] { String.valueOf(collectionId) },
-				null);
-		} else {
-			return new CursorLoader(getActivity(),
-				Collection.CONTENT_URI,
-				new CollectionItem().PROJECTION,
-				"collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
-				new String[] { String.valueOf(gameId) },
-				null);
-		}
+		if (id != _TOKEN ||
+			collectionId == BggContract.INVALID_ID ||
+			getContext() == null) return null;
+
+		return new CursorLoader(getContext(),
+			CollectionItem.Companion.getUri(),
+			CollectionItem.Companion.getProjection(),
+			CollectionItem.Companion.getSelection(collectionId),
+			CollectionItem.Companion.getSelectionArgs(collectionId, gameId),
+			null);
 	}
 
 	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
-		if (loader.getId() == CollectionItem._TOKEN) {
+		if (loader.getId() == _TOKEN) {
 			if (cursor == null || !cursor.moveToFirst()) {
-				if (mightNeedRefreshing) {
-					triggerRefresh();
-				}
+				if (mightNeedRefreshing) triggerRefresh();
 				return;
 			}
 
-			CollectionItem item = new CollectionItem(cursor);
-			internalId = item.internalId;
+			CollectionItem item = CollectionItem.Companion.fromCursor(cursor);
+			internalId = item.getInternalId();
 			updateUi(item);
 
 			if (mightNeedRefreshing) {
-				long u = cursor.getLong(new CollectionItem().UPDATED);
-				if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
+				if (DateTimeUtils.howManyDaysOld(item.getUpdated()) > AGE_IN_DAYS_TO_REFRESH) {
 					triggerRefresh();
 				}
 			}
 			mightNeedRefreshing = false;
 		} else {
 			Timber.d("Query complete, Not Actionable: %s", loader.getId());
-			if (cursor != null) {
-				cursor.close();
-			}
+			if (cursor != null) cursor.close();
 		}
 	}
 
@@ -287,18 +302,40 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	public void enableEditMode(boolean enable) {
-		boolean clickable = enable && isItemEditable;
+		isInEditMode = enable;
+		bindVisibility();
+	}
 
-		ButterKnife.apply(viewOnlyFields, PresentationUtils.setVisibility, !enable);
-		ButterKnife.apply(editFields, PresentationUtils.setVisibility, enable);
+	private void bindVisibility() {
+		boolean isEdit = isInEditMode && isItemEditable;
 
-		commentContainer.setClickable(clickable);
-		ratingContainer.setClickable(clickable);
-		privateInfoContainer.setClickable(clickable);
-		wishlistCard.enableEditMode(clickable);
-		conditionCard.enableEditMode(clickable);
-		wantPartsCard.enableEditMode(clickable);
-		hasPartsCard.enableEditMode(clickable);
+		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
+
+		ratingView.enableEditMode(isEdit);
+		commentView.enableEditMode(isEdit);
+		wishlistCommentView.enableEditMode(isEdit);
+		conditionView.enableEditMode(isEdit);
+		wantPartsView.enableEditMode(isEdit);
+		hasPartsView.enableEditMode(isEdit);
+
+		if (isEdit) {
+			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setGone);
+		} else {
+			ButterKnife.apply(visibleByTagOrGoneViews, setVisibilityByTag);
+		}
+
+		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
+
+		invalidStatusView.setVisibility(getInvalidVisibility() ? View.VISIBLE : View.GONE);
+	}
+
+	private boolean getInvalidVisibility() {
+		for (View view : visibleByChildrenViews) {
+			if (view.getVisibility() == View.VISIBLE) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public void syncChanges() {
@@ -336,7 +373,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (palette == null || !isAdded()) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
-		ButterKnife.apply(textEditorCards, TextEditorCard.headerColorSetter, swatch);
+		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
 	}
 
 	@OnCheckedChanged({
@@ -351,13 +388,19 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	})
 	void onStatusCheckChanged(CompoundButton view) {
 		if (view.getVisibility() != View.VISIBLE) return;
+		if (!isInEditMode) return;
+		if (view == wishlistView) {
+			wishlistPriorityView.setEnabled(wishlistView.isChecked());
+		}
 		updateStatuses();
 	}
 
 	@OnItemSelected(R.id.wishlist_priority)
-	void onWishlistPriorityClicked() {
+	void onWishlistPrioritySelected() {
 		if (wishlistPriorityView.getVisibility() != View.VISIBLE) return;
+		if (!wishlistPriorityView.isEnabled()) return;
 		if (!wishlistView.isChecked()) return;
+		if (!isInEditMode) return;
 		updateStatuses();
 	}
 
@@ -372,41 +415,47 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		int wishlistPriority = wishlistView.isChecked() ?
 			wishlistPriorityView.getSelectedItemPosition() + 1 : 0;
 		UpdateCollectionItemStatusTask task =
-			new UpdateCollectionItemStatusTask(getActivity(),
+			new UpdateCollectionItemStatusTask(getContext(),
 				gameId, collectionId, internalId,
 				statuses, wishlistPriority);
 		TaskUtils.executeAsyncTask(task);
 	}
 
 	@DebugLog
-	@OnClick(R.id.wishlist_card)
+	@OnClick(R.id.comment)
+	public void onCommentClick() {
+		onTextEditorClick(commentView, Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
+	}
+
+	@DebugLog
+	@OnClick(R.id.wishlist_comment)
 	public void onWishlistCommentClick() {
-		onTextEditorClick(wishlistCard, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
+		onTextEditorClick(wishlistCommentView, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	@OnClick(R.id.condition_card)
+	@OnClick(R.id.condition)
 	public void onConditionClick() {
-		onTextEditorClick(conditionCard, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
+		onTextEditorClick(conditionView, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	@OnClick(R.id.want_parts_card)
+	@OnClick(R.id.want_parts)
 	public void onWantPartsClick() {
-		onTextEditorClick(wantPartsCard, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
+		onTextEditorClick(wantPartsView, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	@OnClick(R.id.has_parts_card)
+	@OnClick(R.id.has_parts)
 	public void onHasPartsClick() {
-		onTextEditorClick(hasPartsCard, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
+		onTextEditorClick(hasPartsView, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
 	}
 
 	@DebugLog
-	private void onTextEditorClick(TextEditorCard card, final String textColumn, final String timestampColumn) {
+	private void onTextEditorClick(TextEditorView view, final String textColumn, final String timestampColumn) {
 		EditTextDialogFragment dialogFragment = EditTextDialogFragment.newLongFormInstance(
-			card.getHeaderText(),
-			card,
+			view.getHeaderText(),
+			view,
 			new EditTextDialogListener() {
 				@Override
 				public void onFinishEditDialog(String inputText) {
@@ -418,73 +467,22 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				}
 			}
 		);
-		dialogFragment.setText(card.getContentText());
-		DialogUtils.showFragment(getActivity(), dialogFragment, card.toString());
+		dialogFragment.setText(view.getContentText());
+		DialogUtils.showFragment(getActivity(), dialogFragment, view.toString());
 	}
 
 	@DebugLog
-	@OnClick(R.id.comment_container)
-	public void onCommentClick() {
-		ensureCommentDialogFragment();
-		commentDialogFragment.setText(comment.getText().toString());
-		DialogUtils.showFragment(getActivity(), commentDialogFragment, "comment_dialog");
-	}
-
-	@DebugLog
-	private void ensureCommentDialogFragment() {
-		if (commentDialogFragment == null) {
-			commentDialogFragment = EditTextDialogFragment.newLongFormInstance(
-				R.string.title_comments,
-				commentContainer,
-				new EditTextDialogListener() {
-					@Override
-					public void onFinishEditDialog(String inputText) {
-						UpdateCollectionItemTextTask task =
-							new UpdateCollectionItemTextTask(getActivity(),
-								gameId, collectionId, internalId, inputText,
-								Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
-		}
-	}
-
-	@DebugLog
-	@OnClick(R.id.rating_container)
-	public void onRatingClick() {
-		String output = RATING_EDIT_FORMAT.format((double) rating.getTag());
-		if ("0".equals(output)) {
-			output = "";
-		}
-		final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(getString(R.string.rating), output);
-		fragment.setMinValue(1.0);
-		fragment.setMaxValue(10.0);
-		fragment.setMaxMantissa(6);
-		fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-			@Override
-			public void onDoneClick(String output) {
-				double rating = StringUtils.parseDouble(output);
-				UpdateCollectionItemRatingTask task =
-					new UpdateCollectionItemRatingTask(getActivity(), gameId, collectionId, internalId, rating);
-				TaskUtils.executeAsyncTask(task);
-			}
-		});
-		DialogUtils.showFragment(getActivity(), fragment, "rating_dialog");
-	}
-
-	@DebugLog
-	@OnClick(R.id.private_info_container)
+	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
 		ensurePrivateInfoDialogFragment();
-		privateInfoDialogFragment.setPriceCurrency(String.valueOf(privateInfo.getTag(R.id.price_currency)));
-		privateInfoDialogFragment.setPrice(getDoubleFromTag(privateInfo, R.id.price));
-		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(privateInfo.getTag(R.id.current_value_currency)));
-		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(privateInfo, R.id.current_value));
-		privateInfoDialogFragment.setQuantity(getIntFromTag(privateInfo, R.id.quantity));
-		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(privateInfo.getTag(R.id.acquisition_date)));
-		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(privateInfo.getTag(R.id.acquired_from)));
-		privateInfoDialogFragment.setComment(privateInfoComments.getText().toString());
+		privateInfoDialogFragment.setPriceCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.price_currency)));
+		privateInfoDialogFragment.setPrice(getDoubleFromTag(editPrivateInfoView, R.id.price));
+		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.current_value_currency)));
+		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(editPrivateInfoView, R.id.current_value));
+		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
+		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
+		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
+		privateInfoDialogFragment.setComment(editPrivateInfoCommentsView.getText().toString());
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
 	}
 
@@ -504,12 +502,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void ensurePrivateInfoDialogFragment() {
 		if (privateInfoDialogFragment == null) {
 			privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
-				privateInfoContainer,
+				privateInfoEditContainer,
 				new PrivateInfoDialogListener() {
 					@Override
 					public void onFinishEditDialog(PrivateInfo privateInfo) {
 						UpdateCollectionItemPrivateInfoTask task =
-							new UpdateCollectionItemPrivateInfoTask(getActivity(), gameId, collectionId, internalId, privateInfo);
+							new UpdateCollectionItemPrivateInfoTask(getContext(), gameId, collectionId, internalId, privateInfo);
 						TaskUtils.executeAsyncTask(task);
 					}
 				}
@@ -538,73 +536,176 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
-	private void notifyChange(CollectionItem item) {
-		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.name, item.imageUrl, item.imageUrl);
-		EventBus.getDefault().post(event);
+	private void updateUi(CollectionItem item) {
+		notifyChange(item);
+		bindMainContainer(item);
+		bindWishlist(item);
+		bindTrade(item);
+		bindPrivateInfo(item);
+		bindFooter(item);
+		bindVisibility();
+		isItemEditable = true;
 	}
 
 	@DebugLog
-	private void updateUi(CollectionItem item) {
-		notifyChange(item);
+	private void notifyChange(CollectionItem item) {
+		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getImageUrl(), item.getYear());
+		EventBus.getDefault().post(event);
+	}
 
-		isItemEditable = true;
+	private void bindMainContainer(CollectionItem item) {
+		final String statusDescription = getStatusDescription(item);
+		PresentationUtils.setTextOrHide(statusView, statusDescription);
+		setVisibleTag(statusView, !TextUtils.isEmpty(statusDescription));
 
-		year.setText(PresentationUtils.describeYear(getContext(), item.year));
-		lastModified.setTimestamp(item.dirtyTimestamp > 0 ? item.dirtyTimestamp :
-			item.statusTimestamp > 0 ? item.statusTimestamp : item.lastModifiedDateTime);
+		wantToBuyView.setChecked(item.isWantToBuy());
+		preorderedView.setChecked(item.isPreordered());
+		ownView.setChecked(item.isOwn());
+		wantToPlayView.setChecked(item.isWantToPlay());
+		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
 
-		rating.setText(item.getRatingDescription());
-		rating.setTag(MathUtils.constrain(item.rating, 0.0, 10.0));
-		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.rating));
-		ratingTimestampView.setTimestamp(item.ratingTimestamp);
+		ratingView.setContent(item.getRating(), item.getRatingTimestamp());
 
-		statusView.setText(item.getStatusDescription());
-		statusView.setTag(R.id.status, item.getStatuses());
-		statusView.setTag(R.id.wishlist_priority, item.getWishlistPriority());
+		commentView.setContent(item.getComment(), item.getCommentTimestamp());
+	}
 
-		wantToBuyView.setChecked(item.wantToBuy);
-		preorderedView.setChecked(item.preordered);
-		ownView.setChecked(item.own);
-		wantToPlayView.setChecked(item.wantToPlay);
-		previouslyOwnedView.setChecked(item.previouslyOwned);
-		wantInTradeView.setChecked(item.wantInTrade);
-		forTradeView.setChecked(item.forTrade);
-		wishlistView.setChecked(item.wishlist);
+	private void bindWishlist(CollectionItem item) {
+		// view
+		if (item.isWishlist()) {
+			PresentationUtils.setTextOrHide(wishlistStatusView, PresentationUtils.describeWishlist(getContext(), item.getWishlistPriority()));
+		} else {
+			wishlistStatusView.setVisibility(View.GONE);
+		}
+		setVisibleTag(wishlistStatusView, item.isWishlist());
 
+		// edit
 		if (wishlistPriorityView.getAdapter() == null)
 			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
-		if (item.wishlist)
-			wishlistPriorityView.setSelection(item.wishlistPriority - 1);
-		wishlistPriorityView.setEnabled(item.wishlist);
+		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriorty() - 1);
+		wishlistPriorityView.setEnabled(item.isWishlist());
+		wishlistView.setChecked(item.isWishlist());
 
-		addCommentView.setVisibility(TextUtils.isEmpty(item.comment) ? View.VISIBLE : View.GONE);
-		PresentationUtils.setTextOrHide(comment, item.comment);
-		commentTimestampView.setTimestamp(item.commentTimestamp);
+		wishlistCommentView.setContent(item.getWishlistComment(), item.getWishlistCommentDirtyTimestamp());
+	}
 
-		privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
-		privateInfo.setText(item.getPrivateInfo());
-		privateInfo.setTag(R.id.price_currency, item.getPriceCurrency());
-		privateInfo.setTag(R.id.price, item.getPrice());
-		privateInfo.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
-		privateInfo.setTag(R.id.current_value, item.getCurrentValue());
-		privateInfo.setTag(R.id.quantity, item.getQuantity());
-		privateInfo.setTag(R.id.acquisition_date, item.getAcquisitionDate());
-		privateInfo.setTag(R.id.acquired_from, item.getAcquiredFrom());
-		PresentationUtils.setTextOrHide(privateInfoComments, item.getPrivateComment());
-		privateInfoTimestampView.setTimestamp(item.privateInfoTimestamp);
+	private void bindTrade(CollectionItem item) {
+		// view
+		List<String> statusDescriptions = new ArrayList<>();
+		if (item.isForTrade()) statusDescriptions.add(getString(R.string.collection_status_for_trade));
+		if (item.isWantInTrade()) statusDescriptions.add(getString(R.string.collection_status_want_in_trade));
+		PresentationUtils.setTextOrHide(tradeStatusView, StringUtils.formatList(statusDescriptions));
+		setVisibleTag(tradeStatusView, item.isForTrade() || item.isWantInTrade());
 
-		wishlistCard.setContentText(item.wishlistComment);
-		wishlistCard.setTimestamp(item.wishlistCommentDirtyTimestamp);
-		conditionCard.setContentText(item.condition);
-		conditionCard.setTimestamp(item.tradeConditionDirtyTimestamp);
-		wantPartsCard.setContentText(item.wantParts);
-		wantPartsCard.setTimestamp(item.wantPartsDirtyTimestamp);
-		hasPartsCard.setContentText(item.hasParts);
-		hasPartsCard.setTimestamp(item.hasPartsDirtyTimestamp);
+		// edit
+		wantInTradeView.setChecked(item.isWantInTrade());
+		forTradeView.setChecked(item.isForTrade());
 
-		id.setText(String.valueOf(item.id));
-		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-		updated.setTimestamp(item.updated);
+		// both
+		conditionView.setContent(item.getCondition(), item.getTradeConditionDirtyTimestamp());
+		wantPartsView.setContent(item.getWantParts(), item.getWantPartsDirtyTimestamp());
+		hasPartsView.setContent(item.getHasParts(), item.getHasPartsDirtyTimestamp());
+	}
+
+	private void bindPrivateInfo(CollectionItem item) {
+		// view
+		PresentationUtils.setTextOrHide(viewPrivateInfoView, getPrivateInfo(item));
+		PresentationUtils.setTextOrHide(viewPrivateInfoCommentsView, item.getPrivateComment());
+		setVisibleTag(privateInfoViewContainer, hasPrivateInfo(item));
+
+		// edit
+		editPrivateInfoView.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
+		editPrivateInfoView.setText(getPrivateInfo(item));
+		editPrivateInfoView.setTag(R.id.price_currency, item.getPriceCurrency());
+		editPrivateInfoView.setTag(R.id.price, item.getPrice());
+		editPrivateInfoView.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
+		editPrivateInfoView.setTag(R.id.current_value, item.getCurrentValue());
+		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
+		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
+		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
+		PresentationUtils.setTextOrHide(editPrivateInfoCommentsView, item.getPrivateComment());
+
+		privateInfoTimestampView.setTimestamp(item.getPrivateInfoTimestamp());
+	}
+
+	private void bindFooter(CollectionItem item) {
+		final long defaultTimestamp = item.getStatusTimestamp() > 0 ? item.getStatusTimestamp() : item.getLastModifiedDateTime();
+		final long timestamp = item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() : defaultTimestamp;
+		lastModifiedView.setTimestamp(timestamp);
+		updatedView.setTimestamp(item.getUpdated());
+		PresentationUtils.setTextOrHide(idView, item.getId());
+	}
+
+	private static void setVisibleTag(View view, boolean isVisible) {
+		view.setTag(R.id.visibility, isVisible);
+	}
+
+	private static boolean getVisibleTag(View view) {
+		final Object tag = view.getTag(R.id.visibility);
+		return tag != null && (boolean) tag;
+	}
+
+	private String getStatusDescription(CollectionItem item) {
+		List<String> statusDescriptions = new ArrayList<>();
+		if (item.isOwn()) statusDescriptions.add(getString(R.string.collection_status_own));
+		if (item.isPreviouslyOwned()) statusDescriptions.add(getString(R.string.collection_status_prev_owned));
+		if (item.isWantToBuy()) statusDescriptions.add(getString(R.string.collection_status_want_to_buy));
+		if (item.isWantToPlay()) statusDescriptions.add(getString(R.string.collection_status_want_to_play));
+		if (item.isPreordered()) statusDescriptions.add(getString(R.string.collection_status_preordered));
+
+		String status = StringUtils.formatList(statusDescriptions);
+		if (TextUtils.isEmpty(status) && item.getNumberOfPlays() > 0) {
+			return getString(R.string.played);
+		}
+		return status;
+	}
+
+	private CharSequence getPrivateInfo(CollectionItem item) {
+		String initialText = getResources().getString(R.string.acquired);
+		SpannableStringBuilder sb = new SpannableStringBuilder();
+		sb.append(initialText);
+		if (item.getQuantity() > 1) {
+			sb.append(" ");
+			StringUtils.appendBold(sb, String.valueOf(item.getQuantity()));
+		}
+		if (!TextUtils.isEmpty(item.getAcquisitionDate())) {
+			String date = null;
+			try {
+				date = DateUtils.formatDateTime(getContext(), DateTimeUtils.getMillisFromApiDate(item.getAcquisitionDate(), 0), DateUtils.FORMAT_SHOW_DATE);
+			} catch (Exception e) {
+				Timber.w(e, "Could find a date in here: %s", item.getAcquisitionDate());
+			}
+			if (!TextUtils.isEmpty(date)) {
+				sb.append(" ").append(getString(R.string.on)).append(" ");
+				StringUtils.appendBold(sb, date);
+			}
+		}
+		if (!TextUtils.isEmpty(item.getAcquiredFrom())) {
+			sb.append(" ").append(getString(R.string.from)).append(" ");
+			StringUtils.appendBold(sb, item.getAcquiredFrom());
+		}
+		if (item.getPrice() > 0.0) {
+			sb.append(" ").append(getString(R.string.for_)).append(" ");
+			StringUtils.appendBold(sb, PresentationUtils.describeMoney(item.getPriceCurrency(), item.getPrice()));
+		}
+		if (item.getCurrentValue() > 0.0) {
+			sb.append(" (").append(getString(R.string.currently_worth)).append(" ");
+			StringUtils.appendBold(sb, PresentationUtils.describeMoney(item.getCurrentValueCurrency(), item.getCurrentValue()));
+			sb.append(")");
+		}
+
+		if (sb.toString().equals(initialText)) {
+			// shouldn't happen
+			return null;
+		}
+		return sb;
+	}
+
+	static boolean hasPrivateInfo(CollectionItem item) {
+		return item.getQuantity() > 1 ||
+			!TextUtils.isEmpty(item.getAcquisitionDate()) ||
+			!TextUtils.isEmpty(item.getAcquiredFrom()) ||
+			item.getPrice() > 0.0 ||
+			item.getCurrentValue() > 0.0;
 	}
 
 	private static class WishlistPriorityAdapter extends ArrayAdapter<String> {
@@ -616,336 +717,50 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	private class CollectionItem {
-		static final int _TOKEN = 0x31;
-
-		final String[] PROJECTION = {
-			Collection._ID,
-			Collection.COLLECTION_ID,
-			Collection.COLLECTION_NAME,
-			Collection.COLLECTION_SORT_NAME,
-			Collection.COMMENT,
-			Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-			Collection.PRIVATE_INFO_PRICE_PAID,
-			Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
-			Collection.PRIVATE_INFO_CURRENT_VALUE,
-			Collection.PRIVATE_INFO_QUANTITY,
-			Collection.PRIVATE_INFO_ACQUISITION_DATE,
-			Collection.PRIVATE_INFO_ACQUIRED_FROM,
-			Collection.PRIVATE_INFO_COMMENT,
-			Collection.LAST_MODIFIED,
-			Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.COLLECTION_IMAGE_URL,
-			Collection.COLLECTION_YEAR_PUBLISHED,
-			Collection.CONDITION,
-			Collection.HASPARTS_LIST,
-			Collection.WANTPARTS_LIST,
-			Collection.WISHLIST_COMMENT,
-			Collection.RATING,
-			Collection.UPDATED,
-			Collection.STATUS_OWN,
-			Collection.STATUS_PREVIOUSLY_OWNED,
-			Collection.STATUS_FOR_TRADE,
-			Collection.STATUS_WANT,
-			Collection.STATUS_WANT_TO_BUY,
-			Collection.STATUS_WISHLIST,
-			Collection.STATUS_WANT_TO_PLAY,
-			Collection.STATUS_PREORDERED,
-			Collection.STATUS_WISHLIST_PRIORITY,
-			Collection.NUM_PLAYS,
-			Collection.RATING_DIRTY_TIMESTAMP,
-			Collection.COMMENT_DIRTY_TIMESTAMP,
-			Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
-			Collection.STATUS_DIRTY_TIMESTAMP,
-			Collection.COLLECTION_DIRTY_TIMESTAMP,
-			Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
-			Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
-			Collection.WANT_PARTS_DIRTY_TIMESTAMP,
-			Collection.HAS_PARTS_DIRTY_TIMESTAMP
-		};
-
-		final int _ID = 0;
-		final int COLLECTION_ID = 1;
-		final int COLLECTION_NAME = 2;
-		// int COLLECTION_SORT_NAME = 3;
-		final int COMMENT = 4;
-		final int PRIVATE_INFO_PRICE_PAID_CURRENCY = 5;
-		final int PRIVATE_INFO_PRICE_PAID = 6;
-		final int PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 7;
-		final int PRIVATE_INFO_CURRENT_VALUE = 8;
-		final int PRIVATE_INFO_QUANTITY = 9;
-		final int PRIVATE_INFO_ACQUISITION_DATE = 10;
-		final int PRIVATE_INFO_ACQUIRED_FROM = 11;
-		final int PRIVATE_INFO_COMMENT = 12;
-		final int LAST_MODIFIED = 13;
-		// int COLLECTION_THUMBNAIL_URL = 14;
-		final int COLLECTION_IMAGE_URL = 15;
-		final int COLLECTION_YEAR_PUBLISHED = 16;
-		final int CONDITION = 17;
-		final int HAS_PARTS_LIST = 18;
-		final int WANT_PARTS_LIST = 19;
-		final int WISHLIST_COMMENT = 20;
-		final int RATING = 21;
-		final int UPDATED = 22;
-		final int STATUS_OWN = 23;
-		final int STATUS_PREVIOUSLY_OWNED = 24;
-		final int STATUS_FOR_TRADE = 25;
-		final int STATUS_WANT = 26;
-		final int STATUS_WANT_TO_BUY = 27;
-		final int STATUS_WISHLIST = 28;
-		final int STATUS_WANT_TO_PLAY = 29;
-		final int STATUS_PRE_ORDERED = 30;
-		final int STATUS_WISHLIST_PRIORITY = 31;
-		final int NUM_PLAYS = 32;
-		final int RATING_DIRTY_TIMESTAMP = 33;
-		final int COMMENT_DIRTY_TIMESTAMP = 34;
-		final int PRIVATE_INFO_DIRTY_TIMESTAMP = 35;
-		final int STATUS_DIRTY_TIMESTAMP = 36;
-		final int COLLECTION_DIRTY_TIMESTAMP = 37;
-		final int WISHLIST_COMMENT_DIRTY_TIMESTAMP = 38;
-		final int TRADE_CONDITION_DIRTY_TIMESTAMP = 39;
-		final int WANT_PARTS_DIRTY_TIMESTAMP = 40;
-		final int HAS_PARTS_DIRTY_TIMESTAMP = 41;
-
-		Resources r;
-		int id;
-		private long internalId;
-		String name;
-		// String sortName;
-		private String comment;
-		private long commentTimestamp;
-		private long lastModifiedDateTime;
-		private double rating;
-		private long ratingTimestamp;
-		private long updated;
-		private String priceCurrency;
-		private double price;
-		private String currentValueCurrency;
-		private double currentValue;
-		int quantity;
-		private String acquiredFrom;
-		private String acquisitionDate;
-		String privateComment;
-		private long privateInfoTimestamp;
-		private long statusTimestamp;
-		String imageUrl;
-		private int year;
-		String condition;
-		String wantParts;
-		String hasParts;
-		int wishlistPriority;
-		String wishlistComment;
-		int numPlays;
-		private ArrayList<String> statusDescriptions;
-		private ArrayList<String> statuses;
-		private boolean own;
-		private boolean previouslyOwned;
-		private boolean wantToBuy;
-		private boolean wantToPlay;
-		private boolean preordered;
-		private boolean wantInTrade;
-		private boolean forTrade;
-		private boolean wishlist;
-		private long dirtyTimestamp;
-		private long wishlistCommentDirtyTimestamp;
-		private long tradeConditionDirtyTimestamp;
-		private long wantPartsDirtyTimestamp;
-		private long hasPartsDirtyTimestamp;
-
-		public CollectionItem() {
-			// TODO: delete this, here just to get the projection; gotta be a better way
+	private static final ButterKnife.Action<View> setVisibilityByTag = new ButterKnife.Action<View>() {
+		@Override
+		public void apply(@NonNull View view, int index) {
+			boolean isVisible = getVisibleTag(view);
+			view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
 		}
+	};
 
-		public CollectionItem(Cursor cursor) {
-			r = getResources();
-			id = cursor.getInt(COLLECTION_ID);
-			internalId = cursor.getLong(_ID);
-			name = cursor.getString(COLLECTION_NAME);
-			// sortName = cursor.getString(COLLECTION_SORT_NAME);
+	private final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
+		@Override
+		public void apply(@NonNull ViewGroup view, int index) {
+			for (int i = 0; i < view.getChildCount(); i++) {
+				final View child = view.getChildAt(i);
+				if (setVisibilityByChild(view, child)) return;
+			}
+			view.setVisibility(View.GONE);
+		}
+	};
 
-			own = cursor.getInt(STATUS_OWN) == 1;
-			previouslyOwned = cursor.getInt(STATUS_PREVIOUSLY_OWNED) == 1;
-			wantToBuy = cursor.getInt(STATUS_WANT_TO_BUY) == 1;
-			wantToPlay = cursor.getInt(STATUS_WANT_TO_PLAY) == 1;
-			preordered = cursor.getInt(STATUS_PRE_ORDERED) == 1;
-			wantInTrade = cursor.getInt(STATUS_WANT) == 1;
-			forTrade = cursor.getInt(STATUS_FOR_TRADE) == 1;
-			wishlist = cursor.getInt(STATUS_WISHLIST) == 1;
-
-			comment = cursor.getString(COMMENT);
-			commentTimestamp = cursor.getLong(COMMENT_DIRTY_TIMESTAMP);
-			rating = cursor.getDouble(RATING);
-			ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
-			lastModifiedDateTime = cursor.getLong(LAST_MODIFIED);
-			updated = cursor.getLong(UPDATED);
-			priceCurrency = cursor.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY);
-			price = cursor.getDouble(PRIVATE_INFO_PRICE_PAID);
-			currentValueCurrency = cursor.getString(PRIVATE_INFO_CURRENT_VALUE_CURRENCY);
-			currentValue = cursor.getDouble(PRIVATE_INFO_CURRENT_VALUE);
-			quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
-			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
-			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
-			acquisitionDate = cursor.getString(PRIVATE_INFO_ACQUISITION_DATE);
-			privateInfoTimestamp = cursor.getLong(PRIVATE_INFO_DIRTY_TIMESTAMP);
-			statusTimestamp = cursor.getLong(STATUS_DIRTY_TIMESTAMP);
-			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
-			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
-			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
-			wishlistComment = cursor.getString(WISHLIST_COMMENT);
-			condition = cursor.getString(CONDITION);
-			wantParts = cursor.getString(WANT_PARTS_LIST);
-			hasParts = cursor.getString(HAS_PARTS_LIST);
-			numPlays = cursor.getInt(NUM_PLAYS);
-			dirtyTimestamp = cursor.getLong(COLLECTION_DIRTY_TIMESTAMP);
-			wishlistCommentDirtyTimestamp = cursor.getLong(WISHLIST_COMMENT_DIRTY_TIMESTAMP);
-			tradeConditionDirtyTimestamp = cursor.getLong(TRADE_CONDITION_DIRTY_TIMESTAMP);
-			wantPartsDirtyTimestamp = cursor.getLong(WANT_PARTS_DIRTY_TIMESTAMP);
-			hasPartsDirtyTimestamp = cursor.getLong(HAS_PARTS_DIRTY_TIMESTAMP);
-
-			statuses = new ArrayList<>();
-			statusDescriptions = new ArrayList<>();
-			for (int i = STATUS_OWN; i <= STATUS_PRE_ORDERED; i++) {
-				if (cursor.getInt(i) == 1) {
-					statuses.add(r.getStringArray(R.array.collection_status_filter_values)[i - STATUS_OWN]);
-					if (i == STATUS_WISHLIST) {
-						statusDescriptions.add(getWishlistPriorityDescription());
-					} else {
-						statusDescriptions.add(r.getStringArray(R.array.collection_status_filter_entries)[i - STATUS_OWN]);
-					}
+	private static boolean setVisibilityByChild(@NonNull ViewGroup view, View child) {
+		if (child instanceof ViewGroup) {
+			String tag = (String) child.getTag();
+			if (tag != null && tag.equals("container")) {
+				ViewGroup childViewGroup = (ViewGroup) child;
+				for (int j = 0; j < childViewGroup.getChildCount(); j++) {
+					View grandchild = childViewGroup.getChildAt(j);
+					if (setVisibilityByChild(view, grandchild)) return true;
 				}
+			} else {
+				if (setVisibilityByChildView(view, child)) return true;
 			}
+		} else {
+			if (setVisibilityByChildView(view, child)) return true;
 		}
+		return false;
+	}
 
-		String getStatusDescription() {
-			String status = StringUtils.formatList(statusDescriptions);
-			if (TextUtils.isEmpty(status)) {
-				if (numPlays > 0) {
-					return r.getString(R.string.played);
-				}
-				return r.getString(R.string.invalid_collection_status);
-			}
-			return status;
+	private static boolean setVisibilityByChildView(View view, View v) {
+		String tag = (String) v.getTag();
+		if (tag != null && tag.equals("header")) return false;
+		if (v.getVisibility() == View.VISIBLE) {
+			view.setVisibility(View.VISIBLE);
+			return true;
 		}
-
-		List<String> getStatuses() {
-			return statuses;
-		}
-
-		String getRatingDescription() {
-			return PresentationUtils.describePersonalRating(getActivity(), rating);
-		}
-
-		int getWishlistPriority() {
-			return wishlistPriority;
-		}
-
-		String getWishlistPriorityDescription() {
-			return PresentationUtils.describeWishlist(getActivity(), wishlistPriority);
-		}
-
-		String getPriceDescription() {
-			return PresentationUtils.describeMoney(priceCurrency, price);
-		}
-
-		String getCurrentValueDescription() {
-			return PresentationUtils.describeMoney(currentValueCurrency, currentValue);
-		}
-
-		boolean hasPrivateInfo() {
-			return hasQuantity() || hasAcquisitionDate() || hasAcquiredFrom() || hasPrice() || hasValue();
-		}
-
-		int getQuantity() {
-			return quantity;
-		}
-
-		boolean hasQuantity() {
-			return quantity > 1;
-		}
-
-		String getAcquisitionDate() {
-			return acquisitionDate == null ? "" : acquisitionDate;
-		}
-
-		boolean hasAcquisitionDate() {
-			return !TextUtils.isEmpty(acquisitionDate);
-		}
-
-		String getAcquiredFrom() {
-			return acquiredFrom == null ? "" : acquiredFrom;
-		}
-
-		boolean hasAcquiredFrom() {
-			return !TextUtils.isEmpty(acquiredFrom);
-		}
-
-		String getPrivateComment() {
-			return privateComment == null ? "" : privateComment;
-		}
-
-		String getPriceCurrency() {
-			return priceCurrency;
-		}
-
-		double getPrice() {
-			return price;
-		}
-
-		boolean hasPrice() {
-			return price > 0.0;
-		}
-
-		String getCurrentValueCurrency() {
-			return currentValueCurrency;
-		}
-
-		double getCurrentValue() {
-			return currentValue;
-		}
-
-		boolean hasValue() {
-			return currentValue > 0.0;
-		}
-
-		CharSequence getPrivateInfo() {
-			String initialText = r.getString(R.string.acquired);
-			SpannableStringBuilder sb = new SpannableStringBuilder();
-			sb.append(initialText);
-			if (hasQuantity()) {
-				sb.append(" ");
-				StringUtils.appendBold(sb, String.valueOf(quantity));
-			}
-			if (hasAcquisitionDate()) {
-				String date = null;
-				try {
-					date = DateUtils.formatDateTime(getContext(), DateTimeUtils.getMillisFromApiDate(acquisitionDate, 0), DateUtils.FORMAT_SHOW_DATE);
-				} catch (Exception e) {
-					Timber.w(e, "Could find a date in here: %s", acquisitionDate);
-				}
-				if (!TextUtils.isEmpty(date)) {
-					sb.append(" ").append(r.getString(R.string.on)).append(" ");
-					StringUtils.appendBold(sb, date);
-				}
-			}
-			if (hasAcquiredFrom()) {
-				sb.append(" ").append(r.getString(R.string.from)).append(" ");
-				StringUtils.appendBold(sb, acquiredFrom);
-			}
-			if (hasPrice()) {
-				sb.append(" ").append(r.getString(R.string.for_)).append(" ");
-				StringUtils.appendBold(sb, getPriceDescription());
-			}
-			if (hasValue()) {
-				sb.append(" (").append(r.getString(R.string.currently_worth)).append(" ");
-				StringUtils.appendBold(sb, getCurrentValueDescription());
-				sb.append(")");
-			}
-
-			if (sb.toString().equals(initialText)) {
-				// shouldn't happen
-				return null;
-			}
-			return sb;
-		}
+		return false;
 	}
 }

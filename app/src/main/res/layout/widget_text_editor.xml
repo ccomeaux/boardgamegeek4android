@@ -4,40 +4,48 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:foreground="?attr/selectableItemBackground"
+	android:gravity="center_vertical"
+	android:minHeight="@dimen/edit_row_height"
+	android:orientation="horizontal">
 
-	<com.boardgamegeek.ui.widget.ForegroundLinearLayout
-		android:layout_width="match_parent"
+	<LinearLayout
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:foreground="?attr/selectableItemBackground"
-		android:gravity="center_vertical"
-		android:minHeight="@dimen/edit_row_height"
+		android:layout_weight="1"
 		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/text_editor_header"
 			style="@style/Text.Header.Card"
 			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
 			tools:text="This Thing"/>
 
 		<TextView
 			android:id="@+id/text_editor_content"
+			style="@style/Text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/padding_half"
 			android:visibility="gone"
 			tools:text="This thing is awesome. I love it. You should check it out."
 			tools:visibility="visible"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/text_editor_timestamp"
-			style="@style/Text.Footnote2"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="right"
-			android:visibility="gone"
+			android:textAppearance="@style/Text.Footnote2"
 			app:hideWhenEmpty="true"
 			tools:text="Yesterday"
 			tools:visibility="visible"/>
-	</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+	</LinearLayout>
+
+	<ImageView
+		android:id="@+id/text_editor_image"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:contentDescription="@string/edit"
+		android:src="@drawable/ic_action_edit_light"/>
 </merge>

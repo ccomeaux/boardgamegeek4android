@@ -47,16 +47,21 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	private static final String KEY_COLLECTION_ID = "COLLECTION_ID";
 	private static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
+	private static final String KEY_YEAR_PUBLISHED = "YEAR_PUBLISHED";
+	private static final String KEY_COLLECTION_YEAR_PUBLISHED = "COLLECTION_YEAR_PUBLISHED";
+	private static final int INVALID_YEAR = 0;
 	private long internalId;
 	private int gameId;
 	private String gameName;
 	private int collectionId;
 	private String collectionName;
 	private String imageUrl;
+	private int yearPublished;
+	private int collectionYearPublished;
 	@State boolean isInEditMode;
 	private boolean isItemUpdated;
 
-	public static void start(Context context, long internalId, int gameId, String gameName, int collectionId, String collectionName, String imageUrl) {
+	public static void start(Context context, long internalId, int gameId, String gameName, int collectionId, String collectionName, String imageUrl, int yearPublished, int collectionYearPublished) {
 		Intent starter = new Intent(context, GameCollectionItemActivity.class);
 		starter.putExtra(KEY_INTERNAL_ID, internalId);
 		starter.putExtra(KEY_GAME_ID, gameId);
@@ -64,6 +69,8 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 		starter.putExtra(KEY_COLLECTION_ID, collectionId);
 		starter.putExtra(KEY_COLLECTION_NAME, collectionName);
 		starter.putExtra(KEY_IMAGE_URL, imageUrl);
+		starter.putExtra(KEY_YEAR_PUBLISHED, yearPublished);
+		starter.putExtra(KEY_COLLECTION_YEAR_PUBLISHED, collectionYearPublished);
 		context.startActivity(starter);
 	}
 
@@ -73,7 +80,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
-		safelySetTitle(collectionName);
+		safelySetTitle();
 
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent()
@@ -92,6 +99,8 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 		collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID);
 		collectionName = intent.getStringExtra(KEY_COLLECTION_NAME);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+		yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, INVALID_YEAR);
+		collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, INVALID_YEAR);
 	}
 
 	@Override
@@ -167,11 +176,20 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void safelySetTitle() {
+		if (collectionYearPublished == INVALID_YEAR || collectionYearPublished == yearPublished)
+			safelySetTitle(collectionName);
+		else
+			safelySetTitle(String.format("%s (%s)", collectionName, collectionYearPublished));
+	}
+
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionItemChangedEvent event) {
-		safelySetTitle(event.getCollectionName());
+		collectionName = event.getCollectionName();
+		collectionYearPublished = event.getYearPublished();
+		safelySetTitle();
 		ScrimUtils.applyDarkScrim(scrimView);
 		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
 	}
@@ -241,6 +259,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	}
 
 	private void displayEditMode() {
+		swipeRefreshLayout.setEnabled(!isInEditMode);
 		((GameCollectionItemFragment) getFragment()).enableEditMode(isInEditMode);
 		fab.setImageResource(isInEditMode ? R.drawable.fab_done : R.drawable.fab_edit);
 	}

@@ -405,7 +405,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 					case R.string.title_info:
 						return GameFragment.newInstance(gameId, gameName, iconColor, darkColor);
 					case R.string.title_collection:
-						return GameCollectionFragment.newInstance(gameId, gameName);
+						return GameCollectionFragment.newInstance(gameId);
 					case R.string.title_plays:
 						return GamePlaysFragment.newInstance(gameId, gameName, iconColor, playCountColors);
 					case R.string.links:

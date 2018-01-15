@@ -195,7 +195,7 @@
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
-	<string name="add_comment">Add comment</string>
+	<string name="comment">Comment</string>
 	<string name="title_sort">Sort by</string>
 	<string name="title_filter">Filter by</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>
@@ -243,6 +243,7 @@
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection. If you\'ve already done that and you\'re still seeing this message, it\'s probably time to re-sync.</string>
 	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. If you think you should, you might want to try to re-sync.</string>
 	<string name="sync">Sync</string>
+	<string name="empty_game_collection">This game isn\'t in your collection.</string>
 	<string name="re_sync">Re-sync</string>
 	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
 	<string name="empty_colors">No teams/colors set for this game.</string>
@@ -541,6 +542,7 @@
 	<string name="currently_worth">currently worth</string>
 	<string name="wishlist">Wishlist</string>
 	<string name="wishlist_comment">Wishlist Comment</string>
+	<string name="title_trade">Trade</string>
 	<string name="trade_condition">Trade Condition</string>
 	<string name="want_parts_list">Want Parts List</string>
 	<string name="has_parts_list">Has Parts List</string>

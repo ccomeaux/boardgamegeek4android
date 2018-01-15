@@ -142,6 +142,10 @@
 
 	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
 
+	<style name="Text.Empty" parent="@style/TextAppearance.AppCompat.Subhead">
+		<item name="android:textColor">@color/secondary_text</item>
+	</style>
+
 	<style name="Text.Label">
 		<item name="android:paddingTop">@dimen/padding_standard</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
@@ -226,7 +230,12 @@
 	<style name="Text.Clickable">
 		<item name="android:background">?attr/selectableItemBackground</item>
 		<item name="android:gravity">center_vertical</item>
+		<item name="android:clickable">true</item>
 		<item name="android:minHeight">@dimen/edit_row_height</item>
+	</style>
+
+	<style name="Text.Clickable.Caps">
+		<item name="android:textAllCaps">true</item>
 	</style>
 
 	<style name="Text.Header" parent="@style/TextAppearance.AppCompat.Button">
@@ -247,6 +256,7 @@
 	<style name="Text.Header.Card">
 		<item name="android:layout_height">32dp</item>
 		<item name="android:gravity">center_vertical</item>
+		<item name="android:maxLines">1</item>
 	</style>
 
 	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
@@ -595,7 +605,12 @@
 		<item name="android:layout_marginLeft">@dimen/material_margin_horizontal</item>
 		<item name="android:layout_marginRight">@dimen/material_margin_horizontal</item>
 		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
-		<item name="android:textSize">14sp</item>
+		<item name="android:textSize">16sp</item>
+	</style>
+
+	<style name="EditCheckbox.Card">
+		<item name="android:layout_marginLeft">0dp</item>
+		<item name="android:layout_marginRight">0dp</item>
 	</style>
 
 	<style name="EditSpinner">
@@ -604,6 +619,11 @@
 		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
 		<item name="android:spinnerItemStyle">@style/EditSpinnerItemStyle</item>
 		<item name="android:spinnerDropDownItemStyle">@style/EditSpinnerDropDownItemStyle</item>
+	</style>
+
+	<style name="EditSpinner.Card">
+		<item name="android:layout_marginLeft">0dp</item>
+		<item name="android:layout_marginRight">0dp</item>
 	</style>
 
 	<style name="EditSpinnerItemStyle" parent="Base.Widget.AppCompat.TextView.SpinnerItem">

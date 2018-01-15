@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.model
 import android.database.Cursor
 import com.boardgamegeek.provider.BggContract.Games
 
-class Game private constructor(
+data class Game private constructor(
         val id: Int,
         val name: String,
         val thumbnailUrl: String,
