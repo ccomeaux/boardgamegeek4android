@@ -148,7 +148,7 @@ dependencies {
         transitive = true
     }
 
-    implementation('com.mikepenz:aboutlibraries:5.9.7@aar') {
+    implementation('com.mikepenz:aboutlibraries:6.0.2@aar') {
         transitive = true
     }
 
