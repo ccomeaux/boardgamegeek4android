@@ -714,6 +714,10 @@
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
 	</plurals>
+	<plurals name="winnable_plays_suffix">
+		<item quantity="one"><b>%,d</b> winnable play</item>
+		<item quantity="other"><b>%,d</b> winnable plays</item>
+	</plurals>
 	<plurals name="wins_suffix">
 		<item quantity="one"><b>%,d</b> win</item>
 		<item quantity="other"><b>%,d</b> wins</item>

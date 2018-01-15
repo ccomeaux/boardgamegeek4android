@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -41,6 +42,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.squareup.picasso.Picasso;
@@ -105,13 +107,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
 
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
@@ -192,22 +194,23 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+		if (getContext() == null) return null;
 		CursorLoader loader = null;
 		switch (id) {
 			case TOKEN:
-				loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(buddyName), Buddy.PROJECTION, null, null, null);
+				loader = new CursorLoader(getContext(), Buddies.buildBuddyUri(buddyName), Buddy.PROJECTION, null, null, null);
 				break;
 			case PLAYS_TOKEN:
 				if (isUser()) {
-					loader = new CursorLoader(getActivity(),
+					loader = new CursorLoader(getContext(),
 						Plays.buildPlayersByUniqueUserUri(),
 						Player.PROJECTION,
-						PlayPlayers.USER_NAME + "=?",
+						PlayPlayers.USER_NAME + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.NO_WIN_STATS),
 						new String[] { buddyName },
 						null);
 
 				} else {
-					loader = new CursorLoader(getActivity(),
+					loader = new CursorLoader(getContext(),
 						Plays.buildPlayersByUniquePlayerUri(),
 						Player.PROJECTION,
 						"(" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL) AND play_players." + PlayPlayers.NAME + "=?",
@@ -218,7 +221,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			case COLORS_TOKEN:
 				if (!TextUtils.isEmpty(buddyName) || !TextUtils.isEmpty(playerName)) {
 					Uri uri = isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName);
-					loader = new CursorLoader(getActivity(),
+					loader = new CursorLoader(getContext(),
 						uri,
 						PlayerColor.PROJECTION,
 						null, null, null);
@@ -322,7 +325,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		final int winCount = player.getWinCount();
 		if (playCount > 0 || winCount > 0) {
 			playsCard.setVisibility(View.VISIBLE);
-			playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
+			playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.winnable_plays_suffix, playCount, playCount));
 			winsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.wins_suffix, winCount, winCount));
 			winPercentageView.setText(getString(R.string.percentage, (int) ((double) winCount / playCount * 100)));
 		} else {

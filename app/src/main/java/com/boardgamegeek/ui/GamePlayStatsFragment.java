@@ -745,9 +745,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				for (PlayerModel player : play.getPlayers()) {
 					if (!TextUtils.isEmpty(player.getUniqueName())) {
 						PlayerStats playerStats = this.playerStats.get(player.getUniqueName());
-						if (playerStats == null) {
-							playerStats = new PlayerStats();
-						}
+						if (playerStats == null) playerStats = new PlayerStats();
 						playerStats.add(play, player);
 						this.playerStats.put(player.getUniqueName(), playerStats);
 					}
