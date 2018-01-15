@@ -645,6 +645,16 @@
 	<string name="best">Best</string>
 	<string name="recommended">Recommended</string>
 	<string name="good">Good</string>
+	<string name="title_login">Sign in to BoardGameGeek</string>
+	<string name="prompt_username">Username</string>
+	<string name="prompt_password">Password</string>
+	<string name="action_sign_in">Sign in</string>
+	<string name="login_progress_signing_in">Signing in&#8230;</string>
+	<string name="error_incorrect_password">This password is incorrect</string>
+	<string name="error_account_list_zero">Account couldn\'t be added. Please check the Accounts section of your device\'s settings to ensure there is no BoardGameGeek account listed already.</string>
+	<string name="error_account_list_multiple">Multiple accounts of type %s are not allowed.</string>
+	<string name="error_account_name_mismatch">The existing account for %s doesn\'t match the one requested for %s.</string>
+	<string name="error_field_required">This field is required</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

@@ -229,15 +229,26 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		if (isRequestingNewAccount) {
 			if (!accountManager.addAccountExplicitly(account, password, userData)) {
-				Account existingAccount = Authenticator.getAccount(accountManager);
-				if (existingAccount == null) {
-					passwordContainer.setError(getString(R.string.error_account_not_added));
+				Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
+				if (accounts.length == 0) {
+					Timber.v("no account!");
+					passwordContainer.setError(getString(R.string.error_account_list_zero));
 					return;
-				} else if (!existingAccount.name.equals(account.name)) {
-					passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
+				} else if (accounts.length != 1) {
+					Timber.w("multiple accounts!");
+					passwordContainer.setError(getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE));
 					return;
 				} else {
-					accountManager.setPassword(account, password);
+					Account existingAccount = accounts[0];
+					if (existingAccount == null) {
+						passwordContainer.setError(getString(R.string.error_account_list_zero));
+						return;
+					} else if (!existingAccount.name.equals(account.name)) {
+						passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
+						return;
+					} else {
+						accountManager.setPassword(account, password);
+					}
 				}
 			}
 		} else {
