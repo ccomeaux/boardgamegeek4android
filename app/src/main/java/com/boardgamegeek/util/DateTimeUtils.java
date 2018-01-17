@@ -129,13 +129,14 @@ public class DateTimeUtils {
 	 * parsed.
 	 */
 	public static long tryParseDate(long time, String date, DateFormat format) {
-		if (TextUtils.isEmpty(date)) {
-			time = UNKNOWN_DATE;
-		} else {
-			if (time == UNPARSED_DATE) {
+		if (time == UNPARSED_DATE) {
+			if (TextUtils.isEmpty(date)) {
+				time = UNKNOWN_DATE;
+			} else {
 				try {
 					time = format.parse(date).getTime();
-				} catch (ParseException e) {
+				} catch (ParseException | ArrayIndexOutOfBoundsException e) {
+					Timber.w(e, "Unable to parse %s as %s", date, format);
 					time = UNKNOWN_DATE;
 				}
 			}
