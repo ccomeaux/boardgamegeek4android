@@ -159,8 +159,6 @@ dependencies {
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
 
-    implementation 'com.github.lzyzsd.randomcolor:library:1.0.0'
-
     implementation 'com.appyvet:materialrangebar:1.4.1'
 
     implementation 'com.facebook.stetho:stetho:1.5.0'

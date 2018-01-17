@@ -136,7 +136,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 				break;
 			case SUGGESTED_PLAYER_AGE:
 				getDialog().setTitle(R.string.suggested_playerage);
-				chartColors = null;
+				chartColors = ColorUtils.TWELVE_STAGE_COLORS;
 				break;
 		}
 
@@ -217,11 +217,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 		PieDataSet dataSet = new PieDataSet(entries, "");
 		dataSet.setValueFormatter(new IntegerValueFormatter(true));
-		if (chartColors != null) {
-			dataSet.setColors(chartColors);
-		} else {
-			dataSet.setColors(ColorUtils.createColors(cursor.getCount()));
-		}
+		if (chartColors != null) dataSet.setColors(chartColors);
 
 		PieData data = new PieData(dataSet);
 		pieChart.setData(data);

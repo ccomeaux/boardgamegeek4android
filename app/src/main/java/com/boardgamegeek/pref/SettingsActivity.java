@@ -101,7 +101,6 @@ public class SettingsActivity extends DrawerActivity {
 							.withFields(R.string.class.getFields())
 							.withLibraries(
 								"AndroidIcons",
-								"AndroidRandomColor",
 								"Hugo",
 								"Jsoup",
 								"LeakCanary",

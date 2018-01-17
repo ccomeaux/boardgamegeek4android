@@ -14,10 +14,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.lzyzsd.randomcolor.RandomColor;
-import com.github.lzyzsd.randomcolor.RandomColor.Luminosity;
-import com.github.lzyzsd.randomcolor.RandomColor.SaturationType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -288,25 +284,25 @@ public class ColorUtils {
 	/**
 	 * Create an array of random, but light, colors
 	 */
-	public static int[] createColors(int count) {
-		RandomColor r = new RandomColor();
-		int[] colors = new int[count];
-
-		for (int i = 0; i < count; ++i) {
-			colors[i] = r.randomColor(0, SaturationType.RANDOM, Luminosity.LIGHT);
-		}
-
-		return colors;
-	}
+	public static final int[] TWELVE_STAGE_COLORS = {
+		0xFFDFEBCC,
+		0xFFBBDCCD,
+		0xFF98CBCD,
+		0xFF78BCCF,
+		0xFF60A8CA,
+		0xFF5290BA,
+		0xFF4576A9,
+		0xFF385E99,
+		0xFF2B4489,
+		0xFF1E2C7A,
+		0xFF182161,
+		0xFF121848
+	};
 
 	@ColorInt
 	public static int getTextColor(int backgroundColor) {
-		if (backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor)) {
-			return Color.WHITE;
-		} else {
-			return Color.BLACK;
-		}
+		return backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?
+			Color.WHITE :
+			Color.BLACK;
 	}
-
-
 }
