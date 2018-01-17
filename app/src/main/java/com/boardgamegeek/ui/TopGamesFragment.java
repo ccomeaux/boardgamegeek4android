@@ -108,7 +108,10 @@ public class TopGamesFragment extends Fragment {
 		List<TopGame> topGames = new ArrayList<>();
 
 		int rank = 1;
-		Document doc = Jsoup.connect("https://www.boardgamegeek.com/browse/boardgame").get();
+		Document doc = Jsoup
+			.connect("https://www.boardgamegeek.com/browse/boardgame")
+			.timeout(10000)
+			.get();
 		Elements gameElements = doc.select("td.collection_thumbnail");
 		for (Element element : gameElements) {
 			TopGame game = new TopGame();
