@@ -4,6 +4,7 @@ package com.boardgamegeek.ui;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -39,6 +40,7 @@ public class GameLinksFragment extends Fragment {
 
 	Unbinder unbinder;
 	@BindViews({
+		R.id.icon_link_geekbuddy_analysis,
 		R.id.icon_link_bgg,
 		R.id.icon_link_bg_prices,
 		R.id.icon_link_amazon,
@@ -63,7 +65,7 @@ public class GameLinksFragment extends Fragment {
 
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_links, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		readBundle(getArguments());
@@ -93,9 +95,21 @@ public class GameLinksFragment extends Fragment {
 
 	@SuppressWarnings("unused")
 	@DebugLog
-	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_bg_prices_uk, R.id.link_amazon, R.id.link_amazon_uk, R.id.link_amazon_de, R.id.link_ebay })
+	@OnClick({
+		R.id.link_geekbuddy_analysis,
+		R.id.link_bgg,
+		R.id.link_bg_prices,
+		R.id.link_bg_prices_uk,
+		R.id.link_amazon,
+		R.id.link_amazon_uk,
+		R.id.link_amazon_de,
+		R.id.link_ebay
+	})
 	void onLinkClick(View view) {
 		switch (view.getId()) {
+			case R.id.link_geekbuddy_analysis:
+				ActivityUtils.linkToBgg(getContext(), "geekbuddy/analyze/thing", gameId);
+				break;
 			case R.id.link_bgg:
 				ActivityUtils.linkBgg(getContext(), gameId);
 				break;
