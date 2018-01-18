@@ -180,7 +180,7 @@ public class PresentationUtils {
 				return getText(context, R.string.hrs_mins, hours, remainingMinutes);
 			}
 		} else {
-			return getText(context, R.string.mins_suffix, minutes);
+			return getQuantityText(context, R.plurals.mins_suffix, minutes, minutes);
 		}
 	}
 
