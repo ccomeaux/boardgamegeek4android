@@ -70,11 +70,6 @@
 					android:layout_height="wrap_content"/>
 
 				<include
-					layout="@layout/include_game_comments"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"/>
-
-				<include
 					layout="@layout/include_game_year_published"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"/>

@@ -712,6 +712,10 @@
 		<item quantity="one"><b>%,d</b> color/team</item>
 		<item quantity="other"><b>%,d</b> colors/teams</item>
 	</plurals>
+	<plurals name="ratings_suffix">
+		<item quantity="one"><b>%,d</b> rating</item>
+		<item quantity="other"><b>%,d</b> ratings</item>
+	</plurals>
 	<plurals name="comments_suffix">
 		<item quantity="one"><b>%,d</b> comment</item>
 		<item quantity="other"><b>%,d</b> comments</item>

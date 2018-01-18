@@ -39,7 +39,7 @@
 			android:maxLines="1"
 			android:paddingTop="@dimen/padding_half"
 			android:textAppearance="@style/Text.Secondary.Small"
-			tools:text="42,000 votes"/>
+			tools:text="42,000 ratings &amp; 39,123 comments"/>
 	</LinearLayout>
 </LinearLayout>
 

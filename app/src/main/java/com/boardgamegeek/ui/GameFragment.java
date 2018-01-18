@@ -151,8 +151,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@BindView(R.id.game_ratings_votes) TextView ratingsVotes;
 
-	@BindView(R.id.game_comments_label) TextView commentsLabel;
-
 	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
 	@BindView(R.id.game_weight_message) TextView weightMessage;
@@ -185,7 +183,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		R.id.icon_number_of_players,
 		R.id.icon_player_age,
 		R.id.icon_forums,
-		R.id.icon_comments,
 		R.id.icon_weight,
 		R.id.icon_language_dependence,
 		R.id.icon_users,
@@ -514,7 +511,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			favoriteView.setTag(R.id.favorite, game.isFavorite());
 
 			ratingView.setText(PresentationUtils.describeRating(getContext(), game.getRating()));
-			ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getUsersRated(), game.getUsersRated()));
+			final CharSequence ratings = PresentationUtils.getQuantityText(getActivity(), R.plurals.ratings_suffix, game.getUsersRated(), game.getUsersRated());
+			final CharSequence comments = PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.getUsersCommented(), game.getUsersCommented());
+			ratingsVotes.setText(TextUtils.concat(ratings, " & ", comments));
 			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.getRating()));
 
 			idView.setText(String.valueOf(game.getId()));
@@ -526,8 +525,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.getMinPlayingTime(), game.getMaxPlayingTime(), game.getPlayingTime()));
 
 			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.getMinimumAge()));
-
-			commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.getUsersCommented(), game.getUsersCommented()));
 
 			weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.getAverageWeight()));
 			if (game.getAverageWeight() >= 1 && game.getAverageWeight() <= 5) {
@@ -713,12 +710,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	public void onLanguageDependenceClick() {
 		PollFragment.launchLanguageDependence(this, gameId);
-	}
-
-	@OnClick(R.id.comments_root)
-	@DebugLog
-	public void onCommentsClick() {
-		CommentsActivity.startComments(getContext(), Games.buildGameUri(gameId), gameName);
 	}
 
 	@OnClick(R.id.users_count_root)
