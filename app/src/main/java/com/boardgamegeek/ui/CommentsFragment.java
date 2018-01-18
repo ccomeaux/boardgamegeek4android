@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -58,16 +59,11 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		return fragment;
 	}
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
-	}
-
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
@@ -83,11 +79,11 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public void onResume() {
 		super.onResume();
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		requery();
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
@@ -99,12 +95,12 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	private void setUpRecyclerView() {
-		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+		final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -144,32 +140,44 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public Loader<PaginatedData<Comment>> onCreateLoader(int id, Bundle data) {
-		return new CommentsLoader(getActivity(), gameId, isSortedByRating);
+		return new CommentsLoader(getContext(), gameId, isSortedByRating);
 	}
 
 	@Override
 	public void onLoadFinished(Loader<PaginatedData<Comment>> loader, PaginatedData<Comment> data) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		if (adapter == null) {
-			adapter = new GameCommentsRecyclerViewAdapter(getActivity(), data);
+			adapter = new GameCommentsRecyclerViewAdapter(getContext(), data);
 			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.update(data);
 		}
 
 		if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else {
-			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+			AnimationUtils.fadeIn(recyclerView, isResumed());
 		}
 		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<PaginatedData<Comment>> loader) {
+	}
+
+	@DebugLog
+	private void requery() {
+		if (adapter != null) adapter.clear();
+		AnimationUtils.fadeIn(progressView);
+		getLoaderManager().restartLoader(LOADER_ID, null, this);
+	}
+
+	@DebugLog
+	public void setSort(int sortType) {
+		boolean oldSort = isSortedByRating;
+		isSortedByRating = sortType == CommentsActivity.SORT_TYPE_RATING;
+		if (isSortedByRating != oldSort) requery();
 	}
 
 	private static class CommentsLoader extends PaginatedLoader<Comment> {
