@@ -127,8 +127,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
 
 	@BindView(R.id.number_of_players) TextView numberOfPlayersView;
-	@BindView(R.id.number_of_players_best) TextView numberOfPlayersBest;
-	@BindView(R.id.number_of_players_recommended) TextView numberOfPlayersRecommended;
+	@BindView(R.id.number_of_players_community) TextView numberOfPlayersCommunity;
 	@BindView(R.id.number_of_players_votes) TextView numberOfPlayersVotes;
 
 	@BindView(R.id.play_time) TextView playTimeView;
@@ -228,7 +227,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@Override
 	@DebugLog
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
@@ -273,7 +272,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@Override
 	@DebugLog
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
@@ -660,17 +659,19 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				}
 			} while (cursor.moveToNext());
 
+			CharSequence communityText = "";
 			if (bestCounts.size() > 0) {
-				PresentationUtils.setTextOrHide(numberOfPlayersBest,
-					PresentationUtils.getText(getContext(), R.string.best_prefix, StringUtils.formatRange(bestCounts)));
+				communityText = PresentationUtils.getText(getContext(), R.string.best_prefix, StringUtils.formatRange(bestCounts));
+				if (recommendedCounts.size() > 0 && !bestCounts.equals(recommendedCounts)) {
+					final CharSequence good = PresentationUtils.getText(getContext(), R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts));
+					communityText = TextUtils.concat(communityText, " & ", good);
+				}
+			} else if (recommendedCounts.size() > 0) {
+				communityText = PresentationUtils.getText(getContext(), R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts));
 			}
-			if (recommendedCounts.size() > 0 && !bestCounts.equals(recommendedCounts)) {
-				PresentationUtils.setTextOrHide(numberOfPlayersRecommended,
-					PresentationUtils.getText(getContext(), R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts)));
-			}
+			PresentationUtils.setTextOrHide(numberOfPlayersCommunity, communityText);
 		} else {
-			numberOfPlayersBest.setVisibility(GONE);
-			numberOfPlayersRecommended.setVisibility(GONE);
+			numberOfPlayersCommunity.setVisibility(GONE);
 		}
 		PresentationUtils.setTextOrHide(numberOfPlayersVotes,
 			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));

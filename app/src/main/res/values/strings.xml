@@ -451,6 +451,7 @@
 	<string name="and_up_suffix_abbr">%,d+</string>
 	<string name="player_range_unknown"><b>\?</b> players</string>
 	<string name="player_range_suffix" tools:ignore="PluralsCandidate"><b>%1$,d-%2$,d</b> players</string>
+	<string name="player_range">Player Range</string>
 	<string name="best_prefix">Best with <b>%s</b></string>
 	<string name="recommended_prefix">Good with <b>%s</b></string>
 	<string name="recommended_player_count_description_abbr">%s with %s</string>

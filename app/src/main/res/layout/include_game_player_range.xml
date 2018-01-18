@@ -13,6 +13,7 @@
 	<ImageView
 		android:id="@+id/icon_number_of_players"
 		style="@style/Icon"
+		android:contentDescription="@string/player_range"
 		android:src="@drawable/ic_users"/>
 
 	<LinearLayout
@@ -29,25 +30,13 @@
 			tools:text="3 - 5 players"/>
 
 		<TextView
-			android:id="@+id/number_of_players_best"
+			android:id="@+id/number_of_players_community"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:ellipsize="start"
 			android:maxLines="1"
 			android:textAppearance="@style/Text.Secondary"
 			android:visibility="gone"
-			tools:text="Best with 3"
-			tools:visibility="visible"/>
-
-		<TextView
-			android:id="@+id/number_of_players_recommended"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:ellipsize="start"
-			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary"
-			android:visibility="gone"
-			tools:text="Good with 3 - 4"
+			tools:text="Best with 3 &amp; Good with 3 - 4"
 			tools:visibility="visible"/>
 
 		<TextView
