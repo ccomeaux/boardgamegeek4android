@@ -446,6 +446,7 @@
 	<string name="unknown_weight">Unknown weight</string>
 	<string name="unknown_language">Unknown language dependence</string>
 	<string name="ages">Ages</string>
+	<string name="player_ages">Player Ages</string>
 	<string name="ages_unknown">Unknown ages</string>
 	<string name="and_up_suffix">%,d and up</string>
 	<string name="and_up_suffix_abbr">%,d+</string>

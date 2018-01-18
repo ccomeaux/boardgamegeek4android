@@ -13,6 +13,7 @@
 	<ImageView
 		android:id="@+id/icon_player_age"
 		style="@style/Icon"
+		android:contentDescription="@string/player_ages"
 		android:src="@drawable/ic_ages"/>
 
 	<LinearLayout
@@ -34,7 +35,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			android:paddingTop="@dimen/padding_half"
 			android:textAppearance="@style/Text.Secondary"
 			android:visibility="gone"
 			tools:text="Community: 12+"
