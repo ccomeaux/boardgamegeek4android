@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.support.annotation.NonNull;
 import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
@@ -110,7 +111,23 @@ public abstract class SyncTask {
 	 * existing error notification.
 	 */
 	protected void showError(String message) {
-		showError(message, null);
+		showError(message, "");
+	}
+
+	/**
+	 * If the user's preferences are set, show a notification message with the error message. This will replace any
+	 * existing error notification.
+	 */
+	protected void showError(String message, @NonNull Throwable t) {
+		showError(message, t.getLocalizedMessage());
+	}
+
+	/**
+	 * If the user's preferences are set, show a notification message with the error message. This will replace any
+	 * existing error notification.
+	 */
+	protected void showError(String message, int httpCode) {
+		showError(message, context.getString(R.string.msg_sync_error_http_code, String.valueOf(httpCode)));
 	}
 
 	/**

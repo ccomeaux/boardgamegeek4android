@@ -639,6 +639,7 @@
 	<string name="msg_exception_user_code">Couldn\'t download information about user %1$s (HTTP code: %2$s)</string>
 	<string name="msg_sync_response_500">There\'s a problem with BGG. Be patient while they fix it. (Error: %d)</string>
 	<string name="msg_sync_response_429">Rate limit exceeded.</string>
+	<string name="msg_sync_error_http_code">HTTP code %s</string>
 	<string name="profile_updated">Profile updated</string>
 	<string name="this_many">this many</string>
 	<string name="game">game</string>
