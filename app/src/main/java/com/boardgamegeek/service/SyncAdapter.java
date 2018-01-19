@@ -96,6 +96,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				currentTask.updateProgressNotification();
 				currentTask.execute(account, syncResult);
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
+				if (currentTask.isCancelled()) {
+					Timber.i("Sync task %s has requested the sync operation to be cancelled", currentTask);
+					break;
+				}
 			} catch (Exception e) {
 				Timber.e(e, "Syncing %s", currentTask);
 				syncResult.stats.numIoExceptions += 10;

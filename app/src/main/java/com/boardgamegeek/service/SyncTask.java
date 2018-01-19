@@ -18,7 +18,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 import timber.log.Timber;
 
-public abstract class SyncTask  {
+public abstract class SyncTask {
 	public static final int NO_NOTIFICATION = 0;
 
 	protected final Context context;
