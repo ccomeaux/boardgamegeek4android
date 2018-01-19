@@ -264,7 +264,7 @@ public class PresentationUtils {
 		} else if (weight >= 1.0) {
 			resId = R.string.weight_1_text;
 		}
-		return context.getText(resId);
+		return context.getString(resId, weight);
 	}
 
 	@DebugLog

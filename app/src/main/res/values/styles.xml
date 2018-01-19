@@ -415,6 +415,11 @@
 		<item name="android:paddingTop">@dimen/padding_small</item>
 	</style>
 
+	<style name="RatingSmall.Wide">
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+	</style>
+
 	<style name="FormContainer">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-	<string name="weight_1_text">Light</string>
-	<string name="weight_2_text">Medium Light</string>
-	<string name="weight_3_text">Medium</string>
-	<string name="weight_4_text">Medium Heavy</string>
-	<string name="weight_5_text">Heavy</string>
+	<string name="weight_1_text">Light  (%.2f)</string>
+	<string name="weight_2_text">Medium Light (%.2f)</string>
+	<string name="weight_3_text">Medium (%.2f)</string>
+	<string name="weight_4_text">Medium Heavy (%.2f)</string>
+	<string name="weight_5_text">Heavy (%.2f)</string>
 	<string name="owning_meter_text">%s Owning</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>

@@ -23,20 +23,12 @@
 
 		<TextView
 			android:id="@+id/game_weight_message"
+			style="@style/RatingSmall.Wide"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="2"
-			android:textAppearance="@style/Text"
-			tools:text="Light"/>
-
-		<TextView
-			android:id="@+id/game_weight_score"
-			style="@style/RatingSmall"
-			android:layout_width="64dp"
-			android:layout_height="wrap_content"
-			android:gravity="center"
+			android:maxLines="1"
 			tools:background="#088"
-			tools:text="1.23"/>
+			tools:text="Light (1.23)"/>
 
 		<TextView
 			android:id="@+id/game_weight_votes"

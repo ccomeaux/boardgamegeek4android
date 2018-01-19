@@ -153,7 +153,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
 	@BindView(R.id.game_weight_message) TextView weightMessage;
-	@BindView(R.id.game_weight_score) TextView weightScore;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
 	@BindView(R.id.language_dependence_message) TextView languageDependenceMessage;
@@ -525,15 +524,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.getMinimumAge()));
 
-			weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.getAverageWeight()));
 			if (game.getAverageWeight() >= 1 && game.getAverageWeight() <= 5) {
-				weightScore.setText(PresentationUtils.describeScore(getContext(), game.getAverageWeight()));
-				ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.getAverageWeight()));
-				weightScore.setVisibility(VISIBLE);
+				weightMessage.setText(PresentationUtils.describeWeight(getContext(), game.getAverageWeight()));
+				ColorUtils.setTextViewBackground(weightMessage, ColorUtils.getFiveStageColor(game.getAverageWeight()));
+				weightMessage.setVisibility(VISIBLE);
 			} else {
-				weightScore.setVisibility(GONE);
+				weightMessage.setText(R.string.unknown_weight);
+				weightMessage.setVisibility(GONE);
 			}
-			weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getNumberWeights(), game.getNumberWeights()));
+			PresentationUtils.setTextOrHide(weightVotes, PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getNumberWeights(), game.getNumberWeights()));
 
 			final int maxUsers = game.getMaxUsers();
 			userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
