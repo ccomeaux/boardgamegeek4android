@@ -37,7 +37,6 @@ import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private final Context context;
-	private boolean shouldShowNotifications = true;
 	private SyncTask currentTask;
 	private boolean isCancelled;
 
@@ -45,7 +44,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	public SyncAdapter(Context context) {
 		super(context, false);
 		this.context = context;
-		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -81,7 +79,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		toggleReceiver(true);
-		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(context);
 		List<SyncTask> tasks = createTasks(context, type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
@@ -234,7 +231,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 	@DebugLog
 	private void notifySyncIsCancelled(int messageId) {
-		if (!shouldShowNotifications) return;
+		if (!PreferencesUtils.getSyncShowNotifications(context)) return;
 
 		CharSequence contextText = "";
 		if (messageId != SyncTask.NO_NOTIFICATION) {
