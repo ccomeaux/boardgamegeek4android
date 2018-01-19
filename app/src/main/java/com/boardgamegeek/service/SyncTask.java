@@ -23,13 +23,11 @@ public abstract class SyncTask  {
 
 	protected final Context context;
 	protected final BggService service;
-	private final boolean shouldShowNotifications;
 	private boolean isCancelled = false;
 
 	public SyncTask(Context context, BggService service) {
 		this.context = context;
 		this.service = service;
-		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
 	}
 
 	public abstract int getSyncType();
@@ -66,7 +64,7 @@ public abstract class SyncTask  {
 
 	protected void updateProgressNotification(String detail) {
 		Timber.i(detail);
-		if (!shouldShowNotifications) return;
+		if (!PreferencesUtils.getSyncShowNotifications(this.context)) return;
 
 		String message = "";
 		if (getNotificationSummaryMessageId() != NO_NOTIFICATION) {
