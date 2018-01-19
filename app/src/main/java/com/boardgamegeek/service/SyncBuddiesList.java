@@ -28,6 +28,8 @@ import timber.log.Timber;
  * Syncs the list of buddies. Only runs every few days.
  */
 public class SyncBuddiesList extends SyncTask {
+	private SyncResult syncResult;
+
 	public SyncBuddiesList(Context context, BggService service) {
 		super(context, service);
 	}
@@ -40,6 +42,7 @@ public class SyncBuddiesList extends SyncTask {
 	@Override
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing list of buddies...");
+		this.syncResult = syncResult;
 		try {
 			if (!PreferencesUtils.getSyncBuddies(context)) {
 				Timber.i("...buddies not set to sync");
@@ -54,49 +57,64 @@ public class SyncBuddiesList extends SyncTask {
 
 			updateProgressNotification(R.string.sync_notification_buddies_list_downloading);
 
-			User user = null;
-			Call<User> call = service.user(account.name, 1, 1);
-			try {
-				Response<User> response = call.execute();
-				if (!response.isSuccessful()) {
-					showError(context.getString(R.string.msg_exception_user_code, account.name, String.valueOf(response.code())));
-					syncResult.stats.numIoExceptions++;
-				}
-				user = response.body();
-			} catch (IOException e) {
-				showError(context.getString(R.string.msg_exception_user, account.name, e.getLocalizedMessage()));
-				syncResult.stats.numIoExceptions++;
-			}
-			if (user == null) {
-				return;
-			}
+			User user = requestUser(account, syncResult);
+			if (user == null) return;
 
 			updateProgressNotification(R.string.sync_notification_buddies_list_storing);
-
-			Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.getId());
-			AccountUtils.setUsername(context, user.name);
-			AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName));
-			AccountUtils.setAvatarUrl(context, user.avatarUrl);
-
+			storeUserInAuthenticator(user);
 			BuddyPersister persister = new BuddyPersister(context);
-			int count = 0;
-			count += persister.saveBuddy(Buddy.fromUser(user));
-			count += persister.saveBuddies(user.getBuddies());
-			syncResult.stats.numEntries += count;
-			Timber.i("Synced %,d buddies", count);
+			persistUser(user, persister);
 
 			updateProgressNotification(R.string.sync_notification_buddies_list_pruning);
-			ContentResolver resolver = context.getContentResolver();
-			count = resolver.delete(Buddies.CONTENT_URI,
-				Buddies.UPDATED_LIST + "<?",
-				new String[] { String.valueOf(persister.getTimestamp()) });
-			syncResult.stats.numDeletes += count;
-			Timber.i("Pruned %,d users who are no longer buddies", count);
+			pruneOldBuddies(persister);
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
 		} finally {
 			Timber.i("...complete!");
 		}
+	}
+
+	private User requestUser(@NonNull Account account, @NonNull SyncResult syncResult) {
+		User user = null;
+		Call<User> call = service.user(account.name, 1, 1);
+		try {
+			Response<User> response = call.execute();
+			if (!response.isSuccessful()) {
+				showError(context.getString(R.string.msg_exception_user_code, account.name, String.valueOf(response.code())));
+				syncResult.stats.numIoExceptions++;
+				cancel();
+			}
+			user = response.body();
+		} catch (IOException e) {
+			showError(context.getString(R.string.msg_exception_user, account.name, e.getLocalizedMessage()));
+			syncResult.stats.numIoExceptions++;
+			cancel();
+		}
+		return user;
+	}
+
+	private void storeUserInAuthenticator(User user) {
+		Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.getId());
+		AccountUtils.setUsername(context, user.name);
+		AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName));
+		AccountUtils.setAvatarUrl(context, user.avatarUrl);
+	}
+
+	private void persistUser(User user, BuddyPersister persister) {
+		int count = 0;
+		count += persister.saveBuddy(Buddy.fromUser(user));
+		count += persister.saveBuddies(user.getBuddies());
+		syncResult.stats.numEntries += count;
+		Timber.i("Synced %,d buddies", count);
+	}
+
+	private void pruneOldBuddies(BuddyPersister persister) {
+		ContentResolver resolver = context.getContentResolver();
+		int count = resolver.delete(Buddies.CONTENT_URI,
+			Buddies.UPDATED_LIST + "<?",
+			new String[] { String.valueOf(persister.getTimestamp()) });
+		syncResult.stats.numDeletes += count;
+		Timber.i("Pruned %,d users who are no longer buddies", count);
 	}
 
 	@Override

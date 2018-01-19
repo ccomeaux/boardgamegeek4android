@@ -20,6 +20,7 @@ import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
 	private static final long SLEEP_MILLIS = 2000L;
+	private SyncResult syncResult;
 
 	public SyncBuddiesDetail(Context context, BggService service) {
 		super(context, service);
@@ -28,6 +29,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 	@Override
 	public void execute(Account account, @NonNull SyncResult syncResult) {
 		Timber.i(getLogMessage());
+		this.syncResult = syncResult;
 		try {
 			if (!PreferencesUtils.getSyncBuddies(context)) {
 				Timber.i("...buddies not set to sync");
@@ -47,19 +49,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 
 					updateProgressNotification(R.string.sync_notification_buddy, name);
 
-					User user = null;
-					try {
-						Call<User> call = service.user(name);
-						Response<User> response = call.execute();
-						if (!response.isSuccessful()) {
-							showError(context.getString(R.string.msg_exception_user_code, name, String.valueOf(response.code())));
-							syncResult.stats.numIoExceptions++;
-						}
-						user = response.body();
-					} catch (IOException e) {
-						showError(context.getString(R.string.msg_exception_user, name, e.getLocalizedMessage()));
-						syncResult.stats.numIoExceptions++;
-					}
+					User user = requestUser(name);
 
 					if (user == null) break;
 
@@ -78,11 +68,33 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
+	private User requestUser(String name) {
+		User user = null;
+		try {
+			Call<User> call = service.user(name);
+			Response<User> response = call.execute();
+			if (!response.isSuccessful()) {
+				showError(context.getString(R.string.msg_exception_user_code, name, String.valueOf(response.code())));
+				syncResult.stats.numIoExceptions++;
+				cancel();
+			}
+			user = response.body();
+		} catch (IOException e) {
+			showError(context.getString(R.string.msg_exception_user, name, e.getLocalizedMessage()));
+			syncResult.stats.numIoExceptions++;
+			cancel();
+		}
+		return user;
+	}
+
 	/**
 	 * Returns a log message to use for debugging purposes.
 	 */
 	@NonNull
 	protected abstract String getLogMessage();
 
+	/**
+	 * Get a list of usernames to sync.
+	 */
 	protected abstract List<String> getBuddyNames();
 }

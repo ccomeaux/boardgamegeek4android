@@ -39,8 +39,8 @@ public class SyncBuddiesDetailOldest extends SyncBuddiesDetail {
 
 		if (count == 0) return new ArrayList<>(0);
 
-		int syncLimit = count / 14; // will sync all buddies every 2 weeks
-		syncLimit = MathUtils.constrain(syncLimit, 1, 16);
+		int syncLimit = count / 14; // will attempt to sync all buddies every 2 weeks
+		syncLimit = MathUtils.constrain(syncLimit, 1, 16); // ...but no more than 16
 
 		return ResolverUtils.queryStrings(context.getContentResolver(),
 			Buddies.CONTENT_URI,
