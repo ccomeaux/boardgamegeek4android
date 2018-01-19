@@ -73,7 +73,9 @@ public abstract class SyncTask  {
 			message = context.getString(getNotificationSummaryMessageId());
 		}
 
-		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
+		final Intent intent = new Intent(context, CancelReceiver.class);
+		intent.setAction(SyncService.ACTION_CANCEL_SYNC);
+		PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
 			.setContentText(message)
