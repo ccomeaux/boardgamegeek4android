@@ -178,15 +178,19 @@ public class GameDetailRow extends LinearLayout {
 	private String joinNames(Cursor cursor) {
 		StringBuilder sb = new StringBuilder();
 		if (cursor != null && cursor.moveToFirst()) {
-			boolean firstTime = true;
-			do {
-				if (firstTime) {
-					firstTime = false;
-				} else {
-					sb.append(", ");
-				}
+			final int count = cursor.getCount();
+			if (count == 1) {
+				return cursor.getString(nameColumnIndex);
+			} else if (count == 2) {
 				sb.append(cursor.getString(nameColumnIndex));
-			} while (cursor.moveToNext());
+				cursor.moveToNext();
+				sb.append(" & ").append(cursor.getString(nameColumnIndex));
+			} else {
+				do {
+					final String string = cursor.getString(nameColumnIndex);
+					sb.append(string).append(", ");
+				} while (cursor.moveToNext());
+			}
 		}
 		return sb.toString();
 	}
