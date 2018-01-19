@@ -37,8 +37,8 @@ public class GameDetailActivity extends SimpleSinglePaneActivity {
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setTitle(title);
-			actionBar.setSubtitle(gameName);
+			actionBar.setTitle(gameName);
+			actionBar.setSubtitle(title);
 		}
 
 		if (savedInstanceState == null) {
