@@ -78,10 +78,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.addPeriodicSync(account, authority, b, 24 * 60 * 60); // 24 hours
 		}
 
-		if (!shouldContinueSync(uploadOnly)) return;
+		if (!shouldContinueSync()) return;
 
 		toggleCancelReceiver(true);
-		List<SyncTask> tasks = createTasks(context, type);
+		List<SyncTask> tasks = createTasks(context, type, uploadOnly);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
@@ -130,12 +130,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 * Determine if the sync should continue based on the current state of the device.
 	 */
 	@DebugLog
-	private boolean shouldContinueSync(boolean uploadOnly) {
-		if (uploadOnly) {
-			Timber.w("Upload only, returning.");
-			return false;
-		}
-
+	private boolean shouldContinueSync() {
 		if (NetworkUtils.isOffline(context)) {
 			Timber.i("Skipping sync; offline");
 			return false;
@@ -164,13 +159,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	@NonNull
-	private List<SyncTask> createTasks(Context context, final int type) {
+	private List<SyncTask> createTasks(Context context, final int typeList, boolean uploadOnly) {
 		BggService service = Adapter.createForXmlWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
-		if ((type & SyncService.FLAG_SYNC_COLLECTION_UPLOAD) == SyncService.FLAG_SYNC_COLLECTION_UPLOAD) {
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
 			tasks.add(new SyncCollectionUpload(context, service));
 		}
-		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
 			if (PreferencesUtils.isCollectionSetToSync(context)) {
 				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
@@ -184,23 +179,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 			tasks.add(new SyncCollectionUnupdated(context, service));
 		}
-		if ((type & SyncService.FLAG_SYNC_GAMES) == SyncService.FLAG_SYNC_GAMES) {
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
 			tasks.add(new SyncGamesRemove(context, service));
 			tasks.add(new SyncGamesOldest(context, service));
 			tasks.add(new SyncGamesUnupdated(context, service));
 		}
-		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
 			tasks.add(new SyncPlaysUpload(context, service));
 		}
-		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
 			tasks.add(new SyncPlays(context, service));
 		}
-		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
 			tasks.add(new SyncBuddiesList(context, service));
 			tasks.add(new SyncBuddiesDetailOldest(context, service));
 			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
 		}
 		return tasks;
+	}
+
+	private boolean shouldCreateTask(int typeList, int type) {
+		return (typeList & type) == type;
 	}
 
 	/**
