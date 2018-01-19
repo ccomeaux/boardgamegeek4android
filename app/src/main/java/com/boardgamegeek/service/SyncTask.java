@@ -30,18 +30,35 @@ public abstract class SyncTask  {
 		this.service = service;
 	}
 
+	/**
+	 * Unique ID for this sync class.
+	 */
 	public abstract int getSyncType();
 
+	/**
+	 * Perform the sync operation.
+	 */
 	public abstract void execute(Account account, SyncResult syncResult);
 
+	/**
+	 * Call this to cancel the task. If the task is running, it will cancel it's process at the earliest convenient
+	 * time, as determined by the service.
+	 */
 	public void cancel() {
 		isCancelled = true;
 	}
 
+	/**
+	 * Returns whether this task has been cancelled. It may still be running, but will stop soon.
+	 */
 	public boolean isCancelled() {
 		return isCancelled;
 	}
 
+	/***
+	 * The resource ID of the context text to display in syncing progress and error notifications. It should describe
+	 * the entire task.
+	 */
 	protected int getNotificationSummaryMessageId() {
 		return NO_NOTIFICATION;
 	}
@@ -62,14 +79,17 @@ public abstract class SyncTask  {
 		updateProgressNotification(context.getResources().getQuantityString(detailResId, quantity, formatArgs));
 	}
 
+	/**
+	 * If the user's preferences are set, show a notification with the current progress of the sync status. The content
+	 * text is set by the sync task, while the detail message is displayed in BigTextStyle.
+	 */
 	protected void updateProgressNotification(String detail) {
 		Timber.i(detail);
 		if (!PreferencesUtils.getSyncShowNotifications(this.context)) return;
 
-		String message = "";
-		if (getNotificationSummaryMessageId() != NO_NOTIFICATION) {
-			message = context.getString(getNotificationSummaryMessageId());
-		}
+		String message = getNotificationSummaryMessageId() == NO_NOTIFICATION ?
+			"" :
+			context.getString(getNotificationSummaryMessageId());
 
 		final Intent intent = new Intent(context, CancelReceiver.class);
 		intent.setAction(SyncService.ACTION_CANCEL_SYNC);
@@ -89,6 +109,10 @@ public abstract class SyncTask  {
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
 
+	/**
+	 * If the user's preferences are set, show a notification message with the error message. This will replace any
+	 * existing error notification.
+	 */
 	protected void showError(String message) {
 		Timber.w(message);
 
@@ -103,6 +127,10 @@ public abstract class SyncTask  {
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 	}
 
+	/**
+	 * Sleep for the specified number of milliseconds. Returns true if thread was interrupted. This typically means the
+	 * task should stop processing.
+	 */
 	protected boolean wasSleepInterrupted(long millis) {
 		try {
 			Thread.sleep(millis);
