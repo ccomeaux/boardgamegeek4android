@@ -218,7 +218,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!PreferencesUtils.getSyncShowErrors(context)) return;
 
 		final int messageId = task.getNotificationSummaryMessageId();
-		if (messageId != ServiceTask.NO_NOTIFICATION) {
+		if (messageId != SyncTask.NO_NOTIFICATION) {
 			CharSequence text = context.getText(messageId);
 			NotificationCompat.Builder builder = NotificationUtils
 				.createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)

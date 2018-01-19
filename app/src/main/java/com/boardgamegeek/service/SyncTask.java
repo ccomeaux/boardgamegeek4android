@@ -18,7 +18,9 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 import timber.log.Timber;
 
-public abstract class SyncTask extends ServiceTask {
+public abstract class SyncTask  {
+	public static final int NO_NOTIFICATION = 0;
+
 	protected final Context context;
 	protected final BggService service;
 	private final boolean shouldShowNotifications;
@@ -40,6 +42,10 @@ public abstract class SyncTask extends ServiceTask {
 
 	public boolean isCancelled() {
 		return isCancelled;
+	}
+
+	protected int getNotificationSummaryMessageId() {
+		return NO_NOTIFICATION;
 	}
 
 	protected void updateProgressNotification() {
