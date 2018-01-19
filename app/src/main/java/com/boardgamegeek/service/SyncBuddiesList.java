@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
@@ -29,6 +30,7 @@ import timber.log.Timber;
  */
 public class SyncBuddiesList extends SyncTask {
 	private SyncResult syncResult;
+	@StringRes private int currentDetailResId;
 
 	public SyncBuddiesList(Context context, BggService service) {
 		super(context, service);
@@ -55,17 +57,16 @@ public class SyncBuddiesList extends SyncTask {
 				return;
 			}
 
-			updateProgressNotification(R.string.sync_notification_buddies_list_downloading);
-
+			updateNotification(R.string.sync_notification_buddies_list_downloading);
 			User user = requestUser(account, syncResult);
 			if (user == null) return;
 
-			updateProgressNotification(R.string.sync_notification_buddies_list_storing);
+			updateNotification(R.string.sync_notification_buddies_list_storing);
 			storeUserInAuthenticator(user);
 			BuddyPersister persister = new BuddyPersister(context);
 			persistUser(user, persister);
 
-			updateProgressNotification(R.string.sync_notification_buddies_list_pruning);
+			updateNotification(R.string.sync_notification_buddies_list_pruning);
 			pruneOldBuddies(persister);
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
@@ -74,13 +75,18 @@ public class SyncBuddiesList extends SyncTask {
 		}
 	}
 
+	private void updateNotification(@StringRes int detailResId) {
+		currentDetailResId = R.string.sync_notification_buddies_list_downloading;
+		updateProgressNotification(context.getString(detailResId));
+	}
+
 	private User requestUser(@NonNull Account account, @NonNull SyncResult syncResult) {
 		User user = null;
 		Call<User> call = service.user(account.name, 1, 1);
 		try {
 			Response<User> response = call.execute();
 			if (!response.isSuccessful()) {
-				showError(context.getString(R.string.msg_exception_user_code, account.name, String.valueOf(response.code())));
+				showError(context.getString(currentDetailResId), context.getString(R.string.msg_exception_user_code, account.name, String.valueOf(response.code())));
 				syncResult.stats.numIoExceptions++;
 				cancel();
 			}

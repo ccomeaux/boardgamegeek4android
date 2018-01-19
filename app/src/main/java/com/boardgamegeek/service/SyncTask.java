@@ -67,10 +67,6 @@ public abstract class SyncTask {
 		updateProgressNotification(null);
 	}
 
-	protected void updateProgressNotification(@StringRes int detailResId) {
-		updateProgressNotification(context.getString(detailResId));
-	}
-
 	protected void updateProgressNotification(@StringRes int detailResId, Object... formatArgs) {
 		updateProgressNotification(context.getString(detailResId, formatArgs));
 	}
@@ -114,6 +110,14 @@ public abstract class SyncTask {
 	 * existing error notification.
 	 */
 	protected void showError(String message) {
+		showError(message, null);
+	}
+
+	/**
+	 * If the user's preferences are set, show a notification message with the error message. This will replace any
+	 * existing error notification.
+	 */
+	protected void showError(String message, String detail) {
 		Timber.w(message);
 
 		if (!PreferencesUtils.getSyncShowErrors(context)) return;
@@ -121,8 +125,10 @@ public abstract class SyncTask {
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
 			.setContentText(message)
-			.setPriority(NotificationCompat.PRIORITY_HIGH)
+			.setPriority(NotificationCompat.PRIORITY_DEFAULT)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
+		if (!TextUtils.isEmpty(detail))
+			builder.setStyle(new BigTextStyle().bigText(detail));
 
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 	}
