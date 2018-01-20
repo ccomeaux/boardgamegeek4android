@@ -635,8 +635,6 @@
 	<string name="msg_update_invalid_response">Invalid %s received</string>
 	<string name="msg_sync_unsuccessful_response">Unsuccessful fetching %1$s with HTTP response code: %2$d</string>
 	<string name="msg_update_exception">Exception fetching %1$s: %2$s</string>
-	<string name="msg_exception_user">Couldn\'t download information about user %1$s (exception: %2$s)</string>
-	<string name="msg_exception_user_code">Couldn\'t download information about user %1$s (HTTP code: %2$s)</string>
 	<string name="msg_sync_response_500">There\'s a problem with BGG. Be patient while they fix it. (Error: %d)</string>
 	<string name="msg_sync_response_429">Rate limit exceeded.</string>
 	<string name="msg_sync_error_http_code">HTTP code %s</string>

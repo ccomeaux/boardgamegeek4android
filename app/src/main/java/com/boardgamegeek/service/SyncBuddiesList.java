@@ -86,13 +86,13 @@ public class SyncBuddiesList extends SyncTask {
 		try {
 			Response<User> response = call.execute();
 			if (!response.isSuccessful()) {
-				showError(context.getString(currentDetailResId), context.getString(R.string.msg_exception_user_code, account.name, String.valueOf(response.code())));
+				showError(context.getString(currentDetailResId), response.code());
 				syncResult.stats.numIoExceptions++;
 				cancel();
 			}
 			user = response.body();
 		} catch (IOException e) {
-			showError(context.getString(R.string.msg_exception_user, account.name, e.getLocalizedMessage()));
+			showError(context.getString(currentDetailResId), e);
 			syncResult.stats.numIoExceptions++;
 			cancel();
 		}

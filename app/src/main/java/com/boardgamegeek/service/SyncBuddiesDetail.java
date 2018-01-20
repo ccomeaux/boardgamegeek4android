@@ -21,6 +21,7 @@ import timber.log.Timber;
 public abstract class SyncBuddiesDetail extends SyncTask {
 	private static final long SLEEP_MILLIS = 2000L;
 	private SyncResult syncResult;
+	private String notificationMessage;
 
 	public SyncBuddiesDetail(Context context, BggService service) {
 		super(context, service);
@@ -47,7 +48,8 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						break;
 					}
 
-					updateProgressNotification(R.string.sync_notification_buddy, name);
+					notificationMessage = context.getString(R.string.sync_notification_buddy, name);
+					updateProgressNotification(notificationMessage);
 
 					User user = requestUser(name);
 
@@ -74,13 +76,13 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 			Call<User> call = service.user(name);
 			Response<User> response = call.execute();
 			if (!response.isSuccessful()) {
-				showError(context.getString(R.string.msg_exception_user_code, name, String.valueOf(response.code())));
+				showError(notificationMessage, response.code());
 				syncResult.stats.numIoExceptions++;
 				cancel();
 			}
 			user = response.body();
 		} catch (IOException e) {
-			showError(context.getString(R.string.msg_exception_user, name, e.getLocalizedMessage()));
+			showError(notificationMessage, e);
 			syncResult.stats.numIoExceptions++;
 			cancel();
 		}

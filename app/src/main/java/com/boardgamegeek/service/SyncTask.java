@@ -68,10 +68,6 @@ public abstract class SyncTask {
 		updateProgressNotification(null);
 	}
 
-	protected void updateProgressNotification(@StringRes int detailResId, Object... formatArgs) {
-		updateProgressNotification(context.getString(detailResId, formatArgs));
-	}
-
 	protected void updateProgressNotificationAsPlural(@PluralsRes int detailResId, int quantity, Object... formatArgs) {
 		updateProgressNotification(context.getResources().getQuantityString(detailResId, quantity, formatArgs));
 	}
