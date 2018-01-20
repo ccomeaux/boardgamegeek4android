@@ -123,7 +123,8 @@ public abstract class SyncTask {
 	 * existing error notification.
 	 */
 	protected void showError(String message, int httpCode) {
-		showError(message, context.getString(R.string.msg_sync_error_http_code, String.valueOf(httpCode)));
+		@StringRes int resId = httpCode >= 500 ? R.string.msg_sync_response_500 : R.string.msg_sync_error_http_code;
+		showError(message, context.getString(resId, String.valueOf(httpCode)));
 	}
 
 	/**
