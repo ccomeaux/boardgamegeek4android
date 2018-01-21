@@ -106,14 +106,6 @@ public abstract class SyncTask {
 	 * If the user's preferences are set, show a notification message with the error message. This will replace any
 	 * existing error notification.
 	 */
-	protected void showError(String message) {
-		showError(message, "");
-	}
-
-	/**
-	 * If the user's preferences are set, show a notification message with the error message. This will replace any
-	 * existing error notification.
-	 */
 	protected void showError(String message, @NonNull Throwable t) {
 		showError(message, t.getLocalizedMessage());
 	}

@@ -10,17 +10,19 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.CollectionRequest;
-import com.boardgamegeek.io.CollectionResponse;
+import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
+import retrofit2.Call;
+import retrofit2.Response;
 import timber.log.Timber;
 
 /**
@@ -31,6 +33,9 @@ public class SyncCollectionComplete extends SyncTask {
 	private List<String> statuses;
 	private String[] statusEntries;
 	private String[] statusValues;
+	private SyncResult syncResult;
+	private String username;
+	private CollectionPersister persister;
 
 	@DebugLog
 	public SyncCollectionComplete(Context context, BggService service) {
@@ -46,9 +51,11 @@ public class SyncCollectionComplete extends SyncTask {
 	@DebugLog
 	@Override
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+		this.syncResult = syncResult;
+		this.username = account.name;
 		Timber.i("Syncing full collection list...");
 		try {
-			CollectionPersister persister = new CollectionPersister.Builder(context)
+			persister = new CollectionPersister.Builder(context)
 				.includePrivateInfo()
 				.includeStats()
 				.build();
@@ -72,23 +79,10 @@ public class SyncCollectionComplete extends SyncTask {
 
 				String statusDescription = getStatusDescription(status);
 
-				updateProgressNotification(context.getString(R.string.sync_notification_collection_items, statusDescription));
-
 				if (i > 0) if (wasSleepInterrupted(5000)) return;
 
 				ArrayMap<String, String> options = createOptions(i, status);
-				CollectionResponse response = new CollectionRequest(service, account.name, options).execute();
-				if (response.hasError()) {
-					showError(response.getError());
-					syncResult.stats.numIoExceptions++;
-					return;
-				} else if (response.getNumberOfItems() > 0) {
-					int rows = persister.save(response.getItems()).getRecordCount();
-					syncResult.stats.numEntries += response.getNumberOfItems();
-					Timber.i("...saved %,d records for %,d collection items", rows, response.getNumberOfItems());
-				} else {
-					Timber.i("...no collection items to save");
-				}
+				fetchAndPersist(context.getString(R.string.sync_notification_collection_items, statusDescription), options, "items");
 
 				if (isCancelled()) {
 					Timber.i("...cancelled");
@@ -97,20 +91,13 @@ public class SyncCollectionComplete extends SyncTask {
 
 				if (wasSleepInterrupted(2000)) return;
 
-				updateProgressNotification(context.getString(R.string.sync_notification_collection_accessories, statusDescription));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-				response = new CollectionRequest(service, account.name, options).execute();
-				if (response.hasError()) {
-					showError(response.getError());
-					syncResult.stats.numIoExceptions++;
-					return;
-				} else if (response.getNumberOfItems() > 0) {
-					int rows = persister.save(response.getItems()).getRecordCount();
-					syncResult.stats.numEntries += response.getNumberOfItems();
-					Timber.i("...saved %,d records for %,d collection accessories", rows, response.getNumberOfItems());
-				} else {
-					Timber.i("...no collection accessories to save");
-				}
+				fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories, statusDescription), options, "accessories");
+			}
+
+			if (isCancelled()) {
+				Timber.i("...cancelled");
+				return;
 			}
 
 			final long initialTimestamp = persister.getInitialTimestamp();
@@ -118,6 +105,32 @@ public class SyncCollectionComplete extends SyncTask {
 			updateTimestamps(initialTimestamp);
 		} finally {
 			Timber.i("...complete!");
+		}
+	}
+
+	private void fetchAndPersist(String detail, ArrayMap<String, String> options, final String type) {
+		updateProgressNotification(detail);
+		Call<CollectionResponse> call = service.collection(username, options);
+		try {
+			Response<CollectionResponse> response = call.execute();
+			if (response.isSuccessful()) {
+				CollectionResponse body = response.body();
+				if (body != null && body.getItemCount() > 0) {
+					int count = persister.save(body.items).getRecordCount();
+					syncResult.stats.numUpdates += body.getItemCount();
+					Timber.i("...saved %,d records for %,d collection %s", count, body.getItemCount(), type);
+				} else {
+					Timber.i("...no collection %s found for these games", type);
+				}
+			} else {
+				showError(detail, response.code());
+				syncResult.stats.numIoExceptions++;
+				cancel();
+			}
+		} catch (IOException e) {
+			showError(detail, e);
+			syncResult.stats.numIoExceptions++;
+			cancel();
 		}
 	}
 
