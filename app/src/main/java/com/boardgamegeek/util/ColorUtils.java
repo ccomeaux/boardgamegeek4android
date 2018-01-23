@@ -93,7 +93,7 @@ public class ColorUtils {
 	 * Returns a color based on the stage (1 - 5) using a proportional blend for any decimal places.
 	 */
 	public static int getFiveStageColor(double stage) {
-		if (stage < 1 || stage > 5) return Color.TRANSPARENT;
+		if (Double.isNaN(stage) || stage < 1 || stage > 5) return Color.TRANSPARENT;
 		return blendColors(FIVE_STAGE_COLORS[(int) stage - 1], FIVE_STAGE_COLORS[(int) stage], (int) stage + 1 - stage);
 	}
 

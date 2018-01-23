@@ -281,7 +281,7 @@ public class PresentationUtils {
 		} else if (value >= 1.0) {
 			resId = R.string.language_1_text;
 		}
-		return context.getText(resId);
+		return context.getString(resId, value);
 	}
 
 	@DebugLog

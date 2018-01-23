@@ -156,7 +156,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
 	@BindView(R.id.language_dependence_message) TextView languageDependenceMessage;
-	@BindView(R.id.language_dependence_score) TextView languageDependenceScore;
 	@BindView(R.id.language_dependence_votes) TextView languageDependenceVotes;
 
 	@BindView(R.id.users_count) TextView userCountView;
@@ -524,14 +523,8 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.getMinimumAge()));
 
-			if (game.getAverageWeight() >= 1 && game.getAverageWeight() <= 5) {
-				weightMessage.setText(PresentationUtils.describeWeight(getContext(), game.getAverageWeight()));
-				ColorUtils.setTextViewBackground(weightMessage, ColorUtils.getFiveStageColor(game.getAverageWeight()));
-				weightMessage.setVisibility(VISIBLE);
-			} else {
-				weightMessage.setText(R.string.unknown_weight);
-				weightMessage.setVisibility(GONE);
-			}
+			weightMessage.setText(PresentationUtils.describeWeight(getContext(), game.getAverageWeight()));
+			ColorUtils.setTextViewBackground(weightMessage, ColorUtils.getFiveStageColor(game.getAverageWeight()));
 			PresentationUtils.setTextOrHide(weightVotes, PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getNumberWeights(), game.getNumberWeights()));
 
 			final int maxUsers = game.getMaxUsers();
@@ -606,16 +599,10 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 		}
 		double score = (double) totalLevel / totalVotes;
-		languageDependenceMessage.setText(PresentationUtils.describeLanguageDependence(getActivity(), score));
-		if (score >= 1 && score <= 5) {
-			languageDependenceScore.setText(PresentationUtils.describeScore(getContext(), score));
-			ColorUtils.setTextViewBackground(languageDependenceScore, ColorUtils.getFiveStageColor(score));
-			languageDependenceScore.setVisibility(VISIBLE);
-		} else {
-			languageDependenceScore.setVisibility(GONE);
-		}
+		languageDependenceMessage.setText(PresentationUtils.describeLanguageDependence(getContext(), score));
+		ColorUtils.setTextViewBackground(languageDependenceMessage, ColorUtils.getFiveStageColor(score));
 		PresentationUtils.setTextOrHide(languageDependenceVotes,
-			PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
+			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
 	}
 
 	@DebugLog
