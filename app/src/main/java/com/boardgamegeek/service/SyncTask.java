@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.PluralsRes;
-import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.text.TextUtils;
@@ -16,6 +15,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 
 import timber.log.Timber;
 
@@ -96,8 +96,7 @@ public abstract class SyncTask {
 			.setProgress(1, 0, true)
 			.addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi);
 		if (!TextUtils.isEmpty(detail)) {
-			final BigTextStyle bigTextStyle = new BigTextStyle().bigText(detail);
-			builder.setStyle(bigTextStyle);
+			builder.setStyle(new BigTextStyle().bigText(detail));
 		}
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
@@ -106,35 +105,42 @@ public abstract class SyncTask {
 	 * If the user's preferences are set, show a notification message with the error message. This will replace any
 	 * existing error notification.
 	 */
-	protected void showError(String message, @NonNull Throwable t) {
-		showError(message, t.getLocalizedMessage());
+	protected void showError(String detailMessage, @NonNull Throwable t) {
+		showError(detailMessage, t.getLocalizedMessage());
 	}
 
 	/**
 	 * If the user's preferences are set, show a notification message with the error message. This will replace any
 	 * existing error notification.
 	 */
-	protected void showError(String message, int httpCode) {
-		@StringRes int resId = httpCode >= 500 ? R.string.msg_sync_response_500 : R.string.msg_sync_error_http_code;
-		showError(message, context.getString(resId, String.valueOf(httpCode)));
+	protected void showError(String detailMessage, int httpCode) {
+		showError(detailMessage, PresentationUtils.getHttpErrorMessage(context, httpCode));
 	}
 
 	/**
 	 * If the user's preferences are set, show a notification message with the error message. This will replace any
 	 * existing error notification.
 	 */
-	protected void showError(String message, String detail) {
-		Timber.w(message);
+	protected void showError(String detailMessage, String errorMessage) {
+		Timber.w(detailMessage + "\n" + errorMessage);
 
 		if (!PreferencesUtils.getSyncShowErrors(context)) return;
 
+		String contentMessage = getNotificationSummaryMessageId() == NO_NOTIFICATION ?
+			detailMessage :
+			context.getString(getNotificationSummaryMessageId());
+		String bigText = getNotificationSummaryMessageId() == NO_NOTIFICATION ?
+			errorMessage :
+			detailMessage + "\n" + errorMessage;
+
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
-			.setContentText(message)
+			.setContentText(contentMessage)
 			.setPriority(NotificationCompat.PRIORITY_DEFAULT)
 			.setCategory(NotificationCompat.CATEGORY_ERROR);
-		if (!TextUtils.isEmpty(detail))
-			builder.setStyle(new BigTextStyle().bigText(detail));
+		if (!TextUtils.isEmpty(bigText)) {
+			builder.setStyle(new BigTextStyle().bigText(bigText));
+		}
 
 		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 	}
