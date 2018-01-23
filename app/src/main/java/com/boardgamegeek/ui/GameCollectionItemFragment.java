@@ -113,6 +113,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	// private info
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
 	@BindView(R.id.private_info_view_container) ViewGroup privateInfoViewContainer;
+	@BindView(R.id.private_info_hint) TextView privateInfoHintView;
 	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
 	@BindView(R.id.private_info_comments_view) TextView viewPrivateInfoCommentsView;
 	@BindView(R.id.private_info_edit_container) ViewGroup privateInfoEditContainer;
@@ -128,7 +129,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindViews({
 		R.id.card_header_private_info,
 		R.id.wishlist_header,
-		R.id.trade_header
+		R.id.trade_header,
+		R.id.private_info_hint
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
 		R.id.comment,
@@ -613,6 +615,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		setVisibleTag(privateInfoViewContainer, hasPrivateInfo(item));
 
 		// edit
+		privateInfoHintView.setVisibility(hasPrivateInfo(item) ? View.GONE : View.VISIBLE);
 		editPrivateInfoView.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
 		editPrivateInfoView.setText(getPrivateInfo(item));
 		editPrivateInfoView.setTag(R.id.price_currency, item.getPriceCurrency());
