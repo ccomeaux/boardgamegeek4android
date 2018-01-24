@@ -25,11 +25,15 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.fabric.CrashKeys;
+import com.crashlytics.android.Crashlytics;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
@@ -70,6 +74,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final int type = extras.getInt(SyncService.EXTRA_SYNC_TYPE, SyncService.FLAG_SYNC_ALL);
 
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
+		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
+
+		String statuses = StringUtils.formatList(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
+		if (PreferencesUtils.getSyncPlays(context)) statuses += " | plays";
+		if (PreferencesUtils.getSyncBuddies(context)) statuses += " | buddies";
+		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
 
 		if (initialize) {
 			ContentResolver.setIsSyncable(account, authority, 1);
@@ -93,6 +103,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			currentTask = tasks.get(i);
 			try {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
+				Crashlytics.setInt(CrashKeys.SYNC_TYPE, currentTask.getSyncType());
 				currentTask.updateProgressNotification();
 				currentTask.execute(account, syncResult);
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);

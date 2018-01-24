@@ -16,6 +16,8 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.fabric.CrashKeys;
+import com.crashlytics.android.Crashlytics;
 
 import timber.log.Timber;
 
@@ -78,6 +80,7 @@ public abstract class SyncTask {
 	 */
 	protected void updateProgressNotification(String detail) {
 		Timber.i(detail);
+		Crashlytics.setString(CrashKeys.SYNC_DETAIL, detail);
 		if (!PreferencesUtils.getSyncShowNotifications(this.context)) return;
 
 		String message = getNotificationSummaryMessageId() == NO_NOTIFICATION ?
@@ -151,6 +154,7 @@ public abstract class SyncTask {
 	 */
 	protected boolean wasSleepInterrupted(long millis) {
 		try {
+			Timber.d("Sleeping for %,d millis", millis);
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
 			Timber.w(e, "Sleeping interrupted during sync.");
