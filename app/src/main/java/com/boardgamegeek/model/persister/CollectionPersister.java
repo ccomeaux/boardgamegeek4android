@@ -164,9 +164,7 @@ public class CollectionPersister {
 			String.format("collection.%s=?", Collection.GAME_ID),
 			new String[] { String.valueOf(gameId) });
 		if (protectedCollectionIds != null) {
-			for (Integer id : protectedCollectionIds) {
-				collectionIdsToDelete.remove(id);
-			}
+			collectionIdsToDelete.removeAll(protectedCollectionIds);
 		}
 		// remove them
 		if (collectionIdsToDelete.size() > 0) {
