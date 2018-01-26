@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<Preference
+		android:icon="@drawable/ic_account_circle_black_24dp"
+		android:key="com.boardgamegeek.prefs.ACCOUNT"
+		android:title="@string/pref_account"/>
+	<Preference
 		android:icon="@drawable/ic_action_refresh_light"
 		android:key="com.boardgamegeek.prefs.SYNC"
 		android:title="@string/pref_sync"/>
+	<Preference
+		android:icon="@drawable/ic_storage"
+		android:key="com.boardgamegeek.prefs.DATA"
+		android:title="@string/pref_data"/>
 	<Preference
 		android:icon="@drawable/ic_log_play"
 		android:key="com.boardgamegeek.prefs.LOG"
@@ -16,5 +24,4 @@
 		android:icon="@drawable/ic_action_info_light"
 		android:key="com.boardgamegeek.prefs.ABOUT"
 		android:title="@string/pref_about"/>
-
 </PreferenceScreen>

@@ -28,8 +28,10 @@ public class SettingsActivity extends DrawerActivity {
 	private static final String KEY_SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT";
 
 	private static final String ACTION_PREFIX = "com.boardgamegeek.prefs.";
-	private static final String ACTION_LOG = ACTION_PREFIX + "LOG";
+	private static final String ACTION_ACCOUNT = ACTION_PREFIX + "ACCOUNT";
 	private static final String ACTION_SYNC = ACTION_PREFIX + "SYNC";
+	private static final String ACTION_DATA = ACTION_PREFIX + "DATA";
+	private static final String ACTION_LOG = ACTION_PREFIX + "LOG";
 	private static final String ACTION_ADVANCED = ACTION_PREFIX + "ADVANCED";
 	private static final String ACTION_ABOUT = ACTION_PREFIX + "ABOUT";
 	private static final String ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS";
@@ -37,8 +39,10 @@ public class SettingsActivity extends DrawerActivity {
 
 	private static ArrayMap<String, Integer> buildFragmentMap() {
 		ArrayMap<String, Integer> map = new ArrayMap<>();
-		map.put(ACTION_LOG, R.xml.preference_log);
+		map.put(ACTION_ACCOUNT, R.xml.preference_account);
 		map.put(ACTION_SYNC, R.xml.preference_sync);
+		map.put(ACTION_DATA, R.xml.preference_data);
+		map.put(ACTION_LOG, R.xml.preference_log);
 		map.put(ACTION_ADVANCED, R.xml.preference_advanced);
 		map.put(ACTION_ABOUT, R.xml.preference_about);
 		map.put(ACTION_AUTHORS, R.xml.preference_authors);

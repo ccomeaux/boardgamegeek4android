@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<com.boardgamegeek.pref.ClearDialogPreference
+		android:dialogMessage="@string/pref_sync_clear_info_message"
+		android:positiveButtonText="@string/pref_sync_clear_pos"
+		android:title="@string/pref_sync_clear"/>
+
+	<com.boardgamegeek.pref.ResetCollectionDialogPreference
+		android:dialogMessage="@string/pref_sync_reset_collection_info_message"
+		android:positiveButtonText="@string/pref_sync_reset_pos"
+		android:title="@string/pref_sync_reset_collection"/>
+
+	<com.boardgamegeek.pref.ResetPlaysDialogPreference
+		android:dialogMessage="@string/pref_sync_re_sync_plays_info_message"
+		android:positiveButtonText="@string/pref_sync_reset_pos"
+		android:title="@string/pref_sync_re_sync_plays"/>
+
+	<com.boardgamegeek.pref.ResetBuddiesDialogPreference
+		android:dialogMessage="@string/pref_sync_reset_buddies_info_message"
+		android:positiveButtonText="@string/pref_sync_reset_pos"
+		android:title="@string/pref_sync_reset_buddies"/>
+	<com.boardgamegeek.pref.SyncTimestampsDialogPreference android:title="@string/pref_sync_timestamps"/>
+</PreferenceScreen>

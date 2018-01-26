@@ -43,10 +43,12 @@
 	<string name="pref_sync_errors">Show error notifications</string>
 	<string name="pref_sync_only_charging">Only while charging</string>
 	<string name="pref_sync_only_wifi">Only on WiFi</string>
-	<string name="pref_sync_accounts">Accounts</string>
+	<string name="pref_account">Account</string>
+	<string name="pref_sync_accounts">Account on this Device</string>
 	<string name="pref_sync_sign_out">Sign out</string>
 	<string name="pref_sync_sign_out_pos">Sign out</string>
-	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out?</string>
+	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out? Data you have synced to this device will be deleted.</string>
+	<string name="pref_data">Data</string>
 	<string name="pref_sync_clear">Clear local data</string>
 	<string name="pref_sync_clear_pos">Clear</string>
 	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed, but you can always re-sync.</string>
