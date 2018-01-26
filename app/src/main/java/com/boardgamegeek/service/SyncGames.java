@@ -40,7 +40,7 @@ public abstract class SyncGames extends SyncTask {
 				if (numberOfFetches > 0) if (wasSleepInterrupted(5000)) return;
 
 				numberOfFetches++;
-				GameList gameList = getGameIds(GAMES_PER_FETCH);
+				GameList gameList = getGames(GAMES_PER_FETCH);
 				if (gameList.getSize() > 0) {
 					Timber.i("...found %,d games to update [%s]", gameList.getSize(), gameList.getDescription());
 					String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, gameList.getSize(), gameList.getSize(), gameList.getDescription());
@@ -63,22 +63,13 @@ public abstract class SyncGames extends SyncTask {
 								break;
 							}
 						} else {
-							Timber.w("Received response %s while syncing games.", response.code());
-							if (response.code() >= 500) {
-								showError(context.getString(R.string.msg_sync_response_500, response.code()));
-								return;
-							} else if (response.code() == 429) {
-								showError(context.getString(R.string.msg_sync_response_429));
-								if (wasSleepInterrupted(5000)) return;
-							} else {
-								showError(context.getString(R.string.msg_sync_unsuccessful_response,
-									context.getString(R.string.game),
-									response.code()));
-								return;
-							}
+							showError(detail, response.code());
+							syncResult.stats.numIoExceptions++;
+							cancel();
+							return;
 						}
 					} catch (IOException e) {
-						showError(e.getLocalizedMessage());
+						showError(detail, e);
 						syncResult.stats.numIoExceptions++;
 						break;
 					} catch (RuntimeException e) {
@@ -91,7 +82,7 @@ public abstract class SyncGames extends SyncTask {
 								if (shouldBreak) break;
 							}
 						} else {
-							showError(e.getLocalizedMessage());
+							showError(detail, e);
 							syncResult.stats.numParseExceptions++;
 							break;
 						}
@@ -107,32 +98,24 @@ public abstract class SyncGames extends SyncTask {
 	}
 
 	private boolean syncGame(Integer id, @NonNull SyncResult syncResult, String gameName) {
+		String detail = "";
 		Call<ThingResponse> call = service.thing(id, 1);
 		try {
 			Response<ThingResponse> response = call.execute();
 			if (response.isSuccessful()) {
 				final List<Game> games = response.body() == null ? new ArrayList<Game>(0) : response.body().getGames();
-				String detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName);
+				detail = context.getResources().getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName);
 				int count = new GamePersister(context).save(games, detail);
 				syncResult.stats.numUpdates += games.size();
 				Timber.i("...saved %,d rows for %,d games", count, games.size());
 			} else {
-				Timber.w("Received response %s while syncing games.", response.code());
-				if (response.code() >= 500) {
-					showError(context.getString(R.string.msg_sync_response_500, response.code()));
-					return true;
-				} else if (response.code() == 429) {
-					showError(context.getString(R.string.msg_sync_response_429));
-					if (wasSleepInterrupted(5000)) return true;
-				} else {
-					showError(context.getString(R.string.msg_sync_unsuccessful_response,
-						context.getString(R.string.game),
-						response.code()));
-					return true;
-				}
+				showError(detail, response.code());
+				syncResult.stats.numIoExceptions++;
+				cancel();
+				return true;
 			}
 		} catch (IOException e) {
-			showError(e.getLocalizedMessage());
+			showError(detail, e);
 			syncResult.stats.numIoExceptions++;
 			return true;
 		} catch (RuntimeException e) {
@@ -140,10 +123,10 @@ public abstract class SyncGames extends SyncTask {
 			if (cause instanceof ClassNotFoundException &&
 				cause.getMessage().startsWith("Didn't find class \"messagebox error\" on path")) {
 				Timber.i("Invalid game %s (%s)", gameName, id);
-				showError(e.getLocalizedMessage());
+				showError(detail, e);
 				// otherwise just ignore this error
 			} else {
-				showError(e.getLocalizedMessage());
+				showError(detail, e);
 				syncResult.stats.numParseExceptions++;
 			}
 			return false;
@@ -161,7 +144,7 @@ public abstract class SyncGames extends SyncTask {
 	@NonNull
 	protected abstract String getExitLogMessage();
 
-	private GameList getGameIds(int gamesPerFetch) {
+	private GameList getGames(int gamesPerFetch) {
 		GameList list = new GameList(gamesPerFetch);
 		Cursor cursor = context.getContentResolver().query(Games.CONTENT_URI,
 			new String[] { Games.GAME_ID, Games.GAME_NAME },

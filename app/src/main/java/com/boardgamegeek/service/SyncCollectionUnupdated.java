@@ -9,13 +9,16 @@ import android.support.v4.util.ArrayMap;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.CollectionRequest;
-import com.boardgamegeek.io.CollectionResponse;
+import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.model.GameList;
 import com.boardgamegeek.util.SelectionBuilder;
 
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Response;
 import timber.log.Timber;
 
 /**
@@ -23,6 +26,8 @@ import timber.log.Timber;
  */
 public class SyncCollectionUnupdated extends SyncTask {
 	private static final int GAME_PER_FETCH = 25;
+	private SyncResult syncResult;
+	private String detail;
 
 	public SyncCollectionUnupdated(Context context, BggService service) {
 		super(context, service);
@@ -36,6 +41,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 	@Override
 	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
 		Timber.i("Syncing unupdated collection list...");
+		this.syncResult = syncResult;
 		try {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister.Builder(context)
@@ -61,7 +67,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 				previousGameList = gameIds;
 
 				if (gameIds.getSize() > 0) {
-					String detail = context.getString(R.string.sync_notification_collection_update_games, gameIds.getSize(), gameIds.getDescription());
+					detail = context.getString(R.string.sync_notification_collection_update_games, gameIds.getSize(), gameIds.getDescription());
 					if (numberOfFetches > 1) {
 						detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches);
 					}
@@ -70,18 +76,20 @@ public class SyncCollectionUnupdated extends SyncTask {
 
 					options.put(BggService.COLLECTION_QUERY_KEY_ID, gameIds.getIds());
 					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
-					int itemCount = requestAndPersist(account.name, persister, options, syncResult);
+					int itemCount = requestAndPersist(account.name, persister, options);
 
 					if (itemCount < 0) {
 						Timber.i("...unsuccessful sync; breaking out of fetch loop");
+						cancel();
 						break;
 					}
 
 					options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-					int accessoryCount = requestAndPersist(account.name, persister, options, syncResult);
+					int accessoryCount = requestAndPersist(account.name, persister, options);
 
 					if (accessoryCount < 0) {
 						Timber.i("...unsuccessful sync; breaking out of fetch loop");
+						cancel();
 						break;
 					}
 
@@ -117,21 +125,32 @@ public class SyncCollectionUnupdated extends SyncTask {
 	}
 
 
-	private int requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options, @NonNull SyncResult syncResult) {
+	private int requestAndPersist(String username, @NonNull CollectionPersister persister, ArrayMap<String, String> options) {
 		Timber.i("..requesting collection items with options %s", options);
-		CollectionResponse response = new CollectionRequest(service, username, options).execute();
-		if (response.hasError()) {
-			showError(response.getError());
+
+		Call<CollectionResponse> call = service.collection(username, options);
+		try {
+			Response<CollectionResponse> response = call.execute();
+			if (response.isSuccessful()) {
+				final CollectionResponse body = response.body();
+				if (body != null && body.getItemCount() > 0) {
+					int count = persister.save(body.items).getRecordCount();
+					syncResult.stats.numUpdates += body.getItemCount();
+					Timber.i("...saved %,d records for %,d collection items", count, body.getItemCount());
+					return body.getItemCount();
+				} else {
+					Timber.i("...no collection items found for these games");
+					return 0;
+				}
+			} else {
+				showError(detail, response.code());
+				syncResult.stats.numIoExceptions++;
+				return -1;
+			}
+		} catch (IOException e) {
+			showError(detail, e);
 			syncResult.stats.numIoExceptions++;
 			return -1;
-		} else if (response.getNumberOfItems() > 0) {
-			int count = persister.save(response.getItems()).getRecordCount();
-			syncResult.stats.numUpdates += response.getNumberOfItems();
-			Timber.i("...saved %,d records for %,d collection items", count, response.getNumberOfItems());
-			return response.getNumberOfItems();
-		} else {
-			Timber.i("...no collection items found for these games");
-			return 0;
 		}
 	}
 

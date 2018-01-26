@@ -51,17 +51,26 @@ public class SyncPlays extends SyncTask {
 
 			long newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate <= 0) {
-				if (executeCall(account.name, null, null)) return;
+				if (executeCall(account.name, null, null)) {
+					cancel();
+					return;
+				}
 			} else {
 				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
-				if (executeCall(account.name, date, null)) return;
+				if (executeCall(account.name, date, null)) {
+					cancel();
+					return;
+				}
 				deleteUnupdatedPlaysSince(newestSyncDate);
 			}
 
 			long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(oldestDate);
-				if (executeCall(account.name, null, date)) return;
+				if (executeCall(account.name, null, date)) {
+					cancel();
+					return;
+				}
 				deleteUnupdatedPlaysBefore(oldestDate);
 				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
@@ -71,6 +80,13 @@ public class SyncPlays extends SyncTask {
 		}
 	}
 
+	/**
+	 * Fetch the plays for the user in the specified date range. Plays are fetched 1 page of 50 at a time, most recent
+	 * first. Each page fetch shows a notification progress message. If successfully fetched, store the plays in the
+	 * database and update the sync timestamps. If there are more pages, pause then fetch another page .
+	 *
+	 * @return true if the sync operation should cancel
+	 */
 	private boolean executeCall(String username, String minDate, String maxDate) {
 		Response<PlaysResponse> response;
 		int page = 1;
@@ -82,17 +98,18 @@ public class SyncPlays extends SyncTask {
 
 			if (page != 1) if (wasSleepInterrupted(3000)) return true;
 
-			showNotification(minDate, maxDate, page);
+			String message = formatNotificationMessage(minDate, maxDate, page);
+			updateProgressNotification(message);
 			Call<PlaysResponse> call = service.plays(username, minDate, maxDate, page);
 			try {
 				response = call.execute();
 				if (!response.isSuccessful()) {
-					showError(String.format("Unsuccessful plays fetch with code: %s", response.code()));
+					showError(message, response.code());
 					syncResult.stats.numIoExceptions++;
 					return true;
 				}
 			} catch (Exception e) {
-				showError(String.format("Unsuccessful plays fetch with exception: %s", e.getLocalizedMessage()));
+				showError(message, e);
 				syncResult.stats.numIoExceptions++;
 				return true;
 			}
@@ -103,7 +120,8 @@ public class SyncPlays extends SyncTask {
 		return false;
 	}
 
-	private void showNotification(String minDate, String maxDate, int page) {
+	@NonNull
+	private String formatNotificationMessage(String minDate, String maxDate, int page) {
 		String message;
 		if (TextUtils.isEmpty(minDate) && TextUtils.isEmpty(maxDate)) {
 			message = context.getString(R.string.sync_notification_plays_all);
@@ -117,11 +135,11 @@ public class SyncPlays extends SyncTask {
 		if (page > 1) {
 			message = context.getString(R.string.sync_notification_page_suffix, message, page);
 		}
-		updateProgressNotification(message);
+		return message;
 	}
 
-	private void persist(@NonNull PlaysResponse response) {
-		if (response.plays != null && response.plays.size() > 0) {
+	private void persist(PlaysResponse response) {
+		if (response != null && response.plays != null && response.plays.size() > 0) {
 			if (persister == null) {
 				persister = new PlayPersister(context);
 			}
@@ -155,7 +173,7 @@ public class SyncPlays extends SyncTask {
 		Timber.i("...deleted %,d unupdated plays", count);
 	}
 
-	private void updateTimestamps(@NonNull PlaysResponse response) {
+	private void updateTimestamps(PlaysResponse response) {
 		long newestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 		if (response.getNewestDate() > newestDate) {
 			Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.getNewestDate());

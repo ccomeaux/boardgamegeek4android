@@ -17,7 +17,6 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -496,5 +495,14 @@ public class PresentationUtils {
 		if (fab != null && iconColor != Color.TRANSPARENT) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
 		}
+	}
+
+	@NonNull
+	public static String getHttpErrorMessage(Context context, int httpCode) {
+		@StringRes int resId;
+		if (httpCode >= 500) resId = R.string.msg_sync_response_500;
+		else if (httpCode == 429) resId = R.string.msg_sync_response_429;
+		else resId = R.string.msg_sync_error_http_code;
+		return context.getString(resId, String.valueOf(httpCode));
 	}
 }
