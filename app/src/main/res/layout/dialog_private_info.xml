@@ -126,13 +126,17 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content">
 
-			<android.support.design.widget.TextInputEditText
+			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 				android:id="@+id/acquired_from"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:completionThreshold="1"
 				android:hint="@string/acquired_from"
+				android:imeOptions="actionNext"
+				android:importantForAutofill="noExcludeDescendants"
 				android:inputType="textCapWords"
-				android:maxLines="1"/>
+				android:textAppearance="@style/Text.Big"
+				android:textColor="#000"/>
 		</android.support.design.widget.TextInputLayout>
 
 		<android.support.design.widget.TextInputLayout

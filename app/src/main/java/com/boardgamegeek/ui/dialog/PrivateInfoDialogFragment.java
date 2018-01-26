@@ -21,8 +21,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
+import com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -55,8 +58,11 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@BindView(R.id.quantity) EditText quantityView;
 	@BindView(R.id.acquisition_date_label) TextView acquisitionDateLabelView;
 	@BindView(R.id.acquisition_date) TextView acquisitionDateView;
-	@BindView(R.id.acquired_from) EditText acquiredFromView;
+	@BindView(R.id.acquired_from) TextInputAutoCompleteTextView acquiredFromView;
 	@BindView(R.id.comment) EditText commentView;
+
+	private AutoCompleteAdapter acquiredFromAdapter;
+
 	@State String priceCurrency;
 	@State double price;
 	@State String currentValueCurrency;
@@ -88,7 +94,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		populateUi();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_bgglight_Dialog_Alert);
 		builder.setTitle(R.string.title_private_info);
 		builder.setView(rootView)
 			.setNegativeButton(R.string.cancel, null)
@@ -113,6 +119,19 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		final AlertDialog dialog = builder.create();
 		DialogUtils.requestFocus(dialog);
 		return dialog;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		acquiredFromAdapter = new AutoCompleteAdapter(getContext(), Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri());
+		acquiredFromView.setAdapter(acquiredFromAdapter);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (acquiredFromAdapter != null) acquiredFromAdapter.changeCursor(null);
 	}
 
 	@Override
@@ -156,6 +175,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@OnClick(R.id.acquisition_date)
 	public void onDateClick() {
 		final FragmentManager fragmentManager = getFragmentManager();
+		if (fragmentManager == null) return;
 		DatePickerDialogFragment datePickerDialogFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
 		if (datePickerDialogFragment == null) {
 			datePickerDialogFragment = new DatePickerDialogFragment();
