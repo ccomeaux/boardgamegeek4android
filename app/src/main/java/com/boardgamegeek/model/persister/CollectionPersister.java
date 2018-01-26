@@ -22,6 +22,7 @@ import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
@@ -78,7 +79,12 @@ public class CollectionPersister {
 		public CollectionPersister build() {
 			List<String> statuses = null;
 			if (validStatusesOnly) {
-				statuses.addAll(PreferencesUtils.getSyncStatuses(context));
+				final Set<String> syncStatuses = PreferencesUtils.getSyncStatuses(context);
+				if (syncStatuses == null) {
+					statuses = new ArrayList<>(0);
+				} else {
+					statuses.addAll(syncStatuses);
+				}
 			}
 			return new CollectionPersister(context, isBriefSync, includePrivateInfo, includeStats, statuses);
 		}
