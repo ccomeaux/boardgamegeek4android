@@ -161,9 +161,8 @@ public class PreferencesUtils {
 		return getBoolean(context, "logPlayerWin", !getBoolean(context, "logHideWin", true));
 	}
 
-	public static String[] getSyncStatuses(Context context) {
-		Set<String> set = getSyncStatuses(context, context.getResources().getStringArray(R.array.pref_sync_status_default));
-		return set.toArray(new String[set.size()]);
+	public static Set<String> getSyncStatuses(Context context) {
+		return getSyncStatuses(context, context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
 	public static Set<String> getSyncStatuses(Context context, String[] defValues) {
@@ -177,8 +176,8 @@ public class PreferencesUtils {
 	}
 
 	public static boolean isCollectionSetToSync(Context context) {
-		String[] statuses = getSyncStatuses(context);
-		return statuses.length > 0;
+		Set<String> statuses = getSyncStatuses(context);
+		return statuses != null && statuses.size() > 0;
 	}
 
 	/**
@@ -188,7 +187,7 @@ public class PreferencesUtils {
 		if (context == null) return false;
 		if (TextUtils.isEmpty(status)) return false;
 
-		String[] statuses = getSyncStatuses(context);
+		Set<String> statuses = getSyncStatuses(context);
 
 		for (String s : statuses) {
 			if (s.equals(status)) {

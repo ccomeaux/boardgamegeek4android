@@ -14,8 +14,11 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.DrawerActivity;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
+
+import java.util.Set;
 
 import butterknife.BindArray;
 import butterknife.ButterKnife;
@@ -176,8 +179,8 @@ public class SettingsActivity extends DrawerActivity {
 		private void updateSyncStatusSummary(String key) {
 			Preference pref = findPreference(key);
 			if (pref == null) return;
-			String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
-			if (statuses.length == 0) {
+			Set<String> statuses = PreferencesUtils.getSyncStatuses(getActivity());
+			if (statuses == null || statuses.size() == 0) {
 				pref.setSummary(R.string.pref_list_empty);
 			} else {
 				StringBuilder sb = new StringBuilder();

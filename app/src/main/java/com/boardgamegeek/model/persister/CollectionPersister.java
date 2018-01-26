@@ -21,7 +21,6 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
@@ -79,8 +78,7 @@ public class CollectionPersister {
 		public CollectionPersister build() {
 			List<String> statuses = null;
 			if (validStatusesOnly) {
-				String[] syncStatuses = PreferencesUtils.getSyncStatuses(context);
-				statuses = syncStatuses != null ? Arrays.asList(syncStatuses) : new ArrayList<String>(0);
+				statuses.addAll(PreferencesUtils.getSyncStatuses(context));
 			}
 			return new CollectionPersister(context, isBriefSync, includePrivateInfo, includeStats, statuses);
 		}
