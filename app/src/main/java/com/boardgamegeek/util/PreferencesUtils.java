@@ -14,7 +14,6 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
-import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.model.PlayStats;
 
@@ -53,6 +52,8 @@ public class PreferencesUtils {
 	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
 	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
 	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
+
+	private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
 
 	private static final int NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0;
 	private static final int NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX = 1;
@@ -217,7 +218,7 @@ public class PreferencesUtils {
 
 		set.add(status);
 
-		return putString(context, KEY_SYNC_STATUSES, MultiSelectListPreference.buildString(set));
+		return putString(context, KEY_SYNC_STATUSES, buildString(set));
 	}
 
 	public static boolean getSyncPlays(Context context) {
@@ -450,6 +451,25 @@ public class PreferencesUtils {
 	private static String[] getStringArray(Context context, String key, String[] defValue) {
 		String value = getString(context, key, null);
 		if (value == null) return defValue;
-		return MultiSelectListPreference.parseStoredValue(value);
+		return TextUtils.isEmpty(value) ? new String[0] : value.split(SEPARATOR);
+	}
+
+	/**
+	 * Builds a persistable string from the set of string values
+	 *
+	 * @param values Set of values to convert to a string.
+	 * @return A string representation of the values to persist in preferences.
+	 */
+	public static String buildString(Set<String> values) {
+		StringBuilder sb = new StringBuilder();
+		for (String value : values) {
+			sb.append(value).append(SEPARATOR);
+		}
+		// remove trailing separator
+		String value = sb.toString();
+		if (value.length() > 0) {
+			value = value.substring(0, value.length() - SEPARATOR.length());
+		}
+		return value;
 	}
 }
