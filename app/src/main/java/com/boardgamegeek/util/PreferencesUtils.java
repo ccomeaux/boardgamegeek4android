@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -178,7 +177,7 @@ public class PreferencesUtils {
 
 	public static boolean isCollectionSetToSync(Context context) {
 		String[] statuses = getSyncStatuses(context);
-		return statuses != null && statuses.length > 0;
+		return statuses.length > 0;
 	}
 
 	/**
@@ -189,7 +188,6 @@ public class PreferencesUtils {
 		if (TextUtils.isEmpty(status)) return false;
 
 		String[] statuses = getSyncStatuses(context);
-		if (statuses == null) return false;
 
 		for (String s : statuses) {
 			if (s.equals(status)) {
@@ -383,17 +381,6 @@ public class PreferencesUtils {
 
 	public static int getThreadArticle(Context context, int threadId) {
 		return getInt(context, getThreadKey(threadId), INVALID_ARTICLE_ID);
-	}
-
-	@Nullable
-	public static Uri getUri(Context context, String key) {
-		String uriString = getString(context, key, null);
-		if (uriString == null) return null;
-		return Uri.parse(uriString);
-	}
-
-	public static boolean putUri(Context context, String key, Uri uri) {
-		return putString(context, key, uri == null ? null : uri.toString());
 	}
 
 	@NonNull
