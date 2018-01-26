@@ -17,6 +17,9 @@ import com.boardgamegeek.ui.DrawerActivity;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
+import butterknife.BindArray;
+import butterknife.ButterKnife;
+
 public class SettingsActivity extends DrawerActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
 	private static final String KEY_SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT";
@@ -77,6 +80,8 @@ public class SettingsActivity extends DrawerActivity {
 	}
 
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+		@BindArray(R.array.pref_sync_status_values) String[] entryValues;
+		@BindArray(R.array.pref_sync_status_entries) String[] entries;
 		private int syncType = 0;
 
 		@Override
@@ -92,6 +97,10 @@ public class SettingsActivity extends DrawerActivity {
 					addPreferencesFromResource(fragmentId);
 				}
 			}
+
+			ButterKnife.bind(this, getActivity());
+
+			updateSyncStatusSummary(PreferencesUtils.KEY_SYNC_STATUSES);
 
 			Preference oslPref = findPreference("open_source_licenses");
 			if (oslPref != null) {
@@ -146,6 +155,9 @@ public class SettingsActivity extends DrawerActivity {
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 			switch (key) {
+				case PreferencesUtils.KEY_SYNC_STATUSES:
+					updateSyncStatusSummary(key);
+					break;
 				case "syncStatuses":
 					SyncService.clearCollection(getActivity());
 					syncType |= SyncService.FLAG_SYNC_COLLECTION;
@@ -158,6 +170,27 @@ public class SettingsActivity extends DrawerActivity {
 					SyncService.clearBuddies(getActivity());
 					syncType |= SyncService.FLAG_SYNC_BUDDIES;
 					break;
+			}
+		}
+
+		private void updateSyncStatusSummary(String key) {
+			Preference pref = findPreference(key);
+			if (pref == null) return;
+			String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
+			if (statuses.length == 0) {
+				pref.setSummary(R.string.pref_list_empty);
+			} else {
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < entryValues.length; i++) {
+					for (CharSequence status : statuses) {
+						CharSequence entry = entryValues[i];
+						if (entry.equals(status)) {
+							sb.append(entries[i]).append(", ");
+							break;
+						}
+					}
+				}
+				pref.setSummary(sb.length() > 2 ? sb.substring(0, sb.length() - 2) : sb.toString());
 			}
 		}
 

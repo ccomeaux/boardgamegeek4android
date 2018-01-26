@@ -42,7 +42,8 @@ public class PreferencesUtils {
 	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
-	private static final String KEY_SYNC_STATUSES = "syncStatuses";
+	public static final String KEY_SYNC_STATUSES = "sync_statuses";
+	private static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
 	private static final String KEY_SYNC_PLAYS = "syncPlays";
 	private static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
 	private static final String KEY_SYNC_BUDDIES = "syncBuddies";
@@ -161,7 +162,18 @@ public class PreferencesUtils {
 	}
 
 	public static String[] getSyncStatuses(Context context) {
-		return getStringArray(context, KEY_SYNC_STATUSES, context.getResources().getStringArray(R.array.pref_sync_status_default));
+		Set<String> set = getSyncStatuses(context, context.getResources().getStringArray(R.array.pref_sync_status_default));
+		return set.toArray(new String[set.size()]);
+	}
+
+	public static Set<String> getSyncStatuses(Context context, String[] defValues) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		final HashSet<String> defSet = defValues == null ? null : new HashSet<>(Arrays.asList(defValues));
+		return sharedPreferences.getStringSet(KEY_SYNC_STATUSES, defSet);
+	}
+
+	public static String[] getOldSyncStatuses(Context context) {
+		return getStringArray(context, KEY_SYNC_STATUSES_OLD, context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
 	public static boolean isCollectionSetToSync(Context context) {
@@ -185,6 +197,13 @@ public class PreferencesUtils {
 			}
 		}
 		return false;
+	}
+
+	public static boolean setSyncStatuses(Context context, String[] statuses) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putStringSet(KEY_SYNC_STATUSES, new HashSet<>(Arrays.asList(statuses)));
+		return editor.commit();
 	}
 
 	public static boolean addSyncStatus(Context context, String status) {
