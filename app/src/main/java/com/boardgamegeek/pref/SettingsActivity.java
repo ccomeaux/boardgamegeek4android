@@ -164,16 +164,18 @@ public class SettingsActivity extends DrawerActivity {
 			switch (key) {
 				case PreferencesUtils.KEY_SYNC_STATUSES:
 					updateSyncStatusSummary(key);
-					break;
-				case "syncStatuses":
 					SyncService.clearCollection(getActivity());
 					syncType |= SyncService.FLAG_SYNC_COLLECTION;
 					break;
-				case "syncPlays":
+				case PreferencesUtils.KEY_SYNC_STATUSES_OLD:
+					SyncService.clearCollection(getActivity());
+					syncType |= SyncService.FLAG_SYNC_COLLECTION;
+					break;
+				case PreferencesUtils.KEY_SYNC_PLAYS:
 					SyncService.clearPlays(getActivity());
 					syncType |= SyncService.FLAG_SYNC_PLAYS;
 					break;
-				case "syncBuddies":
+				case PreferencesUtils.KEY_SYNC_BUDDIES:
 					SyncService.clearBuddies(getActivity());
 					syncType |= SyncService.FLAG_SYNC_BUDDIES;
 					break;

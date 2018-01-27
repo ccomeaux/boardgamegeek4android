@@ -19,6 +19,7 @@ import com.boardgamegeek.ui.model.PlayStats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,10 +42,10 @@ public class PreferencesUtils {
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	public static final String KEY_SYNC_STATUSES = "sync_statuses";
-	private static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
-	private static final String KEY_SYNC_PLAYS = "syncPlays";
+	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
+	public static final String KEY_SYNC_PLAYS = "syncPlays";
 	private static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
-	private static final String KEY_SYNC_BUDDIES = "syncBuddies";
+	public static final String KEY_SYNC_BUDDIES = "syncBuddies";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
 	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
@@ -186,15 +187,8 @@ public class PreferencesUtils {
 	public static boolean isStatusSetToSync(Context context, String status) {
 		if (context == null) return false;
 		if (TextUtils.isEmpty(status)) return false;
-
 		Set<String> statuses = getSyncStatuses(context);
-
-		for (String s : statuses) {
-			if (s.equals(status)) {
-				return true;
-			}
-		}
-		return false;
+		return statuses.contains(status);
 	}
 
 	public static boolean setSyncStatuses(Context context, String[] statuses) {
@@ -208,16 +202,10 @@ public class PreferencesUtils {
 		if (TextUtils.isEmpty(status)) return false;
 		if (isStatusSetToSync(context, status)) return false;
 
-		Set<String> set = new HashSet<>();
-
-		String[] statuses = getStringArray(context, KEY_SYNC_STATUSES, null);
-		if (statuses != null) {
-			set.addAll(Arrays.asList(statuses).subList(0, statuses.length));
-		}
-
-		set.add(status);
-
-		return putString(context, KEY_SYNC_STATUSES, buildString(set));
+		Set<String> statuses = getSyncStatuses(context, null);
+		if (statuses == null) statuses = Collections.emptySet();
+		statuses.add(status);
+		return putStringSet(context, KEY_SYNC_STATUSES, statuses);
 	}
 
 	public static boolean getSyncPlays(Context context) {
@@ -423,6 +411,13 @@ public class PreferencesUtils {
 		return editor.commit();
 	}
 
+	private static boolean putStringSet(Context context, String key, Set<String> value) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putStringSet(key, value);
+		return editor.commit();
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);
@@ -451,24 +446,5 @@ public class PreferencesUtils {
 		String value = getString(context, key, null);
 		if (value == null) return defValue;
 		return TextUtils.isEmpty(value) ? new String[0] : value.split(SEPARATOR);
-	}
-
-	/**
-	 * Builds a persistable string from the set of string values
-	 *
-	 * @param values Set of values to convert to a string.
-	 * @return A string representation of the values to persist in preferences.
-	 */
-	public static String buildString(Set<String> values) {
-		StringBuilder sb = new StringBuilder();
-		for (String value : values) {
-			sb.append(value).append(SEPARATOR);
-		}
-		// remove trailing separator
-		String value = sb.toString();
-		if (value.length() > 0) {
-			value = value.substring(0, value.length() - SEPARATOR.length());
-		}
-		return value;
 	}
 }
