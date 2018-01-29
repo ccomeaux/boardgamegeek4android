@@ -24,8 +24,11 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
+import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.TaskUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -255,6 +258,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			accountManager.setPassword(account, password);
 		}
 		TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
+
+		EventBus.getDefault().post(new SignInEvent(username));
 
 		final Intent intent = new Intent();
 		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, username);

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
@@ -38,8 +39,6 @@ import hugo.weaving.DebugLog;
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
  */
 public abstract class DrawerActivity extends BaseActivity {
-	private static final int REQUEST_SIGN_IN = 1;
-
 	@BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
 	@BindView(R.id.drawer_container) View drawerListContainer;
 	@BindView(R.id.left_drawer) LinearLayout drawerList;
@@ -85,15 +84,6 @@ public abstract class DrawerActivity extends BaseActivity {
 		refreshDrawer();
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_SIGN_IN && resultCode == RESULT_OK) {
-			onSignInSuccess();
-		}
-	}
-
-	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CompletedEvent event) {
@@ -105,6 +95,13 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 	}
 
+	@DebugLog
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(SignInEvent event) {
+		if (!TextUtils.isEmpty(event.getUsername()))
+			onSignInSuccess();
+	}
+
 	protected void onSignInSuccess() {
 		refreshDrawer();
 	}
@@ -114,14 +111,12 @@ public abstract class DrawerActivity extends BaseActivity {
 
 		drawerList.removeAllViews();
 		drawerList.addView(makeNavDrawerBuffer(drawerList));
-		if (!Authenticator.isSignedIn(DrawerActivity.this)) {
+		if (!Authenticator.isSignedIn(this)) {
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, drawerList));
 		} else {
 			View view = makeNavDrawerHeader(drawerList);
-			if (view != null) {
-				drawerList.addView(view);
-			}
+			if (view != null) drawerList.addView(view);
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_collection, drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_log_play, drawerList));
@@ -174,7 +169,7 @@ public abstract class DrawerActivity extends BaseActivity {
 					intent = new Intent(this, ForumsActivity.class);
 					break;
 				case R.string.title_signin:
-					startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_SIGN_IN);
+					startActivity(new Intent(this, LoginActivity.class));
 					break;
 				case R.string.title_backup:
 					startActivity(new Intent(this, DataActivity.class));
