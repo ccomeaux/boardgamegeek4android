@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<com.boardgamegeek.pref.LoginPreference
+		android:key="login"
+		android:title="@string/pref_sync_sign_in"/>
+	<com.boardgamegeek.pref.SignOutPreference
+		android:dialogMessage="@string/pref_sync_sign_out_are_you_sure"
+		android:key="logout"
+		android:positiveButtonText="@string/pref_sync_sign_out_pos"
+		android:title="@string/pref_sync_sign_out"/>
 	<Preference android:title="@string/pref_sync_accounts">
 		<intent android:action="android.settings.SYNC_SETTINGS"/>
 	</Preference>
-	<com.boardgamegeek.pref.SignOutPreference
-		android:dialogMessage="@string/pref_sync_sign_out_are_you_sure"
-		android:positiveButtonText="@string/pref_sync_sign_out_pos"
-		android:title="@string/pref_sync_sign_out"/>
 </PreferenceScreen>

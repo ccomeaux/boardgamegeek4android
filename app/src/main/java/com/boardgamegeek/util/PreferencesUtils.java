@@ -41,6 +41,8 @@ public class PreferencesUtils {
 	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
+	public static final String KEY_LOGIN = "login";
+	public static final String KEY_LOGOUT = "logout";
 	public static final String KEY_SYNC_STATUSES = "sync_statuses";
 	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
 	public static final String KEY_SYNC_PLAYS = "syncPlays";
