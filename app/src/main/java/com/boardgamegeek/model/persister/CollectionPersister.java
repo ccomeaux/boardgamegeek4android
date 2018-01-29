@@ -79,10 +79,9 @@ public class CollectionPersister {
 		public CollectionPersister build() {
 			List<String> statuses = null;
 			if (validStatusesOnly) {
+				statuses = new ArrayList<>();
 				final Set<String> syncStatuses = PreferencesUtils.getSyncStatuses(context);
-				if (syncStatuses == null) {
-					statuses = new ArrayList<>(0);
-				} else {
+				if (syncStatuses != null) {
 					statuses.addAll(syncStatuses);
 				}
 			}
