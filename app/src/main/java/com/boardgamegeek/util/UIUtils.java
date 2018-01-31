@@ -19,10 +19,6 @@ import android.widget.TextView;
  * Various static methods for use on views and fragments.
  */
 public class UIUtils {
-	public static void setActivatedCompat(View view, boolean activated) {
-		view.setActivated(activated);
-	}
-
 	/**
 	 * Populate the given {@link TextView} with the requested text, formatting through {@link Html#fromHtml(String)}
 	 * when applicable. Also sets {@link TextView#setMovementMethod} so inline links are handled.

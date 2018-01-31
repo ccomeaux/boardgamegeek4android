@@ -24,7 +24,6 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -163,7 +162,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 			Buddy buddy = Buddy.fromCursor(cursor);
 
-			UIUtils.setActivatedCompat(view, buddy.getId() == selectedBuddyId);
+			view.setActivated(buddy.getId() == selectedBuddyId);
 
 			loadThumbnail(buddy.getAvatarUrl(), holder.avatar, R.drawable.person_image_empty);
 

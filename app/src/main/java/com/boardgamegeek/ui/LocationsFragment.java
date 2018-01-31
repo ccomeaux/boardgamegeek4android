@@ -21,7 +21,6 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.LocationsSorter;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.SortEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -152,7 +151,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 				.getQuantityString(R.plurals.plays_suffix, location.getPlayCount(), location.getPlayCount()));
 
 			view.setTag(R.id.name, location.getName());
-			UIUtils.setActivatedCompat(view, location.getName().equals(selectedName));
+			view.setActivated(location.getName().equals(selectedName));
 		}
 
 		@DebugLog
