@@ -10,18 +10,26 @@ import android.preference.PreferenceScreen;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.SignInEvent;
+import com.boardgamegeek.events.SignOutEvent;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.DrawerActivity;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Set;
 
 import butterknife.BindArray;
 import butterknife.ButterKnife;
+import hugo.weaving.DebugLog;
 
 public class SettingsActivity extends DrawerActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
@@ -138,6 +146,13 @@ public class SettingsActivity extends DrawerActivity {
 			}
 		}
 
+		@DebugLog
+		@Override
+		public void onStart() {
+			super.onStart();
+			EventBus.getDefault().register(this);
+		}
+
 		@Override
 		public void onResume() {
 			super.onResume();
@@ -150,9 +165,11 @@ public class SettingsActivity extends DrawerActivity {
 			getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 		}
 
+		@DebugLog
 		@Override
 		public void onStop() {
 			super.onStop();
+			EventBus.getDefault().unregister(this);
 			if (syncType > 0) {
 				SyncService.sync(getActivity(), syncType);
 				syncType = 0;
@@ -211,6 +228,24 @@ public class SettingsActivity extends DrawerActivity {
 				return true;
 			}
 			return super.onPreferenceTreeClick(preferenceScreen, preference);
+		}
+
+		@Subscribe(threadMode = ThreadMode.MAIN)
+		public void onEvent(SignInEvent event) {
+			updateAccountPrefs(event.getUsername());
+		}
+
+		@Subscribe(threadMode = ThreadMode.MAIN)
+		public void onEvent(@SuppressWarnings("unused") SignOutEvent event) {
+			Toast.makeText(getActivity(), R.string.msg_sign_out_success, Toast.LENGTH_SHORT).show();
+			updateAccountPrefs("");
+		}
+
+		private void updateAccountPrefs(String username) {
+			LoginPreference loginPreference = (LoginPreference) findPreference(PreferencesUtils.KEY_LOGIN);
+			if (loginPreference != null) loginPreference.update(username);
+			SignOutPreference signOutPreference = (SignOutPreference) findPreference(PreferencesUtils.KEY_LOGOUT);
+			if (signOutPreference != null) signOutPreference.update();
 		}
 	}
 }

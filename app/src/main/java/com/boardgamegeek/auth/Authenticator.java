@@ -17,10 +17,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.widget.Toast;
 
-import com.boardgamegeek.R;
+import com.boardgamegeek.events.SignOutEvent;
 import com.boardgamegeek.ui.LoginActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
@@ -244,9 +245,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		final Account account = Authenticator.getAccount(am);
 		if (account != null) {
 			if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
-				removeAccountWithActivity(context, am, account);
+				removeAccountWithActivity(am, account);
 			} else {
-				removeAccount(context, am, account);
+				removeAccount(am, account);
 			}
 		}
 		AccountUtils.clearFields(context);
@@ -267,15 +268,13 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	@SuppressWarnings("deprecation")
-	private static void removeAccount(final Context context, @NonNull AccountManager am, Account account) {
+	private static void removeAccount(@NonNull AccountManager am, Account account) {
 		am.removeAccount(account, new AccountManagerCallback<Boolean>() {
 			@Override
 			public void run(@NonNull AccountManagerFuture<Boolean> future) {
 				if (future.isDone()) {
 					try {
-						if (future.getResult()) {
-							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
-						}
+						if (future.getResult()) EventBus.getDefault().post(new SignOutEvent());
 					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e(e, "removeAccount");
 					}
@@ -285,14 +284,14 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	@TargetApi(VERSION_CODES.LOLLIPOP_MR1)
-	private static void removeAccountWithActivity(final Context context, @NonNull AccountManager am, Account account) {
+	private static void removeAccountWithActivity(@NonNull AccountManager am, Account account) {
 		am.removeAccount(account, null, new AccountManagerCallback<Bundle>() {
 			@Override
 			public void run(@NonNull AccountManagerFuture<Bundle> future) {
 				if (future.isDone()) {
 					try {
 						if (future.getResult().getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
-							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
+							EventBus.getDefault().post(new SignOutEvent());
 						}
 					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e(e, "removeAccount");

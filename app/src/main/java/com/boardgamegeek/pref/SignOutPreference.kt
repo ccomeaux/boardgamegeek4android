@@ -4,14 +4,9 @@ import android.content.Context
 import android.preference.DialogPreference
 import android.util.AttributeSet
 import android.util.TypedValue
-
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.service.SyncService
-
-import org.greenrobot.eventbus.EventBus
 
 class SignOutPreference(context: Context, attrs: AttributeSet) : DialogPreference(context, attrs) {
 
@@ -34,9 +29,12 @@ class SignOutPreference(context: Context, attrs: AttributeSet) : DialogPreferenc
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
             SyncService.cancelSync(context)
-            EventBus.getDefault().post(SignOutEvent(AccountUtils.getUsername(context) ?: ""))
             Authenticator.signOut(context)
             notifyChanged()
         }
+    }
+
+    fun update() {
+        notifyChanged()
     }
 }

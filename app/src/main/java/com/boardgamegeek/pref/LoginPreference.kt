@@ -10,6 +10,8 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.ui.LoginActivity
 
 class LoginPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {
+    private var username = AccountUtils.getUsername(context) ?: ""
+
     init {
         intent = Intent(getContext(), LoginActivity::class.java)
     }
@@ -19,6 +21,11 @@ class LoginPreference(context: Context, attrs: AttributeSet) : Preference(contex
     }
 
     override fun getSummary(): CharSequence? {
-        return AccountUtils.getUsername(context)
+        return username
+    }
+
+    fun update(username: String) {
+        this.username = username
+        notifyChanged()
     }
 }
