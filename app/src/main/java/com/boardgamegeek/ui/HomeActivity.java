@@ -19,8 +19,7 @@ public class HomeActivity extends TopLevelActivity {
 			if (Authenticator.isOldAuth(this)) {
 				Authenticator.signOut(this);
 			} else {
-				String[] statuses = PreferencesUtils.getSyncStatuses(this);
-				if (statuses != null && statuses.length > 0) {
+				if (PreferencesUtils.isCollectionSetToSync(this)) {
 					intent = new Intent(this, CollectionActivity.class);
 				} else if (PreferencesUtils.getSyncPlays(this)) {
 					intent = new Intent(this, PlaysSummaryActivity.class);

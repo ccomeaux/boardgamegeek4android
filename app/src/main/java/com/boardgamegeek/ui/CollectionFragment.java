@@ -86,6 +86,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -484,8 +485,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (!TextUtils.isEmpty(defaultWhereClause)) {
 			return defaultWhereClause;
 		}
-		String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
-		if (statuses == null) {
+		Set<String> statuses = PreferencesUtils.getSyncStatuses(getActivity());
+		if (statuses == null || statuses.size() == 0) {
 			defaultWhereClause = "";
 			return defaultWhereClause;
 		}
@@ -656,7 +657,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		} else if (hasFiltersApplied()) {
 			resId = R.string.empty_collection_filter_on;
 			emptyButton.setVisibility(View.VISIBLE);
-		} else if (!hasSyncSettings()) {
+		} else if (!PreferencesUtils.isCollectionSetToSync(getContext())) {
 			resId = R.string.empty_collection_sync_off;
 			emptyButton.setVisibility(View.VISIBLE);
 		}
@@ -669,11 +670,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	private boolean hasFiltersApplied() {
 		return filters.size() > 0;
-	}
-
-	private boolean hasSyncSettings() {
-		String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
-		return statuses != null && statuses.length > 0;
 	}
 
 	@DebugLog

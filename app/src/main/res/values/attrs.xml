@@ -9,10 +9,6 @@
 		<attr name="icon_res" format="reference"/>
 		<attr name="query_token" format="integer"/>
 	</declare-styleable>
-	<declare-styleable name="MultiSelectListPreference">
-		<attr name="android:entries"/>
-		<attr name="android:entryValues"/>
-	</declare-styleable>
 	<declare-styleable name="BezelImageView">
 		<attr name="maskDrawable" format="reference"/>
 		<attr name="borderDrawable" format="reference"/>

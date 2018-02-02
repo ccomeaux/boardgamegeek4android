@@ -17,7 +17,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
@@ -137,7 +136,7 @@ public class SyncCollectionComplete extends SyncTask {
 	@DebugLog
 	@NonNull
 	private List<String> getSyncableStatuses() {
-		List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
+		List<String> statuses = new ArrayList<>(PreferencesUtils.getSyncStatuses(context));
 		// Played games should be synced first - they don't respect the "exclude" flag
 		if (statuses.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
 			statuses.add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED);

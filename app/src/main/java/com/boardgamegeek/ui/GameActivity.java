@@ -480,8 +480,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		@DebugLog
 		private boolean shouldShowCollection() {
-			String[] syncStatuses = PreferencesUtils.getSyncStatuses(getApplicationContext());
-			return Authenticator.isSignedIn(getApplicationContext()) && syncStatuses != null && syncStatuses.length > 0;
+			return Authenticator.isSignedIn(getApplicationContext()) &&
+				PreferencesUtils.isCollectionSetToSync(getApplicationContext());
 		}
 	}
 }

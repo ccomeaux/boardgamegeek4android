@@ -21,8 +21,8 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
@@ -79,8 +79,11 @@ public class CollectionPersister {
 		public CollectionPersister build() {
 			List<String> statuses = null;
 			if (validStatusesOnly) {
-				String[] syncStatuses = PreferencesUtils.getSyncStatuses(context);
-				statuses = syncStatuses != null ? Arrays.asList(syncStatuses) : new ArrayList<String>(0);
+				statuses = new ArrayList<>();
+				final Set<String> syncStatuses = PreferencesUtils.getSyncStatuses(context);
+				if (syncStatuses != null) {
+					statuses.addAll(syncStatuses);
+				}
 			}
 			return new CollectionPersister(context, isBriefSync, includePrivateInfo, includeStats, statuses);
 		}
@@ -160,9 +163,7 @@ public class CollectionPersister {
 			String.format("collection.%s=?", Collection.GAME_ID),
 			new String[] { String.valueOf(gameId) });
 		if (protectedCollectionIds != null) {
-			for (Integer id : protectedCollectionIds) {
-				collectionIdsToDelete.remove(id);
-			}
+			collectionIdsToDelete.removeAll(protectedCollectionIds);
 		}
 		// remove them
 		if (collectionIdsToDelete.size() > 0) {
