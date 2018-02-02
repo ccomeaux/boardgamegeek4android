@@ -35,7 +35,6 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
         putInt(values, Collection.PRIVATE_INFO_QUANTITY, privateInfo.quantity, item.quantity)
         putString(values, Collection.PRIVATE_INFO_ACQUISITION_DATE, privateInfo.acquisitionDate, item.acquisitionDate)
         putString(values, Collection.PRIVATE_INFO_ACQUIRED_FROM, privateInfo.acquiredFrom, item.acquiredFrom)
-        putString(values, Collection.PRIVATE_INFO_COMMENT, privateInfo.privateComment, item.privateComment)
         return values
     }
 
@@ -74,8 +73,7 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
             val currentValue: Double?,
             val quantity: Int?,
             val acquisitionDate: String,
-            val acquiredFrom: String,
-            val privateComment: String
+            val acquiredFrom: String
     ) {
         companion object {
             val projection = arrayOf(
@@ -85,8 +83,7 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
                     Collection.PRIVATE_INFO_CURRENT_VALUE,
                     Collection.PRIVATE_INFO_QUANTITY,
                     Collection.PRIVATE_INFO_ACQUISITION_DATE,
-                    Collection.PRIVATE_INFO_ACQUIRED_FROM,
-                    Collection.PRIVATE_INFO_COMMENT
+                    Collection.PRIVATE_INFO_ACQUIRED_FROM
             )
 
             private val PRIVATE_INFO_PRICE_PAID_CURRENCY = 0
@@ -96,7 +93,6 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
             private val PRIVATE_INFO_QUANTITY = 4
             private val PRIVATE_INFO_ACQUISITION_DATE = 5
             private val PRIVATE_INFO_ACQUIRED_FROM = 6
-            private val PRIVATE_INFO_COMMENT = 7
 
             fun fromResolver(contentResolver: ContentResolver, internalId: Long): Item? {
                 val cursor = contentResolver.query(Collection.buildUri(internalId), projection, null, null, null)
@@ -109,8 +105,7 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
                                 c.getDouble(PRIVATE_INFO_CURRENT_VALUE),
                                 c.getInt(PRIVATE_INFO_QUANTITY),
                                 c.getString(PRIVATE_INFO_ACQUISITION_DATE) ?: "",
-                                c.getString(PRIVATE_INFO_ACQUIRED_FROM) ?: "",
-                                c.getString(PRIVATE_INFO_COMMENT) ?: ""
+                                c.getString(PRIVATE_INFO_ACQUIRED_FROM) ?: ""
                         )
                     }
                 }

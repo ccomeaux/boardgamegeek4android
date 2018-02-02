@@ -59,7 +59,6 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@BindView(R.id.acquisition_date_label) TextView acquisitionDateLabelView;
 	@BindView(R.id.acquisition_date) TextView acquisitionDateView;
 	@BindView(R.id.acquired_from) TextInputAutoCompleteTextView acquiredFromView;
-	@BindView(R.id.comment) EditText commentView;
 
 	private AutoCompleteAdapter acquiredFromAdapter;
 
@@ -70,7 +69,6 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@State String quantity;
 	@State String acquisitionDate;
 	@State String acquiredFrom;
-	@State String comment;
 
 	@NonNull
 	public static PrivateInfoDialogFragment newInstance(@Nullable ViewGroup root, PrivateInfoDialogListener listener) {
@@ -110,7 +108,6 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 						privateInfo.setQuantity(StringUtils.parseInt(quantityView.getText().toString().trim(), 1));
 						privateInfo.setAcquisitionDate(acquisitionDate);
 						privateInfo.setAcquiredFrom(acquiredFromView.getText().toString().trim());
-						privateInfo.setPrivateComment(commentView.getText().toString().trim());
 						listener.onFinishEditDialog(privateInfo);
 					}
 				}
@@ -149,7 +146,6 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		showOrHideAcquisitionDateLabel();
 		acquisitionDateView.setText(DateTimeUtils.formatDateFromApi(getContext(), acquisitionDate));
 		PresentationUtils.setAndSelectExistingText(acquiredFromView, acquiredFrom);
-		PresentationUtils.setAndSelectExistingText(commentView, comment);
 	}
 
 	private void setUpCurrencyView(Spinner spinner, String item) {
@@ -229,9 +225,5 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 
 	public void setAcquiredFrom(String acquiredFrom) {
 		this.acquiredFrom = acquiredFrom;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
 	}
 }

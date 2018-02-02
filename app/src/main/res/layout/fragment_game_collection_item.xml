@@ -146,26 +146,12 @@
 				android:text="@string/private_info"
 				android:textStyle="bold"/>
 
-			<LinearLayout
-				android:id="@+id/private_info_view_container"
+			<TextView
+				android:id="@+id/private_info_view"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical">
-
-				<TextView
-					android:id="@+id/private_info_view"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:textAppearance="@style/Text"
-					tools:text="Acquired on Jan 1, 1999"/>
-
-				<TextView
-					android:id="@+id/private_info_comments_view"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:paddingBottom="@dimen/padding_half"
-					tools:text="Don't tell anyone my true feelings about this game."/>
-			</LinearLayout>
+				android:textAppearance="@style/Text"
+				tools:text="Acquired on Jan 1, 1999"/>
 
 			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
 				android:id="@+id/private_info_edit_container"
@@ -178,50 +164,34 @@
 				android:minHeight="@dimen/edit_row_height"
 				android:orientation="horizontal">
 
-				<LinearLayout
+				<TextView
+					android:id="@+id/private_info_hint"
+					style="@style/Text.Header.Card"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					android:orientation="vertical">
+					android:text="@string/edit"/>
 
-					<TextView
-						android:id="@+id/private_info_hint"
-						style="@style/Text.Header.Card"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/edit"/>
-
-					<TextView
-						android:id="@+id/private_info_edit"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:textAppearance="@style/Text"
-						tools:text="Acquired on Jan 1, 1999"/>
-
-					<TextView
-						android:id="@+id/private_info_comments_edit"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:paddingBottom="@dimen/padding_half"
-						tools:text="Don't tell anyone my true feelings about this game."/>
-				</LinearLayout>
+				<TextView
+					android:id="@+id/private_info_edit"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:textAppearance="@style/Text"
+					tools:text="Acquired on Jan 1, 1999"/>
 
 				<ImageView
-					android:id="@+id/text_editor_image"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:contentDescription="@string/edit"
 					android:src="@drawable/ic_action_edit_light"/>
 			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/private_info_timestamp"
-				android:layout_width="wrap_content"
+			<com.boardgamegeek.ui.widget.TextEditorView
+				android:id="@+id/private_comment"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				android:textAppearance="@style/Text.Footnote2"
-				app:hideWhenEmpty="true"
-				tools:text="Yesterday"/>
+				app:headerText="@string/private_comment"/>
 		</LinearLayout>
 	</android.support.v7.widget.CardView>
 

@@ -112,14 +112,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	// private info
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
-	@BindView(R.id.private_info_view_container) ViewGroup privateInfoViewContainer;
 	@BindView(R.id.private_info_hint) TextView privateInfoHintView;
 	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
-	@BindView(R.id.private_info_comments_view) TextView viewPrivateInfoCommentsView;
 	@BindView(R.id.private_info_edit_container) ViewGroup privateInfoEditContainer;
 	@BindView(R.id.private_info_edit) TextView editPrivateInfoView;
-	@BindView(R.id.private_info_comments_edit) TextView editPrivateInfoCommentsView;
-	@BindView(R.id.private_info_timestamp) TimestampView privateInfoTimestampView;
+	@BindView(R.id.private_comment) TextEditorView privateInfoCommentView;
 
 	// footer
 	@BindView(R.id.last_modified) TimestampView lastModifiedView;
@@ -134,6 +131,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
 		R.id.comment,
+		R.id.private_comment,
 		R.id.wishlist_comment,
 		R.id.condition,
 		R.id.want_parts,
@@ -150,7 +148,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}) List<View> viewOnlyFields;
 	@BindViews({
 		R.id.status,
-		R.id.private_info_view_container,
+		R.id.private_info_view,
 		R.id.wishlist_status,
 		R.id.trade_status
 	}) List<View> visibleByTagOrGoneViews;
@@ -315,6 +313,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 		ratingView.enableEditMode(isEdit);
 		commentView.enableEditMode(isEdit);
+		privateInfoCommentView.enableEditMode(isEdit);
 		wishlistCommentView.enableEditMode(isEdit);
 		conditionView.enableEditMode(isEdit);
 		wantPartsView.enableEditMode(isEdit);
@@ -430,6 +429,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
+	@OnClick(R.id.private_comment)
+	public void onPrivateCommentClick() {
+		onTextEditorClick(privateInfoCommentView, Collection.PRIVATE_INFO_COMMENT, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP);
+	}
+
+	@DebugLog
 	@OnClick(R.id.wishlist_comment)
 	public void onWishlistCommentClick() {
 		onTextEditorClick(wishlistCommentView, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
@@ -484,7 +489,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
 		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
 		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
-		privateInfoDialogFragment.setComment(editPrivateInfoCommentsView.getText().toString());
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
 	}
 
@@ -611,8 +615,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindPrivateInfo(CollectionItem item) {
 		// view
 		PresentationUtils.setTextOrHide(viewPrivateInfoView, getPrivateInfo(item));
-		PresentationUtils.setTextOrHide(viewPrivateInfoCommentsView, item.getPrivateComment());
-		setVisibleTag(privateInfoViewContainer, hasPrivateInfo(item));
+		setVisibleTag(viewPrivateInfoView, hasPrivateInfo(item));
 
 		// edit
 		privateInfoHintView.setVisibility(hasPrivateInfo(item) ? View.GONE : View.VISIBLE);
@@ -625,9 +628,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
 		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
 		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
-		PresentationUtils.setTextOrHide(editPrivateInfoCommentsView, item.getPrivateComment());
 
-		privateInfoTimestampView.setTimestamp(item.getPrivateInfoTimestamp());
+		// both
+		privateInfoCommentView.setContent(item.getPrivateComment(), item.getPrivateInfoTimestamp());
 	}
 
 	private void bindFooter(CollectionItem item) {
