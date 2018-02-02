@@ -79,7 +79,7 @@ class SettingsActivity : DrawerActivity() {
 
             updateSyncStatusSummary(PreferencesUtils.KEY_SYNC_STATUSES)
 
-            findPreference("open_source_licenses")?.setOnPreferenceChangeListener {
+            findPreference("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 LibsBuilder()
                         .withFields(R.string::class.java.fields)
                         .withLibraries(
