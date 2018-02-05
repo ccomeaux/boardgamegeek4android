@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.support.annotation.StringRes
 import com.boardgamegeek.*
+import com.boardgamegeek.provider.BggContract
 import java.text.DecimalFormat
 
 abstract class Sorter(protected val context: Context) {
@@ -25,7 +26,11 @@ abstract class Sorter(protected val context: Context) {
     val orderByClause: String
         get() = if (sortColumn.isEmpty()) {
             defaultSort
-        } else sortColumn + (if (isSortDescending) " DESC, " else " ASC, ") + defaultSort
+        } else {
+            val sortOrder = if (isSortDescending) "DESC" else "ASC"
+            val collateNoCase = if (shouldCollate) BggContract.COLLATE_NOCASE else ""
+            "$sortColumn $collateNoCase $sortOrder, $defaultSort"
+        }
 
     protected open val sortColumn: String
         get() = ""
@@ -34,6 +39,9 @@ abstract class Sorter(protected val context: Context) {
      * Whether this is sorting descending or ascending.
      */
     protected open val isSortDescending: Boolean
+        get() = false
+
+    protected open val shouldCollate: Boolean
         get() = false
 
     /**
