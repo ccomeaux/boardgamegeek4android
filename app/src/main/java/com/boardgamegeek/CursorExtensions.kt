@@ -37,7 +37,7 @@ fun Cursor.getDouble(columnName: String, defaultValue: Double = 0.0): Double {
     } else getDouble(index)
 }
 
-fun Cursor.getDoubleAsString(columnName: String, defaultValue: String, treatZeroAsNull: Boolean, format: DecimalFormat = DecimalFormat("#.0")): String {
+fun Cursor.getDoubleAsString(columnName: String, defaultValue: String, treatZeroAsNull: Boolean = true, format: DecimalFormat = DecimalFormat("#.0")): String {
     val index = getColumnIndex(columnName)
     if (index == -1 || index >= columnCount) {
         return defaultValue

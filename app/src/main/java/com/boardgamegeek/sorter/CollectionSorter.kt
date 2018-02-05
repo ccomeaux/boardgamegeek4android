@@ -35,7 +35,7 @@ abstract class CollectionSorter(context: Context) : Sorter(context) {
         get() = Collection.DEFAULT_SORT
 
     /**
-     * Gets the text to display on each row.
+     * Gets the detail text to display on each row.
      */
     open fun getDisplayInfo(cursor: Cursor) = getHeaderText(cursor)
 

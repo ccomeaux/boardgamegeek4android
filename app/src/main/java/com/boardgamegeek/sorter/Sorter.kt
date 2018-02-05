@@ -8,7 +8,7 @@ import com.boardgamegeek.provider.BggContract
 import java.text.DecimalFormat
 
 abstract class Sorter(protected val context: Context) {
-    private val DOUBLE_FORMAT = DecimalFormat("#.0")
+    private val doubleFormat = DecimalFormat("#.0")
 
     @get:StringRes
     protected abstract val descriptionId: Int
@@ -116,7 +116,7 @@ abstract class Sorter(protected val context: Context) {
     }
 
     protected fun getDoubleAsString(cursor: Cursor, columnName: String, defaultValue: String, treatZeroAsNull: Boolean, format: DecimalFormat?): String {
-        return cursor.getDoubleAsString(columnName, defaultValue, treatZeroAsNull, format ?: DOUBLE_FORMAT)
+        return cursor.getDoubleAsString(columnName, defaultValue, treatZeroAsNull, format ?: doubleFormat)
     }
 
     protected fun getFirstChar(cursor: Cursor, columnName: String): String {
