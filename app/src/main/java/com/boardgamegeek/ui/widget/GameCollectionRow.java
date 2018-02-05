@@ -109,6 +109,7 @@ public class GameCollectionRow extends LinearLayout {
 	}
 
 	public void setThumbnail(String thumbnailUrl) {
+		if (TextUtils.isEmpty(thumbnailUrl)) return;
 		Picasso.with(getContext())
 			.load(HttpUtils.ensureScheme(thumbnailUrl))
 			.placeholder(R.drawable.thumbnail_image_empty)
