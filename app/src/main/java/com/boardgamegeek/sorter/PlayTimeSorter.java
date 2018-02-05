@@ -32,15 +32,15 @@ public abstract class PlayTimeSorter extends CollectionSorter {
 			return "?";
 		}
 		if (minutes >= 120) {
-			return (minutes / 60) + " " + context.getString(R.string.hours_abbr);
+			return (minutes / 60) + " " + getContext().getString(R.string.hours_abbr);
 		} else {
-			return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + context.getString(R.string.minutes_abbr);
+			return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + getContext().getString(R.string.minutes_abbr);
 		}
 	}
 
 	@NonNull
 	@Override
 	public String getDisplayInfo(@NonNull Cursor cursor) {
-		return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + context.getString(R.string.minutes);
+		return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + getContext().getString(R.string.minutes);
 	}
 }

@@ -25,6 +25,6 @@ public abstract class PlayCountSorter extends CollectionSorter {
 	@NonNull
 	@Override
 	public String getDisplayInfo(@NonNull Cursor cursor) {
-		return getHeaderText(cursor) + " " + context.getString(R.string.plays);
+		return getHeaderText(cursor) + " " + getContext().getString(R.string.plays);
 	}
 }

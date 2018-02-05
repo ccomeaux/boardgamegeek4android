@@ -55,6 +55,6 @@ public class PlayersWinSorter extends PlayersSorter {
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
 		int winCount = getInt(cursor, Plays.SUM_WINS);
-		return context.getResources().getQuantityString(R.plurals.wins_suffix, winCount, winCount);
+		return getContext().getResources().getQuantityString(R.plurals.wins_suffix, winCount, winCount);
 	}
 }

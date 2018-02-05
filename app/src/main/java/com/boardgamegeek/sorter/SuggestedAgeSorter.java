@@ -38,6 +38,6 @@ public abstract class SuggestedAgeSorter extends CollectionSorter {
 		if (!DEFAULT_VALUE.equals(info)) {
 			info += "+";
 		}
-		return context.getString(R.string.ages) + " " + info;
+		return getContext().getString(R.string.ages) + " " + info;
 	}
 }

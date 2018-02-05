@@ -32,7 +32,7 @@ public abstract class AverageWeightSorter extends CollectionSorter {
 	@NonNull
 	@Override
 	public String getDisplayInfo(@NonNull Cursor cursor) {
-		return context.getString(R.string.weight) + " " + getInfo(cursor, displayFormat);
+		return getContext().getString(R.string.weight) + " " + getInfo(cursor, displayFormat);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ public abstract class CollectionSorter extends Sorter {
 	public String getDescription() {
 		String description = super.getDescription();
 		if (getSubDescriptionId() > 0) {
-			description += " - " + context.getString(getSubDescriptionId());
+			description += " - " + getContext().getString(getSubDescriptionId());
 		}
 		return description;
 	}
@@ -32,7 +32,7 @@ public abstract class CollectionSorter extends Sorter {
 
 	@Override
 	public int getType() {
-		return StringUtils.parseInt(context.getString(getTypeResource()), CollectionSorterFactory.TYPE_DEFAULT);
+		return StringUtils.parseInt(getContext().getString(getTypeResource()), CollectionSorterFactory.TYPE_DEFAULT);
 	}
 
 	@StringRes
