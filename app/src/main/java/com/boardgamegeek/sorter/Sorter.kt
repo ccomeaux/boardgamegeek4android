@@ -99,6 +99,9 @@ abstract class Sorter(protected val context: Context) {
         return id
     }
 
+    /**
+     * Get the ID for the header at the current position of the cursor (as required by adapters).
+     */
     protected open fun getHeaderId(cursor: Cursor): Long {
         return getHeaderText(cursor).hashCode().toLong()
     }
@@ -113,10 +116,6 @@ abstract class Sorter(protected val context: Context) {
 
     @JvmOverloads protected fun getIntAsString(cursor: Cursor, columnName: String, defaultValue: String, treatZeroAsNull: Boolean = false): String {
         return cursor.getIntAsString(columnName, defaultValue, treatZeroAsNull)
-    }
-
-    protected fun getDoubleAsString(cursor: Cursor, columnName: String, defaultValue: String, treatZeroAsNull: Boolean, format: DecimalFormat?): String {
-        return cursor.getDoubleAsString(columnName, defaultValue, treatZeroAsNull, format ?: doubleFormat)
     }
 
     protected fun getFirstChar(cursor: Cursor, columnName: String): String {
