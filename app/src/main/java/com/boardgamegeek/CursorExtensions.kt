@@ -1,8 +1,12 @@
 package com.boardgamegeek
 
 import android.database.Cursor
+import com.boardgamegeek.util.DateTimeUtils
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.*
+
+private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
 fun Cursor.getInt(columnName: String, defaultValue: Int = 0): Int {
     val index = getColumnIndex(columnName)
@@ -61,8 +65,12 @@ fun Cursor.getString(columnName: String, defaultValue: String = ""): String {
 }
 
 fun Cursor.getFirstChar(columnName: String): String {
-    return this.getString(columnName, "-").substring(0, 1).toUpperCase(Locale.getDefault())
+    return getString(columnName, "-").substring(0, 1).toUpperCase(Locale.getDefault())
 }
 
-
-
+/**
+ * Get a date time as an epoch when stored as date from the API.
+ */
+fun Cursor.getApiTime(columnName: String): Long {
+    return DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, getString(columnName), apiDateFormat)
+}
