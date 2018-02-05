@@ -1,12 +1,10 @@
 package com.boardgamegeek.sorter
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.support.annotation.StringRes
-import android.text.TextUtils
+import com.boardgamegeek.*
 import java.text.DecimalFormat
-import java.util.*
 
 abstract class Sorter(protected val context: Context) {
     private val DOUBLE_FORMAT = DecimalFormat("#.0")
@@ -98,63 +96,26 @@ abstract class Sorter(protected val context: Context) {
     }
 
     protected fun getLong(cursor: Cursor, columnName: String): Long {
-        val index = cursor.getColumnIndex(columnName)
-        return if (index == -1 || index >= cursor.columnCount) {
-            0L
-        } else cursor.getLong(index)
+        return cursor.getLong(columnName)
     }
 
     @JvmOverloads protected fun getInt(cursor: Cursor, columnName: String, defaultValue: Int = 0): Int {
-        val index = cursor.getColumnIndex(columnName)
-        return if (index == -1 || index >= cursor.columnCount) {
-            defaultValue
-        } else cursor.getInt(index)
+        return cursor.getInt(columnName, defaultValue)
     }
 
     @JvmOverloads protected fun getIntAsString(cursor: Cursor, columnName: String, defaultValue: String, treatZeroAsNull: Boolean = false): String {
-        val index = cursor.getColumnIndex(columnName)
-        if (index == -1 || index >= cursor.columnCount) {
-            return defaultValue
-        }
-
-        val value = cursor.getInt(index)
-        return if (treatZeroAsNull && value == 0) {
-            defaultValue
-        } else value.toString()
-
+        return cursor.getIntAsString(columnName, defaultValue, treatZeroAsNull)
     }
 
     protected fun getDoubleAsString(cursor: Cursor, columnName: String, defaultValue: String, treatZeroAsNull: Boolean, format: DecimalFormat?): String {
-        val index = cursor.getColumnIndex(columnName)
-        if (index == -1 || index >= cursor.columnCount) {
-            return defaultValue
-        }
-
-        val value = cursor.getDouble(index)
-        if (treatZeroAsNull && value == 0.0) {
-            return defaultValue
-        }
-
-        return if (format == null) {
-            DOUBLE_FORMAT.format(value)
-        } else {
-            format.format(value)
-        }
+        return cursor.getDoubleAsString(columnName, defaultValue, treatZeroAsNull, format ?: DOUBLE_FORMAT)
     }
 
-    @SuppressLint("DefaultLocale")
     protected fun getFirstChar(cursor: Cursor, columnName: String): String {
-        return getString(cursor, columnName, "-")!!.substring(0, 1).toUpperCase(Locale.getDefault())
+        return cursor.getFirstChar(columnName)
     }
 
     @JvmOverloads protected fun getString(cursor: Cursor, columnName: String, defaultValue: String? = null): String? {
-        val index = cursor.getColumnIndex(columnName)
-        if (index == -1 || index >= cursor.columnCount) {
-            return defaultValue
-        }
-        val s = cursor.getString(index)
-        return if (TextUtils.isEmpty(s)) {
-            defaultValue
-        } else s
+        return cursor.getString(columnName, defaultValue ?: "")
     }
 }
