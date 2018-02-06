@@ -38,11 +38,11 @@ class RankSorter(context: Context) : CollectionSorter(context) {
         val rank = cursor.getInt(Games.GAME_RANK, Integer.MAX_VALUE)
         return if (rank == Integer.MAX_VALUE) {
             defaultText
-        } else numberFormat.format(rank)
+        } else NUMBER_FORMAT.format(rank)
     }
 
     companion object {
-        private val numberFormat = NumberFormat.getIntegerInstance()
+        private val NUMBER_FORMAT = NumberFormat.getIntegerInstance()
         private val RANKS = buildRanks()
 
         private fun buildRanks(): SparseArray<String> {

@@ -167,7 +167,7 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	private static CharSequence describeMinutes(Context context, int minutes) {
+	public static CharSequence describeMinutes(Context context, int minutes) {
 		if (minutes == 0) return context.getString(R.string.mins_unknown);
 
 		if (minutes >= 120) {

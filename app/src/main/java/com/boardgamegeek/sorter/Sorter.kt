@@ -114,10 +114,6 @@ abstract class Sorter(protected val context: Context) {
         return cursor.getInt(columnName, defaultValue)
     }
 
-    @JvmOverloads protected fun getIntAsString(cursor: Cursor, columnName: String, defaultValue: String, treatZeroAsNull: Boolean = false): String {
-        return cursor.getIntAsString(columnName, defaultValue, treatZeroAsNull)
-    }
-
     protected fun getFirstChar(cursor: Cursor, columnName: String): String {
         return cursor.getFirstChar(columnName)
     }
