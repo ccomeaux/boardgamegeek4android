@@ -180,6 +180,6 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 
 	@DebugLog
 	private int getTypeFromView(View view) {
-		return StringUtils.parseInt(view.getTag().toString(), CollectionSorterFactory.TYPE_UNKNOWN);
+		return StringUtils.parseInt(view.getTag().toString(), CollectionSorterFactory.Companion.getTYPE_UNKNOWN());
 	}
 }

@@ -253,7 +253,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		sortType = sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType();
+		sortType = sorter == null ? CollectionSorterFactory.Companion.getTYPE_UNKNOWN() : sorter.getType();
 		types = new ArrayList<>();
 		data = new ArrayList<>();
 		for (CollectionFilterer filterer : filters) {
@@ -310,7 +310,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			menu.findItem(R.id.menu_share).setVisible(true);
 
 			final boolean hasFiltersApplied = (filters.size() > 0);
-			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
+			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.Companion.getTYPE_DEFAULT();
 			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
 			final boolean hasItems = adapter != null && adapter.getCount() > 0;
 			final boolean hasViewSelected = viewId > 0;
@@ -679,8 +679,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	private void setSort(int sortType) {
-		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
-			sortType = CollectionSorterFactory.TYPE_DEFAULT;
+		if (sortType == CollectionSorterFactory.Companion.getTYPE_UNKNOWN()) {
+			sortType = CollectionSorterFactory.Companion.getTYPE_DEFAULT();
 		}
 		SortEvent.log("Collection", String.valueOf(sortType));
 		sorter = getCollectionSorter(sortType);
@@ -781,7 +781,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			resetScrollState();
 		}
 		filters.clear();
-		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
+		sorter = getCollectionSorter(CollectionSorterFactory.Companion.getTYPE_DEFAULT());
 		requery();
 	}
 
