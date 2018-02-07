@@ -3,6 +3,7 @@ package com.boardgamegeek
 import android.database.Cursor
 import com.boardgamegeek.util.DateTimeUtils
 import java.text.DecimalFormat
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,7 +25,7 @@ fun Cursor.getIntAsString(columnName: String, defaultValue: String = "", treatZe
     val value = getInt(index)
     return if (treatZeroAsNull && value == 0) {
         defaultValue
-    } else value.toString()
+    } else NumberFormat.getNumberInstance().format(value)
 }
 
 fun Cursor.getLong(columnName: String, defaultValue: Long = 0L): Long {

@@ -3,9 +3,6 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import android.database.Cursor
 import android.support.annotation.StringRes
-import com.boardgamegeek.getInt
-import com.boardgamegeek.getLong
-import com.boardgamegeek.getString
 import com.boardgamegeek.provider.BggContract
 import java.text.DecimalFormat
 
@@ -106,19 +103,5 @@ abstract class Sorter(protected val context: Context) {
      */
     protected open fun getHeaderId(cursor: Cursor): Long {
         return getHeaderText(cursor).hashCode().toLong()
-    }
-
-    protected fun getLong(cursor: Cursor, columnName: String): Long {
-        return cursor.getLong(columnName)
-    }
-
-    @JvmOverloads
-    protected fun getInt(cursor: Cursor, columnName: String, defaultValue: Int = 0): Int {
-        return cursor.getInt(columnName, defaultValue)
-    }
-
-    @JvmOverloads
-    protected fun getString(cursor: Cursor, columnName: String, defaultValue: String? = null): String? {
-        return cursor.getString(columnName, defaultValue ?: "")
     }
 }
