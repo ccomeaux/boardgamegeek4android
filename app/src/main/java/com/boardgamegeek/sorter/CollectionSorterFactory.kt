@@ -47,7 +47,7 @@ class CollectionSorterFactory(context: Context) {
     }
 
     companion object {
-        val TYPE_UNKNOWN = 0
-        val TYPE_DEFAULT = 1 // name
+        const val TYPE_UNKNOWN = 0
+        const val TYPE_DEFAULT = 1 // name
     }
 }

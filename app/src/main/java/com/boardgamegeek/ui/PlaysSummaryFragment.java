@@ -191,7 +191,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					playersSorter.getOrderByClause());
 				break;
 			case LOCATIONS_TOKEN:
-				LocationsSorter locationsSorter = LocationsSorterFactory.INSTANCE.create(getContext(), LocationsSorterFactory.INSTANCE.getTYPE_QUANTITY());
+				LocationsSorter locationsSorter = LocationsSorterFactory.create(getContext(), LocationsSorterFactory.TYPE_QUANTITY);
 				loader = new CursorLoader(getContext(),
 					Plays.buildLocationsUri()
 						.buildUpon()
