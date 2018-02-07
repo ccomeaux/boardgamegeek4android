@@ -49,11 +49,18 @@
 			android:tag="@string/collection_sort_type_play_count_asc"/>
 
 		<RadioButton
-			android:id="@+id/play_date"
+			android:id="@+id/play_date_max"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:tag="@string/collection_sort_type_play_date_max"/>
+
+		<RadioButton
+			android:id="@+id/play_date_min"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_play_date_min"/>
 
 		<RadioButton
 			android:id="@+id/acquisition_date"

@@ -10,8 +10,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 abstract class CollectionDateSorter(context: Context) : CollectionSorter(context) {
-    private val defaultValue: String = context.getString(R.string.text_unknown)
-
     override val isSortDescending: Boolean
         get() = true
 
@@ -25,6 +23,9 @@ abstract class CollectionDateSorter(context: Context) : CollectionSorter(context
         return if (time == DateTimeUtils.UNKNOWN_DATE) defaultValue
         else DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS).toString()
     }
+
+    protected open val defaultValue: String
+        get() = context.getString(R.string.text_unknown)
 
     companion object {
         private val DISPLAY_FORMAT = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
