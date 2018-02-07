@@ -44,7 +44,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_locations));
-		setSort(LocationsSorterFactory.TYPE_DEFAULT);
+		setSort(LocationsSorterFactory.INSTANCE.getTYPE_DEFAULT());
 	}
 
 	@DebugLog
@@ -80,7 +80,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	public void setSort(int sortType) {
 		if (sorter == null || sorter.getType() != sortType) {
 			SortEvent.log("Locations", String.valueOf(sortType));
-			sorter = LocationsSorterFactory.create(getActivity(), sortType);
+			sorter = LocationsSorterFactory.INSTANCE.create(getActivity(), sortType);
 			requery();
 		}
 	}

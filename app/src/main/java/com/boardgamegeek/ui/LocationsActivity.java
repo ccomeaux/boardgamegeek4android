@@ -23,7 +23,7 @@ import hugo.weaving.DebugLog;
 
 public class LocationsActivity extends SimpleSinglePaneActivity {
 	private int locationCount = -1;
-	private int sortType = LocationsSorterFactory.TYPE_DEFAULT;
+	private int sortType = LocationsSorterFactory.INSTANCE.getTYPE_DEFAULT();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
+		if (sortType == LocationsSorterFactory.INSTANCE.getTYPE_QUANTITY()) {
 			UIUtils.checkMenuItem(menu, R.id.menu_sort_quantity);
 		} else {
 			UIUtils.checkMenuItem(menu, R.id.menu_sort_name);
@@ -63,10 +63,10 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 		int itemId = item.getItemId();
 		switch (itemId) {
 			case R.id.menu_sort_name:
-				EventBus.getDefault().postSticky(new LocationSortChangedEvent(LocationsSorterFactory.TYPE_NAME));
+				EventBus.getDefault().postSticky(new LocationSortChangedEvent(LocationsSorterFactory.INSTANCE.getTYPE_NAME()));
 				return true;
 			case R.id.menu_sort_quantity:
-				EventBus.getDefault().postSticky(new LocationSortChangedEvent(LocationsSorterFactory.TYPE_QUANTITY));
+				EventBus.getDefault().postSticky(new LocationSortChangedEvent(LocationsSorterFactory.INSTANCE.getTYPE_QUANTITY()));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
