@@ -26,15 +26,19 @@ data class GameCollectionItem(
 ) {
 
     companion object {
+        @JvmStatic
         val uri: Uri = Collection.CONTENT_URI
 
+        @JvmStatic
         val selection: String
             get() = "collection.${Collection.GAME_ID}=?"
 
+        @JvmStatic
         fun getSelectionArgs(gameId: Int): Array<String> {
             return arrayOf(gameId.toString())
         }
 
+        @JvmStatic
         val projection = arrayOf(
                 Collection._ID,
                 Collection.COLLECTION_ID,
@@ -59,23 +63,24 @@ data class GameCollectionItem(
                 Collection.GAME_NAME
         )
 
-        private val _ID = 0
-        private val COLLECTION_ID = 1
-        private val COLLECTION_NAME = 2
-        private val COLLECTION_YEAR_PUBLISHED = 3
-        private val COLLECTION_THUMBNAIL_URL = 4
-        private val STATUS_1 = 5
-        private val STATUS_N = 12
-        private val STATUS_WISH_LIST = 10
-        private val STATUS_WISH_LIST_PRIORITY = 13
-        private val NUM_PLAYS = 14
-        private val COMMENT = 15
-        private val YEAR_PUBLISHED = 16
-        private val RATING = 17
-        private val COLLECTION_IMAGE_URL = 18
-        private val UPDATED = 19
-        private val GAME_NAME = 20
+        private const val ID = 0
+        private const val COLLECTION_ID = 1
+        private const val COLLECTION_NAME = 2
+        private const val COLLECTION_YEAR_PUBLISHED = 3
+        private const val COLLECTION_THUMBNAIL_URL = 4
+        private const val STATUS_1 = 5
+        private const val STATUS_N = 12
+        private const val STATUS_WISH_LIST = 10
+        private const val STATUS_WISH_LIST_PRIORITY = 13
+        private const val NUM_PLAYS = 14
+        private const val COMMENT = 15
+        private const val YEAR_PUBLISHED = 16
+        private const val RATING = 17
+        private const val COLLECTION_IMAGE_URL = 18
+        private const val UPDATED = 19
+        private const val GAME_NAME = 20
 
+        @JvmStatic
         fun fromCursor(context: Context, cursor: Cursor): GameCollectionItem {
             val statuses = ArrayList<String>()
             (STATUS_1..STATUS_N)
@@ -89,7 +94,7 @@ data class GameCollectionItem(
                     }
 
             return GameCollectionItem(
-                    cursor.getLong(_ID),
+                    cursor.getLong(ID),
                     cursor.getInt(COLLECTION_ID),
                     cursor.getString(COLLECTION_NAME) ?: "",
                     cursor.getString(GAME_NAME) ?: "",

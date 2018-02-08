@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -74,7 +75,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
@@ -87,7 +88,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
@@ -107,7 +108,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(getContext(), GameCollectionItem.Companion.getUri(), GameCollectionItem.Companion.getProjection(), GameCollectionItem.Companion.getSelection(), GameCollectionItem.Companion.getSelectionArgs(gameId), null);
+		return new CursorLoader(getContext(), GameCollectionItem.getUri(), GameCollectionItem.getProjection(), GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			long oldestSyncTimestamp = Long.MAX_VALUE;
 			collectionContainer.removeAllViews();
 			do {
-				GameCollectionItem item = GameCollectionItem.Companion.fromCursor(getContext(), cursor);
+				GameCollectionItem item = GameCollectionItem.fromCursor(getContext(), cursor);
 
 				oldestSyncTimestamp = Math.min(item.getSyncTimestamp(), oldestSyncTimestamp);
 
