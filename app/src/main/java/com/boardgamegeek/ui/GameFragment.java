@@ -304,7 +304,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		CursorLoader loader = null;
 		switch (id) {
 			case GAME_TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), Game.Companion.getProjection(), null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), Game.getProjection(), null, null, null);
 				break;
 			case DESIGNER_TOKEN:
 				loader = new CursorLoader(getActivity(), GameDesigner.buildUri(gameId), GameDesigner.PROJECTION, null, null, null);
@@ -494,7 +494,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			AnimationUtils.fadeOut(rootContainer);
 			AnimationUtils.fadeIn(emptyView);
 		} else {
-			Game game = Game.Companion.fromCursor(cursor);
+			Game game = Game.fromCursor(cursor);
 
 			notifyChange(game);
 			gameName = game.getName();

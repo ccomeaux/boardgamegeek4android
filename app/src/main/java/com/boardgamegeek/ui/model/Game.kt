@@ -46,11 +46,10 @@ data class Game private constructor(
         }
 
     val pollsVoteCount: Int
-        get() {
-            return pollVoteTotal + suggestedPlayerCountPollVoteTotal
-        }
+        get() = pollVoteTotal + suggestedPlayerCountPollVoteTotal
 
     companion object {
+        @JvmStatic
         val projection = arrayOf(
                 Games.GAME_ID,
                 Games.STATS_AVERAGE,
@@ -85,35 +84,36 @@ data class Game private constructor(
                 Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL
         )
 
-        private val GAME_ID = 0
-        private val STATS_AVERAGE = 1
-        private val YEAR_PUBLISHED = 2
-        private val MIN_PLAYERS = 3
-        private val MAX_PLAYERS = 4
-        private val PLAYING_TIME = 5
-        private val MINIMUM_AGE = 6
-        private val DESCRIPTION = 7
-        private val STATS_USERS_RATED = 8
-        private val UPDATED = 9
-        private val GAME_RANK = 10
-        private val GAME_NAME = 11
-        private val THUMBNAIL_URL = 12
-        private val STATS_NUMBER_WEIGHTS = 16
-        private val STATS_AVERAGE_WEIGHT = 17
-        private val STATS_NUMBER_OWNED = 18
-        private val STATS_NUMBER_TRADING = 19
-        private val STATS_NUMBER_WANTING = 20
-        private val STATS_NUMBER_WISHING = 21
-        private val IMAGE_URL = 22
-        private val SUBTYPE = 23
-        private val CUSTOM_PLAYER_SORT = 24
-        private val STATS_NUMBER_COMMENTS = 25
-        private val MIN_PLAYING_TIME = 26
-        private val MAX_PLAYING_TIME = 27
-        private val STARRED = 28
-        private val POLLS_COUNT = 29
-        private val SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 30
+        private const val GAME_ID = 0
+        private const val STATS_AVERAGE = 1
+        private const val YEAR_PUBLISHED = 2
+        private const val MIN_PLAYERS = 3
+        private const val MAX_PLAYERS = 4
+        private const val PLAYING_TIME = 5
+        private const val MINIMUM_AGE = 6
+        private const val DESCRIPTION = 7
+        private const val STATS_USERS_RATED = 8
+        private const val UPDATED = 9
+        private const val GAME_RANK = 10
+        private const val GAME_NAME = 11
+        private const val THUMBNAIL_URL = 12
+        private const val STATS_NUMBER_WEIGHTS = 16
+        private const val STATS_AVERAGE_WEIGHT = 17
+        private const val STATS_NUMBER_OWNED = 18
+        private const val STATS_NUMBER_TRADING = 19
+        private const val STATS_NUMBER_WANTING = 20
+        private const val STATS_NUMBER_WISHING = 21
+        private const val IMAGE_URL = 22
+        private const val SUBTYPE = 23
+        private const val CUSTOM_PLAYER_SORT = 24
+        private const val STATS_NUMBER_COMMENTS = 25
+        private const val MIN_PLAYING_TIME = 26
+        private const val MAX_PLAYING_TIME = 27
+        private const val STARRED = 28
+        private const val POLLS_COUNT = 29
+        private const val SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 30
 
+        @JvmStatic
         fun fromCursor(cursor: Cursor): Game {
             return Game(
                     cursor.getInt(GAME_ID),
