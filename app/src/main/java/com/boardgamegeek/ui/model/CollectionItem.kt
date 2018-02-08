@@ -6,52 +6,61 @@ import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Collection
 
 data class CollectionItem(
-        var id: Int,
-        var internalId: Long,
-        var name: String,
-        var comment: String,
-        var commentTimestamp: Long,
-        var lastModifiedDateTime: Long,
-        var rating: Double,
-        var ratingTimestamp: Long,
-        var updated: Long,
-        var priceCurrency: String,
-        var price: Double,
-        var currentValueCurrency: String,
-        var currentValue: Double,
-        var quantity: Int,
-        var acquiredFrom: String,
-        var acquisitionDate: String,
-        var privateComment: String,
-        var privateInfoTimestamp: Long,
-        var statusTimestamp: Long,
-        var imageUrl: String,
-        var thumbnailUrl: String,
-        var year: Int,
-        var condition: String,
-        var wantParts: String,
-        var hasParts: String,
-        var wishlistPriority: Int,
-        var wishlistComment: String,
-        var numberOfPlays: Int,
-        var isOwn: Boolean,
-        var isPreviouslyOwned: Boolean,
-        var isWantToBuy: Boolean,
-        var isWantToPlay: Boolean,
-        var isPreordered: Boolean,
-        var isWantInTrade: Boolean,
-        var isForTrade: Boolean,
-        var isWishlist: Boolean,
-        var dirtyTimestamp: Long,
-        var wishlistCommentDirtyTimestamp: Long,
-        var tradeConditionDirtyTimestamp: Long,
-        var wantPartsDirtyTimestamp: Long,
-        var hasPartsDirtyTimestamp: Long
+        val id: Int,
+        val internalId: Long,
+        val name: String,
+        val comment: String,
+        val commentTimestamp: Long,
+        val lastModifiedDateTime: Long,
+        val rating: Double,
+        val ratingTimestamp: Long,
+        val updated: Long,
+        val priceCurrency: String,
+        val price: Double,
+        val currentValueCurrency: String,
+        val currentValue: Double,
+        val quantity: Int,
+        val acquiredFrom: String,
+        val acquisitionDate: String,
+        val privateComment: String,
+        val privateInfoTimestamp: Long,
+        val statusTimestamp: Long,
+        val imageUrl: String,
+        val thumbnailUrl: String,
+        val year: Int,
+        val condition: String,
+        val wantParts: String,
+        val hasParts: String,
+        val wishlistPriority: Int,
+        val wishlistComment: String,
+        val numberOfPlays: Int,
+        val isOwn: Boolean,
+        val isPreviouslyOwned: Boolean,
+        val isWantToBuy: Boolean,
+        val isWantToPlay: Boolean,
+        val isPreordered: Boolean,
+        val isWantInTrade: Boolean,
+        val isForTrade: Boolean,
+        val isWishlist: Boolean,
+        val dirtyTimestamp: Long,
+        val wishlistCommentDirtyTimestamp: Long,
+        val tradeConditionDirtyTimestamp: Long,
+        val wantPartsDirtyTimestamp: Long,
+        val hasPartsDirtyTimestamp: Long
 ) {
 
+    val safeWishlistPriorty: Int
+        get() = when {
+            wishlistPriority < 1 -> 1
+            wishlistPriority > 5 -> 5
+            else -> wishlistPriority
+        }
+
     companion object {
+        @JvmStatic
         val uri: Uri = Collection.CONTENT_URI
 
+        @JvmStatic
         fun getSelection(collectionId: Int): String {
             return if (collectionId != 0) {
                 "${Collection.COLLECTION_ID}=?"
@@ -60,6 +69,7 @@ data class CollectionItem(
             }
         }
 
+        @JvmStatic
         fun getSelectionArgs(collectionId: Int, gameId: Int): Array<String> {
             return if (collectionId != 0) {
                 arrayOf(collectionId.toString())
@@ -68,7 +78,9 @@ data class CollectionItem(
             }
         }
 
-        val projection = arrayOf(Collection._ID,
+        @JvmStatic
+        val projection = arrayOf(
+                Collection._ID,
                 Collection.COLLECTION_ID,
                 Collection.COLLECTION_NAME,
                 Collection.COLLECTION_SORT_NAME,
@@ -109,55 +121,57 @@ data class CollectionItem(
                 Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
                 Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
                 Collection.WANT_PARTS_DIRTY_TIMESTAMP,
-                Collection.HAS_PARTS_DIRTY_TIMESTAMP)
+                Collection.HAS_PARTS_DIRTY_TIMESTAMP
+        )
 
-        private val _ID = 0
-        private val COLLECTION_ID = 1
-        private val COLLECTION_NAME = 2
-        // int COLLECTION_SORT_NAME = 3;
-        private val COMMENT = 4
-        private val PRIVATE_INFO_PRICE_PAID_CURRENCY = 5
-        private val PRIVATE_INFO_PRICE_PAID = 6
-        private val PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 7
-        private val PRIVATE_INFO_CURRENT_VALUE = 8
-        private val PRIVATE_INFO_QUANTITY = 9
-        private val PRIVATE_INFO_ACQUISITION_DATE = 10
-        private val PRIVATE_INFO_ACQUIRED_FROM = 11
-        private val PRIVATE_INFO_COMMENT = 12
-        private val LAST_MODIFIED = 13
-        private val COLLECTION_THUMBNAIL_URL = 14
-        private val COLLECTION_IMAGE_URL = 15
-        private val COLLECTION_YEAR_PUBLISHED = 16
-        private val CONDITION = 17
-        private val HAS_PARTS_LIST = 18
-        private val WANT_PARTS_LIST = 19
-        private val WISHLIST_COMMENT = 20
-        private val RATING = 21
-        private val UPDATED = 22
-        private val STATUS_OWN = 23
-        private val STATUS_PREVIOUSLY_OWNED = 24
-        private val STATUS_FOR_TRADE = 25
-        private val STATUS_WANT = 26
-        private val STATUS_WANT_TO_BUY = 27
-        private val STATUS_WISHLIST = 28
-        private val STATUS_WANT_TO_PLAY = 29
-        private val STATUS_PRE_ORDERED = 30
-        private val STATUS_WISHLIST_PRIORITY = 31
-        private val NUM_PLAYS = 32
-        private val RATING_DIRTY_TIMESTAMP = 33
-        private val COMMENT_DIRTY_TIMESTAMP = 34
-        private val PRIVATE_INFO_DIRTY_TIMESTAMP = 35
-        private val STATUS_DIRTY_TIMESTAMP = 36
-        private val COLLECTION_DIRTY_TIMESTAMP = 37
-        private val WISHLIST_COMMENT_DIRTY_TIMESTAMP = 38
-        private val TRADE_CONDITION_DIRTY_TIMESTAMP = 39
-        private val WANT_PARTS_DIRTY_TIMESTAMP = 40
-        private val HAS_PARTS_DIRTY_TIMESTAMP = 41
+        private const val ID = 0
+        private const val COLLECTION_ID = 1
+        private const val COLLECTION_NAME = 2
+        //  private const val COLLECTION_SORT_NAME = 3;
+        private const val COMMENT = 4
+        private const val PRIVATE_INFO_PRICE_PAID_CURRENCY = 5
+        private const val PRIVATE_INFO_PRICE_PAID = 6
+        private const val PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 7
+        private const val PRIVATE_INFO_CURRENT_VALUE = 8
+        private const val PRIVATE_INFO_QUANTITY = 9
+        private const val PRIVATE_INFO_ACQUISITION_DATE = 10
+        private const val PRIVATE_INFO_ACQUIRED_FROM = 11
+        private const val PRIVATE_INFO_COMMENT = 12
+        private const val LAST_MODIFIED = 13
+        private const val COLLECTION_THUMBNAIL_URL = 14
+        private const val COLLECTION_IMAGE_URL = 15
+        private const val COLLECTION_YEAR_PUBLISHED = 16
+        private const val CONDITION = 17
+        private const val HAS_PARTS_LIST = 18
+        private const val WANT_PARTS_LIST = 19
+        private const val WISHLIST_COMMENT = 20
+        private const val RATING = 21
+        private const val UPDATED = 22
+        private const val STATUS_OWN = 23
+        private const val STATUS_PREVIOUSLY_OWNED = 24
+        private const val STATUS_FOR_TRADE = 25
+        private const val STATUS_WANT = 26
+        private const val STATUS_WANT_TO_BUY = 27
+        private const val STATUS_WISHLIST = 28
+        private const val STATUS_WANT_TO_PLAY = 29
+        private const val STATUS_PRE_ORDERED = 30
+        private const val STATUS_WISHLIST_PRIORITY = 31
+        private const val NUM_PLAYS = 32
+        private const val RATING_DIRTY_TIMESTAMP = 33
+        private const val COMMENT_DIRTY_TIMESTAMP = 34
+        private const val PRIVATE_INFO_DIRTY_TIMESTAMP = 35
+        private const val STATUS_DIRTY_TIMESTAMP = 36
+        private const val COLLECTION_DIRTY_TIMESTAMP = 37
+        private const val WISHLIST_COMMENT_DIRTY_TIMESTAMP = 38
+        private const val TRADE_CONDITION_DIRTY_TIMESTAMP = 39
+        private const val WANT_PARTS_DIRTY_TIMESTAMP = 40
+        private const val HAS_PARTS_DIRTY_TIMESTAMP = 41
 
+        @JvmStatic
         fun fromCursor(cursor: Cursor): CollectionItem {
             return CollectionItem(
                     cursor.getInt(COLLECTION_ID),
-                    cursor.getLong(_ID),
+                    cursor.getLong(ID),
                     cursor.getString(COLLECTION_NAME),
                     cursor.getString(COMMENT) ?: "",
                     cursor.getLong(COMMENT_DIRTY_TIMESTAMP),
@@ -200,11 +214,4 @@ data class CollectionItem(
             )
         }
     }
-
-    val safeWishlistPriorty: Int
-        get() {
-            if (wishlistPriority < 1) return 1
-            if (wishlistPriority > 5) return 5
-            return wishlistPriority;
-        }
 }

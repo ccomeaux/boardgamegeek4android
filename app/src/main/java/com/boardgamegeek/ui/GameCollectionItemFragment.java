@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -235,8 +236,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@Override
 	public void onStop() {
-		EventBus.getDefault().unregister(this);
 		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 
@@ -262,10 +263,10 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			getContext() == null) return null;
 
 		return new CursorLoader(getContext(),
-			CollectionItem.Companion.getUri(),
-			CollectionItem.Companion.getProjection(),
-			CollectionItem.Companion.getSelection(collectionId),
-			CollectionItem.Companion.getSelectionArgs(collectionId, gameId),
+			CollectionItem.getUri(),
+			CollectionItem.getProjection(),
+			CollectionItem.getSelection(collectionId),
+			CollectionItem.getSelectionArgs(collectionId, gameId),
 			null);
 	}
 
@@ -280,7 +281,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 				return;
 			}
 
-			CollectionItem item = CollectionItem.Companion.fromCursor(cursor);
+			CollectionItem item = CollectionItem.fromCursor(cursor);
 			internalId = item.getInternalId();
 			updateUi(item);
 
@@ -492,13 +493,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
 	}
 
-	private double getDoubleFromTag(View textView, int key) {
+	private double getDoubleFromTag(View textView, @IdRes int key) {
 		final Object tag = textView.getTag(key);
 		if (tag == null) return 0.0;
 		return (double) tag;
 	}
 
-	private int getIntFromTag(View textView, int key) {
+	private int getIntFromTag(View textView, @IdRes int key) {
 		final Object tag = textView.getTag(key);
 		if (tag == null) return 1;
 		return (int) tag;
