@@ -156,7 +156,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI,
-					PlayModel.Companion.getProjection(),
+					PlayModel.getProjection(),
 					Plays.DIRTY_TIMESTAMP + ">0",
 					null,
 					playsSorter == null ? null : playsSorter.getOrderByClause());
@@ -165,7 +165,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
-					PlayModel.Companion.getProjection(),
+					PlayModel.getProjection(),
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
 					null,
 					playsSorter == null ? null : playsSorter.getOrderByClause());
@@ -302,7 +302,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	private void addPlayToContainer(Cursor cursor, LinearLayout container) {
 		long internalId = cursor.getLong(cursor.getColumnIndex(Plays._ID));
-		PlayModel play = PlayModel.Companion.fromCursor(cursor, getContext());
+		PlayModel play = PlayModel.fromCursor(cursor, getContext());
 		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
 		view.setTag(R.id.id, internalId);

@@ -25,6 +25,7 @@ class PlayModel(
 ) {
 
     companion object {
+        @JvmStatic
         val projection = arrayOf(
                 Plays._ID,
                 Plays.PLAY_ID,
@@ -43,21 +44,22 @@ class PlayModel(
                 Plays.DIRTY_TIMESTAMP
         )
 
-        private val PLAY_ID = 1
-        private val DATE = 2
-        private val GAME_NAME = 3
-        private val GAME_ID = 4
-        private val LOCATION = 5
-        private val QUANTITY = 6
-        private val LENGTH = 7
-        private val PLAYER_COUNT = 8
-        private val THUMBNAIL_URL = 9
-        private val IMAGE_URL = 10
-        private val COMMENTS = 11
-        private val DELETE_TIMESTAMP = 12
-        private val UPDATE_TIMESTAMP = 13
-        private val DIRTY_TIMESTAMP = 14
+        private const val PLAY_ID = 1
+        private const val DATE = 2
+        private const val GAME_NAME = 3
+        private const val GAME_ID = 4
+        private const val LOCATION = 5
+        private const val QUANTITY = 6
+        private const val LENGTH = 7
+        private const val PLAYER_COUNT = 8
+        private const val THUMBNAIL_URL = 9
+        private const val IMAGE_URL = 10
+        private const val COMMENTS = 11
+        private const val DELETE_TIMESTAMP = 12
+        private const val UPDATE_TIMESTAMP = 13
+        private const val DIRTY_TIMESTAMP = 14
 
+        @JvmStatic
         fun fromCursor(cursor: Cursor, context: Context): PlayModel {
             return PlayModel(
                     cursor.getInt(PLAY_ID),
