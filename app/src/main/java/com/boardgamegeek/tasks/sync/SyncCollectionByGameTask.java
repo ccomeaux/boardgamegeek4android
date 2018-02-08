@@ -49,24 +49,11 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 
 	@Override
 	protected Call<CollectionResponse> createCall() {
-		switch (getCurrentPage()) {
-			case 1: {
-				ArrayMap<String, String> options = new ArrayMap<>();
-				options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-				options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
-				options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(gameId));
-				return bggService.collection(username, options);
-			}
-			case 2: {
-				ArrayMap<String, String> options = new ArrayMap<>();
-				options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-				options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
-				options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(gameId));
-				return bggService.collection(username, options);
-			}
-			default:
-				return null;
-		}
+		ArrayMap<String, String> options = new ArrayMap<>();
+		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(gameId));
+		return bggService.collection(username, options);
 	}
 
 	@Override
@@ -80,11 +67,6 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 	protected void persistResponse(CollectionResponse body) {
 		results = persister.save(body.items);
 		Timber.i("Synced %,d collection item(s) for game '%s'", body.items == null ? 0 : body.items.size(), gameId);
-	}
-
-	@Override
-	protected boolean hasMorePages(CollectionResponse body) {
-		return getCurrentPage() <= 1 && (results == null || results.getRecordCount() == 0);
 	}
 
 	@Override

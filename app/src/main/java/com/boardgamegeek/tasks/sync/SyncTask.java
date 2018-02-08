@@ -58,9 +58,10 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 					Timber.w("Received response %s while syncing %s.", response.code(), context.getString(getTypeDescriptionResId()));
 					return PresentationUtils.getHttpErrorMessage(context, response.code());
 				}
+				if (isCancelled()) break;
 				hasMorePages = hasMorePages(response.body());
 			} while (hasMorePages);
-			finishSync();
+			if (!isCancelled()) finishSync();
 		} catch (Exception e) {
 			Timber.w(e, "Exception fetching %1$s: %2$s", context.getString(getTypeDescriptionResId()), e.getMessage());
 			return e.getLocalizedMessage();
