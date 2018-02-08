@@ -181,7 +181,7 @@ class SettingsActivity : DrawerActivity() {
         }
 
         @Subscribe(threadMode = ThreadMode.MAIN)
-        fun onEvent(event: SignOutEvent) {
+        fun onEvent(@Suppress("UNUSED_PARAMETER") event: SignOutEvent) {
             Toast.makeText(activity, R.string.msg_sign_out_success, Toast.LENGTH_SHORT).show()
             updateAccountPrefs("")
         }
@@ -193,28 +193,28 @@ class SettingsActivity : DrawerActivity() {
     }
 
     companion object {
-        private val TAG_SINGLE_PANE = "single_pane"
-        private val KEY_SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT"
+        private const val TAG_SINGLE_PANE = "single_pane"
+        private const val KEY_SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT"
 
-        private val ACTION_PREFIX = "com.boardgamegeek.prefs."
-        private val ACTION_ACCOUNT = ACTION_PREFIX + "ACCOUNT"
-        private val ACTION_SYNC = ACTION_PREFIX + "SYNC"
-        private val ACTION_DATA = ACTION_PREFIX + "DATA"
-        private val ACTION_LOG = ACTION_PREFIX + "LOG"
-        private val ACTION_ADVANCED = ACTION_PREFIX + "ADVANCED"
-        private val ACTION_ABOUT = ACTION_PREFIX + "ABOUT"
-        private val ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS"
+        private const val ACTION_PREFIX = "com.boardgamegeek.prefs."
+        private const val ACTION_ACCOUNT = ACTION_PREFIX + "ACCOUNT"
+        private const val ACTION_SYNC = ACTION_PREFIX + "SYNC"
+        private const val ACTION_DATA = ACTION_PREFIX + "DATA"
+        private const val ACTION_LOG = ACTION_PREFIX + "LOG"
+        private const val ACTION_ADVANCED = ACTION_PREFIX + "ADVANCED"
+        private const val ACTION_ABOUT = ACTION_PREFIX + "ABOUT"
+        private const val ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS"
         private val FRAGMENT_MAP = buildFragmentMap()
 
         private fun buildFragmentMap(): ArrayMap<String, Int> {
             val map = ArrayMap<String, Int>()
-            map.put(ACTION_ACCOUNT, R.xml.preference_account)
-            map.put(ACTION_SYNC, R.xml.preference_sync)
-            map.put(ACTION_DATA, R.xml.preference_data)
-            map.put(ACTION_LOG, R.xml.preference_log)
-            map.put(ACTION_ADVANCED, R.xml.preference_advanced)
-            map.put(ACTION_ABOUT, R.xml.preference_about)
-            map.put(ACTION_AUTHORS, R.xml.preference_authors)
+            map[ACTION_ACCOUNT] = R.xml.preference_account
+            map[ACTION_SYNC] = R.xml.preference_sync
+            map[ACTION_DATA] = R.xml.preference_data
+            map[ACTION_LOG] = R.xml.preference_log
+            map[ACTION_ADVANCED] = R.xml.preference_advanced
+            map[ACTION_ABOUT] = R.xml.preference_about
+            map[ACTION_AUTHORS] = R.xml.preference_authors
             return map
         }
     }
