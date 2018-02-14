@@ -237,4 +237,21 @@ public class StringUtils {
 			return text.substring(0, length - TRUNCATED_TEXT_SUFFIX.length()) + TRUNCATED_TEXT_SUFFIX;
 		return text.substring(0, length);
 	}
+
+	public static String repeat(String string, int count) {
+		if (TextUtils.isEmpty(string)) return "";
+		if (count < 0) return string;
+
+		final int len = string.length();
+		final int size = len * count;
+
+		final char[] array = new char[size];
+		string.getChars(0, len, array, 0);
+		int n;
+		for (n = len; n < size - n; n <<= 1) {
+			System.arraycopy(array, 0, array, n, n);
+		}
+		System.arraycopy(array, 0, array, n, size - n);
+		return new String(array);
+	}
 }

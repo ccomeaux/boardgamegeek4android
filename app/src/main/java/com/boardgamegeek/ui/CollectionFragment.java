@@ -350,48 +350,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					ddf.show(getFragmentManager(), "delete_view");
 					return true;
 				case R.id.menu_share:
-					final String newLine = "\n";
-					final String username = AccountUtils.getUsername(getContext());
-					final String subject = getString(R.string.share_collection_subject, username);
-
-					StringBuilder text = new StringBuilder();
-
-					if (viewId > 0 && !TextUtils.isEmpty(viewName)) {
-						text.append(viewName);
-					} else if (filters.size() > 0) {
-						text.append(getString(R.string.title_filtered_collection));
-					} else {
-						text.append(getString(R.string.title_collection));
-					}
-					text.append(newLine)
-						.append(String.format("https://www.boardgamegeek.com/collection/user/%s", HttpUtils.encode(username)))
-						.append(newLine)
-						.append(newLine);
-
-					final Cursor c = adapter.getCursor();
-					int currentPosition = c.getPosition();
-					int gameCount = 0;
-					final int MAX_GAMES = 10;
-					if (c.moveToFirst()) {
-						do {
-							gameCount++;
-							text.append(ActivityUtils.formatGameLink(c.getInt(Query.GAME_ID), c.getString(Query.COLLECTION_NAME)));
-							if (gameCount >= MAX_GAMES) {
-								int leftOverCount = c.getCount() - MAX_GAMES;
-								if (leftOverCount > 0) {
-									text.append(getString(R.string.and_more, leftOverCount))
-										.append(newLine);
-								}
-								break;
-							}
-						} while (c.moveToNext());
-					}
-					c.moveToPosition(currentPosition);
-
-					text.append(newLine)
-						.append(createViewDescription(sorter, filters));
-
-					ActivityUtils.share(getActivity(), subject, text.toString(), R.string.title_share_collection);
+					shareCollection();
 					return true;
 				case R.id.menu_collection_sort:
 					final CollectionSortDialogFragment sortFragment =
@@ -421,6 +380,52 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			return launchFilterDialog(item.getItemId());
 		}
 	};
+
+	private void shareCollection() {
+		final String username = AccountUtils.getUsername(getContext());
+		String description;
+		if (viewId > 0 && !TextUtils.isEmpty(viewName)) {
+			description = viewName;
+		} else if (filters.size() > 0) {
+			description = getString(R.string.title_filtered_collection);
+		} else {
+			description = getString(R.string.title_collection);
+		}
+
+		StringBuilder text = new StringBuilder(description)
+			.append("\n")
+			.append(StringUtils.repeat("-", description.length()))
+			.append("\n");
+
+		final Cursor c = adapter.getCursor();
+		int currentPosition = c.getPosition();
+		int gameCount = 0;
+		final int MAX_GAMES = 10;
+		if (c.moveToFirst()) {
+			do {
+				gameCount++;
+				text.append("\u2022 ").append(ActivityUtils.formatGameLink(c.getInt(Query.GAME_ID), c.getString(Query.COLLECTION_NAME)));
+				if (gameCount >= MAX_GAMES) {
+					int leftOverCount = c.getCount() - MAX_GAMES;
+					if (leftOverCount > 0)
+						text.append(getString(R.string.and_more, leftOverCount)).append("\n");
+					break;
+				}
+			} while (c.moveToNext());
+		}
+		c.moveToPosition(currentPosition);
+
+		text.append("\n")
+			.append(createViewDescription(sorter, filters))
+			.append("\n")
+			.append("\n")
+			.append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/" + HttpUtils.encode(username)));
+
+		ActivityUtils.share(getActivity(),
+			getString(R.string.share_collection_subject, AccountUtils.getFullName(getContext()), username),
+			text,
+			R.string.title_share_collection);
+	}
 
 	@DebugLog
 	@Override
@@ -1012,14 +1017,15 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			text.append(getString(R.string.filtered_by));
 			for (CollectionFilterer filter : filters) {
 				if (filter != null) {
-					text.append("\n");
+					text.append("\n\u2022 ");
 					text.append(filter.getDescription());
 				}
 			}
-			if (text.length() > 0) text.append("\n\n");
+			if (sortType != CollectionSorterFactory.TYPE_DEFAULT && text.length() > 0) text.append("\n\n");
 		}
 
-		text.append(getString(R.string.sort_description, sort.getDescription()));
+		if (sortType != CollectionSorterFactory.TYPE_DEFAULT)
+			text.append(getString(R.string.sort_description, sort.getDescription()));
 		return text.toString();
 	}
 

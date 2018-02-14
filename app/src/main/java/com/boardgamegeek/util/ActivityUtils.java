@@ -34,11 +34,11 @@ public class ActivityUtils {
 	private static final String BOARDGAME_PATH = "boardgame";
 	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
 
-	public static void share(Activity activity, String subject, String text, @StringRes int titleResId) {
+	public static void share(Activity activity, String subject, CharSequence text, @StringRes int titleResId) {
 		Intent intent = ShareCompat.IntentBuilder.from(activity)
 			.setType("text/plain")
 			.setSubject(subject.trim())
-			.setText(text.trim())
+			.setText(text)
 			.setChooserTitle(titleResId)
 			.createChooserIntent();
 		if (intent.resolveActivity(activity.getPackageManager()) != null) {

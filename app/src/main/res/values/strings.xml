@@ -410,7 +410,8 @@
 	<string name="title_share_game">Share Game</string>
 	<string name="title_share_games">Share Games</string>
 	<string name="title_share_collection">Share Collection</string>
-	<string name="share_collection_subject">%s\'s Collection on BoardGameGeek for Android</string>
+	<string name="share_collection_subject">%1$s (%2$s)\'s collection on BGG4Android</string>
+	<string name="share_collection_complete_footer">Complete collection at %s</string>
 	<string name="share_game_subject">%s on BoardGameGeek</string>
 	<string name="share_game_text">I found this game using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_games_subject">Games on BoardGameGeek</string>
