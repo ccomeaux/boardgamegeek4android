@@ -1,10 +1,10 @@
 package com.boardgamegeek.service;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -25,12 +25,12 @@ import timber.log.Timber;
 public abstract class SyncGames extends SyncTask {
 	private static final int GAMES_PER_FETCH = 10;
 
-	public SyncGames(Context context, BggService service) {
-		super(context, service);
+	public SyncGames(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@Override
-	public void execute(Account account, @NonNull SyncResult syncResult) {
+	public void execute() {
 		Timber.i(getIntroLogMessage(GAMES_PER_FETCH));
 		try {
 			int numberOfFetches = 0;
@@ -78,7 +78,7 @@ public abstract class SyncGames extends SyncTask {
 							cause.getMessage().startsWith("Didn't find class \"messagebox error\" on path")) {
 							Timber.i("Invalid list of game IDs: %s", gameList.getIds());
 							for (int i = 0; i < gameList.getSize(); i++) {
-								final boolean shouldBreak = syncGame(gameList.getId(i), syncResult, gameList.getName(i));
+								final boolean shouldBreak = syncGame(gameList.getId(i), gameList.getName(i));
 								if (shouldBreak) break;
 							}
 						} else {
@@ -97,7 +97,7 @@ public abstract class SyncGames extends SyncTask {
 		}
 	}
 
-	private boolean syncGame(Integer id, @NonNull SyncResult syncResult, String gameName) {
+	private boolean syncGame(Integer id, String gameName) {
 		String detail = "";
 		Call<ThingResponse> call = service.thing(id, 1);
 		try {
@@ -144,6 +144,7 @@ public abstract class SyncGames extends SyncTask {
 	@NonNull
 	protected abstract String getExitLogMessage();
 
+	@NonNull
 	private GameList getGames(int gamesPerFetch) {
 		GameList list = new GameList(gamesPerFetch);
 		Cursor cursor = context.getContentResolver().query(Games.CONTENT_URI,
@@ -161,6 +162,7 @@ public abstract class SyncGames extends SyncTask {
 		return list;
 	}
 
+	@Nullable
 	protected String getSelection() {
 		return null;
 	}

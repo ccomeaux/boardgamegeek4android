@@ -1,6 +1,5 @@
 package com.boardgamegeek.service;
 
-import android.accounts.Account;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -26,11 +25,13 @@ public abstract class SyncTask {
 
 	protected final Context context;
 	protected final BggService service;
+	@NonNull protected final SyncResult syncResult;
 	private boolean isCancelled = false;
 
-	public SyncTask(Context context, BggService service) {
+	public SyncTask(Context context, BggService service, @NonNull SyncResult syncResult) {
 		this.context = context;
 		this.service = service;
+		this.syncResult = syncResult;
 	}
 
 	/**
@@ -41,7 +42,7 @@ public abstract class SyncTask {
 	/**
 	 * Perform the sync operation.
 	 */
-	public abstract void execute(Account account, SyncResult syncResult);
+	public abstract void execute();
 
 	/**
 	 * Call this to cancel the task. If the task is running, it will cancel it's process at the earliest convenient

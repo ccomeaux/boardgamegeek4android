@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -23,12 +24,13 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public class SyncPlays extends SyncTask {
-	private SyncResult syncResult;
+	@NonNull private final Account account;
 	private long startTime;
 	private PlayPersister persister;
 
-	public SyncPlays(Context context, BggService service) {
-		super(context, service);
+	public SyncPlays(Context context, BggService service, @NonNull SyncResult syncResult, @NonNull Account account) {
+		super(context, service, syncResult);
+		this.account = account;
 	}
 
 	@Override
@@ -37,7 +39,7 @@ public class SyncPlays extends SyncTask {
 	}
 
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+	public void execute() {
 		Timber.i("Syncing plays...");
 		try {
 			if (!PreferencesUtils.getSyncPlays(context)) {
@@ -45,7 +47,6 @@ public class SyncPlays extends SyncTask {
 				return;
 			}
 
-			this.syncResult = syncResult;
 			startTime = System.currentTimeMillis();
 			persister = new PlayPersister(context);
 
@@ -88,7 +89,7 @@ public class SyncPlays extends SyncTask {
 	 * @return true if the sync operation should cancel
 	 */
 	private boolean executeCall(String username, String minDate, String maxDate) {
-		Response<PlaysResponse> response;
+		PlaysResponse response;
 		int page = 1;
 		do {
 			if (isCancelled()) {
@@ -101,10 +102,11 @@ public class SyncPlays extends SyncTask {
 			String message = formatNotificationMessage(minDate, maxDate, page);
 			updateProgressNotification(message);
 			Call<PlaysResponse> call = service.plays(username, minDate, maxDate, page);
+			Response<PlaysResponse> r;
 			try {
-				response = call.execute();
-				if (!response.isSuccessful()) {
-					showError(message, response.code());
+				r = call.execute();
+				if (!r.isSuccessful()) {
+					showError(message, r.code());
 					syncResult.stats.numIoExceptions++;
 					return true;
 				}
@@ -113,10 +115,11 @@ public class SyncPlays extends SyncTask {
 				syncResult.stats.numIoExceptions++;
 				return true;
 			}
-			persist(response.body());
-			updateTimestamps(response.body());
+			response = r.body();
+			persist(response);
+			updateTimestamps(response);
 			page++;
-		} while (response.body().hasMorePages());
+		} while (response != null && response.hasMorePages());
 		return false;
 	}
 
@@ -138,7 +141,7 @@ public class SyncPlays extends SyncTask {
 		return message;
 	}
 
-	private void persist(PlaysResponse response) {
+	private void persist(@Nullable PlaysResponse response) {
 		if (response != null && response.plays != null && response.plays.size() > 0) {
 			if (persister == null) {
 				persister = new PlayPersister(context);
@@ -173,7 +176,8 @@ public class SyncPlays extends SyncTask {
 		Timber.i("...deleted %,d unupdated plays", count);
 	}
 
-	private void updateTimestamps(PlaysResponse response) {
+	private void updateTimestamps(@Nullable PlaysResponse response) {
+		if (response == null) return;
 		long newestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 		if (response.getNewestDate() > newestDate) {
 			Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.getNewestDate());

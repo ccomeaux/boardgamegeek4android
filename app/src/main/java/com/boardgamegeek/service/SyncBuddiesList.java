@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
@@ -29,11 +30,13 @@ import timber.log.Timber;
  * Syncs the list of buddies. Only runs every few days.
  */
 public class SyncBuddiesList extends SyncTask {
-	private SyncResult syncResult;
+	@NonNull private final Account account;
 	@StringRes private int currentDetailResId;
+	private BuddyPersister persister;
 
-	public SyncBuddiesList(Context context, BggService service) {
-		super(context, service);
+	public SyncBuddiesList(Context context, BggService service, @NonNull SyncResult syncResult, @NonNull Account account) {
+		super(context, service, syncResult);
+		this.account = account;
 	}
 
 	@Override
@@ -42,9 +45,8 @@ public class SyncBuddiesList extends SyncTask {
 	}
 
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+	public void execute() {
 		Timber.i("Syncing list of buddies...");
-		this.syncResult = syncResult;
 		try {
 			if (!PreferencesUtils.getSyncBuddies(context)) {
 				Timber.i("...buddies not set to sync");
@@ -58,16 +60,16 @@ public class SyncBuddiesList extends SyncTask {
 			}
 
 			updateNotification(R.string.sync_notification_buddies_list_downloading);
-			User user = requestUser(account, syncResult);
+			User user = requestUser();
 			if (user == null) return;
 
 			updateNotification(R.string.sync_notification_buddies_list_storing);
 			storeUserInAuthenticator(user);
-			BuddyPersister persister = new BuddyPersister(context);
-			persistUser(user, persister);
+			persister = new BuddyPersister(context);
+			persistUser(user);
 
 			updateNotification(R.string.sync_notification_buddies_list_pruning);
-			pruneOldBuddies(persister);
+			pruneOldBuddies();
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
 		} finally {
@@ -80,7 +82,8 @@ public class SyncBuddiesList extends SyncTask {
 		updateProgressNotification(context.getString(detailResId));
 	}
 
-	private User requestUser(@NonNull Account account, @NonNull SyncResult syncResult) {
+	@Nullable
+	private User requestUser() {
 		User user = null;
 		Call<User> call = service.user(account.name, 1, 1);
 		try {
@@ -99,14 +102,14 @@ public class SyncBuddiesList extends SyncTask {
 		return user;
 	}
 
-	private void storeUserInAuthenticator(User user) {
+	private void storeUserInAuthenticator(@NonNull User user) {
 		Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.getId());
 		AccountUtils.setUsername(context, user.name);
 		AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName));
 		AccountUtils.setAvatarUrl(context, user.avatarUrl);
 	}
 
-	private void persistUser(User user, BuddyPersister persister) {
+	private void persistUser(@NonNull User user) {
 		int count = 0;
 		count += persister.saveBuddy(Buddy.fromUser(user));
 		count += persister.saveBuddies(user.getBuddies());
@@ -114,7 +117,7 @@ public class SyncBuddiesList extends SyncTask {
 		Timber.i("Synced %,d buddies", count);
 	}
 
-	private void pruneOldBuddies(BuddyPersister persister) {
+	private void pruneOldBuddies() {
 		ContentResolver resolver = context.getContentResolver();
 		int count = resolver.delete(Buddies.CONTENT_URI,
 			Buddies.UPDATED_LIST + "<?",

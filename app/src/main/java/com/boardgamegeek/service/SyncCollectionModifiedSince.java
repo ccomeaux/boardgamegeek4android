@@ -25,12 +25,12 @@ import timber.log.Timber;
  * Syncs the user's collection modified since the date stored in the sync service.
  */
 public class SyncCollectionModifiedSince extends SyncTask {
-	private SyncResult syncResult;
-	private String username;
+	@NonNull private final Account account;
 	private CollectionPersister persister;
 
-	public SyncCollectionModifiedSince(Context context, BggService service) {
-		super(context, service);
+	public SyncCollectionModifiedSince(Context context, BggService service, @NonNull SyncResult syncResult, @NonNull Account account) {
+		super(context, service, syncResult);
+		this.account = account;
 	}
 
 	@Override
@@ -39,9 +39,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 	}
 
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
-		this.syncResult = syncResult;
-		this.username = account.name;
+	public void execute() {
 		AccountManager accountManager = AccountManager.get(context);
 
 		try {
@@ -83,7 +81,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 	private void fetchAndPersist(String detail, ArrayMap<String, String> options, final String type) {
 		updateProgressNotification(detail);
-		Call<CollectionResponse> call = service.collection(username, options);
+		Call<CollectionResponse> call = service.collection(account.name, options);
 		try {
 			Response<CollectionResponse> response = call.execute();
 			if (response.isSuccessful()) {

@@ -1,6 +1,5 @@
 package com.boardgamegeek.service;
 
-import android.accounts.Account;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -9,7 +8,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
@@ -60,8 +58,8 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	private String currentImageUrlForNotification;
 
 	@DebugLog
-	public SyncPlaysUpload(Context context, BggService service) {
-		super(context, service);
+	public SyncPlaysUpload(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@DebugLog
@@ -76,6 +74,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		return R.string.sync_notification_title_play_upload;
 	}
 
+	@NonNull
 	@DebugLog
 	@Override
 	protected Intent getNotificationSummaryIntent() {
@@ -114,12 +113,12 @@ public class SyncPlaysUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	public void execute(Account account, @NonNull SyncResult syncResult) {
+	public void execute() {
 		httpClient = HttpUtils.getHttpClientWithAuth(context);
 		persister = new PlayPersister(context);
 
-		deletePendingPlays(syncResult);
-		updatePendingPlays(syncResult);
+		deletePendingPlays();
+		updatePendingPlays();
 		if (SyncService.isPlaysSyncUpToDate(context)) {
 			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
@@ -132,7 +131,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	private void updatePendingPlays(@NonNull SyncResult syncResult) {
+	private void updatePendingPlays() {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
@@ -157,10 +156,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				}
 
 				PlaySaveResponse response = postPlayUpdate(play);
-				if (response == null) {
-					syncResult.stats.numIoExceptions++;
-					notifyUploadError(context.getString(R.string.msg_play_update_null_response));
-				} else if (response.hasAuthError()) {
+				if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(context);
 					break;
@@ -199,14 +195,14 @@ public class SyncPlaysUpload extends SyncUploadTask {
 		}
 	}
 
-	private void notifyUser(Play play, CharSequence message) {
+	private void notifyUser(@NonNull Play play, CharSequence message) {
 		Pair<String, String> imageUrls = queryGameImageUrls(play);
 		currentImageUrlForNotification = imageUrls.first;
 		currentThumbnailUrlForNotification = imageUrls.second;
 		notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalId), currentImageUrlForNotification, currentThumbnailUrlForNotification);
 	}
 
-	private Pair<String, String> queryGameImageUrls(Play play) {
+	private Pair<String, String> queryGameImageUrls(@NonNull Play play) {
 		Pair<String, String> imageUrls = Pair.create("", "");
 		Cursor gameCursor = context.getContentResolver().query(Games.buildGameUri(play.gameId),
 			new String[] { Games.IMAGE_URL, Games.THUMBNAIL_URL }, null, null, null);
@@ -221,7 +217,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	private void deletePendingPlays(@NonNull SyncResult syncResult) {
+	private void deletePendingPlays() {
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(Plays.CONTENT_SIMPLE_URI,
@@ -241,10 +237,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 				if (play.playId > 0) {
 					if (wasSleepInterrupted(1000)) break;
 					PlayDeleteResponse response = postPlayDelete(play.playId);
-					if (response == null) {
-						syncResult.stats.numIoExceptions++;
-						notifyUploadError(context.getString(R.string.msg_play_update_null_response));
-					} else if (response.isSuccessful()) {
+					if (response.isSuccessful()) {
 						syncResult.stats.numDeletes++;
 						deletePlay(currentInternalId);
 						updateGamePlayCount(play);
@@ -298,7 +291,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	@Nullable
 	private PlaySaveResponse postPlayUpdate(@NonNull Play play) {
 		FormBody.Builder builder = new FormBody.Builder()
 			.add("ajax", "1")
@@ -346,7 +338,6 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	@Nullable
 	private PlayDeleteResponse postPlayDelete(int playId) {
 		FormBody.Builder builder = new FormBody.Builder()
 			.add("ajax", "1")
@@ -387,7 +378,7 @@ public class SyncPlaysUpload extends SyncUploadTask {
 	}
 
 	@DebugLog
-	private void notifyUserOfDelete(@StringRes int messageId, Play play) {
+	private void notifyUserOfDelete(@StringRes int messageId, @NonNull Play play) {
 		NotificationUtils.cancel(context, getNotificationMessageTag(), NotificationUtils.getIntegerId(currentInternalId));
 		currentInternalId = BggContract.INVALID_ID;
 		notifyUser(play, PresentationUtils.getText(context, messageId, play.gameName));

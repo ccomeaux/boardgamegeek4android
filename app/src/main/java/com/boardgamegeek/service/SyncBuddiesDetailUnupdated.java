@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -15,8 +16,8 @@ import java.util.List;
  * Syncs all buddies that haven't been updated completely.
  */
 public class SyncBuddiesDetailUnupdated extends SyncBuddiesDetail {
-	public SyncBuddiesDetailUnupdated(Context context, BggService service) {
-		super(context, service);
+	public SyncBuddiesDetailUnupdated(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@Override

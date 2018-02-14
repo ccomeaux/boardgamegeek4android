@@ -33,7 +33,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
@@ -76,7 +76,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
 		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
 
-		String statuses = StringUtils.formatList(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
+		String statuses = StringUtils.formatList(Collections.singletonList(PreferencesUtils.getSyncStatuses(context)));
 		if (PreferencesUtils.getSyncPlays(context)) statuses += " | plays";
 		if (PreferencesUtils.getSyncBuddies(context)) statuses += " | buddies";
 		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
@@ -91,7 +91,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!shouldContinueSync()) return;
 
 		toggleCancelReceiver(true);
-		List<SyncTask> tasks = createTasks(context, type, uploadOnly);
+		List<SyncTask> tasks = createTasks(context, type, uploadOnly, syncResult, account);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
@@ -105,7 +105,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
 				Crashlytics.setInt(CrashKeys.SYNC_TYPE, currentTask.getSyncType());
 				currentTask.updateProgressNotification();
-				currentTask.execute(account, syncResult);
+				currentTask.execute();
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
 				if (currentTask.isCancelled()) {
 					Timber.i("Sync task %s has requested the sync operation to be cancelled", currentTask);
@@ -170,41 +170,41 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	@NonNull
-	private List<SyncTask> createTasks(Context context, final int typeList, boolean uploadOnly) {
+	private List<SyncTask> createTasks(Context context, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
 		BggService service = Adapter.createForXmlWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-			tasks.add(new SyncCollectionUpload(context, service));
+			tasks.add(new SyncCollectionUpload(context, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
 			if (PreferencesUtils.isCollectionSetToSync(context)) {
 				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-					tasks.add(new SyncCollectionModifiedSince(context, service));
+					tasks.add(new SyncCollectionModifiedSince(context, service, syncResult, account));
 				} else {
-					tasks.add(new SyncCollectionComplete(context, service));
+					tasks.add(new SyncCollectionComplete(context, service, syncResult, account));
 				}
 			} else {
 				Timber.i("...no statuses set to sync");
 			}
 
-			tasks.add(new SyncCollectionUnupdated(context, service));
+			tasks.add(new SyncCollectionUnupdated(context, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-			tasks.add(new SyncGamesRemove(context, service));
-			tasks.add(new SyncGamesOldest(context, service));
-			tasks.add(new SyncGamesUnupdated(context, service));
+			tasks.add(new SyncGamesRemove(context, service, syncResult));
+			tasks.add(new SyncGamesOldest(context, service, syncResult));
+			tasks.add(new SyncGamesUnupdated(context, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-			tasks.add(new SyncPlaysUpload(context, service));
+			tasks.add(new SyncPlaysUpload(context, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-			tasks.add(new SyncPlays(context, service));
+			tasks.add(new SyncPlays(context, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-			tasks.add(new SyncBuddiesList(context, service));
-			tasks.add(new SyncBuddiesDetailOldest(context, service));
-			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
+			tasks.add(new SyncBuddiesList(context, service, syncResult, account));
+			tasks.add(new SyncBuddiesDetailOldest(context, service, syncResult));
+			tasks.add(new SyncBuddiesDetailUnupdated(context, service, syncResult));
 		}
 		return tasks;
 	}

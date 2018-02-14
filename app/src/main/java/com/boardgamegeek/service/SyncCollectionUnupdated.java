@@ -25,12 +25,13 @@ import timber.log.Timber;
  * Syncs collection items that have not yet been updated completely with stats and private info (in batches of 25).
  */
 public class SyncCollectionUnupdated extends SyncTask {
+	@NonNull private final Account account;
 	private static final int GAME_PER_FETCH = 25;
-	private SyncResult syncResult;
 	private String detail;
 
-	public SyncCollectionUnupdated(Context context, BggService service) {
-		super(context, service);
+	public SyncCollectionUnupdated(Context context, BggService service, @NonNull SyncResult syncResult, @NonNull Account account) {
+		super(context, service, syncResult);
+		this.account = account;
 	}
 
 	@Override
@@ -39,9 +40,8 @@ public class SyncCollectionUnupdated extends SyncTask {
 	}
 
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
+	public void execute() {
 		Timber.i("Syncing unupdated collection list...");
-		this.syncResult = syncResult;
 		try {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister.Builder(context)
@@ -107,6 +107,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		}
 	}
 
+	@NonNull
 	public GameList queryGames() {
 		GameList list = new GameList(GAME_PER_FETCH);
 		Cursor cursor = context.getContentResolver().query(Collection.CONTENT_URI,

@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -13,8 +14,8 @@ import com.boardgamegeek.util.SelectionBuilder;
  */
 public class SyncGamesUnupdated extends SyncGames {
 
-	public SyncGamesUnupdated(Context context, BggService service) {
-		super(context, service);
+	public SyncGamesUnupdated(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@Override

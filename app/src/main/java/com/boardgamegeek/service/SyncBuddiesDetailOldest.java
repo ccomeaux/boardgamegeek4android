@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.support.annotation.NonNull;
 
 import com.boardgamegeek.R;
@@ -16,8 +17,8 @@ import java.util.List;
  * Syncs roughly 7% of buddies that haven't been updated in the longer while.
  */
 public class SyncBuddiesDetailOldest extends SyncBuddiesDetail {
-	public SyncBuddiesDetailOldest(Context context, BggService service) {
-		super(context, service);
+	public SyncBuddiesDetailOldest(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@Override

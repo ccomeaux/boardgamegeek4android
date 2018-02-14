@@ -29,16 +29,16 @@ import timber.log.Timber;
  * database that weren't synced.
  */
 public class SyncCollectionComplete extends SyncTask {
+	@NonNull private final Account account;
 	private List<String> statuses;
 	private String[] statusEntries;
 	private String[] statusValues;
-	private SyncResult syncResult;
-	private String username;
 	private CollectionPersister persister;
 
 	@DebugLog
-	public SyncCollectionComplete(Context context, BggService service) {
-		super(context, service);
+	public SyncCollectionComplete(Context context, BggService service, @NonNull SyncResult syncResult, @NonNull Account account) {
+		super(context, service, syncResult);
+		this.account = account;
 	}
 
 	@DebugLog
@@ -49,9 +49,7 @@ public class SyncCollectionComplete extends SyncTask {
 
 	@DebugLog
 	@Override
-	public void execute(@NonNull Account account, @NonNull SyncResult syncResult) {
-		this.syncResult = syncResult;
-		this.username = account.name;
+	public void execute() {
 		Timber.i("Syncing full collection list...");
 		try {
 			persister = new CollectionPersister.Builder(context)
@@ -109,7 +107,7 @@ public class SyncCollectionComplete extends SyncTask {
 
 	private void fetchAndPersist(String detail, ArrayMap<String, String> options, final String type) {
 		updateProgressNotification(detail);
-		Call<CollectionResponse> call = service.collection(username, options);
+		Call<CollectionResponse> call = service.collection(account.name, options);
 		try {
 			Response<CollectionResponse> response = call.execute();
 			if (response.isSuccessful()) {

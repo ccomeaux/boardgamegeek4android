@@ -2,7 +2,9 @@ package com.boardgamegeek.service;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SyncResult;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
@@ -28,15 +30,17 @@ public abstract class SyncUploadTask extends SyncTask {
 	private final List<CharSequence> notificationMessages = new ArrayList<>();
 
 	@DebugLog
-	public SyncUploadTask(Context context, BggService service) {
-		super(context, service);
+	public SyncUploadTask(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@StringRes
 	protected abstract int getNotificationTitleResId();
 
+	@NonNull
 	protected abstract Intent getNotificationSummaryIntent();
 
+	@Nullable
 	protected Intent getNotificationIntent() {
 		return getNotificationSummaryIntent();
 	}
@@ -66,7 +70,7 @@ public abstract class SyncUploadTask extends SyncTask {
 		showNotificationSummary();
 	}
 
-	private void buildAndNotify(CharSequence title, CharSequence message, int id, Bitmap largeIcon) {
+	private void buildAndNotify(CharSequence title, CharSequence message, int id, @Nullable Bitmap largeIcon) {
 		Builder builder = NotificationUtils
 			.createNotificationBuilder(context,
 				getNotificationTitleResId(),
@@ -117,7 +121,7 @@ public abstract class SyncUploadTask extends SyncTask {
 	}
 
 	@DebugLog
-	protected void notifyUploadError(CharSequence errorMessage) {
+	protected void notifyUploadError(@NonNull CharSequence errorMessage) {
 		if (TextUtils.isEmpty(errorMessage)) return;
 		Timber.e(errorMessage.toString());
 		Builder builder = NotificationUtils

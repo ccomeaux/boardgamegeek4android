@@ -1,12 +1,12 @@
 package com.boardgamegeek.service;
 
-import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
 import android.support.annotation.StringRes;
@@ -34,23 +34,23 @@ import timber.log.Timber;
 
 public class SyncCollectionUpload extends SyncUploadTask {
 	private ContentResolver resolver;
-	private SyncResult syncResult;
-	private final OkHttpClient okHttpClient;
-	private final CollectionDeleteTask deleteTask;
-	private final CollectionAddTask addTask;
-	private final List<CollectionUploadTask> uploadTasks;
+	@NonNull private final OkHttpClient okHttpClient;
+	@NonNull private final CollectionDeleteTask deleteTask;
+	@NonNull private final CollectionAddTask addTask;
+	@NonNull private final List<CollectionUploadTask> uploadTasks;
 	private int currentGameId;
 	private String currentGameName;
 
 	@DebugLog
-	public SyncCollectionUpload(Context context, BggService service) {
-		super(context, service);
+	public SyncCollectionUpload(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 		okHttpClient = HttpUtils.getHttpClientWithAuth(context);
 		deleteTask = new CollectionDeleteTask(okHttpClient);
 		addTask = new CollectionAddTask(okHttpClient);
 		uploadTasks = createUploadTasks();
 	}
 
+	@NonNull
 	private List<CollectionUploadTask> createUploadTasks() {
 		List<CollectionUploadTask> tasks = new ArrayList<>();
 		tasks.add(new CollectionStatusUploadTask(okHttpClient));
@@ -76,12 +76,14 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return R.string.sync_notification_title_collection_upload;
 	}
 
+	@NonNull
 	@DebugLog
 	@Override
 	protected Intent getNotificationSummaryIntent() {
 		return new Intent(context, CollectionActivity.class);
 	}
 
+	@Nullable
 	@DebugLog
 	@Override
 	protected Intent getNotificationIntent() {
@@ -105,8 +107,8 @@ public class SyncCollectionUpload extends SyncUploadTask {
 
 	@DebugLog
 	@Override
-	public void execute(Account account, SyncResult syncResult) {
-		init(syncResult);
+	public void execute() {
+		resolver = context.getContentResolver();
 
 		Cursor cursor = null;
 		try {
@@ -154,21 +156,19 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		}
 	}
 
-	private void init(SyncResult syncResult) {
-		resolver = context.getContentResolver();
-		this.syncResult = syncResult;
-	}
-
+	@Nullable
 	private Cursor fetchDeletedCollectionItems() {
 		return getCollectionItems(isGreaterThanZero(Collection.COLLECTION_DELETE_TIMESTAMP), R.plurals.sync_notification_collection_deleting);
 	}
 
+	@Nullable
 	private Cursor fetchNewCollectionItems() {
 		String selection = "(" + getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP)) + ") AND " +
 			SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID);
 		return getCollectionItems(selection, R.plurals.sync_notification_collection_adding);
 	}
 
+	@Nullable
 	private Cursor fetchDirtyCollectionItems() {
 		String selection = getDirtyColumnSelection("");
 		return getCollectionItems(selection, R.plurals.sync_notification_collection_uploading);
@@ -242,7 +242,7 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		}
 	}
 
-	private boolean processUploadTask(CollectionUploadTask task, CollectionItem collectionItem, ContentValues contentValues) {
+	private boolean processUploadTask(@NonNull CollectionUploadTask task, CollectionItem collectionItem, ContentValues contentValues) {
 		task.addCollectionItem(collectionItem);
 		if (task.isDirty()) {
 			task.post();
@@ -254,14 +254,14 @@ public class SyncCollectionUpload extends SyncUploadTask {
 		return false;
 	}
 
-	private void notifySuccess(CollectionItem item, int id, @StringRes int messageResId) {
+	private void notifySuccess(@NonNull CollectionItem item, int id, @StringRes int messageResId) {
 		syncResult.stats.numUpdates++;
 		currentGameId = item.getGameId();
 		currentGameName = item.getCollectionName();
 		notifyUser(item.getCollectionName(), context.getString(messageResId), id, item.getImageUrl(), item.getThumbnailUrl());
 	}
 
-	private boolean processResponseForError(CollectionTask response) {
+	private boolean processResponseForError(@NonNull CollectionTask response) {
 		if (response.hasAuthError()) {
 			Timber.w("Auth error; clearing password");
 			syncResult.stats.numAuthExceptions++;

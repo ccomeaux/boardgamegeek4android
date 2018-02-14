@@ -1,6 +1,5 @@
 package com.boardgamegeek.service;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
@@ -24,8 +23,8 @@ import timber.log.Timber;
 public class SyncGamesRemove extends SyncTask {
 	private static final int HOURS_OLD = 72;
 
-	public SyncGamesRemove(Context context, BggService service) {
-		super(context, service);
+	public SyncGamesRemove(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@Override
@@ -34,7 +33,7 @@ public class SyncGamesRemove extends SyncTask {
 	}
 
 	@Override
-	public void execute(Account account, @NonNull SyncResult syncResult) {
+	public void execute() {
 		Timber.i("Removing games not in the collection...");
 		try {
 			List<Integer> gameIds = getGameIds();

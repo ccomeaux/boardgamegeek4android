@@ -1,9 +1,9 @@
 package com.boardgamegeek.service;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
@@ -20,17 +20,15 @@ import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
 	private static final long SLEEP_MILLIS = 2000L;
-	private SyncResult syncResult;
 	private String notificationMessage;
 
-	public SyncBuddiesDetail(Context context, BggService service) {
-		super(context, service);
+	public SyncBuddiesDetail(Context context, BggService service, @NonNull SyncResult syncResult) {
+		super(context, service, syncResult);
 	}
 
 	@Override
-	public void execute(Account account, @NonNull SyncResult syncResult) {
+	public void execute() {
 		Timber.i(getLogMessage());
-		this.syncResult = syncResult;
 		try {
 			if (!PreferencesUtils.getSyncBuddies(context)) {
 				Timber.i("...buddies not set to sync");
@@ -70,6 +68,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
+	@Nullable
 	private User requestUser(String name) {
 		User user = null;
 		try {
