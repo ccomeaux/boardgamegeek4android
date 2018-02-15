@@ -9,8 +9,12 @@
 	<string name="sync_notification_collection_full">Syncing your entire collection</string>
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Filling in some gaps in your collection</string>
-	<string name="sync_notification_collection_items">Syncing \"%s\" collection items</string>
-	<string name="sync_notification_collection_accessories">Syncing \"%s\" collection accessories</string>
+	<string name="sync_notification_sleep">Catching my breath</string>
+	<string name="sync_notification_collection_downloading">Downloading \"%s\" collection %s</string>
+	<string name="sync_notification_collection_downloading_exclusions">Downloading \"%s\" collection %s (with exclusions)</string>
+	<string name="sync_notification_collection_saving">Saving %,d \"%s\" collection %s</string>
+	<string name="sync_notification_collection_saving_exclusions">Saving %,d \"%s\" collection %s (with exclusions)</string>
+	<string name="sync_notification_collection_detail">Syncing \"%s\" collection %s</string>
 	<string name="sync_notification_collection_items_since">Syncing collection items modified since %s</string>
 	<string name="sync_notification_collection_accessories_since">Syncing collection accessories modified since %s</string>
 	<string name="sync_notification_collection_update_games">Updating %1$,d games [%2$s]</string>

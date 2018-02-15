@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
@@ -14,6 +15,7 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +32,6 @@ import timber.log.Timber;
  */
 public class SyncCollectionComplete extends SyncTask {
 	@NonNull private final Account account;
-	private List<String> statuses;
 	private String[] statusEntries;
 	private String[] statusValues;
 	private CollectionPersister persister;
@@ -59,37 +60,23 @@ public class SyncCollectionComplete extends SyncTask {
 
 			statusEntries = context.getResources().getStringArray(R.array.pref_sync_status_entries);
 			statusValues = context.getResources().getStringArray(R.array.pref_sync_status_values);
-			statuses = getSyncableStatuses();
 
+			List<String> statuses = getSyncableStatuses();
 			for (int i = 0; i < statuses.size(); i++) {
 				if (isCancelled()) {
 					Timber.i("...cancelled");
 					return;
 				}
-
-				String status = statuses.get(i);
-				if (TextUtils.isEmpty(status)) {
-					Timber.i("...skipping blank status");
-					continue;
-				}
-				Timber.i("...syncing status [%s]", status);
-
-				String statusDescription = getStatusDescription(status);
-
-				if (i > 0) if (wasSleepInterrupted(5000)) return;
-
-				ArrayMap<String, String> options = createOptions(i, status);
-				fetchAndPersist(context.getString(R.string.sync_notification_collection_items, statusDescription), options, "items");
-
-				if (isCancelled()) {
-					Timber.i("...cancelled");
-					return;
+				if (i > 0) {
+					updateProgressNotification(context.getString(R.string.sync_notification_sleep));
+					if (wasSleepInterrupted(5000)) return;
 				}
 
-				if (wasSleepInterrupted(2000)) return;
-
-				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-				fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories, statusDescription), options, "accessories");
+				List<String> excludedStatuses = new ArrayList<>();
+				for (int j = 0; j < i; j++) {
+					excludedStatuses.add(statuses.get(j));
+				}
+				syncByStatus(statuses.get(i), excludedStatuses.toArray(new String[excludedStatuses.size()]));
 			}
 
 			if (isCancelled()) {
@@ -105,14 +92,52 @@ public class SyncCollectionComplete extends SyncTask {
 		}
 	}
 
-	private void fetchAndPersist(String detail, ArrayMap<String, String> options, final String type) {
-		updateProgressNotification(detail);
+	private void syncByStatus(String status, String... excludedStatuses) {
+		if (TextUtils.isEmpty(status)) {
+			Timber.i("...skipping blank status");
+			return;
+		}
+		Timber.i("...syncing status [%s]", status);
+		Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses));
+
+		String statusDescription = getStatusDescription(status);
+
+		ArrayMap<String, String> options = new ArrayMap<>();
+		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+		options.put(status, "1");
+		for (String excludedStatus : excludedStatuses) {
+			options.put(excludedStatus, "0");
+		}
+
+		fetchAndPersist(options, statusDescription, context.getString(R.string.items), excludedStatuses.length > 0);
+
+		if (isCancelled()) {
+			Timber.i("...cancelled");
+			return;
+		}
+		updateProgressNotification(context.getString(R.string.sync_notification_sleep));
+		if (wasSleepInterrupted(2000)) return;
+
+		options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+		fetchAndPersist(options, statusDescription, context.getString(R.string.accessories), excludedStatuses.length > 0);
+	}
+
+	private void fetchAndPersist(ArrayMap<String, String> options, String statusDescription, String type, boolean hasExclusions) {
+		@StringRes int downloadingResId = hasExclusions ?
+			R.string.sync_notification_collection_downloading_exclusions :
+			R.string.sync_notification_collection_downloading;
+		updateProgressNotification(context.getString(downloadingResId, statusDescription, type));
 		Call<CollectionResponse> call = service.collection(account.name, options);
 		try {
 			Response<CollectionResponse> response = call.execute();
 			if (response.isSuccessful()) {
 				CollectionResponse body = response.body();
 				if (body != null && body.getItemCount() > 0) {
+					@StringRes int savingResId = hasExclusions ?
+						R.string.sync_notification_collection_saving_exclusions :
+						R.string.sync_notification_collection_saving;
+					updateProgressNotification(context.getString(savingResId, body.getItemCount(), statusDescription, type));
 					int count = persister.save(body.items).getRecordCount();
 					syncResult.stats.numUpdates += body.getItemCount();
 					Timber.i("...saved %,d records for %,d collection %s", count, body.getItemCount(), type);
@@ -120,12 +145,12 @@ public class SyncCollectionComplete extends SyncTask {
 					Timber.i("...no collection %s found for these games", type);
 				}
 			} else {
-				showError(detail, response.code());
+				showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, type), response.code());
 				syncResult.stats.numIoExceptions++;
 				cancel();
 			}
 		} catch (IOException e) {
-			showError(detail, e);
+			showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, type), e);
 			syncResult.stats.numIoExceptions++;
 			cancel();
 		}
@@ -150,19 +175,6 @@ public class SyncCollectionComplete extends SyncTask {
 			}
 		}
 		return status;
-	}
-
-	@DebugLog
-	@NonNull
-	private ArrayMap<String, String> createOptions(int i, String status) {
-		ArrayMap<String, String> options = new ArrayMap<>();
-		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
-		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-		options.put(status, "1");
-		for (int j = 0; j < i; j++) {
-			options.put(statuses.get(j), "0");
-		}
-		return options;
 	}
 
 	@DebugLog
