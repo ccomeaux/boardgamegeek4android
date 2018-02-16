@@ -80,7 +80,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	public void setSort(int sortType) {
 		if (sorter == null || sorter.getType() != sortType) {
 			SortEvent.log("Locations", String.valueOf(sortType));
-			sorter = LocationsSorterFactory.create(getActivity(), sortType);
+			sorter = LocationsSorterFactory.create(getContext(), sortType);
 			requery();
 		}
 	}

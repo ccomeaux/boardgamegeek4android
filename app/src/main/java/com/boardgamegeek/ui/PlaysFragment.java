@@ -178,7 +178,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		super.onActivityCreated(savedInstanceState);
 
 		int sortType = PlaysSorterFactory.TYPE_DEFAULT;
-		sorter = PlaysSorterFactory.create(getActivity(), sortType);
+		sorter = PlaysSorterFactory.create(getContext(), sortType);
 
 		uri = Plays.CONTENT_URI;
 		Bundle bundle = getArguments();
@@ -403,7 +403,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 			sortType = PlaysSorterFactory.TYPE_DEFAULT;
 		}
 		SortEvent.log("Plays", String.valueOf(sortType));
-		sorter = PlaysSorterFactory.create(getActivity(), sortType);
+		sorter = PlaysSorterFactory.create(getContext(), sortType);
 		resetScrollState();
 		requery();
 	}
