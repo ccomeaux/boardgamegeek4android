@@ -19,7 +19,11 @@ import java.util.*
  * Syncs the user's collection modified since the date stored in the sync service.
  */
 class SyncCollectionModifiedSince(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
-    private var persister: CollectionPersister? = null
+    private val persister = CollectionPersister.Builder(context)
+            .includeStats()
+            .includePrivateInfo()
+            .validStatusesOnly()
+            .build()
 
     override val syncType: Int
         get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
@@ -34,12 +38,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 return
             }
 
-            persister = CollectionPersister.Builder(context)
-                    .includeStats()
-                    .includePrivateInfo()
-                    .validStatusesOnly()
-                    .build()
-
+            persister.resetTimestamp()
             val accountManager = AccountManager.get(context)
             val date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL)
             val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(date))
@@ -60,7 +59,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
             fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories_since, formattedDateTime), options, R.string.accessories)
 
-            Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister!!.initialTimestamp)
+            Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.initialTimestamp)
         } finally {
             Timber.i("...complete!")
         }
@@ -74,7 +73,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null && body.itemCount > 0) {
-                    val count = persister!!.save(body.items).recordCount
+                    val count = persister.save(body.items).recordCount
                     syncResult.stats.numUpdates += body.itemCount.toLong()
                     Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, context.getString(typeResId))
                 } else {

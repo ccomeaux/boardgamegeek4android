@@ -31,7 +31,7 @@ public class CollectionPersister {
 	private static final int NOT_DIRTY = 0;
 	private final Context context;
 	private final ContentResolver resolver;
-	private final long updateTime;
+	private long updateTime;
 	private final boolean isBriefSync;
 	private final boolean includePrivateInfo;
 	private final boolean includeStats;
@@ -142,9 +142,12 @@ public class CollectionPersister {
 		updateTime = System.currentTimeMillis();
 	}
 
-	@DebugLog
 	public long getInitialTimestamp() {
 		return updateTime;
+	}
+
+	public void resetTimestamp() {
+		updateTime = System.currentTimeMillis();
 	}
 
 	/**

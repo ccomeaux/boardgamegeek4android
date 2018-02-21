@@ -25,9 +25,12 @@ import java.util.*
  */
 class SyncCollectionComplete @DebugLog
 constructor(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
-    private var statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
-    private var statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
-    private var persister: CollectionPersister? = null
+    private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
+    private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
+    private val persister = CollectionPersister.Builder(context)
+            .includePrivateInfo()
+            .includeStats()
+            .build()
 
     override val syncType: Int
         get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
@@ -49,11 +52,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
     override fun execute() {
         Timber.i("Syncing full collection list...")
         try {
-            persister = CollectionPersister.Builder(context)
-                    .includePrivateInfo()
-                    .includeStats()
-                    .build()
-
+            persister.resetTimestamp()
             val statuses = syncableStatuses
             for (i in statuses.indices) {
                 if (i > 0) {
@@ -79,9 +78,8 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                 return
             }
 
-            val initialTimestamp = persister!!.initialTimestamp
-            deleteUnusedItems(initialTimestamp)
-            updateTimestamps(initialTimestamp)
+            deleteUnusedItems(persister.initialTimestamp)
+            updateTimestamps(persister.initialTimestamp)
         } finally {
             Timber.i("...complete!")
         }
@@ -138,7 +136,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                         else -> R.string.sync_notification_collection_saving
                     }
                     updateProgressNotification(context.getString(savingResId, body.itemCount, statusDescription, type))
-                    val count = persister!!.save(body.items).recordCount
+                    val count = persister.save(body.items).recordCount
                     syncResult.stats.numUpdates += body.itemCount.toLong()
                     Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, type)
                 } else {
@@ -161,7 +159,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
     private fun getStatusDescription(status: String): String {
         for (i in statusEntries.indices) {
             if (statusValues[i].equals(status, ignoreCase = true)) {
-                return statusEntries!![i]
+                return statusEntries[i]
             }
         }
         return status
