@@ -3,6 +3,7 @@ package com.boardgamegeek.service
 import android.accounts.Account
 import android.content.Context
 import android.content.SyncResult
+import android.support.annotation.IntegerRes
 import android.support.annotation.StringRes
 import android.support.v4.util.ArrayMap
 import android.text.TextUtils
@@ -55,17 +56,22 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
 
             val statuses = syncableStatuses
             for (i in statuses.indices) {
-                if (isCancelled) {
-                    Timber.i("...cancelled")
-                    return
-                }
                 if (i > 0) {
+                    if (isCancelled) {
+                        Timber.i("...cancelled")
+                        return
+                    }
                     updateProgressNotification(context.getString(R.string.sync_notification_sleep))
                     if (wasSleepInterrupted(5000)) return
                 }
 
                 val excludedStatuses = (0 until i).map { statuses[it] }
-                syncByStatus(statuses[i], *excludedStatuses.toTypedArray())
+                syncByStatus("", statuses[i], *excludedStatuses.toTypedArray())
+
+                updateProgressNotification(context.getString(R.string.sync_notification_sleep))
+                if (wasSleepInterrupted(5000)) return
+
+                syncByStatus(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY, statuses[i], *excludedStatuses.toTypedArray())
             }
 
             if (isCancelled) {
@@ -81,17 +87,23 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
         }
     }
 
-    private fun syncByStatus(status: String, vararg excludedStatuses: String) {
+    private fun syncByStatus(subtype: String = "", status: String, vararg excludedStatuses: String) {
+        if (isCancelled) {
+            Timber.i("...cancelled")
+            return
+        }
+
         if (TextUtils.isEmpty(status)) {
             Timber.i("...skipping blank status")
             return
         }
-        Timber.i("...syncing status [$status]")
+        Timber.i("...syncing subtype [$subtype] status [$status]")
         Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses))
 
         val statusDescription = getStatusDescription(status)
 
         val options = ArrayMap<String, String>()
+        options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
         options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
         options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
         options[status] = "1"
@@ -99,24 +111,21 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
             options[excludedStatus] = "0"
         }
 
-        fetchAndPersist(options, statusDescription, context.getString(R.string.items), excludedStatuses.isNotEmpty())
-
-        if (isCancelled) {
-            Timber.i("...cancelled")
-            return
+        @IntegerRes val typeResId = when (subtype) {
+            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
+            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
+            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
+            else -> R.string.items
         }
-        updateProgressNotification(context.getString(R.string.sync_notification_sleep))
-        if (wasSleepInterrupted(2000)) return
-
-        options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
-        fetchAndPersist(options, statusDescription, context.getString(R.string.accessories), excludedStatuses.isNotEmpty())
+        fetchAndPersist(options, statusDescription, typeResId, excludedStatuses.isNotEmpty())
     }
 
-    private fun fetchAndPersist(options: ArrayMap<String, String>, statusDescription: String, type: String, hasExclusions: Boolean) {
+    private fun fetchAndPersist(options: ArrayMap<String, String>, statusDescription: String, @StringRes typeResId: Int, hasExclusions: Boolean) {
         @StringRes val downloadingResId = when {
             hasExclusions -> R.string.sync_notification_collection_downloading_exclusions
             else -> R.string.sync_notification_collection_downloading
         }
+        val type = context.getString(typeResId)
         updateProgressNotification(context.getString(downloadingResId, statusDescription, type))
         val call = service.collection(account.name, options)
         try {

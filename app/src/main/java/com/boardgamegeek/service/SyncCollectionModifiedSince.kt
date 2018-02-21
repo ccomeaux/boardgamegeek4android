@@ -4,6 +4,7 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.Context
 import android.content.SyncResult
+import android.support.annotation.StringRes
 import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
 import com.boardgamegeek.R
@@ -48,7 +49,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
             options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
             options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = modifiedSince
-            fetchAndPersist(context.getString(R.string.sync_notification_collection_items_since, formattedDateTime), options, "items")
+            fetchAndPersist(context.getString(R.string.sync_notification_collection_items_since, formattedDateTime), options, R.string.items)
 
             if (isCancelled) {
                 Timber.i("...cancelled")
@@ -57,7 +58,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             if (wasSleepInterrupted(2000)) return
 
             options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
-            fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories_since, formattedDateTime), options, "accessories")
+            fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories_since, formattedDateTime), options, R.string.accessories)
 
             Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister!!.initialTimestamp)
         } finally {
@@ -65,7 +66,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
         }
     }
 
-    private fun fetchAndPersist(detail: String, options: ArrayMap<String, String>, type: String) {
+    private fun fetchAndPersist(detail: String, options: ArrayMap<String, String>, @StringRes typeResId: Int) {
         updateProgressNotification(detail)
         val call = service.collection(account.name, options)
         try {
@@ -75,9 +76,9 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 if (body != null && body.itemCount > 0) {
                     val count = persister!!.save(body.items).recordCount
                     syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, type)
+                    Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, context.getString(typeResId))
                 } else {
-                    Timber.i("...no new collection %s modifications", type)
+                    Timber.i("...no new collection %s modifications", context.getString(typeResId))
                 }
             } else {
                 showError(detail, response.code())
