@@ -40,14 +40,12 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-	private final Context context;
 	private SyncTask currentTask;
 	private boolean isCancelled;
 
 	@DebugLog
 	public SyncAdapter(Context context) {
 		super(context, false);
-		this.context = context;
 
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -76,9 +74,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
 		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
 
-		String statuses = StringUtils.formatList(Collections.singletonList(PreferencesUtils.getSyncStatuses(context)));
-		if (PreferencesUtils.getSyncPlays(context)) statuses += " | plays";
-		if (PreferencesUtils.getSyncBuddies(context)) statuses += " | buddies";
+		String statuses = StringUtils.formatList(Collections.singletonList(PreferencesUtils.getSyncStatuses(getContext())));
+		if (PreferencesUtils.getSyncPlays(getContext())) statuses += " | plays";
+		if (PreferencesUtils.getSyncBuddies(getContext())) statuses += " | buddies";
 		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
 
 		if (initialize) {
@@ -91,7 +89,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!shouldContinueSync()) return;
 
 		toggleCancelReceiver(true);
-		List<SyncTask> tasks = createTasks(context, type, uploadOnly, syncResult, account);
+		List<SyncTask> tasks = createTasks(getContext(), type, uploadOnly, syncResult, account);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
@@ -120,7 +118,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				}
 			}
 		}
-		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
+		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
 	}
@@ -142,22 +140,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	private boolean shouldContinueSync() {
-		if (NetworkUtils.isOffline(context)) {
+		if (NetworkUtils.isOffline(getContext())) {
 			Timber.i("Skipping sync; offline");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyCharging(context) && !BatteryUtils.isCharging(context)) {
+		if (PreferencesUtils.getSyncOnlyCharging(getContext()) && !BatteryUtils.isCharging(getContext())) {
 			Timber.i("Skipping sync; not charging");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyWifi(context) && !NetworkUtils.isOnWiFi(context)) {
+		if (PreferencesUtils.getSyncOnlyWifi(getContext()) && !NetworkUtils.isOnWiFi(getContext())) {
 			Timber.i("Skipping sync; not on wifi");
 			return false;
 		}
 
-		if (BatteryUtils.isBatteryLow(context)) {
+		if (BatteryUtils.isBatteryLow(getContext())) {
 			Timber.i("Skipping sync; battery low");
 			return false;
 		}
@@ -218,8 +216,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	private void toggleCancelReceiver(boolean enable) {
-		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
-		PackageManager pm = context.getPackageManager();
+		ComponentName receiver = new ComponentName(getContext(), CancelReceiver.class);
+		PackageManager pm = getContext().getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ?
 				PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
 				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
@@ -242,20 +240,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		Timber.w(message);
 
-		if (!PreferencesUtils.getSyncShowErrors(context)) return;
+		if (!PreferencesUtils.getSyncShowErrors(getContext())) return;
 
 		final int messageId = task.getNotificationSummaryMessageId();
 		if (messageId != SyncTask.NO_NOTIFICATION) {
-			CharSequence text = context.getText(messageId);
+			CharSequence text = getContext().getText(messageId);
 			NotificationCompat.Builder builder = NotificationUtils
-				.createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
+				.createNotificationBuilder(getContext(), R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
 				.setContentText(text)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			if (!TextUtils.isEmpty(message)) {
 				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 			}
-			NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
+			NotificationUtils.notify(getContext(), NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 		}
 	}
 
@@ -265,14 +263,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	private void notifySyncIsCancelled(int messageId) {
-		if (!PreferencesUtils.getSyncShowNotifications(context)) return;
+		if (!PreferencesUtils.getSyncShowNotifications(getContext())) return;
 
-		CharSequence contextText = messageId == SyncTask.NO_NOTIFICATION ? "" : context.getText(messageId);
+		CharSequence contextText = messageId == SyncTask.NO_NOTIFICATION ? "" : getContext().getText(messageId);
 
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_cancel, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
+			.createNotificationBuilder(getContext(), R.string.sync_notification_title_cancel, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
 			.setContentText(contextText)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE);
-		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
+		NotificationUtils.notify(getContext(), NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
 }
