@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.accounts.Account
 import android.content.Context
 import android.content.SyncResult
-import android.support.annotation.IntegerRes
 import android.support.annotation.StringRes
 import android.support.v4.util.ArrayMap
 import android.text.TextUtils
@@ -18,6 +17,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
+import kotlin.collections.set
 
 /**
  * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
@@ -100,31 +100,27 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
 
         val statusDescription = getStatusDescription(status)
 
+        @StringRes val downloadingResId = when {
+            excludedStatuses.isNotEmpty() -> R.string.sync_notification_collection_downloading_exclusions
+            else -> R.string.sync_notification_collection_downloading
+        }
+
+        val type = context.getString(when (subtype) {
+            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
+            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
+            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
+            else -> R.string.items
+        })
+
+        updateProgressNotification(context.getString(downloadingResId, statusDescription, type))
+
         val options = ArrayMap<String, String>()
         options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
         options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
         options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
         options[status] = "1"
-        for (excludedStatus in excludedStatuses) {
-            options[excludedStatus] = "0"
-        }
+        for (excludedStatus in excludedStatuses) options[excludedStatus] = "0"
 
-        @IntegerRes val typeResId = when (subtype) {
-            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
-            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
-            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
-            else -> R.string.items
-        }
-        fetchAndPersist(options, statusDescription, typeResId, excludedStatuses.isNotEmpty())
-    }
-
-    private fun fetchAndPersist(options: ArrayMap<String, String>, statusDescription: String, @StringRes typeResId: Int, hasExclusions: Boolean) {
-        @StringRes val downloadingResId = when {
-            hasExclusions -> R.string.sync_notification_collection_downloading_exclusions
-            else -> R.string.sync_notification_collection_downloading
-        }
-        val type = context.getString(typeResId)
-        updateProgressNotification(context.getString(downloadingResId, statusDescription, type))
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
@@ -132,15 +128,15 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                 val body = response.body()
                 if (body != null && body.itemCount > 0) {
                     @StringRes val savingResId = when {
-                        hasExclusions -> R.string.sync_notification_collection_saving_exclusions
+                        excludedStatuses.isNotEmpty() -> R.string.sync_notification_collection_saving_exclusions
                         else -> R.string.sync_notification_collection_saving
                     }
                     updateProgressNotification(context.getString(savingResId, body.itemCount, statusDescription, type))
                     val count = persister.save(body.items).recordCount
                     syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, type)
+                    Timber.i("...saved %,d records for %,d collection $type", count, body.itemCount)
                 } else {
-                    Timber.i("...no collection %s found for these games", type)
+                    Timber.i("...no collection $type found for these games")
                 }
             } else {
                 showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, type), response.code())
