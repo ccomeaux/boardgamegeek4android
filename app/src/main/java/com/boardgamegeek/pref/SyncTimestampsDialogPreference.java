@@ -45,8 +45,8 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 		super.onBindDialogView(view);
 		ButterKnife.bind(this, view);
 
-		setDateTime(collectionFull, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_COMPLETE), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-		setDateTime(collectionPartial, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_PARTIAL), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(collectionFull, SyncPrefUtils.getLastCompleteCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(collectionPartial, SyncPrefUtils.getLastPartialCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
 		setDateTime(buddies, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_BUDDIES), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 

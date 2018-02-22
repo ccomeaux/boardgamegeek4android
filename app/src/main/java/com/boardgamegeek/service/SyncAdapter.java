@@ -15,11 +15,11 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.util.BatteryUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
@@ -178,7 +178,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
 			if (PreferencesUtils.isCollectionSetToSync(context)) {
-				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
+				long lastCompleteSync = SyncPrefUtils.getLastCompleteCollectionTimestamp(context);
 				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
 					tasks.add(new SyncCollectionModifiedSince(context, service, syncResult, account));
 				} else {

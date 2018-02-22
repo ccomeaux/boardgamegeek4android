@@ -36,7 +36,6 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
@@ -44,6 +43,7 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -656,7 +656,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private void setEmptyText() {
 		if (emptyButton == null) return;
 		@StringRes int resId = R.string.empty_collection;
-		if (!hasEverSynced()) {
+		if (SyncPrefUtils.getLastCompleteCollectionTimestamp(getContext()) == 0L) {
 			resId = R.string.empty_collection_sync_never;
 			emptyButton.setVisibility(View.GONE);
 		} else if (hasFiltersApplied()) {
@@ -667,10 +667,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			emptyButton.setVisibility(View.VISIBLE);
 		}
 		setEmptyText(getString(resId));
-	}
-
-	private boolean hasEverSynced() {
-		return Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_COMPLETE) != 0;
 	}
 
 	private boolean hasFiltersApplied() {

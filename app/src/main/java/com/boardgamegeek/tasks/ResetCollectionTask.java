@@ -25,6 +25,7 @@ public class ResetCollectionTask extends ToastingAsyncTask {
 
 	@Override
 	protected Boolean doInBackground(Void... params) {
+		if (getContext() == null) return false;
 		boolean wasSuccessful = SyncService.clearCollection(getContext());
 		if (wasSuccessful) {
 			SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);

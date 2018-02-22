@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.NotificationUtils;
 
@@ -80,14 +81,9 @@ public class SyncService extends Service {
 	}
 
 	public static boolean clearCollection(Context context) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = Authenticator.getAccount(context);
-		if (accountManager != null && account != null) {
-			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE, null);
-			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, null);
-			return true;
-		}
-		return false;
+		SyncPrefUtils.setLastCompleteCollectionTimestamp(context, 0L);
+		SyncPrefUtils.setLastPartialCollectionTimestamp(context, 0L);
+		return true;
 	}
 
 	public static boolean clearBuddies(Context context) {

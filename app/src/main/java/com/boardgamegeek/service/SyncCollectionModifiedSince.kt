@@ -1,16 +1,15 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.accounts.AccountManager
 import android.content.Context
 import android.content.SyncResult
 import android.support.annotation.StringRes
 import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
+import com.boardgamegeek.pref.SyncPrefUtils
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
@@ -39,8 +38,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             }
 
             persister.resetTimestamp()
-            val accountManager = AccountManager.get(context)
-            val date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL)
+            val date = SyncPrefUtils.getLastPartialCollectionTimestamp(context)
             val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(date))
             val formattedDateTime = DateUtils.formatDateTime(context, date, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
@@ -59,7 +57,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
             fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories_since, formattedDateTime), options, R.string.accessories)
 
-            Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.initialTimestamp)
+            SyncPrefUtils.setLastPartialCollectionTimestamp(context, persister.initialTimestamp)
         } finally {
             Timber.i("...complete!")
         }

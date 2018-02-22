@@ -7,9 +7,9 @@ import android.support.annotation.StringRes
 import android.support.v4.util.ArrayMap
 import android.text.TextUtils
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
+import com.boardgamegeek.pref.SyncPrefUtils
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.StringUtils
@@ -174,7 +174,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
 
     @DebugLog
     private fun updateTimestamps(initialTimestamp: Long) {
-        Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, initialTimestamp)
-        Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, initialTimestamp)
+        SyncPrefUtils.setLastCompleteCollectionTimestamp(context, initialTimestamp)
+        SyncPrefUtils.setLastPartialCollectionTimestamp(context, initialTimestamp)
     }
 }
