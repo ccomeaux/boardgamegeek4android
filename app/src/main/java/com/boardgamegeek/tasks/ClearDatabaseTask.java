@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -17,7 +18,6 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
-import com.boardgamegeek.service.SyncService;
 
 import timber.log.Timber;
 
@@ -50,9 +50,9 @@ public class ClearDatabaseTask extends ToastingAsyncTask {
 	protected Boolean doInBackground(Void... params) {
 		if (getContext() == null) return false;
 
-		boolean success = SyncService.clearCollection(getContext());
-		success &= SyncService.clearBuddies(getContext());
-		success &= SyncService.clearPlays(getContext());
+		SyncPrefUtils.clearCollection(getContext());
+		SyncPrefUtils.clearBuddyListTimestamps(getContext());
+		SyncPrefUtils.clearPlaysTimestamps(getContext());
 
 		int count = 0;
 		count += delete(Games.CONTENT_URI);
@@ -73,7 +73,7 @@ public class ClearDatabaseTask extends ToastingAsyncTask {
 			Timber.i("Removed %d files", count);
 		}
 
-		return success;
+		return true;
 	}
 
 	private int delete(Uri uri) {

@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.NotificationUtils;
 
@@ -27,12 +26,6 @@ public class SyncService extends Service {
 	public static final int FLAG_SYNC_PLAYS = FLAG_SYNC_PLAYS_DOWNLOAD | FLAG_SYNC_PLAYS_UPLOAD;
 	public static final int FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION | FLAG_SYNC_BUDDIES | FLAG_SYNC_PLAYS;
 	public static final String ACTION_CANCEL_SYNC = "com.boardgamegeek.ACTION_SYNC_CANCEL";
-
-	public static final String TIMESTAMP_COLLECTION_COMPLETE = "com.boardgamegeek.TIMESTAMP_COLLECTION_COMPLETE";
-	public static final String TIMESTAMP_COLLECTION_PARTIAL = "com.boardgamegeek.TIMESTAMP_COLLECTION_PARTIAL";
-	public static final String TIMESTAMP_BUDDIES = "com.boardgamegeek.TIMESTAMP_BUDDIES";
-	public static final String TIMESTAMP_PLAYS_NEWEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE";
-	public static final String TIMESTAMP_PLAYS_OLDEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE";
 
 	private static final Object SYNC_ADAPTER_LOCK = new Object();
 	@Nullable private static SyncAdapter syncAdapter = null;
@@ -71,26 +64,9 @@ public class SyncService extends Service {
 
 	public static boolean isActiveOrPending(Context context) {
 		Account account = Authenticator.getAccount(context);
-		if (account == null) {
-			return false;
-		}
+		if (account == null) return false;
 		boolean syncActive = ContentResolver.isSyncActive(account, BggContract.CONTENT_AUTHORITY);
 		boolean syncPending = ContentResolver.isSyncPending(account, BggContract.CONTENT_AUTHORITY);
 		return syncActive || syncPending;
-	}
-
-	public static boolean clearCollection(Context context) {
-		SyncPrefUtils.clearCollection(context);
-		return true;
-	}
-
-	public static boolean clearBuddies(Context context) {
-		SyncPrefUtils.clearBuddyListTimestamps(context);
-		return true;
-	}
-
-	public static boolean clearPlays(Context context) {
-		SyncPrefUtils.clearPlaysTimestamps(context);
-		return false;
 	}
 }
