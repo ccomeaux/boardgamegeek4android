@@ -91,7 +91,7 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
     }
 
     private fun storeUserInAuthenticator(user: User) {
-        Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.id)
+        Authenticator.putUserId(context, user.id)
         AccountUtils.setUsername(context, user.name)
         AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName))
         AccountUtils.setAvatarUrl(context, user.avatarUrl)

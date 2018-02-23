@@ -1,6 +1,8 @@
 package com.boardgamegeek.pref
 
+import android.accounts.AccountManager
 import android.content.Context
+import android.text.TextUtils
 import com.boardgamegeek.PreferenceHelper
 import com.boardgamegeek.PreferenceHelper.get
 import com.boardgamegeek.PreferenceHelper.set
@@ -9,30 +11,41 @@ import com.boardgamegeek.auth.Authenticator
 class SyncPrefs {
     companion object {
         private const val TIMESTAMP_COLLECTION_COMPLETE = "TIMESTAMP_COLLECTION_COMPLETE"
-        private const val AUTH_TIMESTAMP_COLLECTION_COMPLETE = "com.boardgamegeek.TIMESTAMP_COLLECTION_COMPLETE"
-        private const val AUTH_TIMESTAMP_COLLECTION_PARTIAL = "com.boardgamegeek.TIMESTAMP_COLLECTION_PARTIAL"
-        private const val AUTH_TIMESTAMP_BUDDIES = "com.boardgamegeek.TIMESTAMP_BUDDIES"
-        private const val AUTH_TIMESTAMP_PLAYS_NEWEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE"
-        private const val AUTH_TIMESTAMP_PLAYS_OLDEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE"
+        private const val TIMESTAMP_COLLECTION_PARTIAL = "TIMESTAMP_COLLECTION_PARTIAL"
+        private const val TIMESTAMP_BUDDIES = "TIMESTAMP_BUDDIES"
+        private const val TIMESTAMP_PLAYS_NEWEST_DATE = "TIMESTAMP_PLAYS_NEWEST_DATE"
+        private const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
 
         private fun getPrefs(context: Context) = PreferenceHelper.customPrefs(context, "com.boardgamegeek.sync")
 
         private fun collectionStatusKey(subtype: String, status: String) = "$TIMESTAMP_COLLECTION_COMPLETE.$status.$subtype"
 
         @JvmStatic
-        fun getLastCompleteCollectionTimestamp(context: Context) = Authenticator.getLong(context, AUTH_TIMESTAMP_COLLECTION_COMPLETE)
-
-        @JvmStatic
-        fun setLastCompleteCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
-            Authenticator.putLong(context, AUTH_TIMESTAMP_COLLECTION_COMPLETE, timestamp)
+        fun migrate(context: Context) {
+            if (getPrefs(context).contains(TIMESTAMP_COLLECTION_COMPLETE)) return
+            setLastCompleteCollectionTimestamp(context, getLong(context, "com.boardgamegeek.TIMESTAMP_COLLECTION_COMPLETE", 0L))
+            setLastPartialCollectionTimestamp(context, getLong(context, "com.boardgamegeek.TIMESTAMP_COLLECTION_PARTIAL", 0L))
+            setBuddiesTimestamp(context, getLong(context, "com.boardgamegeek.TIMESTAMP_BUDDIES", 0L))
+            setPlaysNewestTimestamp(context, getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE", 0L))
+            setPlaysOldestTimestamp(context, getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE", Long.MAX_VALUE))
         }
 
         @JvmStatic
-        fun getLastPartialCollectionTimestamp(context: Context) = Authenticator.getLong(context, AUTH_TIMESTAMP_COLLECTION_PARTIAL)
+        fun getLastCompleteCollectionTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_COLLECTION_COMPLETE, 0L]
+                ?: 0L
+
+        @JvmStatic
+        fun setLastCompleteCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
+            getPrefs(context)[TIMESTAMP_COLLECTION_COMPLETE] = timestamp
+        }
+
+        @JvmStatic
+        fun getLastPartialCollectionTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_COLLECTION_PARTIAL, 0L]
+                ?: 0L
 
         @JvmStatic
         fun setLastPartialCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
-            Authenticator.putLong(context, AUTH_TIMESTAMP_COLLECTION_PARTIAL, timestamp)
+            getPrefs(context)[TIMESTAMP_COLLECTION_PARTIAL] = timestamp
         }
 
         fun getCurrentCollectionSyncTimestamp(context: Context): Long {
@@ -64,11 +77,11 @@ class SyncPrefs {
         }
 
         @JvmStatic
-        fun getBuddiesTimestamp(context: Context) = Authenticator.getLong(context, AUTH_TIMESTAMP_BUDDIES)
+        fun getBuddiesTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_BUDDIES, 0L] ?: 0L
 
         @JvmStatic
         fun setBuddiesTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
-            Authenticator.putLong(context, AUTH_TIMESTAMP_BUDDIES, timestamp)
+            getPrefs(context)[TIMESTAMP_BUDDIES] = timestamp
         }
 
         @JvmStatic
@@ -77,19 +90,19 @@ class SyncPrefs {
         }
 
         @JvmStatic
-        fun getPlaysNewestTimestamp(context: Context) = Authenticator.getLong(context, AUTH_TIMESTAMP_PLAYS_NEWEST_DATE)
+        fun getPlaysNewestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE, 0L] ?: 0L
 
         @JvmStatic
         fun setPlaysNewestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
-            Authenticator.putLong(context, AUTH_TIMESTAMP_PLAYS_NEWEST_DATE, timestamp)
+            getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE] = timestamp
         }
 
         @JvmStatic
-        fun getPlaysOldestTimestamp(context: Context) = Authenticator.getLong(context, AUTH_TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE)
+        fun getPlaysOldestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE, 0L] ?: 0L
 
         @JvmStatic
         fun setPlaysOldestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
-            Authenticator.putLong(context, AUTH_TIMESTAMP_PLAYS_OLDEST_DATE, timestamp)
+            getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE] = timestamp
         }
 
         @JvmStatic
@@ -101,6 +114,13 @@ class SyncPrefs {
         @JvmStatic
         fun isPlaysSyncUpToDate(context: Context): Boolean {
             return getPlaysOldestTimestamp(context) == 0L
+        }
+
+        fun getLong(context: Context, key: String, defaultValue: Long): Long {
+            val accountManager = AccountManager.get(context)
+            val account = Authenticator.getAccount(accountManager) ?: return defaultValue
+            val s = accountManager.getUserData(account, key)
+            return if (TextUtils.isEmpty(s)) defaultValue else java.lang.Long.parseLong(s)
         }
     }
 }
