@@ -48,7 +48,7 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 		setDateTime(collectionFull, SyncPrefUtils.getLastCompleteCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 		setDateTime(collectionPartial, SyncPrefUtils.getLastPartialCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
-		setDateTime(buddies, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_BUDDIES), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(buddies, SyncPrefUtils.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
 		long oldestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
 		long newestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);

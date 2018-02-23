@@ -86,13 +86,8 @@ public class SyncService extends Service {
 	}
 
 	public static boolean clearBuddies(Context context) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = Authenticator.getAccount(context);
-		if (accountManager != null && account != null) {
-			accountManager.setUserData(account, SyncService.TIMESTAMP_BUDDIES, null);
-			return true;
-		}
-		return false;
+		SyncPrefUtils.clearBuddyListTimestamps(context);
+		return true;
 	}
 
 	public static boolean clearPlays(Context context) {

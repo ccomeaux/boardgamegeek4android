@@ -58,5 +58,18 @@ class SyncPrefUtils {
                     .filter { it.startsWith("$TIMESTAMP_COLLECTION_COMPLETE.") }
                     .forEach { prefs.edit().remove(it).apply() }
         }
+
+        @JvmStatic
+        fun getBuddiesTimestamp(context: Context) = Authenticator.getLong(context, SyncService.TIMESTAMP_BUDDIES)
+
+        @JvmStatic
+        fun setBuddiesTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
+            Authenticator.putLong(context, SyncService.TIMESTAMP_BUDDIES, timestamp)
+        }
+
+        @JvmStatic
+        fun clearBuddyListTimestamps(context: Context) {
+            setBuddiesTimestamp(context, 0L)
+        }
     }
 }

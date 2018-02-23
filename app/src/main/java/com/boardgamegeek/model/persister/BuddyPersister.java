@@ -23,7 +23,7 @@ import timber.log.Timber;
 
 public class BuddyPersister {
 	private final Context context;
-	private final long updateTime;
+	private long updateTime;
 
 	public BuddyPersister(Context context) {
 		this.context = context;
@@ -32,6 +32,10 @@ public class BuddyPersister {
 
 	public long getTimestamp() {
 		return updateTime;
+	}
+
+	public void resetTimestamp() {
+		updateTime = System.currentTimeMillis();
 	}
 
 	public int saveUser(User buddy) {
