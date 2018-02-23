@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.service.SyncService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,8 +48,8 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 
 		setDateTime(buddies, SyncPrefUtils.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
-		long oldestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
-		long newestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
+		long oldestDate = SyncPrefUtils.getPlaysOldestTimestamp(getContext());
+		long newestDate = SyncPrefUtils.getPlaysNewestTimestamp(getContext());
 		if (oldestDate == 0 && newestDate == 0) {
 			playsView.setText(R.string.plays_sync_status_none);
 		} else if (oldestDate == 0) {

@@ -1,7 +1,6 @@
 package com.boardgamegeek.service;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -91,17 +90,7 @@ public class SyncService extends Service {
 	}
 
 	public static boolean clearPlays(Context context) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = Authenticator.getAccount(context);
-		if (accountManager != null && account != null) {
-			accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, null);
-			accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, null);
-			return true;
-		}
+		SyncPrefUtils.clearPlaysTimestamps(context);
 		return false;
-	}
-
-	public static boolean isPlaysSyncUpToDate(Context context) {
-		return Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE) == 0;
 	}
 }

@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.SyncResult
 import android.text.TextUtils
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.PlaysResponse
 import com.boardgamegeek.model.persister.PlayPersister
+import com.boardgamegeek.pref.SyncPrefUtils
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.DateTimeUtils
@@ -38,7 +38,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
 
             startTime = System.currentTimeMillis()
 
-            val newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0)
+            val newestSyncDate = SyncPrefUtils.getPlaysNewestTimestamp(context)
             if (newestSyncDate <= 0) {
                 if (executeCall(account.name, null, null)) {
                     cancel()
@@ -53,7 +53,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
                 deleteUnupdatedPlaysSince(newestSyncDate)
             }
 
-            val oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, java.lang.Long.MAX_VALUE)
+            val oldestDate = SyncPrefUtils.getPlaysOldestTimestamp(context)
             if (oldestDate > 0) {
                 val date = DateTimeUtils.formatDateForApi(oldestDate)
                 if (executeCall(account.name, null, date)) {
@@ -61,7 +61,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
                     return
                 }
                 deleteUnupdatedPlaysBefore(oldestDate)
-                Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0)
+                SyncPrefUtils.setPlaysOldestTimestamp(context, 0L)
             }
             TaskUtils.executeAsyncTask(CalculatePlayStatsTask(context))
         } finally {
@@ -162,14 +162,11 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
 
     private fun updateTimestamps(response: PlaysResponse?) {
         if (response == null) return
-        val newestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0)
-        if (response.newestDate > newestDate) {
-            Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.newestDate)
+        if (response.newestDate > SyncPrefUtils.getPlaysNewestTimestamp(context)) {
+            SyncPrefUtils.setPlaysNewestTimestamp(context, response.newestDate)
         }
-
-        val oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, java.lang.Long.MAX_VALUE)
-        if (response.oldestDate < oldestDate) {
-            Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, response.oldestDate)
+        if (response.oldestDate < SyncPrefUtils.getPlaysOldestTimestamp(context)) {
+            SyncPrefUtils.setPlaysOldestTimestamp(context, response.oldestDate)
         }
     }
 }

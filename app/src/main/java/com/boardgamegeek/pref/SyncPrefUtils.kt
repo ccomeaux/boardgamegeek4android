@@ -71,5 +71,32 @@ class SyncPrefUtils {
         fun clearBuddyListTimestamps(context: Context) {
             setBuddiesTimestamp(context, 0L)
         }
+
+        @JvmStatic
+        fun getPlaysNewestTimestamp(context: Context) = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE)
+
+        @JvmStatic
+        fun setPlaysNewestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
+            Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, timestamp)
+        }
+
+        @JvmStatic
+        fun getPlaysOldestTimestamp(context: Context) = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE)
+
+        @JvmStatic
+        fun setPlaysOldestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
+            Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, timestamp)
+        }
+
+        @JvmStatic
+        fun clearPlaysTimestamps(context: Context) {
+            setPlaysNewestTimestamp(context, 0L)
+            setPlaysOldestTimestamp(context, Long.MAX_VALUE)
+        }
+
+        @JvmStatic
+        fun isPlaysSyncUpToDate(context: Context): Boolean {
+            return getPlaysOldestTimestamp(context) == 0L
+        }
     }
 }
