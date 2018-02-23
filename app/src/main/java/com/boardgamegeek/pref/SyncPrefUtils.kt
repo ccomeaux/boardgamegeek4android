@@ -1,11 +1,20 @@
 package com.boardgamegeek.pref
 
 import android.content.Context
+import com.boardgamegeek.PreferenceHelper
+import com.boardgamegeek.PreferenceHelper.get
+import com.boardgamegeek.PreferenceHelper.set
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.service.SyncService
 
 class SyncPrefUtils {
     companion object {
+        private const val TIMESTAMP_COLLECTION_COMPLETE = "TIMESTAMP_COLLECTION_COMPLETE"
+
+        private fun getPrefs(context: Context) = PreferenceHelper.customPrefs(context, "com.boardgamegeek.sync")
+
+        private fun collectionStatusKey(subtype: String, status: String) = "$TIMESTAMP_COLLECTION_COMPLETE.$status.$subtype"
+
         @JvmStatic
         fun getLastCompleteCollectionTimestamp(context: Context) = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE)
 
@@ -20,6 +29,34 @@ class SyncPrefUtils {
         @JvmStatic
         fun setLastPartialCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, timestamp)
+        }
+
+        fun getCurrentCollectionSyncTimestamp(context: Context): Long {
+            return getPrefs(context)["$TIMESTAMP_COLLECTION_COMPLETE-CURRENT", 0L] ?: 0L
+        }
+
+        fun setCurrentCollectionSyncTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
+            getPrefs(context)["$TIMESTAMP_COLLECTION_COMPLETE-CURRENT"] = timestamp
+        }
+
+        fun getCollectionSyncTimestamp(context: Context, status: String, subtype: String): Long {
+            return getPrefs(context)[SyncPrefUtils.collectionStatusKey(subtype, status), 0L] ?: 0L
+        }
+
+        fun setCollectionSyncTimestamp(context: Context, status: String, subtype: String, timestamp: Long = System.currentTimeMillis()) {
+            getPrefs(context)[SyncPrefUtils.collectionStatusKey(subtype, status)] = timestamp
+        }
+
+        @JvmStatic
+        fun clearCollection(context: Context) {
+            setLastCompleteCollectionTimestamp(context, 0L)
+            setLastPartialCollectionTimestamp(context, 0L)
+            setCurrentCollectionSyncTimestamp(context, 0L)
+            val prefs = getPrefs(context)
+            val map = prefs.all
+            map.keys
+                    .filter { it.startsWith("$TIMESTAMP_COLLECTION_COMPLETE.") }
+                    .forEach { prefs.edit().remove(it).apply() }
         }
     }
 }

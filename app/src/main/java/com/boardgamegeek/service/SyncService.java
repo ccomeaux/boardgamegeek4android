@@ -81,8 +81,7 @@ public class SyncService extends Service {
 	}
 
 	public static boolean clearCollection(Context context) {
-		SyncPrefUtils.setLastCompleteCollectionTimestamp(context, 0L);
-		SyncPrefUtils.setLastPartialCollectionTimestamp(context, 0L);
+		SyncPrefUtils.clearCollection(context);
 		return true;
 	}
 

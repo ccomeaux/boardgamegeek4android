@@ -52,6 +52,9 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
     override fun execute() {
         Timber.i("Syncing full collection list...")
         try {
+            val currentSyncTimestamp = SyncPrefUtils.getCurrentCollectionSyncTimestamp(context)
+            if (currentSyncTimestamp == 0L) SyncPrefUtils.setCurrentCollectionSyncTimestamp(context)
+
             persister.resetTimestamp()
             val statuses = syncableStatuses
             for (i in statuses.indices) {
@@ -78,8 +81,8 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                 return
             }
 
-            deleteUnusedItems(persister.initialTimestamp)
-            updateTimestamps(persister.initialTimestamp)
+            deleteUnusedItems()
+            updateTimestamps()
         } finally {
             Timber.i("...complete!")
         }
@@ -97,6 +100,13 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
         }
         Timber.i("...syncing subtype [$subtype] status [$status]")
         Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses))
+
+        val lastCompleteSync = SyncPrefUtils.getCurrentCollectionSyncTimestamp(context)
+        val lastStatusSync = SyncPrefUtils.getCollectionSyncTimestamp(context, subtype, status)
+        if (lastStatusSync > lastCompleteSync) {
+            Timber.i("Status [$status] [$subtype] have been synced in the current sync request.")
+            return
+        }
 
         val statusDescription = getStatusDescription(status)
 
@@ -133,6 +143,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                     }
                     updateProgressNotification(context.getString(savingResId, body.itemCount, statusDescription, type))
                     val count = persister.save(body.items).recordCount
+                    SyncPrefUtils.setCollectionSyncTimestamp(context, subtype, status)
                     syncResult.stats.numUpdates += body.itemCount.toLong()
                     Timber.i("...saved %,d records for %,d collection $type", count, body.itemCount)
                 } else {
@@ -162,19 +173,20 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
     }
 
     @DebugLog
-    private fun deleteUnusedItems(initialTimestamp: Long) {
+    private fun deleteUnusedItems() {
         Timber.i("...deleting old collection entries")
         val count = context.contentResolver.delete(
                 Collection.CONTENT_URI,
                 "${Collection.UPDATED_LIST}<?",
-                arrayOf(initialTimestamp.toString()))
+                arrayOf(SyncPrefUtils.getCurrentCollectionSyncTimestamp(context).toString()))
         Timber.i("...deleted $count old collection entries")
         // TODO: delete thumbnail images associated with this list (both collection and game)
     }
 
     @DebugLog
-    private fun updateTimestamps(initialTimestamp: Long) {
-        SyncPrefUtils.setLastCompleteCollectionTimestamp(context, initialTimestamp)
-        SyncPrefUtils.setLastPartialCollectionTimestamp(context, initialTimestamp)
+    private fun updateTimestamps() {
+        SyncPrefUtils.setLastCompleteCollectionTimestamp(context, SyncPrefUtils.getCurrentCollectionSyncTimestamp(context))
+        SyncPrefUtils.setLastPartialCollectionTimestamp(context, SyncPrefUtils.getCurrentCollectionSyncTimestamp(context))
+        SyncPrefUtils.setCurrentCollectionSyncTimestamp(context, 0L)
     }
 }
