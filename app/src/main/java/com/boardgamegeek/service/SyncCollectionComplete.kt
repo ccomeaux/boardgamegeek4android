@@ -11,6 +11,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefUtils
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.StringUtils
 import hugo.weaving.DebugLog
@@ -52,8 +53,25 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
     override fun execute() {
         Timber.i("Syncing full collection list...")
         try {
+            if (isCancelled) {
+                Timber.i("...cancelled")
+                return
+            }
+
+            if (!PreferencesUtils.isCollectionSetToSync(context)) {
+                Timber.i("...collection not set to sync")
+                return
+            }
+
             val currentSyncTimestamp = SyncPrefUtils.getCurrentCollectionSyncTimestamp(context)
-            if (currentSyncTimestamp == 0L) SyncPrefUtils.setCurrentCollectionSyncTimestamp(context)
+            if (currentSyncTimestamp == 0L) {
+                val lastCompleteSync = SyncPrefUtils.getLastCompleteCollectionTimestamp(context)
+                if (lastCompleteSync > 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
+                    Timber.i("Not currently syncing and it's been less than a week since we synced completely; skipping")
+                    return
+                }
+                SyncPrefUtils.setCurrentCollectionSyncTimestamp(context)
+            }
 
             persister.resetTimestamp()
             val statuses = syncableStatuses

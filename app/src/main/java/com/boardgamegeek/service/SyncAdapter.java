@@ -19,9 +19,7 @@ import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.util.BatteryUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -175,17 +173,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncCollectionUpload(context, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
-			if (PreferencesUtils.isCollectionSetToSync(context)) {
-				long lastCompleteSync = SyncPrefUtils.getLastCompleteCollectionTimestamp(context);
-				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-					tasks.add(new SyncCollectionModifiedSince(context, service, syncResult, account));
-				} else {
-					tasks.add(new SyncCollectionComplete(context, service, syncResult, account));
-				}
-			} else {
-				Timber.i("...no statuses set to sync");
-			}
-
+			tasks.add(new SyncCollectionComplete(context, service, syncResult, account));
+			tasks.add(new SyncCollectionModifiedSince(context, service, syncResult, account));
 			tasks.add(new SyncCollectionUnupdated(context, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {

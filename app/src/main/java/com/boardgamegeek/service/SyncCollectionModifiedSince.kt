@@ -10,6 +10,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefUtils
+import com.boardgamegeek.util.PreferencesUtils
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
@@ -34,6 +35,16 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
         try {
             if (isCancelled) {
                 Timber.i("...cancelled")
+                return
+            }
+
+            if (!PreferencesUtils.isCollectionSetToSync(context)) {
+                Timber.i("...collection not set to sync")
+                return
+            }
+
+            if (SyncPrefUtils.getCurrentCollectionSyncTimestamp(context) > 0) {
+                Timber.i("Currently performing a full sync; skipping incremental sync")
                 return
             }
 
