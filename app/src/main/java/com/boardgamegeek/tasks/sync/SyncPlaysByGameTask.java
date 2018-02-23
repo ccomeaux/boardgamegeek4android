@@ -11,7 +11,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
-import com.boardgamegeek.pref.SyncPrefUtils;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -69,7 +69,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		if (context == null) return;
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
-		if (SyncPrefUtils.isPlaysSyncUpToDate(context)) {
+		if (SyncPrefs.isPlaysSyncUpToDate(context)) {
 			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
 	}

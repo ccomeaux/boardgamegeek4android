@@ -8,7 +8,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.PlaysResponse
 import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.pref.SyncPrefUtils
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.DateTimeUtils
@@ -38,7 +38,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
 
             startTime = System.currentTimeMillis()
 
-            val newestSyncDate = SyncPrefUtils.getPlaysNewestTimestamp(context)
+            val newestSyncDate = SyncPrefs.getPlaysNewestTimestamp(context)
             if (newestSyncDate <= 0) {
                 if (executeCall(account.name, null, null)) {
                     cancel()
@@ -53,7 +53,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
                 deleteUnupdatedPlaysSince(newestSyncDate)
             }
 
-            val oldestDate = SyncPrefUtils.getPlaysOldestTimestamp(context)
+            val oldestDate = SyncPrefs.getPlaysOldestTimestamp(context)
             if (oldestDate > 0) {
                 val date = DateTimeUtils.formatDateForApi(oldestDate)
                 if (executeCall(account.name, null, date)) {
@@ -61,7 +61,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
                     return
                 }
                 deleteUnupdatedPlaysBefore(oldestDate)
-                SyncPrefUtils.setPlaysOldestTimestamp(context, 0L)
+                SyncPrefs.setPlaysOldestTimestamp(context, 0L)
             }
             TaskUtils.executeAsyncTask(CalculatePlayStatsTask(context))
         } finally {
@@ -162,11 +162,11 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
 
     private fun updateTimestamps(response: PlaysResponse?) {
         if (response == null) return
-        if (response.newestDate > SyncPrefUtils.getPlaysNewestTimestamp(context)) {
-            SyncPrefUtils.setPlaysNewestTimestamp(context, response.newestDate)
+        if (response.newestDate > SyncPrefs.getPlaysNewestTimestamp(context)) {
+            SyncPrefs.setPlaysNewestTimestamp(context, response.newestDate)
         }
-        if (response.oldestDate < SyncPrefUtils.getPlaysOldestTimestamp(context)) {
-            SyncPrefUtils.setPlaysOldestTimestamp(context, response.oldestDate)
+        if (response.oldestDate < SyncPrefs.getPlaysOldestTimestamp(context)) {
+            SyncPrefs.setPlaysOldestTimestamp(context, response.oldestDate)
         }
     }
 }

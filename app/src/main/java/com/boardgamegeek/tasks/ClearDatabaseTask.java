@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.pref.SyncPrefUtils;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -50,9 +50,9 @@ public class ClearDatabaseTask extends ToastingAsyncTask {
 	protected Boolean doInBackground(Void... params) {
 		if (getContext() == null) return false;
 
-		SyncPrefUtils.clearCollection(getContext());
-		SyncPrefUtils.clearBuddyListTimestamps(getContext());
-		SyncPrefUtils.clearPlaysTimestamps(getContext());
+		SyncPrefs.clearCollection(getContext());
+		SyncPrefs.clearBuddyListTimestamps(getContext());
+		SyncPrefs.clearPlaysTimestamps(getContext());
 
 		int count = 0;
 		count += delete(Games.CONTENT_URI);

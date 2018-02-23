@@ -43,13 +43,13 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 		super.onBindDialogView(view);
 		ButterKnife.bind(this, view);
 
-		setDateTime(collectionFull, SyncPrefUtils.getLastCompleteCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-		setDateTime(collectionPartial, SyncPrefUtils.getLastPartialCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(collectionFull, SyncPrefs.getLastCompleteCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(collectionPartial, SyncPrefs.getLastPartialCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
-		setDateTime(buddies, SyncPrefUtils.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(buddies, SyncPrefs.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
-		long oldestDate = SyncPrefUtils.getPlaysOldestTimestamp(getContext());
-		long newestDate = SyncPrefUtils.getPlaysNewestTimestamp(getContext());
+		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
+		long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
 		if (oldestDate == 0 && newestDate == 0) {
 			playsView.setText(R.string.plays_sync_status_none);
 		} else if (oldestDate == 0) {

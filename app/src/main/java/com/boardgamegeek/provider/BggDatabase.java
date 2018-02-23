@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 
-import com.boardgamegeek.pref.SyncPrefUtils;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -640,7 +640,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					buildGamesTable().replace(db);
 					dropTable(db, Tables.COLLECTION);
 					buildCollectionTable().create(db);
-					SyncPrefUtils.clearCollection(context);
+					SyncPrefs.clearCollection(context);
 					SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION);
 					version = VER_GAME_COLLECTION_CONFLICT;
 				case VER_GAME_COLLECTION_CONFLICT:
@@ -760,7 +760,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					dropTable(db, Tables.PLAY_PLAYERS);
 					buildPlaysTable().create(db);
 					buildPlayPlayersTable().create(db);
-					SyncPrefUtils.clearPlaysTimestamps(context);
+					SyncPrefs.clearPlaysTimestamps(context);
 					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS);
 					version = VER_PLAYS_HARD_RESET;
 				case VER_PLAYS_HARD_RESET:

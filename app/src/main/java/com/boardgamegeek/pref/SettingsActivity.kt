@@ -133,19 +133,19 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PreferencesUtils.KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    SyncPrefUtils.clearCollection(activity)
+                    SyncPrefs.clearCollection(activity)
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    SyncPrefUtils.clearCollection(activity)
+                    SyncPrefs.clearCollection(activity)
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_PLAYS -> {
-                    SyncPrefUtils.clearPlaysTimestamps(activity)
+                    SyncPrefs.clearPlaysTimestamps(activity)
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
                 }
                 PreferencesUtils.KEY_SYNC_BUDDIES -> {
-                    SyncPrefUtils.clearBuddyListTimestamps(activity)
+                    SyncPrefs.clearBuddyListTimestamps(activity)
                     syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
                 }
             }

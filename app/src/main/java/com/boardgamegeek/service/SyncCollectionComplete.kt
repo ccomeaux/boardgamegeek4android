@@ -9,7 +9,7 @@ import android.text.TextUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
-import com.boardgamegeek.pref.SyncPrefUtils
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
@@ -63,14 +63,14 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                 return
             }
 
-            val currentSyncTimestamp = SyncPrefUtils.getCurrentCollectionSyncTimestamp(context)
+            val currentSyncTimestamp = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
             if (currentSyncTimestamp == 0L) {
-                val lastCompleteSync = SyncPrefUtils.getLastCompleteCollectionTimestamp(context)
+                val lastCompleteSync = SyncPrefs.getLastCompleteCollectionTimestamp(context)
                 if (lastCompleteSync > 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
                     Timber.i("Not currently syncing and it's been less than a week since we synced completely; skipping")
                     return
                 }
-                SyncPrefUtils.setCurrentCollectionSyncTimestamp(context)
+                SyncPrefs.setCurrentCollectionSyncTimestamp(context)
             }
 
             persister.resetTimestamp()
@@ -119,8 +119,8 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
         Timber.i("...syncing subtype [$subtype] status [$status]")
         Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses))
 
-        val lastCompleteSync = SyncPrefUtils.getCurrentCollectionSyncTimestamp(context)
-        val lastStatusSync = SyncPrefUtils.getCollectionSyncTimestamp(context, subtype, status)
+        val lastCompleteSync = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
+        val lastStatusSync = SyncPrefs.getCollectionSyncTimestamp(context, subtype, status)
         if (lastStatusSync > lastCompleteSync) {
             Timber.i("Status [$status] [$subtype] have been synced in the current sync request.")
             return
@@ -161,7 +161,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                     }
                     updateProgressNotification(context.getString(savingResId, body.itemCount, statusDescription, type))
                     val count = persister.save(body.items).recordCount
-                    SyncPrefUtils.setCollectionSyncTimestamp(context, subtype, status)
+                    SyncPrefs.setCollectionSyncTimestamp(context, subtype, status)
                     syncResult.stats.numUpdates += body.itemCount.toLong()
                     Timber.i("...saved %,d records for %,d collection $type", count, body.itemCount)
                 } else {
@@ -196,15 +196,15 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
         val count = context.contentResolver.delete(
                 Collection.CONTENT_URI,
                 "${Collection.UPDATED_LIST}<?",
-                arrayOf(SyncPrefUtils.getCurrentCollectionSyncTimestamp(context).toString()))
+                arrayOf(SyncPrefs.getCurrentCollectionSyncTimestamp(context).toString()))
         Timber.i("...deleted $count old collection entries")
         // TODO: delete thumbnail images associated with this list (both collection and game)
     }
 
     @DebugLog
     private fun updateTimestamps() {
-        SyncPrefUtils.setLastCompleteCollectionTimestamp(context, SyncPrefUtils.getCurrentCollectionSyncTimestamp(context))
-        SyncPrefUtils.setLastPartialCollectionTimestamp(context, SyncPrefUtils.getCurrentCollectionSyncTimestamp(context))
-        SyncPrefUtils.setCurrentCollectionSyncTimestamp(context, 0L)
+        SyncPrefs.setLastCompleteCollectionTimestamp(context, SyncPrefs.getCurrentCollectionSyncTimestamp(context))
+        SyncPrefs.setLastPartialCollectionTimestamp(context, SyncPrefs.getCurrentCollectionSyncTimestamp(context))
+        SyncPrefs.setCurrentCollectionSyncTimestamp(context, 0L)
     }
 }

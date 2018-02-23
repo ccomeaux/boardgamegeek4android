@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.pref.SyncPrefUtils;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 
@@ -31,7 +31,7 @@ public class ResetPlaysTask extends ToastingAsyncTask {
 	@Override
 	protected Boolean doInBackground(Void... params) {
 		if (getContext() == null) return false;
-		SyncPrefUtils.clearPlaysTimestamps(getContext());
+		SyncPrefs.clearPlaysTimestamps(getContext());
 		ContentValues values = new ContentValues(1);
 		values.put(Plays.SYNC_HASH_CODE, 0);
 		int count = getContext().getContentResolver().update(Plays.CONTENT_URI, values, null, null);

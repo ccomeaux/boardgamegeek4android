@@ -6,7 +6,7 @@ import com.boardgamegeek.PreferenceHelper.get
 import com.boardgamegeek.PreferenceHelper.set
 import com.boardgamegeek.auth.Authenticator
 
-class SyncPrefUtils {
+class SyncPrefs {
     companion object {
         private const val TIMESTAMP_COLLECTION_COMPLETE = "TIMESTAMP_COLLECTION_COMPLETE"
         private const val AUTH_TIMESTAMP_COLLECTION_COMPLETE = "com.boardgamegeek.TIMESTAMP_COLLECTION_COMPLETE"
@@ -24,7 +24,7 @@ class SyncPrefUtils {
 
         @JvmStatic
         fun setLastCompleteCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
-            Authenticator.putLong(context, TIMESTAMP_COLLECTION_COMPLETE, timestamp)
+            Authenticator.putLong(context, AUTH_TIMESTAMP_COLLECTION_COMPLETE, timestamp)
         }
 
         @JvmStatic
@@ -44,11 +44,11 @@ class SyncPrefUtils {
         }
 
         fun getCollectionSyncTimestamp(context: Context, status: String, subtype: String): Long {
-            return getPrefs(context)[SyncPrefUtils.collectionStatusKey(subtype, status), 0L] ?: 0L
+            return getPrefs(context)[collectionStatusKey(subtype, status), 0L] ?: 0L
         }
 
         fun setCollectionSyncTimestamp(context: Context, status: String, subtype: String, timestamp: Long = System.currentTimeMillis()) {
-            getPrefs(context)[SyncPrefUtils.collectionStatusKey(subtype, status)] = timestamp
+            getPrefs(context)[collectionStatusKey(subtype, status)] = timestamp
         }
 
         @JvmStatic

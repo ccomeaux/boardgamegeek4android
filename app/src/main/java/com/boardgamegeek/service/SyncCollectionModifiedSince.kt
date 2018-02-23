@@ -9,7 +9,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
-import com.boardgamegeek.pref.SyncPrefUtils
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.PreferencesUtils
 import timber.log.Timber
 import java.io.IOException
@@ -43,13 +43,13 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 return
             }
 
-            if (SyncPrefUtils.getCurrentCollectionSyncTimestamp(context) > 0) {
+            if (SyncPrefs.getCurrentCollectionSyncTimestamp(context) > 0) {
                 Timber.i("Currently performing a full sync; skipping incremental sync")
                 return
             }
 
             persister.resetTimestamp()
-            val date = SyncPrefUtils.getLastPartialCollectionTimestamp(context)
+            val date = SyncPrefs.getLastPartialCollectionTimestamp(context)
             val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(date))
             val formattedDateTime = DateUtils.formatDateTime(context, date, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
@@ -68,7 +68,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
             fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories_since, formattedDateTime), options, R.string.accessories)
 
-            SyncPrefUtils.setLastPartialCollectionTimestamp(context, persister.initialTimestamp)
+            SyncPrefs.setLastPartialCollectionTimestamp(context, persister.initialTimestamp)
         } finally {
             Timber.i("...complete!")
         }

@@ -11,7 +11,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Buddy
 import com.boardgamegeek.model.User
 import com.boardgamegeek.model.persister.BuddyPersister
-import com.boardgamegeek.pref.SyncPrefUtils
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
@@ -41,7 +41,7 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
                 return
             }
 
-            val lastCompleteSync = SyncPrefUtils.getBuddiesTimestamp(context)
+            val lastCompleteSync = SyncPrefs.getBuddiesTimestamp(context)
             if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 3) {
                 Timber.i("...skipping; we synced already within the last 3 days")
                 return
@@ -59,7 +59,7 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
             updateNotification(R.string.sync_notification_buddies_list_pruning)
             pruneOldBuddies()
 
-            SyncPrefUtils.setBuddiesTimestamp(context, persister.timestamp)
+            SyncPrefs.setBuddiesTimestamp(context, persister.timestamp)
         } finally {
             Timber.i("...complete!")
         }

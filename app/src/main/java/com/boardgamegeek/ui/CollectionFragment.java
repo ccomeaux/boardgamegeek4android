@@ -43,7 +43,7 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
-import com.boardgamegeek.pref.SyncPrefUtils;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -656,7 +656,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private void setEmptyText() {
 		if (emptyButton == null) return;
 		@StringRes int resId = R.string.empty_collection;
-		if (SyncPrefUtils.getLastCompleteCollectionTimestamp(getContext()) == 0L) {
+		if (SyncPrefs.getLastCompleteCollectionTimestamp(getContext()) == 0L) {
 			resId = R.string.empty_collection_sync_never;
 			emptyButton.setVisibility(View.GONE);
 		} else if (hasFiltersApplied()) {
