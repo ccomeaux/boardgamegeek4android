@@ -18,8 +18,6 @@ class SyncPrefs {
 
         private fun getPrefs(context: Context) = PreferenceHelper.customPrefs(context, "com.boardgamegeek.sync")
 
-        private fun collectionStatusKey(subtype: String, status: String) = "$TIMESTAMP_COLLECTION_COMPLETE.$status.$subtype"
-
         @JvmStatic
         fun migrate(context: Context) {
             if (getPrefs(context).contains(TIMESTAMP_COLLECTION_COMPLETE)) return
@@ -34,18 +32,8 @@ class SyncPrefs {
         fun getLastCompleteCollectionTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_COLLECTION_COMPLETE, 0L]
                 ?: 0L
 
-        @JvmStatic
         fun setLastCompleteCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_COLLECTION_COMPLETE] = timestamp
-        }
-
-        @JvmStatic
-        fun getLastPartialCollectionTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_COLLECTION_PARTIAL, 0L]
-                ?: 0L
-
-        @JvmStatic
-        fun setLastPartialCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
-            getPrefs(context)[TIMESTAMP_COLLECTION_PARTIAL] = timestamp
         }
 
         fun getCurrentCollectionSyncTimestamp(context: Context): Long {
@@ -56,30 +44,49 @@ class SyncPrefs {
             getPrefs(context)["$TIMESTAMP_COLLECTION_COMPLETE-CURRENT"] = timestamp
         }
 
-        fun getCollectionSyncTimestamp(context: Context, status: String, subtype: String): Long {
-            return getPrefs(context)[collectionStatusKey(subtype, status), 0L] ?: 0L
+        fun getCompleteCollectionSyncTimestamp(context: Context, status: String, subtype: String): Long {
+            return getPrefs(context)["$TIMESTAMP_COLLECTION_COMPLETE.$status.$subtype", 0L] ?: 0L
         }
 
-        fun setCollectionSyncTimestamp(context: Context, status: String, subtype: String, timestamp: Long = System.currentTimeMillis()) {
-            getPrefs(context)[collectionStatusKey(subtype, status)] = timestamp
+        fun setCompleteCollectionSyncTimestamp(context: Context, status: String, subtype: String, timestamp: Long = System.currentTimeMillis()) {
+            getPrefs(context)["$TIMESTAMP_COLLECTION_COMPLETE.$status.$subtype"] = timestamp
+        }
+
+        @JvmStatic
+        fun getLastPartialCollectionTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_COLLECTION_PARTIAL, 0L]
+                ?: 0L
+
+        fun setLastPartialCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
+            getPrefs(context)[TIMESTAMP_COLLECTION_PARTIAL] = timestamp
+        }
+
+        fun getPartialCollectionSyncTimestamp(context: Context, subtype: String): Long {
+            val ts = getLastPartialCollectionTimestamp(context)
+            return getPrefs(context)["$TIMESTAMP_COLLECTION_PARTIAL.$subtype", ts] ?: ts
+        }
+
+        fun setPartialCollectionSyncTimestamp(context: Context, subtype: String, timestamp: Long = System.currentTimeMillis()) {
+            getPrefs(context)["$TIMESTAMP_COLLECTION_PARTIAL.$subtype"] = timestamp
         }
 
         @JvmStatic
         fun clearCollection(context: Context) {
             setLastCompleteCollectionTimestamp(context, 0L)
-            setLastPartialCollectionTimestamp(context, 0L)
             setCurrentCollectionSyncTimestamp(context, 0L)
             val prefs = getPrefs(context)
             val map = prefs.all
             map.keys
                     .filter { it.startsWith("$TIMESTAMP_COLLECTION_COMPLETE.") }
                     .forEach { prefs.edit().remove(it).apply() }
+            setLastPartialCollectionTimestamp(context, 0L)
+            map.keys
+                    .filter { it.startsWith("$TIMESTAMP_COLLECTION_PARTIAL.") }
+                    .forEach { prefs.edit().remove(it).apply() }
         }
 
         @JvmStatic
         fun getBuddiesTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_BUDDIES, 0L] ?: 0L
 
-        @JvmStatic
         fun setBuddiesTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_BUDDIES] = timestamp
         }
@@ -92,7 +99,6 @@ class SyncPrefs {
         @JvmStatic
         fun getPlaysNewestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE, 0L] ?: 0L
 
-        @JvmStatic
         fun setPlaysNewestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE] = timestamp
         }
@@ -100,7 +106,6 @@ class SyncPrefs {
         @JvmStatic
         fun getPlaysOldestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE, 0L] ?: 0L
 
-        @JvmStatic
         fun setPlaysOldestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE] = timestamp
         }
@@ -116,7 +121,7 @@ class SyncPrefs {
             return getPlaysOldestTimestamp(context) == 0L
         }
 
-        fun getLong(context: Context, key: String, defaultValue: Long): Long {
+        private fun getLong(context: Context, key: String, defaultValue: Long): Long {
             val accountManager = AccountManager.get(context)
             val account = Authenticator.getAccount(accountManager) ?: return defaultValue
             val s = accountManager.getUserData(account, key)

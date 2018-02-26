@@ -116,11 +116,11 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
             Timber.i("...skipping blank status")
             return
         }
-        Timber.i("...syncing subtype [$subtype] status [$status]")
+        Timber.i("...syncing $status $subtype")
         Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses))
 
         val lastCompleteSync = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
-        val lastStatusSync = SyncPrefs.getCollectionSyncTimestamp(context, subtype, status)
+        val lastStatusSync = SyncPrefs.getCompleteCollectionSyncTimestamp(context, subtype, status)
         if (lastStatusSync > lastCompleteSync) {
             Timber.i("Status [$status] [$subtype] have been synced in the current sync request.")
             return
@@ -143,7 +143,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
         updateProgressNotification(context.getString(downloadingResId, statusDescription, type))
 
         val options = ArrayMap<String, String>()
-        options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
+        if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
         options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
         options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
         options[status] = "1"
@@ -152,7 +152,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
-            if (response.isSuccessful) {
+            if (response.code() == 200) {
                 val body = response.body()
                 if (body != null && body.itemCount > 0) {
                     @StringRes val savingResId = when {
@@ -161,7 +161,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                     }
                     updateProgressNotification(context.getString(savingResId, body.itemCount, statusDescription, type))
                     val count = persister.save(body.items).recordCount
-                    SyncPrefs.setCollectionSyncTimestamp(context, subtype, status)
+                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status)
                     syncResult.stats.numUpdates += body.itemCount.toLong()
                     Timber.i("...saved %,d records for %,d collection $type", count, body.itemCount)
                 } else {

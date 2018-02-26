@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.accounts.Account
 import android.content.Context
 import android.content.SyncResult
-import android.support.annotation.StringRes
 import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
 import com.boardgamegeek.R
@@ -48,56 +47,76 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 return
             }
 
-            persister.resetTimestamp()
-            val date = SyncPrefs.getLastPartialCollectionTimestamp(context)
-            val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(date))
-            val formattedDateTime = DateUtils.formatDateTime(context, date, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-
-            val options = ArrayMap<String, String>()
-            options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
-            options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
-            options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = modifiedSince
-            fetchAndPersist(context.getString(R.string.sync_notification_collection_items_since, formattedDateTime), options, R.string.items)
-
+            syncBySubtype()
             if (isCancelled) {
                 Timber.i("...cancelled")
                 return
             }
+
             if (wasSleepInterrupted(2000)) return
 
-            options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
-            fetchAndPersist(context.getString(R.string.sync_notification_collection_accessories_since, formattedDateTime), options, R.string.accessories)
+            syncBySubtype(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
+            if (isCancelled) {
+                Timber.i("...cancelled")
+                return
+            }
 
-            SyncPrefs.setLastPartialCollectionTimestamp(context, persister.initialTimestamp)
+            SyncPrefs.setLastPartialCollectionTimestamp(context)
         } finally {
             Timber.i("...complete!")
         }
     }
 
-    private fun fetchAndPersist(detail: String, options: ArrayMap<String, String>, @StringRes typeResId: Int) {
-        updateProgressNotification(detail)
+    private fun syncBySubtype(subtype: String = "") {
+        val lastStatusSync = SyncPrefs.getPartialCollectionSyncTimestamp(context, subtype)
+        val lastPartialSync = SyncPrefs.getLastPartialCollectionTimestamp(context)
+        if (lastStatusSync > lastPartialSync) {
+            Timber.i("Subtype [$subtype] has been synced in the current sync request.")
+            return
+        }
+
+        val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
+        val subtypeDescription = context.getString(when (subtype) {
+            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
+            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
+            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
+            else -> R.string.items
+        })
+
+        val formattedDateTime = DateUtils.formatDateTime(context, lastStatusSync, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+
+        updateProgressNotification(context.getString(R.string.sync_notification_collection_since_downloading, subtypeDescription, formattedDateTime))
+
+        val options = ArrayMap<String, String>()
+        options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
+        options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
+        options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = modifiedSince
+        if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
+
+        persister.resetTimestamp()
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
-            if (response.isSuccessful) {
+            if (response.code() == 200) {
                 val body = response.body()
                 if (body != null && body.itemCount > 0) {
+                    updateProgressNotification(context.getString(R.string.sync_notification_collection_since_saving, body.itemCount, subtypeDescription, formattedDateTime))
                     val count = persister.save(body.items).recordCount
                     syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, context.getString(typeResId))
+                    Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, subtypeDescription)
+                    SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.initialTimestamp)
                 } else {
-                    Timber.i("...no new collection %s modifications", context.getString(typeResId))
+                    Timber.i("...no new collection %s modifications", subtypeDescription)
                 }
             } else {
-                showError(detail, response.code())
+                showError(context.getString(R.string.sync_notification_collection_since, subtypeDescription, formattedDateTime), response.code())
                 syncResult.stats.numIoExceptions++
                 cancel()
             }
         } catch (e: IOException) {
-            showError(detail, e)
+            showError(context.getString(R.string.sync_notification_collection_since, subtypeDescription, formattedDateTime), e)
             syncResult.stats.numIoExceptions++
             cancel()
         }
-
     }
 }
