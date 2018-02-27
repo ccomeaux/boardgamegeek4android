@@ -69,6 +69,10 @@ class SyncPrefs {
             getPrefs(context)["$TIMESTAMP_COLLECTION_PARTIAL.$subtype"] = timestamp
         }
 
+        fun requestPartialSync(context: Context) {
+            setCurrentCollectionSyncTimestamp(context, getLastCompleteCollectionTimestamp(context))
+        }
+
         @JvmStatic
         fun clearCollection(context: Context) {
             setLastCompleteCollectionTimestamp(context, 0L)

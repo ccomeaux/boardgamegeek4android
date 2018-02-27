@@ -133,11 +133,11 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PreferencesUtils.KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    SyncPrefs.clearCollection(activity)
+                    SyncPrefs.requestPartialSync(activity)
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    SyncPrefs.clearCollection(activity)
+                    SyncPrefs.requestPartialSync(activity)
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_PLAYS -> {
