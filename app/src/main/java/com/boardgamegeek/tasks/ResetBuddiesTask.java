@@ -3,6 +3,7 @@ package com.boardgamegeek.tasks;
 import android.content.Context;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
 
@@ -28,13 +29,12 @@ public class ResetBuddiesTask extends ToastingAsyncTask {
 
 	@Override
 	protected Boolean doInBackground(Void... params) {
-		boolean success = SyncService.clearBuddies(getContext());
-		if (success && getContext() != null) {
-			int count = getContext().getContentResolver().delete(Buddies.CONTENT_URI, null, null);
-			//TODO remove buddy colors
-			Timber.i("Removed %d GeekBuddies", count);
-			SyncService.sync(getContext(), SyncService.FLAG_SYNC_BUDDIES);
-		}
-		return success;
+		if (getContext() == null) return false;
+		SyncPrefs.clearBuddyListTimestamps(getContext());
+		int count = getContext().getContentResolver().delete(Buddies.CONTENT_URI, null, null);
+		//TODO remove buddy colors
+		Timber.i("Removed %d GeekBuddies", count);
+		SyncService.sync(getContext(), SyncService.FLAG_SYNC_BUDDIES);
+		return true;
 	}
 }

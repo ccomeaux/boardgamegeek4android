@@ -15,13 +15,11 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.BatteryUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -33,21 +31,19 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-	private final Context context;
 	private SyncTask currentTask;
 	private boolean isCancelled;
 
 	@DebugLog
 	public SyncAdapter(Context context) {
 		super(context, false);
-		this.context = context;
 
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -76,9 +72,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
 		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
 
-		String statuses = StringUtils.formatList(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
-		if (PreferencesUtils.getSyncPlays(context)) statuses += " | plays";
-		if (PreferencesUtils.getSyncBuddies(context)) statuses += " | buddies";
+		String statuses = StringUtils.formatList(Collections.singletonList(PreferencesUtils.getSyncStatuses(getContext())));
+		if (PreferencesUtils.getSyncPlays(getContext())) statuses += " | plays";
+		if (PreferencesUtils.getSyncBuddies(getContext())) statuses += " | buddies";
 		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
 
 		if (initialize) {
@@ -91,7 +87,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!shouldContinueSync()) return;
 
 		toggleCancelReceiver(true);
-		List<SyncTask> tasks = createTasks(context, type, uploadOnly);
+		List<SyncTask> tasks = createTasks(getContext(), type, uploadOnly, syncResult, account);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
@@ -105,7 +101,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
 				Crashlytics.setInt(CrashKeys.SYNC_TYPE, currentTask.getSyncType());
 				currentTask.updateProgressNotification();
-				currentTask.execute(account, syncResult);
+				currentTask.execute();
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
 				if (currentTask.isCancelled()) {
 					Timber.i("Sync task %s has requested the sync operation to be cancelled", currentTask);
@@ -120,7 +116,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				}
 			}
 		}
-		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
+		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
 	}
@@ -142,22 +138,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	private boolean shouldContinueSync() {
-		if (NetworkUtils.isOffline(context)) {
+		if (NetworkUtils.isOffline(getContext())) {
 			Timber.i("Skipping sync; offline");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyCharging(context) && !BatteryUtils.isCharging(context)) {
+		if (PreferencesUtils.getSyncOnlyCharging(getContext()) && !BatteryUtils.isCharging(getContext())) {
 			Timber.i("Skipping sync; not charging");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyWifi(context) && !NetworkUtils.isOnWiFi(context)) {
+		if (PreferencesUtils.getSyncOnlyWifi(getContext()) && !NetworkUtils.isOnWiFi(getContext())) {
 			Timber.i("Skipping sync; not on wifi");
 			return false;
 		}
 
-		if (BatteryUtils.isBatteryLow(context)) {
+		if (BatteryUtils.isBatteryLow(getContext())) {
 			Timber.i("Skipping sync; battery low");
 			return false;
 		}
@@ -170,41 +166,32 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	@NonNull
-	private List<SyncTask> createTasks(Context context, final int typeList, boolean uploadOnly) {
+	private List<SyncTask> createTasks(Context context, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
 		BggService service = Adapter.createForXmlWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<>();
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-			tasks.add(new SyncCollectionUpload(context, service));
+			tasks.add(new SyncCollectionUpload(context, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
-			if (PreferencesUtils.isCollectionSetToSync(context)) {
-				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
-				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-					tasks.add(new SyncCollectionModifiedSince(context, service));
-				} else {
-					tasks.add(new SyncCollectionComplete(context, service));
-				}
-			} else {
-				Timber.i("...no statuses set to sync");
-			}
-
-			tasks.add(new SyncCollectionUnupdated(context, service));
+			tasks.add(new SyncCollectionComplete(context, service, syncResult, account));
+			tasks.add(new SyncCollectionModifiedSince(context, service, syncResult, account));
+			tasks.add(new SyncCollectionUnupdated(context, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-			tasks.add(new SyncGamesRemove(context, service));
-			tasks.add(new SyncGamesOldest(context, service));
-			tasks.add(new SyncGamesUnupdated(context, service));
+			tasks.add(new SyncGamesRemove(context, service, syncResult));
+			tasks.add(new SyncGamesOldest(context, service, syncResult));
+			tasks.add(new SyncGamesUnupdated(context, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-			tasks.add(new SyncPlaysUpload(context, service));
+			tasks.add(new SyncPlaysUpload(context, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-			tasks.add(new SyncPlays(context, service));
+			tasks.add(new SyncPlays(context, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-			tasks.add(new SyncBuddiesList(context, service));
-			tasks.add(new SyncBuddiesDetailOldest(context, service));
-			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
+			tasks.add(new SyncBuddiesList(context, service, syncResult, account));
+			tasks.add(new SyncBuddiesDetailOldest(context, service, syncResult));
+			tasks.add(new SyncBuddiesDetailUnupdated(context, service, syncResult));
 		}
 		return tasks;
 	}
@@ -218,8 +205,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	private void toggleCancelReceiver(boolean enable) {
-		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
-		PackageManager pm = context.getPackageManager();
+		ComponentName receiver = new ComponentName(getContext(), CancelReceiver.class);
+		PackageManager pm = getContext().getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ?
 				PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
 				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
@@ -242,20 +229,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		Timber.w(message);
 
-		if (!PreferencesUtils.getSyncShowErrors(context)) return;
+		if (!PreferencesUtils.getSyncShowErrors(getContext())) return;
 
 		final int messageId = task.getNotificationSummaryMessageId();
 		if (messageId != SyncTask.NO_NOTIFICATION) {
-			CharSequence text = context.getText(messageId);
+			CharSequence text = getContext().getText(messageId);
 			NotificationCompat.Builder builder = NotificationUtils
-				.createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
+				.createNotificationBuilder(getContext(), R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
 				.setContentText(text)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			if (!TextUtils.isEmpty(message)) {
 				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 			}
-			NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
+			NotificationUtils.notify(getContext(), NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 		}
 	}
 
@@ -265,14 +252,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	private void notifySyncIsCancelled(int messageId) {
-		if (!PreferencesUtils.getSyncShowNotifications(context)) return;
+		if (!PreferencesUtils.getSyncShowNotifications(getContext())) return;
 
-		CharSequence contextText = messageId == SyncTask.NO_NOTIFICATION ? "" : context.getText(messageId);
+		CharSequence contextText = messageId == SyncTask.NO_NOTIFICATION ? "" : getContext().getText(messageId);
 
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_cancel, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
+			.createNotificationBuilder(getContext(), R.string.sync_notification_title_cancel, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
 			.setContentText(contextText)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE);
-		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
+		NotificationUtils.notify(getContext(), NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
 }

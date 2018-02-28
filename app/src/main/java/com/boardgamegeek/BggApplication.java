@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.BggEventBusIndex;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
@@ -71,6 +72,7 @@ public class BggApplication extends Application {
 			NotificationUtils.createNotificationChannels(getApplicationContext());
 
 		migrateCollectionStatusSettings();
+		SyncPrefs.migrate(this);
 	}
 
 	private void initializeFabric() {

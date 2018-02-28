@@ -3,6 +3,7 @@ package com.boardgamegeek.tasks;
 import android.content.Context;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.service.SyncService;
 
 /**
@@ -25,10 +26,9 @@ public class ResetCollectionTask extends ToastingAsyncTask {
 
 	@Override
 	protected Boolean doInBackground(Void... params) {
-		boolean wasSuccessful = SyncService.clearCollection(getContext());
-		if (wasSuccessful) {
-			SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
-		}
-		return wasSuccessful;
+		if (getContext() == null) return false;
+		SyncPrefs.clearCollection(getContext());
+		SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
+		return true;
 	}
 }

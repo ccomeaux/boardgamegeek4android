@@ -1,0 +1,155 @@
+package com.boardgamegeek.service
+
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.SyncResult
+import android.support.annotation.PluralsRes
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationCompat.BigTextStyle
+import android.text.TextUtils
+
+import com.boardgamegeek.R
+import com.boardgamegeek.io.BggService
+import com.boardgamegeek.util.NotificationUtils
+import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.util.PresentationUtils
+import com.boardgamegeek.util.fabric.CrashKeys
+import com.crashlytics.android.Crashlytics
+
+import timber.log.Timber
+
+abstract class SyncTask(protected val context: Context, protected val service: BggService, protected val syncResult: SyncResult) {
+    /**
+     * Returns whether this task has been cancelled. It may still be running, but will stop soon.
+     */
+    var isCancelled = false
+        private set
+
+    /**
+     * Unique ID for this sync class.
+     */
+    abstract val syncType: Int
+
+    /***
+     * The resource ID of the context text to display in syncing progress and error notifications. It should describe
+     * the entire task.
+     */
+    open val notificationSummaryMessageId: Int
+        get() = NO_NOTIFICATION
+
+    /**
+     * Perform the sync operation.
+     */
+    abstract fun execute()
+
+    /**
+     * Call this to cancel the task. If the task is running, it will cancel it's process at the earliest convenient
+     * time, as determined by the service.
+     */
+    fun cancel() {
+        isCancelled = true
+    }
+
+    protected fun updateProgressNotificationAsPlural(@PluralsRes detailResId: Int, quantity: Int, vararg formatArgs: Any) {
+        updateProgressNotification(context.resources.getQuantityString(detailResId, quantity, *formatArgs))
+    }
+
+    /**
+     * If the user's preferences are set, show a notification with the current progress of the sync status. The content
+     * text is set by the sync task, while the detail message is displayed in BigTextStyle.
+     */
+    @JvmOverloads
+    protected fun updateProgressNotification(detail: String? = null) {
+        Timber.i(detail)
+        Crashlytics.setString(CrashKeys.SYNC_DETAIL, detail)
+        if (!PreferencesUtils.getSyncShowNotifications(this.context)) return
+
+        val message = if (notificationSummaryMessageId == NO_NOTIFICATION)
+            ""
+        else
+            context.getString(notificationSummaryMessageId)
+
+        val intent = Intent(context, CancelReceiver::class.java)
+        intent.action = SyncService.ACTION_CANCEL_SYNC
+        val pi = PendingIntent.getBroadcast(context, 0, intent, 0)
+        val builder = NotificationUtils
+                .createNotificationBuilder(context, R.string.sync_notification_title, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setOngoing(true)
+                .setProgress(1, 0, true)
+                .addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi)
+        if (!TextUtils.isEmpty(detail)) {
+            builder.setStyle(BigTextStyle().bigText(detail))
+        }
+        NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder)
+    }
+
+    /**
+     * If the user's preferences are set, show a notification message with the error message. This will replace any
+     * existing error notification.
+     */
+    protected fun showError(detailMessage: String, t: Throwable) {
+        showError(detailMessage, t.localizedMessage)
+    }
+
+    /**
+     * If the user's preferences are set, show a notification message with the error message. This will replace any
+     * existing error notification.
+     */
+    protected fun showError(detailMessage: String, httpCode: Int) {
+        showError(detailMessage, PresentationUtils.getHttpErrorMessage(context, httpCode))
+    }
+
+    /**
+     * If the user's preferences are set, show a notification message with the error message. This will replace any
+     * existing error notification.
+     */
+    private fun showError(detailMessage: String, errorMessage: String) {
+        Timber.w("$detailMessage\n$errorMessage")
+
+        if (!PreferencesUtils.getSyncShowErrors(context)) return
+
+        val contentMessage = if (notificationSummaryMessageId == NO_NOTIFICATION)
+            detailMessage
+        else
+            context.getString(notificationSummaryMessageId)
+        val bigText = if (notificationSummaryMessageId == NO_NOTIFICATION)
+            errorMessage
+        else
+            detailMessage + "\n" + errorMessage
+
+        val builder = NotificationUtils
+                .createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
+                .setContentText(contentMessage)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+        if (!TextUtils.isEmpty(bigText)) {
+            builder.setStyle(BigTextStyle().bigText(bigText))
+        }
+
+        NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder)
+    }
+
+    /**
+     * Sleep for the specified number of milliseconds. Returns true if thread was interrupted. This typically means the
+     * task should stop processing.
+     */
+    protected fun wasSleepInterrupted(millis: Long): Boolean {
+        try {
+            Timber.d("Sleeping for %,d millis", millis)
+            Thread.sleep(millis)
+        } catch (e: InterruptedException) {
+            Timber.w(e, "Sleeping interrupted during sync.")
+            return true
+        }
+
+        return false
+    }
+
+    companion object {
+        const val NO_NOTIFICATION = 0
+    }
+}

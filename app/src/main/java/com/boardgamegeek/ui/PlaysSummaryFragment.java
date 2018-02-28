@@ -24,10 +24,10 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
@@ -247,8 +247,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void bindStatusMessage() {
-		long oldestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
-		long newestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
+		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
+		long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
 		if (oldestDate == 0 && newestDate == 0) {
 			syncStatusView.setText(R.string.plays_sync_status_none);
 		} else if (oldestDate == 0) {

@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.util.HttpUtils;
@@ -404,7 +405,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@OnClick(R.id.empty_button)
 	void onSyncClick() {
-		SyncService.clearCollection(getActivity());
+		SyncPrefs.clearCollection(getContext());
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
 	}
 

@@ -31,8 +31,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static final String ACCOUNT_TYPE = "com.boardgamegeek";
 	public static final String AUTH_TOKEN_TYPE = "com.boardgamegeek";
 	public static final String KEY_AUTH_TOKEN_EXPIRY = "AUTHTOKEN_EXPIRY";
-	public static final String KEY_USER_ID = "com.boardgamegeek.USER_ID";
 	public static final String INVALID_USER_ID = "0";
+	private static final String KEY_USER_ID = "com.boardgamegeek.USER_ID";
 
 	private final Context context;
 
@@ -161,14 +161,18 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static String getUserId(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
-		if (account == null) {
-			return INVALID_USER_ID;
-		}
+		if (account == null) return INVALID_USER_ID;
 		String userId = accountManager.getUserData(account, KEY_USER_ID);
-		if (userId == null) {
-			return INVALID_USER_ID;
-		}
+		if (userId == null) return INVALID_USER_ID;
 		return userId;
+	}
+
+	public static void putUserId(Context context, int value) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		if (account != null) {
+			accountManager.setUserData(account, KEY_USER_ID, String.valueOf(value));
+		}
 	}
 
 	/**
@@ -198,48 +202,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return data != null;
 	}
 
-	public static long getLong(Context context, String key) {
-		return getLong(context, key, 0);
-	}
-
-	public static long getLong(Context context, String key, long defaultValue) {
-		if (context == null) {
-			return defaultValue;
-		}
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = getAccount(accountManager);
-		if (account == null) {
-			return defaultValue;
-		}
-		return getLong(accountManager, account, key, defaultValue);
-	}
-
-	public static long getLong(@NonNull AccountManager accountManager, Account account, String key) {
-		String s = accountManager.getUserData(account, key);
-		return TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
-	}
-
-	public static long getLong(@NonNull AccountManager accountManager, Account account, String key, long defaultValue) {
-		String s = accountManager.getUserData(account, key);
-		return TextUtils.isEmpty(s) ? defaultValue : Long.parseLong(s);
-	}
-
-	public static void putLong(Context context, String key, long value) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = getAccount(accountManager);
-		if (account != null) {
-			accountManager.setUserData(account, key, String.valueOf(value));
-		}
-	}
-
-	public static void putInt(Context context, String key, int value) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = getAccount(accountManager);
-		if (account != null) {
-			accountManager.setUserData(account, key, String.valueOf(value));
-		}
-	}
-
 	public static void signOut(final Context context) {
 		AccountManager am = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(am);
@@ -249,6 +211,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			} else {
 				removeAccount(am, account);
 			}
+			am.setUserData(account, KEY_USER_ID, INVALID_USER_ID);
 		}
 		AccountUtils.clearFields(context);
 	}

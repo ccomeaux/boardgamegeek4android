@@ -31,7 +31,7 @@ public class CollectionPersister {
 	private static final int NOT_DIRTY = 0;
 	private final Context context;
 	private final ContentResolver resolver;
-	private final long updateTime;
+	private long timestamp;
 	private final boolean isBriefSync;
 	private final boolean includePrivateInfo;
 	private final boolean includeStats;
@@ -139,12 +139,15 @@ public class CollectionPersister {
 		this.includeStats = includeStats;
 		this.statusesToSync = statusesToSync;
 		resolver = this.context.getContentResolver();
-		updateTime = System.currentTimeMillis();
+		timestamp = System.currentTimeMillis();
 	}
 
-	@DebugLog
-	public long getInitialTimestamp() {
-		return updateTime;
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void resetTimestamp() {
+		timestamp = System.currentTimeMillis();
 	}
 
 	/**
@@ -238,7 +241,7 @@ public class CollectionPersister {
 	@DebugLog
 	private ContentValues toGameValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
-		values.put(Games.UPDATED_LIST, updateTime);
+		values.put(Games.UPDATED_LIST, timestamp);
 		values.put(Games.GAME_ID, item.gameId);
 		values.put(Games.GAME_NAME, item.gameName());
 		values.put(Games.GAME_SORT_NAME, item.gameSortName());
@@ -260,9 +263,9 @@ public class CollectionPersister {
 	private ContentValues toCollectionValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
 		if (!isBriefSync && includePrivateInfo && includeStats) {
-			values.put(Collection.UPDATED, updateTime);
+			values.put(Collection.UPDATED, timestamp);
 		}
-		values.put(Collection.UPDATED_LIST, updateTime);
+		values.put(Collection.UPDATED_LIST, timestamp);
 		values.put(Collection.GAME_ID, item.gameId);
 		if (item.collectionId() != BggContract.INVALID_ID) {
 			values.put(Collection.COLLECTION_ID, item.collectionId());

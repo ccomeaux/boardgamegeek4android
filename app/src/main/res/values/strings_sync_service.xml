@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
 	<string name="sync_notification_title">Syncing</string>
 	<string name="sync_notification_title_cancel">Sync Cancelled</string>
@@ -9,10 +9,12 @@
 	<string name="sync_notification_collection_full">Syncing your entire collection</string>
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Filling in some gaps in your collection</string>
-	<string name="sync_notification_collection_items">Syncing \"%s\" collection items</string>
-	<string name="sync_notification_collection_accessories">Syncing \"%s\" collection accessories</string>
-	<string name="sync_notification_collection_items_since">Syncing collection items modified since %s</string>
-	<string name="sync_notification_collection_accessories_since">Syncing collection accessories modified since %s</string>
+	<string name="sync_notification_collection_downloading">Downloading \"%s\" collection %s</string>
+	<string name="sync_notification_collection_saving">Saving %,d \"%s\" collection %s</string>
+	<string name="sync_notification_collection_detail">Syncing \"%s\" collection %s</string>
+	<string name="sync_notification_collection_since">Syncing collection %1$s modified since %2$s</string>
+	<string name="sync_notification_collection_since_downloading">Downloading collection %1$s modified since %2$s</string>
+	<string name="sync_notification_collection_since_saving" tools:ignore="PluralsCandidate">Saving %,d collection %s modified since %s</string>
 	<string name="sync_notification_collection_update_games">Updating %1$,d games [%2$s]</string>
 	<string name="sync_notification_games_oldest">Refreshing stale games</string>
 	<string name="sync_notification_games_unupdated">Getting the details of newly added games</string>
