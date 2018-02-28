@@ -6,6 +6,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -166,8 +167,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		if (getContext() == null) return null;
-		CursorLoader loader = null;
+		CursorLoader loader = new CursorLoader(getContext());
 		switch (id) {
 			case PLAYS_IN_PROGRESS_TOKEN:
 				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
@@ -233,10 +233,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
 			case PLAYS_IN_PROGRESS_TOKEN:
@@ -440,7 +438,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	@OnClick(R.id.sync)
