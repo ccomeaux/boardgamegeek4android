@@ -18,7 +18,7 @@ import java.io.File;
  * Helps create shortcuts.
  */
 public class ShortcutUtils {
-	public static final int SHORT_LABEL_LENGTH = 14;
+	public static final int SHORT_LABEL_LENGTH = 12;
 	public static final int LONG_LABEL_LENGTH = 25;
 
 	private ShortcutUtils() {
