@@ -70,7 +70,7 @@ public class NotificationUtils {
 		channel = new NotificationChannel(
 			NotificationUtils.CHANNEL_ID_PLAYING,
 			context.getString(R.string.channel_name_playing),
-			NotificationManager.IMPORTANCE_HIGH);
+			NotificationManager.IMPORTANCE_DEFAULT);
 		channel.setDescription(context.getString(R.string.channel_description_playing));
 		channel.setLightColor(Color.BLUE);
 		notificationManager.createNotificationChannel(channel);
