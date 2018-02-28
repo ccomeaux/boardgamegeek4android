@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -58,7 +60,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
-public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener, OnSharedPreferenceChangeListener {
 	private static final int PLAYS_TOKEN = 1;
 	private static final int PLAY_COUNT_TOKEN = 2;
 	private static final int PLAYERS_TOKEN = 3;
@@ -94,16 +96,18 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
+		return inflater.inflate(R.layout.fragment_plays_summary, container, false);
+	}
 
-		unbinder = ButterKnife.bind(this, rootView);
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
 		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(getActivity())));
-
-		return rootView;
 	}
 
 	@Override
@@ -111,6 +115,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		super.onResume();
 		bindStatusMessage();
 		bindSyncCard();
+		SyncPrefs.getPrefs(getContext()).registerOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -134,11 +139,17 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		EventBus.getDefault().register(this);
 	}
 
+	@Override
+	public void onPause() {
+		super.onPause();
+		SyncPrefs.getPrefs(getContext()).unregisterOnSharedPreferenceChangeListener(this);
+	}
+
 	@DebugLog
 	@Override
 	public void onStop() {
-		EventBus.getDefault().unregister(this);
 		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -147,6 +158,12 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		unbinder.unbind();
 	}
 
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		bindStatusMessage();
+	}
+
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		if (getContext() == null) return null;
