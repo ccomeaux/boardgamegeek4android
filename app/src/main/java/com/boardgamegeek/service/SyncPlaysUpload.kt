@@ -35,7 +35,7 @@ import okhttp3.Request.Builder
 class SyncPlaysUpload @DebugLog
 constructor(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
     private var httpClient: OkHttpClient? = null
-    private var persister: PlayPersister? = null
+    private var persister = PlayPersister(context)
     private var currentInternalId: Long = 0
     private var currentGameIdForNotification: Int = 0
     private var currentGameNameForNotification: String? = null
@@ -85,8 +85,6 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
     @DebugLog
     override fun execute() {
         httpClient = HttpUtils.getHttpClientWithAuth(context)
-        persister = PlayPersister(context)
-
         deletePendingPlays()
         updatePendingPlays()
         if (SyncPrefs.isPlaysSyncUpToDate(context)) {
@@ -146,7 +144,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
                     currentGameNameForNotification = play.gameName
 
                     notifyUser(play, message)
-                    persister!!.save(play, currentInternalId, false)
+                    persister.save(play, currentInternalId, false)
 
                     updateGamePlayCount(play)
                 }
@@ -302,7 +300,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
      */
     @DebugLog
     private fun deletePlay(internalId: Long) {
-        persister!!.delete(internalId)
+        persister.delete(internalId)
     }
 
     @DebugLog
