@@ -198,6 +198,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private ShowcaseViewWizard showcaseViewWizard;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
+	private Call<ForumListResponse> call;
 
 	public static GameFragment newInstance(int gameId, String gameName, @ColorInt int iconColor, @ColorInt int darkColor) {
 		Bundle args = new Bundle();
@@ -252,6 +253,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
 		return rootView;
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		if (call != null) call.cancel();
 	}
 
 	@Override
@@ -407,7 +414,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		if (forumsLastPostDateView.getVisibility() == VISIBLE) return;
 
 		BggService bggService = Adapter.createForXml();
-		Call<ForumListResponse> call = bggService.forumList(BggService.FORUM_TYPE_THING, gameId);
+		call = bggService.forumList(BggService.FORUM_TYPE_THING, gameId);
 		call.enqueue(new Callback<ForumListResponse>() {
 			@Override
 			public void onResponse(@NonNull Call<ForumListResponse> call, @NonNull Response<ForumListResponse> response) {
@@ -427,6 +434,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 			@Override
 			public void onFailure(@NonNull Call<ForumListResponse> call, @NonNull Throwable t) {
+				if (call.isCanceled()) return;
 				Timber.w("Failed fetching forum for game %s: %s", gameId, t.getMessage());
 			}
 		});
