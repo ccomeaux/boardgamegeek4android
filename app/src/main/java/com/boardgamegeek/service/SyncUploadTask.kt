@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.graphics.Bitmap
+import android.os.Build
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
@@ -80,10 +81,12 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
 
     @DebugLog
     private fun showNotificationSummary() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) return
         val builder = NotificationUtils
                 .createNotificationBuilder(context,
                         notificationTitleResId,
-                        NotificationUtils.CHANNEL_ID_SYNC_UPLOAD, notificationSummaryIntent)
+                        NotificationUtils.CHANNEL_ID_SYNC_UPLOAD,
+                        notificationSummaryIntent)
                 .setGroup(notificationMessageTag)
                 .setGroupSummary(true)
         val messageCount = notificationMessages.size
