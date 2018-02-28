@@ -9,11 +9,8 @@
 	<string name="sync_notification_collection_full">Syncing your entire collection</string>
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Filling in some gaps in your collection</string>
-	<string name="sync_notification_sleep">Catching my breath</string>
 	<string name="sync_notification_collection_downloading">Downloading \"%s\" collection %s</string>
-	<string name="sync_notification_collection_downloading_exclusions">Downloading \"%s\" collection %s (with exclusions)</string>
 	<string name="sync_notification_collection_saving">Saving %,d \"%s\" collection %s</string>
-	<string name="sync_notification_collection_saving_exclusions">Saving %,d \"%s\" collection %s (with exclusions)</string>
 	<string name="sync_notification_collection_detail">Syncing \"%s\" collection %s</string>
 	<string name="sync_notification_collection_since">Syncing collection %1$s modified since %2$s</string>
 	<string name="sync_notification_collection_since_downloading">Downloading collection %1$s modified since %2$s</string>

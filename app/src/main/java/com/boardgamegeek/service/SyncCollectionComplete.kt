@@ -36,10 +36,10 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
     override val syncType: Int
         get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 
-    private// Played games should be synced first - they don't respect the "exclude" flag
-    val syncableStatuses: List<String>
+    private val syncableStatuses: List<String>
         get() {
             val statuses = ArrayList(PreferencesUtils.getSyncStatuses(context))
+            // Played games should be synced first - they don't respect the "exclude" flag
             if (statuses.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
                 statuses.add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED)
             }
@@ -73,7 +73,6 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                 SyncPrefs.setCurrentCollectionSyncTimestamp(context)
             }
 
-            persister.resetTimestamp()
             val statuses = syncableStatuses
             for (i in statuses.indices) {
                 if (i > 0) {
@@ -81,14 +80,14 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
                         Timber.i("...cancelled")
                         return
                     }
-                    updateProgressNotification(context.getString(R.string.sync_notification_sleep))
+                    updateProgressNotification()
                     if (wasSleepInterrupted(5000)) return
                 }
 
                 val excludedStatuses = (0 until i).map { statuses[it] }
                 syncByStatus("", statuses[i], *excludedStatuses.toTypedArray())
 
-                updateProgressNotification(context.getString(R.string.sync_notification_sleep))
+                updateProgressNotification()
                 if (wasSleepInterrupted(5000)) return
 
                 syncByStatus(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY, statuses[i], *excludedStatuses.toTypedArray())
@@ -116,31 +115,26 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
             Timber.i("...skipping blank status")
             return
         }
-        Timber.i("...syncing $status $subtype")
-        Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses))
-
-        val lastCompleteSync = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
-        val lastStatusSync = SyncPrefs.getCompleteCollectionSyncTimestamp(context, subtype, status)
-        if (lastStatusSync > lastCompleteSync) {
-            Timber.i("Status [$status] [$subtype] have been synced in the current sync request.")
-            return
-        }
 
         val statusDescription = getStatusDescription(status)
-
-        @StringRes val downloadingResId = when {
-            excludedStatuses.isNotEmpty() -> R.string.sync_notification_collection_downloading_exclusions
-            else -> R.string.sync_notification_collection_downloading
-        }
-
-        val type = context.getString(when (subtype) {
+        val subtypeDescription = context.getString(when (subtype) {
             BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
             BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
             BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
             else -> R.string.items
         })
 
-        updateProgressNotification(context.getString(downloadingResId, statusDescription, type))
+        val lastCompleteSync = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
+        val lastStatusSync = SyncPrefs.getCompleteCollectionSyncTimestamp(context, subtype, status)
+        if (lastStatusSync > lastCompleteSync) {
+            Timber.i("'$statusDescription' $subtypeDescription have been synced in the current sync request.")
+            return
+        }
+
+        Timber.i("...syncing '$statusDescription' $subtypeDescription")
+        Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses))
+
+        updateProgressNotification(context.getString(R.string.sync_notification_collection_downloading, statusDescription, subtypeDescription))
 
         val options = ArrayMap<String, String>()
         if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
@@ -149,35 +143,31 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
         options[status] = "1"
         for (excludedStatus in excludedStatuses) options[excludedStatus] = "0"
 
+        persister.resetTimestamp()
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
             if (response.code() == 200) {
                 val body = response.body()
                 if (body != null && body.itemCount > 0) {
-                    @StringRes val savingResId = when {
-                        excludedStatuses.isNotEmpty() -> R.string.sync_notification_collection_saving_exclusions
-                        else -> R.string.sync_notification_collection_saving
-                    }
-                    updateProgressNotification(context.getString(savingResId, body.itemCount, statusDescription, type))
+                    updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, body.itemCount, statusDescription, subtypeDescription))
                     val count = persister.save(body.items).recordCount
-                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status)
+                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, persister.timestamp)
                     syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d records for %,d collection $type", count, body.itemCount)
+                    Timber.i("...saved %,d records for %,d collection $subtypeDescription", count, body.itemCount)
                 } else {
-                    Timber.i("...no collection $type found for these games")
+                    Timber.i("...no collection $subtypeDescription found for these games")
                 }
             } else {
-                showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, type), response.code())
+                showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription), response.code())
                 syncResult.stats.numIoExceptions++
                 cancel()
             }
         } catch (e: IOException) {
-            showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, type), e)
+            showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription), e)
             syncResult.stats.numIoExceptions++
             cancel()
         }
-
     }
 
     @DebugLog

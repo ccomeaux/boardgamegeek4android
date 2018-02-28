@@ -104,7 +104,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                     val count = persister.save(body.items).recordCount
                     syncResult.stats.numUpdates += body.itemCount.toLong()
                     Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, subtypeDescription)
-                    SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.initialTimestamp)
+                    SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.timestamp)
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)
                 }
