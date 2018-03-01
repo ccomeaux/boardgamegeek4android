@@ -29,18 +29,17 @@ import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.*
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
-import okhttp3.OkHttpClient
 import okhttp3.Request.Builder
 
 class SyncPlaysUpload @DebugLog
 constructor(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
-    private var httpClient: OkHttpClient? = null
-    private var persister = PlayPersister(context)
+    private val httpClient = HttpUtils.getHttpClientWithAuth(context)
+    private val persister = PlayPersister(context)
     private var currentInternalId: Long = 0
     private var currentGameIdForNotification: Int = 0
-    private var currentGameNameForNotification: String? = null
-    private var currentThumbnailUrlForNotification: String? = null
-    private var currentImageUrlForNotification: String? = null
+    private var currentGameNameForNotification: String = ""
+    private var currentThumbnailUrlForNotification: String = ""
+    private var currentImageUrlForNotification: String = ""
 
     override val syncType: Int
         @DebugLog
@@ -54,7 +53,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
         @DebugLog
         get() = Intent(context, PlaysActivity::class.java)
 
-    override val notificationIntent: Intent?
+    override val notificationIntent: Intent
         @DebugLog
         get() = if (currentInternalId == BggContract.INVALID_ID.toLong())
             GamePlaysActivity.createIntent(context,
@@ -84,7 +83,6 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
 
     @DebugLog
     override fun execute() {
-        httpClient = HttpUtils.getHttpClientWithAuth(context)
         deletePendingPlays()
         updatePendingPlays()
         if (SyncPrefs.isPlaysSyncUpToDate(context)) {
@@ -156,7 +154,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
         val imageUrls = queryGameImageUrls(play)
         currentImageUrlForNotification = imageUrls.first
         currentThumbnailUrlForNotification = imageUrls.second
-        notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalId), currentImageUrlForNotification!!, currentThumbnailUrlForNotification!!)
+        notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalId), currentImageUrlForNotification, currentThumbnailUrlForNotification)
     }
 
     private fun queryGameImageUrls(play: Play): Pair<String, String> {

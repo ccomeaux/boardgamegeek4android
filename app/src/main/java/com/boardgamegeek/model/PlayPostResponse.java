@@ -1,24 +1,30 @@
 package com.boardgamegeek.model;
 
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.TextUtils;
+
+import com.google.gson.Gson;
 
 import java.io.IOException;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public abstract class PlayPostResponse {
+	protected final Gson gson = new Gson();
 	protected static final String ERROR_DIV = "<div class='messagebox error'>";
 	protected String error;
 	protected Exception exception;
 
-	public PlayPostResponse(OkHttpClient client, Request request) {
+	public PlayPostResponse(@NonNull OkHttpClient client, @NonNull Request request) {
 		try {
 			Response response = client.newCall(request).execute();
 			if (response.isSuccessful()) {
-				final String content = response.body().string().trim();
+				final ResponseBody body = response.body();
+				final String content = body == null ? "" : body.string().trim();
 				if (content.startsWith(ERROR_DIV)) {
 					//noinspection deprecation
 					error = Html.fromHtml(content).toString().trim();
