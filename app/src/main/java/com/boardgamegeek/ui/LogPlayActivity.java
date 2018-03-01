@@ -29,7 +29,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
@@ -1145,8 +1144,9 @@ public class LogPlayActivity extends AppCompatActivity {
 			return R.layout.row_player;
 		}
 
+		@NonNull
 		@Override
-		public PlayViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public PlayViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			switch (viewType) {
 				case R.layout.row_log_play_header:
 					return new HeaderViewHolder(parent);
@@ -1171,11 +1171,11 @@ public class LogPlayActivity extends AppCompatActivity {
 				case R.layout.row_log_play_add_player:
 					return new AddPlayerViewHolder(parent);
 			}
-			return null;
+			return new HeaderViewHolder(parent);
 		}
 
 		@Override
-		public void onBindViewHolder(PlayViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull PlayViewHolder holder, int position) {
 			if (holder.getItemViewType() == R.layout.row_player) {
 				((PlayerViewHolder) holder).bind(position - headerResources.size());
 			} else {
@@ -1719,12 +1719,10 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void bind() {
 				Resources r = getResources();
 				int playerCount = play.getPlayerCount();
-				if (playerCount <= 0) {
-					playerLabelView.setText(r.getString(R.string.title_players));
-				} else {
-					playerLabelView.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
-				}
-				assignColorsButton.setEnabled(play != null && play.getPlayerCount() > 0);
+				playerLabelView.setText(playerCount <= 0 ?
+					r.getString(R.string.title_players) :
+					r.getString(R.string.title_players_with_count, playerCount));
+				assignColorsButton.setEnabled(play != null && playerCount > 0);
 			}
 
 			@OnClick(R.id.player_sort)
@@ -1854,10 +1852,12 @@ public class LogPlayActivity extends AppCompatActivity {
 				});
 				row.getDragHandle().setOnTouchListener(
 					new OnTouchListener() {
+						@SuppressLint("ClickableViewAccessibility")
 						@Override
 						public boolean onTouch(View v, MotionEvent event) {
-							if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+							if (event.getAction() == MotionEvent.ACTION_DOWN) {
 								itemTouchHelper.startDrag(PlayerViewHolder.this);
+								return true;
 							}
 							return false;
 						}
