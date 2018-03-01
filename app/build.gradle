@@ -146,7 +146,7 @@ dependencies {
 
     implementation 'com.github.chrisbanes.photoview:library:1.2.4'
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
         transitive = true
     }
 
