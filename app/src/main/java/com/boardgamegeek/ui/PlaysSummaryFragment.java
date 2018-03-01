@@ -172,7 +172,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case PLAYS_IN_PROGRESS_TOKEN:
 				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getContext(),
-					Plays.CONTENT_URI,
+					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
 					PlayModel.getProjection(),
 					Plays.DIRTY_TIMESTAMP + ">0",
 					null,
