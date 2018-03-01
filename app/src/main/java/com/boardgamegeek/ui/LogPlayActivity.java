@@ -1229,7 +1229,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						notifyLayoutChanged(R.layout.row_log_play_player_header);
 						final int position = headerResources.size() + playerPosition;
 						notifyItemInserted(position);
-						notifyItemRangeChanged(position + 1, getItemCount() - position);
+						notifyItemRangeChanged(position + 1, play.getPlayerCount() - playerPosition - 1);
 					}
 				});
 			maybeShowNotification();
@@ -1243,7 +1243,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						notifyLayoutChanged(R.layout.row_log_play_player_header);
 						final int position = headerResources.size() + playerPosition;
 						notifyItemRemoved(position);
-						notifyItemRangeChanged(position, play.getPlayerCount() - playerPosition);
+						notifyItemRangeChanged(position + 1, play.getPlayerCount() - playerPosition);
 					}
 				});
 			maybeShowNotification();
