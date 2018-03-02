@@ -153,9 +153,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
 
 	@BindView(R.id.game_weight_message) TextView weightMessage;
+	@BindView(R.id.game_weight_score) TextView weightScore;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
 
 	@BindView(R.id.language_dependence_message) TextView languageDependenceMessage;
+	@BindView(R.id.language_dependence_score) TextView languageDependenceScore;
 	@BindView(R.id.language_dependence_votes) TextView languageDependenceVotes;
 
 	@BindView(R.id.users_count) TextView userCountView;
@@ -525,6 +527,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 			weightMessage.setText(PresentationUtils.describeWeight(getContext(), game.getAverageWeight()));
 			ColorUtils.setTextViewBackground(weightMessage, ColorUtils.getFiveStageColor(game.getAverageWeight()));
+			PresentationUtils.setTextOrHide(weightScore, PresentationUtils.describeScore(getContext(), game.getAverageWeight()));
 			PresentationUtils.setTextOrHide(weightVotes, PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getNumberWeights(), game.getNumberWeights()));
 
 			final int maxUsers = game.getMaxUsers();
@@ -601,6 +604,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		double score = (double) totalLevel / totalVotes;
 		languageDependenceMessage.setText(PresentationUtils.describeLanguageDependence(getContext(), score));
 		ColorUtils.setTextViewBackground(languageDependenceMessage, ColorUtils.getFiveStageColor(score));
+		PresentationUtils.setTextOrHide(languageDependenceScore, PresentationUtils.describeScore(getContext(), score));
 		PresentationUtils.setTextOrHide(languageDependenceVotes,
 			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
 	}
@@ -623,9 +627,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 		if (!TextUtils.isEmpty(currentValue))
 			PresentationUtils.setTextOrHide(playerAgePoll, PresentationUtils.describePlayerAge(getContext(), currentValue));
-
-		PresentationUtils.setTextOrHide(playerAgeVotes,
-			PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, totalVotes, totalVotes));
 	}
 
 	@DebugLog
@@ -659,8 +660,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		} else {
 			numberOfPlayersCommunity.setVisibility(GONE);
 		}
-		PresentationUtils.setTextOrHide(numberOfPlayersVotes,
-			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
 	}
 
 	@OnClick(R.id.icon_favorite)

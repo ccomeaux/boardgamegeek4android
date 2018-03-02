@@ -17,9 +17,12 @@
 
 	<LinearLayout
 		style="@style/CardRowContent"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:layout_gravity="center_vertical"
+		android:gravity="center_vertical"
+		android:orientation="vertical"
+		tools:background="#0f0">
 
 		<TextView
 			android:id="@+id/game_weight_message"
@@ -28,15 +31,42 @@
 			android:layout_height="wrap_content"
 			android:maxLines="1"
 			tools:background="#088"
-			tools:text="Light (1.23)"/>
+			tools:text="Light"/>
 
-		<TextView
-			android:id="@+id/game_weight_votes"
-			android:layout_width="wrap_content"
+		<LinearLayout
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary.Small"
-			tools:text="42,000 votes"/>
+			android:orientation="horizontal"
+			android:paddingLeft="@dimen/padding_extra"
+			android:paddingRight="@dimen/padding_extra">
+
+			<TextView
+				android:id="@+id/game_weight_score"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text.Secondary.Small"
+				android:textStyle="bold"
+				android:visibility="gone"
+				tools:text="1.23"
+				tools:visibility="visible"/>
+
+			<Space
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:minWidth="@dimen/padding_extra"/>
+
+			<TextView
+				android:id="@+id/game_weight_votes"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text.Secondary.Small"
+				android:visibility="gone"
+				tools:text="42,000 votes"
+				tools:visibility="visible"/>
+		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>
 

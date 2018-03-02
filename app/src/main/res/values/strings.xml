@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-	<string name="weight_1_text">Light (%.2f)</string>
-	<string name="weight_2_text">Medium Light (%.2f)</string>
-	<string name="weight_3_text">Medium (%.2f)</string>
-	<string name="weight_4_text">Medium Heavy (%.2f)</string>
-	<string name="weight_5_text">Heavy (%.2f)</string>
+	<string name="weight_1_text">Light</string>
+	<string name="weight_2_text">Medium Light</string>
+	<string name="weight_3_text">Medium</string>
+	<string name="weight_4_text">Medium Heavy</string>
+	<string name="weight_5_text">Heavy</string>
 	<string name="owning_meter_text">%s Owning</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
@@ -477,11 +477,11 @@
 	<string name="player_description_score_segment">: %s</string>
 	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
-	<string name="language_1_text">No necessary in-game text (%.2f)</string>
-	<string name="language_2_text">Some necessary text (%.2f)</string>
-	<string name="language_3_text">Moderate in-game text (%.2f)</string>
-	<string name="language_4_text">Extensive use of text (%.2f)</string>
-	<string name="language_5_text">Unplayable in another language (%.2f)</string>
+	<string name="language_1_text">No necessary in-game text</string>
+	<string name="language_2_text">Some necessary text</string>
+	<string name="language_3_text">Moderate in-game text</string>
+	<string name="language_4_text">Extensive use of text</string>
+	<string name="language_5_text">Unplayable in another language</string>
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_prefix">Ages <b>%d+</b></string>
