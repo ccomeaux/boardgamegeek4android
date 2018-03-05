@@ -50,19 +50,6 @@
 				android:visibility="gone"
 				tools:visibility="visible">
 
-				<TextView
-					android:id="@+id/game_description"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
-					android:ellipsize="end"
-					android:maxLines="5"
-					android:paddingBottom="@dimen/padding_standard"
-					android:paddingTop="@dimen/padding_standard"
-					android:textAppearance="@style/Text.Body"
-					android:textSize="12sp"
-					tools:text="This is the game's description. Sometimes it will tell you if the game is good. Sometimes it won't."/>
-
 				<include layout="@layout/include_game_ranks"/>
 
 				<LinearLayout

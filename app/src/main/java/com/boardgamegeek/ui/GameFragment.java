@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.support.v7.app.AlertDialog.Builder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -64,11 +62,9 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
@@ -123,7 +119,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@BindView(R.id.empty) TextView emptyView;
 	@BindView(R.id.game_info_root) View rootContainer;
 	@BindView(R.id.game_rating) TextView ratingView;
-	@BindView(R.id.game_description) TextView descriptionView;
 	@BindView(R.id.game_year_published) TextView yearPublishedView;
 
 	@BindView(R.id.number_of_players) TextView numberOfPlayersView;
@@ -228,8 +223,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@Override
 	@DebugLog
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		return inflater.inflate(R.layout.fragment_game, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		colorize();
 
@@ -248,7 +248,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
-		return rootView;
 	}
 
 	@Override
@@ -465,7 +464,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		}
 	}
 
-	protected void updateRefreshStatus(boolean refreshing) {
+	private void updateRefreshStatus(boolean refreshing) {
 		this.isRefreshing = refreshing;
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
@@ -517,8 +516,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 			idView.setText(String.valueOf(game.getId()));
 			updatedView.setTimestamp(game.getUpdated());
-			UIUtils.setTextMaybeHtml(descriptionView, game.getDescription());
-			ScrimUtils.applyWhiteScrim(descriptionView);
 			numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.getMinPlayers(), game.getMaxPlayers()));
 
 			playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.getMinPlayingTime(), game.getMaxPlayingTime(), game.getPlayingTime()));
@@ -673,17 +670,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	public void onRankClick() {
 		RanksFragment.launch(this, gameId);
-	}
-
-	@SuppressLint("InflateParams")
-	@OnClick(R.id.game_description)
-	@DebugLog
-	public void onDescriptionClick() {
-		View v = LayoutInflater.from(getContext()).inflate(R.layout.dialog_text, null);
-		((TextView) v.findViewById(R.id.text)).setText(descriptionView.getText());
-		new Builder(getContext(), R.style.Theme_bgglight_Dialog_Alert)
-			.setView(v)
-			.show();
 	}
 
 	@OnClick(R.id.forums_root)
