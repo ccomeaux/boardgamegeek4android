@@ -14,9 +14,11 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.setBggColors
 import com.boardgamegeek.setTextMaybeHtml
 import com.boardgamegeek.tasks.sync.SyncGameTask
+import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.viewmodel.GameDescriptionViewModel
 import com.boardgamegeek.util.TaskUtils
 import kotlinx.android.synthetic.main.fragment_game_description.*
+import kotlinx.android.synthetic.main.include_game_footer.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -47,14 +49,20 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         swipe_refresh.setOnRefreshListener(this)
         swipe_refresh.setBggColors()
 
-        viewModel.getDescription().observe(this, Observer { description ->
-            game_description.setTextMaybeHtml(description)
+        viewModel.getGame().observe(this, Observer { game ->
+            if (game != null) bindUi(game)
         })
     }
 
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
+    }
+
+    private fun bindUi(game: Game) {
+        game_description.setTextMaybeHtml(game.description)
+        game_info_id.text = game.id.toString()
+        game_info_last_updated.timestamp = game.updated
     }
 
     override fun onRefresh() {

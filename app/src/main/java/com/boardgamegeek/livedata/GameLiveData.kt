@@ -5,8 +5,9 @@ import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.model.Game
 
-class GameDescriptionLiveData(val context: Context, gameId: Int) : MutableLiveData<String>() {
+class GameLiveData(val context: Context, gameId: Int) : MutableLiveData<Game>() {
     private val contentObserver = Observer()
     private var uri = Uri.EMPTY
 
@@ -33,13 +34,13 @@ class GameDescriptionLiveData(val context: Context, gameId: Int) : MutableLiveDa
     private fun loadData() {
         val cursor = context.contentResolver.query(
                 uri,
-                arrayOf(BggContract.Games.DESCRIPTION),
+                Game.projection,
                 null,
                 null,
                 null)
         cursor?.use { c ->
             if (c.moveToFirst()) {
-                postValue(c.getString(0))
+                postValue(Game.fromCursor(c))
             }
         }
     }
