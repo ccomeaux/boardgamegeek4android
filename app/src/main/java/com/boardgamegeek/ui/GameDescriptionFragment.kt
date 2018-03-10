@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.setBggColors
 import com.boardgamegeek.setTextMaybeHtml
 import com.boardgamegeek.tasks.sync.SyncGameTask
 import com.boardgamegeek.ui.viewmodel.GameDescriptionViewModel
@@ -23,6 +24,7 @@ import org.greenrobot.eventbus.ThreadMode
 class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var gameId: Int = 0
     private var isRefreshing = false
+    private lateinit var viewModel: GameDescriptionViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +32,9 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         if (arguments != null) {
             gameId = arguments!!.getInt(ARG_GAME_ID, BggContract.INVALID_ID)
         }
+        if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
+        viewModel = AndroidViewModelFactory.getInstance(activity!!.application).create(GameDescriptionViewModel::class.java)
+        viewModel.init(gameId)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -40,11 +45,10 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         super.onViewCreated(view, savedInstanceState)
 
         swipe_refresh.setOnRefreshListener(this)
-        swipe_refresh.setColorSchemeResources(R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue)
+        swipe_refresh.setBggColors()
 
-        val viewModel = AndroidViewModelFactory.getInstance(activity!!.application).create(GameDescriptionViewModel::class.java)
-        viewModel.getGameDescription(gameId).observe(this, Observer { s ->
-            game_description.setTextMaybeHtml(s)
+        viewModel.getDescription().observe(this, Observer { description ->
+            game_description.setTextMaybeHtml(description)
         })
     }
 
