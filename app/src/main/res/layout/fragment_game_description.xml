@@ -18,6 +18,15 @@
 			android:layout_height="match_parent"
 			android:orientation="vertical">
 
+			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+				android:id="@+id/progress"
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:gravity="center"
+				android:padding="@dimen/material_margin_horizontal"/>
+
 			<TextView
 				android:id="@+id/game_description"
 				android:layout_width="match_parent"
@@ -28,7 +37,9 @@
 				android:paddingTop="@dimen/padding_standard"
 				android:textAppearance="@style/Text.Body"
 				android:textSize="12sp"
-				tools:text="@tools:sample/lorem/random"/>
+				android:visibility="gone"
+				tools:text="@tools:sample/lorem/random"
+				tools:visibility="visible"/>
 
 			<include layout="@layout/include_game_footer"/>
 		</LinearLayout>

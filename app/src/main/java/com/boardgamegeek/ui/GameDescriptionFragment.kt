@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
@@ -50,6 +51,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         swipe_refresh.setBggColors()
 
         viewModel.getGame().observe(this, Observer { game ->
+            progress.hide()
             if (game != null) bindUi(game)
         })
     }
@@ -60,6 +62,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
     }
 
     private fun bindUi(game: Game) {
+        game_description.visibility = VISIBLE
         game_description.setTextMaybeHtml(game.description)
         game_info_id.text = game.id.toString()
         game_info_last_updated.timestamp = game.updated
