@@ -79,9 +79,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
 
     private fun updateRefreshStatus(refreshing: Boolean) {
         this.isRefreshing = refreshing
-        if (swipe_refresh != null) {
-            swipe_refresh.post { if (swipe_refresh != null) swipe_refresh.isRefreshing = isRefreshing }
-        }
+        swipe_refresh?.post { swipe_refresh?.isRefreshing = isRefreshing }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

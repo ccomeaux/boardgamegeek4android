@@ -57,7 +57,6 @@ import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
@@ -80,8 +79,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -97,7 +94,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final String KEY_DARK_COLOR = "DARK_COLOR";
 
 	private static final int HELP_VERSION = 2;
-	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private static final int GAME_TOKEN = 0x11;
 	private static final int DESIGNER_TOKEN = 0x12;
@@ -188,7 +184,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
 	private boolean isRefreshing;
-	@State boolean mightNeedRefreshing = true;
 	private Call<ForumListResponse> call;
 
 	public static GameFragment newInstance(int gameId, String gameName, @ColorInt int iconColor, @ColorInt int darkColor) {
@@ -207,7 +202,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		EventBus.getDefault().register(this);
-		Icepick.restoreInstanceState(this, savedInstanceState);
 		setHasOptionsMenu(true);
 		readBundle(getArguments());
 	}
@@ -267,13 +261,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	public void onDestroy() {
 		super.onDestroy();
 		EventBus.getDefault().unregister(this);
-	}
-
-	@Override
-	@DebugLog
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
@@ -447,7 +434,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@DebugLog
 	private void requestRefresh() {
-		mightNeedRefreshing = false;
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
 			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), gameId));
@@ -489,10 +475,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			if (mightNeedRefreshing) {
-				mightNeedRefreshing = false;
-				requestRefresh();
-			}
 			progressBar.hide();
 			AnimationUtils.fadeOut(rootContainer);
 			AnimationUtils.fadeIn(emptyView);
@@ -530,12 +512,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			final int maxUsers = game.getMaxUsers();
 			userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
 
-			if (mightNeedRefreshing) {
-				mightNeedRefreshing = false;
-				if (DateTimeUtils.howManyDaysOld(game.getUpdated()) > AGE_IN_DAYS_TO_REFRESH ||
-					game.getPollsVoteCount() == 0)
-					requestRefresh();
-			}
 			progressBar.hide();
 			AnimationUtils.fadeOut(emptyView);
 			AnimationUtils.fadeIn(rootContainer);
