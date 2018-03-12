@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider.AndroidViewModelFactory;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
@@ -26,13 +29,14 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
+import com.boardgamegeek.ui.model.Game;
+import com.boardgamegeek.ui.viewmodel.GameDescriptionViewModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -48,8 +52,6 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,7 @@ public class GameActivity extends HeroTabActivity {
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
 	@ColorInt private int[] playCountColors;
+	private GameDescriptionViewModel viewModel;
 
 	public static void start(Context context, int gameId, String gameName) {
 		final Intent starter = createIntent(gameId, gameName);
@@ -122,6 +125,20 @@ public class GameActivity extends HeroTabActivity {
 
 		initializeViewPager();
 
+		viewModel = AndroidViewModelFactory.getInstance(getApplication()).create(GameDescriptionViewModel.class);
+		viewModel.init(gameId);
+
+		viewModel.getGame().observe(this, new Observer<Game>() {
+			@Override
+			public void onChanged(@Nullable Game game) {
+				if (game == null) return;
+				changeName(game.getName());
+				changeImage(game);
+				arePlayersCustomSorted = game.getCustomPlayerSort();
+				isFavorite = game.isFavorite();
+			}
+		});
+
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
@@ -162,13 +179,11 @@ public class GameActivity extends HeroTabActivity {
 		});
 	}
 
-	@DebugLog
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.game;
 	}
 
-	@DebugLog
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -225,28 +240,6 @@ public class GameActivity extends HeroTabActivity {
 		return getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(GameInfoChangedEvent event) {
-		changeName(event.getGameName());
-		if (!event.getImageUrl().equals(imageUrl) ||
-			!event.getThumbnailUrl().equals(thumbnailUrl) ||
-			!event.getHeroImageUrl().equals(heroImageUrl)) {
-			imageUrl = event.getImageUrl();
-			thumbnailUrl = event.getThumbnailUrl();
-			heroImageUrl = event.getHeroImageUrl();
-			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, heroImageUrl, imageLoadCallback);
-		} else {
-			imageUrl = event.getImageUrl();
-			thumbnailUrl = event.getThumbnailUrl();
-			heroImageUrl = event.getHeroImageUrl();
-		}
-		arePlayersCustomSorted = event.getArePlayersCustomSorted();
-		isFavorite = event.isFavorite();
-		ScrimUtils.applyDarkScrim(scrimView);
-	}
-
 	@DebugLog
 	private void changeName(String gameName) {
 		this.gameName = gameName;
@@ -254,6 +247,22 @@ public class GameActivity extends HeroTabActivity {
 			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			safelySetTitle(gameName);
 		}
+	}
+
+	private void changeImage(@NonNull Game game) {
+		if (!game.getImageUrl().equals(imageUrl) ||
+			!game.getThumbnailUrl().equals(thumbnailUrl) ||
+			!game.getHeroImageUrl().equals(heroImageUrl)) {
+			imageUrl = game.getImageUrl();
+			thumbnailUrl = game.getThumbnailUrl();
+			heroImageUrl = game.getHeroImageUrl();
+			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, heroImageUrl, imageLoadCallback);
+		} else {
+			imageUrl = game.getImageUrl();
+			thumbnailUrl = game.getThumbnailUrl();
+			heroImageUrl = game.getHeroImageUrl();
+		}
+		ScrimUtils.applyDarkScrim(scrimView);
 	}
 
 	private final Callback imageLoadCallback = new Callback() {
