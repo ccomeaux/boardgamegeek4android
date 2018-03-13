@@ -8,12 +8,9 @@ import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.VISIBLE
 import android.view.ViewGroup
-import com.boardgamegeek.R
+import com.boardgamegeek.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.setBggColors
-import com.boardgamegeek.setTextMaybeHtml
 import com.boardgamegeek.tasks.sync.SyncGameTask
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.viewmodel.GameDescriptionViewModel
@@ -50,9 +47,15 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         swipe_refresh.setOnRefreshListener(this)
         swipe_refresh.setBggColors()
 
+        game_info_id.text = gameId.toString()
+        game_info_last_updated.timestamp = 0L
+
         viewModel.getGame().observe(this, Observer { game ->
+            when (game) {
+                null -> showEmpty()
+                else -> showData(game)
+            }
             progress.hide()
-            if (game != null) bindUi(game)
         })
     }
 
@@ -61,9 +64,18 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         EventBus.getDefault().unregister(this)
     }
 
-    private fun bindUi(game: Game) {
-        game_description.visibility = VISIBLE
+    private fun showEmpty() {
+        empty.setText(R.string.empty_game)
+        empty.fadeIn()
+        game_description.fadeOut()
+    }
+
+    private fun showData(game: Game) {
+        empty.fadeOut()
+
         game_description.setTextMaybeHtml(game.description)
+        game_description.fadeIn()
+
         game_info_id.text = game.id.toString()
         game_info_last_updated.timestamp = game.updated
     }
