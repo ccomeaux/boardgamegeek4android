@@ -65,9 +65,16 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
     }
 
     private fun showEmpty() {
-        empty.setText(R.string.empty_game)
-        empty.fadeIn()
-        game_description.fadeOut()
+        showError(getString(R.string.empty_game))
+    }
+
+    private fun showError(message: String?) {
+        if (message?.isNotBlank() == true) {
+            empty.text = message
+            game_description.fadeOut()
+            empty.fadeIn()
+            progress.hide()
+        }
     }
 
     private fun showData(game: Game) {
@@ -98,6 +105,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
     fun onEvent(event: SyncGameTask.CompletedEvent) {
         if (event.gameId == gameId) {
             updateRefreshStatus(false)
+            showError(event.errorMessage)
         }
     }
 

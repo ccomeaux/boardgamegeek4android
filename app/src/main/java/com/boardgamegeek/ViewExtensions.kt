@@ -1,6 +1,7 @@
 package com.boardgamegeek
 
 import android.view.View
+import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -17,7 +18,7 @@ fun View.fadeIn(animate: Boolean = true) {
     }
 }
 
-fun View.fadeOut(visibility: Int = VISIBLE, animate: Boolean = true) {
+fun View.fadeOut(visibility: Int = GONE, animate: Boolean = true) {
     if (this.visibility == VISIBLE) {
         if (animate) {
             val animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
