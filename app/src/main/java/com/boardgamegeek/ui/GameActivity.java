@@ -36,7 +36,7 @@ import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.model.Game;
-import com.boardgamegeek.ui.viewmodel.GameDescriptionViewModel;
+import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -74,7 +74,7 @@ public class GameActivity extends HeroTabActivity {
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
 	@ColorInt private int[] playCountColors;
-	private GameDescriptionViewModel viewModel;
+	private GameViewModel viewModel;
 
 	public static void start(Context context, int gameId, String gameName) {
 		final Intent starter = createIntent(gameId, gameName);
@@ -125,7 +125,7 @@ public class GameActivity extends HeroTabActivity {
 
 		initializeViewPager();
 
-		viewModel = ViewModelProviders.of(this).get(GameDescriptionViewModel.class);
+		viewModel = ViewModelProviders.of(this).get(GameViewModel.class);
 		viewModel.init(gameId);
 
 		viewModel.getGame().observe(this, new Observer<Game>() {

@@ -13,7 +13,7 @@ import com.boardgamegeek.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.sync.SyncGameTask
 import com.boardgamegeek.ui.model.Game
-import com.boardgamegeek.ui.viewmodel.GameDescriptionViewModel
+import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_description.*
 import kotlinx.android.synthetic.main.include_game_footer.*
 import org.greenrobot.eventbus.EventBus
@@ -23,7 +23,7 @@ import org.greenrobot.eventbus.ThreadMode
 class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var gameId: Int = 0
     private var isRefreshing = false
-    private lateinit var viewModel: GameDescriptionViewModel
+    private lateinit var viewModel: GameViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +32,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
             gameId = arguments!!.getInt(ARG_GAME_ID, BggContract.INVALID_ID)
         }
         if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
-        viewModel = ViewModelProviders.of(activity!!).get(GameDescriptionViewModel::class.java)
+        viewModel = ViewModelProviders.of(activity!!).get(GameViewModel::class.java)
         viewModel.init(gameId)
     }
 

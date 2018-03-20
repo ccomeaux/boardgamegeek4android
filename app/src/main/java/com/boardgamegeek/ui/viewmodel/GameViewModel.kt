@@ -8,7 +8,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.ui.model.Game
 
-class GameDescriptionViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
     private var game: LiveData<Game>? = null
     private var gameId = BggContract.INVALID_ID
