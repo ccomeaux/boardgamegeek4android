@@ -2,7 +2,7 @@ package com.boardgamegeek.ui
 
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProvider.AndroidViewModelFactory
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
@@ -32,7 +32,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
             gameId = arguments!!.getInt(ARG_GAME_ID, BggContract.INVALID_ID)
         }
         if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
-        viewModel = AndroidViewModelFactory.getInstance(activity!!.application).create(GameDescriptionViewModel::class.java)
+        viewModel = ViewModelProviders.of(activity!!).get(GameDescriptionViewModel::class.java)
         viewModel.init(gameId)
     }
 

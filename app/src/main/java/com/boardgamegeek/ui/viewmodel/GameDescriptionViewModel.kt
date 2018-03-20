@@ -21,7 +21,8 @@ class GameDescriptionViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun refresh() {
-        gameRepository.refreshGame(gameId)
+        if (gameId != BggContract.INVALID_ID)
+            gameRepository.refreshGame(gameId)
     }
 
     fun getGame(): LiveData<Game> {

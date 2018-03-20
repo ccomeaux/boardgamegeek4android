@@ -1,7 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider.AndroidViewModelFactory;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -125,7 +125,7 @@ public class GameActivity extends HeroTabActivity {
 
 		initializeViewPager();
 
-		viewModel = AndroidViewModelFactory.getInstance(getApplication()).create(GameDescriptionViewModel.class);
+		viewModel = ViewModelProviders.of(this).get(GameDescriptionViewModel.class);
 		viewModel.init(gameId);
 
 		viewModel.getGame().observe(this, new Observer<Game>() {
