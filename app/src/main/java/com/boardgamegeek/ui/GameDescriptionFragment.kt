@@ -14,7 +14,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.sync.SyncGameTask
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.viewmodel.GameDescriptionViewModel
-import com.boardgamegeek.util.TaskUtils
 import kotlinx.android.synthetic.main.fragment_game_description.*
 import kotlinx.android.synthetic.main.include_game_footer.*
 import org.greenrobot.eventbus.EventBus
@@ -90,7 +89,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
     override fun onRefresh() {
         if (!isRefreshing) {
             updateRefreshStatus(true)
-            TaskUtils.executeAsyncTask(SyncGameTask(context, gameId))
+            viewModel.refresh()
         } else {
             updateRefreshStatus(false)
         }

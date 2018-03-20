@@ -14,13 +14,17 @@ class GameRepository(val application: BggApplication) {
     fun getGame(gameId: Int): GameLiveData {
         val game = GameLiveData(application, gameId)
         if (game.value == null) {
-            TaskUtils.executeAsyncTask(SyncGameTask(application, gameId))
+            refreshGame(gameId)
         } else {
             game.value?.apply {
                 if (DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH || pollsVoteCount == 0)
-                    TaskUtils.executeAsyncTask(SyncGameTask(application, gameId))
+                    refreshGame(gameId)
             }
         }
         return game
+    }
+
+    fun refreshGame(gameId: Int) {
+        TaskUtils.executeAsyncTask(SyncGameTask(application, gameId))
     }
 }
