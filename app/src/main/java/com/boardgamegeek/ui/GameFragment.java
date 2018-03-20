@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -51,6 +53,7 @@ import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
 import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
+import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -95,7 +98,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	private static final int HELP_VERSION = 2;
 
-	private static final int GAME_TOKEN = 0x11;
 	private static final int DESIGNER_TOKEN = 0x12;
 	private static final int ARTIST_TOKEN = 0x13;
 	private static final int PUBLISHER_TOKEN = 0x14;
@@ -185,6 +187,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private ShowcaseViewWizard showcaseViewWizard;
 	private boolean isRefreshing;
 	private Call<ForumListResponse> call;
+	private GameViewModel viewModel;
 
 	public static GameFragment newInstance(int gameId, String gameName, @ColorInt int iconColor, @ColorInt int darkColor) {
 		Bundle args = new Bundle();
@@ -204,6 +207,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		EventBus.getDefault().register(this);
 		setHasOptionsMenu(true);
 		readBundle(getArguments());
+
+		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
+		viewModel.init(gameId);
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -233,8 +239,30 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		idView.setText(String.valueOf(gameId));
 		updatedView.setTimestamp(0);
 
+		viewModel.getGame().observe(this, new Observer<Game>() {
+			@Override
+			public void onChanged(@Nullable Game game) {
+				LoaderManager lm = getLoaderManager();
+				lm.restartLoader(DESIGNER_TOKEN, null, GameFragment.this);
+				lm.restartLoader(ARTIST_TOKEN, null, GameFragment.this);
+				lm.restartLoader(PUBLISHER_TOKEN, null, GameFragment.this);
+				lm.restartLoader(CATEGORY_TOKEN, null, GameFragment.this);
+				lm.restartLoader(MECHANIC_TOKEN, null, GameFragment.this);
+				lm.restartLoader(EXPANSION_TOKEN, null, GameFragment.this);
+				lm.restartLoader(BASE_GAME_TOKEN, null, GameFragment.this);
+				fetchForumInfo();
+				if (game == null) {
+					AnimationUtils.fadeOut(rootContainer);
+					AnimationUtils.fadeIn(emptyView);
+				} else {
+					onGameContentChanged(game);
+					AnimationUtils.fadeOut(emptyView);
+					AnimationUtils.fadeIn(rootContainer);
+				}
+				progressBar.hide();
+			}
+		});
 		LoaderManager lm = getLoaderManager();
-		lm.restartLoader(GAME_TOKEN, null, this);
 		lm.restartLoader(RANK_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_LANGUAGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_AGE_TOKEN, null, this);
@@ -292,9 +320,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
-			case GAME_TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), Game.getProjection(), null, null, null);
-				break;
 			case DESIGNER_TOKEN:
 				loader = new CursorLoader(getActivity(), GameDesigner.buildUri(gameId), GameDesigner.PROJECTION, null, null, null);
 				break;
@@ -341,18 +366,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
-			case GAME_TOKEN:
-				onGameQueryComplete(cursor);
-				LoaderManager lm = getLoaderManager();
-				lm.restartLoader(DESIGNER_TOKEN, null, this);
-				lm.restartLoader(ARTIST_TOKEN, null, this);
-				lm.restartLoader(PUBLISHER_TOKEN, null, this);
-				lm.restartLoader(CATEGORY_TOKEN, null, this);
-				lm.restartLoader(MECHANIC_TOKEN, null, this);
-				lm.restartLoader(EXPANSION_TOKEN, null, this);
-				lm.restartLoader(BASE_GAME_TOKEN, null, this);
-				fetchForumInfo();
-				break;
 			case DESIGNER_TOKEN:
 				onListQueryComplete(cursor, designersView);
 				break;
@@ -436,7 +449,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private void requestRefresh() {
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
-			TaskUtils.executeAsyncTask(new SyncGameTask(getContext(), gameId));
+			viewModel.refresh();
 		} else {
 			updateRefreshStatus(false);
 		}
@@ -473,49 +486,37 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onGameQueryComplete(Cursor cursor) {
-		if (cursor == null || !cursor.moveToFirst()) {
-			progressBar.hide();
-			AnimationUtils.fadeOut(rootContainer);
-			AnimationUtils.fadeIn(emptyView);
-		} else {
-			Game game = Game.fromCursor(cursor);
+	private void onGameContentChanged(@NonNull Game game) {
+		notifyChange(game);
+		gameName = game.getName();
 
-			notifyChange(game);
-			gameName = game.getName();
+		yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.getYearPublished()));
 
-			yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.getYearPublished()));
+		rankView.setText(PresentationUtils.describeRank(getContext(), game.getRank(), BggService.RANK_TYPE_SUBTYPE, game.getSubtype()));
+		favoriteView.setImageResource(game.isFavorite() ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+		favoriteView.setTag(R.id.favorite, game.isFavorite());
 
-			rankView.setText(PresentationUtils.describeRank(getContext(), game.getRank(), BggService.RANK_TYPE_SUBTYPE, game.getSubtype()));
-			favoriteView.setImageResource(game.isFavorite() ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
-			favoriteView.setTag(R.id.favorite, game.isFavorite());
+		ratingView.setText(PresentationUtils.describeRating(getContext(), game.getRating()));
+		final CharSequence ratings = PresentationUtils.getQuantityText(getActivity(), R.plurals.ratings_suffix, game.getUsersRated(), game.getUsersRated());
+		final CharSequence comments = PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.getUsersCommented(), game.getUsersCommented());
+		ratingsVotes.setText(TextUtils.concat(ratings, " & ", comments));
+		ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.getRating()));
 
-			ratingView.setText(PresentationUtils.describeRating(getContext(), game.getRating()));
-			final CharSequence ratings = PresentationUtils.getQuantityText(getActivity(), R.plurals.ratings_suffix, game.getUsersRated(), game.getUsersRated());
-			final CharSequence comments = PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.getUsersCommented(), game.getUsersCommented());
-			ratingsVotes.setText(TextUtils.concat(ratings, " & ", comments));
-			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.getRating()));
+		idView.setText(String.valueOf(game.getId()));
+		updatedView.setTimestamp(game.getUpdated());
+		numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.getMinPlayers(), game.getMaxPlayers()));
 
-			idView.setText(String.valueOf(game.getId()));
-			updatedView.setTimestamp(game.getUpdated());
-			numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.getMinPlayers(), game.getMaxPlayers()));
+		playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.getMinPlayingTime(), game.getMaxPlayingTime(), game.getPlayingTime()));
 
-			playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.getMinPlayingTime(), game.getMaxPlayingTime(), game.getPlayingTime()));
+		playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.getMinimumAge()));
 
-			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.getMinimumAge()));
+		weightMessage.setText(PresentationUtils.describeWeight(getContext(), game.getAverageWeight()));
+		ColorUtils.setTextViewBackground(weightMessage, ColorUtils.getFiveStageColor(game.getAverageWeight()));
+		PresentationUtils.setTextOrHide(weightScore, PresentationUtils.describeScore(getContext(), game.getAverageWeight()));
+		PresentationUtils.setTextOrHide(weightVotes, PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getNumberWeights(), game.getNumberWeights()));
 
-			weightMessage.setText(PresentationUtils.describeWeight(getContext(), game.getAverageWeight()));
-			ColorUtils.setTextViewBackground(weightMessage, ColorUtils.getFiveStageColor(game.getAverageWeight()));
-			PresentationUtils.setTextOrHide(weightScore, PresentationUtils.describeScore(getContext(), game.getAverageWeight()));
-			PresentationUtils.setTextOrHide(weightVotes, PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getNumberWeights(), game.getNumberWeights()));
-
-			final int maxUsers = game.getMaxUsers();
-			userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
-
-			progressBar.hide();
-			AnimationUtils.fadeOut(emptyView);
-			AnimationUtils.fadeIn(rootContainer);
-		}
+		final int maxUsers = game.getMaxUsers();
+		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
 	}
 
 	@DebugLog
