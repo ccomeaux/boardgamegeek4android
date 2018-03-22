@@ -17,6 +17,8 @@ import org.jetbrains.anko.act
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast
 
+const val INVALID_MENU_ID = 0
+
 /**
  * Registers/unregisters a sticky event bus
  * Shows a toast when user profile is updated
@@ -27,10 +29,6 @@ import org.jetbrains.anko.toast
  * 3. Inflation helper.
  */
 abstract class BaseActivity : AppCompatActivity() {
-    companion object {
-        const val INVALID_MENU_ID = 0
-    }
-
     protected open val optionsMenuId: Int
         @MenuRes
         get() = INVALID_MENU_ID
@@ -49,7 +47,7 @@ abstract class BaseActivity : AppCompatActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     open fun onEvent(event: SyncUserTask.CompletedEvent) {
         if (event.username != null && event.username == AccountUtils.getUsername(ctx)) {
-            ctx.toast(R.string.profile_updated)
+            toast(R.string.profile_updated)
         }
     }
 
@@ -72,20 +70,20 @@ abstract class BaseActivity : AppCompatActivity() {
 
     @DebugLog
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 if (this is TopLevelActivity) {
                     // bug in ActionBarDrawerToggle
                     return false
                 }
                 NavUtils.navigateUpFromSameTask(act)
-                return true
+                true
             }
             R.id.menu_cancel_sync -> {
                 SyncService.cancelSync(ctx)
-                return true
+                true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }

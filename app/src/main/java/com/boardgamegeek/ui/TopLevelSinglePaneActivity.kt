@@ -8,6 +8,8 @@ import com.boardgamegeek.R
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 
+private const val TAG_SINGLE_PANE = "single_pane"
+
 abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
     var fragment: Fragment? = null
         private set
@@ -40,9 +42,5 @@ abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
     private fun createFragment() {
         fragment = onCreatePane()
         supportFragmentManager.beginTransaction().add(R.id.root_container, fragment, TAG_SINGLE_PANE).commit()
-    }
-
-    companion object {
-        private const val TAG_SINGLE_PANE = "single_pane"
     }
 }

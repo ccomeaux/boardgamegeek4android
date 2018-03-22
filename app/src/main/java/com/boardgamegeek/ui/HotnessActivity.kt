@@ -15,11 +15,12 @@ class HotnessActivity : TopLevelSinglePaneActivity() {
     override val optionsMenuId = R.menu.search
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.menu_search) {
-            startActivity(intentFor<SearchResultsActivity>())
-            true
-        } else {
-            super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.menu_search -> {
+                startActivity(intentFor<SearchResultsActivity>())
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

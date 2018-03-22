@@ -8,5 +8,5 @@ class TopGamesActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = TopGamesFragment()
 
-    override fun getDrawerResId(): Int = R.string.title_top_games
+    override fun getDrawerResId() = R.string.title_top_games
 }
