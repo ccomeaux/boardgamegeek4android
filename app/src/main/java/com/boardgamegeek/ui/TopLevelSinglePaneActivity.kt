@@ -5,10 +5,14 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 
 import com.boardgamegeek.R
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.ContentViewEvent
 
 abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
     var fragment: Fragment? = null
         private set
+
+    open val answersContentType: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,6 +21,9 @@ abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
 
         if (savedInstanceState == null) {
             createFragment()
+            if (!answersContentType.isBlank()) {
+                Answers.getInstance().logContentView(ContentViewEvent().putContentType(answersContentType))
+            }
         } else {
             fragment = supportFragmentManager.findFragmentByTag(TAG_SINGLE_PANE)
         }
