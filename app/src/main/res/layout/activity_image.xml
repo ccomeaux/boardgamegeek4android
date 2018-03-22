@@ -7,7 +7,7 @@
 	tools:context=".ui.ImageActivity">
 
 	<uk.co.senab.photoview.PhotoView
-		android:id="@+id/image"
+		android:id="@+id/imageView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center"
@@ -15,7 +15,7 @@
 		android:scaleType="fitCenter"/>
 
 	<ProgressBar
-		android:id="@+id/progress"
+		android:id="@+id/progressBar"
 		style="?indeterminateProgressStyle"
 		android:layout_width="64dp"
 		android:layout_height="64dp"
