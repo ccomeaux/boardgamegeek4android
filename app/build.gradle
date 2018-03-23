@@ -120,6 +120,10 @@ dependencies {
     implementation "com.android.support:support-annotations:$support_version"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
+    compile "org.jetbrains.anko:anko-support-v4-commons:$anko_version"
+    compile "org.jetbrains.anko:anko-commons:$anko_version"
+    compile "org.jetbrains.anko:anko-design:$anko_version"
+
     implementation 'com.google.code.gson:gson:2.8.2'
 
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'

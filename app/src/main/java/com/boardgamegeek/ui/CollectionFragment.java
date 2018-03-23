@@ -72,7 +72,6 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
 import com.boardgamegeek.util.fabric.FilterEvent;
 import com.boardgamegeek.util.fabric.SortEvent;
@@ -814,7 +813,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			boolean isFavorite = cursor.getInt(Query.STARRED) == 1;
 			final long timestamp = sorter.getTimestamp(cursor);
 
-			UIUtils.setActivatedCompat(view, collectionId == selectedCollectionId);
+			view.setActivated(collectionId == selectedCollectionId);
 			holder.nameView.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.yearView.setText(PresentationUtils.describeYear(getActivity(), year));
 			holder.timestampView.setTimestamp(timestamp);
