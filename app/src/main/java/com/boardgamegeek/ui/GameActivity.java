@@ -26,6 +26,7 @@ import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -36,6 +37,8 @@ import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
 import com.boardgamegeek.ui.model.Game;
+import com.boardgamegeek.ui.model.RefreshableResource;
+import com.boardgamegeek.ui.model.Status;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -128,14 +131,19 @@ public class GameActivity extends HeroTabActivity {
 		viewModel = ViewModelProviders.of(this).get(GameViewModel.class);
 		viewModel.init(gameId);
 
-		viewModel.getGame().observe(this, new Observer<Game>() {
+		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
-			public void onChanged(@Nullable Game game) {
+			public void onChanged(@Nullable RefreshableResource<Game> game) {
 				if (game == null) return;
-				changeName(game.getName());
-				changeImage(game);
-				arePlayersCustomSorted = game.getCustomPlayerSort();
-				isFavorite = game.isFavorite();
+				if (game.getStatus() == Status.ERROR) {
+					Toast.makeText(GameActivity.this, game.getMessage(), Toast.LENGTH_SHORT).show();
+				}
+				final Game g = game.getData();
+				if (g == null) return;
+				changeName(g.getName());
+				changeImage(g);
+				arePlayersCustomSorted = g.getCustomPlayerSort();
+				isFavorite = g.isFavorite();
 			}
 		});
 
@@ -185,14 +193,14 @@ public class GameActivity extends HeroTabActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
 		return true;
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
 		MenuItem menuItem = menu.findItem(R.id.menu_favorite);
 		if (menuItem != null) {
 			menuItem.setTitle(isFavorite ? R.string.menu_unfavorite : R.string.menu_favorite);
@@ -203,7 +211,7 @@ public class GameActivity extends HeroTabActivity {
 
 	@DebugLog
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				Intent upIntent = new Intent(this, HotnessActivity.class);
@@ -262,13 +270,13 @@ public class GameActivity extends HeroTabActivity {
 			thumbnailUrl = game.getThumbnailUrl();
 			heroImageUrl = game.getHeroImageUrl();
 		}
-		ScrimUtils.applyDarkScrim(scrimView);
 	}
 
 	private final Callback imageLoadCallback = new Callback() {
 		@DebugLog
 		@Override
 		public void onSuccessfulImageLoad(Palette palette) {
+			ScrimUtils.applyDarkScrim(scrimView);
 			if (palette != null) {
 				Palette.Swatch iconSwatch = PaletteUtils.getIconSwatch(palette);
 				Palette.Swatch darkSwatch = PaletteUtils.getDarkSwatch(palette);

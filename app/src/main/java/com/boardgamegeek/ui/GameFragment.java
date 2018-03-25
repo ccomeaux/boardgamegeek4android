@@ -53,6 +53,7 @@ import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
 import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
+import com.boardgamegeek.ui.model.RefreshableResource;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.GameDetailRow;
@@ -239,9 +240,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		idView.setText(String.valueOf(gameId));
 		updatedView.setTimestamp(0);
 
-		viewModel.getGame().observe(this, new Observer<Game>() {
+		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
-			public void onChanged(@Nullable Game game) {
+			public void onChanged(@Nullable RefreshableResource<Game> game) {
 				LoaderManager lm = getLoaderManager();
 				lm.restartLoader(DESIGNER_TOKEN, null, GameFragment.this);
 				lm.restartLoader(ARTIST_TOKEN, null, GameFragment.this);
@@ -251,11 +252,11 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				lm.restartLoader(EXPANSION_TOKEN, null, GameFragment.this);
 				lm.restartLoader(BASE_GAME_TOKEN, null, GameFragment.this);
 				fetchForumInfo();
-				if (game == null) {
+				if (game == null || game.getData() == null) {
 					AnimationUtils.fadeOut(rootContainer);
 					AnimationUtils.fadeIn(emptyView);
 				} else {
-					onGameContentChanged(game);
+					onGameContentChanged(game.getData());
 					AnimationUtils.fadeOut(emptyView);
 					AnimationUtils.fadeIn(rootContainer);
 				}

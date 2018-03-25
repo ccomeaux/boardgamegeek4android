@@ -11,14 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.tasks.sync.SyncGameTask
 import com.boardgamegeek.ui.model.Game
+import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_description.*
 import kotlinx.android.synthetic.main.include_game_footer.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 
 class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var gameId: Int = 0
@@ -27,7 +24,6 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        EventBus.getDefault().register(this)
         if (arguments != null) {
             gameId = arguments!!.getInt(ARG_GAME_ID, BggContract.INVALID_ID)
         }
@@ -50,17 +46,14 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         game_info_last_updated.timestamp = 0L
 
         viewModel.getGame().observe(this, Observer { game ->
-            when (game) {
-                null -> showEmpty()
-                else -> showData(game)
+            updateRefreshStatus(game?.status == Status.REFRESHING)
+            when {
+                game == null -> showEmpty()
+                game.status == Status.ERROR && game.data == null -> showError(game.message)
+                game.data == null -> showEmpty()
+                else -> showData(game.data)
             }
-            progress.hide()
         })
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.getDefault().unregister(this)
     }
 
     private fun showEmpty() {
@@ -78,6 +71,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
 
     private fun showData(game: Game) {
         empty.fadeOut()
+        progress.hide()
 
         game_description.setTextMaybeHtml(game.description)
         game_description.fadeIn()
@@ -98,14 +92,6 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
     private fun updateRefreshStatus(refreshing: Boolean) {
         this.isRefreshing = refreshing
         swipe_refresh?.post { swipe_refresh?.isRefreshing = isRefreshing }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncGameTask.CompletedEvent) {
-        if (event.gameId == gameId) {
-            updateRefreshStatus(false)
-            showError(event.errorMessage)
-        }
     }
 
     companion object {

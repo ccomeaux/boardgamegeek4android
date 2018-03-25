@@ -19,7 +19,7 @@ class GameLiveData(val context: Context, gameId: Int) : MutableLiveData<Game>() 
 
     override fun onActive() {
         super.onActive()
-        context.contentResolver.registerContentObserver(uri, false, contentObserver)
+        registerContentObserver()
     }
 
     override fun onInactive() {
@@ -41,6 +41,8 @@ class GameLiveData(val context: Context, gameId: Int) : MutableLiveData<Game>() 
         cursor?.use { c ->
             if (c.moveToFirst()) {
                 postValue(Game.fromCursor(c))
+            } else {
+                postValue(null)
             }
         }
     }
