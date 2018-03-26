@@ -36,7 +36,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.FavoriteGameTask;
-import com.boardgamegeek.tasks.sync.SyncGameTask;
 import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
@@ -54,6 +53,7 @@ import com.boardgamegeek.ui.model.GameSuggestedAge;
 import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
 import com.boardgamegeek.ui.model.RefreshableResource;
+import com.boardgamegeek.ui.model.Status;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.GameDetailRow;
@@ -72,7 +72,6 @@ import com.github.amlcurran.showcaseview.targets.Target;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,7 +185,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@ColorInt private int iconColor = Color.TRANSPARENT;
 	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
-	private boolean isRefreshing;
 	private Call<ForumListResponse> call;
 	private GameViewModel viewModel;
 
@@ -210,7 +208,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		readBundle(getArguments());
 
 		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
-		viewModel.init(gameId);
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -240,7 +237,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		idView.setText(String.valueOf(gameId));
 		updatedView.setTimestamp(0);
 
-		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
+		viewModel.getGame(gameId).observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
 			public void onChanged(@Nullable RefreshableResource<Game> game) {
 				LoaderManager lm = getLoaderManager();
@@ -256,6 +253,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 					AnimationUtils.fadeOut(rootContainer);
 					AnimationUtils.fadeIn(emptyView);
 				} else {
+					updateRefreshStatus(game.getStatus() == Status.REFRESHING);
 					onGameContentChanged(game.getData());
 					AnimationUtils.fadeOut(emptyView);
 					AnimationUtils.fadeIn(rootContainer);
@@ -443,34 +441,15 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@Override
 	public void onRefresh() {
-		requestRefresh();
+		viewModel.refresh();
 	}
 
-	@DebugLog
-	private void requestRefresh() {
-		if (!isRefreshing) {
-			updateRefreshStatus(true);
-			viewModel.refresh();
-		} else {
-			updateRefreshStatus(false);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncGameTask.CompletedEvent event) {
-		if (event.getGameId() == gameId) {
-			updateRefreshStatus(false);
-		}
-	}
-
-	private void updateRefreshStatus(boolean refreshing) {
-		this.isRefreshing = refreshing;
+	private void updateRefreshStatus(final boolean refreshing) {
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(refreshing);
 				}
 			});
 		}

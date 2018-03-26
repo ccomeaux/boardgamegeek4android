@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.include_game_footer.*
 
 class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var gameId: Int = 0
-    private var isRefreshing = false
     private lateinit var viewModel: GameViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +28,6 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         }
         if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
         viewModel = ViewModelProviders.of(activity!!).get(GameViewModel::class.java)
-        viewModel.init(gameId)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -45,7 +43,7 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         game_info_id.text = gameId.toString()
         game_info_last_updated.timestamp = 0L
 
-        viewModel.getGame().observe(this, Observer { game ->
+        viewModel.getGame(gameId).observe(this, Observer { game ->
             updateRefreshStatus(game?.status == Status.REFRESHING)
             when {
                 game == null -> showEmpty()
@@ -54,6 +52,10 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
                 else -> showData(game.data)
             }
         })
+    }
+
+    override fun onRefresh() {
+        viewModel.refresh()
     }
 
     private fun showEmpty() {
@@ -80,18 +82,8 @@ class GameDescriptionFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
         game_info_last_updated.timestamp = game.updated
     }
 
-    override fun onRefresh() {
-        if (!isRefreshing) {
-            updateRefreshStatus(true)
-            viewModel.refresh()
-        } else {
-            updateRefreshStatus(false)
-        }
-    }
-
     private fun updateRefreshStatus(refreshing: Boolean) {
-        this.isRefreshing = refreshing
-        swipe_refresh?.post { swipe_refresh?.isRefreshing = isRefreshing }
+        swipe_refresh?.post { swipe_refresh?.isRefreshing = refreshing }
     }
 
     companion object {

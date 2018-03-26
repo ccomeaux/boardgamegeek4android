@@ -11,22 +11,17 @@ import com.boardgamegeek.ui.model.RefreshableResource
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
-    private var game: LiveData<RefreshableResource<Game>>? = null
     private var gameId = BggContract.INVALID_ID
+    private var game: LiveData<RefreshableResource<Game>> = MutableLiveData<RefreshableResource<Game>>()
 
-    fun init(gameId: Int) {
-        this.gameId = gameId
-        if (game == null && gameId != BggContract.INVALID_ID) {
+    fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
+        if (gameId != this.gameId) {
             game = gameRepository.getGame(gameId)
         }
+        return game
     }
 
     fun refresh() {
-        if (gameId != BggContract.INVALID_ID)
-            gameRepository.refreshGame(gameId)
-    }
-
-    fun getGame(): LiveData<RefreshableResource<Game>> {
-        return game ?: MutableLiveData()
+        gameRepository.refreshGame()
     }
 }

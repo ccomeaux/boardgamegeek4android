@@ -77,7 +77,6 @@ public class GameActivity extends HeroTabActivity {
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
 	@ColorInt private int[] playCountColors;
-	private GameViewModel viewModel;
 
 	public static void start(Context context, int gameId, String gameName) {
 		final Intent starter = createIntent(gameId, gameName);
@@ -128,10 +127,9 @@ public class GameActivity extends HeroTabActivity {
 
 		initializeViewPager();
 
-		viewModel = ViewModelProviders.of(this).get(GameViewModel.class);
-		viewModel.init(gameId);
+		GameViewModel viewModel = ViewModelProviders.of(this).get(GameViewModel.class);
 
-		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
+		viewModel.getGame(gameId).observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
 			public void onChanged(@Nullable RefreshableResource<Game> game) {
 				if (game == null) return;

@@ -46,6 +46,10 @@ abstract class RefreshableResourceLoader<T, U>(val context: Context) {
     @MainThread
     protected abstract fun shouldRefresh(data: T?): Boolean
 
+    fun refresh() {
+        refresh(loadFromDatabase())
+    }
+
     private fun refresh(dbSource: LiveData<T>) {
         result.addSource(dbSource) { newData ->
             if (NetworkUtils.isOffline(context)) {
