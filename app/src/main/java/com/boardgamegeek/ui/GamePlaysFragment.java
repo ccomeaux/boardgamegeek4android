@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
@@ -109,12 +108,15 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_plays, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		return inflater.inflate(R.layout.fragment_game_plays, container, false);
+	}
 
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 		colorize();
 
 		swipeRefreshLayout.setOnRefreshListener(this);
@@ -123,8 +125,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		getLoaderManager().restartLoader(GAME_TOKEN, null, this);
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
-
-		return rootView;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -291,16 +291,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		}
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(GameInfoChangedEvent event) {
-		imageUrl = event.getImageUrl();
-		thumbnailUrl = event.getThumbnailUrl();
-		heroImageUrl = event.getHeroImageUrl();
-		arePlayersCustomSorted = event.getArePlayersCustomSorted();
-	}
-
 	private void colorize() {
 		if (!isAdded()) return;
 		if (iconColor != Color.TRANSPARENT) {
@@ -309,19 +299,16 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	}
 
 	@OnClick(R.id.plays_root)
-	@DebugLog
 	public void onPlaysClick() {
 		GamePlaysActivity.start(getContext(), gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor);
 	}
 
 	@OnClick(R.id.play_stats_root)
-	@DebugLog
 	public void onPlayStatsClick() {
 		GamePlayStatsActivity.start(getContext(), gameId, gameName, iconColor, playCountColors);
 	}
 
 	@OnClick(R.id.colors_root)
-	@DebugLog
 	public void onColorsClick() {
 		GameColorsActivity.start(getContext(), gameId, gameName, iconColor);
 	}

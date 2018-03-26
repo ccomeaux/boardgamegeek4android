@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
-import com.boardgamegeek.events.GameInfoChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
@@ -467,7 +466,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@DebugLog
 	private void onGameContentChanged(@NonNull Game game) {
-		notifyChange(game);
 		gameName = game.getName();
 
 		yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.getYearPublished()));
@@ -497,12 +495,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 		final int maxUsers = game.getMaxUsers();
 		userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
-	}
-
-	@DebugLog
-	private void notifyChange(Game game) {
-		GameInfoChangedEvent event = new GameInfoChangedEvent(game.getName(), game.getSubtype(), game.getImageUrl(), game.getThumbnailUrl(), game.getHeroImageUrl(), game.getCustomPlayerSort(), game.isFavorite());
-		EventBus.getDefault().post(event);
 	}
 
 	@DebugLog
