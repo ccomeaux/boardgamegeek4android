@@ -83,15 +83,7 @@
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="true"
-			android:label="@string/title_game">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW"/>
-
-				<category android:name="android.intent.category.DEFAULT"/>
-
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game"/>
-			</intent-filter>
-		</activity>
+			android:label="@string/title_game"/>
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"

@@ -156,7 +156,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull GameShortcutRequestedEvent event) {
-		Intent shortcutIntent = GameActivity.createIntentAsShortcut(event.getId(), event.getName());
+		Intent shortcutIntent = GameActivity.createIntentAsShortcut(this, event.getId(), event.getName());
 		if (shortcutIntent != null) {
 			Intent intent;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

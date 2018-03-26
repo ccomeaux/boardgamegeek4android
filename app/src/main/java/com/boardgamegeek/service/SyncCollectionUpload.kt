@@ -44,7 +44,7 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
 
     override val notificationIntent: Intent?
         get() = if (currentGameId != BggContract.INVALID_ID) {
-            GameActivity.createIntent(currentGameId, currentGameName)
+            GameActivity.createIntent(context, currentGameId, currentGameName)
         } else super.notificationIntent
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_COLLECTION

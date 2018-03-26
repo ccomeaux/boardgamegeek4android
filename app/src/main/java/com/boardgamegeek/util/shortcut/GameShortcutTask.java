@@ -23,7 +23,7 @@ public class GameShortcutTask extends ShortcutTask {
 
 	@Override
 	protected Intent createIntent() {
-		return GameActivity.createIntentAsShortcut(gameId, gameName);
+		return GameActivity.createIntentAsShortcut(context, gameId, gameName);
 	}
 
 	@Override

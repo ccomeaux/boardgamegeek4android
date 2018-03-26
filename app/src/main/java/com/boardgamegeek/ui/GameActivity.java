@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
@@ -64,6 +63,7 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GameActivity extends HeroTabActivity {
+	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	private int gameId;
@@ -79,13 +79,13 @@ public class GameActivity extends HeroTabActivity {
 	@ColorInt private int[] playCountColors;
 
 	public static void start(Context context, int gameId, String gameName) {
-		final Intent starter = createIntent(gameId, gameName);
+		final Intent starter = createIntent(context, gameId, gameName);
 		if (starter == null) return;
 		context.startActivity(starter);
 	}
 
 	public static void startUp(Context context, int gameId, String gameName) {
-		final Intent starter = createIntent(gameId, gameName);
+		final Intent starter = createIntent(context, gameId, gameName);
 		if (starter == null) return;
 		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -93,17 +93,17 @@ public class GameActivity extends HeroTabActivity {
 	}
 
 	@Nullable
-	public static Intent createIntent(int gameId, String gameName) {
+	public static Intent createIntent(Context context, int gameId, String gameName) {
 		if (gameId == BggContract.INVALID_ID) return null;
-		final Uri gameUri = Games.buildGameUri(gameId);
-		final Intent starter = new Intent(Intent.ACTION_VIEW, gameUri);
+		final Intent starter = new Intent(context, GameActivity.class);
+		starter.putExtra(KEY_GAME_ID, gameId);
 		starter.putExtra(KEY_GAME_NAME, gameName);
 		return starter;
 	}
 
 	@Nullable
-	public static Intent createIntentAsShortcut(int gameId, String gameName) {
-		Intent intent = createIntent(gameId, gameName);
+	public static Intent createIntentAsShortcut(Context context, int gameId, String gameName) {
+		Intent intent = createIntent(context, gameId, gameName);
 		if (intent == null) return null;
 		intent.putExtra(KEY_FROM_SHORTCUT, true);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -116,13 +116,12 @@ public class GameActivity extends HeroTabActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Uri gameUri = getIntent().getData();
-		if (gameUri == null) {
-			Timber.w("Received a null gameUri");
+		gameId = getIntent().getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		if (gameId == BggContract.INVALID_ID) {
+			Timber.w("Received an invalid game ID.");
 			finish();
 		}
 
-		gameId = Games.getGameId(gameUri);
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
 
 		initializeViewPager();
@@ -148,10 +147,9 @@ public class GameActivity extends HeroTabActivity {
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
-				if (gameUri == null) return;
 				ContentValues values = new ContentValues();
 				values.put(Games.LAST_VIEWED, System.currentTimeMillis());
-				getContentResolver().update(gameUri, values, null, null);
+				getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
 			}
 		});
 
