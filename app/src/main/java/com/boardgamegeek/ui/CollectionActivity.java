@@ -149,14 +149,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull GameSelectedEvent event) {
-		GameActivity.start(this, event.getId(), event.getName());
+		GameActivity.start(this, event.getId(), event.getName(), event.getImageUrl());
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull GameShortcutRequestedEvent event) {
-		Intent shortcutIntent = GameActivity.createIntentAsShortcut(this, event.getId(), event.getName());
+		Intent shortcutIntent = GameActivity.createIntentAsShortcut(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		if (shortcutIntent != null) {
 			Intent intent;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

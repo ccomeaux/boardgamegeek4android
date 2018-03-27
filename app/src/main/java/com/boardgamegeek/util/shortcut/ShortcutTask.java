@@ -31,7 +31,7 @@ import timber.log.Timber;
 
 public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	@SuppressLint("StaticFieldLeak") @Nullable protected final Context context;
-	private final String thumbnailUrl;
+	protected final String thumbnailUrl;
 
 	public ShortcutTask(@Nullable Context context) {
 		this(context, null);

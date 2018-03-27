@@ -286,10 +286,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final int gameId = cursor.getInt(Query.GAME_ID);
 		final String gameName = cursor.getString(Query.GAME_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+		final String imageUrl = cursor.getString(Query.IMAGE_URL);
 		if (isCreatingShortcut) {
 			EventBus.getDefault().post(new GameShortcutRequestedEvent(gameId, gameName, thumbnailUrl));
 		} else {
-			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName));
+			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName, imageUrl));
 			setSelectedGameId(gameId);
 		}
 	}
