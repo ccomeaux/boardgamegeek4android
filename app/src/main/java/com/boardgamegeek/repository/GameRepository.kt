@@ -1,7 +1,9 @@
 package com.boardgamegeek.repository
 
 import android.arch.lifecycle.LiveData
+import android.content.ContentValues
 import android.content.Context
+import android.os.Handler
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.Adapter
@@ -22,13 +24,27 @@ class GameRepository(val application: BggApplication) {
     private var loader: GameLoader = GameLoader(application)
     private var gameId: Int = BggContract.INVALID_ID
 
+    /**
+     * Get a game from the database and potentially refresh it from BGG.
+     */
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
         this.gameId = gameId
         return loader.load()
     }
 
+    /**
+     * Refresh the currently loaded game from BGG.
+     */
     fun refreshGame() {
         loader.refresh()
+    }
+
+    fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
+        Handler().post({
+            val values = ContentValues()
+            values.put(BggContract.Games.LAST_VIEWED, lastViewed)
+            application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+        })
     }
 
     inner class GameLoader(context: Context) : RefreshableResourceLoader<Game, ThingResponse>(context) {

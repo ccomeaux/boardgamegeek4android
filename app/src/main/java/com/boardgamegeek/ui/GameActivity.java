@@ -2,11 +2,9 @@ package com.boardgamegeek.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -30,7 +28,6 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
@@ -156,14 +153,7 @@ public class GameActivity extends HeroTabActivity {
 			}
 		});
 
-		new Handler().post(new Runnable() {
-			@Override
-			public void run() {
-				ContentValues values = new ContentValues();
-				values.put(Games.LAST_VIEWED, System.currentTimeMillis());
-				getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
-			}
-		});
+		viewModel.updateLastViewed(System.currentTimeMillis());
 
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent()
@@ -259,7 +249,7 @@ public class GameActivity extends HeroTabActivity {
 	@DebugLog
 	private void changeName(String gameName) {
 		if (!TextUtils.isEmpty(gameName) && !gameName.equals(this.gameName)) {
-		this.gameName = gameName;
+			this.gameName = gameName;
 			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			safelySetTitle(gameName);
 		}

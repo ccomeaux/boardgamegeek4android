@@ -24,4 +24,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun refresh() {
         gameRepository.refreshGame()
     }
+
+    fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
+        gameRepository.updateLastViewed(lastViewed)
+    }
 }
