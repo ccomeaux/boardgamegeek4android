@@ -258,8 +258,8 @@ public class GameActivity extends HeroTabActivity {
 
 	@DebugLog
 	private void changeName(String gameName) {
+		if (!TextUtils.isEmpty(gameName) && !gameName.equals(this.gameName)) {
 		this.gameName = gameName;
-		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			safelySetTitle(gameName);
 		}
