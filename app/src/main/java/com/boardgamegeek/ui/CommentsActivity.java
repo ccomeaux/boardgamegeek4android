@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
@@ -29,14 +30,6 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	private int gameId;
 	private String gameName;
 	@State int sortType;
-
-	public static void startComments(Context context, Uri gameUri, String gameName) {
-		Intent starter = new Intent(context, CommentsActivity.class);
-		starter.setData(gameUri);
-		starter.putExtra(KEY_GAME_NAME, gameName);
-		starter.putExtra(KEY_SORT_TYPE, SORT_TYPE_USER);
-		context.startActivity(starter);
-	}
 
 	public static void startRating(Context context, Uri gameUri, String gameName) {
 		Intent starter = new Intent(context, CommentsActivity.class);
@@ -97,7 +90,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
 		if (sortType == SORT_TYPE_RATING) {
 			UIUtils.checkMenuItem(menu, R.id.menu_sort_rating);
 		} else {
@@ -107,7 +100,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				GameActivity.startUp(this, gameId, gameName);
