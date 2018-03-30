@@ -84,6 +84,7 @@ abstract class RefreshableResourceLoader<T, U>(val context: Context) {
             }
 
             override fun onFailure(call: Call<U>?, t: Throwable?) {
+                result.removeSource(dbSource)
                 result.addSource(dbSource) { newData ->
                     result.setValue(RefreshableResource.error(t, newData))
                 }
