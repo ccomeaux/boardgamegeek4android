@@ -9,12 +9,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.boardgamegeek.entities.GameEntity;
+import com.boardgamegeek.mappers.GameMapper;
 import com.boardgamegeek.model.Game;
-import com.boardgamegeek.model.Game.Link;
-import com.boardgamegeek.model.Game.Poll;
-import com.boardgamegeek.model.Game.Rank;
-import com.boardgamegeek.model.Game.Result;
-import com.boardgamegeek.model.Game.Results;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -43,6 +40,8 @@ import com.boardgamegeek.util.ResolverUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlin.Pair;
+import kotlin.Triple;
 import timber.log.Timber;
 
 public class GamePersister {
@@ -63,7 +62,6 @@ public class GamePersister {
 		int recordCount = 0;
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (games != null && games.size() > 0) {
-
 			DesignerPersister designerPersister = new DesignerPersister();
 			ArtistPersister artistPersister = new ArtistPersister();
 			PublisherPersister publisherPersister = new PublisherPersister();
@@ -71,28 +69,30 @@ public class GamePersister {
 			MechanicPersister mechanicPersister = new MechanicPersister();
 			ExpansionPersister expansionPersister = new ExpansionPersister();
 
-			for (Game game : games) {
+			for (Game g : games) {
+				GameEntity game = new GameMapper().map(g, updateTime);
+
 				if (TextUtils.isEmpty(game.getName())) {
-					Timber.w("Missing name from game ID=%s", game.id);
+					Timber.w("Missing name from game ID=%s", game.getId());
 					continue;
 				}
 
-				if (gameIds.contains(game.id)) {
-					Timber.i("Skipping duplicate game ID=%s", game.id);
+				if (gameIds.contains(game.getId())) {
+					Timber.i("Skipping duplicate game ID=%s", game.getId());
 					continue;
 				}
-				gameIds.add(game.id);
+				gameIds.add(game.getId());
 
-				Timber.i("Saving game %s (%s)", game.getName(), game.id);
+				Timber.i("Saving game %s (%s)", game.getName(), game.getId());
 
 				Builder cpoBuilder;
 				ContentValues values = toValues(game, updateTime);
-				if (ResolverUtils.rowExists(resolver, Games.buildGameUri(game.id))) {
+				if (ResolverUtils.rowExists(resolver, Games.buildGameUri(game.getId()))) {
 					values.remove(Games.GAME_ID);
 					if (shouldClearHeroImageUrl(game)) {
 						values.put(Games.HERO_IMAGE_URL, "");
 					}
-					cpoBuilder = ContentProviderOperation.newUpdate(Games.buildGameUri(game.id));
+					cpoBuilder = ContentProviderOperation.newUpdate(Games.buildGameUri(game.getId()));
 				} else {
 					cpoBuilder = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 				}
@@ -103,17 +103,17 @@ public class GamePersister {
 				batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build());
 				batch.addAll(rankOperations);
 				batch.addAll(pollOperations);
-				batch.addAll(designerPersister.createBatch(game.id, resolver, game.getDesigners()));
-				batch.addAll(artistPersister.createBatch(game.id, resolver, game.getArtists()));
-				batch.addAll(publisherPersister.createBatch(game.id, resolver, game.getPublishers()));
-				batch.addAll(categoryPersister.createBatch(game.id, resolver, game.getCategories()));
-				batch.addAll(mechanicPersister.createBatch(game.id, resolver, game.getMechanics()));
-				batch.addAll(expansionPersister.createBatch(game.id, resolver, game.getExpansions()));
+				batch.addAll(designerPersister.createBatch(game.getId(), resolver, game.getDesigners()));
+				batch.addAll(artistPersister.createBatch(game.getId(), resolver, game.getArtists()));
+				batch.addAll(publisherPersister.createBatch(game.getId(), resolver, game.getPublishers()));
+				batch.addAll(categoryPersister.createBatch(game.getId(), resolver, game.getCategories()));
+				batch.addAll(mechanicPersister.createBatch(game.getId(), resolver, game.getMechanics()));
+				batch.addAll(expansionPersister.createBatch(game.getId(), resolver, game.getExpansions()));
 
 				if (avoidBatching) {
 					try {
 						int count = ResolverUtils.applyBatch(context, batch, debugMessage).length;
-						Timber.i("Saved game ID '%s' in %,d records", game.id, count);
+						Timber.i("Saved game ID '%s' in %,d records", game.getId(), count);
 						recordCount += count;
 					} catch (Exception e) {
 						NotificationUtils.showPersistErrorNotification(context, e);
@@ -137,14 +137,14 @@ public class GamePersister {
 		return 0;
 	}
 
-	private boolean shouldClearHeroImageUrl(Game game) {
-		Cursor cursor = resolver.query(Games.buildGameUri(game.id), new String[]{Games.IMAGE_URL, Games.THUMBNAIL_URL}, null, null, null);
+	private boolean shouldClearHeroImageUrl(GameEntity game) {
+		Cursor cursor = resolver.query(Games.buildGameUri(game.getId()), new String[]{Games.IMAGE_URL, Games.THUMBNAIL_URL}, null, null, null);
 		try {
 			if (cursor != null && cursor.moveToFirst()) {
 				String imageUrl = CursorUtils.getString(cursor, 0);
 				String thumbnailUrl = cursor.getString(1);
-				if (!imageUrl.equals(game.image) ||
-					!thumbnailUrl.equals(game.thumbnail)) {
+				if (!imageUrl.equals(game.getImage()) ||
+					!thumbnailUrl.equals(game.getThumbnail())) {
 					return true;
 				}
 			}
@@ -154,17 +154,17 @@ public class GamePersister {
 		return false;
 	}
 
-	private static ContentValues toValues(Game game, long updateTime) {
+	private static ContentValues toValues(GameEntity game, long updateTime) {
 		ContentValues values = new ContentValues();
 		values.put(Games.UPDATED, updateTime);
 		values.put(Games.UPDATED_LIST, updateTime);
-		values.put(Games.GAME_ID, game.id);
+		values.put(Games.GAME_ID, game.getId());
 		values.put(Games.GAME_NAME, game.getName());
 		values.put(Games.GAME_SORT_NAME, game.getSortName());
-		values.put(Games.THUMBNAIL_URL, game.thumbnail);
-		values.put(Games.IMAGE_URL, game.image);
+		values.put(Games.THUMBNAIL_URL, game.getThumbnail());
+		values.put(Games.IMAGE_URL, game.getImage());
 		values.put(Games.DESCRIPTION, game.getDescription());
-		values.put(Games.SUBTYPE, game.subtype());
+		values.put(Games.SUBTYPE, game.getSubtype());
 		values.put(Games.YEAR_PUBLISHED, game.getYearPublished());
 		values.put(Games.MIN_PLAYERS, game.getMinPlayers());
 		values.put(Games.MAX_PLAYERS, game.getMaxPlayers());
@@ -172,159 +172,157 @@ public class GamePersister {
 		values.put(Games.MIN_PLAYING_TIME, game.getMinPlayingTime());
 		values.put(Games.MAX_PLAYING_TIME, game.getMaxPlayingTime());
 		values.put(Games.MINIMUM_AGE, game.getMinAge());
-		if (game.statistics != null) {
-			values.put(Games.STATS_USERS_RATED, game.statistics.usersRated());
-			values.put(Games.STATS_AVERAGE, game.statistics.average());
-			values.put(Games.STATS_BAYES_AVERAGE, game.statistics.bayesAverage());
-			values.put(Games.STATS_STANDARD_DEVIATION, game.statistics.standardDeviation());
-			values.put(Games.STATS_MEDIAN, game.statistics.median());
-			values.put(Games.STATS_NUMBER_OWNED, game.statistics.owned());
-			values.put(Games.STATS_NUMBER_TRADING, game.statistics.trading());
-			values.put(Games.STATS_NUMBER_WANTING, game.statistics.wanting());
-			values.put(Games.STATS_NUMBER_WISHING, game.statistics.wishing());
-			values.put(Games.STATS_NUMBER_COMMENTS, game.statistics.commenting());
-			values.put(Games.STATS_NUMBER_WEIGHTS, game.statistics.weighting());
-			values.put(Games.STATS_AVERAGE_WEIGHT, game.statistics.averageWeight());
+		if (game.getHasStatistics()) {
+			values.put(Games.STATS_USERS_RATED, game.getUsersRated());
+			values.put(Games.STATS_AVERAGE, game.getAverage());
+			values.put(Games.STATS_BAYES_AVERAGE, game.getBayesAverage());
+			values.put(Games.STATS_STANDARD_DEVIATION, game.getStandardDeviation());
+			values.put(Games.STATS_MEDIAN, game.getMedian());
+			values.put(Games.STATS_NUMBER_OWNED, game.getOwned());
+			values.put(Games.STATS_NUMBER_TRADING, game.getTrading());
+			values.put(Games.STATS_NUMBER_WANTING, game.getWanting());
+			values.put(Games.STATS_NUMBER_WISHING, game.getWishing());
+			values.put(Games.STATS_NUMBER_COMMENTS, game.getCommenting());
+			values.put(Games.STATS_NUMBER_WEIGHTS, game.getWeighting());
+			values.put(Games.STATS_AVERAGE_WEIGHT, game.getAverageWeight());
 		}
 		values.put(Games.GAME_RANK, game.getRank());
 		return values;
 	}
 
-	private ArrayList<ContentProviderOperation> createPollsBatch(Game game, ContentValues gameContentValues) {
+	private ArrayList<ContentProviderOperation> createPollsBatch(GameEntity game, ContentValues gameContentValues) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		List<String> existingPollNames = ResolverUtils.queryStrings(resolver, Games.buildPollsUri(game.id), GamePolls.POLL_NAME);
-		if (game.polls != null) {
-			for (Poll poll : game.polls) {
-				if ("suggested_numplayers".equals(poll.name)) {
-					gameContentValues.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, poll.totalvotes);
-					int sortIndex = 0;
-					List<String> existingResults = ResolverUtils.queryStrings(resolver,
-						Games.buildSuggestedPlayerCountPollResultsUri(game.id), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT);
-					for (Results results : poll.results) {
-						ContentValues values = new ContentValues(6);
-						PlayerCountRecommendation.Builder builder = new PlayerCountRecommendation.Builder();
-						values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, ++sortIndex);
-						for (Result result : results.result) {
-							if ("Best".equals(result.value)) {
-								values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, result.numvotes);
-								builder.bestVoteCount(result.numvotes);
-							} else if ("Recommended".equals(result.value)) {
-								values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, result.numvotes);
-								builder.recommendedVoteCount(result.numvotes);
-							} else if ("Not Recommended".equals(result.value)) {
-								values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, result.numvotes);
-								builder.notRecommendVoteCount(result.numvotes);
-							} else {
-								Timber.i("Unexpected suggested player count result of '%s'", result.value);
-							}
-						}
-						values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, builder.build().calculate());
-						if (existingResults.remove(results.getKey())) {
-							Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id, results.getKey());
-							batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+		List<String> existingPollNames = ResolverUtils.queryStrings(resolver, Games.buildPollsUri(game.getId()), GamePolls.POLL_NAME);
+		for (GameEntity.Poll poll : game.getPolls()) {
+			if ("suggested_numplayers".equals(poll.getName())) {
+				gameContentValues.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, poll.getTotalVotes());
+				int sortIndex = 0;
+				List<String> existingResults = ResolverUtils.queryStrings(resolver,
+					Games.buildSuggestedPlayerCountPollResultsUri(game.getId()), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT);
+				for (GameEntity.Results results : poll.getResults()) {
+					ContentValues values = new ContentValues(6);
+					PlayerCountRecommendation.Builder builder = new PlayerCountRecommendation.Builder();
+					values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, ++sortIndex);
+					for (GameEntity.Result result : results.getResult()) {
+						if ("Best".equals(result.getValue())) {
+							values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, result.getNumvotes());
+							builder.bestVoteCount(result.getNumvotes());
+						} else if ("Recommended".equals(result.getValue())) {
+							values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, result.getNumvotes());
+							builder.recommendedVoteCount(result.getNumvotes());
+						} else if ("Not Recommended".equals(result.getValue())) {
+							values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, result.getNumvotes());
+							builder.notRecommendVoteCount(result.getNumvotes());
 						} else {
-							values.put(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, results.getKey());
-							Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id);
-							batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+							Timber.i("Unexpected suggested player count result of '%s'", result.getValue());
 						}
 					}
-					for (String result : existingResults) {
-						Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id, result);
-						batch.add(ContentProviderOperation.newDelete(uri).build());
-					}
-				} else {
-					ContentValues values = new ContentValues();
-					values.put(GamePolls.POLL_TITLE, poll.title);
-					values.put(GamePolls.POLL_TOTAL_VOTES, poll.totalvotes);
-
-					List<String> existingResultKeys = new ArrayList<>();
-					if (existingPollNames.remove(poll.name)) {
-						batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name)).withValues(values).build());
-						existingResultKeys = ResolverUtils.queryStrings(resolver, Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS);
+					values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, builder.build().calculate());
+					if (existingResults.remove(results.getKey())) {
+						Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.getId(), results.getKey());
+						batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
 					} else {
-						values.put(GamePolls.POLL_NAME, poll.name);
-						batch.add(ContentProviderOperation.newInsert(Games.buildPollsUri(game.id)).withValues(values).build());
+						values.put(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, results.getKey());
+						Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.getId());
+						batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+					}
+				}
+				for (String result : existingResults) {
+					Uri uri = Games.buildSuggestedPlayerCountPollResultsUri(game.getId(), result);
+					batch.add(ContentProviderOperation.newDelete(uri).build());
+				}
+			} else {
+				ContentValues values = new ContentValues();
+				values.put(GamePolls.POLL_TITLE, poll.getTitle());
+				values.put(GamePolls.POLL_TOTAL_VOTES, poll.getTotalVotes());
+
+				List<String> existingResultKeys = new ArrayList<>();
+				if (existingPollNames.remove(poll.getName())) {
+					batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.getId(), poll.getName())).withValues(values).build());
+					existingResultKeys = ResolverUtils.queryStrings(resolver, Games.buildPollResultsUri(game.getId(), poll.getName()), GamePollResults.POLL_RESULTS_PLAYERS);
+				} else {
+					values.put(GamePolls.POLL_NAME, poll.getName());
+					batch.add(ContentProviderOperation.newInsert(Games.buildPollsUri(game.getId())).withValues(values).build());
+				}
+
+				int resultsIndex = 0;
+				for (GameEntity.Results results : poll.getResults()) {
+					values.clear();
+					values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, ++resultsIndex);
+
+					List<String> existingValues = new ArrayList<>();
+					if (existingResultKeys.remove(results.getKey())) {
+						batch.add(ContentProviderOperation
+							.newUpdate(Games.buildPollResultsUri(game.getId(), poll.getName(), results.getKey()))
+							.withValues(values).build());
+						existingValues = ResolverUtils.queryStrings(resolver,
+							Games.buildPollResultsResultUri(game.getId(), poll.getName(), results.getKey()),
+							GamePollResultsResult.POLL_RESULTS_RESULT_KEY);
+					} else {
+						values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.getKey());
+						batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.getId(), poll.getName())).withValues(values).build());
 					}
 
-					int resultsIndex = 0;
-					for (Results results : poll.results) {
+					int resultSortIndex = 0;
+					for (GameEntity.Result result : results.getResult()) {
 						values.clear();
-						values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, ++resultsIndex);
+						if (result.getLevel() > 0)
+							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.getLevel());
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.getValue());
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.getNumvotes());
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
 
-						List<String> existingValues = new ArrayList<>();
-						if (existingResultKeys.remove(results.getKey())) {
-							batch.add(ContentProviderOperation
-								.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.getKey()))
-								.withValues(values).build());
-							existingValues = ResolverUtils.queryStrings(resolver,
-								Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()),
-								GamePollResultsResult.POLL_RESULTS_RESULT_KEY);
+						String key = DataUtils.generatePollResultsKey(result.getLevel(), result.getValue());
+						if (existingValues.remove(key)) {
+							batch.add(ContentProviderOperation.newUpdate(Games.buildPollResultsResultUri(game.getId(), poll.getName(), results.getKey(), key))
+								.withValues(values)
+								.build());
 						} else {
-							values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.getKey());
-							batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name)).withValues(values).build());
-						}
-
-						int resultSortIndex = 0;
-						for (Result result : results.result) {
-							values.clear();
-							if (result.level > 0)
-								values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.level);
-							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value);
-							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numvotes);
-							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
-
-							String key = DataUtils.generatePollResultsKey(result.level, result.value);
-							if (existingValues.remove(key)) {
-								batch.add(ContentProviderOperation.newUpdate(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), key))
-									.withValues(values)
-									.build());
-							} else {
-								batch.add(ContentProviderOperation
-									.newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()))
-									.withValues(values)
-									.build());
-							}
-						}
-
-						for (String value : existingValues) {
-							batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), value)).build());
+							batch.add(ContentProviderOperation
+								.newInsert(Games.buildPollResultsResultUri(game.getId(), poll.getName(), results.getKey()))
+								.withValues(values)
+								.build());
 						}
 					}
 
-					for (String player : existingResultKeys) {
-						batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.id, poll.name, player)).build());
+					for (String value : existingValues) {
+						batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.getId(), poll.getName(), results.getKey(), value)).build());
 					}
+				}
+
+				for (String player : existingResultKeys) {
+					batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.getId(), poll.getName(), player)).build());
 				}
 			}
 		}
 		for (String pollName : existingPollNames) {
-			batch.add(ContentProviderOperation.newDelete(Games.buildPollsUri(game.id, pollName)).build());
+			batch.add(ContentProviderOperation.newDelete(Games.buildPollsUri(game.getId(), pollName)).build());
 		}
 		return batch;
 	}
 
-	private ArrayList<ContentProviderOperation> createRanksBatch(Game game) {
+	private ArrayList<ContentProviderOperation> createRanksBatch(GameEntity game) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		List<Integer> existingRankIds = ResolverUtils.queryInts(resolver,
 			GameRanks.CONTENT_URI,
 			GameRanks.GAME_RANK_ID,
 			GameRanks.GAME_ID + "=?",
-			new String[] { String.valueOf(game.id) });
+			new String[]{String.valueOf(game.getId())});
 
 		ContentValues values = new ContentValues();
-		for (Rank rank : game.statistics.ranks) {
+		for (GameEntity.Rank rank : game.getRanks()) {
 			values.clear();
-			values.put(GameRanks.GAME_RANK_TYPE, rank.type);
-			values.put(GameRanks.GAME_RANK_NAME, rank.name);
-			values.put(GameRanks.GAME_RANK_FRIENDLY_NAME, rank.friendlyName);
+			values.put(GameRanks.GAME_RANK_TYPE, rank.getType());
+			values.put(GameRanks.GAME_RANK_NAME, rank.getName());
+			values.put(GameRanks.GAME_RANK_FRIENDLY_NAME, rank.getFriendlyName());
 			values.put(GameRanks.GAME_RANK_VALUE, rank.getValue());
 			values.put(GameRanks.GAME_RANK_BAYES_AVERAGE, rank.getBayesAverage());
 
-			if (existingRankIds.remove((Integer) rank.id)) {
-				batch.add(ContentProviderOperation.newUpdate(Games.buildRanksUri(game.id, rank.id)).withValues(values).build());
+			if (existingRankIds.remove((Integer) rank.getId())) {
+				batch.add(ContentProviderOperation.newUpdate(Games.buildRanksUri(game.getId(), rank.getId())).withValues(values).build());
 			} else {
-				values.put(GameRanks.GAME_RANK_ID, rank.id);
-				batch.add(ContentProviderOperation.newInsert(Games.buildRanksUri(game.id)).withValues(values).build());
+				values.put(GameRanks.GAME_RANK_ID, rank.getId());
+				batch.add(ContentProviderOperation.newInsert(Games.buildRanksUri(game.getId())).withValues(values).build());
 			}
 		}
 		for (int rankId : existingRankIds) {
@@ -363,11 +361,6 @@ public class GamePersister {
 		protected String getAssociationNameColumnName() {
 			return null;
 		}
-
-		@Override
-		protected String getInboundColumnName() {
-			return null;
-		}
 	}
 
 	static class ArtistPersister extends LinkPersister {
@@ -398,11 +391,6 @@ public class GamePersister {
 
 		@Override
 		protected String getAssociationNameColumnName() {
-			return null;
-		}
-
-		@Override
-		protected String getInboundColumnName() {
 			return null;
 		}
 	}
@@ -437,11 +425,6 @@ public class GamePersister {
 		protected String getAssociationNameColumnName() {
 			return null;
 		}
-
-		@Override
-		protected String getInboundColumnName() {
-			return null;
-		}
 	}
 
 	static class CategoryPersister extends LinkPersister {
@@ -472,11 +455,6 @@ public class GamePersister {
 
 		@Override
 		protected String getAssociationNameColumnName() {
-			return null;
-		}
-
-		@Override
-		protected String getInboundColumnName() {
 			return null;
 		}
 	}
@@ -511,47 +489,87 @@ public class GamePersister {
 		protected String getAssociationNameColumnName() {
 			return null;
 		}
-
-		@Override
-		protected String getInboundColumnName() {
-			return null;
-		}
 	}
 
-	static class ExpansionPersister extends LinkPersister {
-		@Override
+	static class ExpansionPersister {
 		protected Uri getContentUri() {
 			return Games.CONTENT_URI;
 		}
 
-		@Override
 		protected String getUriPath() {
 			return BggContract.PATH_EXPANSIONS;
 		}
 
-		@Override
 		protected String getReferenceIdColumnName() {
 			return null;
 		}
 
-		@Override
 		protected String getReferenceNameColumnName() {
 			return null;
 		}
 
-		@Override
 		protected String getAssociationIdColumnName() {
 			return GamesExpansions.EXPANSION_ID;
 		}
 
-		@Override
 		protected String getAssociationNameColumnName() {
 			return GamesExpansions.EXPANSION_NAME;
 		}
 
-		@Override
 		protected String getInboundColumnName() {
 			return GamesExpansions.INBOUND;
+		}
+
+		ArrayList<ContentProviderOperation> createBatch(int gameId, ContentResolver resolver, List<Triple<Integer, String, Boolean>> newLinks) {
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+			Uri pathUri = Games.buildPathUri(gameId, getUriPath());
+			List<Integer> existingIds = ResolverUtils.queryInts(resolver, pathUri, getAssociationIdColumnName());
+
+			for (Triple<Integer, String, Boolean> newLink : newLinks) {
+				if (!existingIds.remove(newLink.getFirst())) {
+					if (shouldInsertReferenceRow(resolver, newLink)) {
+						ContentValues cv = new ContentValues(2);
+						cv.put(getReferenceIdColumnName(), newLink.getFirst());
+						cv.put(getReferenceNameColumnName(), newLink.getSecond());
+						resolver.insert(getContentUri(), cv);
+					} else if (shouldUpdateReferenceRow(resolver, newLink)) {
+						ContentValues cv = new ContentValues(1);
+						cv.put(getReferenceNameColumnName(), newLink.getSecond());
+						resolver.update(buildLinkUri(newLink), cv, null, null);
+					}
+					// insert association row
+					Builder cpoBuilder = ContentProviderOperation.newInsert(pathUri)
+						.withValue(getAssociationIdColumnName(), newLink.getFirst());
+					if (!TextUtils.isEmpty(getAssociationNameColumnName())) {
+						cpoBuilder.withValue(getAssociationNameColumnName(), newLink.getSecond());
+					}
+					if (!TextUtils.isEmpty(getInboundColumnName())) {
+						cpoBuilder.withValue(getInboundColumnName(), newLink.getThird());
+					}
+					batch.add(cpoBuilder.build());
+				}
+			}
+			// remove unused associations
+			for (Integer existingId : existingIds) {
+				Uri uri = Games.buildPathUri(gameId, getUriPath(), existingId);
+				batch.add(ContentProviderOperation.newDelete(uri).build());
+			}
+			return batch;
+		}
+
+		private boolean shouldInsertReferenceRow(ContentResolver resolver, Triple<Integer, String, Boolean> newLink) {
+			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
+				!ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
+		}
+
+
+		private boolean shouldUpdateReferenceRow(ContentResolver resolver, Triple<Integer, String, Boolean> newLink) {
+			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
+				ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
+		}
+
+		private Uri buildLinkUri(Triple<Integer, String, Boolean> newLink) {
+			return getContentUri().buildUpon().appendPath(String.valueOf(newLink.getFirst())).build();
 		}
 	}
 
@@ -568,33 +586,28 @@ public class GamePersister {
 
 		protected abstract String getAssociationNameColumnName();
 
-		protected abstract String getInboundColumnName();
-
-		ArrayList<ContentProviderOperation> createBatch(int gameId, ContentResolver resolver, List<Game.Link> newLinks) {
+		ArrayList<ContentProviderOperation> createBatch(int gameId, ContentResolver resolver, List<Pair<Integer, String>> newLinks) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			Uri pathUri = Games.buildPathUri(gameId, getUriPath());
 			List<Integer> existingIds = ResolverUtils.queryInts(resolver, pathUri, getAssociationIdColumnName());
 
-			for (Game.Link newLink : newLinks) {
-				if (!existingIds.remove(Integer.valueOf(newLink.id))) {
+			for (Pair<Integer, String> newLink : newLinks) {
+				if (!existingIds.remove(newLink.getFirst())) {
 					if (shouldInsertReferenceRow(resolver, newLink)) {
 						ContentValues cv = new ContentValues(2);
-						cv.put(getReferenceIdColumnName(), newLink.id);
-						cv.put(getReferenceNameColumnName(), newLink.value);
+						cv.put(getReferenceIdColumnName(), newLink.getFirst());
+						cv.put(getReferenceNameColumnName(), newLink.getSecond());
 						resolver.insert(getContentUri(), cv);
 					} else if (shouldUpdateReferenceRow(resolver, newLink)) {
 						ContentValues cv = new ContentValues(1);
-						cv.put(getReferenceNameColumnName(), newLink.value);
+						cv.put(getReferenceNameColumnName(), newLink.getSecond());
 						resolver.update(buildLinkUri(newLink), cv, null, null);
 					}
 					// insert association row
 					Builder cpoBuilder = ContentProviderOperation.newInsert(pathUri)
-						.withValue(getAssociationIdColumnName(), newLink.id);
+						.withValue(getAssociationIdColumnName(), newLink.getFirst());
 					if (!TextUtils.isEmpty(getAssociationNameColumnName())) {
-						cpoBuilder.withValue(getAssociationNameColumnName(), newLink.value);
-					}
-					if (!TextUtils.isEmpty(getInboundColumnName())) {
-						cpoBuilder.withValue(getInboundColumnName(), newLink.getInbound());
+						cpoBuilder.withValue(getAssociationNameColumnName(), newLink.getSecond());
 					}
 					batch.add(cpoBuilder.build());
 				}
@@ -607,19 +620,19 @@ public class GamePersister {
 			return batch;
 		}
 
-		private boolean shouldInsertReferenceRow(ContentResolver resolver, Link newLink) {
+		private boolean shouldInsertReferenceRow(ContentResolver resolver, Pair<Integer, String> newLink) {
 			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
 				!ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
 		}
 
 
-		private boolean shouldUpdateReferenceRow(ContentResolver resolver, Link newLink) {
+		private boolean shouldUpdateReferenceRow(ContentResolver resolver, Pair<Integer, String> newLink) {
 			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
 				ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
 		}
 
-		private Uri buildLinkUri(Link newLink) {
-			return getContentUri().buildUpon().appendPath(String.valueOf(newLink.id)).build();
+		private Uri buildLinkUri(Pair<Integer, String> newLink) {
+			return getContentUri().buildUpon().appendPath(String.valueOf(newLink.getFirst())).build();
 		}
 	}
 }

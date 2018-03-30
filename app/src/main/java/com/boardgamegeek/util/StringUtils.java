@@ -25,6 +25,11 @@ public class StringUtils {
 	private StringUtils() {
 	}
 
+	public static String replaceHtmlLineFeeds(String text) {
+		if (TextUtils.isEmpty(text)) return "";
+		return text.replace("&#10;", "\n");
+	}
+
 	public static String createSortName(String name, int sortIndex) {
 		if (sortIndex <= 1 || sortIndex > name.length()) {
 			return name;

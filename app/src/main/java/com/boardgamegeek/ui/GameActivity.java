@@ -2,9 +2,11 @@ package com.boardgamegeek.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -296,8 +298,8 @@ public class GameActivity extends HeroTabActivity {
 						!url.equals(thumbnailUrl) &&
 						!url.equals(heroImageUrl)) {
 						ContentValues values = new ContentValues();
-						values.put(Games.HERO_IMAGE_URL, url);
-						getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
+						values.put(BggContract.Games.HERO_IMAGE_URL, url);
+						getContentResolver().update(BggContract.Games.buildGameUri(gameId), values, null, null);
 					}
 				}
 			});
