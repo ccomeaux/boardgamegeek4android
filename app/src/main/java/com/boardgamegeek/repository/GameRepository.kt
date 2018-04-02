@@ -9,6 +9,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.livedata.GameLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
+import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.model.ThingResponse
 import com.boardgamegeek.model.persister.GamePersister
 import com.boardgamegeek.provider.BggContract
@@ -63,8 +64,11 @@ class GameRepository(val application: BggApplication) {
         override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)
 
         override fun saveCallResult(item: ThingResponse) {
-            val rowCount = GamePersister(context).save(item.games, "Game $gameId")
-            Timber.i("Synced game '%s' (%,d rows)", gameId, rowCount)
+            val dao = GamePersister(application)
+            for (game in item.games) {
+                dao.upsert(GameMapper().map(game))
+                Timber.i("Synced game '$gameId'")
+            }
         }
     }
 }

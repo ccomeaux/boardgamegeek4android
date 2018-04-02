@@ -10,8 +10,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.entities.GameEntity;
-import com.boardgamegeek.mappers.GameMapper;
-import com.boardgamegeek.model.Game;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -34,7 +32,6 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DataUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 import java.util.ArrayList;
@@ -48,94 +45,63 @@ public class GamePersister {
 	private final Context context;
 	private final ContentResolver resolver;
 	private final long updateTime;
-	private final List<Integer> gameIds;
 
 	public GamePersister(Context context) {
 		this.context = context;
 		resolver = context.getContentResolver();
 		updateTime = System.currentTimeMillis();
-		gameIds = new ArrayList<>();
 	}
 
-	public int save(List<Game> games, String debugMessage) {
-		boolean avoidBatching = PreferencesUtils.getAvoidBatching(context);
-		int recordCount = 0;
+	public void upsert(GameEntity game) {
+		// TODO return the internal ID
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		if (games != null && games.size() > 0) {
+		DesignerPersister designerPersister = new DesignerPersister();
+		ArtistPersister artistPersister = new ArtistPersister();
+		PublisherPersister publisherPersister = new PublisherPersister();
+		CategoryPersister categoryPersister = new CategoryPersister();
+		MechanicPersister mechanicPersister = new MechanicPersister();
+		ExpansionPersister expansionPersister = new ExpansionPersister();
 
-			DesignerPersister designerPersister = new DesignerPersister();
-			ArtistPersister artistPersister = new ArtistPersister();
-			PublisherPersister publisherPersister = new PublisherPersister();
-			CategoryPersister categoryPersister = new CategoryPersister();
-			MechanicPersister mechanicPersister = new MechanicPersister();
-			ExpansionPersister expansionPersister = new ExpansionPersister();
-
-			for (Game g : games) {
-				GameEntity game = new GameMapper().map(g, updateTime);
-
-				if (TextUtils.isEmpty(game.getName())) {
-					Timber.w("Missing name from game ID=%s", game.getId());
-					continue;
-				}
-
-				if (gameIds.contains(game.getId())) {
-					Timber.i("Skipping duplicate game ID=%s", game.getId());
-					continue;
-				}
-				gameIds.add(game.getId());
-
-				Timber.i("Saving game %s (%s)", game.getName(), game.getId());
-
-				Builder cpoBuilder;
-				ContentValues values = toValues(game, updateTime);
-				if (ResolverUtils.rowExists(resolver, Games.buildGameUri(game.getId()))) {
-					values.remove(Games.GAME_ID);
-					if (shouldClearHeroImageUrl(game)) {
-						values.put(Games.HERO_IMAGE_URL, "");
-					}
-					cpoBuilder = ContentProviderOperation.newUpdate(Games.buildGameUri(game.getId()));
-				} else {
-					cpoBuilder = ContentProviderOperation.newInsert(Games.CONTENT_URI);
-				}
-
-				ArrayList<ContentProviderOperation> rankOperations = createRanksBatch(game);
-				ArrayList<ContentProviderOperation> pollOperations = createPollsBatch(game, values);
-
-				batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build());
-				batch.addAll(rankOperations);
-				batch.addAll(pollOperations);
-				batch.addAll(designerPersister.createBatch(game.getId(), resolver, game.getDesigners()));
-				batch.addAll(artistPersister.createBatch(game.getId(), resolver, game.getArtists()));
-				batch.addAll(publisherPersister.createBatch(game.getId(), resolver, game.getPublishers()));
-				batch.addAll(categoryPersister.createBatch(game.getId(), resolver, game.getCategories()));
-				batch.addAll(mechanicPersister.createBatch(game.getId(), resolver, game.getMechanics()));
-				batch.addAll(expansionPersister.createBatch(game.getId(), resolver, game.getExpansions()));
-
-				if (avoidBatching) {
-					try {
-						int count = ResolverUtils.applyBatch(context, batch, debugMessage).length;
-						Timber.i("Saved game ID '%s' in %,d records", game.getId(), count);
-						recordCount += count;
-					} catch (Exception e) {
-						NotificationUtils.showPersistErrorNotification(context, e);
-					} finally {
-						batch.clear();
-					}
-				}
-			}
-			if (avoidBatching) {
-				return recordCount;
-			} else {
-				try {
-					int count = ResolverUtils.applyBatch(context, batch, debugMessage).length;
-					Timber.i("Saved a list of games in %,d records", count);
-					return count;
-				} catch (Exception e) {
-					NotificationUtils.showPersistErrorNotification(context, e);
-				}
-			}
+		if (TextUtils.isEmpty(game.getName())) {
+			Timber.w("Missing name from game ID=%s", game.getId());
+			return;
 		}
-		return 0;
+
+		Timber.i("Saving game %s (%s)", game.getName(), game.getId());
+
+		Builder cpoBuilder;
+		ContentValues values = toValues(game, updateTime);
+		if (ResolverUtils.rowExists(resolver, Games.buildGameUri(game.getId()))) {
+			values.remove(Games.GAME_ID);
+			if (shouldClearHeroImageUrl(game)) {
+				values.put(Games.HERO_IMAGE_URL, "");
+			}
+			cpoBuilder = ContentProviderOperation.newUpdate(Games.buildGameUri(game.getId()));
+		} else {
+			cpoBuilder = ContentProviderOperation.newInsert(Games.CONTENT_URI);
+		}
+
+		ArrayList<ContentProviderOperation> rankOperations = createRanksBatch(game);
+		ArrayList<ContentProviderOperation> pollOperations = createPollsBatch(game, values);
+
+		batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build());
+		batch.addAll(rankOperations);
+		batch.addAll(pollOperations);
+		batch.addAll(designerPersister.createBatch(game.getId(), resolver, game.getDesigners()));
+		batch.addAll(artistPersister.createBatch(game.getId(), resolver, game.getArtists()));
+		batch.addAll(publisherPersister.createBatch(game.getId(), resolver, game.getPublishers()));
+		batch.addAll(categoryPersister.createBatch(game.getId(), resolver, game.getCategories()));
+		batch.addAll(mechanicPersister.createBatch(game.getId(), resolver, game.getMechanics()));
+		batch.addAll(expansionPersister.createBatch(game.getId(), resolver, game.getExpansions()));
+
+		try {
+			ResolverUtils.applyBatch(context, batch, "Game " + game.getId());
+			Timber.i("Saved game ID '%s'", game.getId());
+		} catch (Exception e) {
+			NotificationUtils.showPersistErrorNotification(context, e);
+		} finally {
+			batch.clear();
+		}
 	}
 
 	private boolean shouldClearHeroImageUrl(GameEntity game) {

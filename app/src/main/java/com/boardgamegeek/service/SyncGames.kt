@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SyncResult
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.model.persister.GamePersister
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.service.model.GameList
@@ -51,9 +52,12 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
                             val body = response.body()
                             val games = body?.games ?: emptyList()
                             if (games.isNotEmpty()) {
-                                val count = GamePersister(context).save(games, detail)
+                                val dao = GamePersister(context)
+                                for (game in games) {
+                                    dao.upsert(GameMapper().map(game))
+                                }
                                 syncResult.stats.numUpdates += games.size.toLong()
-                                Timber.i("...saved %,d rows for %,d games", count, games.size)
+                                Timber.i("...saved %,d games", games.size)
                             } else {
                                 Timber.i("...no games returned")
                                 break
@@ -107,9 +111,12 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
             if (response.isSuccessful) {
                 val games = if (response.body() == null) ArrayList(0) else response.body()!!.games
                 detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
-                val count = GamePersister(context).save(games, detail)
+                val dao = GamePersister(context)
+                for (game in games) {
+                    dao.upsert(GameMapper().map(game))
+                }
                 syncResult.stats.numUpdates += games.size.toLong()
-                Timber.i("...saved %,d rows for %,d games", count, games.size)
+                Timber.i("...saved %,d games", games.size)
             } else {
                 showError(detail, response.code())
                 syncResult.stats.numIoExceptions++
