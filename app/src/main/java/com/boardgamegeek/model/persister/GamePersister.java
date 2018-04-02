@@ -54,20 +54,14 @@ public class GamePersister {
 
 	public void upsert(GameEntity game) {
 		// TODO return the internal ID
-		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		DesignerPersister designerPersister = new DesignerPersister();
-		ArtistPersister artistPersister = new ArtistPersister();
-		PublisherPersister publisherPersister = new PublisherPersister();
-		CategoryPersister categoryPersister = new CategoryPersister();
-		MechanicPersister mechanicPersister = new MechanicPersister();
-		ExpansionPersister expansionPersister = new ExpansionPersister();
-
 		if (TextUtils.isEmpty(game.getName())) {
 			Timber.w("Missing name from game ID=%s", game.getId());
 			return;
 		}
 
 		Timber.i("Saving game %s (%s)", game.getName(), game.getId());
+
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
 		Builder cpoBuilder;
 		ContentValues values = toValues(game, updateTime);
@@ -81,18 +75,22 @@ public class GamePersister {
 			cpoBuilder = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 		}
 
-		ArrayList<ContentProviderOperation> rankOperations = createRanksBatch(game);
-		ArrayList<ContentProviderOperation> pollOperations = createPollsBatch(game, values);
-
 		batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build());
-		batch.addAll(rankOperations);
-		batch.addAll(pollOperations);
-		batch.addAll(designerPersister.createBatch(game.getId(), resolver, game.getDesigners()));
-		batch.addAll(artistPersister.createBatch(game.getId(), resolver, game.getArtists()));
-		batch.addAll(publisherPersister.createBatch(game.getId(), resolver, game.getPublishers()));
-		batch.addAll(categoryPersister.createBatch(game.getId(), resolver, game.getCategories()));
-		batch.addAll(mechanicPersister.createBatch(game.getId(), resolver, game.getMechanics()));
-		batch.addAll(expansionPersister.createBatch(game.getId(), resolver, game.getExpansions()));
+		batch.addAll(createRanksBatch(game));
+		batch.addAll(createPollsBatch(game, values));
+		batch.addAll(createExpansionsBatch(game.getId(), resolver, game.getExpansions()));
+
+		upsertReference(game.getDesigners(), Designers.CONTENT_URI, Designers.DESIGNER_ID, Designers.DESIGNER_NAME);
+		upsertReference(game.getArtists(), Artists.CONTENT_URI, Artists.ARTIST_ID, Artists.ARTIST_NAME);
+		upsertReference(game.getPublishers(), Publishers.CONTENT_URI, Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME);
+		upsertReference(game.getCategories(), Categories.CONTENT_URI, Categories.CATEGORY_ID, Categories.CATEGORY_NAME);
+		upsertReference(game.getMechanics(), Mechanics.CONTENT_URI, Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME);
+
+		batch.addAll(createBatch(game.getId(), game.getDesigners(), BggContract.PATH_DESIGNERS, GamesDesigners.DESIGNER_ID));
+		batch.addAll(createBatch(game.getId(), game.getArtists(), BggContract.PATH_ARTISTS, GamesArtists.ARTIST_ID));
+		batch.addAll(createBatch(game.getId(), game.getPublishers(), BggContract.PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID));
+		batch.addAll(createBatch(game.getId(), game.getCategories(), BggContract.PATH_CATEGORIES, GamesCategories.CATEGORY_ID));
+		batch.addAll(createBatch(game.getId(), game.getMechanics(), BggContract.PATH_MECHANICS, GamesMechanics.MECHANIC_ID));
 
 		try {
 			ResolverUtils.applyBatch(context, batch, "Game " + game.getId());
@@ -298,308 +296,62 @@ public class GamePersister {
 		return batch;
 	}
 
-	static class DesignerPersister extends LinkPersister {
-		@Override
-		protected Uri getContentUri() {
-			return Designers.CONTENT_URI;
-		}
+	private ArrayList<ContentProviderOperation> createExpansionsBatch(int gameId, ContentResolver resolver, List<Triple<Integer, String, Boolean>> newLinks) {
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		Uri pathUri = Games.buildPathUri(gameId, BggContract.PATH_EXPANSIONS);
+		List<Integer> existingIds = ResolverUtils.queryInts(resolver, pathUri, GamesExpansions.EXPANSION_ID);
 
-		@Override
-		protected String getUriPath() {
-			return BggContract.PATH_DESIGNERS;
-		}
-
-		@Override
-		protected String getReferenceIdColumnName() {
-			return Designers.DESIGNER_ID;
-		}
-
-		@Override
-		protected String getReferenceNameColumnName() {
-			return Designers.DESIGNER_NAME;
-		}
-
-		@Override
-		protected String getAssociationIdColumnName() {
-			return GamesDesigners.DESIGNER_ID;
-		}
-
-		@Override
-		protected String getAssociationNameColumnName() {
-			return null;
-		}
-	}
-
-	static class ArtistPersister extends LinkPersister {
-		@Override
-		protected Uri getContentUri() {
-			return Artists.CONTENT_URI;
-		}
-
-		@Override
-		protected String getUriPath() {
-			return BggContract.PATH_ARTISTS;
-		}
-
-		@Override
-		protected String getReferenceIdColumnName() {
-			return Artists.ARTIST_ID;
-		}
-
-		@Override
-		protected String getReferenceNameColumnName() {
-			return Artists.ARTIST_NAME;
-		}
-
-		@Override
-		protected String getAssociationIdColumnName() {
-			return GamesArtists.ARTIST_ID;
-		}
-
-		@Override
-		protected String getAssociationNameColumnName() {
-			return null;
-		}
-	}
-
-	static class PublisherPersister extends LinkPersister {
-		@Override
-		protected Uri getContentUri() {
-			return Publishers.CONTENT_URI;
-		}
-
-		@Override
-		protected String getUriPath() {
-			return BggContract.PATH_PUBLISHERS;
-		}
-
-		@Override
-		protected String getReferenceIdColumnName() {
-			return Publishers.PUBLISHER_ID;
-		}
-
-		@Override
-		protected String getReferenceNameColumnName() {
-			return Publishers.PUBLISHER_NAME;
-		}
-
-		@Override
-		protected String getAssociationIdColumnName() {
-			return GamesPublishers.PUBLISHER_ID;
-		}
-
-		@Override
-		protected String getAssociationNameColumnName() {
-			return null;
-		}
-	}
-
-	static class CategoryPersister extends LinkPersister {
-		@Override
-		protected Uri getContentUri() {
-			return Categories.CONTENT_URI;
-		}
-
-		@Override
-		protected String getUriPath() {
-			return BggContract.PATH_CATEGORIES;
-		}
-
-		@Override
-		protected String getReferenceIdColumnName() {
-			return Categories.CATEGORY_ID;
-		}
-
-		@Override
-		protected String getReferenceNameColumnName() {
-			return Categories.CATEGORY_NAME;
-		}
-
-		@Override
-		protected String getAssociationIdColumnName() {
-			return GamesCategories.CATEGORY_ID;
-		}
-
-		@Override
-		protected String getAssociationNameColumnName() {
-			return null;
-		}
-	}
-
-	static class MechanicPersister extends LinkPersister {
-		@Override
-		protected Uri getContentUri() {
-			return Mechanics.CONTENT_URI;
-		}
-
-		@Override
-		protected String getUriPath() {
-			return BggContract.PATH_MECHANICS;
-		}
-
-		@Override
-		protected String getReferenceIdColumnName() {
-			return Mechanics.MECHANIC_ID;
-		}
-
-		@Override
-		protected String getReferenceNameColumnName() {
-			return Mechanics.MECHANIC_NAME;
-		}
-
-		@Override
-		protected String getAssociationIdColumnName() {
-			return GamesMechanics.MECHANIC_ID;
-		}
-
-		@Override
-		protected String getAssociationNameColumnName() {
-			return null;
-		}
-	}
-
-	static class ExpansionPersister {
-		protected Uri getContentUri() {
-			return Games.CONTENT_URI;
-		}
-
-		protected String getUriPath() {
-			return BggContract.PATH_EXPANSIONS;
-		}
-
-		protected String getReferenceIdColumnName() {
-			return null;
-		}
-
-		protected String getReferenceNameColumnName() {
-			return null;
-		}
-
-		protected String getAssociationIdColumnName() {
-			return GamesExpansions.EXPANSION_ID;
-		}
-
-		protected String getAssociationNameColumnName() {
-			return GamesExpansions.EXPANSION_NAME;
-		}
-
-		protected String getInboundColumnName() {
-			return GamesExpansions.INBOUND;
-		}
-
-		ArrayList<ContentProviderOperation> createBatch(int gameId, ContentResolver resolver, List<Triple<Integer, String, Boolean>> newLinks) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-			Uri pathUri = Games.buildPathUri(gameId, getUriPath());
-			List<Integer> existingIds = ResolverUtils.queryInts(resolver, pathUri, getAssociationIdColumnName());
-
-			for (Triple<Integer, String, Boolean> newLink : newLinks) {
-				if (!existingIds.remove(newLink.getFirst())) {
-					if (shouldInsertReferenceRow(resolver, newLink)) {
-						ContentValues cv = new ContentValues(2);
-						cv.put(getReferenceIdColumnName(), newLink.getFirst());
-						cv.put(getReferenceNameColumnName(), newLink.getSecond());
-						resolver.insert(getContentUri(), cv);
-					} else if (shouldUpdateReferenceRow(resolver, newLink)) {
-						ContentValues cv = new ContentValues(1);
-						cv.put(getReferenceNameColumnName(), newLink.getSecond());
-						resolver.update(buildLinkUri(newLink), cv, null, null);
-					}
-					// insert association row
-					Builder cpoBuilder = ContentProviderOperation.newInsert(pathUri)
-						.withValue(getAssociationIdColumnName(), newLink.getFirst());
-					if (!TextUtils.isEmpty(getAssociationNameColumnName())) {
-						cpoBuilder.withValue(getAssociationNameColumnName(), newLink.getSecond());
-					}
-					if (!TextUtils.isEmpty(getInboundColumnName())) {
-						cpoBuilder.withValue(getInboundColumnName(), newLink.getThird());
-					}
-					batch.add(cpoBuilder.build());
-				}
+		for (Triple<Integer, String, Boolean> newLink : newLinks) {
+			if (!existingIds.remove(newLink.getFirst())) {
+				// insert association row
+				Builder cpoBuilder = ContentProviderOperation.newInsert(pathUri)
+					.withValue(GamesExpansions.EXPANSION_ID, newLink.getFirst());
+				cpoBuilder.withValue(GamesExpansions.EXPANSION_NAME, newLink.getSecond());
+				cpoBuilder.withValue(GamesExpansions.INBOUND, newLink.getThird());
+				batch.add(cpoBuilder.build());
 			}
-			// remove unused associations
-			for (Integer existingId : existingIds) {
-				Uri uri = Games.buildPathUri(gameId, getUriPath(), existingId);
-				batch.add(ContentProviderOperation.newDelete(uri).build());
-			}
-			return batch;
 		}
-
-		private boolean shouldInsertReferenceRow(ContentResolver resolver, Triple<Integer, String, Boolean> newLink) {
-			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
-				!ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
+		// remove unused associations
+		for (Integer existingId : existingIds) {
+			Uri uri = Games.buildPathUri(gameId, BggContract.PATH_EXPANSIONS, existingId);
+			batch.add(ContentProviderOperation.newDelete(uri).build());
 		}
-
-
-		private boolean shouldUpdateReferenceRow(ContentResolver resolver, Triple<Integer, String, Boolean> newLink) {
-			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
-				ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
-		}
-
-		private Uri buildLinkUri(Triple<Integer, String, Boolean> newLink) {
-			return getContentUri().buildUpon().appendPath(String.valueOf(newLink.getFirst())).build();
-		}
+		return batch;
 	}
 
-	static abstract class LinkPersister {
-		protected abstract Uri getContentUri();
-
-		protected abstract String getUriPath();
-
-		protected abstract String getReferenceIdColumnName();
-
-		protected abstract String getReferenceNameColumnName();
-
-		protected abstract String getAssociationIdColumnName();
-
-		protected abstract String getAssociationNameColumnName();
-
-		ArrayList<ContentProviderOperation> createBatch(int gameId, ContentResolver resolver, List<Pair<Integer, String>> newLinks) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-			Uri pathUri = Games.buildPathUri(gameId, getUriPath());
-			List<Integer> existingIds = ResolverUtils.queryInts(resolver, pathUri, getAssociationIdColumnName());
-
-			for (Pair<Integer, String> newLink : newLinks) {
-				if (!existingIds.remove(newLink.getFirst())) {
-					if (shouldInsertReferenceRow(resolver, newLink)) {
-						ContentValues cv = new ContentValues(2);
-						cv.put(getReferenceIdColumnName(), newLink.getFirst());
-						cv.put(getReferenceNameColumnName(), newLink.getSecond());
-						resolver.insert(getContentUri(), cv);
-					} else if (shouldUpdateReferenceRow(resolver, newLink)) {
-						ContentValues cv = new ContentValues(1);
-						cv.put(getReferenceNameColumnName(), newLink.getSecond());
-						resolver.update(buildLinkUri(newLink), cv, null, null);
-					}
-					// insert association row
-					Builder cpoBuilder = ContentProviderOperation.newInsert(pathUri)
-						.withValue(getAssociationIdColumnName(), newLink.getFirst());
-					if (!TextUtils.isEmpty(getAssociationNameColumnName())) {
-						cpoBuilder.withValue(getAssociationNameColumnName(), newLink.getSecond());
-					}
-					batch.add(cpoBuilder.build());
-				}
+	private void upsertReference(List<Pair<Integer, String>> newLinks, Uri baseUri, String idColumn, String nameColumn) {
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		for (Pair<Integer, String> newLink : newLinks) {
+			final Integer id = newLink.getFirst();
+			final String name = newLink.getSecond();
+			final Uri uri = baseUri.buildUpon().appendPath(String.valueOf(id)).build();
+			if (ResolverUtils.rowExists(resolver, uri)) {
+				batch.add(ContentProviderOperation.newUpdate(uri).withValue(nameColumn, name).build());
+			} else {
+				ContentValues cv = new ContentValues(2);
+				cv.put(idColumn, id);
+				cv.put(nameColumn, name);
+				batch.add(ContentProviderOperation.newInsert(baseUri).withValues(cv).build());
 			}
-			// remove unused associations
-			for (Integer existingId : existingIds) {
-				Uri uri = Games.buildPathUri(gameId, getUriPath(), existingId);
-				batch.add(ContentProviderOperation.newDelete(uri).build());
+		}
+		ResolverUtils.applyBatch(context, batch, "Upserting " + baseUri.getLastPathSegment());
+	}
+
+	private ArrayList<ContentProviderOperation> createBatch(int gameId, List<Pair<Integer, String>> newLinks, String uriPath, String idColumn) {
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		Uri associationUri = Games.buildPathUri(gameId, uriPath);
+		List<Integer> existingIds = ResolverUtils.queryInts(resolver, associationUri, idColumn);
+		for (Pair<Integer, String> newLink : newLinks) {
+			final Integer id = newLink.getFirst();
+			if (!existingIds.remove(id)) {
+				// insert association row
+				batch.add(ContentProviderOperation.newInsert(associationUri).withValue(idColumn, id).build());
 			}
-			return batch;
 		}
-
-		private boolean shouldInsertReferenceRow(ContentResolver resolver, Pair<Integer, String> newLink) {
-			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
-				!ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
+		// remove unused associations
+		for (Integer existingId : existingIds) {
+			batch.add(ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, existingId)).build());
 		}
-
-
-		private boolean shouldUpdateReferenceRow(ContentResolver resolver, Pair<Integer, String> newLink) {
-			return !TextUtils.isEmpty(getReferenceIdColumnName()) &&
-				ResolverUtils.rowExists(resolver, buildLinkUri(newLink));
-		}
-
-		private Uri buildLinkUri(Pair<Integer, String> newLink) {
-			return getContentUri().buildUpon().appendPath(String.valueOf(newLink.getFirst())).build();
-		}
+		return batch;
 	}
 }
