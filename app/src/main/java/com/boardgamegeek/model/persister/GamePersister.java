@@ -62,6 +62,7 @@ public class GamePersister {
 		int recordCount = 0;
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (games != null && games.size() > 0) {
+
 			DesignerPersister designerPersister = new DesignerPersister();
 			ArtistPersister artistPersister = new ArtistPersister();
 			PublisherPersister publisherPersister = new PublisherPersister();
@@ -143,8 +144,8 @@ public class GamePersister {
 			if (cursor != null && cursor.moveToFirst()) {
 				String imageUrl = CursorUtils.getString(cursor, 0);
 				String thumbnailUrl = cursor.getString(1);
-				if (!imageUrl.equals(game.getImage()) ||
-					!thumbnailUrl.equals(game.getThumbnail())) {
+				if (!imageUrl.equals(game.getImageUrl()) ||
+					!thumbnailUrl.equals(game.getThumbnailUrl())) {
 					return true;
 				}
 			}
@@ -161,8 +162,8 @@ public class GamePersister {
 		values.put(Games.GAME_ID, game.getId());
 		values.put(Games.GAME_NAME, game.getName());
 		values.put(Games.GAME_SORT_NAME, game.getSortName());
-		values.put(Games.THUMBNAIL_URL, game.getThumbnail());
-		values.put(Games.IMAGE_URL, game.getImage());
+		values.put(Games.THUMBNAIL_URL, game.getThumbnailUrl());
+		values.put(Games.IMAGE_URL, game.getImageUrl());
 		values.put(Games.DESCRIPTION, game.getDescription());
 		values.put(Games.SUBTYPE, game.getSubtype());
 		values.put(Games.YEAR_PUBLISHED, game.getYearPublished());
@@ -173,20 +174,20 @@ public class GamePersister {
 		values.put(Games.MAX_PLAYING_TIME, game.getMaxPlayingTime());
 		values.put(Games.MINIMUM_AGE, game.getMinAge());
 		if (game.getHasStatistics()) {
-			values.put(Games.STATS_USERS_RATED, game.getUsersRated());
 			values.put(Games.STATS_AVERAGE, game.getAverage());
 			values.put(Games.STATS_BAYES_AVERAGE, game.getBayesAverage());
 			values.put(Games.STATS_STANDARD_DEVIATION, game.getStandardDeviation());
 			values.put(Games.STATS_MEDIAN, game.getMedian());
-			values.put(Games.STATS_NUMBER_OWNED, game.getOwned());
-			values.put(Games.STATS_NUMBER_TRADING, game.getTrading());
-			values.put(Games.STATS_NUMBER_WANTING, game.getWanting());
-			values.put(Games.STATS_NUMBER_WISHING, game.getWishing());
-			values.put(Games.STATS_NUMBER_COMMENTS, game.getCommenting());
-			values.put(Games.STATS_NUMBER_WEIGHTS, game.getWeighting());
+			values.put(Games.STATS_USERS_RATED, game.getNumberOfRatings());
+			values.put(Games.STATS_NUMBER_OWNED, game.getNumberOfUsersOwned());
+			values.put(Games.STATS_NUMBER_TRADING, game.getNumberOfUsersTrading());
+			values.put(Games.STATS_NUMBER_WANTING, game.getNumberOfUsersWanting());
+			values.put(Games.STATS_NUMBER_WISHING, game.getNumberOfUsersWishListing());
+			values.put(Games.STATS_NUMBER_COMMENTS, game.getNumberOfComments());
+			values.put(Games.STATS_NUMBER_WEIGHTS, game.getNumberOfUsersWeighting());
 			values.put(Games.STATS_AVERAGE_WEIGHT, game.getAverageWeight());
 		}
-		values.put(Games.GAME_RANK, game.getRank());
+		values.put(Games.GAME_RANK, game.getOverallRank());
 		return values;
 	}
 
@@ -205,14 +206,14 @@ public class GamePersister {
 					values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, ++sortIndex);
 					for (GameEntity.Result result : results.getResult()) {
 						if ("Best".equals(result.getValue())) {
-							values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, result.getNumvotes());
-							builder.bestVoteCount(result.getNumvotes());
+							values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, result.getNumberOfVotes());
+							builder.bestVoteCount(result.getNumberOfVotes());
 						} else if ("Recommended".equals(result.getValue())) {
-							values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, result.getNumvotes());
-							builder.recommendedVoteCount(result.getNumvotes());
+							values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, result.getNumberOfVotes());
+							builder.recommendedVoteCount(result.getNumberOfVotes());
 						} else if ("Not Recommended".equals(result.getValue())) {
-							values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, result.getNumvotes());
-							builder.notRecommendVoteCount(result.getNumvotes());
+							values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, result.getNumberOfVotes());
+							builder.notRecommendVoteCount(result.getNumberOfVotes());
 						} else {
 							Timber.i("Unexpected suggested player count result of '%s'", result.getValue());
 						}
@@ -269,7 +270,7 @@ public class GamePersister {
 						if (result.getLevel() > 0)
 							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.getLevel());
 						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.getValue());
-						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.getNumvotes());
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.getNumberOfVotes());
 						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
 
 						String key = DataUtils.generatePollResultsKey(result.getLevel(), result.getValue());

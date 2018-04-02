@@ -1,6 +1,5 @@
 package com.boardgamegeek.mappers
 
-import android.text.TextUtils
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.model.Constants
 import com.boardgamegeek.model.Game
@@ -14,8 +13,8 @@ class GameMapper {
             val (primaryName, sortIndex) = findPrimaryName(from)
             name = primaryName
             sortName = StringUtils.createSortName(primaryName, sortIndex)
-            image = from.image
-            thumbnail = from.thumbnail
+            imageUrl = from.image
+            thumbnailUrl = from.thumbnail
             description = StringUtils.replaceHtmlLineFeeds(from.description).trim()
             subtype = from.type
             yearPublished = from.yearpublished.toIntOrNull() ?: Constants.YEAR_UNKNOWN
@@ -27,32 +26,38 @@ class GameMapper {
             minAge = from.minage.toIntOrNull() ?: 0
             if (from.statistics != null) {
                 hasStatistics = true
-                usersRated = from.statistics.usersRated.toIntOrNull() ?: 0
+                numberOfRatings = from.statistics.usersrated.toIntOrNull() ?: 0
                 average = from.statistics.average.toDoubleOrNull() ?: 0.0
-                bayesAverage = from.statistics.bayesAverage.toDoubleOrNull() ?: 0.0
-                standardDeviation = from.statistics.standardDeviation.toDoubleOrNull() ?: 0.0
+                bayesAverage = from.statistics.bayesaverage.toDoubleOrNull() ?: 0.0
+                standardDeviation = from.statistics.stddev.toDoubleOrNull() ?: 0.0
                 median = from.statistics.median.toDoubleOrNull() ?: 0.0
-                owned = from.statistics.owned.toIntOrNull() ?: 0
-                trading = from.statistics.trading.toIntOrNull() ?: 0
-                wanting = from.statistics.wanting.toIntOrNull() ?: 0
-                wishing = from.statistics.wishing.toIntOrNull() ?: 0
-                commenting = from.statistics.commenting.toIntOrNull() ?: 0
-                weighting = from.statistics.weighting.toIntOrNull() ?: 0
-                averageWeight = from.statistics.averageWeight.toDoubleOrNull() ?: 0.0
-                rank = getRank(from)
+                numberOfUsersOwned = from.statistics.owned.toIntOrNull() ?: 0
+                numberOfUsersTrading = from.statistics.trading.toIntOrNull() ?: 0
+                numberOfUsersWanting = from.statistics.wanting.toIntOrNull() ?: 0
+                numberOfUsersWishListing = from.statistics.wishing.toIntOrNull() ?: 0
+                numberOfComments = from.statistics.numcomments.toIntOrNull() ?: 0
+                numberOfUsersWeighting = from.statistics.numweights.toIntOrNull() ?: 0
+                averageWeight = from.statistics.averageweight.toDoubleOrNull() ?: 0.0
                 ranks.addAll(createRanks(from))
+                overallRank = ranks.find { it.type == "subtype" }?.value ?: Int.MAX_VALUE
             }
 
             polls.addAll(createPolls(from))
 
-            designers.addAll(getLinks(from, "boardgamedesigner"))
-            artists.addAll(getLinks(from, "boardgameartist"))
-            publishers.addAll(getLinks(from, "boardgamepublisher"))
-            categories.addAll(getLinks(from, "boardgamecategory"))
-            mechanics.addAll(getLinks(from, "boardgamemechanic"))
-            expansions.addAll(getExpansions(from, "boardgameexpansion"))
-            families.addAll(getLinks(from, "boardgamefamily"))
-            // boardgameimplementation
+            if (from.links != null && from.links.size > 0) {
+                for (link in from.links) {
+                    when (link.type) {
+                        "boardgamedesigner" -> designers.add(link.id to link.value)
+                        "boardgameartist" -> artists.add(link.id to link.value)
+                        "boardgamepublisher" -> publishers.add(link.id to link.value)
+                        "boardgamecategory" -> categories.add(link.id to link.value)
+                        "boardgamemechanic" -> mechanics.add(link.id to link.value)
+                        "boardgameexpansion" -> expansions.add(Triple(link.id, link.value, "true" == link.inbound))
+                        "boardgamefamily" -> families.add(link.id to link.value)
+                    // "boardgameimplementation"
+                    }
+                }
+            }
 
             updated = updateTime
             updatedList = updateTime
@@ -71,31 +76,16 @@ class GameMapper {
         return "" to 0
     }
 
-
-    private fun getRank(from: Game): Int {
-        if (from.statistics != null && from.statistics.ranks != null) {
-            for (rank in from.statistics.ranks) {
-                if ("subtype" == rank.type) {
-                    return rank.value.toIntOrNull() ?: Int.MAX_VALUE
-                }
-            }
-        }
-        return Integer.MAX_VALUE
-    }
-
     private fun createRanks(from: Game): List<GameEntity.Rank> {
         val ranks = mutableListOf<GameEntity.Rank>()
-        if (from.statistics != null && from.statistics.ranks != null) {
-            for (rank in from.statistics.ranks) {
-                val r = GameEntity.Rank()
-                r.id = rank.id
-                r.type = rank.type
-                r.name = rank.name
-                r.value = rank.value.toIntOrNull() ?: Int.MAX_VALUE
-                r.friendlyName = rank.friendlyName
-                r.bayesAverage = rank.bayesaverage.toDoubleOrNull() ?: 0.0
-                ranks.add(r)
-            }
+        from.statistics?.ranks?.mapTo(ranks) {
+            GameEntity.Rank(
+                    it.id,
+                    it.type,
+                    it.name,
+                    it.friendlyname,
+                    it.value.toIntOrNull() ?: Int.MAX_VALUE,
+                    it.bayesaverage.toDoubleOrNull() ?: 0.0)
         }
         return ranks
     }
@@ -109,7 +99,7 @@ class GameMapper {
             p.totalVotes = poll.totalvotes
             for (results in poll.results) {
                 val r = GameEntity.Results()
-                r.numplayers = if (results.numplayers.isNullOrEmpty()) "X" else results.numplayers
+                r.numberOfPlayers = if (results.numplayers.isNullOrEmpty()) "X" else results.numplayers
                 for (result in results.result) {
                     r.result.add(GameEntity.Result(result.level, result.value, result.numvotes))
                 }
@@ -118,29 +108,5 @@ class GameMapper {
             polls.add(p)
         }
         return polls
-    }
-
-    private fun getLinks(from: Game, type: String): List<Pair<Int, String>> {
-        val list = mutableListOf<Pair<Int, String>>()
-        if (!TextUtils.isEmpty(type) && from.links != null && from.links.size > 0) {
-            for (link in from.links) {
-                if (type == link.type) {
-                    list.add(link.id to link.value)
-                }
-            }
-        }
-        return list
-    }
-
-    private fun getExpansions(from: Game, type: String): List<Triple<Int, String, Boolean>> {
-        val list = mutableListOf<Triple<Int, String, Boolean>>()
-        if (!TextUtils.isEmpty(type) && from.links != null && from.links.size > 0) {
-            for (link in from.links) {
-                if (type == link.type) {
-                    list.add(Triple(link.id, link.value, "true" == link.inbound))
-                }
-            }
-        }
-        return list
     }
 }

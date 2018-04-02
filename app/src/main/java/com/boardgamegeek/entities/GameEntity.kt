@@ -10,8 +10,8 @@ class GameEntity {
     var name: String = ""
     var sortName: String = ""
     var subtype: String = ""
-    var thumbnail: String = ""
-    var image: String = ""
+    var thumbnailUrl: String = ""
+    var imageUrl: String = ""
     var description: String = ""
     var yearPublished: Int = Constants.YEAR_UNKNOWN
     var minPlayers: Int = 0
@@ -21,19 +21,19 @@ class GameEntity {
     var maxPlayingTime: Int = 0
     var minAge: Int = 0
     var hasStatistics: Boolean = false
-    var usersRated: Int = 0
+    var numberOfRatings: Int = 0
     var average: Double = 0.toDouble()
     var bayesAverage: Double = 0.toDouble()
     var standardDeviation: Double = 0.toDouble()
     var median: Double = 0.toDouble()
-    var owned: Int = 0
-    var trading: Int = 0
-    var wanting: Int = 0
-    var wishing: Int = 0
-    var commenting: Int = 0
-    var weighting: Int = 0
+    var numberOfUsersOwned: Int = 0
+    var numberOfUsersTrading: Int = 0
+    var numberOfUsersWanting: Int = 0
+    var numberOfUsersWishListing: Int = 0
+    var numberOfComments: Int = 0
+    var numberOfUsersWeighting: Int = 0
     var averageWeight: Double = 0.toDouble()
-    var rank: Int = Int.MAX_VALUE
+    var overallRank: Int = Int.MAX_VALUE
     var ranks = arrayListOf<Rank>()
 
     val designers = arrayListOf<Pair<Int, String>>()
@@ -57,33 +57,33 @@ class GameEntity {
     }
 
     class Results {
-        var numplayers: String = ""
+        var numberOfPlayers: String = ""
         var result = arrayListOf<Result>()
 
         val key: String
-            get() = if (TextUtils.isEmpty(numplayers)) {
+            get() = if (TextUtils.isEmpty(numberOfPlayers)) {
                 "X"
-            } else numplayers
+            } else numberOfPlayers
 
         override fun toString(): String {
-            return numplayers
+            return key
         }
     }
 
     data class Result(
             var level: Int = 0,
             var value: String = "",
-            var numvotes: Int = 0
+            var numberOfVotes: Int = 0
     )
 
-    class Rank {
-        var type: String = ""
-        var id: Int = 0
-        var name: String = ""
-        var friendlyName: String = ""
-        var value: Int = 0
-        var bayesAverage: Double = 0.toDouble()
-    }
+    data class Rank(
+            val id: Int = 0,
+            val type: String = "",
+            val name: String = "",
+            val friendlyName: String = "",
+            val value: Int = 0,
+            val bayesAverage: Double = 0.toDouble()
+    )
 
     override fun toString(): String = "$id: $name"
 }
