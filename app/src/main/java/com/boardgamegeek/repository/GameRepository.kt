@@ -6,12 +6,12 @@ import android.content.Context
 import android.os.Handler
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.livedata.GameLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.model.ThingResponse
-import com.boardgamegeek.model.persister.GamePersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.RefreshableResource
@@ -64,9 +64,9 @@ class GameRepository(val application: BggApplication) {
         override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)
 
         override fun saveCallResult(item: ThingResponse) {
-            val dao = GamePersister(application)
+            val dao = GameDao(application)
             for (game in item.games) {
-                dao.upsert(GameMapper().map(game))
+                dao.save(GameMapper().map(game))
                 Timber.i("Synced game '$gameId'")
             }
         }

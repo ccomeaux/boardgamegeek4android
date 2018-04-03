@@ -5,7 +5,7 @@ import android.content.SyncResult
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.GameMapper
-import com.boardgamegeek.model.persister.GamePersister
+import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.service.model.GameList
 import com.boardgamegeek.use
@@ -52,9 +52,9 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
                             val body = response.body()
                             val games = body?.games ?: emptyList()
                             if (games.isNotEmpty()) {
-                                val dao = GamePersister(context)
+                                val dao = GameDao(context)
                                 for (game in games) {
-                                    dao.upsert(GameMapper().map(game))
+                                    dao.save(GameMapper().map(game))
                                 }
                                 syncResult.stats.numUpdates += games.size.toLong()
                                 Timber.i("...saved %,d games", games.size)
@@ -111,9 +111,9 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
             if (response.isSuccessful) {
                 val games = if (response.body() == null) ArrayList(0) else response.body()!!.games
                 detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
-                val dao = GamePersister(context)
+                val dao = GameDao(context)
                 for (game in games) {
-                    dao.upsert(GameMapper().map(game))
+                    dao.save(GameMapper().map(game))
                 }
                 syncResult.stats.numUpdates += games.size.toLong()
                 Timber.i("...saved %,d games", games.size)
