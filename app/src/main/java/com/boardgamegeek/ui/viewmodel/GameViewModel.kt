@@ -16,6 +16,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
         if (gameId != this.gameId) {
+            this.gameId = gameId
             game = gameRepository.getGame(gameId)
         }
         return game
