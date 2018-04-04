@@ -147,9 +147,16 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		playCountTable.removeAllViews();
 		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.getNumberOfPlays()));
 		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfGames()));
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
+		if (stats.getNumberOfDollars()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dollars).value(stats.getNumberOfDollars()));
+		if (stats.getNumberOfHalfDollars()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_half_dollars).value(stats.getNumberOfHalfDollars()));
+		if (stats.getNumberOfQuarters()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
+		if (stats.getNumberOfDimes()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
+		if (stats.getNumberOfNickels()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
 
 		if (isPlayedSynced)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
