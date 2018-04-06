@@ -1,0 +1,53 @@
+@file:JvmName("RemoteConfig")
+
+package com.boardgamegeek.util
+
+import com.boardgamegeek.BuildConfig
+import com.boardgamegeek.R
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
+import timber.log.Timber
+
+
+class RemoteConfig {
+    companion object {
+        const val KEY_SYNC_ENABLED = "sync_enabled"
+        const val KEY_SYNC_GAMES_PER_FETCH = "sync_games_per_fetch"
+        const val KEY_SYNC_GAMES_FETCH_MAX = "sync_games_fetch_max"
+        const val KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED = "sync_games_fetch_max_unupdated"
+
+        @JvmStatic
+        fun init() {
+            val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
+            val configSettings = FirebaseRemoteConfigSettings.Builder()
+                    .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                    .build()
+            firebaseRemoteConfig.setConfigSettings(configSettings)
+            firebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults)
+            fetch()
+        }
+
+        @JvmStatic
+        fun fetch() {
+            val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
+            val cacheExpiration = if (firebaseRemoteConfig.info.configSettings.isDeveloperModeEnabled) 0L else 43200L
+            firebaseRemoteConfig.fetch(cacheExpiration).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Timber.i("Successfully fetched Firebase remote config.")
+                    firebaseRemoteConfig.activateFetched()
+                } else {
+                    Timber.i(task.exception, "Failed to fetch Firebase remote config.")
+                }
+            }
+        }
+
+        @JvmStatic
+        fun getBoolean(key: String) = FirebaseRemoteConfig.getInstance().getBoolean(key)
+
+        @JvmStatic
+        fun getInt(key: String) = FirebaseRemoteConfig.getInstance().getLong(key).toInt()
+
+        @JvmStatic
+        fun getLong(key: String) = FirebaseRemoteConfig.getInstance().getLong(key)
+    }
+}

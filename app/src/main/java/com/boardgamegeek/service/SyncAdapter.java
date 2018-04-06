@@ -23,6 +23,7 @@ import com.boardgamegeek.util.BatteryUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.RemoteConfig;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.fabric.CrashKeys;
 import com.crashlytics.android.Crashlytics;
@@ -63,6 +64,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@DebugLog
 	@Override
 	public void onPerformSync(@NonNull Account account, @NonNull Bundle extras, String authority, ContentProviderClient provider, @NonNull SyncResult syncResult) {
+		RemoteConfig.fetch();
+
 		isCancelled = false;
 		final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
 		final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
@@ -84,7 +87,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.addPeriodicSync(account, authority, b, 24 * 60 * 60); // 24 hours
 		}
 
-		if (!shouldContinueSync()) return;
+		if (!shouldContinueSync()) {
+			finishSync();
+			return;
+		}
 
 		toggleCancelReceiver(true);
 		List<SyncTask> tasks = createTasks(getContext(), type, uploadOnly, syncResult, account);
@@ -116,6 +122,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				}
 			}
 		}
+		finishSync();
+	}
+
+	private void finishSync() {
 		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
@@ -155,6 +165,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		if (BatteryUtils.isBatteryLow(getContext())) {
 			Timber.i("Skipping sync; battery low");
+			return false;
+		}
+
+		if (!RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)) {
+			Timber.i("Sync disabled remotely");
 			return false;
 		}
 

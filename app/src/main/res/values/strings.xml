@@ -637,6 +637,7 @@
 	<string name="starts_with">Starts with</string>
 	<string name="starts_with_prefix">Starts with \"%s\"</string>
 	<string name="msg_offline">Offline</string>
+	<string name="msg_sync_remotely_disabled">Sync has been remotely disabled</string>
 	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
 	<string name="msg_update_invalid_response">Invalid %s received</string>
 	<string name="msg_sync_response_500">There\'s a problem with BoardGameGeek. Be patient while they fix it. (HTTP code: %d)</string>
