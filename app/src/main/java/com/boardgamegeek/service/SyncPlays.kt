@@ -11,10 +11,7 @@ import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.util.DateTimeUtils
-import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.SelectionBuilder
-import com.boardgamegeek.util.TaskUtils
+import com.boardgamegeek.util.*
 import retrofit2.Response
 import timber.log.Timber
 
@@ -22,11 +19,11 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
     private var startTime: Long = 0
     private val persister: PlayPersister = PlayPersister(context)
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
+    override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_plays
+    override val notificationSummaryMessageId = R.string.sync_notification_plays
+
+    private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS)
 
     override fun execute() {
         Timber.i("Syncing plays...")
@@ -85,7 +82,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
                 return true
             }
 
-            if (page != 1) if (wasSleepInterrupted(3000)) return true
+            if (page != 1) if (wasSleepInterrupted(fetchPauseMillis)) return true
 
             val message = formatNotificationMessage(minDate, maxDate, page)
             updateProgressNotification(message)
@@ -113,14 +110,11 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
     }
 
     private fun formatNotificationMessage(minDate: String?, maxDate: String?, page: Int): String {
-        val message = if (TextUtils.isEmpty(minDate) && TextUtils.isEmpty(maxDate)) {
-            context.getString(R.string.sync_notification_plays_all)
-        } else if (TextUtils.isEmpty(minDate)) {
-            context.getString(R.string.sync_notification_plays_old, maxDate)
-        } else if (TextUtils.isEmpty(maxDate)) {
-            context.getString(R.string.sync_notification_plays_new, minDate)
-        } else {
-            context.getString(R.string.sync_notification_plays_between, minDate, maxDate)
+        val message = when {
+            TextUtils.isEmpty(minDate) && TextUtils.isEmpty(maxDate) -> context.getString(R.string.sync_notification_plays_all)
+            TextUtils.isEmpty(minDate) -> context.getString(R.string.sync_notification_plays_old, maxDate)
+            TextUtils.isEmpty(maxDate) -> context.getString(R.string.sync_notification_plays_new, minDate)
+            else -> context.getString(R.string.sync_notification_plays_between, minDate, maxDate)
         }
         return when {
             page > 1 -> context.getString(R.string.sync_notification_page_suffix, message, page)

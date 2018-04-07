@@ -24,4 +24,8 @@
 		<key>sync_games_delete_view_hours</key>
 		<value>72</value>
 	</entry>
+	<entry>
+		<key>sync_plays_fetch_pause_millis</key>
+		<value>3000</value>
+	</entry>
 </defaultsMap>
