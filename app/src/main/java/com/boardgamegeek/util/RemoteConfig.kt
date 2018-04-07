@@ -12,6 +12,10 @@ import timber.log.Timber
 class RemoteConfig {
     companion object {
         const val KEY_SYNC_ENABLED = "sync_enabled"
+        const val KEY_SYNC_BUDDIES_DAYS = "sync_buddies_days"
+        const val KEY_SYNC_BUDDIES_MAX = "sync_buddies_max"
+        const val KEY_SYNC_BUDDIES_FETCH_INTERVAL_DAYS = "sync_buddies_fetch_interval_days"
+        const val KEY_SYNC_BUDDIES_FETCH_PAUSE_MILLIS = "sync_buddies_fetch_pause_millis"
         const val KEY_SYNC_GAMES_PER_FETCH = "sync_games_per_fetch"
         const val KEY_SYNC_GAMES_FETCH_MAX = "sync_games_fetch_max"
         const val KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED = "sync_games_fetch_max_unupdated"

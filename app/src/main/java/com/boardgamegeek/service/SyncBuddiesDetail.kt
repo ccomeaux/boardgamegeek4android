@@ -7,6 +7,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.User
 import com.boardgamegeek.model.persister.BuddyPersister
 import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 
@@ -22,6 +23,8 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
      * Get a list of usernames to sync.
      */
     protected abstract fun fetchBuddyNames(): List<String>
+
+    private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_BUDDIES_FETCH_PAUSE_MILLIS)
 
     override fun execute() {
         Timber.i(logMessage)
@@ -51,7 +54,7 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
                     syncResult.stats.numUpdates++
                     count++
 
-                    if (wasSleepInterrupted(SLEEP_MILLIS)) break
+                    if (wasSleepInterrupted(fetchPauseMillis)) break
                 }
             } else {
                 Timber.i("...no buddies to update")
@@ -80,9 +83,5 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
         }
 
         return user
-    }
-
-    companion object {
-        private const val SLEEP_MILLIS = 2000L
     }
 }

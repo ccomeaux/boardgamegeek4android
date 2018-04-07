@@ -16,6 +16,7 @@ import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.PresentationUtils
+import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 
@@ -27,11 +28,11 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
     private var currentDetailResId: Int = 0
     private var persister = BuddyPersister(context)
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_BUDDIES
+    override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_buddies_list
+    override val notificationSummaryMessageId = R.string.sync_notification_buddies_list
+
+    private val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_BUDDIES_FETCH_INTERVAL_DAYS)
 
     override fun execute() {
         Timber.i("Syncing list of buddies...")
@@ -42,8 +43,8 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
             }
 
             val lastCompleteSync = SyncPrefs.getBuddiesTimestamp(context)
-            if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 3) {
-                Timber.i("...skipping; we synced already within the last 3 days")
+            if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < fetchIntervalInDays) {
+                Timber.i("...skipping; we synced already within the last $fetchIntervalInDays days")
                 return
             }
 

@@ -13,14 +13,11 @@ import com.boardgamegeek.util.SelectionBuilder
  */
 class SyncBuddiesDetailUnupdated(context: Context, service: BggService, syncResult: SyncResult) : SyncBuddiesDetail(context, service, syncResult) {
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_BUDDIES
+    override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_buddies_unupdated
+    override val notificationSummaryMessageId = R.string.sync_notification_buddies_unupdated
 
-    override val logMessage: String
-        get() = "Syncing unupdated buddies..."
+    override val logMessage = "Syncing unupdated buddies..."
 
     override fun fetchBuddyNames(): List<String> {
         return context.contentResolver.queryStrings(

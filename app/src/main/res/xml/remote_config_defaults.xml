@@ -5,6 +5,22 @@
 		<value>true</value>
 	</entry>
 	<entry>
+		<key>sync_buddies_days</key>
+		<value>14</value>
+	</entry>
+	<entry>
+		<key>sync_buddies_max</key>
+		<value>16</value>
+	</entry>
+	<entry>
+		<key>sync_buddies_fetch_interval_days</key>
+		<value>3</value>
+	</entry>
+	<entry>
+		<key>sync_buddies_fetch_pause_millis</key>
+		<value>2000</value>
+	</entry>
+	<entry>
 		<key>sync_games_per_fetch</key>
 		<value>10</value>
 	</entry>
