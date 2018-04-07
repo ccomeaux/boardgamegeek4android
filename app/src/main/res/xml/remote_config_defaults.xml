@@ -4,4 +4,24 @@
 		<key>sync_enabled</key>
 		<value>true</value>
 	</entry>
+	<entry>
+		<key>sync_games_per_fetch</key>
+		<value>10</value>
+	</entry>
+	<entry>
+		<key>sync_games_fetch_max</key>
+		<value>1</value>
+	</entry>
+	<entry>
+		<key>sync_games_fetch_max_unupdated</key>
+		<value>20</value>
+	</entry>
+	<entry>
+		<key>sync_games_fetch_pause_millis</key>
+		<value>5000</value>
+	</entry>
+	<entry>
+		<key>sync_games_delete_view_hours</key>
+		<value>72</value>
+	</entry>
 </defaultsMap>
