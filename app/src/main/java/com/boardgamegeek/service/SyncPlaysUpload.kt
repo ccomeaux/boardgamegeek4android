@@ -30,9 +30,9 @@ import com.boardgamegeek.util.*
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
+import org.jetbrains.anko.intentFor
 
-class SyncPlaysUpload @DebugLog
-constructor(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
     private val persister = PlayPersister(context)
     private var currentInternalId: Long = 0
@@ -45,7 +45,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
 
     override val notificationTitleResId = R.string.sync_notification_title_play_upload
 
-    override val notificationSummaryIntent = Intent(context, PlaysActivity::class.java)
+    override val notificationSummaryIntent = context.intentFor<PlaysActivity>()
 
     override val notificationIntent: Intent
         get() = if (currentInternalId == BggContract.INVALID_ID.toLong())

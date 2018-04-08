@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.accounts.Account
 import android.content.Context
 import android.content.SyncResult
-import android.support.annotation.StringRes
 import android.support.v4.util.ArrayMap
 import android.text.TextUtils
 import com.boardgamegeek.R
@@ -13,6 +12,7 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.StringUtils
 import hugo.weaving.DebugLog
 import timber.log.Timber
@@ -24,8 +24,7 @@ import kotlin.collections.set
  * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
  * database that weren't synced.
  */
-class SyncCollectionComplete @DebugLog
-constructor(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
+class SyncCollectionComplete(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
     private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
     private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
     private val persister = CollectionPersister.Builder(context)
@@ -33,8 +32,9 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
             .includeStats()
             .build()
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
+    private val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
+
+    override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 
     private val syncableStatuses: List<String>
         get() {
@@ -46,8 +46,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
             return statuses
         }
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_collection_full
+    override val notificationSummaryMessageId = R.string.sync_notification_collection_full
 
     @DebugLog
     override fun execute() {
@@ -66,8 +65,8 @@ constructor(context: Context, service: BggService, syncResult: SyncResult, priva
             val currentSyncTimestamp = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
             if (currentSyncTimestamp == 0L) {
                 val lastCompleteSync = SyncPrefs.getLastCompleteCollectionTimestamp(context)
-                if (lastCompleteSync > 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-                    Timber.i("Not currently syncing and it's been less than a week since we synced completely; skipping")
+                if (lastCompleteSync > 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < fetchIntervalInDays) {
+                    Timber.i("Not currently syncing and it's been less than $fetchIntervalInDays days since we synced completely")
                     return
                 }
                 SyncPrefs.setCurrentCollectionSyncTimestamp(context)

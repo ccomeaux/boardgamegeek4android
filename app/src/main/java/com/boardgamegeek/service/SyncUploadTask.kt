@@ -20,7 +20,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.util.*
 
-abstract class SyncUploadTask constructor(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
+abstract class SyncUploadTask(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
     private val notificationMessages = ArrayList<CharSequence>()
 
     @get:StringRes

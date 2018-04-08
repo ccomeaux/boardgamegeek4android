@@ -21,6 +21,22 @@
 		<value>2000</value>
 	</entry>
 	<entry>
+		<key>sync_collection_fetch_interval_days</key>
+		<value>7</value>
+	</entry>
+	<entry>
+		<key>sync_collection_fetch_pause_millis</key>
+		<value>5000</value>
+	</entry>
+	<entry>
+		<key>sync_collection_games_per_fetch</key>
+		<value>25</value>
+	</entry>
+	<entry>
+		<key>sync_collection_fetch_max</key>
+		<value>100</value>
+	</entry>
+	<entry>
 		<key>sync_games_per_fetch</key>
 		<value>10</value>
 	</entry>
