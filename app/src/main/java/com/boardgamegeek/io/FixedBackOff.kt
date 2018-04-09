@@ -1,12 +1,11 @@
 package com.boardgamegeek.io
 
-class FixedBackOff(private val intervalMillis: Int = 5000, private val maxBackOffCount: Int = 1) : BackOff {
-
+class FixedBackOff(private var intervalMillis: Int = 5000, private var maxBackOffCount: Int = 1) : BackOff {
     private var backOffCount: Int = 0
 
     init {
-        checkArgument(intervalMillis > 0)
-        checkArgument(maxBackOffCount >= 0)
+        if (intervalMillis <= 0) intervalMillis = 5000
+        if (maxBackOffCount < 0) maxBackOffCount = 0
         reset()
     }
 
@@ -17,11 +16,5 @@ class FixedBackOff(private val intervalMillis: Int = 5000, private val maxBackOf
 
     override fun reset() {
         backOffCount = 0
-    }
-
-    private fun checkArgument(expression: Boolean) {
-        if (!expression) {
-            throw IllegalArgumentException()
-        }
     }
 }

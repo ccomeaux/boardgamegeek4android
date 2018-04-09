@@ -1,22 +1,22 @@
 package com.boardgamegeek.io
 
 class ExponentialBackOff(
-        private val initialIntervalMillis: Int = 500,
-        private val randomizationFactor: Double = 0.5,
-        private val multiplier: Double = 1.5,
-        private val maxIntervalMillis: Int = 60000,
-        private val maxElapsedTimeMillis: Int = 900000) : BackOff {
+        private var initialIntervalMillis: Int = 500,
+        private var randomizationFactor: Double = 0.5,
+        private var multiplier: Double = 1.5,
+        private var maxIntervalMillis: Int = 60000,
+        private var maxElapsedTimeMillis: Int = 900000) : BackOff {
     private var currentIntervalMillis: Int = 0
     private var startTimeNanos: Long = 0
 
     private val elapsedTimeMillis = (System.nanoTime() - startTimeNanos) / 1000000
 
     init {
-        checkArgument(initialIntervalMillis > 0)
-        checkArgument(0 <= randomizationFactor && randomizationFactor < 1)
-        checkArgument(multiplier >= 1)
-        checkArgument(maxIntervalMillis >= initialIntervalMillis)
-        checkArgument(maxElapsedTimeMillis > 0)
+        if (initialIntervalMillis <= 0) initialIntervalMillis = 500
+        if (randomizationFactor < 0 || randomizationFactor >= 1) randomizationFactor = 0.50
+        if (multiplier < 1) multiplier = 1.5
+        if (maxIntervalMillis < initialIntervalMillis) maxIntervalMillis = initialIntervalMillis
+        if (maxElapsedTimeMillis <= 0) maxElapsedTimeMillis = 900000
         reset()
     }
 
@@ -47,12 +47,6 @@ class ExponentialBackOff(
             val minInterval = currentIntervalMillis - delta
             val maxInterval = currentIntervalMillis + delta
             return (minInterval + random * (maxInterval - minInterval + 1)).toInt()
-        }
-
-        private fun checkArgument(expression: Boolean) {
-            if (!expression) {
-                throw IllegalArgumentException()
-            }
         }
     }
 }
