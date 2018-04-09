@@ -1,21 +1,28 @@
 package com.boardgamegeek.io
 
 
+import com.boardgamegeek.util.RemoteConfig
 import okhttp3.Interceptor
 import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
 
 class RetryInterceptor : Interceptor {
+    private val initialIntervalMillisFor202 = RemoteConfig.getInt(RemoteConfig.KEY_RETRY_202_INITIAL_INTERVAL_MILLIS)
+    private val randomizationFactorFor202 = RemoteConfig.getDouble(RemoteConfig.KEY_RETRY_202_RANDOMIZATION_FACTOR)
+    private val multiplierFor202 = RemoteConfig.getDouble(RemoteConfig.KEY_RETRY_202_MULTIPLIER)
+    private val maxIntervalMillisFor202 = RemoteConfig.getInt(RemoteConfig.KEY_RETRY_202_MAX_INTERVAL_MILLIS)
+    private val maxElapsedMillisFor202 = RemoteConfig.getInt(RemoteConfig.KEY_RETRY_202_MAX_ELAPSED_MILLIS)
+    private val maxBackOffCountFor429 = RemoteConfig.getInt(RemoteConfig.KEY_RETRY_429_MAX_BACKOFF_COUNT)
 
     private val backOff202: BackOff
     private val backOff429: BackOff
     private val backOff503: BackOff
 
     init {
-        backOff202 = ExponentialBackOff(1500, 0.30, 2.5, 30000, 300000)
-        backOff429 = FixedBackOff(5000, 4)
-        backOff503 = FixedBackOff(5000, 1)
+        backOff202 = ExponentialBackOff(initialIntervalMillisFor202, randomizationFactorFor202, multiplierFor202, maxIntervalMillisFor202, maxElapsedMillisFor202)
+        backOff429 = FixedBackOff(maxBackOffCount = maxBackOffCountFor429)
+        backOff503 = FixedBackOff()
     }
 
     @Throws(IOException::class)

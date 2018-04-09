@@ -27,6 +27,13 @@ class RemoteConfig {
         const val KEY_SYNC_GAMES_DELETE_VIEW_HOURS = "sync_games_delete_view_hours"
         const val KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS = "sync_plays_fetch_pause_millis"
 
+        const val KEY_RETRY_202_INITIAL_INTERVAL_MILLIS = "retry_202_initial_interval_millis"
+        const val KEY_RETRY_202_RANDOMIZATION_FACTOR = "retry_202_randomization_factor"
+        const val KEY_RETRY_202_MULTIPLIER = "retry_202_multiplier"
+        const val KEY_RETRY_202_MAX_INTERVAL_MILLIS = "retry_202_max_interval_millis"
+        const val KEY_RETRY_202_MAX_ELAPSED_MILLIS = "retry_202_max_elapsed_millis"
+        const val KEY_RETRY_429_MAX_BACKOFF_COUNT = "retry_429_max_backoff_count"
+
         @JvmStatic
         fun init() {
             val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
@@ -60,5 +67,8 @@ class RemoteConfig {
 
         @JvmStatic
         fun getLong(key: String) = FirebaseRemoteConfig.getInstance().getLong(key)
+
+        @JvmStatic
+        fun getDouble(key: String) = FirebaseRemoteConfig.getInstance().getDouble(key)
     }
 }

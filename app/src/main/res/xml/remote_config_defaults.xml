@@ -60,4 +60,28 @@
 		<key>sync_plays_fetch_pause_millis</key>
 		<value>3000</value>
 	</entry>
+	<entry>
+		<key>retry_202_initial_interval_millis</key>
+		<value>1500</value>
+	</entry>
+	<entry>
+		<key>retry_202_randomization_factor</key>
+		<value>0.30</value>
+	</entry>
+	<entry>
+		<key>retry_202_multiplier</key>
+		<value>2.5</value>
+	</entry>
+	<entry>
+		<key>retry_202_max_interval_millis</key>
+		<value>30000</value>
+	</entry>
+	<entry>
+		<key>retry_202_max_elapsed_millis</key>
+		<value>300000</value>
+	</entry>
+	<entry>
+		<key>retry_429_max_backoff_count</key>
+		<value>4</value>
+	</entry>
 </defaultsMap>
