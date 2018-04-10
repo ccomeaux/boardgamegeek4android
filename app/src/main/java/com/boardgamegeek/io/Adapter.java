@@ -9,6 +9,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class Adapter {
+	public static GeekdoApi createGeekdoApi() {
+		return new Retrofit.Builder()
+			.client(HttpUtils.getHttpClient())
+			.baseUrl("https://api.geekdo.com")
+			.addConverterFactory(GsonConverterFactory.create())
+			.build()
+			.create(GeekdoApi.class);
+	}
+
 	public static BggService createForXml() {
 		Retrofit.Builder builder = createBuilderWithoutConverterFactory(null);
 		builder.addConverterFactory(SimpleXmlConverterFactory.createNonStrict());
