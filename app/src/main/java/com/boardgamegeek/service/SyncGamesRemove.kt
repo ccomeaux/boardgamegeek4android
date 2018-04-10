@@ -54,7 +54,7 @@ class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncRes
             val gameIds = fetchGameIds()
             if (gameIds.isNotEmpty()) {
                 Timber.i("...found ${gameIds.size} games to delete")
-                updateProgressNotification(context.resources.getQuantityString(R.plurals.sync_notification_games, gameIds.size, gameIds.size))
+                updateProgressNotification(context.resources.getQuantityString(R.plurals.sync_notification_games_remove, gameIds.size, gameIds.size))
 
                 var count = 0
                 // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
