@@ -556,11 +556,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setListAdapter(adapter);
 			}
 			adapter.changeCursor(cursor);
-			restoreScrollState();
 
 			final int rowCount = cursor.getCount();
-			final String sortDescription = sorter == null ? "" :
-				String.format(getActivity().getString(R.string.by_prefix), sorter.getDescription());
+			final String sortDescription = sorter == null ? "" : String.format(getActivity().getString(R.string.by_prefix), sorter.getDescription());
 			rowCountView.setText(String.format(Locale.getDefault(), "%,d", rowCount));
 			sortDescriptionView.setText(sortDescription);
 			EventBus.getDefault().post(new CollectionCountChangedEvent(rowCount));
