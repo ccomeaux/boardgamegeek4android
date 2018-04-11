@@ -10,6 +10,7 @@ import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.queryInts
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 
 /**
@@ -17,8 +18,11 @@ import timber.log.Timber
  */
 class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
+    override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
+
+    override val notificationSummaryMessageId = R.string.sync_notification_collection_missing
+
+    private val lastViewedAgeInHours = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_DELETE_VIEW_HOURS)
 
     /**
      * Get a list of games, sorted by least recently updated, that
@@ -27,7 +31,7 @@ class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncRes
      * 3. and have 0 plays (if plays are being synced
      */
     private fun fetchGameIds(): List<Int> {
-        val hoursAgo = DateTimeUtils.hoursAgo(HOURS_OLD)
+        val hoursAgo = DateTimeUtils.hoursAgo(lastViewedAgeInHours)
 
         val date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME)
         Timber.i("...not viewed since $date")
@@ -44,17 +48,13 @@ class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncRes
                 "games.${Games.UPDATED}")
     }
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_collection_missing
-
     override fun execute() {
         Timber.i("Removing games not in the collection...")
         try {
             val gameIds = fetchGameIds()
             if (gameIds.isNotEmpty()) {
                 Timber.i("...found ${gameIds.size} games to delete")
-                // TODO externalize string
-                updateProgressNotification("Deleting ${gameIds.size} games from your collection")
+                updateProgressNotification(context.resources.getQuantityString(R.plurals.sync_notification_games_remove, gameIds.size, gameIds.size))
 
                 var count = 0
                 // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
@@ -70,9 +70,5 @@ class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncRes
         } finally {
             Timber.i("...complete!")
         }
-    }
-
-    companion object {
-        private const val HOURS_OLD = 72
     }
 }

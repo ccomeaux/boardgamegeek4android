@@ -15,6 +15,7 @@ import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.RemoteConfig;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -57,6 +58,8 @@ public class BggApplication extends Application {
 			Timber.plant(new CrashReportingTree());
 		}
 		LeakCanary.install(this);
+
+		RemoteConfig.init();
 
 		EventBus.builder()
 			.logNoSubscriberMessages(BuildConfig.DEBUG)

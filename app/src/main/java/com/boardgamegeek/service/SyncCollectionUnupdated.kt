@@ -9,21 +9,26 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.service.model.GameList
+import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
 import java.io.IOException
 
 /**
- * Syncs collection items that have not yet been updated completely with stats and private info (in batches of 25).
+ * Syncs collection items that have not yet been updated completely with stats and private info (in batches).
  */
 class SyncCollectionUnupdated(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
     private var detail: String = ""
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
+    override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_collection_unupdated
+    override val notificationSummaryMessageId = R.string.sync_notification_collection_unupdated
+
+    private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
+
+    private val gamesPerFetch = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_GAMES_PER_FETCH)
+
+    private val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_MAX)
 
     override fun execute() {
         Timber.i("Syncing unupdated collection list...")
@@ -41,7 +46,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
             do {
                 if (isCancelled) break
 
-                if (numberOfFetches > 0) if (wasSleepInterrupted(5000)) return
+                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis)) return
 
                 numberOfFetches++
                 val gameIds = queryGames()
@@ -86,19 +91,19 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
                     Timber.i("...no more unupdated collection items")
                     break
                 }
-            } while (numberOfFetches < 100)
+            } while (numberOfFetches < maxFetchCount)
         } finally {
             Timber.i("...complete!")
         }
     }
 
     private fun queryGames(): GameList {
-        val list = GameList(GAME_PER_FETCH)
+        val list = GameList(gamesPerFetch)
         val cursor = context.contentResolver.query(Collection.CONTENT_URI,
                 arrayOf(Collection.GAME_ID, Collection.GAME_NAME),
                 SelectionBuilder.whereZeroOrNull("collection.${Collection.UPDATED}"),
                 null,
-                "collection.${Collection.UPDATED_LIST} DESC LIMIT $GAME_PER_FETCH")
+                "collection.${Collection.UPDATED_LIST} DESC LIMIT $gamesPerFetch")
         cursor?.use { c ->
             while (c.moveToNext()) {
                 list.addGame(c.getInt(0), c.getString(1))
@@ -145,9 +150,5 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
             if (!gameList1.idList.contains(i)) return false
         }
         return true
-    }
-
-    companion object {
-        private const val GAME_PER_FETCH = 25
     }
 }

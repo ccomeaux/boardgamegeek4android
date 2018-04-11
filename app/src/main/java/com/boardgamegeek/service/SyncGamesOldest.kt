@@ -11,16 +11,11 @@ import com.boardgamegeek.io.BggService
  */
 class SyncGamesOldest(context: Context, service: BggService, syncResult: SyncResult) : SyncGames(context, service, syncResult) {
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
+    override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 
-    override val exitLogMessage: String
-        get() = "...found no old games to update (this should only happen with empty collections)"
+    override val exitLogMessage = "...found no old games to update (this should only happen with empty collections)"
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_games_oldest
+    override val notificationSummaryMessageId = R.string.sync_notification_games_oldest
 
-    override fun getIntroLogMessage(gamesPerFetch: Int): String {
-        return "Syncing $gamesPerFetch oldest games in the collection..."
-    }
+    override fun getIntroLogMessage(gamesPerFetch: Int) = "Syncing $gamesPerFetch oldest games in the collection..."
 }

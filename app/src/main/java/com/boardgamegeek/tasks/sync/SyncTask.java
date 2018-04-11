@@ -12,6 +12,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.tasks.sync.SyncTask.CompletedEvent;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.RemoteConfig;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -40,6 +41,7 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 		if (!isRequestParamsValid())
 			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));
 		if (NetworkUtils.isOffline(context)) return context.getString(R.string.msg_offline);
+		if (!RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)) return context.getString(R.string.msg_sync_remotely_disabled);
 		try {
 			boolean hasMorePages;
 			page = 0;

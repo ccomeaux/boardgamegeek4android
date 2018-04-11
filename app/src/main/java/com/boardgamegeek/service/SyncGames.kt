@@ -7,31 +7,35 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.GamePersister
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.service.model.GameList
+import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
 
+
 abstract class SyncGames(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
 
-    protected open val maxFetchCount: Int
-        get() = 1
+    protected open val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX)
+
+    private val gamesPerFetch = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH)
+
+    private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS)
 
     protected abstract val exitLogMessage: String
 
-    protected open val selection: String?
-        get() = null
+    protected open val selection: String? = null
 
     override fun execute() {
-        Timber.i(getIntroLogMessage(GAMES_PER_FETCH))
+        Timber.i(getIntroLogMessage(gamesPerFetch))
         try {
             var numberOfFetches = 0
             do {
                 if (isCancelled) break
 
-                if (numberOfFetches > 0) if (wasSleepInterrupted(5000)) return
+                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis)) return
 
                 numberOfFetches++
-                val gameList = getGames(GAMES_PER_FETCH)
+                val gameList = getGames(gamesPerFetch)
                 if (gameList.size > 0) {
                     Timber.i("...found ${gameList.size} games to update [${gameList.description}]")
                     var detail = context.resources.getQuantityString(R.plurals.sync_notification_games, gameList.size, gameList.size, gameList.description)
@@ -153,9 +157,5 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
             }
         }
         return list
-    }
-
-    companion object {
-        private const val GAMES_PER_FETCH = 10
     }
 }

@@ -63,5 +63,8 @@
 		<item quantity="one">Syncing %1$,d game: %2$s</item>
 		<item quantity="other">Syncing %1$,d games: %2$s</item>
 	</plurals>
-
+	<plurals name="sync_notification_games_remove">
+		<item quantity="one">Deleting %,d game from your collection</item>
+		<item quantity="other">Deleting %,d games from your collection</item>
+	</plurals>
 </resources>

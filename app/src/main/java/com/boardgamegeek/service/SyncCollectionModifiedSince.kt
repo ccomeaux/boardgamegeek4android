@@ -10,6 +10,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
@@ -24,11 +25,11 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             .validStatusesOnly()
             .build()
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
+    override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 
-    override val notificationSummaryMessageId: Int
-        get() = R.string.sync_notification_collection_partial
+    override val notificationSummaryMessageId = R.string.sync_notification_collection_partial
+
+    private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
 
     override fun execute() {
         try {
@@ -53,7 +54,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 return
             }
 
-            if (wasSleepInterrupted(2000)) return
+            if (wasSleepInterrupted(fetchPauseMillis)) return
 
             syncBySubtype(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
             if (isCancelled) {

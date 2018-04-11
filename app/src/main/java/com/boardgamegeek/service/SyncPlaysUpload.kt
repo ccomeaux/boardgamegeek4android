@@ -30,9 +30,9 @@ import com.boardgamegeek.util.*
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
+import org.jetbrains.anko.intentFor
 
-class SyncPlaysUpload @DebugLog
-constructor(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
     private val persister = PlayPersister(context)
     private var currentInternalId: Long = 0
@@ -41,20 +41,13 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
     private var currentThumbnailUrlForNotification: String = ""
     private var currentImageUrlForNotification: String = ""
 
-    override val syncType: Int
-        @DebugLog
-        get() = SyncService.FLAG_SYNC_PLAYS_UPLOAD
+    override val syncType = SyncService.FLAG_SYNC_PLAYS_UPLOAD
 
-    override val notificationTitleResId: Int
-        @DebugLog
-        get() = R.string.sync_notification_title_play_upload
+    override val notificationTitleResId = R.string.sync_notification_title_play_upload
 
-    override val notificationSummaryIntent: Intent
-        @DebugLog
-        get() = Intent(context, PlaysActivity::class.java)
+    override val notificationSummaryIntent = context.intentFor<PlaysActivity>()
 
     override val notificationIntent: Intent
-        @DebugLog
         get() = if (currentInternalId == BggContract.INVALID_ID.toLong())
             GamePlaysActivity.createIntent(context,
                     currentGameIdForNotification,
@@ -69,17 +62,11 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
                     currentThumbnailUrlForNotification,
                     currentImageUrlForNotification)
 
-    override val notificationMessageTag: String
-        @DebugLog
-        get() = NotificationUtils.TAG_UPLOAD_PLAY
+    override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_PLAY
 
-    override val notificationErrorTag: String
-        @DebugLog
-        get() = NotificationUtils.TAG_UPLOAD_PLAY_ERROR
+    override val notificationErrorTag = NotificationUtils.TAG_UPLOAD_PLAY_ERROR
 
-    override val notificationSummaryMessageId: Int
-        @DebugLog
-        get() = R.string.sync_notification_plays_upload
+    override val notificationSummaryMessageId = R.string.sync_notification_plays_upload
 
     @DebugLog
     override fun execute() {
@@ -260,7 +247,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
         for (i in players.indices) {
             val player = players[i]
             builder
-                    .add(getMapKey(i, "playerid"), "player_" + i)
+                    .add(getMapKey(i, "playerid"), "player_$i")
                     .add(getMapKey(i, "name"), player.name)
                     .add(getMapKey(i, "username"), player.username)
                     .add(getMapKey(i, "color"), player.color)

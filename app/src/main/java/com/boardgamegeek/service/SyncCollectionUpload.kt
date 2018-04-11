@@ -22,11 +22,11 @@ import com.boardgamegeek.util.SelectionBuilder
 import com.boardgamegeek.util.TaskUtils
 import hugo.weaving.DebugLog
 import okhttp3.OkHttpClient
+import org.jetbrains.anko.intentFor
 import timber.log.Timber
 import java.util.*
 
-class SyncCollectionUpload @DebugLog
-constructor(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncCollectionUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
     private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
     private val deleteTask: CollectionDeleteTask
     private val addTask: CollectionAddTask
@@ -34,25 +34,20 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
     private var currentGameId: Int = 0
     private var currentGameName: String? = null
 
-    override val syncType: Int
-        get() = SyncService.FLAG_SYNC_COLLECTION_UPLOAD
+    override val syncType = SyncService.FLAG_SYNC_COLLECTION_UPLOAD
 
-    override val notificationTitleResId: Int
-        get() = R.string.sync_notification_title_collection_upload
+    override val notificationTitleResId = R.string.sync_notification_title_collection_upload
 
-    override val notificationSummaryIntent: Intent
-        get() = Intent(context, CollectionActivity::class.java)
+    override val notificationSummaryIntent = context.intentFor<CollectionActivity>()
 
     override val notificationIntent: Intent?
         get() = if (currentGameId != BggContract.INVALID_ID) {
             GameActivity.createIntent(currentGameId, currentGameName)
         } else super.notificationIntent
 
-    override val notificationMessageTag: String
-        get() = NotificationUtils.TAG_UPLOAD_COLLECTION
+    override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_COLLECTION
 
-    override val notificationErrorTag: String
-        get() = NotificationUtils.TAG_UPLOAD_COLLECTION_ERROR
+    override val notificationErrorTag = NotificationUtils.TAG_UPLOAD_COLLECTION_ERROR
 
     init {
         deleteTask = CollectionDeleteTask(okHttpClient)
@@ -131,7 +126,7 @@ constructor(context: Context, service: BggService, syncResult: SyncResult) : Syn
     }
 
     private fun isGreaterThanZero(columnName: String): String {
-        return columnName + ">0"
+        return "$columnName>0"
     }
 
     private fun getCollectionItems(selection: String, @PluralsRes messageResId: Int): Cursor? {

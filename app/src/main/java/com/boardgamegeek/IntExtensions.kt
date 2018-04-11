@@ -1,7 +1,3 @@
 package com.boardgamegeek
 
-import com.boardgamegeek.util.MathUtils
-
-fun Int.constrain(min: Int, max: Int): Int {
-    return MathUtils.constrain(this, min, max)
-}
+fun Int.clamp(min: Int, max: Int) = Math.max(min, Math.min(max, this))
