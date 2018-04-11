@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,19 +36,23 @@ import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class TopGamesFragment extends Fragment {
-	Unbinder unbinder;
-	TopGamesAdapter adapter;
+	private Unbinder unbinder;
+	private TopGamesAdapter adapter;
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_top_games, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_top_games, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 		setUpRecyclerView();
 		loadTopGames();
-		return rootView;
 	}
 
 	@Override
@@ -86,6 +92,7 @@ public class TopGamesFragment extends Fragment {
 						if (recyclerView != null) {
 							recyclerView.setAdapter(adapter);
 							AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+							AnimationUtils.fadeOut(emptyView);
 						}
 					}
 					if (progressView != null) progressView.hide();
@@ -98,6 +105,7 @@ public class TopGamesFragment extends Fragment {
 					if (emptyView != null) {
 						emptyView.setText(getString(R.string.empty_http_error, error.getLocalizedMessage()));
 						AnimationUtils.fadeIn(emptyView);
+						AnimationUtils.fadeOut(recyclerView);
 					}
 					if (progressView != null) progressView.hide();
 				}
@@ -105,7 +113,7 @@ public class TopGamesFragment extends Fragment {
 	}
 
 	private List<TopGame> findTopGames() throws IOException {
-		List<TopGame> topGames = new ArrayList<>();
+		List<TopGame> topGames = new ArrayList<>(100);
 
 		int rank = 1;
 		Document doc = Jsoup
@@ -119,7 +127,7 @@ public class TopGamesFragment extends Fragment {
 			game.id = getGameIdFromLink(link.attr("href"));
 			game.rank = rank;
 			game.yearPublished = 0;
-			game.thumbnailUrl = link.child(0).attr("src").replaceAll("_mt\\.", "_t.");
+			game.thumbnailUrl = link.child(0).attr("src");
 
 			Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
 			game.name = gameNameElement.child(0).text();
