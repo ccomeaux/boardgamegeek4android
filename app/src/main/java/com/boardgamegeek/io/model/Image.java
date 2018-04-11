@@ -32,8 +32,8 @@ public class Image {
 
 	public class Images {
 		ImageData micro;
-		ImageData small;
-		ImageData medium;
+		public ImageData small;
+		public ImageData medium;
 		ImageData large;
 		ImageData square;
 		ImageData imagepage;
