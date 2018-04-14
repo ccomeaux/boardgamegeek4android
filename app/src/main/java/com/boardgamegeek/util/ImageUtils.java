@@ -23,12 +23,6 @@ import retrofit2.Response;
  */
 public class ImageUtils {
 	private static final String IMAGE_URL_PREFIX = "https://cf.geekdo-images.com/images/pic";
-	//public static final String SUFFIX_SMALL_THUMBNAIL = "_mt";
-	public static final String SUFFIX_THUMBNAIL = "_t";
-	//private static final String SUFFIX_SQUARE = "_sq";
-	public static final String SUFFIX_SMALL = "_t";
-	public static final String SUFFIX_MEDIUM = "_md";
-	//private static final String SUFFIX_LARGE = "_lg";
 
 	private ImageUtils() {
 	}
@@ -38,16 +32,7 @@ public class ImageUtils {
 	 * fit/center crop and will load a {@link android.support.v7.graphics.Palette}.
 	 */
 	public static void safelyLoadImage(ImageView imageView, int imageId, Callback callback) {
-		Queue<String> imageUrls = new LinkedList<>();
-		String imageUrl = IMAGE_URL_PREFIX + imageId + ".jpg";
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
-		imageUrls.add(imageUrl);
-		imageUrl = IMAGE_URL_PREFIX + imageId + ".png";
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
-		imageUrls.add(imageUrl);
-		safelyLoadImage(imageView, imageUrls, callback);
+		safelyLoadImage(imageView, addDefaultImagesToQueue(imageId, null), callback);
 	}
 
 	/**
@@ -63,25 +48,8 @@ public class ImageUtils {
 	 */
 	public static void safelyLoadImage(ImageView imageView, String imageUrl, Callback callback) {
 		Queue<String> imageUrls = new LinkedList<>();
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
 		imageUrls.add(imageUrl);
 		safelyLoadImage(imageView, imageUrls, callback);
-	}
-
-
-	/**
-	 * Append a suffix to an image URL. Assumes the URL has no suffix (but may have an extension).
-	 */
-	public static String appendImageUrl(String imageUrl, String suffix) {
-		if (TextUtils.isEmpty(imageUrl)) return "";
-		if (TextUtils.isEmpty(suffix)) return imageUrl;
-		int dot = imageUrl.lastIndexOf('.');
-		if (dot == -1) {
-			return imageUrl + suffix;
-		} else {
-			return imageUrl.substring(0, dot) + suffix + imageUrl.substring(dot, imageUrl.length());
-		}
 	}
 
 	/**
@@ -101,24 +69,24 @@ public class ImageUtils {
 				if (response.code() == 200 && response.body() != null) {
 					Queue<String> queue = new LinkedList<>();
 					queue.add(response.body().images.small.url);
-					addDefaultThumbnailsToQueue(queue, imageId);
+					addDefaultImagesToQueue(imageId, queue);
 					safelyLoadThumbnail(target, queue);
 				} else {
-					safelyLoadThumbnail(target, addDefaultThumbnailsToQueue(null, imageId));
+					safelyLoadThumbnail(target, addDefaultImagesToQueue(imageId, null));
 				}
 			}
 
 			@Override
 			public void onFailure(@NonNull Call<Image> call, @NonNull Throwable t) {
-				safelyLoadThumbnail(target, addDefaultThumbnailsToQueue(null, imageId));
+				safelyLoadThumbnail(target, addDefaultImagesToQueue(imageId, null));
 			}
 		});
 	}
 
-	private static Queue<String> addDefaultThumbnailsToQueue(Queue<String> queue, int imageId) {
+	private static Queue<String> addDefaultImagesToQueue(int imageId, Queue<String> queue) {
 		if (queue == null) queue = new LinkedList<>();
-		queue.add(IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg");
-		queue.add(IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".png");
+		queue.add(IMAGE_URL_PREFIX + imageId + ".jpg");
+		queue.add(IMAGE_URL_PREFIX + imageId + ".png");
 		return queue;
 	}
 
