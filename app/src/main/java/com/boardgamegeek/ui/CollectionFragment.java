@@ -65,6 +65,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RandomUtils;
@@ -817,7 +818,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			holder.timestampView.setTimestamp(timestamp);
 			holder.favoriteView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
 			PresentationUtils.setTextOrHide(holder.infoView, sorter == null ? "" : sorter.getDisplayInfo(cursor));
-			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl, holder.thumbnailView);
+			ImageUtils.loadThumbnail(holder.thumbnailView, !TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl);
 		}
 
 		@Override

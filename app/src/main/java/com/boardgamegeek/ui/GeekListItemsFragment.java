@@ -141,7 +141,7 @@ public class GeekListItemsFragment extends Fragment {
 				final Context context = itemView.getContext();
 
 				orderView.setText(String.valueOf(order));
-				ImageUtils.loadThumbnail(item.imageId(), thumbnailView);
+				ImageUtils.loadThumbnail(thumbnailView, item.imageId());
 				itemNameView.setText(item.getObjectName());
 				if (item.getUsername().equals(geekList.getUsername())) {
 					usernameView.setVisibility(View.GONE);

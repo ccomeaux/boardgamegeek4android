@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -108,7 +109,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 		}
 
 		ScrimUtils.applyDarkScrim(scrimView);
-		ImageUtils.safelyLoadImage(toolbarImage, imageId, null);
+		ImageUtils.safelyLoadImage(toolbarImage, imageId);
 	}
 
 	@Override
@@ -117,7 +118,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				if (geekListId != BggContract.INVALID_ID) {
