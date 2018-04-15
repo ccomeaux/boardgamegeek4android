@@ -1,6 +1,7 @@
 package com.boardgamegeek.util
 
 import android.graphics.drawable.BitmapDrawable
+import android.support.annotation.DrawableRes
 import android.support.v7.graphics.Palette
 import android.widget.ImageView
 import com.boardgamegeek.R
@@ -85,7 +86,14 @@ object ImageUtils {
         safelyLoadThumbnail(queue)
     }
 
-    private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>) {
+    @JvmStatic
+    fun ImageView.loadThumbnail(path: String, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
+        val queue = LinkedList<String>()
+        queue.add(path)
+        safelyLoadThumbnail(queue, errorResId)
+    }
+
+    private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
         var url: String? = null
         val savedUrl = getTag(R.id.url) as String?
         if (savedUrl?.isNotEmpty() == true) {
@@ -104,8 +112,8 @@ object ImageUtils {
         val imageUrl = url
         Picasso.with(context)
                 .load(HttpUtils.ensureScheme(imageUrl))
-                .placeholder(R.drawable.thumbnail_image_empty)
-                .error(R.drawable.thumbnail_image_empty)
+                .placeholder(errorResId)
+                .error(errorResId)
                 .resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size)
                 .centerCrop()
                 .into(this, object : com.squareup.picasso.Callback {
@@ -114,7 +122,7 @@ object ImageUtils {
                     }
 
                     override fun onError() {
-                        safelyLoadThumbnail(imageUrls)
+                        safelyLoadThumbnail(imageUrls, R.drawable.thumbnail_image_empty)
                     }
                 })
     }

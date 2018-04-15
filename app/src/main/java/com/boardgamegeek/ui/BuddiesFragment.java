@@ -23,6 +23,7 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -164,7 +165,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 			view.setActivated(buddy.getId() == selectedBuddyId);
 
-			loadThumbnail(buddy.getAvatarUrl(), holder.avatar, R.drawable.person_image_empty);
+			ImageUtils.loadThumbnail(holder.avatar, buddy.getAvatarUrl(), R.drawable.person_image_empty);
 
 			if (TextUtils.isEmpty(buddy.getFullName())) {
 				holder.fullName.setText(buddy.getUserName());

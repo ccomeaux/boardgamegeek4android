@@ -19,7 +19,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -28,9 +27,7 @@ import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -325,16 +322,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	protected void resetScrollState() {
 		listViewStatePosition = 0;
 		listViewStateTop = -1;
-	}
-
-	protected void loadThumbnail(String path, ImageView target) {
-		loadThumbnail(path, target, R.drawable.thumbnail_image_empty);
-	}
-
-	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
-		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(path)).placeholder(placeholderResId)
-			.error(placeholderResId).resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
-			.into(target);
 	}
 
 	private void ensureList() {
