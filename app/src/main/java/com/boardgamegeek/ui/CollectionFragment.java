@@ -818,7 +818,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			holder.timestampView.setTimestamp(timestamp);
 			holder.favoriteView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
 			PresentationUtils.setTextOrHide(holder.infoView, sorter == null ? "" : sorter.getDisplayInfo(cursor));
-			ImageUtils.loadThumbnail(holder.thumbnailView, !TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl);
+			ImageUtils.loadThumbnail(holder.thumbnailView, collectionThumbnailUrl, thumbnailUrl);
 		}
 
 		@Override

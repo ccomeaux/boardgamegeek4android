@@ -79,9 +79,9 @@ object ImageUtils {
     }
 
     @JvmStatic
-    fun ImageView.loadThumbnail(path: String) {
+    fun ImageView.loadThumbnail(vararg paths: String) {
         val queue = LinkedList<String>()
-        queue.add(path)
+        queue += paths
         safelyLoadThumbnail(queue)
     }
 
