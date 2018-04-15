@@ -23,10 +23,9 @@ import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -214,13 +213,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			imageView.setVisibility(View.GONE);
 		} else {
 			imageView.setVisibility(View.VISIBLE);
-			Picasso.with(this)
-				.load(HttpUtils.ensureScheme(avatarUrl))
-				.placeholder(R.drawable.person_image_empty)
-				.error(R.drawable.person_image_empty)
-				.resizeDimen(R.dimen.drawer_header_image_size, R.dimen.drawer_header_image_size)
-				.centerCrop()
-				.into(imageView);
+			ImageUtils.loadThumbnail(imageView, avatarUrl, R.drawable.person_image_empty);
 		}
 
 		return view;

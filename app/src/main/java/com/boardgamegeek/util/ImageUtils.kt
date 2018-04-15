@@ -107,14 +107,18 @@ object ImageUtils {
             url = imageUrls.poll()
         }
         if (url.isNullOrEmpty()) {
-            return
+            if (imageUrls.isEmpty()) {
+                url = null
+            } else {
+                return
+            }
         }
         val imageUrl = url
         Picasso.with(context)
                 .load(HttpUtils.ensureScheme(imageUrl))
                 .placeholder(errorResId)
                 .error(errorResId)
-                .resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size)
+                .fit()
                 .centerCrop()
                 .into(this, object : com.squareup.picasso.Callback {
                     override fun onSuccess() {
@@ -122,7 +126,7 @@ object ImageUtils {
                     }
 
                     override fun onError() {
-                        safelyLoadThumbnail(imageUrls, R.drawable.thumbnail_image_empty)
+                        safelyLoadThumbnail(imageUrls, errorResId)
                     }
                 })
     }

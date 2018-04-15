@@ -19,9 +19,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -89,7 +88,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 			return view;
 		}
 
-		TextView titleView = (TextView) view.findViewById(R.id.player_title);
+		TextView titleView = view.findViewById(R.id.player_title);
 		if (titleView != null) {
 			if (TextUtils.isEmpty(result.title)) {
 				titleView.setVisibility(View.GONE);
@@ -113,13 +112,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		ImageView avatarView = view.findViewById(R.id.player_avatar);
 		if (avatarView != null) {
-			//noinspection SuspiciousNameCombination
-			Picasso.with(getContext())
-				.load(HttpUtils.ensureScheme(result.avatarUrl))
-				.placeholder(R.drawable.person_image_empty)
-				.error(R.drawable.person_image_empty)
-				.resizeDimen(R.dimen.dropdownitem_min_height, R.dimen.dropdownitem_min_height).centerCrop()
-				.into(avatarView);
+			ImageUtils.loadThumbnail(avatarView, result.avatarUrl, R.drawable.person_image_empty);
 		}
 		return view;
 	}
@@ -185,8 +178,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 	}
 
 	private static final String PLAYER_SELECTION = PlayPlayers.NAME + " LIKE ?";
-	private static final String[] PLAYER_PROJECTION = new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME,
-		PlayPlayers.NAME };
+	private static final String[] PLAYER_PROJECTION = new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME };
 	private static final int PLAYER_USERNAME = 1;
 	private static final int PLAYER_NAME = 2;
 
