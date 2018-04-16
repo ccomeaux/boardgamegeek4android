@@ -44,9 +44,42 @@ object ImageUtils {
     @JvmStatic
     @JvmOverloads
     fun ImageView.safelyLoadImage(imageUrl: String, callback: Callback? = null) {
-        val imageUrls = LinkedList<String>()
-        imageUrls.add(imageUrl)
-        safelyLoadImage(imageUrls, callback)
+        val imageId = getImageId(imageUrl)
+        val call = Adapter.createGeekdoApi().image(imageId)
+        call.enqueue(object : retrofit2.Callback<Image> {
+            override fun onResponse(call: Call<Image>, response: Response<Image>) {
+                val body = response.body()
+                if (response.code() == 200 && body != null) {
+                    val queue = LinkedList<String>()
+                    queue.add(body.images.medium.url)
+                    queue.add(body.images.small.url)
+                    queue.add(imageUrl)
+                    safelyLoadImage(queue, callback)
+                } else {
+                    val queue = LinkedList<String>()
+                    queue.add(imageUrl)
+                    safelyLoadImage(queue, callback)
+                }
+            }
+
+            override fun onFailure(call: Call<Image>, t: Throwable) {
+                val queue = LinkedList<String>()
+                queue.add(imageUrl)
+                safelyLoadImage(queue, callback)
+            }
+        })
+    }
+
+    private fun getImageId(imageUrl: String): Int {
+        var partialUrl = imageUrl
+        val imageIdPrefix = "/pic"
+        val lastSlashIndex = partialUrl.lastIndexOf(imageIdPrefix)
+        if (lastSlashIndex > -1)
+            partialUrl = partialUrl.substring(lastSlashIndex + imageIdPrefix.length)
+        val lastDotIndex = partialUrl.lastIndexOf('.')
+        if (lastDotIndex != -1)
+            partialUrl = partialUrl.substring(0, lastDotIndex)
+        return partialUrl.toInt()
     }
 
     @JvmStatic
