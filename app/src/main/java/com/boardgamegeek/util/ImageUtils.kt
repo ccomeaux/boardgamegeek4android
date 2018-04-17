@@ -10,6 +10,7 @@ import com.boardgamegeek.io.model.Image
 import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Response
+import timber.log.Timber
 import java.util.*
 
 /**
@@ -43,31 +44,41 @@ object ImageUtils {
      */
     @JvmStatic
     @JvmOverloads
-    fun ImageView.safelyLoadImage(imageUrl: String, callback: Callback? = null) {
+    fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String = imageUrl, callback: Callback? = null) {
         val imageId = getImageId(imageUrl)
-        val call = Adapter.createGeekdoApi().image(imageId)
-        call.enqueue(object : retrofit2.Callback<Image> {
-            override fun onResponse(call: Call<Image>, response: Response<Image>) {
-                val body = response.body()
-                if (response.code() == 200 && body != null) {
+        if (imageId > 0) {
+            val call = Adapter.createGeekdoApi().image(imageId)
+            call.enqueue(object : retrofit2.Callback<Image> {
+                override fun onResponse(call: Call<Image>, response: Response<Image>) {
+                    val body = response.body()
+                    if (response.code() == 200 && body != null) {
+                        val queue = LinkedList<String>()
+                        queue.add(body.images.medium.url)
+                        queue.add(body.images.small.url)
+                        queue.add(thumbnailUrl)
+                        queue.add(imageUrl)
+                        safelyLoadImage(queue, callback)
+                    } else {
+                        val queue = LinkedList<String>()
+                        queue.add(thumbnailUrl)
+                        queue.add(imageUrl)
+                        safelyLoadImage(queue, callback)
+                    }
+                }
+
+                override fun onFailure(call: Call<Image>, t: Throwable) {
                     val queue = LinkedList<String>()
-                    queue.add(body.images.medium.url)
-                    queue.add(body.images.small.url)
-                    queue.add(imageUrl)
-                    safelyLoadImage(queue, callback)
-                } else {
-                    val queue = LinkedList<String>()
+                    queue.add(thumbnailUrl)
                     queue.add(imageUrl)
                     safelyLoadImage(queue, callback)
                 }
-            }
-
-            override fun onFailure(call: Call<Image>, t: Throwable) {
-                val queue = LinkedList<String>()
-                queue.add(imageUrl)
-                safelyLoadImage(queue, callback)
-            }
-        })
+            })
+        } else {
+            val queue = LinkedList<String>()
+            queue.add(thumbnailUrl)
+            queue.add(imageUrl)
+            safelyLoadImage(queue, callback)
+        }
     }
 
     private fun getImageId(imageUrl: String): Int {
@@ -79,7 +90,12 @@ object ImageUtils {
         val lastDotIndex = partialUrl.lastIndexOf('.')
         if (lastDotIndex != -1)
             partialUrl = partialUrl.substring(0, lastDotIndex)
-        return partialUrl.toInt()
+        return try {
+            partialUrl.toInt()
+        } catch (e: NumberFormatException) {
+            Timber.w("Didn't find an image ID in the URL $imageUrl")
+            0
+        }
     }
 
     @JvmStatic

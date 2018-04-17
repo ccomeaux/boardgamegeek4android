@@ -1095,6 +1095,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, play.gameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, play.gameName);
 		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
 		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
 		List<String> colors = new ArrayList<>();
@@ -1350,7 +1351,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				headerView.setText(gameName);
 
 				fabColor = ContextCompat.getColor(LogPlayActivity.this, R.color.accent);
-				ImageUtils.safelyLoadImage(thumbnailView, imageUrl, new ImageUtils.Callback() {
+				ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, new ImageUtils.Callback() {
 					@Override
 					public void onSuccessfulImageLoad(Palette palette) {
 						headerView.setBackgroundResource(R.color.black_overlay_light);

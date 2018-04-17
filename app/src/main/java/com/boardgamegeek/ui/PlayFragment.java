@@ -402,7 +402,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		playersView.setVisibility(View.VISIBLE);
 		emptyView.setVisibility(View.GONE);
 
-		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, new Callback() {
+		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, new Callback() {
 			@Override
 			public void onSuccessfulImageLoad(Palette palette) {
 				if (gameNameView != null && isAdded()) {

@@ -229,7 +229,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		changeName(event.getGameName());
 		if (!event.getImageUrl().equals(imageUrl)) {
 			imageUrl = event.getImageUrl();
-			ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
+			ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), event.getThumbnailUrl(), this);
 		}
 		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.getArePlayersCustomSorted();
