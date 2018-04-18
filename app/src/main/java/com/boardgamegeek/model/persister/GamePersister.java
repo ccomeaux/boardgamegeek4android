@@ -5,6 +5,7 @@ import android.content.ContentProviderOperation.Builder;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -32,6 +33,7 @@ import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DataUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PlayerCountRecommendation;
@@ -87,6 +89,9 @@ public class GamePersister {
 				ContentValues values = toValues(game, updateTime);
 				if (ResolverUtils.rowExists(resolver, Games.buildGameUri(game.id))) {
 					values.remove(Games.GAME_ID);
+					if (shouldClearHeroImageUrl(game)) {
+						values.put(Games.HERO_IMAGE_URL, "");
+					}
 					cpoBuilder = ContentProviderOperation.newUpdate(Games.buildGameUri(game.id));
 				} else {
 					cpoBuilder = ContentProviderOperation.newInsert(Games.CONTENT_URI);
@@ -130,6 +135,23 @@ public class GamePersister {
 			}
 		}
 		return 0;
+	}
+
+	private boolean shouldClearHeroImageUrl(Game game) {
+		Cursor cursor = resolver.query(Games.buildGameUri(game.id), new String[]{Games.IMAGE_URL, Games.THUMBNAIL_URL}, null, null, null);
+		try {
+			if (cursor != null && cursor.moveToFirst()) {
+				String imageUrl = CursorUtils.getString(cursor, 0);
+				String thumbnailUrl = cursor.getString(1);
+				if (!imageUrl.equals(game.image) ||
+					!thumbnailUrl.equals(game.thumbnail)) {
+					return true;
+				}
+			}
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+		return false;
 	}
 
 	private static ContentValues toValues(Game game, long updateTime) {
