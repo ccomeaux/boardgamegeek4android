@@ -5,6 +5,7 @@ data class GameInfoChangedEvent(
         val subtype: String,
         val imageUrl: String,
         val thumbnailUrl: String,
+        val heroImageUrl: String,
         val arePlayersCustomSorted: Boolean,
         val isFavorite: Boolean
 )

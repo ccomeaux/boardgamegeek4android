@@ -21,7 +21,7 @@ object ImageUtils {
      * Call back from loading an image.
      */
     interface Callback {
-        fun onSuccessfulImageLoad(palette: Palette)
+        fun onSuccessfulImageLoad(palette: Palette?)
 
         fun onFailedImageLoad()
     }
