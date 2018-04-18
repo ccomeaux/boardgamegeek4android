@@ -8,6 +8,7 @@ data class Game private constructor(
         val name: String,
         val thumbnailUrl: String,
         val imageUrl: String,
+        val heroImageUrl: String,
         val rating: Double,
         val yearPublished: Int,
         val minPlayers: Int,
@@ -45,8 +46,7 @@ data class Game private constructor(
             return max
         }
 
-    val pollsVoteCount: Int
-        get() = pollVoteTotal + suggestedPlayerCountPollVoteTotal
+    val pollsVoteCount = pollVoteTotal + suggestedPlayerCountPollVoteTotal
 
     companion object {
         @JvmStatic
@@ -81,7 +81,8 @@ data class Game private constructor(
                 Games.MAX_PLAYING_TIME,
                 Games.STARRED,
                 Games.POLLS_COUNT,
-                Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL
+                Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                Games.HERO_IMAGE_URL
         )
 
         private const val GAME_ID = 0
@@ -112,6 +113,7 @@ data class Game private constructor(
         private const val STARRED = 28
         private const val POLLS_COUNT = 29
         private const val SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 30
+        private const val HERO_IMAGE_URL = 31
 
         @JvmStatic
         fun fromCursor(cursor: Cursor): Game {
@@ -120,6 +122,7 @@ data class Game private constructor(
                     cursor.getString(GAME_NAME),
                     cursor.getString(THUMBNAIL_URL) ?: "",
                     cursor.getString(IMAGE_URL) ?: "",
+                    cursor.getString(HERO_IMAGE_URL) ?: "",
                     cursor.getDouble(STATS_AVERAGE),
                     cursor.getInt(YEAR_PUBLISHED),
                     cursor.getInt(MIN_PLAYERS),

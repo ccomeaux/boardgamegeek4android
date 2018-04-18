@@ -93,7 +93,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION = 45;
 	private static final int VER_MIN_MAX_PLAYING_TIME = 46;
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RESYNC = 47;
-	private static final int DATABASE_VERSION = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
+	private static final int VER_GAME_HERO_IMAGE_URL = 48;
+	private static final int DATABASE_VERSION = VER_GAME_HERO_IMAGE_URL;
 
 	private final Context context;
 
@@ -308,6 +309,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.GAME_RANK, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -782,6 +784,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 					TaskUtils.executeAsyncTask(new ResetGameTask(context));
 					SyncService.sync(context, SyncService.FLAG_SYNC_GAMES);
 					version = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
+				case VER_SUGGESTED_PLAYER_COUNT_RESYNC:
+					addColumn(db, Tables.GAMES, Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					version = VER_GAME_HERO_IMAGE_URL;
 			}
 
 			if (version != DATABASE_VERSION) {
