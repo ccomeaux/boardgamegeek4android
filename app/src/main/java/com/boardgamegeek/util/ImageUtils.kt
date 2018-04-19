@@ -45,40 +45,42 @@ object ImageUtils {
     @JvmStatic
     @JvmOverloads
     fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String = imageUrl, callback: Callback? = null) {
-        val imageId = getImageId(imageUrl)
-        if (imageId > 0) {
-            val call = Adapter.createGeekdoApi().image(imageId)
-            call.enqueue(object : retrofit2.Callback<Image> {
-                override fun onResponse(call: Call<Image>, response: Response<Image>) {
-                    val body = response.body()
-                    if (response.code() == 200 && body != null) {
-                        val queue = LinkedList<String>()
-                        queue.add(body.images.medium.url)
-                        queue.add(body.images.small.url)
-                        queue.add(thumbnailUrl)
-                        queue.add(imageUrl)
-                        safelyLoadImage(queue, callback)
-                    } else {
-                        val queue = LinkedList<String>()
-                        queue.add(thumbnailUrl)
-                        queue.add(imageUrl)
-                        safelyLoadImage(queue, callback)
+        RemoteConfig.fetch()
+        if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
+            val imageId = getImageId(imageUrl)
+            if (imageId > 0) {
+                val call = Adapter.createGeekdoApi().image(imageId)
+                call.enqueue(object : retrofit2.Callback<Image> {
+                    override fun onResponse(call: Call<Image>, response: Response<Image>) {
+                        val body = response.body()
+                        if (response.code() == 200 && body != null) {
+                            val queue = LinkedList<String>()
+                            queue.add(body.images.medium.url)
+                            queue.add(body.images.small.url)
+                            loadImages(thumbnailUrl, imageUrl, callback, queue)
+                        } else {
+                            loadImages(thumbnailUrl, imageUrl, callback)
+                        }
                     }
-                }
 
-                override fun onFailure(call: Call<Image>, t: Throwable) {
-                    val queue = LinkedList<String>()
-                    queue.add(thumbnailUrl)
-                    queue.add(imageUrl)
-                    safelyLoadImage(queue, callback)
-                }
-            })
+                    override fun onFailure(call: Call<Image>, t: Throwable) {
+                        loadImages(thumbnailUrl, imageUrl, callback)
+                    }
+                })
+            } else {
+                loadImages(thumbnailUrl, imageUrl, callback)
+            }
         } else {
-            val queue = LinkedList<String>()
-            queue.add(thumbnailUrl)
-            queue.add(imageUrl)
-            safelyLoadImage(queue, callback)
+            loadImages(thumbnailUrl, imageUrl, callback)
         }
+    }
+
+    private fun ImageView.loadImages(thumbnailUrl: String, imageUrl: String, callback: Callback?, q: Queue<String>? = null) {
+        var queue = q
+        if (queue == null) queue = LinkedList()
+        queue.add(thumbnailUrl)
+        queue.add(imageUrl)
+        safelyLoadImage(queue, callback)
     }
 
     private fun getImageId(imageUrl: String): Int {
@@ -100,24 +102,29 @@ object ImageUtils {
 
     @JvmStatic
     fun ImageView.loadThumbnail(imageId: Int) {
-        val call = Adapter.createGeekdoApi().image(imageId)
-        call.enqueue(object : retrofit2.Callback<Image> {
-            override fun onResponse(call: Call<Image>, response: Response<Image>) {
-                val body = response.body()
-                if (response.code() == 200 && body != null) {
-                    val queue = LinkedList<String>()
-                    queue.add(body.images.small.url)
-                    addDefaultImagesToQueue(imageId, queue)
-                    safelyLoadThumbnail(queue)
-                } else {
+        RemoteConfig.fetch()
+        if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
+            val call = Adapter.createGeekdoApi().image(imageId)
+            call.enqueue(object : retrofit2.Callback<Image> {
+                override fun onResponse(call: Call<Image>, response: Response<Image>) {
+                    val body = response.body()
+                    if (response.code() == 200 && body != null) {
+                        val queue = LinkedList<String>()
+                        queue.add(body.images.small.url)
+                        addDefaultImagesToQueue(imageId, queue)
+                        safelyLoadThumbnail(queue)
+                    } else {
+                        safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
+                    }
+                }
+
+                override fun onFailure(call: Call<Image>, t: Throwable) {
                     safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
                 }
-            }
-
-            override fun onFailure(call: Call<Image>, t: Throwable) {
-                safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
-            }
-        })
+            })
+        } else {
+            safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
+        }
     }
 
     private fun addDefaultImagesToQueue(imageId: Int, q: Queue<String>? = null): Queue<String> {

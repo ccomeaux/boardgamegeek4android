@@ -34,6 +34,8 @@ class RemoteConfig {
         const val KEY_RETRY_202_MAX_ELAPSED_MILLIS = "retry_202_max_elapsed_millis"
         const val KEY_RETRY_429_MAX_BACKOFF_COUNT = "retry_429_max_backoff_count"
 
+        const val KEY_FETCH_IMAGE_WITH_API = "fetch_image_with_api"
+
         @JvmStatic
         fun init() {
             val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
