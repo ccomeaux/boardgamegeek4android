@@ -9,8 +9,6 @@ class ExponentialBackOff(
     private var currentIntervalMillis: Int = 0
     private var startTimeNanos: Long = 0
 
-    private val elapsedTimeMillis = (System.nanoTime() - startTimeNanos) / 1000000
-
     init {
         if (initialIntervalMillis <= 0) initialIntervalMillis = 500
         if (randomizationFactor < 0 || randomizationFactor >= 1) randomizationFactor = 0.50
@@ -26,11 +24,13 @@ class ExponentialBackOff(
     }
 
     override fun nextBackOffMillis(): Long {
-        if (elapsedTimeMillis > maxElapsedTimeMillis) return BackOff.STOP
+        if (calculateElapsedTimeMillis() > maxElapsedTimeMillis) return BackOff.STOP
         val randomizedInterval = getRandomValueFromInterval(randomizationFactor, Math.random(), currentIntervalMillis)
         incrementCurrentInterval()
         return randomizedInterval.toLong()
     }
+
+    private fun calculateElapsedTimeMillis() = ((System.nanoTime() - startTimeNanos) / 1000000L).toInt()
 
     private fun incrementCurrentInterval() {
         // Check for overflow, if overflow is detected set the current interval to the max interval.

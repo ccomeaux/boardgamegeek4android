@@ -139,6 +139,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			syncTimestamp = oldestSyncTimestamp;
 		} else {
 			emptyView.setVisibility(View.VISIBLE);
+			collectionContainer.removeAllViews();
 			syncTimestampView.setTimestamp(System.currentTimeMillis());
 		}
 

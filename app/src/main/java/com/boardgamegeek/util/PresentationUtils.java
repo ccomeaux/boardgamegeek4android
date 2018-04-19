@@ -127,7 +127,7 @@ public class PresentationUtils {
 	public static String describeScore(@NonNull Context context, double score, @StringRes int defaultResId) {
 		if (score > 0.0) {
 			return SCORE_FORMAT.format(score);
-		} else if (defaultResId > 0) {
+		} else if (defaultResId != 0) {
 			return context.getString(defaultResId);
 		}
 		return "";
@@ -502,6 +502,7 @@ public class PresentationUtils {
 		@StringRes int resId;
 		if (httpCode >= 500) resId = R.string.msg_sync_response_500;
 		else if (httpCode == 429) resId = R.string.msg_sync_response_429;
+		else if (httpCode == 202) resId = R.string.msg_sync_response_202;
 		else resId = R.string.msg_sync_error_http_code;
 		return context.getString(resId, String.valueOf(httpCode));
 	}
