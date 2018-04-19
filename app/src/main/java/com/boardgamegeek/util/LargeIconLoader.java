@@ -30,13 +30,8 @@ public class LargeIconLoader implements Target {
 		this.imageUrls = new LinkedList<>();
 		this.callback = callback;
 		if (!TextUtils.isEmpty(imageUrl)) {
-			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
 			imageUrls.add(imageUrl);
-			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_SMALL));
-			imageUrls.add(TextUtils.isEmpty(thumbnailUrl) ?
-				ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_THUMBNAIL) :
-				thumbnailUrl);
-			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
+			imageUrls.add(thumbnailUrl);
 		}
 	}
 

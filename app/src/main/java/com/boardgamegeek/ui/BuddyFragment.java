@@ -40,12 +40,11 @@ import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.fabric.DataManipulationEvent;
-import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -297,11 +296,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		Buddy buddy = Buddy.fromCursor(cursor);
 
-		Picasso.with(getActivity())
-			.load(HttpUtils.ensureScheme(buddy.getAvatarUrl()))
-			.placeholder(R.drawable.person_image_empty)
-			.error(R.drawable.person_image_empty)
-			.fit().into(avatarView);
+		ImageUtils.loadThumbnail(avatarView, buddy.getAvatarUrl(), R.drawable.person_image_empty);
 		fullNameView.setText(buddy.getFullName());
 		usernameView.setText(buddyName);
 		if (TextUtils.isEmpty(buddy.getNickName())) {

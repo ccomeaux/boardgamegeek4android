@@ -66,7 +66,7 @@ public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHo
 			name.setText(game.name);
 			year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
 			rank.setText(String.valueOf(game.rank));
-			ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+			ImageUtils.loadThumbnail(thumbnail, game.thumbnailUrl);
 
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override

@@ -556,7 +556,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@DebugLog
 	private void notifyChange(Game game) {
-		GameInfoChangedEvent event = new GameInfoChangedEvent(game.getName(), game.getSubtype(), game.getImageUrl(), game.getThumbnailUrl(), game.getCustomPlayerSort(), game.isFavorite());
+		GameInfoChangedEvent event = new GameInfoChangedEvent(game.getName(), game.getSubtype(), game.getImageUrl(), game.getThumbnailUrl(), game.getHeroImageUrl(), game.getCustomPlayerSort(), game.isFavorite());
 		EventBus.getDefault().post(event);
 	}
 

@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.model;
 import android.database.Cursor;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
 public class Buddy {
@@ -40,7 +41,7 @@ public class Buddy {
 		buddy.firstName = cursor.getString(FIRST_NAME);
 		buddy.lastName = cursor.getString(LAST_NAME);
 		buddy.buddyName = cursor.getString(BUDDY_NAME);
-		buddy.avatarUrl = cursor.getString(AVATAR_URL);
+		buddy.avatarUrl = CursorUtils.getString(cursor, AVATAR_URL);
 		buddy.nickName = cursor.getString(NICKNAME);
 		buddy.updated = cursor.getLong(UPDATED);
 		buddy.fullName = PresentationUtils.buildFullName(buddy.firstName, buddy.lastName);

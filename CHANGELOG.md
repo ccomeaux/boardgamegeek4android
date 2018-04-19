@@ -4,6 +4,7 @@ Release Notes
 Version 6.6
 -----------
  * More UI polish
+ * Support for BGG's new image system
  * More sync improvements
  * Share your collection
  * You can now disable notifications of uploaded plays or collection items

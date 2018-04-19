@@ -84,4 +84,8 @@
 		<key>retry_429_max_backoff_count</key>
 		<value>4</value>
 	</entry>
+	<entry>
+		<key>fetch_image_with_api</key>
+		<value>true</value>
+	</entry>
 </defaultsMap>

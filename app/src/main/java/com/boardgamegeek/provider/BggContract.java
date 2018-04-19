@@ -58,6 +58,7 @@ public class BggContract {
 		String GAME_RANK = "game_rank";
 		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
 		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
+		String HERO_IMAGE_URL = "hero_image_url";
 	}
 
 	interface GameRanksColumns {

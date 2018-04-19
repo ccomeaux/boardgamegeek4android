@@ -191,7 +191,7 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 		collectionYearPublished = event.getYearPublished();
 		safelySetTitle();
 		ScrimUtils.applyDarkScrim(scrimView);
-		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
+		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), event.getThumbnailUrl(), this);
 	}
 
 	@DebugLog

@@ -556,7 +556,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void notifyChange(CollectionItem item) {
-		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getImageUrl(), item.getYear());
+		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getImageUrl(), item.getThumbnailUrl(), item.getYear());
 		EventBus.getDefault().post(event);
 	}
 

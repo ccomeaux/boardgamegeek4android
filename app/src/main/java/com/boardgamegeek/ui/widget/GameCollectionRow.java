@@ -13,10 +13,9 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
 import com.boardgamegeek.ui.GameCollectionItemActivity;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -109,13 +108,6 @@ public class GameCollectionRow extends LinearLayout {
 	}
 
 	public void setThumbnail(String thumbnailUrl) {
-		if (TextUtils.isEmpty(thumbnailUrl)) return;
-		Picasso.with(getContext())
-			.load(HttpUtils.ensureScheme(thumbnailUrl))
-			.placeholder(R.drawable.thumbnail_image_empty)
-			.error(R.drawable.thumbnail_image_empty)
-			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size)
-			.centerCrop()
-			.into(thumbnailView);
+		ImageUtils.loadThumbnail(thumbnailView, thumbnailUrl);
 	}
 }

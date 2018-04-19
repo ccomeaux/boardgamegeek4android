@@ -57,13 +57,14 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameActivity extends HeroTabActivity implements Callback {
+public class GameActivity extends HeroTabActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
 	private String thumbnailUrl;
+	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
 	private GamePagerAdapter adapter;
@@ -227,11 +228,18 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
-		if (!event.getImageUrl().equals(imageUrl)) {
+		if (!event.getImageUrl().equals(imageUrl) ||
+			!event.getThumbnailUrl().equals(thumbnailUrl) ||
+			!event.getHeroImageUrl().equals(heroImageUrl)) {
 			imageUrl = event.getImageUrl();
-			ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
+			thumbnailUrl = event.getThumbnailUrl();
+			heroImageUrl = event.getHeroImageUrl();
+			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, imageLoadCallback);
+		} else {
+			imageUrl = event.getImageUrl();
+			thumbnailUrl = event.getThumbnailUrl();
+			heroImageUrl = event.getHeroImageUrl();
 		}
-		thumbnailUrl = event.getThumbnailUrl();
 		arePlayersCustomSorted = event.getArePlayersCustomSorted();
 		isFavorite = event.isFavorite();
 		ScrimUtils.applyDarkScrim(scrimView);
@@ -246,26 +254,43 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		}
 	}
 
-	@DebugLog
-	@Override
-	public void onSuccessfulImageLoad(Palette palette) {
-		if (palette != null) {
-			Palette.Swatch iconSwatch = PaletteUtils.getIconSwatch(palette);
-			Palette.Swatch darkSwatch = PaletteUtils.getDarkSwatch(palette);
+	private final Callback imageLoadCallback = new Callback() {
+		@DebugLog
+		@Override
+		public void onSuccessfulImageLoad(Palette palette) {
+			if (palette != null) {
+				Palette.Swatch iconSwatch = PaletteUtils.getIconSwatch(palette);
+				Palette.Swatch darkSwatch = PaletteUtils.getDarkSwatch(palette);
 
-			iconColor = iconSwatch.getRgb();
-			darkColor = darkSwatch.getRgb();
-			playCountColors = PaletteUtils.getPlayCountColors(palette, getApplicationContext());
-			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor, playCountColors));
-			PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
+				iconColor = iconSwatch.getRgb();
+				darkColor = darkSwatch.getRgb();
+				playCountColors = PaletteUtils.getPlayCountColors(palette, getApplicationContext());
+				EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor, playCountColors));
+				PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
+				adapter.displayFab();
+			}
+
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					final String url = (String) toolbarImage.getTag(R.id.url);
+					if (!TextUtils.isEmpty(url) &&
+						!url.equals(imageUrl) &&
+						!url.equals(thumbnailUrl) &&
+						!url.equals(heroImageUrl)) {
+						ContentValues values = new ContentValues();
+						values.put(Games.HERO_IMAGE_URL, url);
+						getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
+					}
+				}
+			});
+		}
+
+		@Override
+		public void onFailedImageLoad() {
 			adapter.displayFab();
 		}
-	}
-
-	@Override
-	public void onFailedImageLoad() {
-		adapter.displayFab();
-	}
+	};
 
 	@DebugLog
 	@OnClick(R.id.fab)

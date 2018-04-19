@@ -229,7 +229,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				name.setText(game.name);
 				year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
 				rank.setText(String.valueOf(game.rank));
-				ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+				ImageUtils.loadThumbnail(thumbnail, game.thumbnailUrl);
 
 				itemView.setActivated(selectedItems.get(position, false));
 
