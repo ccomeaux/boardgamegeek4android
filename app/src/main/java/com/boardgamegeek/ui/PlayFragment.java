@@ -480,7 +480,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		syncTimestampView.setTimestamp(play.syncTimestamp);
 
-		getActivity().supportInvalidateOptionsMenu();
+		getActivity().invalidateOptionsMenu();
 		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
 		if (play.playId > 0 &&
