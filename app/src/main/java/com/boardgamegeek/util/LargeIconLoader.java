@@ -25,11 +25,12 @@ public class LargeIconLoader implements Target {
 	private final Queue<String> imageUrls;
 	private String currentImageUrl;
 
-	public LargeIconLoader(Context context, String imageUrl, String thumbnailUrl, Callback callback) {
+	public LargeIconLoader(Context context, String imageUrl, String thumbnailUrl, String heroImageUrl, Callback callback) {
 		this.context = context;
 		this.imageUrls = new LinkedList<>();
 		this.callback = callback;
 		if (!TextUtils.isEmpty(imageUrl)) {
+			imageUrls.add(heroImageUrl);
 			imageUrls.add(imageUrl);
 			imageUrls.add(thumbnailUrl);
 		}

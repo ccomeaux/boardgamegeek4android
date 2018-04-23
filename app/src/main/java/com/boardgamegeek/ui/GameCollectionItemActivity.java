@@ -1,10 +1,12 @@
 package com.boardgamegeek.ui;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
@@ -17,6 +19,7 @@ import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemDeletedEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.DeleteCollectionItemTask;
 import com.boardgamegeek.tasks.ResetCollectionItemTask;
@@ -40,7 +43,7 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class GameCollectionItemActivity extends HeroActivity implements Callback {
+public class GameCollectionItemActivity extends HeroActivity {
 	private static final String KEY_INTERNAL_ID = "_ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -56,6 +59,8 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	private int collectionId;
 	private String collectionName;
 	private String imageUrl;
+	private String thumbnailUrl;
+	private String heroImageUrl;
 	private int yearPublished;
 	private int collectionYearPublished;
 	@State boolean isInEditMode;
@@ -189,23 +194,56 @@ public class GameCollectionItemActivity extends HeroActivity implements Callback
 	public void onEvent(CollectionItemChangedEvent event) {
 		collectionName = event.getCollectionName();
 		collectionYearPublished = event.getYearPublished();
+		if (!event.getImageUrl().equals(imageUrl) ||
+			!event.getThumbnailUrl().equals(thumbnailUrl) ||
+			!event.getHeroImageUrl().equals(heroImageUrl)) {
+			imageUrl = event.getImageUrl();
+			thumbnailUrl = event.getThumbnailUrl();
+			heroImageUrl = event.getHeroImageUrl();
+			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, heroImageUrl, imageLoadCallback);
+		} else {
+			imageUrl = event.getImageUrl();
+			thumbnailUrl = event.getThumbnailUrl();
+			heroImageUrl = event.getHeroImageUrl();
+		}
 		safelySetTitle();
-		ScrimUtils.applyDarkScrim(scrimView);
-		ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), event.getThumbnailUrl(), this);
 	}
 
-	@DebugLog
-	@Override
-	public void onSuccessfulImageLoad(Palette palette) {
-		((GameCollectionItemFragment) getFragment()).onPaletteGenerated(palette);
-		PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
-		fab.show();
-	}
+	private final Callback imageLoadCallback = new Callback() {
+		@DebugLog
+		@Override
+		public void onSuccessfulImageLoad(Palette palette) {
+			ScrimUtils.applyDarkScrim(scrimView);
+			if (palette != null) {
+				((GameCollectionItemFragment) getFragment()).onPaletteGenerated(palette);
+				PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
+				fab.show();
+			}
 
-	@Override
-	public void onFailedImageLoad() {
-		fab.show();
-	}
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					final String url = (String) toolbarImage.getTag(R.id.url);
+					if (!TextUtils.isEmpty(url) &&
+						!url.equals(imageUrl) &&
+						!url.equals(thumbnailUrl) &&
+						!url.equals(heroImageUrl)) {
+						ContentValues values = new ContentValues();
+						values.put(Collection.COLLECTION_HERO_IMAGE_URL, url);
+						getContentResolver().update(Collection.CONTENT_URI,
+							values,
+							Collection.COLLECTION_ID + "=?",
+							new String[] { String.valueOf(collectionId) });
+					}
+				}
+			});
+		}
+
+		@Override
+		public void onFailedImageLoad() {
+			fab.show();
+		}
+	};
 
 	@DebugLog
 	@Override

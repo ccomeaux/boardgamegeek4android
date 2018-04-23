@@ -64,6 +64,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
 	public static final String KEY_USED_COLORS = "USED_COLORS";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
@@ -192,6 +193,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		String thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		String heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 		autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		String[] usedColors = intent.getStringArrayExtra(KEY_USED_COLORS);
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
@@ -219,7 +221,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			new ArrayList<>(Arrays.asList(usedColors));
 		this.usedColors.remove(player.color);
 
-		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl, thumbnailUrl);
+		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl, thumbnailUrl, heroImageUrl);
 		bindUi();
 
 		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),

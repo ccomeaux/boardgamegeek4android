@@ -17,11 +17,12 @@ class PlayModel(
         val length: Int,
         val playerCount: Int,
         val comments: String?,
-        var thumbnailUrl: String?,
-        var imageUrl: String?,
-        var deleteTimestamp: Long,
-        var updateTimestamp: Long,
-        var dirtyTimestamp: Long
+        val thumbnailUrl: String?,
+        val imageUrl: String?,
+        val heroImageUrl: String?,
+        val deleteTimestamp: Long,
+        val updateTimestamp: Long,
+        val dirtyTimestamp: Long
 ) {
 
     companion object {
@@ -41,7 +42,8 @@ class PlayModel(
                 Plays.COMMENTS,
                 Plays.DELETE_TIMESTAMP,
                 Plays.UPDATE_TIMESTAMP,
-                Plays.DIRTY_TIMESTAMP
+                Plays.DIRTY_TIMESTAMP,
+                Games.HERO_IMAGE_URL
         )
 
         private const val PLAY_ID = 1
@@ -58,6 +60,7 @@ class PlayModel(
         private const val DELETE_TIMESTAMP = 12
         private const val UPDATE_TIMESTAMP = 13
         private const val DIRTY_TIMESTAMP = 14
+        private const val HERO_IMAGE_URL = 15
 
         @JvmStatic
         fun fromCursor(cursor: Cursor, context: Context): PlayModel {
@@ -73,6 +76,7 @@ class PlayModel(
                     CursorUtils.getString(cursor, COMMENTS).trim(),
                     cursor.getString(THUMBNAIL_URL) ?: "",
                     cursor.getString(IMAGE_URL) ?: "",
+                    cursor.getString(HERO_IMAGE_URL) ?: "",
                     cursor.getLong(DELETE_TIMESTAMP),
                     cursor.getLong(UPDATE_TIMESTAMP),
                     cursor.getLong(DIRTY_TIMESTAMP)

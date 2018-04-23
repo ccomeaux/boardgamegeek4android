@@ -313,7 +313,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				LogPlayActivity.logPlay(getContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, false);
+				LogPlayActivity.logPlay(getContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, "", false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

@@ -8,7 +8,6 @@ import android.content.SyncResult
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
-import android.util.Pair
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.io.BggService
@@ -40,6 +39,7 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
     private var currentGameNameForNotification: String = ""
     private var currentThumbnailUrlForNotification: String = ""
     private var currentImageUrlForNotification: String = ""
+    private var currentHeroImageUrlForNotification: String = ""
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_UPLOAD
 
@@ -53,14 +53,16 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                     currentGameIdForNotification,
                     currentGameNameForNotification,
                     currentImageUrlForNotification,
-                    currentThumbnailUrlForNotification)
+                    currentThumbnailUrlForNotification,
+                    currentHeroImageUrlForNotification)
         else
             PlayActivity.createIntent(context,
                     currentInternalId,
                     currentGameIdForNotification,
                     currentGameNameForNotification,
                     currentThumbnailUrlForNotification,
-                    currentImageUrlForNotification)
+                    currentImageUrlForNotification,
+                    currentHeroImageUrlForNotification)
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_PLAY
 
@@ -141,20 +143,21 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
         val imageUrls = queryGameImageUrls(play)
         currentImageUrlForNotification = imageUrls.first
         currentThumbnailUrlForNotification = imageUrls.second
-        notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalId), currentImageUrlForNotification, currentThumbnailUrlForNotification)
+        currentHeroImageUrlForNotification = imageUrls.third
+        notifyUser(play.gameName, message, NotificationUtils.getIntegerId(currentInternalId), currentImageUrlForNotification, currentThumbnailUrlForNotification, currentHeroImageUrlForNotification)
     }
 
-    private fun queryGameImageUrls(play: Play): Pair<String, String> {
-        var imageUrls = Pair.create("", "")
+    private fun queryGameImageUrls(play: Play): Triple<String, String, String> {
+        var imageUrls = Triple("", "", "")
         val gameCursor = context.contentResolver.query(
                 Games.buildGameUri(play.gameId),
-                arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL),
+                arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL),
                 null,
                 null,
                 null)
         gameCursor?.use { c ->
             if (c.moveToFirst()) {
-                imageUrls = Pair.create(c.getString(0), c.getString(1))
+                imageUrls = Triple(c.getString(0), c.getString(1), c.getString(2))
             }
         }
         return imageUrls
@@ -312,7 +315,8 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                     currentGameIdForNotification,
                     currentGameNameForNotification,
                     currentThumbnailUrlForNotification,
-                    currentImageUrlForNotification)
+                    currentImageUrlForNotification,
+                    currentHeroImageUrlForNotification)
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             val builder = NotificationCompat.Action.Builder(
                     R.drawable.ic_replay_black_24dp,

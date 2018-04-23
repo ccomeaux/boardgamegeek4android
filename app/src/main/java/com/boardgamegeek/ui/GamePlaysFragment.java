@@ -67,6 +67,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private String gameName;
 	private String imageUrl;
 	private String thumbnailUrl;
+	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
 	@ColorInt private int[] playCountColors;
@@ -236,6 +237,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 			gameName = game.getName();
 			imageUrl = game.getImageUrl();
 			thumbnailUrl = game.getThumbnailUrl();
+			heroImageUrl = game.getHeroImageUrl();
 			arePlayersCustomSorted = game.arePlayersCustomSorted();
 			syncTimestampView.setTimestamp(game.getSyncTimestamp());
 
@@ -295,6 +297,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public void onEvent(GameInfoChangedEvent event) {
 		imageUrl = event.getImageUrl();
 		thumbnailUrl = event.getThumbnailUrl();
+		heroImageUrl = event.getHeroImageUrl();
 		arePlayersCustomSorted = event.getArePlayersCustomSorted();
 	}
 
@@ -308,7 +311,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	@OnClick(R.id.plays_root)
 	@DebugLog
 	public void onPlaysClick() {
-		GamePlaysActivity.start(getContext(), gameId, gameName, imageUrl, thumbnailUrl, arePlayersCustomSorted, iconColor);
+		GamePlaysActivity.start(getContext(), gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor);
 	}
 
 	@OnClick(R.id.play_stats_root)
