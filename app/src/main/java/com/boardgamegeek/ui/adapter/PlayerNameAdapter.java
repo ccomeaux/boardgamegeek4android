@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.adapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -25,9 +24,6 @@ import com.boardgamegeek.util.PresentationUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import timber.log.Timber;
 
 public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> implements Filterable {
 	public static class Result {
@@ -49,6 +45,23 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		public String toString() {
 			return nickName;
 		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public String getSubtitle() {
+			return subtitle;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public String getAvatarUrl() {
+			if (avatarUrl == null) return "";
+			return avatarUrl;
+		}
 	}
 
 	private static final ArrayList<Result> EMPTY_LIST = new ArrayList<>();
@@ -59,7 +72,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 	public PlayerNameAdapter(Context context) {
 		super(context, R.layout.autocomplete_player, EMPTY_LIST);
 		resolver = context.getContentResolver();
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		inflater = LayoutInflater.from(context);
 	}
 
 	@Override
@@ -90,29 +103,29 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		TextView titleView = view.findViewById(R.id.player_title);
 		if (titleView != null) {
-			if (TextUtils.isEmpty(result.title)) {
+			if (TextUtils.isEmpty(result.getTitle())) {
 				titleView.setVisibility(View.GONE);
 			} else {
 				titleView.setVisibility(View.VISIBLE);
-				titleView.setText(result.title);
+				titleView.setText(result.getTitle());
 			}
 		}
 
 		TextView subtitleView = view.findViewById(R.id.player_subtitle);
 		if (subtitleView != null) {
-			if (TextUtils.isEmpty(result.subtitle)) {
+			if (TextUtils.isEmpty(result.getSubtitle())) {
 				subtitleView.setVisibility(View.GONE);
 			} else {
 				subtitleView.setVisibility(View.VISIBLE);
-				subtitleView.setText(result.subtitle);
+				subtitleView.setText(result.getSubtitle());
 			}
 		}
 
-		view.setTag(result.username);
+		view.setTag(result.getUsername());
 
 		ImageView avatarView = view.findViewById(R.id.player_avatar);
 		if (avatarView != null) {
-			ImageUtils.loadThumbnail(avatarView, result.avatarUrl, R.drawable.person_image_empty);
+			ImageUtils.loadThumbnail(avatarView, result.getAvatarUrl(), R.drawable.person_image_empty);
 		}
 		return view;
 	}
@@ -124,20 +137,12 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 	}
 
 	public class PlayerFilter extends Filter {
-
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
 			final String filter = constraint == null ? "" : constraint.toString();
 			if (filter.length() == 0) {
 				return null;
 			}
-
-			AsyncTask<Void, Void, List<Result>> playerQueryTask = new AsyncTask<Void, Void, List<Result>>() {
-				@Override
-				protected List<Result> doInBackground(Void... params) {
-					return queryPlayerHistory(resolver, filter);
-				}
-			}.execute();
 
 			HashSet<String> buddyUsernames = new HashSet<>();
 			List<Result> buddies = queryBuddies(resolver, filter, buddyUsernames);
@@ -147,15 +152,11 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 				resultList.addAll(buddies);
 			}
 
-			try {
-				List<Result> players = playerQueryTask.get();
+			List<Result> players = queryPlayerHistory(resolver, filter);
 
-				for (Result player : players) {
-					if (TextUtils.isEmpty(player.username) || !buddyUsernames.contains(player.username))
-						resultList.add(player);
-				}
-			} catch (ExecutionException | InterruptedException e) {
-				Timber.e(e, "Failed waiting for player query results.");
+			for (Result player : players) {
+				if (TextUtils.isEmpty(player.getUsername()) || !buddyUsernames.contains(player.getUsername()))
+					resultList.add(player);
 			}
 
 			final FilterResults filterResults = new FilterResults();
@@ -233,30 +234,28 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		try {
 			List<Result> results = new ArrayList<>();
 			if (cursor != null) {
+				if (cursor.moveToFirst()) {
+					do {
+						String userName = cursor.getString(BUDDY_NAME);
+						String firstName = cursor.getString(BUDDY_FIRST_NAME);
+						String lastName = cursor.getString(BUDDY_LAST_NAME);
+						String nickname = cursor.getString(BUDDY_PLAY_NICKNAME);
+						String avatarUrl = cursor.getString(BUDDY_AVATAR_URL);
+						String fullName = PresentationUtils.buildFullName(firstName, lastName);
 
-				cursor.moveToPosition(-1);
-				while (cursor.moveToNext()) {
-					String userName = cursor.getString(BUDDY_NAME);
-					String firstName = cursor.getString(BUDDY_FIRST_NAME);
-					String lastName = cursor.getString(BUDDY_LAST_NAME);
-					String nickname = cursor.getString(BUDDY_PLAY_NICKNAME);
-					String avatarUrl = cursor.getString(BUDDY_AVATAR_URL);
-					String fullName = PresentationUtils.buildFullName(firstName, lastName);
-
-					results.add(new Result(
-						TextUtils.isEmpty(nickname) ? fullName : nickname,
-						TextUtils.isEmpty(nickname) ? userName : fullName + " (" + userName + ")",
-						TextUtils.isEmpty(nickname) ? firstName : nickname,
-						userName,
-						avatarUrl));
-					usernames.add(userName);
+						results.add(new Result(
+							TextUtils.isEmpty(nickname) ? fullName : nickname,
+							TextUtils.isEmpty(nickname) ? userName : fullName + " (" + userName + ")",
+							TextUtils.isEmpty(nickname) ? firstName : nickname,
+							userName,
+							avatarUrl));
+						usernames.add(userName);
+					} while (cursor.moveToNext());
 				}
 			}
 			return results;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			if (cursor != null) cursor.close();
 		}
 	}
 }
