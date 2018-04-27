@@ -4,7 +4,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:focusable="false">
+	android:focusable="false"
+	android:importantForAutofill="no">
 
 	<ImageView
 		style="@style/Icon"
@@ -19,7 +20,6 @@
 		android:layout_weight="1"
 		android:gravity="center_vertical"
 		android:hint="@string/quantity_hint"
-		android:importantForAutofill="noExcludeDescendants"
 		android:inputType="number"
 		android:textAppearance="@style/Text.Big"/>
 </LinearLayout>
