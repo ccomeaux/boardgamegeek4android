@@ -55,7 +55,9 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
 
             val resultList = ArrayList<Result>()
             resultList.addAll(buddies)
-            players.filterTo(resultList) { it.username.isBlank() || !buddyUserNames.contains(it.username) }
+            players.filterTo(resultList) { player ->
+                player.username.isBlank() || buddyUserNames.asSequence().any { it.equals(player.username, true) }
+            }
 
             val filterResults = Filter.FilterResults()
             filterResults.values = resultList
