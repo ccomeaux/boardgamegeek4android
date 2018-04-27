@@ -62,6 +62,7 @@ import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -807,8 +808,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (year == 0) {
 				year = cursor.getInt(Query.YEAR_PUBLISHED);
 			}
-			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
-			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+			String collectionThumbnailUrl = CursorUtils.getString(cursor, Query.COLLECTION_THUMBNAIL_URL);
+			String thumbnailUrl = CursorUtils.getString(cursor, Query.THUMBNAIL_URL);
 			boolean isFavorite = cursor.getInt(Query.STARRED) == 1;
 			final long timestamp = sorter.getTimestamp(cursor);
 

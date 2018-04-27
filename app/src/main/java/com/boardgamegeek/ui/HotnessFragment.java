@@ -224,12 +224,12 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 
 			public void bind(HotGame game, final int position) {
 				if (game == null) return;
-				gameId = game.id;
-				gameName = game.name;
-				name.setText(game.name);
-				year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
-				rank.setText(String.valueOf(game.rank));
-				ImageUtils.loadThumbnail(thumbnail, game.thumbnailUrl);
+				gameId = game.getId();
+				gameName = game.getName();
+				name.setText(game.getName());
+				year.setText(PresentationUtils.describeYear(name.getContext(), game.getYearPublished()));
+				rank.setText(String.valueOf(game.getRank()));
+				ImageUtils.loadThumbnail(thumbnail, game.getThumbnailUrl());
 
 				itemView.setActivated(selectedItems.get(position, false));
 
@@ -313,7 +313,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				LogPlayActivity.logPlay(getContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, "", false);
+				LogPlayActivity.logPlay(getContext(), game.getId(), game.getName(), game.getThumbnailUrl(), game.getThumbnailUrl(), "", false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
@@ -321,26 +321,26 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				Snackbar.make(containerView, text, Snackbar.LENGTH_SHORT).show();
 				for (int position : selectedItems) {
 					HotGame g = adapter.getItem(position);
-					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
+					ActivityUtils.logQuickPlay(getActivity(), g.getId(), g.getName());
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
 				final String shareMethod = "Hotness";
 				if (adapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.id, game.name, shareMethod);
+					ActivityUtils.shareGame(getActivity(), game.getId(), game.getName(), shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
 					for (int position : selectedItems) {
 						HotGame g = adapter.getItem(position);
-						games.add(Pair.create(g.id, g.name));
+						games.add(Pair.create(g.getId(), g.getName()));
 					}
 					ActivityUtils.shareGames(getActivity(), games, shareMethod);
 				}
 				return true;
 			case R.id.menu_link:
 				mode.finish();
-				ActivityUtils.linkBgg(getActivity(), game.id);
+				ActivityUtils.linkBgg(getActivity(), game.getId());
 				return true;
 		}
 		return false;

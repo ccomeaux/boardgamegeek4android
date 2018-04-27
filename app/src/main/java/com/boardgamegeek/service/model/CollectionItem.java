@@ -3,6 +3,7 @@ package com.boardgamegeek.service.model;
 import android.database.Cursor;
 
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.util.CursorUtils;
 
 public class CollectionItem {
 	public static final String[] PROJECTION = {
@@ -130,9 +131,9 @@ public class CollectionItem {
 		collectionItem.collectionId = cursor.getInt(COLLECTION_ID);
 		collectionItem.gameId = cursor.getInt(GAME_ID);
 		collectionItem.collectionName = cursor.getString(COLLECTION_NAME);
-		collectionItem.imageUrl = cursor.getString(IMAGE_URL);
-		collectionItem.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
-		collectionItem.heroImageUrl = cursor.getString(HERO_IMAGE_URL);
+		collectionItem.imageUrl = CursorUtils.getString(cursor, IMAGE_URL);
+		collectionItem.thumbnailUrl = CursorUtils.getString(cursor, THUMBNAIL_URL);
+		collectionItem.heroImageUrl = CursorUtils.getString(cursor, HERO_IMAGE_URL);
 
 		collectionItem.rating = cursor.getDouble(RATING);
 		collectionItem.ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);

@@ -6,21 +6,36 @@ import org.simpleframework.xml.Root;
 
 @Root(name = "item")
 public class HotGame {
-	@Attribute
-	public int id;
+	@Attribute private int id;
 
-	@Attribute
-	public int rank;
+	@Attribute private int rank;
 
 	@Attribute(name = "value")
-	@Path("thumbnail")
-	public String thumbnailUrl;
+	@Path("thumbnail") private String thumbnailUrl;
 
 	@Attribute(name = "value")
-	@Path("name")
-	public String name;
+	@Path("name") private String name;
 
 	@Attribute(name = "value")
-	@Path("yearpublished")
-	public int yearPublished;
+	@Path("yearpublished") private int yearPublished;
+
+	public int getId() {
+		return id;
+	}
+
+	public int getRank() {
+		return rank;
+	}
+
+	public String getThumbnailUrl() {
+		return thumbnailUrl == null ? "" : thumbnailUrl;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getYearPublished() {
+		return yearPublished;
+	}
 }

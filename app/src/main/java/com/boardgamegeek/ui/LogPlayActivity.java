@@ -502,6 +502,10 @@ public class LogPlayActivity extends AppCompatActivity {
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (imageUrl == null) imageUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
+
 		if (gameId <= 0) {
 			String message = "Can't log a play without a game ID.";
 			Timber.w(message);

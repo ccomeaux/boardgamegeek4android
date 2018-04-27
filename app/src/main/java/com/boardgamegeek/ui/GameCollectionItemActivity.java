@@ -106,6 +106,7 @@ public class GameCollectionItemActivity extends HeroActivity {
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, INVALID_YEAR);
 		collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, INVALID_YEAR);
+		if (imageUrl == null) imageUrl = "";
 	}
 
 	@Override

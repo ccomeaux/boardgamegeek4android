@@ -159,6 +159,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
 		imageUrl = bundle.getString(KEY_IMAGE_URL);
 		heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL);
+
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (imageUrl == null) imageUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
 	}
 
 	@Override

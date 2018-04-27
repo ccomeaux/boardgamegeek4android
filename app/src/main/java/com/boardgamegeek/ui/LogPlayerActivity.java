@@ -196,6 +196,11 @@ public class LogPlayerActivity extends AppCompatActivity {
 		String heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 		autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		String[] usedColors = intent.getStringArrayExtra(KEY_USED_COLORS);
+
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (imageUrl == null) imageUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
+
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
 			userHasShownScore = true;
 			scoreView.requestFocus();
