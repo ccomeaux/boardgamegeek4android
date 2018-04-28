@@ -1,11 +1,11 @@
 package com.boardgamegeek;
 
-import android.app.Application;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 import android.os.StrictMode.VmPolicy;
+import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
@@ -34,7 +34,7 @@ import timber.log.Timber;
 
 import static timber.log.Timber.DebugTree;
 
-public class BggApplication extends Application {
+public class BggApplication extends MultiDexApplication {
 	@Override
 	@DebugLog
 	public void onCreate() {
