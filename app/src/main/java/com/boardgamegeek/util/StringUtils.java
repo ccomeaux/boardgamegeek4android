@@ -234,6 +234,7 @@ public class StringUtils {
 	 */
 	public static void appendBold(SpannableStringBuilder sb, String boldText) {
 		sb.append(boldText);
+		if (TextUtils.isEmpty(boldText)) return;
 		sb.setSpan(new StyleSpan(Typeface.BOLD), sb.length() - boldText.length(), sb.length(),
 			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
