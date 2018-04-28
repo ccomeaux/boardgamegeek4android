@@ -53,13 +53,13 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		starter.putExtra(KEY_FORUM_TITLE, forumTitle);
 		starter.putExtra(KEY_GAME_ID, gameId);
 		starter.putExtra(KEY_GAME_NAME, gameName);
-		starter.putExtra(KEY_USER, article.username());
-		starter.putExtra(KEY_POST_DATE, article.postTicks());
-		starter.putExtra(KEY_EDIT_DATE, article.editTicks());
-		starter.putExtra(KEY_EDIT_COUNT, article.numberOfEdits());
-		starter.putExtra(KEY_BODY, article.body());
-		starter.putExtra(KEY_LINK, article.link());
-		starter.putExtra(KEY_ARTICLE_ID, article.id());
+		starter.putExtra(KEY_USER, article.getUsername());
+		starter.putExtra(KEY_POST_DATE, article.getPostTicks());
+		starter.putExtra(KEY_EDIT_DATE, article.getEditTicks());
+		starter.putExtra(KEY_EDIT_COUNT, article.getNumberOfEdits());
+		starter.putExtra(KEY_BODY, article.getBody());
+		starter.putExtra(KEY_LINK, article.getLink());
+		starter.putExtra(KEY_ARTICLE_ID, article.getId());
 		context.startActivity(starter);
 	}
 

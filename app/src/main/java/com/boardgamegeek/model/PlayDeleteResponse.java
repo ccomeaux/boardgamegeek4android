@@ -1,21 +1,19 @@
 package com.boardgamegeek.model;
 
-import com.google.gson.Gson;
+import android.support.annotation.NonNull;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 public class PlayDeleteResponse extends PlayPostResponse {
-
 	private PlayDelete playDelete;
 
-	public PlayDeleteResponse(OkHttpClient client, Request request) {
+	public PlayDeleteResponse(@NonNull OkHttpClient client, @NonNull Request request) {
 		super(client, request);
 	}
 
 	@Override
 	protected void saveContent(String content) {
-		Gson gson = new Gson();
 		playDelete = gson.fromJson(content, PlayDelete.class);
 	}
 

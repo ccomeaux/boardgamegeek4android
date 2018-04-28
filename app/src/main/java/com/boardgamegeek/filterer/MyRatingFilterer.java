@@ -2,11 +2,14 @@ package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.Locale;
 
 public class MyRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
@@ -60,42 +63,33 @@ public class MyRatingFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		String minText = String.valueOf(min);
-		String maxText = String.valueOf(max);
+		return context.getResources().getString(R.string.my_rating_abbr) + " " + describeRange(R.string.unrated_abbr);
+	}
 
-		String text;
-		if (min == max) {
-			text = maxText;
-		} else {
-			text = minText + "-" + maxText;
-		}
-		if (includeUnrated) {
-			text += " (+" + context.getString(R.string.unrated) + ")";
-		}
+	@Override
+	public String getDescription() {
+		return context.getResources().getString(R.string.my_rating) + " " + describeRange(R.string.unrated);
+	}
 
-		return context.getString(R.string.my_rating) + " " + text;
+	private String describeRange(@StringRes int unratedResId) {
+		String text = min == max ?
+			String.format(Locale.getDefault(), "%.1f", max) :
+			String.format(Locale.getDefault(), "%.1f-%.1f", min, max);
+		if (includeUnrated) text += String.format(" (+%s)", context.getString(unratedResId));
+		return text;
 	}
 
 	@Override
 	public String getSelection() {
-		String selection;
-		if (min == max) {
-			selection = Collection.RATING + "=?";
-		} else {
-			selection = "(" + Collection.RATING + ">=? AND " + Collection.RATING + "<=?)";
-		}
-		if (includeUnrated) {
-			selection += " OR " + Collection.RATING + "=0 OR " + Collection.RATING + " IS NULL";
-		}
-		return selection;
+		String format = min == max ? "%1$s=?" : "(%1$s>=? AND %1$s<=?)";
+		if (includeUnrated) format += " OR %1$s=0 OR %1$s IS NULL";
+		return String.format(Locale.getDefault(), format, Collection.RATING);
 	}
 
 	@Override
 	public String[] getSelectionArgs() {
-		if (min == max) {
-			return new String[] { String.valueOf(min) };
-		} else {
-			return new String[] { String.valueOf(min), String.valueOf(max) };
-		}
+		return min == max ?
+			new String[] { String.valueOf(min) } :
+			new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 }

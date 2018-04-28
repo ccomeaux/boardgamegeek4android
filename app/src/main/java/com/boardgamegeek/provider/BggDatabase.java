@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -92,7 +93,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION = 45;
 	private static final int VER_MIN_MAX_PLAYING_TIME = 46;
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RESYNC = 47;
-	private static final int DATABASE_VERSION = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
+	private static final int VER_GAME_HERO_IMAGE_URL = 48;
+	private static final int VER_COLLECTION_HERO_IMAGE_URL = 49;
+	private static final int DATABASE_VERSION = VER_COLLECTION_HERO_IMAGE_URL;
 
 	private final Context context;
 
@@ -307,6 +310,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.GAME_RANK, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -403,6 +407,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -639,7 +644,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					buildGamesTable().replace(db);
 					dropTable(db, Tables.COLLECTION);
 					buildCollectionTable().create(db);
-					SyncService.clearCollection(context);
+					SyncPrefs.clearCollection(context);
 					SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION);
 					version = VER_GAME_COLLECTION_CONFLICT;
 				case VER_GAME_COLLECTION_CONFLICT:
@@ -759,7 +764,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					dropTable(db, Tables.PLAY_PLAYERS);
 					buildPlaysTable().create(db);
 					buildPlayPlayersTable().create(db);
-					SyncService.clearPlays(context);
+					SyncPrefs.clearPlaysTimestamps(context);
 					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS);
 					version = VER_PLAYS_HARD_RESET;
 				case VER_PLAYS_HARD_RESET:
@@ -781,6 +786,12 @@ public class BggDatabase extends SQLiteOpenHelper {
 					TaskUtils.executeAsyncTask(new ResetGameTask(context));
 					SyncService.sync(context, SyncService.FLAG_SYNC_GAMES);
 					version = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
+				case VER_SUGGESTED_PLAYER_COUNT_RESYNC:
+					addColumn(db, Tables.GAMES, Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					version = VER_GAME_HERO_IMAGE_URL;
+				case VER_GAME_HERO_IMAGE_URL:
+					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					version = VER_COLLECTION_HERO_IMAGE_URL;
 			}
 
 			if (version != DATABASE_VERSION) {

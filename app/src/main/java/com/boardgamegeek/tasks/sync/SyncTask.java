@@ -11,6 +11,8 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.tasks.sync.SyncTask.CompletedEvent;
 import com.boardgamegeek.util.NetworkUtils;
+import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.RemoteConfig;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -39,6 +41,7 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 		if (!isRequestParamsValid())
 			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));
 		if (NetworkUtils.isOffline(context)) return context.getString(R.string.msg_offline);
+		if (!RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)) return context.getString(R.string.msg_sync_remotely_disabled);
 		try {
 			boolean hasMorePages;
 			page = 0;
@@ -55,24 +58,14 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 					}
 				} else {
 					Timber.w("Received response %s while syncing %s.", response.code(), context.getString(getTypeDescriptionResId()));
-					if (response.code() >= 500) {
-						return context.getString(R.string.msg_sync_response_500, response.code());
-					}
-					if (response.code() == 429) {
-						return context.getString(R.string.msg_sync_response_429);
-					}
-					return context.getString(R.string.msg_sync_unsuccessful_response,
-						context.getString(getTypeDescriptionResId()),
-						response.code());
+					return PresentationUtils.getHttpErrorMessage(context, response.code());
 				}
+				if (isCancelled()) break;
 				hasMorePages = hasMorePages(response.body());
 			} while (hasMorePages);
-			finishSync();
+			if (!isCancelled()) finishSync();
 		} catch (Exception e) {
-			Timber.w(e,
-				context.getString(R.string.msg_update_exception),
-				context.getString(getTypeDescriptionResId()),
-				e.getMessage());
+			Timber.w(e, "Exception fetching %1$s: %2$s", context.getString(getTypeDescriptionResId()), e.getMessage());
 			return e.getLocalizedMessage();
 		}
 		return "";

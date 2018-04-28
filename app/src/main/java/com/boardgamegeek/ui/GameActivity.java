@@ -57,18 +57,20 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameActivity extends HeroTabActivity implements Callback {
+public class GameActivity extends HeroTabActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
 	private String thumbnailUrl;
+	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
 	private GamePagerAdapter adapter;
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
+	@ColorInt private int[] playCountColors;
 
 	public static void start(Context context, int gameId, String gameName) {
 		final Intent starter = createIntent(gameId, gameName);
@@ -226,12 +228,19 @@ public class GameActivity extends HeroTabActivity implements Callback {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(GameInfoChangedEvent event) {
 		changeName(event.getGameName());
-		if (!event.getImageUrl().equals(imageUrl)) {
+		if (!event.getImageUrl().equals(imageUrl) ||
+			!event.getThumbnailUrl().equals(thumbnailUrl) ||
+			!event.getHeroImageUrl().equals(heroImageUrl)) {
 			imageUrl = event.getImageUrl();
-			ImageUtils.safelyLoadImage(toolbarImage, event.getImageUrl(), this);
+			thumbnailUrl = event.getThumbnailUrl();
+			heroImageUrl = event.getHeroImageUrl();
+			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, heroImageUrl, imageLoadCallback);
+		} else {
+			imageUrl = event.getImageUrl();
+			thumbnailUrl = event.getThumbnailUrl();
+			heroImageUrl = event.getHeroImageUrl();
 		}
-		thumbnailUrl = event.getThumbnailUrl();
-		arePlayersCustomSorted = event.arePlayersCustomSorted();
+		arePlayersCustomSorted = event.getArePlayersCustomSorted();
 		isFavorite = event.isFavorite();
 		ScrimUtils.applyDarkScrim(scrimView);
 	}
@@ -245,42 +254,61 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		}
 	}
 
-	@DebugLog
-	@Override
-	public void onSuccessfulImageLoad(Palette palette) {
-		if (palette != null) {
-			Palette.Swatch iconSwatch = PaletteUtils.getIconSwatch(palette);
-			Palette.Swatch darkSwatch = PaletteUtils.getDarkSwatch(palette);
+	private final Callback imageLoadCallback = new Callback() {
+		@DebugLog
+		@Override
+		public void onSuccessfulImageLoad(Palette palette) {
+			if (palette != null) {
+				Palette.Swatch iconSwatch = PaletteUtils.getIconSwatch(palette);
+				Palette.Swatch darkSwatch = PaletteUtils.getDarkSwatch(palette);
 
-			iconColor = iconSwatch.getRgb();
-			darkColor = darkSwatch.getRgb();
-			EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor));
-			PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
+				iconColor = iconSwatch.getRgb();
+				darkColor = darkSwatch.getRgb();
+				playCountColors = PaletteUtils.getPlayCountColors(palette, getApplicationContext());
+				EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor, playCountColors));
+				PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
+				adapter.displayFab();
+			}
+
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					final String url = (String) toolbarImage.getTag(R.id.url);
+					if (!TextUtils.isEmpty(url) &&
+						!url.equals(imageUrl) &&
+						!url.equals(thumbnailUrl) &&
+						!url.equals(heroImageUrl)) {
+						ContentValues values = new ContentValues();
+						values.put(Games.HERO_IMAGE_URL, url);
+						getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
+					}
+				}
+			});
+		}
+
+		@Override
+		public void onFailedImageLoad() {
 			adapter.displayFab();
 		}
-	}
-
-	@Override
-	public void onFailedImageLoad() {
-		adapter.displayFab();
-	}
+	};
 
 	@DebugLog
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
 		adapter.onFabClicked();
-
 	}
 
 	public static class ColorEvent {
 		private final int gameId;
 		@ColorInt private final int iconColor;
 		@ColorInt private final int darkColor;
+		@ColorInt private final int[] playCountColors;
 
-		public ColorEvent(int gameId, int iconColor, int darkColor) {
+		public ColorEvent(int gameId, int iconColor, int darkColor, int[] playCountColors) {
 			this.gameId = gameId;
 			this.iconColor = iconColor;
 			this.darkColor = darkColor;
+			this.playCountColors = playCountColors;
 		}
 
 		public int getGameId() {
@@ -295,6 +323,11 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		@ColorInt
 		public int getDarkColor() {
 			return darkColor;
+		}
+
+		@ColorInt
+		public int[] getPlayCountColors() {
+			return playCountColors;
 		}
 	}
 
@@ -397,9 +430,9 @@ public class GameActivity extends HeroTabActivity implements Callback {
 					case R.string.title_info:
 						return GameFragment.newInstance(gameId, gameName, iconColor, darkColor);
 					case R.string.title_collection:
-						return GameCollectionFragment.newInstance(gameId, gameName);
+						return GameCollectionFragment.newInstance(gameId);
 					case R.string.title_plays:
-						return GamePlaysFragment.newInstance(gameId, gameName, iconColor);
+						return GamePlaysFragment.newInstance(gameId, gameName, iconColor, playCountColors);
 					case R.string.links:
 						return GameLinksFragment.newInstance(gameId, gameName, iconColor);
 				}
@@ -462,7 +495,7 @@ public class GameActivity extends HeroTabActivity implements Callback {
 		}
 
 		private void onPlayFabClicked() {
-			LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, arePlayersCustomSorted);
+			LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted);
 		}
 
 		@DebugLog
@@ -472,8 +505,8 @@ public class GameActivity extends HeroTabActivity implements Callback {
 
 		@DebugLog
 		private boolean shouldShowCollection() {
-			String[] syncStatuses = PreferencesUtils.getSyncStatuses(getApplicationContext());
-			return Authenticator.isSignedIn(getApplicationContext()) && syncStatuses != null && syncStatuses.length > 0;
+			return Authenticator.isSignedIn(getApplicationContext()) &&
+				PreferencesUtils.isCollectionSetToSync(getApplicationContext());
 		}
 	}
 }

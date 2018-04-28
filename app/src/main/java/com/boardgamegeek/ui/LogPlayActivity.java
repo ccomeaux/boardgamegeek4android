@@ -29,7 +29,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
@@ -128,6 +127,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_END_PLAY = "END_PLAY";
 	private static final String KEY_REMATCH = "REMATCH";
@@ -147,6 +147,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private boolean isRequestingRematch;
 	private String thumbnailUrl;
 	private String imageUrl;
+	private String heroImageUrl;
 
 	private QueryHandler queryHandler;
 	private int outstandingQueries = TOKEN_UNINITIALIZED;
@@ -187,41 +188,42 @@ public class LogPlayActivity extends AppCompatActivity {
 	private boolean isLaunchingActivity;
 	private boolean shouldSaveOnPause = true;
 
-	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
-		Intent intent = createIntent(context, BggContract.INVALID_ID, gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
+	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, boolean customPlayerSort) {
+		Intent intent = createIntent(context, BggContract.INVALID_ID, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		context.startActivity(intent);
 	}
 
-	public static void editPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static void editPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
 		PlayManipulationEvent.log("Edit", gameName);
-		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, false);
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
 		context.startActivity(intent);
 	}
 
-	public static void endPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, false);
+	public static void endPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
 		intent.putExtra(KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl);
+	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
+		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, false);
+	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
 		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
 
-	private static Intent createIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
+	private static Intent createIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, boolean customPlayerSort) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.putExtra(KEY_ID, internalId);
 		intent.putExtra(KEY_GAME_ID, gameId);
 		intent.putExtra(KEY_GAME_NAME, gameName);
 		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_HERO_IMAGE_URL, heroImageUrl);
 		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		return intent;
 	}
@@ -498,6 +500,11 @@ public class LogPlayActivity extends AppCompatActivity {
 		isRequestingRematch = intent.getBooleanExtra(KEY_REMATCH, false);
 		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
+
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (imageUrl == null) imageUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
 
 		if (gameId <= 0) {
 			String message = "Can't log a play without a game ID.";
@@ -1096,6 +1103,8 @@ public class LogPlayActivity extends AppCompatActivity {
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, play.gameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, play.gameName);
 		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(LogPlayerActivity.KEY_HERO_IMAGE_URL, heroImageUrl);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay);
 		intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor);
 		List<String> colors = new ArrayList<>();
@@ -1110,7 +1119,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
-			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl);
+			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl, heroImageUrl);
 		}
 	}
 
@@ -1145,8 +1154,9 @@ public class LogPlayActivity extends AppCompatActivity {
 			return R.layout.row_player;
 		}
 
+		@NonNull
 		@Override
-		public PlayViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public PlayViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			switch (viewType) {
 				case R.layout.row_log_play_header:
 					return new HeaderViewHolder(parent);
@@ -1171,11 +1181,11 @@ public class LogPlayActivity extends AppCompatActivity {
 				case R.layout.row_log_play_add_player:
 					return new AddPlayerViewHolder(parent);
 			}
-			return null;
+			return new HeaderViewHolder(parent);
 		}
 
 		@Override
-		public void onBindViewHolder(PlayViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull PlayViewHolder holder, int position) {
 			if (holder.getItemViewType() == R.layout.row_player) {
 				((PlayerViewHolder) holder).bind(position - headerResources.size());
 			} else {
@@ -1229,7 +1239,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						notifyLayoutChanged(R.layout.row_log_play_player_header);
 						final int position = headerResources.size() + playerPosition;
 						notifyItemInserted(position);
-						notifyItemRangeChanged(position + 1, getItemCount() - position);
+						notifyItemRangeChanged(position + 1, play.getPlayerCount() - playerPosition - 1);
 					}
 				});
 			maybeShowNotification();
@@ -1243,7 +1253,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						notifyLayoutChanged(R.layout.row_log_play_player_header);
 						final int position = headerResources.size() + playerPosition;
 						notifyItemRemoved(position);
-						notifyItemRangeChanged(position, play.getPlayerCount() - playerPosition);
+						notifyItemRangeChanged(position + 1, play.getPlayerCount() - playerPosition);
 					}
 				});
 			maybeShowNotification();
@@ -1350,7 +1360,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				headerView.setText(gameName);
 
 				fabColor = ContextCompat.getColor(LogPlayActivity.this, R.color.accent);
-				ImageUtils.safelyLoadImage(thumbnailView, imageUrl, new ImageUtils.Callback() {
+				ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, heroImageUrl, new ImageUtils.Callback() {
 					@Override
 					public void onSuccessfulImageLoad(Palette palette) {
 						headerView.setBackgroundResource(R.color.black_overlay_light);
@@ -1719,12 +1729,10 @@ public class LogPlayActivity extends AppCompatActivity {
 			public void bind() {
 				Resources r = getResources();
 				int playerCount = play.getPlayerCount();
-				if (playerCount <= 0) {
-					playerLabelView.setText(r.getString(R.string.title_players));
-				} else {
-					playerLabelView.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
-				}
-				assignColorsButton.setEnabled(play != null && play.getPlayerCount() > 0);
+				playerLabelView.setText(playerCount <= 0 ?
+					r.getString(R.string.title_players) :
+					r.getString(R.string.title_players_with_count, playerCount));
+				assignColorsButton.setEnabled(play != null && playerCount > 0);
 			}
 
 			@OnClick(R.id.player_sort)
@@ -1854,10 +1862,12 @@ public class LogPlayActivity extends AppCompatActivity {
 				});
 				row.getDragHandle().setOnTouchListener(
 					new OnTouchListener() {
+						@SuppressLint("ClickableViewAccessibility")
 						@Override
 						public boolean onTouch(View v, MotionEvent event) {
-							if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+							if (event.getAction() == MotionEvent.ACTION_DOWN) {
 								itemTouchHelper.startDrag(PlayerViewHolder.this);
+								return true;
 							}
 							return false;
 						}

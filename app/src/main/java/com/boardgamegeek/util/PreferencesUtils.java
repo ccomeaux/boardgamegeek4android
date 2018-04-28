@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,12 +14,12 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
-import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.model.PlayStats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +41,13 @@ public class PreferencesUtils {
 	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
-	private static final String KEY_SYNC_STATUSES = "syncStatuses";
+	public static final String KEY_LOGIN = "login";
+	public static final String KEY_LOGOUT = "logout";
+	public static final String KEY_SYNC_STATUSES = "sync_statuses";
+	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
+	public static final String KEY_SYNC_PLAYS = "syncPlays";
+	private static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
+	public static final String KEY_SYNC_BUDDIES = "syncBuddies";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
 	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
@@ -50,6 +55,8 @@ public class PreferencesUtils {
 	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
 	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
 	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
+
+	private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
 
 	private static final int NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0;
 	private static final int NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX = 1;
@@ -157,13 +164,23 @@ public class PreferencesUtils {
 		return getBoolean(context, "logPlayerWin", !getBoolean(context, "logHideWin", true));
 	}
 
-	public static String[] getSyncStatuses(Context context) {
-		return getStringArray(context, KEY_SYNC_STATUSES, context.getResources().getStringArray(R.array.pref_sync_status_default));
+	public static Set<String> getSyncStatuses(Context context) {
+		return getSyncStatuses(context, context.getResources().getStringArray(R.array.pref_sync_status_default));
+	}
+
+	public static Set<String> getSyncStatuses(Context context, String[] defValues) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		final HashSet<String> defSet = defValues == null ? null : new HashSet<>(Arrays.asList(defValues));
+		return sharedPreferences.getStringSet(KEY_SYNC_STATUSES, defSet);
+	}
+
+	public static String[] getOldSyncStatuses(Context context) {
+		return getStringArray(context, KEY_SYNC_STATUSES_OLD, context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
 	public static boolean isCollectionSetToSync(Context context) {
-		String[] statuses = getSyncStatuses(context);
-		return statuses != null && statuses.length > 0;
+		Set<String> statuses = getSyncStatuses(context);
+		return statuses != null && statuses.size() > 0;
 	}
 
 	/**
@@ -172,40 +189,53 @@ public class PreferencesUtils {
 	public static boolean isStatusSetToSync(Context context, String status) {
 		if (context == null) return false;
 		if (TextUtils.isEmpty(status)) return false;
+		Set<String> statuses = getSyncStatuses(context);
+		return statuses.contains(status);
+	}
 
-		String[] statuses = getSyncStatuses(context);
-		if (statuses == null) return false;
-
-		for (String s : statuses) {
-			if (s.equals(status)) {
-				return true;
-			}
-		}
-		return false;
+	public static boolean setSyncStatuses(Context context, String[] statuses) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putStringSet(KEY_SYNC_STATUSES, new HashSet<>(Arrays.asList(statuses)));
+		return editor.commit();
 	}
 
 	public static boolean addSyncStatus(Context context, String status) {
 		if (TextUtils.isEmpty(status)) return false;
 		if (isStatusSetToSync(context, status)) return false;
 
-		Set<String> set = new HashSet<>();
-
-		String[] statuses = getStringArray(context, KEY_SYNC_STATUSES, null);
-		if (statuses != null) {
-			set.addAll(Arrays.asList(statuses).subList(0, statuses.length));
-		}
-
-		set.add(status);
-
-		return putString(context, KEY_SYNC_STATUSES, MultiSelectListPreference.buildString(set));
+		Set<String> statuses = getSyncStatuses(context, null);
+		if (statuses == null) statuses = Collections.emptySet();
+		statuses.add(status);
+		return putStringSet(context, KEY_SYNC_STATUSES, statuses);
 	}
 
 	public static boolean getSyncPlays(Context context) {
-		return getBoolean(context, "syncPlays", false);
+		return getBoolean(context, KEY_SYNC_PLAYS, false);
+	}
+
+	public static boolean setSyncPlays(Context context) {
+		return putBoolean(context, KEY_SYNC_PLAYS, true);
+	}
+
+	public static long getSyncPlaysTimestamp(Context context) {
+		return getLong(context, KEY_SYNC_PLAYS_TIMESTAMP, 0);
+	}
+
+	public static boolean setSyncPlaysTimestamp(Context context) {
+		return putLong(context, KEY_SYNC_PLAYS_TIMESTAMP, System.currentTimeMillis());
 	}
 
 	public static boolean getSyncBuddies(Context context) {
-		return getBoolean(context, "syncBuddies", false);
+		return getBoolean(context, KEY_SYNC_BUDDIES, false);
+	}
+
+	public static boolean setSyncBuddies(Context context) {
+		return putBoolean(context, KEY_SYNC_BUDDIES, true);
+	}
+
+	public static boolean getPlayUploadNotifications(Context context) {
+		return getBoolean(context, "sync_uploads", true);
 	}
 
 	public static boolean getSyncShowNotifications(Context context) {
@@ -343,17 +373,6 @@ public class PreferencesUtils {
 		return getInt(context, getThreadKey(threadId), INVALID_ARTICLE_ID);
 	}
 
-	@Nullable
-	public static Uri getUri(Context context, String key) {
-		String uriString = getString(context, key, null);
-		if (uriString == null) return null;
-		return Uri.parse(uriString);
-	}
-
-	public static boolean putUri(Context context, String key, Uri uri) {
-		return putString(context, key, uri == null ? null : uri.toString());
-	}
-
 	@NonNull
 	private static String getThreadKey(long threadId) {
 		return "THREAD-" + String.valueOf(threadId);
@@ -394,6 +413,13 @@ public class PreferencesUtils {
 		return editor.commit();
 	}
 
+	private static boolean putStringSet(Context context, String key, Set<String> value) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putStringSet(key, value);
+		return editor.commit();
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);
@@ -421,6 +447,6 @@ public class PreferencesUtils {
 	private static String[] getStringArray(Context context, String key, String[] defValue) {
 		String value = getString(context, key, null);
 		if (value == null) return defValue;
-		return MultiSelectListPreference.parseStoredValue(value);
+		return TextUtils.isEmpty(value) ? new String[0] : value.split(SEPARATOR);
 	}
 }

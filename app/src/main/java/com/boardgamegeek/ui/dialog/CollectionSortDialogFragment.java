@@ -51,7 +51,8 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.wishlist_priority,
 		R.id.play_count_asc,
 		R.id.play_count_desc,
-		R.id.play_date,
+		R.id.play_date_max,
+		R.id.play_date_min,
 		R.id.year_published_asc,
 		R.id.year_published_desc,
 		R.id.play_time_asc,
@@ -65,7 +66,8 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.price_paid,
 		R.id.current_value
 	}) List<RadioButton> radioButtons;
-	@BindView(R.id.play_date) View playDateRadioButton;
+	@BindView(R.id.play_date_max) RadioButton playDateMaxRadioButton;
+	@BindView(R.id.play_date_min) RadioButton playDateMinRadioButton;
 
 	@DebugLog
 	public CollectionSortDialogFragment() {
@@ -92,17 +94,22 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 
 		unbinder = ButterKnife.bind(this, rootView);
 		if (!PreferencesUtils.getSyncPlays(getContext())) {
-			if (findSelectedRadioButton() != playDateRadioButton) {
-				playDateRadioButton.setVisibility(View.GONE);
-			}
+			hideRadioButtonIfNotSelected(playDateMaxRadioButton);
+			hideRadioButtonIfNotSelected(playDateMinRadioButton);
 		}
 		setChecked();
 		radioGroup.setOnCheckedChangeListener(this);
 		createNames();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setView(rootView);
 		builder.setTitle(R.string.title_sort);
 		return builder.create();
+	}
+
+	private void hideRadioButtonIfNotSelected(RadioButton radioButton) {
+		if (findSelectedRadioButton() != radioButton) {
+			radioButton.setVisibility(View.GONE);
+		}
 	}
 
 	@Override
@@ -113,11 +120,13 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 
 	@DebugLog
 	private void createNames() {
-		CollectionSorterFactory factory = new CollectionSorterFactory(getActivity());
+		CollectionSorterFactory factory = new CollectionSorterFactory(getContext());
 		for (RadioButton radioButton : radioButtons) {
 			int sortType = getTypeFromView(radioButton);
 			CollectionSorter sorter = factory.create(sortType);
-			radioButton.setText(sorter.getDescription());
+			if (sorter != null) {
+				radioButton.setText(sorter.getDescription());
+			}
 		}
 	}
 
@@ -180,6 +189,6 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 
 	@DebugLog
 	private int getTypeFromView(View view) {
-		return StringUtils.parseInt(view.getTag().toString(), CollectionSorterFactory.TYPE_UNKNOWN);
+		return StringUtils.parseInt(view.getTag().toString(), CollectionSorterFactory.TYPE_DEFAULT);
 	}
 }

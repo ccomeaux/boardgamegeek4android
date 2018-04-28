@@ -10,7 +10,8 @@ public class GamePlays {
 		Games.IMAGE_URL,
 		Games.THUMBNAIL_URL,
 		Games.UPDATED_PLAYS,
-		Games.CUSTOM_PLAYER_SORT
+		Games.CUSTOM_PLAYER_SORT,
+		Games.HERO_IMAGE_URL
 	};
 
 	private static final int GAME_NAME = 0;
@@ -18,10 +19,12 @@ public class GamePlays {
 	private static final int THUMBNAIL_URL = 2;
 	private static final int UPDATED_PLAYS = 3;
 	private static final int CUSTOM_PLAYER_SORT = 4;
+	private static final int HERO_IMAGE_URL = 5;
 
 	private String name;
 	private String imageUrl;
 	private String thumbnailUrl;
+	private String heroImageUrl;
 	private long syncTimestamp;
 	private boolean customPlayerSort;
 
@@ -33,6 +36,7 @@ public class GamePlays {
 		game.name = cursor.getString(GAME_NAME);
 		game.imageUrl = cursor.getString(IMAGE_URL);
 		game.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
+		game.heroImageUrl = cursor.getString(HERO_IMAGE_URL);
 		game.syncTimestamp = cursor.getLong(UPDATED_PLAYS);
 		game.customPlayerSort = (cursor.getInt(CUSTOM_PLAYER_SORT) == 1);
 		return game;
@@ -48,6 +52,10 @@ public class GamePlays {
 
 	public String getThumbnailUrl() {
 		return thumbnailUrl;
+	}
+
+	public String getHeroImageUrl() {
+		return heroImageUrl;
 	}
 
 	public long getSyncTimestamp() {

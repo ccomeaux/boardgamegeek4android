@@ -99,14 +99,6 @@
 			android:tag="@string/collection_filter_type_suggested_age"
 			android:text="@string/menu_suggested_age"/>
 
-		<CheckBox
-			android:id="@+id/recommended_player_count"
-			style="@style/DialogCheckbox"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:tag="@string/collection_filter_type_recommended_player_count"
-			android:text="@string/menu_recommended_player_count"/>
-
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
@@ -127,7 +119,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:tag="@string/collection_filter_type_geek_rating"
-			android:text="@string/menu_geek_rating"/>
+			android:text="@string/menu_geek_rating"
+			android:visibility="gone"/>
 
 		<CheckBox
 			android:id="@+id/average_rating"
@@ -136,6 +129,14 @@
 			android:layout_height="match_parent"
 			android:tag="@string/collection_filter_type_average_rating"
 			android:text="@string/menu_average_rating"/>
+
+		<CheckBox
+			android:id="@+id/recommended_player_count"
+			style="@style/DialogCheckbox"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_filter_type_recommended_player_count"
+			android:text="@string/menu_recommended_player_count"/>
 
 		<CheckBox
 			android:id="@+id/average_weight"

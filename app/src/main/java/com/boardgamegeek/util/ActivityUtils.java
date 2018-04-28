@@ -34,14 +34,16 @@ public class ActivityUtils {
 	private static final String BOARDGAME_PATH = "boardgame";
 	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
 
-	public static void share(Activity activity, String subject, String text, @StringRes int titleResId) {
+	public static void share(Activity activity, String subject, CharSequence text, @StringRes int titleResId) {
 		Intent intent = ShareCompat.IntentBuilder.from(activity)
 			.setType("text/plain")
 			.setSubject(subject.trim())
-			.setText(text.trim())
+			.setText(text)
 			.setChooserTitle(titleResId)
 			.createChooserIntent();
-		activity.startActivity(intent);
+		if (intent.resolveActivity(activity.getPackageManager()) != null) {
+			activity.startActivity(intent);
+		}
 	}
 
 	public static void shareGame(Activity activity, int gameId, String gameName, String method) {
@@ -75,7 +77,7 @@ public class ActivityUtils {
 			.putContentId(String.valueOf(StringUtils.formatList(gameIds))));
 	}
 
-	private static String formatGameLink(int id, String name) {
+	public static String formatGameLink(int id, String name) {
 		return String.format("%s (%s)\n", name, createBggUri(BOARDGAME_PATH, id));
 	}
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	android:id="@+id/rating_container"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	tools:parentTag="android.widget.LinearLayout">
+
+	<TextView
+		android:id="@+id/rating_value"
+		style="@style/RatingLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		tools:background="#0f0"
+		tools:text="9.5"/>
+
+	<com.boardgamegeek.ui.widget.TimestampView
+		android:id="@+id/rating_timestamp"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		app:hideWhenEmpty="true"
+		tools:text="Yesterday"/>
+</merge>

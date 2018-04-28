@@ -8,6 +8,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import java.util.Locale;
+
 public class PlayCountFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 25;
@@ -66,21 +68,14 @@ public class PlayCountFilterer extends CollectionFilterer {
 
 	@Override
 	public String getSelection() {
-		String selection;
-		if (max >= MAX_RANGE) {
-			selection = Collection.NUM_PLAYS + ">=?";
-		} else {
-			selection = "(" + Collection.NUM_PLAYS + ">=? AND " + Collection.NUM_PLAYS + "<=?)";
-		}
-		return selection;
+		String format = max >= MAX_RANGE ? "%1$s>=?" : "(%1$s>=? AND %1$s<=?)";
+		return String.format(Locale.getDefault(), format, Collection.NUM_PLAYS);
 	}
 
 	@Override
 	public String[] getSelectionArgs() {
-		if (max >= MAX_RANGE) {
-			return new String[] { String.valueOf(min) };
-		} else {
-			return new String[] { String.valueOf(min), String.valueOf(max) };
-		}
+		return max >= MAX_RANGE ?
+			new String[] { String.valueOf(min) } :
+			new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 }

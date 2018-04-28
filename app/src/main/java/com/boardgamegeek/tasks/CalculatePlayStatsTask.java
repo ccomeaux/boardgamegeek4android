@@ -50,6 +50,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private static final int MAX_H_INDEX_ENTRIES = 6;
 	private int numberOfPlays;
 	private int numberOfPlayedGames;
+	private int numberOfDollars;
+	private int numberOfHalfDollars;
 	private int numberOfQuarters;
 	private int numberOfDimes;
 	private int numberOfNickels;
@@ -112,6 +114,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			.numberOfPlayedGames(numberOfPlayedGames)
 			.numberOfNickels(numberOfNickels)
 			.numberOfDimes(numberOfDimes)
+			.numberOfDollars(numberOfDollars)
+			.numberOfHalfDollars(numberOfHalfDollars)
 			.numberOfQuarters(numberOfQuarters)
 			.gameHIndex(gameHIndex)
 			.hIndexGames(getHIndexGames())
@@ -156,7 +160,9 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 			numberOfPlays += playCount;
 			if (playCount > 0) numberOfPlayedGames++;
-			if (playCount >= 25) numberOfQuarters++;
+			if (playCount >= 100) numberOfDollars++;
+			else if (playCount >= 50) numberOfHalfDollars++;
+			else if (playCount >= 25) numberOfQuarters++;
 			else if (playCount >= 10) numberOfDimes++;
 			else if (playCount >= 5) numberOfNickels++;
 

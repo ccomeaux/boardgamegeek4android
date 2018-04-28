@@ -22,7 +22,6 @@ import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.SortEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -62,7 +61,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		sorter = PlayersSorterFactory.create(getActivity(), sortType);
+		sorter = PlayersSorterFactory.create(getContext(), sortType);
 
 		setEmptyText(getString(R.string.empty_players));
 		requery();
@@ -100,7 +99,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	public void setSort(int sortType) {
 		if (sorter.getType() != sortType) {
 			SortEvent.log("Players", String.valueOf(sortType));
-			sorter = PlayersSorterFactory.create(getActivity(), sortType);
+			sorter = PlayersSorterFactory.create(getContext(), sortType);
 			requery();
 		}
 	}
@@ -171,8 +170,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 			Player player = Player.fromCursor(cursor);
 
-			UIUtils.setActivatedCompat(view,
-				player.getName().equals(selectedName) && player.getUsername().equals(selectedUsername));
+			view.setActivated(player.getName().equals(selectedName) && player.getUsername().equals(selectedUsername));
 
 			holder.name.setText(player.getName());
 			holder.username.setText(player.getUsername());

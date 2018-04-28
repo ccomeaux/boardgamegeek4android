@@ -11,8 +11,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AlertDialog.Builder;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,8 +25,11 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
+import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.TaskUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -221,29 +225,47 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		try {
 			accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, bggCookieJar.getAuthToken());
 		} catch (SecurityException e) {
-			showError("Uh-oh! This isn't an error we expect to see. If you have ScorePal installed, there's a known problem that one prevents the other from signing in. We're working to resolve the issue.");
+			showError(R.string.error_account_set_auth_token_security_exception);
 			return;
 		}
 		Bundle userData = new Bundle();
 		userData.putString(Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(bggCookieJar.getAuthTokenExpiry()));
 
 		if (isRequestingNewAccount) {
-			if (!accountManager.addAccountExplicitly(account, password, userData)) {
-				Account existingAccount = Authenticator.getAccount(accountManager);
-				if (existingAccount == null) {
-					passwordContainer.setError(getString(R.string.error_account_not_added));
-					return;
-				} else if (!existingAccount.name.equals(account.name)) {
-					passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
-					return;
-				} else {
-					accountManager.setPassword(account, password);
+			try {
+				if (!accountManager.addAccountExplicitly(account, password, userData)) {
+					Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
+					if (accounts.length == 0) {
+						Timber.v("no account!");
+						passwordContainer.setError(getString(R.string.error_account_list_zero));
+						return;
+					} else if (accounts.length != 1) {
+						Timber.w("multiple accounts!");
+						passwordContainer.setError(getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE));
+						return;
+					} else {
+						Account existingAccount = accounts[0];
+						if (existingAccount == null) {
+							passwordContainer.setError(getString(R.string.error_account_list_zero));
+							return;
+						} else if (!existingAccount.name.equals(account.name)) {
+							passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
+							return;
+						} else {
+							accountManager.setPassword(account, password);
+						}
+					}
 				}
+			} catch (Exception e) {
+				passwordContainer.setError(e.getLocalizedMessage());
+				return;
 			}
 		} else {
 			accountManager.setPassword(account, password);
 		}
 		TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
+
+		EventBus.getDefault().post(new SignInEvent(username));
 
 		final Intent intent = new Intent();
 		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, username);
@@ -255,8 +277,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	}
 
 	@DebugLog
-	private void showError(String message) {
-		new Builder(this)
+	private void showError(@StringRes int message) {
+		new AlertDialog.Builder(this)
 			.setTitle(R.string.title_error)
 			.setMessage(message)
 			.show();

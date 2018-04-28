@@ -84,6 +84,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private static final String KEY_MODE = "MODE";
@@ -107,6 +108,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	private String gameName;
 	private String thumbnailUrl;
 	private String imageUrl;
+	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	private int filterType = FILTER_TYPE_STATUS_ALL;
 	private Sorter sorter;
@@ -126,13 +128,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		return fragment;
 	}
 
-	public static PlaysFragment newInstanceForGame(int gameId, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
+	public static PlaysFragment newInstanceForGame(int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_MODE, MODE_GAME);
 		args.putInt(KEY_GAME_ID, gameId);
 		args.putString(KEY_GAME_NAME, gameName);
 		args.putString(KEY_IMAGE_URL, imageUrl);
 		args.putString(KEY_THUMBNAIL_URL, thumbnailUrl);
+		args.putString(KEY_HERO_IMAGE_URL, heroImageUrl);
 		args.putBoolean(KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		args.putInt(KEY_ICON_COLOR, iconColor);
 		PlaysFragment fragment = new PlaysFragment();
@@ -178,7 +181,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		super.onActivityCreated(savedInstanceState);
 
 		int sortType = PlaysSorterFactory.TYPE_DEFAULT;
-		sorter = PlaysSorterFactory.create(getActivity(), sortType);
+		sorter = PlaysSorterFactory.create(getContext(), sortType);
 
 		uri = Plays.CONTENT_URI;
 		Bundle bundle = getArguments();
@@ -190,6 +193,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 				gameName = bundle.getString(KEY_GAME_NAME);
 				thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
 				imageUrl = bundle.getString(KEY_IMAGE_URL);
+				heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL);
 				arePlayersCustomSorted = bundle.getBoolean(KEY_CUSTOM_PLAYER_SORT);
 				getLoaderManager().restartLoader(GameQuery._TOKEN, bundle, this);
 				break;
@@ -227,8 +231,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		Cursor cursor = (Cursor) adapter.getItem(position);
 		if (cursor != null) {
 			long internalId = cursor.getInt(cursor.getColumnIndex(Plays._ID));
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl()));
+			PlayModel play = PlayModel.fromCursor(cursor, getContext());
+			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl()));
 		}
 	}
 
@@ -403,7 +407,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 			sortType = PlaysSorterFactory.TYPE_DEFAULT;
 		}
 		SortEvent.log("Plays", String.valueOf(sortType));
-		sorter = PlaysSorterFactory.create(getActivity(), sortType);
+		sorter = PlaysSorterFactory.create(getContext(), sortType);
 		resetScrollState();
 		requery();
 	}
@@ -472,7 +476,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		if (id == PLAY_QUERY_TOKEN) {
 			loader = new CursorLoader(getActivity(),
 				uri,
-				sorter == null ? PlayModel.PROJECTION : StringUtils.unionArrays(PlayModel.PROJECTION, sorter.getColumns()),
+				sorter == null ? PlayModel.getProjection() : StringUtils.unionArrays(PlayModel.getProjection(), sorter.getColumns()),
 				selection(),
 				selectionArgs(),
 				sorter == null ? null : sorter.getOrderByClause());
@@ -610,7 +614,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 
 	@Override
 	protected void onFabClicked() {
-		LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, arePlayersCustomSorted);
+		LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted);
 	}
 
 	public void filter(int type, String description) {
@@ -643,7 +647,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			PlayModel play = PlayModel.fromCursor(cursor, getContext());
 
 			String info = PresentationUtils.describePlayDetails(getActivity(),
 				mode != MODE_GAME ? play.getDate() : null,
@@ -774,7 +778,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		boolean allPending = true;
 		for (int pos : selectedPlaysPositions) {
 			Cursor cursor = (Cursor) adapter.getItem(pos);
-			PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+			PlayModel play = PlayModel.fromCursor(cursor, getContext());
 			boolean pending = play.getDirtyTimestamp() > 0;
 			allPending = allPending && pending;
 		}
@@ -805,8 +809,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 				mode.finish();
 				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
 				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-				PlayModel play = PlayModel.fromCursor(cursor, getActivity());
-				LogPlayActivity.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl());
+				PlayModel play = PlayModel.fromCursor(cursor, getContext());
+				LogPlayActivity.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
 				return true;
 			case R.id.menu_delete:
 				mode.finish();

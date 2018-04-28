@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/FormRow"
-			  xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="wrap_content"
-			  android:focusable="false">
+<LinearLayout
+	style="@style/FormRow"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:focusable="false"
+	android:importantForAutofill="no">
 
 	<ImageView
 		style="@style/Icon"
@@ -19,7 +21,6 @@
 		android:completionThreshold="1"
 		android:hint="@string/location_hint"
 		android:imeOptions="actionNext"
-		android:importantForAutofill="noExcludeDescendants"
 		android:inputType="textCapWords"
 		android:textAppearance="@style/Text.Big"
 		android:textColor="#000"/>

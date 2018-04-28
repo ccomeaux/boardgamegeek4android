@@ -127,7 +127,7 @@ public class PresentationUtils {
 	public static String describeScore(@NonNull Context context, double score, @StringRes int defaultResId) {
 		if (score > 0.0) {
 			return SCORE_FORMAT.format(score);
-		} else if (defaultResId > 0) {
+		} else if (defaultResId != 0) {
 			return context.getString(defaultResId);
 		}
 		return "";
@@ -167,7 +167,7 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	private static CharSequence describeMinutes(Context context, int minutes) {
+	public static CharSequence describeMinutes(Context context, int minutes) {
 		if (minutes == 0) return context.getString(R.string.mins_unknown);
 
 		if (minutes >= 120) {
@@ -380,6 +380,14 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
+	public static void setTextOrHide(@Nullable TextView view, int number) {
+		if (view != null) {
+			view.setText(String.valueOf(number));
+			view.setVisibility(number == 0 ? View.GONE : View.VISIBLE);
+		}
+	}
+
+	@DebugLog
 	public static void setTextOrHide(@Nullable TextView view, CharSequence text) {
 		if (view != null) {
 			view.setText(text);
@@ -487,5 +495,15 @@ public class PresentationUtils {
 		if (fab != null && iconColor != Color.TRANSPARENT) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
 		}
+	}
+
+	@NonNull
+	public static String getHttpErrorMessage(Context context, int httpCode) {
+		@StringRes int resId;
+		if (httpCode >= 500) resId = R.string.msg_sync_response_500;
+		else if (httpCode == 429) resId = R.string.msg_sync_response_429;
+		else if (httpCode == 202) resId = R.string.msg_sync_response_202;
+		else resId = R.string.msg_sync_error_http_code;
+		return context.getString(resId, String.valueOf(httpCode));
 	}
 }

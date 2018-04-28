@@ -105,6 +105,10 @@ public class TimestampView extends TextView {
 		setTimestampText();
 	}
 
+	public long getTimestamp() {
+		return timestamp;
+	}
+
 	public void setFormatArg(String formatArg) {
 		this.formatArg = formatArg;
 		setTimestampText();

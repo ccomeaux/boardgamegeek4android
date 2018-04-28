@@ -44,6 +44,12 @@ public class CollectionNameFilter extends CollectionFilterer {
 	}
 
 	@Override
+	public String getDescription() {
+		if (startsWith) return context.getString(R.string.starts_with_prefix, filterText);
+		return context.getString(R.string.named_prefix, filterText);
+	}
+
+	@Override
 	public String getSelection() {
 		return Collection.COLLECTION_NAME + " LIKE ?";
 	}

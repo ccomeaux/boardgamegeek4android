@@ -1,13 +1,10 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,15 +13,15 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
 import com.boardgamegeek.ui.GameCollectionItemActivity;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class GameCollectionRow extends LinearLayout {
 	@BindView(R.id.thumbnail) ImageView thumbnailView;
@@ -39,42 +36,20 @@ public class GameCollectionRow extends LinearLayout {
 	private String collectionName;
 	private int collectionId;
 	private int yearPublished;
+	private int collectionYearPublished;
 	private String imageUrl;
 
 	public GameCollectionRow(Context context) {
 		super(context);
 
-		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		setBackgroundResource(obtainBackgroundResId(context));
-		setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-		setGravity(Gravity.CENTER_VERTICAL);
-		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.edit_row_height));
-		setOrientation(HORIZONTAL);
-		int padding = getResources().getDimensionPixelSize(R.dimen.padding_half);
-		setPadding(0, padding, 0, padding);
-
 		LayoutInflater.from(context).inflate(R.layout.widget_collection_row, this, true);
 		ButterKnife.bind(this);
-
-		setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				GameCollectionItemActivity.start(getContext(), internalId, gameId, gameName, collectionId, collectionName, imageUrl);
-			}
-		});
 	}
 
-	private static int obtainBackgroundResId(Context context) {
-		int backgroundResId = 0;
-		TypedArray a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
-		try {
-			backgroundResId = a != null ? a.getResourceId(0, backgroundResId) : 0;
-		} finally {
-			if (a != null) {
-				a.recycle();
-			}
-		}
-		return backgroundResId;
+	@OnClick
+	public void onClick() {
+		GameCollectionItemActivity.start(getContext(), internalId, gameId, gameName, collectionId, collectionName, imageUrl,
+			yearPublished, collectionYearPublished);
 	}
 
 	public void bind(long internalId, int gameId, String gameName, int collectionId, int yearPublished, String imageUrl) {
@@ -99,39 +74,27 @@ public class GameCollectionRow extends LinearLayout {
 				}
 			}
 		}
-		String description = StringUtils.formatList(statuses);
-		if (TextUtils.isEmpty(description)) {
-			statusView.setVisibility(View.GONE);
-		} else {
-			statusView.setText(description);
-			statusView.setVisibility(View.VISIBLE);
-		}
+		PresentationUtils.setTextOrHide(statusView, StringUtils.formatList(statuses));
 	}
 
 	public void setDescription(String name, int yearPublished) {
 		collectionName = name;
+		collectionYearPublished = yearPublished;
+		String description = "";
 		if ((!TextUtils.isEmpty(name) && !name.equals(gameName)) ||
 			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
-			String description;
 			if (yearPublished == Constants.YEAR_UNKNOWN) {
 				description = name;
 			} else {
-				description = name + " (" + PresentationUtils.describeYear(getContext(), yearPublished) + ")";
+				description = String.format("%s (%s)", name, PresentationUtils.describeYear(getContext(), yearPublished));
 			}
-			descriptionView.setText(description);
-			descriptionView.setVisibility(View.VISIBLE);
-		} else {
-			descriptionView.setVisibility(View.GONE);
+
 		}
+		PresentationUtils.setTextOrHide(descriptionView, description);
 	}
 
 	public void setComment(String comment) {
-		if (TextUtils.isEmpty(comment)) {
-			commentView.setVisibility(View.GONE);
-		} else {
-			commentView.setText(comment);
-			commentView.setVisibility(View.VISIBLE);
-		}
+		PresentationUtils.setTextOrHide(commentView, comment);
 	}
 
 	public void setRating(double rating) {
@@ -145,12 +108,6 @@ public class GameCollectionRow extends LinearLayout {
 	}
 
 	public void setThumbnail(String thumbnailUrl) {
-		Picasso.with(getContext())
-			.load(HttpUtils.ensureScheme(thumbnailUrl))
-			.placeholder(R.drawable.thumbnail_image_empty)
-			.error(R.drawable.thumbnail_image_empty)
-			.resizeDimen(R.dimen.thumbnail_list_size_small, R.dimen.thumbnail_list_size)
-			.centerCrop()
-			.into(thumbnailView);
+		ImageUtils.loadThumbnail(thumbnailView, thumbnailUrl);
 	}
 }

@@ -1,18 +1,21 @@
 package com.boardgamegeek;
 
-import android.app.Application;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 import android.os.StrictMode.VmPolicy;
+import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.BggEventBusIndex;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.RemoteConfig;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -23,13 +26,15 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.Set;
+
 import hugo.weaving.DebugLog;
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 import static timber.log.Timber.DebugTree;
 
-public class BggApplication extends Application {
+public class BggApplication extends MultiDexApplication {
 	@Override
 	@DebugLog
 	public void onCreate() {
@@ -54,6 +59,8 @@ public class BggApplication extends Application {
 		}
 		LeakCanary.install(this);
 
+		RemoteConfig.init();
+
 		EventBus.builder()
 			.logNoSubscriberMessages(BuildConfig.DEBUG)
 			.throwSubscriberException(BuildConfig.DEBUG)
@@ -66,6 +73,9 @@ public class BggApplication extends Application {
 
 		if (VERSION.SDK_INT >= VERSION_CODES.O)
 			NotificationUtils.createNotificationChannels(getApplicationContext());
+
+		migrateCollectionStatusSettings();
+		SyncPrefs.migrate(this);
 	}
 
 	private void initializeFabric() {
@@ -91,5 +101,15 @@ public class BggApplication extends Application {
 			.penaltyLog()
 			.penaltyFlashScreen()
 			.build());
+	}
+
+	private void migrateCollectionStatusSettings() {
+		Set<String> set = PreferencesUtils.getSyncStatuses(this, null);
+		if (set == null) {
+			String[] oldSyncStatuses = PreferencesUtils.getOldSyncStatuses(getApplicationContext());
+			if (oldSyncStatuses != null && oldSyncStatuses.length > 0) {
+				PreferencesUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
+			}
+		}
 	}
 }

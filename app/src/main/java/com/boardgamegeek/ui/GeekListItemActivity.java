@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -55,8 +56,8 @@ public class GeekListItemActivity extends HeroTabActivity {
 
 	public static void start(Context context, GeekList geekList, GeekListItem item, int order) {
 		Intent starter = new Intent(context, GeekListItemActivity.class);
-		starter.putExtra(KEY_ID, geekList.id());
-		starter.putExtra(KEY_TITLE, geekList.title());
+		starter.putExtra(KEY_ID, geekList.getId());
+		starter.putExtra(KEY_TITLE, geekList.getTitle());
 		starter.putExtra(KEY_ORDER, order);
 		starter.putExtra(KEY_NAME, item.getObjectName());
 		if (item.getObjectTypeResId() != GeekListItem.INVALID_OBJECT_TYPE_RES_ID) {
@@ -108,7 +109,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 		}
 
 		ScrimUtils.applyDarkScrim(scrimView);
-		ImageUtils.safelyLoadImage(toolbarImage, imageId, null);
+		ImageUtils.safelyLoadImage(toolbarImage, imageId);
 	}
 
 	@Override
@@ -117,7 +118,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				if (geekListId != BggContract.INVALID_ID) {

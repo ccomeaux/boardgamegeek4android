@@ -27,6 +27,10 @@ public abstract class CollectionFilterer {
 
 	public abstract String getDisplayText();
 
+	public String getDescription() {
+		return getDisplayText();
+	}
+
 	public String[] getColumns() {
 		return null;
 	}

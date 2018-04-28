@@ -3,6 +3,7 @@
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="wrap_content"
 			  android:layout_height="wrap_content"
+			  android:gravity="center"
 			  android:orientation="vertical"
 			  android:paddingBottom="@dimen/material_margin_vertical"
 			  android:paddingLeft="@dimen/material_margin_horizontal"
@@ -31,9 +32,9 @@
 	<TextView
 		android:id="@+id/description"
 		style="@style/Text.Dialog"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-		tools:text="This is a description. It can be a little long. It can be over\n multiple\n lines."/>
+		android:gravity="left"
+		tools:text="@tools:sample/lorem/random"/>
 
 </LinearLayout>

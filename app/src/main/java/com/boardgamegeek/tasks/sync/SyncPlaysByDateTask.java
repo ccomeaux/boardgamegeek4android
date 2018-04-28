@@ -10,7 +10,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.CompletedEvent;
 import com.boardgamegeek.util.TaskUtils;
@@ -60,7 +60,7 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent>
 
 	@Override
 	protected void finishSync() {
-		if (SyncService.isPlaysSyncUpToDate(context)) {
+		if (SyncPrefs.isPlaysSyncUpToDate(context)) {
 			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
 	}

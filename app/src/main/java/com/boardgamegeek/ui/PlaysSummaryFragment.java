@@ -1,9 +1,12 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -24,10 +27,10 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
@@ -58,7 +61,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 
-public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener, OnSharedPreferenceChangeListener {
 	private static final int PLAYS_TOKEN = 1;
 	private static final int PLAY_COUNT_TOKEN = 2;
 	private static final int PLAYERS_TOKEN = 3;
@@ -70,11 +73,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private static final int NUMBER_OF_PLAYERS_SHOWN = 5;
 	private static final int NUMBER_OF_LOCATIONS_SHOWN = 5;
 
-	private int numberOfPlaysInProgress;
 	private boolean isRefreshing;
 
 	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.card_sync) View syncCard;
 	@BindView(R.id.card_plays) View playsCard;
 	@BindView(R.id.plays_subtitle_in_progress) TextView playsInProgressSubtitle;
 	@BindView(R.id.plays_in_progress_container) LinearLayout playsInProgressContainer;
@@ -88,39 +91,32 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@BindView(R.id.more_players_button) Button morePlayersButton;
 	@BindView(R.id.more_locations_button) Button moreLocationsButton;
 	@BindView(R.id.card_colors) View colorsCard;
-	@BindView(R.id.colors_hint) View colorsHint;
 	@BindView(R.id.color_container) LinearLayout colorContainer;
 	@BindView(R.id.h_index) TextView hIndexView;
 	@BindView(R.id.sync_status) TextView syncStatusView;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_plays_summary, container, false);
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_plays_summary, container, false);
+	}
 
-		unbinder = ButterKnife.bind(this, rootView);
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
 		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(getActivity())));
+	}
 
-		long oldestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
-		long newestDate = Authenticator.getLong(getActivity(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
-		if (oldestDate == 0 && newestDate == 0) {
-			syncStatusView.setText(R.string.plays_sync_status_none);
-		} else if (oldestDate == 0) {
-			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_new),
-				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else if (newestDate == 0) {
-			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_old),
-				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else {
-			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_range),
-				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
-				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		}
-
-		return rootView;
+	@Override
+	public void onResume() {
+		super.onResume();
+		bindStatusMessage();
+		bindSyncCard();
+		SyncPrefs.getPrefs(getContext()).registerOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -144,11 +140,17 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		EventBus.getDefault().register(this);
 	}
 
+	@Override
+	public void onPause() {
+		super.onPause();
+		SyncPrefs.getPrefs(getContext()).unregisterOnSharedPreferenceChangeListener(this);
+	}
+
 	@DebugLog
 	@Override
 	public void onStop() {
-		EventBus.getDefault().unregister(this);
 		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -158,29 +160,35 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		bindStatusMessage();
+	}
+
+	@NonNull
+	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		CursorLoader loader = null;
+		CursorLoader loader = new CursorLoader(getContext());
 		switch (id) {
 			case PLAYS_IN_PROGRESS_TOKEN:
-				PlaysSorter playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
-				loader = new CursorLoader(getActivity(),
+				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
+				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI,
-					PlayModel.PROJECTION,
+					PlayModel.getProjection(),
 					Plays.DIRTY_TIMESTAMP + ">0",
 					null,
 					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAYS_TOKEN:
-				playsSorter = PlaysSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_DEFAULT);
-				loader = new CursorLoader(getActivity(),
+				playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
+				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
-					PlayModel.PROJECTION,
+					PlayModel.getProjection(),
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
 					null,
 					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAY_COUNT_TOKEN:
-				loader = new CursorLoader(getActivity(),
+				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_SIMPLE_URI,
 					new String[] { Plays.SUM_QUANTITY },
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
@@ -188,8 +196,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					null);
 				break;
 			case PLAYERS_TOKEN:
-				PlayersSorter playersSorter = PlayersSorterFactory.create(getActivity(), PlayersSorterFactory.TYPE_QUANTITY);
-				loader = new CursorLoader(getActivity(),
+				PlayersSorter playersSorter = PlayersSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_QUANTITY);
+				loader = new CursorLoader(getContext(),
 					Plays.buildPlayersByUniquePlayerUri()
 						.buildUpon()
 						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYERS_SHOWN))
@@ -200,8 +208,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					playersSorter.getOrderByClause());
 				break;
 			case LOCATIONS_TOKEN:
-				LocationsSorter locationsSorter = LocationsSorterFactory.create(getActivity(), LocationsSorterFactory.TYPE_QUANTITY);
-				loader = new CursorLoader(getActivity(),
+				LocationsSorter locationsSorter = LocationsSorterFactory.create(getContext(), LocationsSorterFactory.TYPE_QUANTITY);
+				loader = new CursorLoader(getContext(),
 					Plays.buildLocationsUri()
 						.buildUpon()
 						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_LOCATIONS_SHOWN))
@@ -214,7 +222,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case COLORS_TOKEN:
 				String username = AccountUtils.getUsername(getActivity());
 				if (!TextUtils.isEmpty(username)) {
-					loader = new CursorLoader(getActivity(),
+					loader = new CursorLoader(getContext(),
 						PlayerColors.buildUserUri(username),
 						PlayerColor.PROJECTION,
 						null, null, null);
@@ -225,10 +233,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
 			case PLAYS_IN_PROGRESS_TOKEN:
@@ -255,8 +261,33 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 	}
 
+	private void bindStatusMessage() {
+		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
+		long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
+		if (oldestDate == 0 && newestDate == 0) {
+			syncStatusView.setText(R.string.plays_sync_status_none);
+		} else if (oldestDate == 0) {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_new),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else if (newestDate == 0) {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_old),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else {
+			syncStatusView.setText(String.format(getString(R.string.plays_sync_status_range),
+				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+		}
+	}
+
+	private void bindSyncCard() {
+		syncCard.setVisibility(PreferencesUtils.getSyncPlays(getContext()) ||
+			PreferencesUtils.getSyncPlaysTimestamp(getContext()) > 0 ?
+			View.GONE :
+			View.VISIBLE);
+	}
+
 	private void onPlaysInProgressQueryComplete(Cursor cursor) {
-		numberOfPlaysInProgress = cursor == null ? 0 : cursor.getCount();
+		int numberOfPlaysInProgress = cursor == null ? 0 : cursor.getCount();
 		final int visibility = numberOfPlaysInProgress == 0 ? View.GONE : View.VISIBLE;
 		playsInProgressSubtitle.setVisibility(visibility);
 		playsInProgressContainer.setVisibility(visibility);
@@ -264,10 +295,10 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		playsInProgressContainer.removeAllViews();
 		if (numberOfPlaysInProgress > 0) {
-			while (cursor != null && cursor.moveToNext()) {
-				playsCard.setVisibility(View.VISIBLE);
+			while (cursor.moveToNext()) {
 				addPlayToContainer(cursor, playsInProgressContainer);
 			}
+			playsCard.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -275,23 +306,26 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		if (cursor == null) return;
 
 		recentPlaysContainer.removeAllViews();
-		while (cursor.moveToNext()) {
+		if (cursor.moveToFirst()) {
+			do {
+				addPlayToContainer(cursor, recentPlaysContainer);
+			} while (cursor.moveToNext());
 			playsCard.setVisibility(View.VISIBLE);
 			recentPlaysContainer.setVisibility(View.VISIBLE);
-			addPlayToContainer(cursor, recentPlaysContainer);
 		}
 	}
 
 	private void addPlayToContainer(Cursor cursor, LinearLayout container) {
 		long internalId = cursor.getLong(cursor.getColumnIndex(Plays._ID));
-		PlayModel play = PlayModel.fromCursor(cursor, getActivity());
+		PlayModel play = PlayModel.fromCursor(cursor, getContext());
 		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
 		view.setTag(R.id.id, internalId);
 		view.setTag(R.id.game_info_id, play.getGameId());
 		view.setTag(R.id.game_name, play.getName());
 		view.setTag(R.id.thumbnail, play.getThumbnailUrl());
-		view.setTag(R.id.account_image, play.getImageUrl());
+		view.setTag(R.id.image, play.getImageUrl());
+		view.setTag(R.id.hero_image, play.getHeroImageUrl());
 
 		view.setOnClickListener(new OnClickListener() {
 			@Override
@@ -301,7 +335,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					(int) v.getTag(R.id.game_info_id),
 					(String) v.getTag(R.id.game_name),
 					(String) v.getTag(R.id.thumbnail),
-					(String) v.getTag(R.id.account_image)));
+					(String) v.getTag(R.id.image),
+					(String) v.getTag(R.id.hero_image)));
 			}
 		});
 	}
@@ -365,7 +400,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private View createRow(LinearLayout container, String title, String text) {
-		View view = getLayoutInflater(null).inflate(R.layout.row_player_summary, container, false);
+		View view = LayoutInflater.from(getContext()).inflate(R.layout.row_player_summary, container, false);
 		container.addView(view);
 		((TextView) view.findViewById(android.R.id.title)).setText(title);
 		((TextView) view.findViewById(android.R.id.text1)).setText(text);
@@ -387,9 +422,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
 				colorContainer.addView(view);
 			}
+			colorsCard.setVisibility(View.VISIBLE);
+		} else {
+			colorsCard.setVisibility(View.GONE);
+
 		}
-		colorsHint.setVisibility(cursor.getCount() == 0 ? View.VISIBLE : View.GONE);
-		colorsCard.setVisibility(View.VISIBLE);
 	}
 
 	private ImageView createViewToBeColored() {
@@ -403,7 +440,21 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+	}
+
+	@OnClick(R.id.sync)
+	public void onSyncClick() {
+		PreferencesUtils.setSyncPlays(getContext());
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
+		PreferencesUtils.setSyncPlaysTimestamp(getContext());
+		bindSyncCard();
+	}
+
+	@OnClick(R.id.sync_cancel)
+	public void onSyncCancelClick() {
+		PreferencesUtils.setSyncPlaysTimestamp(getContext());
+		bindSyncCard();
 	}
 
 	@OnClick(R.id.more_plays_button)
@@ -444,7 +495,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(@NonNull SyncEvent event) {
-		if ((event.getType() & SyncService.FLAG_SYNC_PLAYS) == SyncService.FLAG_SYNC_PLAYS) {
+		if (((event.getType() & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) ||
+			((event.getType() & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
 			updateRefreshStatus(true);
 		}
 	}

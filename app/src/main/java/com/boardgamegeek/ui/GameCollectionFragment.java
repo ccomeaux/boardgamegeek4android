@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -13,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -37,23 +39,21 @@ import icepick.State;
 
 public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 3;
 
 	private int gameId;
-	private String gameName;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
 
 	Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.empty) TextView emptyView;
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 
-	public static GameCollectionFragment newInstance(int gameId, String gameName) {
+	public static GameCollectionFragment newInstance(int gameId) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
-		args.putString(KEY_GAME_NAME, gameName);
 		GameCollectionFragment fragment = new GameCollectionFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -71,12 +71,11 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = bundle.getString(KEY_GAME_NAME);
 	}
 
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
@@ -89,7 +88,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
@@ -109,7 +108,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(getContext(), GameCollectionItem.URI, GameCollectionItem.PROJECTION, GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
+		return new CursorLoader(getContext(), GameCollectionItem.getUri(), GameCollectionItem.getProjection(), GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
 	}
 
 	@Override
@@ -117,6 +116,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		if (getActivity() == null) return;
 		long syncTimestamp = 0;
 		if (cursor != null && cursor.moveToFirst()) {
+			emptyView.setVisibility(View.GONE);
 			long oldestSyncTimestamp = Long.MAX_VALUE;
 			collectionContainer.removeAllViews();
 			do {
@@ -125,7 +125,7 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				oldestSyncTimestamp = Math.min(item.getSyncTimestamp(), oldestSyncTimestamp);
 
 				GameCollectionRow row = new GameCollectionRow(getContext());
-				row.bind(item.getInternalId(), gameId, gameName, item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
+				row.bind(item.getInternalId(), gameId, item.getGameName(), item.getCollectionId(), item.getYearPublished(), item.getImageUrl());
 				row.setThumbnail(item.getThumbnailUrl());
 				row.setStatus(item.getStatuses(), item.getNumberOfPlays(), item.getRating(), item.getComment());
 				row.setDescription(item.getCollectionName(), item.getCollectionYearPublished());
@@ -138,6 +138,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 			syncTimestampView.setTimestamp(oldestSyncTimestamp);
 			syncTimestamp = oldestSyncTimestamp;
 		} else {
+			emptyView.setVisibility(View.VISIBLE);
+			collectionContainer.removeAllViews();
 			syncTimestampView.setTimestamp(System.currentTimeMillis());
 		}
 

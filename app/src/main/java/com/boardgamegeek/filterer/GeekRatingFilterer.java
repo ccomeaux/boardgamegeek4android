@@ -8,6 +8,8 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import java.util.Locale;
+
 public class GeekRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 10.0;
@@ -60,42 +62,27 @@ public class GeekRatingFilterer extends CollectionFilterer {
 
 	@Override
 	public String getDisplayText() {
-		String minText = String.valueOf(min);
-		String maxText = String.valueOf(max);
-
-		String text;
-		if (min == max) {
-			text = maxText;
-		} else {
-			text = minText + "-" + maxText;
-		}
-		if (includeUnrated) {
-			text += " (+" + context.getString(R.string.unrated) + ")";
-		}
+		String text = min == max ?
+			String.format(Locale.getDefault(), "%.1f", max) :
+			String.format(Locale.getDefault(), "%.1f-%.1f", min, max);
+		if (includeUnrated) text += String.format(" (+%s)", context.getString(R.string.unrated));
 
 		return context.getString(R.string.rating) + " " + text;
 	}
 
 	@Override
 	public String getSelection() {
-		String selection;
-		if (min == max) {
-			selection = Games.STATS_BAYES_AVERAGE + "=?";
-		} else {
-			selection = "(" + Games.STATS_BAYES_AVERAGE + ">=? AND " + Games.STATS_BAYES_AVERAGE + "<=?)";
-		}
-		if (includeUnrated) {
-			selection += " OR " + Games.STATS_BAYES_AVERAGE + "=0 OR " + Games.STATS_BAYES_AVERAGE + " IS NULL";
-		}
+		String selection = min == max ?
+			String.format("%1$s=?", Games.STATS_BAYES_AVERAGE) :
+			String.format("(%1$s>=? AND %1$s<=?)", Games.STATS_BAYES_AVERAGE);
+		if (includeUnrated) selection += String.format(" OR %1$s=0 OR %1$s IS NULL", Games.STATS_BAYES_AVERAGE);
 		return selection;
 	}
 
 	@Override
 	public String[] getSelectionArgs() {
-		if (min == max) {
-			return new String[] { String.valueOf(min) };
-		} else {
-			return new String[] { String.valueOf(min), String.valueOf(max) };
-		}
+		return min == max ?
+			new String[] { String.valueOf(min) } :
+			new String[] { String.valueOf(min), String.valueOf(max) };
 	}
 }

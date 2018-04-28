@@ -58,6 +58,7 @@ public class BggContract {
 		String GAME_RANK = "game_rank";
 		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
 		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
+		String HERO_IMAGE_URL = "hero_image_url";
 	}
 
 	interface GameRanksColumns {
@@ -144,6 +145,7 @@ public class BggContract {
 		String TRADE_CONDITION_DIRTY_TIMESTAMP = "trade_condition_dirty_timestamp";
 		String WANT_PARTS_DIRTY_TIMESTAMP = "want_parts_dirty_timestamp";
 		String HAS_PARTS_DIRTY_TIMESTAMP = "has_parts_dirty_timestamp";
+		String COLLECTION_HERO_IMAGE_URL = "collection_hero_image_url";
 	}
 
 	interface BuddiesColumns {
@@ -278,6 +280,7 @@ public class BggContract {
 	public static final String PATH_PLAYS = "plays";
 	public static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
+	public static final String PATH_AQUIRED_FROM = "acquiredfrom";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
@@ -690,6 +693,7 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection";
 
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC";
+		public static final String SORT_ACQUIRED_FROM = CollectionColumns.PRIVATE_INFO_ACQUIRED_FROM + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildUri(long id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
@@ -698,6 +702,10 @@ public class BggContract {
 		public static Uri buildUri(String having) {
 			if (TextUtils.isEmpty(having)) return CONTENT_URI;
 			return CONTENT_URI.buildUpon().appendQueryParameter(QUERY_KEY_HAVING, having).build();
+		}
+
+		public static Uri buildAcquiredFromUri() {
+			return CONTENT_URI.buildUpon().appendPath(PATH_AQUIRED_FROM).build();
 		}
 
 		public static long getId(Uri uri) {

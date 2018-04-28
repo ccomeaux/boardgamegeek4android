@@ -30,15 +30,15 @@ public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 		} else {
 			articles = new ArrayList<>(body.articles.size());
 			for (ArticleElement articleElement : body.articles) {
-				articles.add(Article.builder()
-					.setId(articleElement.id)
-					.setUsername(articleElement.username)
-					.setLink(articleElement.link)
-					.setPostTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, articleElement.postdate, ArticleElement.FORMAT))
-					.setEditTicks(DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, articleElement.editdate, ArticleElement.FORMAT))
-					.setBody(articleElement.body == null ? "" : articleElement.body.trim())
-					.setNumberOfEdits(articleElement.numedits)
-					.build());
+				articles.add(new Article(
+					articleElement.id,
+					articleElement.username,
+					articleElement.link,
+					DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, articleElement.postdate, ArticleElement.FORMAT),
+					DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, articleElement.editdate, ArticleElement.FORMAT),
+					articleElement.body == null ? "" : articleElement.body.trim(),
+					articleElement.numedits
+				));
 			}
 		}
 	}

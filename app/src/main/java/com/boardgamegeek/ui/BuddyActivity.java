@@ -20,6 +20,7 @@ import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -112,20 +113,25 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.add_username) {
-			EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newUsernameInstance(R.string.title_add_username, null, new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					if (!TextUtils.isEmpty(inputText)) {
-						AddUsernameToPlayerTask task = new AddUsernameToPlayerTask(BuddyActivity.this, name, inputText);
-						TaskUtils.executeAsyncTask(task);
+
+		switch (item.getItemId()) {
+			case R.id.menu_view:
+				ActivityUtils.linkToBgg(this, "user/" + username);
+				return true;
+			case R.id.add_username:
+				EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newUsernameInstance(R.string.title_add_username, null, new EditTextDialogListener() {
+					@Override
+					public void onFinishEditDialog(String inputText) {
+						if (!TextUtils.isEmpty(inputText)) {
+							AddUsernameToPlayerTask task = new AddUsernameToPlayerTask(BuddyActivity.this, name, inputText);
+							TaskUtils.executeAsyncTask(task);
+						}
 					}
-				}
-			});
-			DialogUtils.showFragment(this, editTextDialogFragment, "add_username");
-			return true;
+				});
+				DialogUtils.showFragment(this, editTextDialogFragment, "add_username");
+				return true;
 		}
-		return false;
+		return super.onOptionsItemSelected(item);
 	}
 
 	@SuppressWarnings("unused")

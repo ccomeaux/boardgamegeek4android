@@ -328,12 +328,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		@Nullable
 		private View createDefaultItem(@Nullable View convertView, ViewGroup parent, int layout) {
 			View v;
-			if (convertView == null) {
+			if (convertView == null && inflater != null) {
 				v = inflater.inflate(layout, parent, false);
 			} else {
 				v = convertView;
 			}
-			((TextView) v).setText(R.string.title_collection);
+			if (v != null)
+				((TextView) v).setText(R.string.title_collection);
 			return v;
 		}
 

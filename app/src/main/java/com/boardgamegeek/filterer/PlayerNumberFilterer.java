@@ -8,6 +8,8 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import java.util.Locale;
+
 public class PlayerNumberFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 12;
@@ -46,11 +48,9 @@ public class PlayerNumberFilterer extends CollectionFilterer {
 		if (isExact) {
 			range = context.getString(R.string.exactly) + " ";
 		}
-		if (min == max) {
-			range += String.valueOf(max);
-		} else {
-			range += String.valueOf(min) + "-" + String.valueOf(max);
-		}
+		range += min == max ?
+			String.format(Locale.getDefault(), "%,d", max) :
+			String.format(Locale.getDefault(), "%,d-%,d", min, max);
 		return range + " " + context.getString(R.string.players);
 	}
 

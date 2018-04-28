@@ -198,6 +198,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private ShowcaseViewWizard showcaseViewWizard;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
+	private Call<ForumListResponse> call;
 
 	public static GameFragment newInstance(int gameId, String gameName, @ColorInt int iconColor, @ColorInt int darkColor) {
 		Bundle args = new Bundle();
@@ -255,6 +256,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@Override
+	public void onStop() {
+		super.onStop();
+		if (call != null) call.cancel();
+	}
+
+	@Override
 	@DebugLog
 	public void onDestroyView() {
 		super.onDestroyView();
@@ -304,7 +311,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		CursorLoader loader = null;
 		switch (id) {
 			case GAME_TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), Game.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), Game.getProjection(), null, null, null);
 				break;
 			case DESIGNER_TOKEN:
 				loader = new CursorLoader(getActivity(), GameDesigner.buildUri(gameId), GameDesigner.PROJECTION, null, null, null);
@@ -407,7 +414,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		if (forumsLastPostDateView.getVisibility() == VISIBLE) return;
 
 		BggService bggService = Adapter.createForXml();
-		Call<ForumListResponse> call = bggService.forumList(BggService.FORUM_TYPE_THING, gameId);
+		call = bggService.forumList(BggService.FORUM_TYPE_THING, gameId);
 		call.enqueue(new Callback<ForumListResponse>() {
 			@Override
 			public void onResponse(@NonNull Call<ForumListResponse> call, @NonNull Response<ForumListResponse> response) {
@@ -427,6 +434,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 			@Override
 			public void onFailure(@NonNull Call<ForumListResponse> call, @NonNull Throwable t) {
+				if (call.isCanceled()) return;
 				Timber.w("Failed fetching forum for game %s: %s", gameId, t.getMessage());
 			}
 		});
@@ -497,46 +505,46 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			Game game = Game.fromCursor(cursor);
 
 			notifyChange(game);
-			gameName = game.Name;
+			gameName = game.getName();
 
-			yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.YearPublished));
+			yearPublishedView.setText(PresentationUtils.describeYear(getContext(), game.getYearPublished()));
 
-			rankView.setText(PresentationUtils.describeRank(getContext(), game.Rank, BggService.RANK_TYPE_SUBTYPE, game.Subtype));
-			favoriteView.setImageResource(game.IsFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
-			favoriteView.setTag(R.id.favorite, game.IsFavorite);
+			rankView.setText(PresentationUtils.describeRank(getContext(), game.getRank(), BggService.RANK_TYPE_SUBTYPE, game.getSubtype()));
+			favoriteView.setImageResource(game.isFavorite() ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+			favoriteView.setTag(R.id.favorite, game.isFavorite());
 
-			ratingView.setText(PresentationUtils.describeRating(getContext(), game.Rating));
-			ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.UsersRated, game.UsersRated));
-			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.Rating));
+			ratingView.setText(PresentationUtils.describeRating(getContext(), game.getRating()));
+			ratingsVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getUsersRated(), game.getUsersRated()));
+			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(game.getRating()));
 
-			idView.setText(String.valueOf(game.Id));
-			updatedView.setTimestamp(game.Updated);
-			UIUtils.setTextMaybeHtml(descriptionView, game.Description);
+			idView.setText(String.valueOf(game.getId()));
+			updatedView.setTimestamp(game.getUpdated());
+			UIUtils.setTextMaybeHtml(descriptionView, game.getDescription());
 			ScrimUtils.applyWhiteScrim(descriptionView);
-			numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.MinPlayers, game.MaxPlayers));
+			numberOfPlayersView.setText(PresentationUtils.describePlayerRange(getContext(), game.getMinPlayers(), game.getMaxPlayers()));
 
-			playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.MinPlayingTime, game.MaxPlayingTime, game.PlayingTime));
+			playTimeView.setText(PresentationUtils.describeMinuteRange(getContext(), game.getMinPlayingTime(), game.getMaxPlayingTime(), game.getPlayingTime()));
 
-			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.MinimumAge));
+			playerAgeMessage.setText(PresentationUtils.describePlayerAge(getContext(), game.getMinimumAge()));
 
-			commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
+			commentsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.comments_suffix, game.getUsersCommented(), game.getUsersCommented()));
 
-			weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.AverageWeight));
-			if (game.AverageWeight >= 1 && game.AverageWeight <= 5) {
-				weightScore.setText(PresentationUtils.describeScore(getContext(), game.AverageWeight));
-				ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.AverageWeight));
+			weightMessage.setText(PresentationUtils.describeWeight(getActivity(), game.getAverageWeight()));
+			if (game.getAverageWeight() >= 1 && game.getAverageWeight() <= 5) {
+				weightScore.setText(PresentationUtils.describeScore(getContext(), game.getAverageWeight()));
+				ColorUtils.setTextViewBackground(weightScore, ColorUtils.getFiveStageColor(game.getAverageWeight()));
 				weightScore.setVisibility(VISIBLE);
 			} else {
 				weightScore.setVisibility(GONE);
 			}
-			weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.NumberWeights, game.NumberWeights));
+			weightVotes.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.votes_suffix, game.getNumberWeights(), game.getNumberWeights()));
 
 			final int maxUsers = game.getMaxUsers();
 			userCountView.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.users_suffix, maxUsers, maxUsers));
 
 			if (mightNeedRefreshing) {
 				mightNeedRefreshing = false;
-				if (DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH ||
+				if (DateTimeUtils.howManyDaysOld(game.getUpdated()) > AGE_IN_DAYS_TO_REFRESH ||
 					game.getPollsVoteCount() == 0)
 					requestRefresh();
 			}
@@ -548,7 +556,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@DebugLog
 	private void notifyChange(Game game) {
-		GameInfoChangedEvent event = new GameInfoChangedEvent(game.Name, game.Subtype, game.ImageUrl, game.ThumbnailUrl, game.CustomPlayerSort, game.IsFavorite);
+		GameInfoChangedEvent event = new GameInfoChangedEvent(game.getName(), game.getSubtype(), game.getImageUrl(), game.getThumbnailUrl(), game.getHeroImageUrl(), game.getCustomPlayerSort(), game.isFavorite());
 		EventBus.getDefault().post(event);
 	}
 
