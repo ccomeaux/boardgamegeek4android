@@ -28,31 +28,34 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private int gameId;
 	private String gameName;
 	private String imageUrl;
 	private String thumbnailUrl;
+	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	@ColorInt private int iconColor;
 	@State int playCount = -1;
 
-	public static void start(Context context, int gameId, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
-		Intent starter = createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, arePlayersCustomSorted, iconColor);
+	public static void start(Context context, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
+		Intent starter = createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor);
 		context.startActivity(starter);
 	}
 
-	public static Intent createIntent(Context context, int gameId, String gameName, String imageUrl, String thumbnailUrl) {
-		return createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, false, 0);
+	public static Intent createIntent(Context context, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl) {
+		return createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, false, 0);
 	}
 
-	public static Intent createIntent(Context context, int gameId, String gameName, String imageUrl, String thumbnailUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
+	public static Intent createIntent(Context context, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl, boolean arePlayersCustomSorted, @ColorInt int iconColor) {
 		Intent intent = new Intent(context, GamePlaysActivity.class);
 		intent.putExtra(KEY_GAME_ID, gameId);
 		intent.putExtra(KEY_GAME_NAME, gameName);
 		intent.putExtra(KEY_IMAGE_URL, imageUrl);
 		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(KEY_HERO_IMAGE_URL, heroImageUrl);
 		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, arePlayersCustomSorted);
 		intent.putExtra(KEY_ICON_COLOR, iconColor);
 		return intent;
@@ -78,6 +81,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 		arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 		iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
@@ -92,7 +96,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return PlaysFragment.newInstanceForGame(gameId, gameName, imageUrl, thumbnailUrl, arePlayersCustomSorted, iconColor);
+		return PlaysFragment.newInstanceForGame(gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor);
 	}
 
 	@Override

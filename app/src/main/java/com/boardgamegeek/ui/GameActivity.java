@@ -234,7 +234,7 @@ public class GameActivity extends HeroTabActivity {
 			imageUrl = event.getImageUrl();
 			thumbnailUrl = event.getThumbnailUrl();
 			heroImageUrl = event.getHeroImageUrl();
-			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, imageLoadCallback);
+			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, heroImageUrl, imageLoadCallback);
 		} else {
 			imageUrl = event.getImageUrl();
 			thumbnailUrl = event.getThumbnailUrl();
@@ -495,7 +495,7 @@ public class GameActivity extends HeroTabActivity {
 		}
 
 		private void onPlayFabClicked() {
-			LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, arePlayersCustomSorted);
+			LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted);
 		}
 
 		@DebugLog

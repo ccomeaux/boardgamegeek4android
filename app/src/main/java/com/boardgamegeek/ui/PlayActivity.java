@@ -24,24 +24,27 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	private long internalId = BggContract.INVALID_ID;
 	private int gameId = BggContract.INVALID_ID;
 	private String gameName;
 	private String thumbnailUrl;
 	private String imageUrl;
+	private String heroImageUrl;
 
 	public static void start(Context context, PlaySelectedEvent event) {
-		Intent intent = createIntent(context, event.getInternalId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl());
+		Intent intent = createIntent(context, event.getInternalId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl(), event.getHeroImageUrl());
 		context.startActivity(intent);
 	}
 
-	public static Intent createIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static Intent createIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
 		intent.putExtra(KEY_ID, internalId);
 		intent.putExtra(KEY_GAME_ID, gameId);
 		intent.putExtra(KEY_GAME_NAME, gameName);
 		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(KEY_IMAGE_URL, imageUrl);
+		intent.putExtra(KEY_HERO_IMAGE_URL, heroImageUrl);
 		return intent;
 	}
 
@@ -66,6 +69,7 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 	}
 
 	@Override
@@ -76,7 +80,7 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return PlayFragment.newInstance(internalId, gameId, gameName, imageUrl, thumbnailUrl);
+		return PlayFragment.newInstance(internalId, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl);
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })

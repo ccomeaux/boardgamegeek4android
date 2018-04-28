@@ -197,7 +197,7 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
         syncResult.stats.numUpdates++
         currentGameId = item.gameId
         currentGameName = item.collectionName
-        notifyUser(item.collectionName, context.getString(messageResId), id, item.getImageUrl(), item.getThumbnailUrl())
+        notifyUser(item.collectionName, context.getString(messageResId), id, item.imageUrl, item.thumbnailUrl, item.heroImageUrl)
     }
 
     private fun processResponseForError(response: CollectionTask): Boolean {

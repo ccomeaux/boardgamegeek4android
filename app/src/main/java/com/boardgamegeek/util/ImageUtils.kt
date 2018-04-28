@@ -44,9 +44,13 @@ object ImageUtils {
      */
     @JvmStatic
     @JvmOverloads
-    fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String = imageUrl, callback: Callback? = null) {
+    fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String, heroImageUrl: String? = "", callback: Callback? = null) {
         RemoteConfig.fetch()
-        if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
+        if (heroImageUrl?.isNotEmpty() == true) {
+            val queue = LinkedList<String>()
+            queue.add(heroImageUrl)
+            loadImages(thumbnailUrl, imageUrl, callback, queue)
+        } else if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
             val imageId = getImageId(imageUrl)
             if (imageId > 0) {
                 val call = Adapter.createGeekdoApi().image(imageId)

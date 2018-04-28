@@ -27,6 +27,7 @@ data class CollectionItem(
         val statusTimestamp: Long,
         val imageUrl: String,
         val thumbnailUrl: String,
+        val heroImageUrl: String,
         val year: Int,
         val condition: String,
         val wantParts: String,
@@ -121,7 +122,8 @@ data class CollectionItem(
                 Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
                 Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
                 Collection.WANT_PARTS_DIRTY_TIMESTAMP,
-                Collection.HAS_PARTS_DIRTY_TIMESTAMP
+                Collection.HAS_PARTS_DIRTY_TIMESTAMP,
+                Collection.COLLECTION_HERO_IMAGE_URL
         )
 
         private const val ID = 0
@@ -166,6 +168,7 @@ data class CollectionItem(
         private const val TRADE_CONDITION_DIRTY_TIMESTAMP = 39
         private const val WANT_PARTS_DIRTY_TIMESTAMP = 40
         private const val HAS_PARTS_DIRTY_TIMESTAMP = 41
+        private const val COLLECTION_HERO_IMAGE_URL = 42
 
         @JvmStatic
         fun fromCursor(cursor: Cursor): CollectionItem {
@@ -191,6 +194,7 @@ data class CollectionItem(
                     cursor.getLong(STATUS_DIRTY_TIMESTAMP),
                     cursor.getString(COLLECTION_IMAGE_URL) ?: "",
                     cursor.getString(COLLECTION_THUMBNAIL_URL) ?: "",
+                    cursor.getString(COLLECTION_HERO_IMAGE_URL) ?: "",
                     cursor.getInt(COLLECTION_YEAR_PUBLISHED),
                     cursor.getString(CONDITION) ?: "",
                     cursor.getString(WANT_PARTS_LIST) ?: "",

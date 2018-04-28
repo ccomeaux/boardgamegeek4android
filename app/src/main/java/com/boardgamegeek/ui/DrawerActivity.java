@@ -208,6 +208,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		String avatarUrl = AccountUtils.getAvatarUrl(this);
+		if (avatarUrl == null) avatarUrl = "";
 		final ImageView imageView = view.findViewById(R.id.account_image);
 		if (TextUtils.isEmpty(avatarUrl)) {
 			imageView.setVisibility(View.GONE);

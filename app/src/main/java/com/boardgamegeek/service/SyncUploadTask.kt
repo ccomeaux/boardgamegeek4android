@@ -36,10 +36,10 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
     protected abstract val notificationErrorTag: String
 
     @DebugLog
-    protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String) {
+    protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
         if (!PreferencesUtils.getPlayUploadNotifications(context)) return
 
-        val loader = LargeIconLoader(context, imageUrl, thumbnailUrl, object : Callback {
+        val loader = LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, object : Callback {
             override fun onSuccessfulIconLoad(bitmap: Bitmap) {
                 buildAndNotify(title, message, id, bitmap)
             }

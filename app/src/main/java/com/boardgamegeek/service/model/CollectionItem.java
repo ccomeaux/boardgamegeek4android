@@ -3,6 +3,7 @@ package com.boardgamegeek.service.model;
 import android.database.Cursor;
 
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.util.CursorUtils;
 
 public class CollectionItem {
 	public static final String[] PROJECTION = {
@@ -41,8 +42,9 @@ public class CollectionItem {
 		Collection.WANT_PARTS_DIRTY_TIMESTAMP,
 		Collection.HASPARTS_LIST,
 		Collection.HAS_PARTS_DIRTY_TIMESTAMP,
-		Collection.IMAGE_URL,
-		Collection.THUMBNAIL_URL
+		Collection.COLLECTION_IMAGE_URL,
+		Collection.COLLECTION_THUMBNAIL_URL,
+		Collection.COLLECTION_HERO_IMAGE_URL
 	};
 
 	private static final int _ID = 0;
@@ -82,6 +84,7 @@ public class CollectionItem {
 	private static final int HAS_PARTS_DIRTY_TIMESTAMP = 34;
 	private static final int IMAGE_URL = 35;
 	private static final int THUMBNAIL_URL = 36;
+	private static final int HERO_IMAGE_URL = 37;
 
 	private long internalId;
 	private int collectionId;
@@ -118,8 +121,9 @@ public class CollectionItem {
 	private long wantPartsDirtyTimestamp;
 	private String hasParts;
 	private long hasPartsDirtyTimestamp;
-	public String imageUrl;
-	public String thumbnailUrl;
+	private String imageUrl;
+	private String thumbnailUrl;
+	private String heroImageUrl;
 
 	public static CollectionItem fromCursor(Cursor cursor) {
 		CollectionItem collectionItem = new CollectionItem();
@@ -127,8 +131,9 @@ public class CollectionItem {
 		collectionItem.collectionId = cursor.getInt(COLLECTION_ID);
 		collectionItem.gameId = cursor.getInt(GAME_ID);
 		collectionItem.collectionName = cursor.getString(COLLECTION_NAME);
-		collectionItem.imageUrl = cursor.getString(IMAGE_URL);
-		collectionItem.thumbnailUrl = cursor.getString(THUMBNAIL_URL);
+		collectionItem.imageUrl = CursorUtils.getString(cursor, IMAGE_URL);
+		collectionItem.thumbnailUrl = CursorUtils.getString(cursor, THUMBNAIL_URL);
+		collectionItem.heroImageUrl = CursorUtils.getString(cursor, HERO_IMAGE_URL);
 
 		collectionItem.rating = cursor.getDouble(RATING);
 		collectionItem.ratingTimestamp = cursor.getLong(RATING_DIRTY_TIMESTAMP);
@@ -315,5 +320,9 @@ public class CollectionItem {
 
 	public String getThumbnailUrl() {
 		return thumbnailUrl;
+	}
+
+	public String getHeroImageUrl() {
+		return heroImageUrl;
 	}
 }

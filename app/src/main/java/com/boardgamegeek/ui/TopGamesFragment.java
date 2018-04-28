@@ -124,15 +124,15 @@ public class TopGamesFragment extends Fragment {
 		for (Element element : gameElements) {
 			TopGame game = new TopGame();
 			Element link = element.getElementsByTag("a").first();
-			game.id = getGameIdFromLink(link.attr("href"));
-			game.rank = rank;
-			game.yearPublished = 0;
-			game.thumbnailUrl = link.child(0).attr("src");
+			game.setId(getGameIdFromLink(link.attr("href")));
+			game.setRank(rank);
+			game.setYearPublished(0);
+			game.setThumbnailUrl(link.child(0).attr("src"));
 
 			Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
-			game.name = gameNameElement.child(0).text();
+			game.setName(gameNameElement.child(0).text());
 			String yearPublishedText = gameNameElement.child(1).text();
-			game.yearPublished = Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1));
+			game.setYearPublished(Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1)));
 
 			topGames.add(game);
 			rank++;

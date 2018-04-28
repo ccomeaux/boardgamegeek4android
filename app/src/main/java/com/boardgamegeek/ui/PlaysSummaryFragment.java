@@ -324,7 +324,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		view.setTag(R.id.game_info_id, play.getGameId());
 		view.setTag(R.id.game_name, play.getName());
 		view.setTag(R.id.thumbnail, play.getThumbnailUrl());
-		view.setTag(R.id.account_image, play.getImageUrl());
+		view.setTag(R.id.image, play.getImageUrl());
+		view.setTag(R.id.hero_image, play.getHeroImageUrl());
 
 		view.setOnClickListener(new OnClickListener() {
 			@Override
@@ -334,7 +335,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					(int) v.getTag(R.id.game_info_id),
 					(String) v.getTag(R.id.game_name),
 					(String) v.getTag(R.id.thumbnail),
-					(String) v.getTag(R.id.account_image)));
+					(String) v.getTag(R.id.image),
+					(String) v.getTag(R.id.hero_image)));
 			}
 		});
 	}

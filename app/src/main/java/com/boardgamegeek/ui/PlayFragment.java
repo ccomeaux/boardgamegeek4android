@@ -77,6 +77,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int PLAY_QUERY_TOKEN = 0x01;
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
@@ -85,6 +86,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private Play play = new Play();
 	private String thumbnailUrl;
 	private String imageUrl;
+	private String heroImageUrl;
 	private boolean isRefreshing;
 
 	private Unbinder unbinder;
@@ -129,13 +131,14 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	};
 
-	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl) {
+	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl) {
 		Bundle args = new Bundle();
 		args.putLong(KEY_ID, internalId);
 		args.putInt(KEY_GAME_ID, gameId);
 		args.putString(KEY_GAME_NAME, gameName);
 		args.putString(KEY_IMAGE_URL, imageUrl);
 		args.putString(KEY_THUMBNAIL_URL, thumbnailUrl);
+		args.putString(KEY_HERO_IMAGE_URL, heroImageUrl);
 		PlayFragment fragment = new PlayFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -155,6 +158,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		play = new Play(bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID), bundle.getString(KEY_GAME_NAME));
 		thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
 		imageUrl = bundle.getString(KEY_IMAGE_URL);
+		heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL);
+
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (imageUrl == null) imageUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
 	}
 
 	@Override
@@ -252,7 +260,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_edit:
 				PlayManipulationEvent.log("Edit", play.gameName);
-				LogPlayActivity.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				LogPlayActivity.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				return true;
 			case R.id.menu_send:
 				play.updateTimestamp = System.currentTimeMillis();
@@ -278,7 +286,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			}
 			case R.id.menu_rematch:
 				PlayManipulationEvent.log("Rematch", play.gameName);
-				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -332,7 +340,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@OnClick(R.id.timer_end)
 	void onTimerClick() {
-		LogPlayActivity.endPlay(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
+		LogPlayActivity.endPlay(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 	}
 
 	@Override
@@ -402,7 +410,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		playersView.setVisibility(View.VISIBLE);
 		emptyView.setVisibility(View.GONE);
 
-		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, new Callback() {
+		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
 			@Override
 			public void onSuccessfulImageLoad(Palette palette) {
 				if (gameNameView != null && isAdded()) {
@@ -476,7 +484,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		syncTimestampView.setTimestamp(play.syncTimestamp);
 
-		getActivity().supportInvalidateOptionsMenu();
+		getActivity().invalidateOptionsMenu();
 		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
 		if (play.playId > 0 &&
@@ -496,7 +504,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void showNotification() {
-		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl);
+		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl, heroImageUrl);
 	}
 
 	private void cancelNotification() {

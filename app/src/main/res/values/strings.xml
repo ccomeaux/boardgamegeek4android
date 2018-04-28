@@ -662,6 +662,7 @@
 	<string name="error_account_list_zero">Account couldn\'t be added. Please check the Accounts section of your device\'s settings to ensure there is no BoardGameGeek account listed already.</string>
 	<string name="error_account_list_multiple">Multiple accounts of type %s are not allowed.</string>
 	<string name="error_account_name_mismatch">The existing account for %s doesn\'t match the one requested for %s.</string>
+	<string name="error_account_set_auth_token_security_exception">Uh-oh! This isn\'t an error we expect to see. If you have ScorePal installed, there\'s a known problem that one prevents the other from signing in. We\'re working to resolve the issue.</string>
 	<string name="error_field_required">This field is required</string>
 
 	<plurals name="msg_colors_selected">

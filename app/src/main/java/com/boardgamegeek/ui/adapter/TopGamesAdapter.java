@@ -63,15 +63,15 @@ public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHo
 
 		public void bind(TopGame game) {
 			this.game = game;
-			name.setText(game.name);
-			year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
-			rank.setText(String.valueOf(game.rank));
-			ImageUtils.loadThumbnail(thumbnail, game.thumbnailUrl);
+			name.setText(game.getName());
+			year.setText(PresentationUtils.describeYear(name.getContext(), game.getYearPublished()));
+			rank.setText(String.valueOf(game.getRank()));
+			ImageUtils.loadThumbnail(thumbnail, game.getThumbnailUrl());
 
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					GameActivity.start(itemView.getContext(), getGame().id, getGame().name);
+					GameActivity.start(itemView.getContext(), getGame().getId(), getGame().getName());
 				}
 			});
 		}
