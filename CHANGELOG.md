@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.7
+-----------
+ * Coming soon
+
 Version 6.6
 -----------
  * More UI polish
