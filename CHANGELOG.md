@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.6.1
+-------------
+ * Bug fixes
+
 Version 6.6
 -----------
  * More UI polish
