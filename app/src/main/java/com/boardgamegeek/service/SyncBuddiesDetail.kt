@@ -12,7 +12,7 @@ import timber.log.Timber
 import java.io.IOException
 
 abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
-    private var notificationMessage: String? = null
+    private var notificationMessage: String = ""
 
     /**
      * Returns a log message to use for debugging purposes.
@@ -71,13 +71,13 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
             val call = service.user(name)
             val response = call.execute()
             if (!response.isSuccessful) {
-                showError(notificationMessage!!, response.code())
+                showError(notificationMessage, response.code())
                 syncResult.stats.numIoExceptions++
                 cancel()
             }
             user = response.body()
         } catch (e: IOException) {
-            showError(notificationMessage!!, e)
+            showError(notificationMessage, e)
             syncResult.stats.numIoExceptions++
             cancel()
         }

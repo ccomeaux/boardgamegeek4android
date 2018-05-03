@@ -30,6 +30,7 @@ import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
+import java.util.concurrent.TimeUnit
 
 class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
@@ -92,12 +93,15 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                 null,
                 Plays.UPDATE_TIMESTAMP)
         cursor?.use { c ->
-            val playCount = c.count
-            updateProgressNotificationAsPlural(R.plurals.sync_notification_progress_update, playCount, playCount)
+            var currentNumberOfPlays = 0
+            val totalNumberOfPlays = c.count
+            updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update, totalNumberOfPlays, totalNumberOfPlays)
 
             while (c.moveToNext()) {
                 if (isCancelled) break
-                if (wasSleepInterrupted(1000)) break
+                if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) break
+
+                updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
                 val internalId = CursorUtils.getLong(c, Plays._ID, BggContract.INVALID_ID.toLong())
                 val play = PlayBuilder.fromCursor(c)
@@ -132,7 +136,7 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                     play.updateTimestamp = 0
                     play.deleteTimestamp = 0
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
-                    
+
                     notifyUser(play, message)
                     persister.save(play, internalId, false)
 
@@ -140,30 +144,6 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                 }
             }
         }
-    }
-
-    private fun notifyUser(play: Play, message: CharSequence) {
-        if (play.gameId != BggContract.INVALID_ID) {
-            val gameCursor = context.contentResolver.query(
-                    Games.buildGameUri(play.gameId),
-                    arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL),
-                    null,
-                    null,
-                    null)
-            gameCursor?.use { c ->
-                if (c.moveToFirst()) {
-                    currentPlay.imageUrl = c.getString(0) ?: ""
-                    currentPlay.thumbnailUrl = c.getString(1) ?: ""
-                    currentPlay.heroImageUrl = c.getString(2) ?: ""
-                }
-            }
-        }
-        notifyUser(play.gameName,
-                message,
-                NotificationUtils.getIntegerId(currentPlay.internalId),
-                currentPlay.imageUrl,
-                currentPlay.thumbnailUrl,
-                currentPlay.heroImageUrl)
     }
 
     @DebugLog
@@ -174,16 +154,20 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                 null,
                 Plays.DELETE_TIMESTAMP)
         cursor?.use { c ->
-            val playCount = c.count
-            updateProgressNotificationAsPlural(R.plurals.sync_notification_progress_delete, playCount, playCount)
+            var currentNumberOfPlays = 0
+            val totalNumberOfPlays = c.count
+            updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete, totalNumberOfPlays, totalNumberOfPlays)
 
             while (c.moveToNext()) {
                 if (isCancelled) break
+                if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) break
+
+                updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
+
                 val play = PlayBuilder.fromCursor(c)
                 val internalId = CursorUtils.getLong(c, Plays._ID, BggContract.INVALID_ID.toLong())
                 currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                 if (play.playId > 0) {
-                    if (wasSleepInterrupted(1000)) break
                     val response = postPlayDelete(play.playId)
                     if (response.isSuccessful) {
                         syncResult.stats.numDeletes++
@@ -288,12 +272,10 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
     /**
      * Deletes the specified play from the content provider
      */
-    @DebugLog
     private fun deletePlay(internalId: Long) {
         persister.delete(internalId)
     }
 
-    @DebugLog
     private fun getPlayCountDescription(count: Int, quantity: Int): String {
         return when (quantity) {
             1 -> StringUtils.getOrdinal(count)
@@ -302,13 +284,36 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
         }
     }
 
-    @DebugLog
     private fun notifyUserOfDelete(@StringRes messageId: Int, play: Play) {
         NotificationUtils.cancel(context,
                 notificationMessageTag,
                 NotificationUtils.getIntegerId(currentPlay.internalId).toLong())
         currentPlay.internalId = BggContract.INVALID_ID.toLong()
         notifyUser(play, PresentationUtils.getText(context, messageId, play.gameName))
+    }
+
+    private fun notifyUser(play: Play, message: CharSequence) {
+        if (play.gameId != BggContract.INVALID_ID) {
+            val gameCursor = context.contentResolver.query(
+                    Games.buildGameUri(play.gameId),
+                    arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL),
+                    null,
+                    null,
+                    null)
+            gameCursor?.use { c ->
+                if (c.moveToFirst()) {
+                    currentPlay.imageUrl = c.getString(0) ?: ""
+                    currentPlay.thumbnailUrl = c.getString(1) ?: ""
+                    currentPlay.heroImageUrl = c.getString(2) ?: ""
+                }
+            }
+        }
+        notifyUser(play.gameName,
+                message,
+                NotificationUtils.getIntegerId(currentPlay.internalId),
+                currentPlay.imageUrl,
+                currentPlay.thumbnailUrl,
+                currentPlay.heroImageUrl)
     }
 
     @DebugLog

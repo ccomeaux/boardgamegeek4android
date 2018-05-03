@@ -3,6 +3,7 @@ Release Notes
 
 Version 6.6.1
 -------------
+ * Improved sync notifications
  * Bug fixes
 
 Version 6.6
