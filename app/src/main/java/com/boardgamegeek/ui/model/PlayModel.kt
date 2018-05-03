@@ -2,28 +2,33 @@ package com.boardgamegeek.ui.model
 
 import android.content.Context
 import android.database.Cursor
+import android.database.CursorIndexOutOfBoundsException
+import com.boardgamegeek.provider.BggContract
 
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.util.CursorUtils
+import timber.log.Timber
 
 class PlayModel(
         val playId: Int,
         val gameId: Int,
-        val name: String?,
-        val date: String?,
-        val location: String?,
-        val quantity: Int,
-        val length: Int,
-        val playerCount: Int,
-        val comments: String?,
-        val thumbnailUrl: String?,
-        val imageUrl: String?,
-        val heroImageUrl: String?,
-        val deleteTimestamp: Long,
-        val updateTimestamp: Long,
-        val dirtyTimestamp: Long
+        val name: String = "",
+        val date: String = "",
+        val location: String = "",
+        val quantity: Int = 1,
+        val length: Int = 0,
+        val playerCount: Int = 0,
+        val comments: String = "",
+        val thumbnailUrl: String = "",
+        val imageUrl: String = "",
+        val heroImageUrl: String = "",
+        val deleteTimestamp: Long = 0,
+        val updateTimestamp: Long = 0,
+        val dirtyTimestamp: Long = 0
 ) {
+
+    private constructor() : this(BggContract.INVALID_ID, BggContract.INVALID_ID)
 
     companion object {
         @JvmStatic
@@ -64,23 +69,28 @@ class PlayModel(
 
         @JvmStatic
         fun fromCursor(cursor: Cursor, context: Context): PlayModel {
-            return PlayModel(
-                    cursor.getInt(PLAY_ID),
-                    cursor.getInt(GAME_ID),
-                    cursor.getString(GAME_NAME),
-                    CursorUtils.getFormattedDateAbbreviated(cursor, context, DATE),
-                    cursor.getString(LOCATION),
-                    cursor.getInt(QUANTITY),
-                    cursor.getInt(LENGTH),
-                    cursor.getInt(PLAYER_COUNT),
-                    CursorUtils.getString(cursor, COMMENTS).trim(),
-                    cursor.getString(THUMBNAIL_URL) ?: "",
-                    cursor.getString(IMAGE_URL) ?: "",
-                    cursor.getString(HERO_IMAGE_URL) ?: "",
-                    cursor.getLong(DELETE_TIMESTAMP),
-                    cursor.getLong(UPDATE_TIMESTAMP),
-                    cursor.getLong(DIRTY_TIMESTAMP)
-            )
+            try {
+                return PlayModel(
+                        cursor.getInt(PLAY_ID),
+                        cursor.getInt(GAME_ID),
+                        cursor.getString(GAME_NAME) ?: "",
+                        CursorUtils.getFormattedDateAbbreviated(cursor, context, DATE),
+                        cursor.getString(LOCATION) ?: "",
+                        cursor.getInt(QUANTITY),
+                        cursor.getInt(LENGTH),
+                        cursor.getInt(PLAYER_COUNT),
+                        (cursor.getString(COMMENTS) ?: "").trim(),
+                        cursor.getString(THUMBNAIL_URL) ?: "",
+                        cursor.getString(IMAGE_URL) ?: "",
+                        cursor.getString(HERO_IMAGE_URL) ?: "",
+                        cursor.getLong(DELETE_TIMESTAMP),
+                        cursor.getLong(UPDATE_TIMESTAMP),
+                        cursor.getLong(DIRTY_TIMESTAMP)
+                )
+            } catch (e: CursorIndexOutOfBoundsException) {
+                Timber.w(e)
+                return PlayModel()
+            }
         }
     }
 }
