@@ -60,12 +60,12 @@
 					android:visibility="gone">
 
 					<CheckBox
-						android:id="@+id/want_to_buy"
+						android:id="@+id/own"
 						style="@style/EditCheckbox.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:tag="want_to_buy"
-						android:text="@string/collection_status_want_to_buy"/>
+						android:tag="own"
+						android:text="@string/collection_status_own"/>
 
 					<CheckBox
 						android:id="@+id/preordered"
@@ -76,12 +76,20 @@
 						android:text="@string/collection_status_preordered"/>
 
 					<CheckBox
-						android:id="@+id/own"
+						android:id="@+id/previously_owned"
 						style="@style/EditCheckbox.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:tag="own"
-						android:text="@string/collection_status_own"/>
+						android:tag="previously_owned"
+						android:text="@string/collection_status_prev_owned"/>
+
+					<CheckBox
+						android:id="@+id/want_to_buy"
+						style="@style/EditCheckbox.Card"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:tag="want_to_buy"
+						android:text="@string/collection_status_want_to_buy"/>
 
 					<CheckBox
 						android:id="@+id/want_to_play"
@@ -90,14 +98,6 @@
 						android:layout_height="wrap_content"
 						android:tag="want_to_play"
 						android:text="@string/collection_status_want_to_play"/>
-
-					<CheckBox
-						android:id="@+id/previously_owned"
-						style="@style/EditCheckbox.Card"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:tag="previously_owned"
-						android:text="@string/collection_status_prev_owned"/>
 				</LinearLayout>
 
 				<android.support.v4.widget.Space
@@ -303,9 +303,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:tag="want"
-					android:text="@string/collection_status_want_in_trade"
-					android:visibility="gone"
-					tools:visibility="invisible"/>
+					android:text="@string/collection_status_want_in_trade"/>
 
 				<CheckBox
 					android:id="@+id/for_trade"
@@ -313,9 +311,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:tag="for_trade"
-					android:text="@string/collection_status_for_trade"
-					android:visibility="gone"
-					tools:visibility="invisible"/>
+					android:text="@string/collection_status_for_trade"/>
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
