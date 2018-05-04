@@ -29,4 +29,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
         gameRepository.updateLastViewed(lastViewed)
     }
+
+    fun updateHeroImageUrl(url: String) {
+        val data = game.value?.data ?: return
+        gameRepository.updateHeroImageUrl(url, data.imageUrl, data.thumbnailUrl, data.heroImageUrl)
+    }
 }

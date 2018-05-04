@@ -48,6 +48,19 @@ class GameRepository(val application: BggApplication) {
         })
     }
 
+    fun updateHeroImageUrl(url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
+        Handler().post {
+            if (url.isNotBlank() &&
+                    url != imageUrl &&
+                    url != thumbnailUrl &&
+                    url != heroImageUrl) {
+                val values = ContentValues()
+                values.put(BggContract.Games.HERO_IMAGE_URL, url)
+                application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+            }
+        }
+    }
+
     inner class GameLoader(context: Context) : RefreshableResourceLoader<Game, ThingResponse>(context) {
         override val typeDescriptionResId = R.string.title_game
 
