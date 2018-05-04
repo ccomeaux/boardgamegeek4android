@@ -54,7 +54,7 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
                     syncResult.stats.numUpdates++
                     count++
 
-                    if (wasSleepInterrupted(fetchPauseMillis)) break
+                    if (wasSleepInterrupted(fetchPauseMillis, showNotification = false)) break
                 }
             } else {
                 Timber.i("...no buddies to update")
@@ -66,22 +66,20 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
     }
 
     private fun requestUser(name: String): User? {
-        var user: User? = null
         try {
             val call = service.user(name)
             val response = call.execute()
-            if (!response.isSuccessful) {
-                showError(notificationMessage, response.code())
-                syncResult.stats.numIoExceptions++
-                cancel()
-            }
-            user = response.body()
+            if (response.isSuccessful) return response.body()
+            showError(notificationMessage, response.code())
+            syncResult.stats.numIoExceptions++
+            cancel()
+            return response.body()
         } catch (e: IOException) {
             showError(notificationMessage, e)
             syncResult.stats.numIoExceptions++
             cancel()
         }
 
-        return user
+        return null
     }
 }
