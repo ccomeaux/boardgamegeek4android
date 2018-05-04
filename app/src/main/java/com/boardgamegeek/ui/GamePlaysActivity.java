@@ -84,6 +84,10 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 		arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 		iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT);
+
+		if (imageUrl == null) imageUrl = "";
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
 	}
 
 	@DebugLog
@@ -116,7 +120,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				GameActivity.startUp(this, gameId, gameName, imageUrl);
+				GameActivity.startUp(this, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl);
 				finish();
 				return true;
 		}

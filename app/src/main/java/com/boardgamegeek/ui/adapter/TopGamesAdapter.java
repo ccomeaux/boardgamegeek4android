@@ -71,7 +71,12 @@ public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHo
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					GameActivity.start(itemView.getContext(), getGame().getId(), getGame().getName());
+					GameActivity.start(itemView.getContext(),
+						getGame().getId(),
+						getGame().getName(),
+						"",
+						getGame().getThumbnailUrl(),
+						"");
 				}
 			});
 		}

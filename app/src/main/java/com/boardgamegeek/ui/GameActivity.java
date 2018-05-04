@@ -65,12 +65,14 @@ public class GameActivity extends HeroTabActivity {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
+	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	private static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	private int gameId;
 	private String gameName;
-	private String imageUrl;
-	private String thumbnailUrl;
-	private String heroImageUrl;
+	@NonNull private String imageUrl = "";
+	@NonNull private String thumbnailUrl = "";
+	@NonNull private String heroImageUrl = "";
 	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
 	private GamePagerAdapter adapter;
@@ -79,21 +81,21 @@ public class GameActivity extends HeroTabActivity {
 	@ColorInt private int[] playCountColors;
 
 	public static void start(Context context, int gameId, String gameName) {
-		start(context, gameId, gameName, null);
+		start(context, gameId, gameName, "", "", "");
 	}
 
-	public static void start(Context context, int gameId, String gameName, String imageUrl) {
-		final Intent starter = createIntent(context, gameId, gameName, imageUrl);
+	public static void start(Context context, int gameId, String gameName, @NonNull String imageUrl, @NonNull String thumbnailUrl, @NonNull String heroImageUrl) {
+		final Intent starter = createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl);
 		if (starter == null) return;
 		context.startActivity(starter);
 	}
 
 	public static void startUp(Context context, int gameId, String gameName) {
-		startUp(context, gameId, gameName, null);
+		startUp(context, gameId, gameName, "", "", "");
 	}
 
-	public static void startUp(Context context, int gameId, String gameName, String imageUrl) {
-		final Intent starter = createIntent(context, gameId, gameName, imageUrl);
+	public static void startUp(Context context, int gameId, String gameName, @NonNull String imageUrl, @NonNull String thumbnailUrl, @NonNull String heroImageUrl) {
+		final Intent starter = createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl);
 		if (starter == null) return;
 		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -101,18 +103,20 @@ public class GameActivity extends HeroTabActivity {
 	}
 
 	@Nullable
-	public static Intent createIntent(Context context, int gameId, String gameName, String imageUrl) {
+	public static Intent createIntent(Context context, int gameId, String gameName, @NonNull String imageUrl, @NonNull String thumbnailUrl, @NonNull String heroImageUrl) {
 		if (gameId == BggContract.INVALID_ID) return null;
 		final Intent starter = new Intent(context, GameActivity.class);
 		starter.putExtra(KEY_GAME_ID, gameId);
 		starter.putExtra(KEY_GAME_NAME, gameName);
 		starter.putExtra(KEY_IMAGE_URL, imageUrl);
+		starter.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
+		starter.putExtra(KEY_HERO_IMAGE_URL, heroImageUrl);
 		return starter;
 	}
 
 	@Nullable
 	public static Intent createIntentAsShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
-		Intent intent = createIntent(context, gameId, gameName, thumbnailUrl);
+		Intent intent = createIntent(context, gameId, gameName, "", thumbnailUrl, "");
 		if (intent == null) return null;
 		intent.putExtra(KEY_FROM_SHORTCUT, true);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -131,11 +135,12 @@ public class GameActivity extends HeroTabActivity {
 			finish();
 		}
 
-		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
-		//TODO: pass in hero image URL instead
-		//changeImage(getIntent().getStringExtra(KEY_IMAGE_URL));
-
 		initializeViewPager();
+
+		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+		changeImage(getIntent().getStringExtra(KEY_IMAGE_URL),
+			getIntent().getStringExtra(KEY_THUMBNAIL_URL),
+			getIntent().getStringExtra(KEY_HERO_IMAGE_URL));
 
 		GameViewModel viewModel = ViewModelProviders.of(this).get(GameViewModel.class);
 
@@ -149,7 +154,7 @@ public class GameActivity extends HeroTabActivity {
 				final Game g = game.getData();
 				if (g == null) return;
 				changeName(g.getName());
-				changeImage(g);
+				changeImage(g.getImageUrl(), g.getThumbnailUrl(), g.getHeroImageUrl());
 				arePlayersCustomSorted = g.getCustomPlayerSort();
 				isFavorite = g.isFavorite();
 			}
@@ -257,18 +262,18 @@ public class GameActivity extends HeroTabActivity {
 		}
 	}
 
-	private void changeImage(@NonNull Game game) {
-		if (!game.getImageUrl().equals(imageUrl) ||
-			!game.getThumbnailUrl().equals(thumbnailUrl) ||
-			!game.getHeroImageUrl().equals(heroImageUrl)) {
-			imageUrl = game.getImageUrl();
-			thumbnailUrl = game.getThumbnailUrl();
-			heroImageUrl = game.getHeroImageUrl();
-			ImageUtils.safelyLoadImage(toolbarImage, imageUrl, thumbnailUrl, heroImageUrl, imageLoadCallback);
+	private void changeImage(String imageUrl, String thumbnailUrl, String heroImageUrl) {
+		if (!this.imageUrl.equals(imageUrl) ||
+			!this.thumbnailUrl.equals(thumbnailUrl) ||
+			!this.heroImageUrl.equals(heroImageUrl)) {
+			this.imageUrl = imageUrl == null ? "" : imageUrl;
+			this.thumbnailUrl = thumbnailUrl == null ? "" : thumbnailUrl;
+			this.heroImageUrl = heroImageUrl == null ? "" : heroImageUrl;
+			ImageUtils.safelyLoadImage(toolbarImage, this.imageUrl, this.thumbnailUrl, this.heroImageUrl, imageLoadCallback);
 		} else {
-			imageUrl = game.getImageUrl();
-			thumbnailUrl = game.getThumbnailUrl();
-			heroImageUrl = game.getHeroImageUrl();
+			this.imageUrl = imageUrl;
+			this.thumbnailUrl = thumbnailUrl;
+			this.heroImageUrl = heroImageUrl;
 		}
 	}
 
