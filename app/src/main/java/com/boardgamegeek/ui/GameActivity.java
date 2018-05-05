@@ -289,7 +289,7 @@ public class GameActivity extends HeroTabActivity {
 				darkColor = darkSwatch.getRgb();
 				playCountColors = PaletteUtils.getPlayCountColors(palette, getApplicationContext());
 				EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor, playCountColors));
-				PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).getRgb());
+				PresentationUtils.colorFab(fab, iconColor);
 				adapter.displayFab();
 			}
 

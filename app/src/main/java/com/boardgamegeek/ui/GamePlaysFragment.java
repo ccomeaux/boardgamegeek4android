@@ -294,7 +294,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private void colorize() {
 		if (!isAdded()) return;
 		if (iconColor != Color.TRANSPARENT) {
-			ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, iconColor);
+			ButterKnife.apply(colorizedIcons, PaletteUtils.getRgbIconSetter(), iconColor);
 		}
 	}
 

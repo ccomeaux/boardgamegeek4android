@@ -460,7 +460,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 		if (iconColor != Color.TRANSPARENT) {
 			if (colorizedRows != null) ButterKnife.apply(colorizedRows, GameDetailRow.rgbIconSetter, iconColor);
-			if (colorizedIcons != null) ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, iconColor);
+			if (colorizedIcons != null) ButterKnife.apply(colorizedIcons, PaletteUtils.getRgbIconSetter(), iconColor);
 		}
 	}
 

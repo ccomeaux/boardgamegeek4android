@@ -374,7 +374,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void colorize(Palette palette) {
 		if (palette == null || !isAdded()) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
 		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
 	}
 

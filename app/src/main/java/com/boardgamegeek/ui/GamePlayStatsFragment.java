@@ -153,8 +153,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		unbinder = ButterKnife.bind(this, rootView);
 
 		if (headerColor != Color.TRANSPARENT) {
-			ButterKnife.apply(colorizedHeaders, PaletteUtils.rgbTextViewSetter, headerColor);
-			ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, headerColor);
+			ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), headerColor);
+			ButterKnife.apply(colorizedIcons, PaletteUtils.getRgbIconSetter(), headerColor);
 		}
 
 		if (getContext() != null) {
