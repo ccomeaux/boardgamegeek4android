@@ -18,6 +18,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.set
 
 /**
@@ -79,15 +80,13 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
                         Timber.i("...cancelled")
                         return
                     }
-                    updateProgressNotification()
-                    if (wasSleepInterrupted(5000)) return
+                    if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
                 }
 
                 val excludedStatuses = (0 until i).map { statuses[it] }
                 syncByStatus("", statuses[i], *excludedStatuses.toTypedArray())
 
-                updateProgressNotification()
-                if (wasSleepInterrupted(5000)) return
+                if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
 
                 syncByStatus(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY, statuses[i], *excludedStatuses.toTypedArray())
             }

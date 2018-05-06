@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 6.6.1
+-------------
+ * Restore missing checkboxes for collection statuses
+ * Improved sync notifications
+ * Bug fixes
+
 Version 6.6
 -----------
  * More UI polish

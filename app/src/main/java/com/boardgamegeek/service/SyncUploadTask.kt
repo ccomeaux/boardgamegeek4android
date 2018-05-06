@@ -66,8 +66,7 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
                 .setLargeIcon(largeIcon)
                 .setOnlyAlertOnce(true)
                 .setGroup(notificationMessageTag)
-        val detail = NotificationCompat.BigTextStyle(builder)
-        detail.bigText(message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
         val action = createMessageAction()
         if (action != null) {
             builder.addAction(action)
