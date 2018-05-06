@@ -8,7 +8,6 @@ import android.support.annotation.PluralsRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.BigTextStyle
 import android.text.TextUtils
-
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.NotificationUtils
@@ -16,8 +15,8 @@ import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.PresentationUtils
 import com.boardgamegeek.util.fabric.CrashKeys
 import com.crashlytics.android.Crashlytics
-
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 abstract class SyncTask(protected val context: Context, protected val service: BggService, protected val syncResult: SyncResult) {
     /**
@@ -108,18 +107,15 @@ abstract class SyncTask(protected val context: Context, protected val service: B
      * existing error notification.
      */
     private fun showError(detailMessage: String, errorMessage: String) {
-        Timber.w("$detailMessage\n$errorMessage")
+        Timber.w("$detailMessage\n$errorMessage".trim())
 
         if (!PreferencesUtils.getSyncShowErrors(context)) return
 
-        val contentMessage = if (notificationSummaryMessageId == NO_NOTIFICATION)
-            detailMessage
-        else
-            context.getString(notificationSummaryMessageId)
-        val bigText = if (notificationSummaryMessageId == NO_NOTIFICATION)
-            errorMessage
-        else
-            detailMessage + "\n" + errorMessage
+        val contentMessage = if (notificationSummaryMessageId == NO_NOTIFICATION) detailMessage
+        else context.getString(notificationSummaryMessageId)
+
+        val bigText = if (notificationSummaryMessageId == NO_NOTIFICATION) errorMessage
+        else (detailMessage + "\n" + errorMessage).trim()
 
         val builder = NotificationUtils
                 .createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
@@ -137,12 +133,17 @@ abstract class SyncTask(protected val context: Context, protected val service: B
      * Sleep for the specified number of milliseconds. Returns true if thread was interrupted. This typically means the
      * task should stop processing.
      */
-    protected fun wasSleepInterrupted(millis: Long): Boolean {
+    protected fun wasSleepInterrupted(duration: Long, timeUnit: TimeUnit = TimeUnit.MILLISECONDS, showNotification: Boolean = true): Boolean {
         try {
-            Timber.d("Sleeping for %,d millis", millis)
-            Thread.sleep(millis)
+            Timber.d("Sleeping for %,d millis", timeUnit.toMillis(duration))
+            if (showNotification) {
+                val durationSeconds = timeUnit.toSeconds(duration).toInt()
+                updateProgressNotification(context.resources.getQuantityString(R.plurals.sync_notification_collection_sleeping, durationSeconds, durationSeconds))
+            }
+            timeUnit.sleep(duration)
         } catch (e: InterruptedException) {
             Timber.w(e, "Sleeping interrupted during sync.")
+            NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS)
             return true
         }
 

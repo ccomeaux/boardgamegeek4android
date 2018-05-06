@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -24,7 +25,8 @@ public class AccountUtils {
 
 	public static void setUsername(final Context context, final String username) {
 		setString(context, username, KEY_USERNAME);
-		Crashlytics.setUserIdentifier(username);
+		if (!TextUtils.isEmpty(username))
+			Crashlytics.setUserIdentifier(String.valueOf(username.hashCode()));
 	}
 
 	public static void setFullName(final Context context, String fullName) {

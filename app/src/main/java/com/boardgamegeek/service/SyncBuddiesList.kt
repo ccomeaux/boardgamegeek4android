@@ -12,11 +12,9 @@ import com.boardgamegeek.model.Buddy
 import com.boardgamegeek.model.User
 import com.boardgamegeek.model.persister.BuddyPersister
 import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Buddies
-import com.boardgamegeek.util.DateTimeUtils
-import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.PresentationUtils
-import com.boardgamegeek.util.RemoteConfig
+import com.boardgamegeek.util.*
 import timber.log.Timber
 import java.io.IOException
 
@@ -67,7 +65,7 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
     }
 
     private fun updateNotification(@StringRes detailResId: Int) {
-        currentDetailResId = R.string.sync_notification_buddies_list_downloading
+        currentDetailResId = detailResId
         updateProgressNotification(context.getString(detailResId))
     }
 
@@ -99,9 +97,14 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
     }
 
     private fun persistUser(user: User) {
-        var count = 0
-        count += persister.saveBuddy(Buddy.fromUser(user))
-        count += persister.saveBuddies(user.buddies)
+        var count = persister.saveBuddy(user.id, user.name, false)
+
+        val buddies = user.buddies?.buddies ?: listOf<Buddy>()
+        for (buddy in buddies) {
+            val userId = StringUtils.parseInt(buddy.id, BggContract.INVALID_ID)
+            count += persister.saveBuddy(userId, buddy.name, true)
+        }
+
         syncResult.stats.numEntries += count.toLong()
         Timber.i("Synced %,d buddies", count)
     }

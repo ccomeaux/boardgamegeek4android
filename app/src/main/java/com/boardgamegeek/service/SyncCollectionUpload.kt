@@ -25,6 +25,7 @@ import okhttp3.OkHttpClient
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class SyncCollectionUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
     private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
@@ -78,27 +79,24 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
                 processDeletedCollectionItem(c)
             }
         }
-        NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS)
 
         val newItemsCursor = fetchNewCollectionItems()
         newItemsCursor?.use { c ->
             while (c.moveToNext()) {
                 if (isCancelled) break
-                if (wasSleepInterrupted(1000)) break
+                if (wasSleepInterrupted(1, TimeUnit.SECONDS)) break
                 processNewCollectionItem(c)
             }
         }
-        NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS)
 
         val dirtyItemsCursor = fetchDirtyCollectionItems()
         dirtyItemsCursor?.use { c ->
             while (c.moveToNext()) {
                 if (isCancelled) break
-                if (wasSleepInterrupted(1000)) break
+                if (wasSleepInterrupted(1, TimeUnit.SECONDS)) break
                 processDirtyCollectionItem(c)
             }
         }
-        NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS)
     }
 
     private fun fetchDeletedCollectionItems(): Cursor? {

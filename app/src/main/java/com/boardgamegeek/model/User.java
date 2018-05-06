@@ -7,8 +7,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
 
-import java.util.ArrayList;
-
 public class User {
 	@Attribute
 	private String id;
@@ -73,16 +71,9 @@ public class User {
 	private String tradeRating;
 
 	@Element(required = false)
-	private Buddies buddies;
+	public Buddies buddies;
 
 	public int getId() {
 		return StringUtils.parseInt(id, BggContract.INVALID_ID);
-	}
-
-	public ArrayList<Buddy> getBuddies() {
-		if (buddies == null || buddies.buddies == null) {
-			return new ArrayList<>();
-		}
-		return new ArrayList<>(buddies.buddies);
 	}
 }

@@ -22,16 +22,17 @@ import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 
 public class NotificationUtils {
-	public static final String TAG_PLAY_STATS = "PLAY_STATS";
-	public static final String TAG_PERSIST_ERROR = "PERSIST_ERROR";
-	public static final String TAG_PLAY_TIMER = "PLAY_TIMER";
-	public static final String TAG_PROVIDER_ERROR = "PROVIDER_ERROR";
-	public static final String TAG_SYNC_PROGRESS = "SYNC_PROGRESS";
-	public static final String TAG_SYNC_ERROR = "SYNC_ERROR";
-	public static final String TAG_UPLOAD_PLAY = "UPLOAD_PLAY";
-	public static final String TAG_UPLOAD_PLAY_ERROR = "UPLOAD_PLAY_ERROR";
-	public static final String TAG_UPLOAD_COLLECTION = "UPLOAD_COLLECTION";
-	public static final String TAG_UPLOAD_COLLECTION_ERROR = "UPLOAD_COLLECTION_ERROR";
+	private static final String TAG_PREFIX = "com.boardgamegeek.";
+	public static final String TAG_PLAY_STATS = TAG_PREFIX + "PLAY_STATS";
+	public static final String TAG_PERSIST_ERROR = TAG_PREFIX + "PERSIST_ERROR";
+	public static final String TAG_PLAY_TIMER = TAG_PREFIX + "PLAY_TIMER";
+	public static final String TAG_PROVIDER_ERROR = TAG_PREFIX + "PROVIDER_ERROR";
+	public static final String TAG_SYNC_PROGRESS = TAG_PREFIX + "SYNC_PROGRESS";
+	public static final String TAG_SYNC_ERROR = TAG_PREFIX + "SYNC_ERROR";
+	public static final String TAG_UPLOAD_PLAY = TAG_PREFIX + "UPLOAD_PLAY";
+	public static final String TAG_UPLOAD_PLAY_ERROR = TAG_PREFIX + "UPLOAD_PLAY_ERROR";
+	public static final String TAG_UPLOAD_COLLECTION = TAG_PREFIX + "UPLOAD_COLLECTION";
+	public static final String TAG_UPLOAD_COLLECTION_ERROR = TAG_PREFIX + "UPLOAD_COLLECTION_ERROR";
 
 	public static final String CHANNEL_ID_SYNC_PROGRESS = "sync";
 	public static final String CHANNEL_ID_ERROR = "sync_error";
