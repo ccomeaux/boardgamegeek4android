@@ -95,7 +95,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RESYNC = 47;
 	private static final int VER_GAME_HERO_IMAGE_URL = 48;
 	private static final int VER_COLLECTION_HERO_IMAGE_URL = 49;
-	private static final int DATABASE_VERSION = VER_COLLECTION_HERO_IMAGE_URL;
+	private static final int VER_GAME_PALETTE_COLORS = 50;
+	private static final int DATABASE_VERSION = VER_GAME_PALETTE_COLORS;
 
 	private final Context context;
 
@@ -311,6 +312,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.GAME_RANK, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Games.ICON_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.DARK_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.WINS_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -792,6 +798,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 				case VER_GAME_HERO_IMAGE_URL:
 					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
 					version = VER_COLLECTION_HERO_IMAGE_URL;
+				case VER_COLLECTION_HERO_IMAGE_URL:
+					addColumn(db, Tables.GAMES, Games.ICON_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.DARK_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.WINS_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER);
+					version = VER_GAME_PALETTE_COLORS;
 			}
 
 			if (version != DATABASE_VERSION) {

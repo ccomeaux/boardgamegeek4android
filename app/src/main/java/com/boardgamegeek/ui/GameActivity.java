@@ -40,7 +40,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
-import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
@@ -76,7 +75,6 @@ public class GameActivity extends HeroTabActivity {
 	private GamePagerAdapter adapter;
 	@ColorInt private int iconColor;
 	@ColorInt private int darkColor;
-	@ColorInt private int[] playCountColors;
 	private GameViewModel viewModel;
 
 	public static void start(Context context, int gameId, String gameName) {
@@ -154,6 +152,13 @@ public class GameActivity extends HeroTabActivity {
 				if (g == null) return;
 				changeName(g.getName());
 				changeImage(g.getImageUrl(), g.getThumbnailUrl(), g.getHeroImageUrl());
+
+				iconColor = g.getIconColor();
+				darkColor = g.getDarkColor();
+				EventBus.getDefault().post(new ColorEvent(gameId, g.getIconColor(), g.getDarkColor()));
+				PresentationUtils.colorFab(fab, g.getIconColor());
+				adapter.displayFab();
+
 				arePlayersCustomSorted = g.getCustomPlayerSort();
 				isFavorite = g.isFavorite();
 			}
@@ -280,19 +285,8 @@ public class GameActivity extends HeroTabActivity {
 		@DebugLog
 		@Override
 		public void onSuccessfulImageLoad(Palette palette) {
+			viewModel.updateColors(palette);
 			ScrimUtils.applyDarkScrim(scrimView);
-			if (palette != null) {
-				Palette.Swatch iconSwatch = PaletteUtils.getIconSwatch(palette);
-				Palette.Swatch darkSwatch = PaletteUtils.getDarkSwatch(palette);
-
-				iconColor = iconSwatch.getRgb();
-				darkColor = darkSwatch.getRgb();
-				playCountColors = PaletteUtils.getPlayCountColors(palette, getApplicationContext());
-				EventBus.getDefault().post(new ColorEvent(gameId, iconColor, darkColor, playCountColors));
-				PresentationUtils.colorFab(fab, iconColor);
-				adapter.displayFab();
-			}
-
 			viewModel.updateHeroImageUrl((String) toolbarImage.getTag(R.id.url));
 		}
 
@@ -312,13 +306,11 @@ public class GameActivity extends HeroTabActivity {
 		private final int gameId;
 		@ColorInt private final int iconColor;
 		@ColorInt private final int darkColor;
-		@ColorInt private final int[] playCountColors;
 
-		public ColorEvent(int gameId, int iconColor, int darkColor, int[] playCountColors) {
+		public ColorEvent(int gameId, int iconColor, int darkColor) {
 			this.gameId = gameId;
 			this.iconColor = iconColor;
 			this.darkColor = darkColor;
-			this.playCountColors = playCountColors;
 		}
 
 		public int getGameId() {
@@ -333,11 +325,6 @@ public class GameActivity extends HeroTabActivity {
 		@ColorInt
 		public int getDarkColor() {
 			return darkColor;
-		}
-
-		@ColorInt
-		public int[] getPlayCountColors() {
-			return playCountColors;
 		}
 	}
 
@@ -454,7 +441,7 @@ public class GameActivity extends HeroTabActivity {
 					case R.string.title_collection:
 						return GameCollectionFragment.newInstance(gameId);
 					case R.string.title_plays:
-						return GamePlaysFragment.newInstance(gameId, gameName, iconColor, playCountColors);
+						return GamePlaysFragment.newInstance(gameId, gameName, iconColor);
 					case R.string.links:
 						return GameLinksFragment.newInstance(gameId, gameName, iconColor);
 				}

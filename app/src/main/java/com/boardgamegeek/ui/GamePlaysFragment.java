@@ -56,7 +56,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_ICON_COLOR = "ICON_COLOR";
-	private static final String KEY_PLAY_COUNT_COLORS = "PLAY_COUNT_COLORS";
 	private static final int GAME_TOKEN = 0;
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
@@ -69,7 +68,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
-	@ColorInt private int[] playCountColors;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
 
@@ -88,12 +86,11 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		R.id.icon_colors
 	}) List<ImageView> colorizedIcons;
 
-	public static GamePlaysFragment newInstance(int gameId, String gameName, @ColorInt int iconColor, @ColorInt int[] playCountColors) {
+	public static GamePlaysFragment newInstance(int gameId, String gameName, @ColorInt int iconColor) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
 		args.putString(KEY_GAME_NAME, gameName);
 		args.putInt(KEY_ICON_COLOR, iconColor);
-		args.putIntArray(KEY_PLAY_COUNT_COLORS, playCountColors);
 		GamePlaysFragment fragment = new GamePlaysFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -132,7 +129,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = bundle.getString(KEY_GAME_NAME);
 		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
-		playCountColors = bundle.getIntArray(KEY_PLAY_COUNT_COLORS);
 	}
 
 	@Override
@@ -286,7 +282,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public void onEvent(ColorEvent event) {
 		if (event.getGameId() == gameId) {
 			iconColor = event.getIconColor();
-			playCountColors = event.getPlayCountColors();
 			colorize();
 		}
 	}
@@ -305,7 +300,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 	@OnClick(R.id.play_stats_root)
 	public void onPlayStatsClick() {
-		GamePlayStatsActivity.start(getContext(), gameId, gameName, iconColor, playCountColors);
+		GamePlayStatsActivity.start(getContext(), gameId, gameName, iconColor);
 	}
 
 	@OnClick(R.id.colors_root)

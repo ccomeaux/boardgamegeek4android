@@ -87,7 +87,6 @@ import timber.log.Timber;
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_HEADER_COLOR = "HEADER_COLOR";
-	private static final String KEY_PLAY_COUNT_COLORS = "PLAY_COUNT_COLORS";
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int gameId;
@@ -135,11 +134,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@ColorInt private int[] playCountColors;
 	private int[] bggColors;
 
-	public static GamePlayStatsFragment newInstance(int gameId, @ColorInt int headerColor, @ColorInt int[] playCountColors) {
+	public static GamePlayStatsFragment newInstance(int gameId, @ColorInt int headerColor) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
 		args.putInt(KEY_HEADER_COLOR, headerColor);
-		args.putIntArray(KEY_PLAY_COUNT_COLORS, playCountColors);
 		GamePlayStatsFragment fragment = new GamePlayStatsFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -189,7 +187,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		headerColor = bundle.getInt(KEY_HEADER_COLOR, getResources().getColor(R.color.accent));
-		playCountColors = bundle.getIntArray(KEY_PLAY_COUNT_COLORS);
 	}
 
 	@Override
@@ -234,11 +231,21 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int token = loader.getId();
 		switch (token) {
 			case GameQuery._TOKEN:
+				playCountColors = bggColors;
 				if (cursor == null || !cursor.moveToFirst()) {
 					playingTime = 0;
 					personalRating = 0.0;
 					gameOwned = false;
 				} else {
+					final int winsColor = cursor.getInt(GameQuery.WINS_COLOR);
+					final int winnablePlaysColor = cursor.getInt(GameQuery.WINNABLE_PLAYS_COLOR);
+					final int allPlaysColor = cursor.getInt(GameQuery.ALL_PLAYS_COLOR);
+					playCountColors = new int[] {
+						winsColor == Color.TRANSPARENT ? bggColors[0] : winsColor,
+						winnablePlaysColor,
+						allPlaysColor
+					};
+
 					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
 					gameOwned = cursor.getInt(GameQuery.STATUS_OWN) > 0;
 					double ratingSum = 0;
@@ -1196,9 +1203,20 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface GameQuery {
 		int _TOKEN = 0x02;
-		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME, Collection.STATUS_OWN };
+		String[] PROJECTION = {
+			Games._ID,
+			Collection.RATING,
+			Games.PLAYING_TIME,
+			Collection.STATUS_OWN,
+			Games.WINS_COLOR,
+			Games.WINNABLE_PLAYS_COLOR,
+			Games.ALL_PLAYS_COLOR
+		};
 		int RATING = 1;
 		int PLAYING_TIME = 2;
 		int STATUS_OWN = 3;
+		int WINS_COLOR = 4;
+		int WINNABLE_PLAYS_COLOR = 5;
+		int ALL_PLAYS_COLOR = 6;
 	}
 }

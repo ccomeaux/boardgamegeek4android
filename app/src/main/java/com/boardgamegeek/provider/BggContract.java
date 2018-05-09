@@ -59,6 +59,11 @@ public class BggContract {
 		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
 		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
 		String HERO_IMAGE_URL = "hero_image_url";
+		String ICON_COLOR = "ICON_COLOR";
+		String DARK_COLOR = "DARK_COLOR";
+		String WINS_COLOR = "WINS_COLOR";
+		String WINNABLE_PLAYS_COLOR = "WINNABLE_PLAYS_COLOR";
+		String ALL_PLAYS_COLOR = "ALL_PLAYS_COLOR";
 	}
 
 	interface GameRanksColumns {

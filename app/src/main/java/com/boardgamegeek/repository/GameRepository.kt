@@ -61,6 +61,19 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
+    fun updateColors(iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
+        Handler().post {
+            val values = ContentValues(5)
+            values.put(BggContract.Games.ICON_COLOR, iconColor)
+            values.put(BggContract.Games.DARK_COLOR, darkColor)
+            values.put(BggContract.Games.WINS_COLOR, winsColor)
+            values.put(BggContract.Games.WINNABLE_PLAYS_COLOR, winnablePlaysColor)
+            values.put(BggContract.Games.ALL_PLAYS_COLOR, allPlaysColor)
+            val numberOfRowsModified = application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+            Timber.d(numberOfRowsModified.toString())
+        }
+    }
+
     inner class GameLoader(context: Context) : RefreshableResourceLoader<Game, ThingResponse>(context) {
         override val typeDescriptionResId = R.string.title_game
 

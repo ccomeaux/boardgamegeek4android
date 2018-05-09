@@ -32,7 +32,12 @@ data class Game private constructor(
         val customPlayerSort: Boolean,
         val isFavorite: Boolean,
         private val pollVoteTotal: Int,
-        private val suggestedPlayerCountPollVoteTotal: Int
+        private val suggestedPlayerCountPollVoteTotal: Int,
+        val iconColor: Int,
+        val darkColor: Int,
+        val winsColor: Int,
+        val winnablePlaysColor: Int,
+        val allPlaysColor: Int
 ) {
 
     val maxUsers: Int
@@ -82,7 +87,12 @@ data class Game private constructor(
                 Games.STARRED,
                 Games.POLLS_COUNT,
                 Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                Games.HERO_IMAGE_URL
+                Games.HERO_IMAGE_URL,
+                Games.ICON_COLOR,
+                Games.DARK_COLOR,
+                Games.WINS_COLOR,
+                Games.WINNABLE_PLAYS_COLOR,
+                Games.ALL_PLAYS_COLOR
         )
 
         private const val GAME_ID = 0
@@ -114,6 +124,11 @@ data class Game private constructor(
         private const val POLLS_COUNT = 29
         private const val SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = 30
         private const val HERO_IMAGE_URL = 31
+        private const val ICON_COLOR = 32
+        private const val DARK_COLOR = 33
+        private const val WINS_COLOR = 34
+        private const val WINNABLE_PLAYS_COLOR = 35
+        private const val ALL_PLAYS_COLOR = 36
 
         @JvmStatic
         fun fromCursor(cursor: Cursor): Game {
@@ -146,7 +161,12 @@ data class Game private constructor(
                     cursor.getInt(CUSTOM_PLAYER_SORT) == 1,
                     cursor.getInt(STARRED) == 1,
                     cursor.getInt(POLLS_COUNT),
-                    cursor.getInt(SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL)
+                    cursor.getInt(SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL),
+                    cursor.getInt(ICON_COLOR),
+                    cursor.getInt(DARK_COLOR),
+                    cursor.getInt(WINS_COLOR),
+                    cursor.getInt(WINNABLE_PLAYS_COLOR),
+                    cursor.getInt(ALL_PLAYS_COLOR)
             )
         }
     }

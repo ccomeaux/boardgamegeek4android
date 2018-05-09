@@ -4,10 +4,12 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.support.v7.graphics.Palette
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.RefreshableResource
+import com.boardgamegeek.util.PaletteUtils
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
@@ -33,5 +35,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun updateHeroImageUrl(url: String) {
         val data = game.value?.data ?: return
         gameRepository.updateHeroImageUrl(url, data.imageUrl, data.thumbnailUrl, data.heroImageUrl)
+    }
+
+    fun updateColors(palette: Palette?) {
+        if (palette != null) {
+            val iconColor = PaletteUtils.getIconSwatch(palette).rgb
+            val darkColor = PaletteUtils.getDarkSwatch(palette).rgb
+            val playCountColors = PaletteUtils.getPlayCountColors(palette, getApplication())
+            gameRepository.updateColors(iconColor, darkColor, playCountColors[0], playCountColors[1], playCountColors[2])
+        }
     }
 }
