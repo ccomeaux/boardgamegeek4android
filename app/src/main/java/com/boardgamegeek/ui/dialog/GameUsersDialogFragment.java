@@ -31,7 +31,6 @@ import butterknife.Unbinder;
 
 public class GameUsersDialogFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_DARK_COLOR = "DARK_COLOR";
 
 	private int gameId;
 	private Uri uri;
@@ -48,10 +47,9 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		R.id.users_wishing_bar
 	}) List<StatBar> statBars;
 
-	public static void launch(Fragment host, int gameId, @ColorInt int darkColor) {
-		Bundle arguments = new Bundle(2);
+	public static void launch(Fragment host, int gameId) {
+		Bundle arguments = new Bundle(1);
 		arguments.putInt(KEY_GAME_ID, gameId);
-		arguments.putInt(KEY_DARK_COLOR, darkColor);
 		final GameUsersDialogFragment dialog = new GameUsersDialogFragment();
 		dialog.setArguments(arguments);
 		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
@@ -69,17 +67,18 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
-		barColor = bundle.getInt(KEY_DARK_COLOR, Color.TRANSPARENT);
 	}
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		getDialog().setTitle(R.string.title_users);
+		return inflater.inflate(R.layout.dialog_game_users, container, false);
+	}
 
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.dialog_game_users, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
-		if (barColor != Color.TRANSPARENT) ButterKnife.apply(statBars, StatBar.colorSetter, barColor);
-		return rootView;
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 	}
 
 	@Override
@@ -107,6 +106,9 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 
 		if (loader.getId() == Query._TOKEN) {
 			if (cursor.moveToFirst()) {
+				barColor = cursor.getInt(Query.DARK_COLOR);
+				colorize();
+
 				int numberWeights = cursor.getInt(Query.STATS_NUMBER_WEIGHTS);
 				int numberOwned = cursor.getInt(Query.STATS_NUMBER_OWNED);
 				int numberTrading = cursor.getInt(Query.STATS_NUMBER_TRADING);
@@ -126,7 +128,6 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 				numberTradingBar.setBar(R.string.trading_meter_text, numberTrading, maxUsers);
 				numberWantingBar.setBar(R.string.wanting_meter_text, numberWanting, maxUsers);
 				numberWishingBar.setBar(R.string.wishing_meter_text, numberWishing, maxUsers);
-
 			}
 		} else {
 			cursor.close();
@@ -136,6 +137,11 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+	}
+
+	private void colorize() {
+		if (barColor != Color.TRANSPARENT && statBars != null)
+			ButterKnife.apply(statBars, StatBar.colorSetter, barColor);
 	}
 
 	private interface Query {
@@ -148,6 +154,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 			Games.STATS_NUMBER_WISHING,
 			Games.STATS_USERS_RATED,
 			Games.STATS_NUMBER_COMMENTS,
+			Games.DARK_COLOR
 		};
 		int STATS_NUMBER_WEIGHTS = 0;
 		int STATS_NUMBER_OWNED = 1;
@@ -156,5 +163,6 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		int STATS_NUMBER_WISHING = 4;
 		int STATS_USERS_RATED = 5;
 		int STATS_NUMBER_COMMENTS = 6;
+		int DARK_COLOR = 7;
 	}
 }

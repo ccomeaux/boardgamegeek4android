@@ -74,7 +74,6 @@ public class GameActivity extends HeroTabActivity {
 	private boolean isFavorite;
 	private GamePagerAdapter adapter;
 	@ColorInt private int iconColor;
-	@ColorInt private int darkColor;
 	private GameViewModel viewModel;
 
 	public static void start(Context context, int gameId, String gameName) {
@@ -153,12 +152,11 @@ public class GameActivity extends HeroTabActivity {
 				changeName(g.getName());
 				changeImage(g.getImageUrl(), g.getThumbnailUrl(), g.getHeroImageUrl());
 
-				iconColor = g.getIconColor();
-				darkColor = g.getDarkColor();
-				EventBus.getDefault().post(new ColorEvent(gameId, g.getIconColor(), g.getDarkColor()));
+				EventBus.getDefault().post(new ColorEvent(gameId, g.getIconColor()));
 				PresentationUtils.colorFab(fab, g.getIconColor());
 				adapter.displayFab();
 
+				iconColor = g.getIconColor();
 				arePlayersCustomSorted = g.getCustomPlayerSort();
 				isFavorite = g.isFavorite();
 			}
@@ -305,12 +303,10 @@ public class GameActivity extends HeroTabActivity {
 	public static class ColorEvent {
 		private final int gameId;
 		@ColorInt private final int iconColor;
-		@ColorInt private final int darkColor;
 
-		public ColorEvent(int gameId, int iconColor, int darkColor) {
+		public ColorEvent(int gameId, int iconColor) {
 			this.gameId = gameId;
 			this.iconColor = iconColor;
-			this.darkColor = darkColor;
 		}
 
 		public int getGameId() {
@@ -320,11 +316,6 @@ public class GameActivity extends HeroTabActivity {
 		@ColorInt
 		public int getIconColor() {
 			return iconColor;
-		}
-
-		@ColorInt
-		public int getDarkColor() {
-			return darkColor;
 		}
 	}
 
@@ -437,7 +428,7 @@ public class GameActivity extends HeroTabActivity {
 					case R.string.title_description:
 						return GameDescriptionFragment.newInstance(gameId);
 					case R.string.title_info:
-						return GameFragment.newInstance(gameId, gameName, iconColor, darkColor);
+						return GameFragment.newInstance(gameId, gameName);
 					case R.string.title_collection:
 						return GameCollectionFragment.newInstance(gameId);
 					case R.string.title_plays:

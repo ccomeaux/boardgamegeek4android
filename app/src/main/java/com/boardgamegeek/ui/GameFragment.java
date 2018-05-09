@@ -35,7 +35,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.FavoriteGameTask;
-import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.model.Game;
@@ -92,8 +91,6 @@ import static android.view.View.VISIBLE;
 public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final String KEY_ICON_COLOR = "ICON_COLOR";
-	private static final String KEY_DARK_COLOR = "DARK_COLOR";
 
 	private static final int HELP_VERSION = 2;
 
@@ -182,17 +179,14 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private int gameId;
 	private String gameName;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
-	@ColorInt private int darkColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
 	private Call<ForumListResponse> call;
 	private GameViewModel viewModel;
 
-	public static GameFragment newInstance(int gameId, String gameName, @ColorInt int iconColor, @ColorInt int darkColor) {
+	public static GameFragment newInstance(int gameId, String gameName) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
 		args.putString(KEY_GAME_NAME, gameName);
-		args.putInt(KEY_ICON_COLOR, iconColor);
-		args.putInt(KEY_DARK_COLOR, darkColor);
 		GameFragment fragment = new GameFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -213,8 +207,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = bundle.getString(KEY_GAME_NAME);
-		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
-		darkColor = bundle.getInt(KEY_DARK_COLOR, Color.TRANSPARENT);
 	}
 
 	@Override
@@ -227,8 +219,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		unbinder = ButterKnife.bind(this, view);
-
-		colorize();
 
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
@@ -256,6 +246,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 					onGameContentChanged(game.getData());
 					AnimationUtils.fadeOut(emptyView);
 					AnimationUtils.fadeIn(rootContainer);
+
+					iconColor = game.getData().getIconColor();
+					colorize();
 				}
 				progressBar.hide();
 			}
@@ -636,23 +629,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@OnClick(R.id.users_count_root)
 	@DebugLog
 	public void onUsersClick() {
-		GameUsersDialogFragment.launch(this, gameId, darkColor);
+		GameUsersDialogFragment.launch(this, gameId);
 	}
 
 	@DebugLog
 	@OnClick(R.id.ratings_root)
 	public void onRatingsClick() {
 		CommentsActivity.startRating(getContext(), Games.buildGameUri(gameId), gameName);
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe
-	public void onEvent(ColorEvent event) {
-		if (event.getGameId() == gameId) {
-			iconColor = event.getIconColor();
-			darkColor = event.getDarkColor();
-			colorize();
-		}
 	}
 
 	@SuppressWarnings("unused")

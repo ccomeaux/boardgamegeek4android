@@ -351,12 +351,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_view_save:
 					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
 					dialog.setOnViewSavedListener(CollectionFragment.this);
-					DialogUtils.show(CollectionFragment.this, dialog, "save_view");
+					DialogUtils.showAndSurvive(CollectionFragment.this, dialog);
 					return true;
 				case R.id.menu_collection_view_delete:
 					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(getActivity());
 					ddf.setOnViewDeletedListener(CollectionFragment.this);
-					DialogUtils.show(CollectionFragment.this, ddf, "delete_view");
+					DialogUtils.showAndSurvive(CollectionFragment.this, ddf);
 					return true;
 				case R.id.menu_share:
 					shareCollection();
