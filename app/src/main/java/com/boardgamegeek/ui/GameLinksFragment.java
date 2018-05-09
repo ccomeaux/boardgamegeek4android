@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -14,12 +13,8 @@ import android.widget.ImageView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PaletteUtils;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -27,7 +22,6 @@ import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class GameLinksFragment extends Fragment {
 	private static final String KEY_GAME_ID = "GAME_ID";
@@ -58,19 +52,16 @@ public class GameLinksFragment extends Fragment {
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		EventBus.getDefault().register(this);
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_game_links, container, false);
 	}
 
-	@DebugLog
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_links, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 		readBundle(getArguments());
 		colorize();
-		return rootView;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -80,21 +71,13 @@ public class GameLinksFragment extends Fragment {
 		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
-	@DebugLog
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		EventBus.getDefault().unregister(this);
-	}
-
 	@SuppressWarnings("unused")
-	@DebugLog
 	@OnClick({
 		R.id.link_geekbuddy_analysis,
 		R.id.link_bgg,
@@ -134,16 +117,6 @@ public class GameLinksFragment extends Fragment {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	@Subscribe
-	public void onEvent(ColorEvent event) {
-		if (event.getGameId() == gameId) {
-			iconColor = event.getIconColor();
-			colorize();
-		}
-	}
-
-	@DebugLog
 	private void colorize() {
 		if (!isAdded()) return;
 		if (iconColor != Color.TRANSPARENT) {

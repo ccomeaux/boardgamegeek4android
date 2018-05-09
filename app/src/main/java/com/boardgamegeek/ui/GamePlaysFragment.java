@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
-import com.boardgamegeek.ui.GameActivity.ColorEvent;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.model.GamePlays;
 import com.boardgamegeek.ui.model.PlaysByGame;
@@ -55,7 +53,6 @@ import static android.view.View.VISIBLE;
 public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private static final int GAME_TOKEN = 0;
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
@@ -86,11 +83,10 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		R.id.icon_colors
 	}) List<ImageView> colorizedIcons;
 
-	public static GamePlaysFragment newInstance(int gameId, String gameName, @ColorInt int iconColor) {
+	public static GamePlaysFragment newInstance(int gameId, String gameName) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
 		args.putString(KEY_GAME_NAME, gameName);
-		args.putInt(KEY_ICON_COLOR, iconColor);
 		GamePlaysFragment fragment = new GamePlaysFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -114,7 +110,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		unbinder = ButterKnife.bind(this, view);
-		colorize();
 
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
@@ -128,7 +123,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 		gameName = bundle.getString(KEY_GAME_NAME);
-		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
 	@Override
@@ -236,6 +230,8 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 			heroImageUrl = game.getHeroImageUrl();
 			arePlayersCustomSorted = game.arePlayersCustomSorted();
 			syncTimestampView.setTimestamp(game.getSyncTimestamp());
+			iconColor = game.getIconColor();
+			colorize();
 
 			if (mightNeedRefreshing) {
 				mightNeedRefreshing = false;
@@ -277,18 +273,10 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		colorsLabel.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.colors_suffix, count, count));
 	}
 
-	@SuppressWarnings("unused")
-	@Subscribe
-	public void onEvent(ColorEvent event) {
-		if (event.getGameId() == gameId) {
-			iconColor = event.getIconColor();
-			colorize();
-		}
-	}
-
 	private void colorize() {
-		if (!isAdded()) return;
-		if (iconColor != Color.TRANSPARENT) {
+		if (isAdded() &&
+			iconColor != Color.TRANSPARENT &&
+			colorizedIcons != null) {
 			ButterKnife.apply(colorizedIcons, PaletteUtils.getRgbIconSetter(), iconColor);
 		}
 	}

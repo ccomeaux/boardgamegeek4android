@@ -11,7 +11,8 @@ public class GamePlays {
 		Games.THUMBNAIL_URL,
 		Games.UPDATED_PLAYS,
 		Games.CUSTOM_PLAYER_SORT,
-		Games.HERO_IMAGE_URL
+		Games.HERO_IMAGE_URL,
+		Games.ICON_COLOR
 	};
 
 	private static final int GAME_NAME = 0;
@@ -20,11 +21,13 @@ public class GamePlays {
 	private static final int UPDATED_PLAYS = 3;
 	private static final int CUSTOM_PLAYER_SORT = 4;
 	private static final int HERO_IMAGE_URL = 5;
+	private static final int ICON_COLOR = 6;
 
 	private String name;
 	private String imageUrl;
 	private String thumbnailUrl;
 	private String heroImageUrl;
+	private int iconColor;
 	private long syncTimestamp;
 	private boolean customPlayerSort;
 
@@ -39,6 +42,7 @@ public class GamePlays {
 		game.heroImageUrl = cursor.getString(HERO_IMAGE_URL);
 		game.syncTimestamp = cursor.getLong(UPDATED_PLAYS);
 		game.customPlayerSort = (cursor.getInt(CUSTOM_PLAYER_SORT) == 1);
+		game.iconColor = cursor.getInt(ICON_COLOR);
 		return game;
 	}
 
@@ -64,5 +68,9 @@ public class GamePlays {
 
 	public boolean arePlayersCustomSorted() {
 		return customPlayerSort;
+	}
+
+	public int getIconColor() {
+		return iconColor;
 	}
 }

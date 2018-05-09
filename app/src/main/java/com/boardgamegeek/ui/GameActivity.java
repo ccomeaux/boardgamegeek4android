@@ -49,8 +49,6 @@ import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,23 +140,22 @@ public class GameActivity extends HeroTabActivity {
 
 		viewModel.getGame(gameId).observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
-			public void onChanged(@Nullable RefreshableResource<Game> game) {
-				if (game == null) return;
-				if (game.getStatus() == Status.ERROR) {
-					Toast.makeText(GameActivity.this, game.getMessage(), Toast.LENGTH_SHORT).show();
+			public void onChanged(@Nullable RefreshableResource<Game> refreshableResource) {
+				if (refreshableResource == null) return;
+				if (refreshableResource.getStatus() == Status.ERROR) {
+					Toast.makeText(GameActivity.this, refreshableResource.getMessage(), Toast.LENGTH_SHORT).show();
 				}
-				final Game g = game.getData();
-				if (g == null) return;
-				changeName(g.getName());
-				changeImage(g.getImageUrl(), g.getThumbnailUrl(), g.getHeroImageUrl());
+				final Game game = refreshableResource.getData();
+				if (game == null) return;
+				changeName(game.getName());
+				changeImage(game.getImageUrl(), game.getThumbnailUrl(), game.getHeroImageUrl());
 
-				EventBus.getDefault().post(new ColorEvent(gameId, g.getIconColor()));
-				PresentationUtils.colorFab(fab, g.getIconColor());
+				PresentationUtils.colorFab(fab, game.getIconColor());
 				adapter.displayFab();
 
-				iconColor = g.getIconColor();
-				arePlayersCustomSorted = g.getCustomPlayerSort();
-				isFavorite = g.isFavorite();
+				iconColor = game.getIconColor();
+				arePlayersCustomSorted = game.getCustomPlayerSort();
+				isFavorite = game.isFavorite();
 			}
 		});
 
@@ -300,25 +297,6 @@ public class GameActivity extends HeroTabActivity {
 		adapter.onFabClicked();
 	}
 
-	public static class ColorEvent {
-		private final int gameId;
-		@ColorInt private final int iconColor;
-
-		public ColorEvent(int gameId, int iconColor) {
-			this.gameId = gameId;
-			this.iconColor = iconColor;
-		}
-
-		public int getGameId() {
-			return gameId;
-		}
-
-		@ColorInt
-		public int getIconColor() {
-			return iconColor;
-		}
-	}
-
 	interface TabListener {
 		void onFabClicked();
 	}
@@ -432,7 +410,7 @@ public class GameActivity extends HeroTabActivity {
 					case R.string.title_collection:
 						return GameCollectionFragment.newInstance(gameId);
 					case R.string.title_plays:
-						return GamePlaysFragment.newInstance(gameId, gameName, iconColor);
+						return GamePlaysFragment.newInstance(gameId, gameName);
 					case R.string.links:
 						return GameLinksFragment.newInstance(gameId, gameName, iconColor);
 				}
