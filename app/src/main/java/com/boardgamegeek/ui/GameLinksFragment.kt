@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.graphics.Color
 import android.os.Bundle
 import android.support.annotation.ColorInt
@@ -9,14 +11,18 @@ import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
 import kotlinx.android.synthetic.main.fragment_game_links.*
+import org.jetbrains.anko.support.v4.act
 
 class GameLinksFragment : Fragment() {
-    private var gameId: Int = 0
-    private var gameName: String? = null
     @ColorInt
     private var iconColor = Color.TRANSPARENT
+
+    private val viewModel: GameViewModel by lazy {
+        ViewModelProviders.of(act).get(GameViewModel::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_game_links, container, false)
@@ -24,34 +30,47 @@ class GameLinksFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        readBundle(arguments)
+        val gameId = arguments?.getInt(KEY_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
+        val gameName = arguments?.getString(KEY_GAME_NAME)
 
-        colorize()
+        if (gameId != BggContract.INVALID_ID) {
+            geekbuddyAnalysisLink.setOnClickListener { ActivityUtils.linkToBgg(context, "geekbuddy/analyze/thing", gameId) }
+            bggLink.setOnClickListener { ActivityUtils.linkBgg(context, gameId) }
+        }
+        if (!gameName.isNullOrBlank()) {
+            bgPricesLink.setOnClickListener { ActivityUtils.linkBgPrices(context, gameName) }
+            bgPricesUkLink.setOnClickListener { ActivityUtils.linkBgPricesUk(context, gameName) }
+            amazonLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_COM) }
+            amazonUkLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_UK) }
+            amazonDeLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_DE) }
+            ebayLink.setOnClickListener { ActivityUtils.linkEbay(context, gameName) }
+        }
 
-        geekbuddyAnalysisLink.setOnClickListener { ActivityUtils.linkToBgg(context, "geekbuddy/analyze/thing", gameId) }
-        bggLink.setOnClickListener { ActivityUtils.linkBgg(context, gameId) }
-        bgPricesLink.setOnClickListener { ActivityUtils.linkBgPrices(context, gameName) }
-        bgPricesUkLink.setOnClickListener { ActivityUtils.linkBgPricesUk(context, gameName) }
-        amazonLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_COM) }
-        amazonUkLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_UK) }
-        amazonDeLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_DE) }
-        ebayLink.setOnClickListener { ActivityUtils.linkEbay(context, gameName) }
+        colorize(arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT) ?: Color.TRANSPARENT)
+        viewModel.getGame(gameId).observe(this, Observer { game ->
+            colorize(game?.data?.iconColor ?: Color.TRANSPARENT)
+        })
     }
 
-    private fun readBundle(bundle: Bundle?) {
-        if (bundle == null) return
-        gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = bundle.getString(KEY_GAME_NAME)
-        iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT)
-    }
-
-    private fun colorize() {
-        if (isAdded && iconColor != Color.TRANSPARENT) {
-            geekbuddyAnalysisLinkIcon.setColorFilter(iconColor)
-            bggLinkIcon.setColorFilter(iconColor)
-            bgPricesLinkIcon.setColorFilter(iconColor)
-            amazonLinkIcon.setColorFilter(iconColor)
-            ebayLinkIcon.setColorFilter(iconColor)
+    private fun colorize(color: Int) {
+        if (color != iconColor) {
+            iconColor = color
+            if (isAdded) {
+                if (iconColor == Color.TRANSPARENT) {
+                    geekbuddyAnalysisLinkIcon.clearColorFilter()
+                    bggLinkIcon.clearColorFilter()
+                    bgPricesLinkIcon.clearColorFilter()
+                    amazonLinkIcon.clearColorFilter()
+                    ebayLinkIcon.clearColorFilter()
+                } else {
+                    geekbuddyAnalysisLinkIcon.setColorFilter(iconColor)
+                    geekbuddyAnalysisLinkIcon.clearColorFilter()
+                    bggLinkIcon.setColorFilter(iconColor)
+                    bgPricesLinkIcon.setColorFilter(iconColor)
+                    amazonLinkIcon.setColorFilter(iconColor)
+                    ebayLinkIcon.setColorFilter(iconColor)
+                }
+            }
         }
     }
 
