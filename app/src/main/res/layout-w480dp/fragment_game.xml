@@ -52,15 +52,7 @@
 
 				<include layout="@layout/include_game_ranks"/>
 
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="horizontal">
-
-					<include layout="@layout/include_game_ratings"/>
-
-					<include layout="@layout/include_game_comments"/>
-				</LinearLayout>
+				<include layout="@layout/include_game_ratings"/>
 
 				<LinearLayout
 					android:layout_width="match_parent"
