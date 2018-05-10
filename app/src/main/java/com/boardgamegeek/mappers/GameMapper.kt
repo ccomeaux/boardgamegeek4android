@@ -17,27 +17,27 @@ class GameMapper {
             thumbnailUrl = from.thumbnail
             description = StringUtils.replaceHtmlLineFeeds(from.description).trim()
             subtype = from.type
-            yearPublished = from.yearpublished.toIntOrNull() ?: Constants.YEAR_UNKNOWN
-            minPlayers = from.minplayers.toIntOrNull() ?: 0
-            maxPlayers = from.maxplayers.toIntOrNull() ?: 0
-            playingTime = from.playingtime.toIntOrNull() ?: 0
-            maxPlayingTime = from.maxplaytime.toIntOrNull() ?: 0
-            minPlayingTime = from.minplaytime.toIntOrNull() ?: 0
-            minAge = from.minage.toIntOrNull() ?: 0
+            yearPublished = from.yearpublished?.toIntOrNull() ?: Constants.YEAR_UNKNOWN
+            minPlayers = from.minplayers?.toIntOrNull() ?: 0
+            maxPlayers = from.maxplayers?.toIntOrNull() ?: 0
+            playingTime = from.playingtime?.toIntOrNull() ?: 0
+            maxPlayingTime = from.maxplaytime?.toIntOrNull() ?: 0
+            minPlayingTime = from.minplaytime?.toIntOrNull() ?: 0
+            minAge = from.minage?.toIntOrNull() ?: 0
             if (from.statistics != null) {
                 hasStatistics = true
-                numberOfRatings = from.statistics.usersrated.toIntOrNull() ?: 0
-                average = from.statistics.average.toDoubleOrNull() ?: 0.0
-                bayesAverage = from.statistics.bayesaverage.toDoubleOrNull() ?: 0.0
-                standardDeviation = from.statistics.stddev.toDoubleOrNull() ?: 0.0
-                median = from.statistics.median.toDoubleOrNull() ?: 0.0
-                numberOfUsersOwned = from.statistics.owned.toIntOrNull() ?: 0
-                numberOfUsersTrading = from.statistics.trading.toIntOrNull() ?: 0
-                numberOfUsersWanting = from.statistics.wanting.toIntOrNull() ?: 0
-                numberOfUsersWishListing = from.statistics.wishing.toIntOrNull() ?: 0
-                numberOfComments = from.statistics.numcomments.toIntOrNull() ?: 0
-                numberOfUsersWeighting = from.statistics.numweights.toIntOrNull() ?: 0
-                averageWeight = from.statistics.averageweight.toDoubleOrNull() ?: 0.0
+                numberOfRatings = from.statistics.usersrated?.toIntOrNull() ?: 0
+                average = from.statistics.average?.toDoubleOrNull() ?: 0.0
+                bayesAverage = from.statistics.bayesaverage?.toDoubleOrNull() ?: 0.0
+                standardDeviation = from.statistics.stddev?.toDoubleOrNull() ?: 0.0
+                median = from.statistics.median?.toDoubleOrNull() ?: 0.0
+                numberOfUsersOwned = from.statistics.owned?.toIntOrNull() ?: 0
+                numberOfUsersTrading = from.statistics.trading?.toIntOrNull() ?: 0
+                numberOfUsersWanting = from.statistics.wanting?.toIntOrNull() ?: 0
+                numberOfUsersWishListing = from.statistics.wishing?.toIntOrNull() ?: 0
+                numberOfComments = from.statistics.numcomments?.toIntOrNull() ?: 0
+                numberOfUsersWeighting = from.statistics.numweights?.toIntOrNull() ?: 0
+                averageWeight = from.statistics.averageweight?.toDoubleOrNull() ?: 0.0
                 ranks.addAll(createRanks(from))
                 overallRank = ranks.find { it.type == "subtype" }?.value ?: Int.MAX_VALUE
             }
