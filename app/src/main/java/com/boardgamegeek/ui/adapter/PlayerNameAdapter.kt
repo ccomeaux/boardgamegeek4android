@@ -8,19 +8,24 @@ import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.setTextOrHide
+import com.boardgamegeek.use
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import com.boardgamegeek.util.PresentationUtils
 import java.util.*
 
 class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player, emptyList<Result>()), Filterable {
-    private val resolver: ContentResolver = context.contentResolver
-    private val inflater: LayoutInflater = LayoutInflater.from(context)
+    private val resolver = context.contentResolver
+    private val inflater = LayoutInflater.from(context)
     private val resultList = ArrayList<Result>()
 
     class Result(val title: String,
                  val subtitle: String,
                  val username: String,
-                 val avatarUrl: String = "") {
+                 avatarUrl: String = "") {
+        val avatarUrl: String = avatarUrl
+            get() = if (field == "N/A") "" else field
+
         override fun toString() = title
     }
 
@@ -29,17 +34,13 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     override fun getItem(index: Int) = resultList.getOrNull(index)
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: inflater.inflate(R.layout.autocomplete_player, parent, false)
+        val view = convertView ?: inflater.inflate(R.layout.autocomplete_player, parent, false) as View
         val result = getItem(position) ?: return view
 
-        val titleView = view.findViewById<TextView>(R.id.player_title)
-        val subtitleView = view.findViewById<TextView>(R.id.player_subtitle)
-        val avatarView = view.findViewById<ImageView>(R.id.player_avatar)
-
-        PresentationUtils.setTextOrHide(titleView, result.title)
-        PresentationUtils.setTextOrHide(subtitleView, result.subtitle)
+        view.findViewById<TextView>(R.id.player_title)?.setTextOrHide(result.title)
+        view.findViewById<TextView>(R.id.player_subtitle)?.setTextOrHide(result.subtitle)
+        view.findViewById<ImageView>(R.id.player_avatar)?.loadThumbnail(result.avatarUrl, R.drawable.person_image_empty)
         view.tag = result.username
-        avatarView?.loadThumbnail(result.avatarUrl, R.drawable.person_image_empty)
         return view
     }
 
@@ -50,14 +51,15 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             val filter = constraint?.toString() ?: ""
             if (filter.isBlank()) return null
 
-            val (buddies, buddyUserNames) = queryBuddies(resolver, filter)
+            // list all buddies + all players that aren't buddies, sorted by username
+            val resultList = arrayListOf<Result>()
             val players = queryPlayerHistory(resolver, filter)
-
-            val resultList = ArrayList<Result>()
+            val (buddies, buddyUserNames) = queryBuddies(resolver, filter)
             resultList.addAll(buddies)
             players.filterTo(resultList) { player ->
-                player.username.isBlank() || buddyUserNames.asSequence().any { it.equals(player.username, true) }
+                player.username.isBlank() || buddyUserNames.asSequence().none { it.equals(player.username, true) }
             }
+            resultList.sortBy { it.username }
 
             val filterResults = Filter.FilterResults()
             filterResults.values = resultList
@@ -67,9 +69,13 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
 
         override fun publishResults(constraint: CharSequence?, results: Filter.FilterResults?) {
             resultList.clear()
+            var values: ArrayList<Result>? = null
             if (results != null && results.count > 0) {
                 @Suppress("UNCHECKED_CAST")
-                resultList.addAll(results.values as ArrayList<Result>)
+                values = results.values as? ArrayList<Result>
+            }
+            if (values != null && values.size > 0) {
+                resultList.addAll(values)
                 notifyDataSetChanged()
             } else {
                 notifyDataSetInvalidated()
@@ -78,21 +84,20 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     }
 
     companion object {
-
         private fun queryPlayerHistory(resolver: ContentResolver, input: String): List<Result> {
-            val results = ArrayList<Result>()
+            val results = arrayListOf<Result>()
             val cursor = resolver.query(Plays.buildPlayersByUniquePlayerUri(),
                     arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME),
                     if (input.isBlank()) null else "${PlayPlayers.NAME} LIKE ?",
                     if (input.isBlank()) null else arrayOf("$input%"),
                     PlayPlayers.NAME)
-            cursor?.use { c ->
-                if (c.moveToFirst()) {
+            cursor?.use {
+                if (it.moveToFirst()) {
                     do {
-                        val name = c.getString(2) ?: ""
-                        val username = c.getString(1) ?: ""
+                        val username = it.getString(1) ?: ""
+                        val name = it.getString(2) ?: ""
                         results.add(Result(name, username, username))
-                    } while (c.moveToNext())
+                    } while (it.moveToNext())
                 }
             }
             return results
@@ -106,14 +111,14 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                     if (input.isBlank()) null else "${Buddies.BUDDY_NAME} LIKE ? OR ${Buddies.BUDDY_FIRSTNAME} LIKE ? OR ${Buddies.BUDDY_LASTNAME} LIKE ? OR ${Buddies.PLAY_NICKNAME} LIKE ?",
                     if (input.isBlank()) null else arrayOf("$input%", "$input%", "$input%", "$input%"),
                     Buddies.NAME_SORT)
-            cursor?.use { c ->
-                if (c.moveToFirst()) {
+            cursor?.use {
+                if (it.moveToFirst()) {
                     do {
-                        val userName = c.getString(1) ?: ""
-                        val firstName = c.getString(2) ?: ""
-                        val lastName = c.getString(3) ?: ""
-                        val nickname = c.getString(4) ?: ""
-                        val avatarUrl = c.getString(5) ?: ""
+                        val userName = it.getString(1) ?: ""
+                        val firstName = it.getString(2) ?: ""
+                        val lastName = it.getString(3) ?: ""
+                        val nickname = it.getString(4) ?: ""
+                        val avatarUrl = it.getString(5) ?: ""
                         val fullName = PresentationUtils.buildFullName(firstName, lastName)
 
                         results.add(Result(
@@ -122,7 +127,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                                 userName,
                                 avatarUrl))
                         userNames.add(userName)
-                    } while (cursor.moveToNext())
+                    } while (it.moveToNext())
                 }
             }
             return results to userNames
