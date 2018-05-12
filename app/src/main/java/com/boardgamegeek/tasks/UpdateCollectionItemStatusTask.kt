@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.use
 import hugo.weaving.DebugLog
 import timber.log.Timber
 
@@ -93,30 +94,30 @@ constructor(context: Context?,
                     Collection.STATUS_WISHLIST_PRIORITY
             )
 
-            private val STATUS_OWN = 0
-            private val STATUS_PRE_ORDERED = 1
-            private val STATUS_FOR_TRADE = 2
-            private val STATUS_WANT = 3
-            private val STATUS_WANT_TO_PLAY = 4
-            private val STATUS_WANT_TO_BUY = 5
-            private val STATUS_WISH_LIST = 6
-            private val STATUS_PREVIOUSLY_OWNED = 7
-            private val STATUS_WISH_LIST_PRIORITY = 8
+            private const val STATUS_OWN = 0
+            private const val STATUS_PRE_ORDERED = 1
+            private const val STATUS_FOR_TRADE = 2
+            private const val STATUS_WANT = 3
+            private const val STATUS_WANT_TO_PLAY = 4
+            private const val STATUS_WANT_TO_BUY = 5
+            private const val STATUS_WISH_LIST = 6
+            private const val STATUS_PREVIOUSLY_OWNED = 7
+            private const val STATUS_WISH_LIST_PRIORITY = 8
 
             fun fromResolver(contentResolver: ContentResolver, internalId: Long): Item? {
                 val cursor = contentResolver.query(Collection.buildUri(internalId), projection, null, null, null)
-                cursor.use { c ->
-                    if (c.moveToFirst()) {
+                cursor?.use {
+                    if (it.moveToFirst()) {
                         return Item(
-                                c.getInt(STATUS_OWN) == 1,
-                                c.getInt(STATUS_PRE_ORDERED) == 1,
-                                c.getInt(STATUS_FOR_TRADE) == 1,
-                                c.getInt(STATUS_WANT) == 1,
-                                c.getInt(STATUS_WANT_TO_PLAY) == 1,
-                                c.getInt(STATUS_WANT_TO_BUY) == 1,
-                                c.getInt(STATUS_WISH_LIST) == 1,
-                                c.getInt(STATUS_PREVIOUSLY_OWNED) == 1,
-                                c.getInt(STATUS_WISH_LIST_PRIORITY)
+                                it.getInt(STATUS_OWN) == 1,
+                                it.getInt(STATUS_PRE_ORDERED) == 1,
+                                it.getInt(STATUS_FOR_TRADE) == 1,
+                                it.getInt(STATUS_WANT) == 1,
+                                it.getInt(STATUS_WANT_TO_PLAY) == 1,
+                                it.getInt(STATUS_WANT_TO_BUY) == 1,
+                                it.getInt(STATUS_WISH_LIST) == 1,
+                                it.getInt(STATUS_PREVIOUSLY_OWNED) == 1,
+                                it.getInt(STATUS_WISH_LIST_PRIORITY)
                         )
                     }
                 }
