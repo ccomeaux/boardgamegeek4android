@@ -1,11 +1,15 @@
 package com.boardgamegeek
 
+import android.support.v4.content.ContextCompat
+import android.support.v4.view.ViewCompat
+import android.view.Gravity
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.boardgamegeek.util.ColorUtils
+import com.boardgamegeek.util.ScrimUtils
 
 fun View.fadeIn(animate: Boolean = true) {
     if (visibility != VISIBLE) {
@@ -41,4 +45,10 @@ fun View.fadeOut(visibility: Int = GONE, animate: Boolean = true) {
 
 fun View.setColorViewValue(color: Int) {
     ColorUtils.setColorViewValue(this, color)
+}
+
+fun View.applyDarkScrim() {
+    val color = ContextCompat.getColor(context, R.color.black_overlay)
+    val drawable = ScrimUtils.makeCubicGradientScrimDrawable(color, 3, Gravity.BOTTOM)
+    ViewCompat.setBackground(this, drawable)
 }
