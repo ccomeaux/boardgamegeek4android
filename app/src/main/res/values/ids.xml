@@ -23,4 +23,6 @@
 	<item name="image" type="id"/>
 	<item name="hero_image" type="id"/>
 
+	<!-- FAB -->
+	<item name="res_id" type="id"/>
 </resources>

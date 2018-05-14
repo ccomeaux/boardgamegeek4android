@@ -85,10 +85,8 @@ class GameActivity : HeroTabActivity() {
                         adapter.arePlayersCustomSorted = customPlayerSort
                         adapter.iconColor = iconColor
 
-                        fab.colorize(iconColor)
+                        if (fab.colorize(iconColor)) adapter.displayFab()
                     }
-                    adapter.displayFab()
-
                 }
             }
         })

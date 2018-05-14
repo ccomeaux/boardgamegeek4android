@@ -86,7 +86,8 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     fun displayFab() {
         @DrawableRes val resId = tabs.getOrNull(currentPosition)?.imageResId ?: INVALID_RES_ID
         if (resId != INVALID_RES_ID) {
-            if (fab.isShown) {
+            val existingResId = fab.getTag(R.id.res_id) as? Int? ?: INVALID_RES_ID
+            if (fab.isShown && existingResId != resId) {
                 fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
                     override fun onHidden(fab: FloatingActionButton?) {
                         super.onHidden(fab)
@@ -98,6 +99,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
                 fab.setImageResource(resId)
                 fab.show()
             }
+            fab?.setTag(R.id.res_id, resId)
         } else {
             fab.hide()
         }
