@@ -74,6 +74,14 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
+    fun updateFavorite(isFavorite: Boolean) {
+        Handler().post {
+            val values = ContentValues()
+            values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
+            application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+        }
+    }
+
     inner class GameLoader(context: Context) : RefreshableResourceLoader<Game, ThingResponse>(context) {
         override val typeDescriptionResId = R.string.title_game
 

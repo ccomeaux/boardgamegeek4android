@@ -45,4 +45,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             gameRepository.updateColors(iconColor, darkColor, playCountColors[0], playCountColors[1], playCountColors[2])
         }
     }
+
+    fun updateFavorite(isFavorite: Boolean) {
+        gameRepository.updateFavorite(isFavorite)
+    }
 }

@@ -17,7 +17,6 @@ import com.boardgamegeek.applyDarkScrim
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.colorize
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.tasks.FavoriteGameTask
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -26,7 +25,6 @@ import com.boardgamegeek.util.ImageUtils.Callback
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
-import com.boardgamegeek.util.TaskUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import org.jetbrains.anko.*
@@ -150,7 +148,8 @@ class GameActivity : HeroTabActivity() {
                 return true
             }
             R.id.menu_favorite -> {
-                TaskUtils.executeAsyncTask(FavoriteGameTask(ctx, gameId, !isFavorite))
+                isFavorite = !isFavorite
+                viewModel.updateFavorite(isFavorite)
                 return true
             }
             R.id.menu_shortcut -> {
