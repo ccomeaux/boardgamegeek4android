@@ -5,17 +5,9 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -28,16 +20,13 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.AddCollectionItemTask;
 import com.boardgamegeek.tasks.FavoriteGameTask;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment.CollectionStatusDialogListener;
+import com.boardgamegeek.ui.adapter.GamePagerAdapter;
 import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.RefreshableResource;
 import com.boardgamegeek.ui.model.Status;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -48,9 +37,6 @@ import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -68,10 +54,8 @@ public class GameActivity extends HeroTabActivity {
 	@NonNull private String imageUrl = "";
 	@NonNull private String thumbnailUrl = "";
 	@NonNull private String heroImageUrl = "";
-	private boolean arePlayersCustomSorted;
 	private boolean isFavorite;
 	private GamePagerAdapter adapter;
-	@ColorInt private int iconColor;
 	private GameViewModel viewModel;
 
 	public static void start(Context context, int gameId, String gameName) {
@@ -150,11 +134,16 @@ public class GameActivity extends HeroTabActivity {
 				changeName(game.getName());
 				changeImage(game.getImageUrl(), game.getThumbnailUrl(), game.getHeroImageUrl());
 
+				adapter.setGameName(game.getName());
+				adapter.setImageUrl(game.getImageUrl());
+				adapter.setThumbnailUrl(game.getThumbnailUrl());
+				adapter.setHeroImageUrl(game.getHeroImageUrl());
+				adapter.setArePlayersCustomSorted(game.getCustomPlayerSort());
+				adapter.setIconColor(game.getIconColor());
+
 				PresentationUtils.colorFab(fab, game.getIconColor());
 				adapter.displayFab();
 
-				iconColor = game.getIconColor();
-				arePlayersCustomSorted = game.getCustomPlayerSort();
 				isFavorite = game.isFavorite();
 			}
 		});
@@ -172,7 +161,7 @@ public class GameActivity extends HeroTabActivity {
 	@DebugLog
 	@Override
 	protected void setUpViewPager() {
-		adapter = new GamePagerAdapter(getSupportFragmentManager(), this);
+		adapter = new GamePagerAdapter(getSupportFragmentManager(), this, gameId, getIntent().getStringExtra(KEY_GAME_NAME));
 		viewPager.setAdapter(adapter);
 		viewPager.addOnPageChangeListener(new OnPageChangeListener() {
 			@Override
@@ -295,196 +284,5 @@ public class GameActivity extends HeroTabActivity {
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
 		adapter.onFabClicked();
-	}
-
-	interface TabListener {
-		void onFabClicked();
-	}
-
-	private final class GamePagerAdapter extends FragmentPagerAdapter {
-		public static final int INVALID_IMAGE_RES_ID = -1;
-
-		private final class Tab {
-			@StringRes private final int titleResId;
-			@DrawableRes private final int imageResId;
-			private final TabListener listener;
-
-			public Tab(int titleResId) {
-				this(titleResId, INVALID_IMAGE_RES_ID, null);
-			}
-
-			public Tab(int titleResId, int imageResId, TabListener listener) {
-				this.titleResId = titleResId;
-				this.imageResId = imageResId;
-				this.listener = listener;
-			}
-
-			public int getTitleResId() {
-				return titleResId;
-			}
-
-			public int getImageResId() {
-				return imageResId;
-			}
-		}
-
-		private final Context context;
-		private final List<Tab> tabs = new ArrayList<>();
-		private int currentPosition;
-
-		public GamePagerAdapter(FragmentManager fragmentManager, Context context) {
-			super(fragmentManager);
-			this.context = context;
-			updateTabs();
-		}
-
-		@Override
-		public void notifyDataSetChanged() {
-			super.notifyDataSetChanged();
-			updateTabs();
-		}
-
-		private void updateTabs() {
-			tabs.clear();
-			tabs.add(new Tab(
-				R.string.title_description,
-				R.drawable.fab_log_play,
-				new TabListener() {
-					@Override
-					public void onFabClicked() {
-						onPlayFabClicked();
-					}
-				}
-			));
-			tabs.add(new Tab(
-				R.string.title_info,
-				R.drawable.fab_log_play,
-				new TabListener() {
-					@Override
-					public void onFabClicked() {
-						onPlayFabClicked();
-					}
-				}
-			));
-			if (shouldShowCollection())
-				tabs.add(new Tab(
-					R.string.title_collection,
-					R.drawable.fab_add,
-					new TabListener() {
-						@Override
-						public void onFabClicked() {
-							onCollectionFabClicked();
-						}
-					}
-				));
-			if (shouldShowPlays())
-				tabs.add(new Tab(
-					R.string.title_plays,
-					R.drawable.fab_log_play,
-					new TabListener() {
-						@Override
-						public void onFabClicked() {
-							onPlayFabClicked();
-						}
-					})
-				);
-			tabs.add(new Tab(R.string.links));
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			if (position < tabs.size()) {
-				return getString(tabs.get(position).getTitleResId());
-			}
-			return "";
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			if (position < tabs.size()) {
-				switch (tabs.get(position).getTitleResId()) {
-					case R.string.title_description:
-						return GameDescriptionFragment.newInstance(gameId);
-					case R.string.title_info:
-						return GameFragment.newInstance(gameId, gameName);
-					case R.string.title_collection:
-						return GameCollectionFragment.newInstance(gameId);
-					case R.string.title_plays:
-						return GamePlaysFragment.newInstance(gameId, gameName);
-					case R.string.links:
-						return GameLinksFragment.newInstance(gameId, gameName, iconColor);
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public int getCount() {
-			return tabs.size();
-		}
-
-		public void setCurrentPosition(int position) {
-			currentPosition = position;
-		}
-
-		public void displayFab() {
-			if (currentPosition < tabs.size()) {
-				final int resId = tabs.get(currentPosition).getImageResId();
-				if (resId != INVALID_IMAGE_RES_ID) {
-					if (fab.isShown()) {
-						fab.hide(new OnVisibilityChangedListener() {
-							@Override
-							public void onHidden(FloatingActionButton fab) {
-								super.onHidden(fab);
-								fab.setImageResource(resId);
-								fab.show();
-							}
-						});
-					} else {
-						fab.setImageResource(resId);
-						fab.show();
-					}
-				} else {
-					fab.hide();
-				}
-			}
-		}
-
-		public void onFabClicked() {
-			if (currentPosition < tabs.size()) {
-				TabListener listener = tabs.get(currentPosition).listener;
-				if (listener != null) listener.onFabClicked();
-			}
-		}
-
-		private void onCollectionFabClicked() {
-			CollectionStatusDialogFragment statusDialogFragment = CollectionStatusDialogFragment.newInstance(
-				rootContainer,
-				new CollectionStatusDialogListener() {
-					@Override
-					public void onSelectStatuses(List<String> selectedStatuses, int wishlistPriority) {
-						AddCollectionItemTask task = new AddCollectionItemTask(context, gameId, selectedStatuses, wishlistPriority);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
-			statusDialogFragment.setTitle(R.string.title_add_a_copy);
-			DialogUtils.showFragment(GameActivity.this, statusDialogFragment, "status_dialog");
-		}
-
-		private void onPlayFabClicked() {
-			LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted);
-		}
-
-		@DebugLog
-		private boolean shouldShowPlays() {
-			return Authenticator.isSignedIn(getApplicationContext()) && PreferencesUtils.getSyncPlays(getApplicationContext());
-		}
-
-		@DebugLog
-		private boolean shouldShowCollection() {
-			return Authenticator.isSignedIn(getApplicationContext()) &&
-				PreferencesUtils.isCollectionSetToSync(getApplicationContext());
-		}
 	}
 }
