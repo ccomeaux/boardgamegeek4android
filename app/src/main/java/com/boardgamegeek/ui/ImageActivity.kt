@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
-import android.text.TextUtils
 import android.view.View
 import com.boardgamegeek.R
 import com.boardgamegeek.util.HttpUtils
@@ -29,7 +28,7 @@ class ImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_image)
 
         val imageUrl = intent.getStringExtra(KEY_IMAGE_URL)
-        if (TextUtils.isEmpty(imageUrl)) {
+        if (imageUrl.isNullOrBlank()) {
             Timber.w("Received an empty imageUrl")
             finish()
             return
@@ -67,8 +66,8 @@ class ImageActivity : AppCompatActivity() {
         private const val KEY_IMAGE_URL = "IMAGE_URL"
 
         @JvmStatic
-        fun start(context: Context, imageUrl: String) {
-            if (TextUtils.isEmpty(imageUrl)) {
+        fun start(context: Context, imageUrl: String?) {
+            if (imageUrl.isNullOrBlank()) {
                 Timber.w("Missing the required image URL.")
                 return
             }

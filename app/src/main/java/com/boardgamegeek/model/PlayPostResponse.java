@@ -12,6 +12,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import timber.log.Timber;
 
 public abstract class PlayPostResponse {
 	protected final Gson gson = new Gson();
@@ -29,7 +30,12 @@ public abstract class PlayPostResponse {
 					//noinspection deprecation
 					error = Html.fromHtml(content).toString().trim();
 				} else {
-					saveContent(content);
+					try {
+						saveContent(content);
+					} catch (IllegalStateException e) {
+						Timber.w("Couldn't parse JSON - %s", content);
+						throw e;
+					}
 				}
 			} else {
 				error = "Unsuccessful post: " + response.code();

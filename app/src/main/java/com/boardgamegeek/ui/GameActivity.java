@@ -43,6 +43,7 @@ import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.TaskUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -181,6 +182,7 @@ public class GameActivity extends HeroTabActivity {
 		if (menuItem != null) {
 			menuItem.setTitle(isFavorite ? R.string.menu_unfavorite : R.string.menu_favorite);
 		}
+		UIUtils.enableMenuItem(menu, R.id.menu_view_image, !TextUtils.isEmpty(imageUrl));
 		return super.onPrepareOptionsMenu(menu);
 	}
 

@@ -1,13 +1,11 @@
 package com.boardgamegeek.tasks
 
-
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
-
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.ui.model.PrivateInfo
-
+import com.boardgamegeek.use
 import hugo.weaving.DebugLog
 import timber.log.Timber
 
@@ -86,26 +84,26 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
                     Collection.PRIVATE_INFO_ACQUIRED_FROM
             )
 
-            private val PRIVATE_INFO_PRICE_PAID_CURRENCY = 0
-            private val PRIVATE_INFO_PRICE_PAID = 1
-            private val PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 2
-            private val PRIVATE_INFO_CURRENT_VALUE = 3
-            private val PRIVATE_INFO_QUANTITY = 4
-            private val PRIVATE_INFO_ACQUISITION_DATE = 5
-            private val PRIVATE_INFO_ACQUIRED_FROM = 6
+            private const val PRIVATE_INFO_PRICE_PAID_CURRENCY = 0
+            private const val PRIVATE_INFO_PRICE_PAID = 1
+            private const val PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 2
+            private const val PRIVATE_INFO_CURRENT_VALUE = 3
+            private const val PRIVATE_INFO_QUANTITY = 4
+            private const val PRIVATE_INFO_ACQUISITION_DATE = 5
+            private const val PRIVATE_INFO_ACQUIRED_FROM = 6
 
             fun fromResolver(contentResolver: ContentResolver, internalId: Long): Item? {
                 val cursor = contentResolver.query(Collection.buildUri(internalId), projection, null, null, null)
-                cursor.use { c ->
-                    if (c.moveToFirst()) {
+                cursor?.use {
+                    if (it.moveToFirst()) {
                         return Item(
-                                c.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY) ?: "",
-                                c.getDouble(PRIVATE_INFO_PRICE_PAID),
-                                c.getString(PRIVATE_INFO_CURRENT_VALUE_CURRENCY) ?: "",
-                                c.getDouble(PRIVATE_INFO_CURRENT_VALUE),
-                                c.getInt(PRIVATE_INFO_QUANTITY),
-                                c.getString(PRIVATE_INFO_ACQUISITION_DATE) ?: "",
-                                c.getString(PRIVATE_INFO_ACQUIRED_FROM) ?: ""
+                                it.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY) ?: "",
+                                it.getDouble(PRIVATE_INFO_PRICE_PAID),
+                                it.getString(PRIVATE_INFO_CURRENT_VALUE_CURRENCY) ?: "",
+                                it.getDouble(PRIVATE_INFO_CURRENT_VALUE),
+                                it.getInt(PRIVATE_INFO_QUANTITY),
+                                it.getString(PRIVATE_INFO_ACQUISITION_DATE) ?: "",
+                                it.getString(PRIVATE_INFO_ACQUIRED_FROM) ?: ""
                         )
                     }
                 }

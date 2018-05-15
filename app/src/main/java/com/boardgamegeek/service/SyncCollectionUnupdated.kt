@@ -9,6 +9,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.service.model.GameList
+import com.boardgamegeek.use
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
@@ -104,9 +105,9 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
                 SelectionBuilder.whereZeroOrNull("collection.${Collection.UPDATED}"),
                 null,
                 "collection.${Collection.UPDATED_LIST} DESC LIMIT $gamesPerFetch")
-        cursor?.use { c ->
-            while (c.moveToNext()) {
-                list.addGame(c.getInt(0), c.getString(1))
+        cursor?.use {
+            while (it.moveToNext()) {
+                list.addGame(it.getInt(0), it.getString(1))
             }
         }
         return list

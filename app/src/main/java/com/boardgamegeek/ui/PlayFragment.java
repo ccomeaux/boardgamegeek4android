@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -21,9 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
-import android.widget.AbsListView.LayoutParams;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.BaseAdapter;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -40,7 +39,7 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
-import com.boardgamegeek.ui.widget.PlayerRow;
+import com.boardgamegeek.ui.adapter.PlayPlayerAdapter;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -114,7 +113,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.pending_timestamp) TimestampView pendingTimestampView;
 	@BindView(R.id.dirty_timestamp) TimestampView dirtyTimestampView;
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
-	private PlayerAdapter adapter;
+	private PlayPlayerAdapter adapter;
 	@State boolean hasBeenNotified;
 
 	final private OnScrollListener onScrollListener = new OnScrollListener() {
@@ -183,7 +182,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 		}
 
-		adapter = new PlayerAdapter();
+		adapter = new PlayPlayerAdapter(getContext(), play);
 		playersView.setAdapter(adapter);
 
 		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
@@ -192,7 +191,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		getListView().setOnScrollListener(onScrollListener);
 	}
@@ -227,7 +226,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
@@ -375,7 +374,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			case PLAYER_QUERY_TOKEN:
 				PlayBuilder.addPlayers(cursor, play);
 				playersLabel.setVisibility(play.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
-				adapter.notifyDataSetChanged();
+				adapter.replace(play);
 				maybeShowNotification();
 				showList();
 				break;
@@ -522,42 +521,5 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
 		new PlayPersister(getActivity()).save(play, internalId, false);
 		triggerRefresh();
-	}
-
-	private class PlayerAdapter extends BaseAdapter {
-		@Override
-		public boolean isEnabled(int position) {
-			return false;
-		}
-
-		@Override
-		public int getCount() {
-			return play.getPlayerCount();
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return play.getPlayers().get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, final View convertView, ViewGroup parent) {
-			PlayerRow row = new PlayerRow(getActivity());
-			row.setLayoutParams(new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			final Player player = (Player) getItem(position);
-			row.setPlayer(player);
-			row.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					BuddyActivity.start(getContext(), player.username, player.name);
-				}
-			});
-			return row;
-		}
 	}
 }

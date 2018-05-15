@@ -7,19 +7,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.ui.adapter.ColorGridAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +109,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		this.selectedColor = selectedColor;
 		this.disabledColors = disabledColors;
 		this.hiddenColors = hiddenColors;
-		if (titleResId > 0) this.titleResId = titleResId;
+		if (titleResId != 0) this.titleResId = titleResId;
 		setArguments(this.titleResId, numberOfColumns);
 	}
 
@@ -159,7 +155,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		featuredColorGrid.setNumColumns(numberOfColumns);
 
 		tryBindLists();
-		divider.setVisibility(featuredColors == null ? View.GONE : View.VISIBLE);
+		divider.setVisibility(featuredColors == null || featuredColors.size() == 0 ? View.GONE : View.VISIBLE);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_bgglight_Dialog_Alert).setView(rootView);
 		if (titleResId > 0) {
@@ -197,7 +193,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 				}
 			}
 			if (featuredColors == null) {
-				colorGridAdapter = new ColorGridAdapter(choices);
+				colorGridAdapter = new ColorGridAdapter(getContext(), disabledColors, choices);
 				featuredColorGridAdapter = null;
 			} else {
 				ArrayList<Pair<String, Integer>> features = new ArrayList<>();
@@ -208,8 +204,8 @@ public class ColorPickerDialogFragment extends DialogFragment {
 						features.add(0, pair);
 					}
 				}
-				colorGridAdapter = new ColorGridAdapter(choices);
-				featuredColorGridAdapter = new ColorGridAdapter(features);
+				colorGridAdapter = new ColorGridAdapter(getContext(), disabledColors, choices);
+				featuredColorGridAdapter = new ColorGridAdapter(getContext(), disabledColors, features);
 			}
 		}
 
@@ -224,54 +220,4 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		}
 	}
 
-	private class ColorGridAdapter extends BaseAdapter {
-		private List<Pair<String, Integer>> choices = new ArrayList<>();
-		private String selectedColor;
-
-		private ColorGridAdapter(List<Pair<String, Integer>> choices) {
-			this.choices = choices;
-		}
-
-		@Override
-		public int getCount() {
-			return choices.size();
-		}
-
-		@Override
-		public Pair<String, Integer> getItem(int position) {
-			return choices.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup container) {
-			if (convertView == null) {
-				convertView = LayoutInflater.from(getActivity()).inflate(R.layout.widget_color, container, false);
-			}
-
-			Pair<String, Integer> color = getItem(position);
-			((TextView) convertView.findViewById(R.id.color_description)).setText(color.first);
-			ColorUtils.setColorViewValue(convertView.findViewById(R.id.color_view), color.second);
-			View frame = convertView.findViewById(R.id.color_frame);
-			if (color.first.equals(selectedColor)) {
-				frame.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue));
-			} else if (disabledColors != null && disabledColors.contains(color.first)) {
-				frame.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.disabled));
-			}
-
-			return convertView;
-		}
-
-		public void setSelectedColor(String selectedColor) {
-			if (this.selectedColor == null ||
-				!this.selectedColor.equals(selectedColor)) {
-				this.selectedColor = selectedColor;
-				notifyDataSetChanged();
-			}
-		}
-	}
 }
