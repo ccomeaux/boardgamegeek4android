@@ -1,14 +1,12 @@
 package com.boardgamegeek.ui;
 
 
-import android.database.Cursor;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
@@ -18,17 +16,15 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.ui.model.GameCollectionItem;
+import com.boardgamegeek.ui.model.RefreshableResource;
+import com.boardgamegeek.ui.model.Status;
+import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.TaskUtils;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,9 +33,8 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class GameCollectionFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+public class GameCollectionFragment extends Fragment implements OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final int AGE_IN_DAYS_TO_REFRESH = 3;
 
 	private int gameId;
 	private boolean isRefreshing;
@@ -51,6 +46,8 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	@BindView(R.id.collection_container) ViewGroup collectionContainer;
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 
+	private GameViewModel viewModel;
+
 	public static GameCollectionFragment newInstance(int gameId) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
@@ -60,12 +57,12 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 	}
 
 	@Override
-	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		EventBus.getDefault().register(this);
 		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
+
+		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -73,18 +70,37 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		return inflater.inflate(R.layout.fragment_game_collection, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
-		getLoaderManager().restartLoader(0, null, this);
+		viewModel.getGameCollection().observe(this, new Observer<RefreshableResource<List<GameCollectionItem>>>() {
+			@Override
+			public void onChanged(@Nullable RefreshableResource<List<GameCollectionItem>> items) {
+				if (items == null) {
+					showError();
+				} else {
+					updateRefreshStatus(items.getStatus() == Status.REFRESHING);
+					if (items.getStatus() == Status.ERROR) {
+						showError(items.getMessage());
+					}
+					updateUi(items.getData());
+				}
+			}
+		});
+	}
 
-		return rootView;
+	private void showError() {
+		showError(getString(R.string.empty_game_collection));
 	}
 
 	@Override
@@ -100,28 +116,13 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		EventBus.getDefault().unregister(this);
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(getContext(), GameCollectionItem.getUri(), GameCollectionItem.getProjection(), GameCollectionItem.getSelection(), GameCollectionItem.getSelectionArgs(gameId), null);
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	private void updateUi(List<GameCollectionItem> items) {
 		if (getActivity() == null) return;
-		long syncTimestamp = 0;
-		if (cursor != null && cursor.moveToFirst()) {
+		if (items != null) {
 			emptyView.setVisibility(View.GONE);
 			long oldestSyncTimestamp = Long.MAX_VALUE;
 			collectionContainer.removeAllViews();
-			do {
-				GameCollectionItem item = GameCollectionItem.fromCursor(getContext(), cursor);
-
+			for (GameCollectionItem item : items) {
 				oldestSyncTimestamp = Math.min(item.getSyncTimestamp(), oldestSyncTimestamp);
 
 				GameCollectionRow row = new GameCollectionRow(getContext());
@@ -133,46 +134,26 @@ public class GameCollectionFragment extends Fragment implements LoaderCallbacks<
 				row.setRating(item.getRating());
 
 				collectionContainer.addView(row);
-			} while (cursor.moveToNext());
-
-			syncTimestampView.setTimestamp(oldestSyncTimestamp);
-			syncTimestamp = oldestSyncTimestamp;
-		} else {
-			emptyView.setVisibility(View.VISIBLE);
-			collectionContainer.removeAllViews();
-			syncTimestampView.setTimestamp(System.currentTimeMillis());
-		}
-
-		if (mightNeedRefreshing) {
-			mightNeedRefreshing = false;
-			if (DateTimeUtils.howManyDaysOld(syncTimestamp) > AGE_IN_DAYS_TO_REFRESH) {
-				requestRefresh();
 			}
+			syncTimestampView.setTimestamp(oldestSyncTimestamp);
+		} else {
+			showError();
 		}
 	}
 
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	private void showError(String message) {
+		emptyView.setText(message);
+		emptyView.setVisibility(View.VISIBLE);
+		collectionContainer.removeAllViews();
+		syncTimestampView.setTimestamp(System.currentTimeMillis());
 	}
 
 	@Override
 	public void onRefresh() {
-		requestRefresh();
-	}
-
-	private void requestRefresh() {
 		if (!isRefreshing) {
 			updateRefreshStatus(true);
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			viewModel.refreshCollectionItems();
 		} else {
-			updateRefreshStatus(false);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncCollectionByGameTask.CompletedEvent event) {
-		if (event.getGameId() == gameId) {
 			updateRefreshStatus(false);
 		}
 	}
