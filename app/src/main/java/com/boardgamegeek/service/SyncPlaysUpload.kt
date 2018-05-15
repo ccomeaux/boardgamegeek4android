@@ -25,6 +25,7 @@ import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
+import com.boardgamegeek.use
 import com.boardgamegeek.util.*
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
@@ -92,22 +93,22 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                 Plays.UPDATE_TIMESTAMP + ">0",
                 null,
                 Plays.UPDATE_TIMESTAMP)
-        cursor?.use { c ->
+        cursor?.use {
             var currentNumberOfPlays = 0
-            val totalNumberOfPlays = c.count
+            val totalNumberOfPlays = it.count
             updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update, totalNumberOfPlays, totalNumberOfPlays)
 
-            while (c.moveToNext()) {
+            while (it.moveToNext()) {
                 if (isCancelled) break
                 if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) break
 
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
-                val internalId = CursorUtils.getLong(c, Plays._ID, BggContract.INVALID_ID.toLong())
-                val play = PlayBuilder.fromCursor(c)
+                val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                val play = PlayBuilder.fromCursor(it)
                 val playerCursor = PlayBuilder.queryPlayers(context, internalId)
-                playerCursor.use { playerCursor1 ->
-                    PlayBuilder.addPlayers(playerCursor1, play)
+                playerCursor?.use {
+                    PlayBuilder.addPlayers(it, play)
                 }
 
                 val response = postPlayUpdate(play)
@@ -153,19 +154,19 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                 Plays.DELETE_TIMESTAMP + ">0",
                 null,
                 Plays.DELETE_TIMESTAMP)
-        cursor?.use { c ->
+        cursor?.use {
             var currentNumberOfPlays = 0
-            val totalNumberOfPlays = c.count
+            val totalNumberOfPlays = it.count
             updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete, totalNumberOfPlays, totalNumberOfPlays)
 
-            while (c.moveToNext()) {
+            while (it.moveToNext()) {
                 if (isCancelled) break
                 if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) break
 
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
-                val play = PlayBuilder.fromCursor(c)
-                val internalId = CursorUtils.getLong(c, Plays._ID, BggContract.INVALID_ID.toLong())
+                val play = PlayBuilder.fromCursor(it)
+                val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
                 currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                 if (play.playId > 0) {
                     val response = postPlayDelete(play.playId)
@@ -203,9 +204,9 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                 String.format("%s=? AND %s", Plays.OBJECT_ID, SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP)),
                 arrayOf(play.gameId.toString()),
                 null)
-        cursor?.use { c ->
-            if (c.moveToFirst()) {
-                val newPlayCount = c.getInt(0)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val newPlayCount = it.getInt(0)
                 val values = ContentValues()
                 values.put(Collection.NUM_PLAYS, newPlayCount)
                 resolver.update(Games.buildGameUri(play.gameId), values, null, null)
@@ -300,11 +301,11 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                     null,
                     null,
                     null)
-            gameCursor?.use { c ->
-                if (c.moveToFirst()) {
-                    currentPlay.imageUrl = c.getString(0) ?: ""
-                    currentPlay.thumbnailUrl = c.getString(1) ?: ""
-                    currentPlay.heroImageUrl = c.getString(2) ?: ""
+            gameCursor?.use {
+                if (it.moveToFirst()) {
+                    currentPlay.imageUrl = it.getString(0) ?: ""
+                    currentPlay.thumbnailUrl = it.getString(1) ?: ""
+                    currentPlay.heroImageUrl = it.getString(2) ?: ""
                 }
             }
         }

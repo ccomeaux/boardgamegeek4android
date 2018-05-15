@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -32,11 +33,13 @@ import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.TaskUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
@@ -148,6 +151,12 @@ public class GameCollectionItemActivity extends HeroActivity {
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.game_collection;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(@NotNull Menu menu) {
+		UIUtils.enableMenuItem(menu, R.id.menu_view_image, !TextUtils.isEmpty(imageUrl));
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@DebugLog

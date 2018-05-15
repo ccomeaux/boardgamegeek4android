@@ -16,6 +16,7 @@ import com.boardgamegeek.service.model.CollectionItem
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
+import com.boardgamegeek.use
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.SelectionBuilder
@@ -72,29 +73,29 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
     @DebugLog
     override fun execute() {
         val deletedItemsCursor = fetchDeletedCollectionItems()
-        deletedItemsCursor?.use { c ->
-            while (c.moveToNext()) {
+        deletedItemsCursor?.use {
+            while (it.moveToNext()) {
                 if (isCancelled) break
                 if (wasSleepInterrupted(1000)) break
-                processDeletedCollectionItem(c)
+                processDeletedCollectionItem(it)
             }
         }
 
         val newItemsCursor = fetchNewCollectionItems()
-        newItemsCursor?.use { c ->
-            while (c.moveToNext()) {
+        newItemsCursor?.use {
+            while (it.moveToNext()) {
                 if (isCancelled) break
                 if (wasSleepInterrupted(1, TimeUnit.SECONDS)) break
-                processNewCollectionItem(c)
+                processNewCollectionItem(it)
             }
         }
 
         val dirtyItemsCursor = fetchDirtyCollectionItems()
-        dirtyItemsCursor?.use { c ->
-            while (c.moveToNext()) {
+        dirtyItemsCursor?.use {
+            while (it.moveToNext()) {
                 if (isCancelled) break
                 if (wasSleepInterrupted(1, TimeUnit.SECONDS)) break
-                processDirtyCollectionItem(c)
+                processDirtyCollectionItem(it)
             }
         }
     }

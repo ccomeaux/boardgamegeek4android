@@ -91,7 +91,7 @@ abstract class SyncTask(protected val context: Context, protected val service: B
      * existing error notification.
      */
     protected fun showError(detailMessage: String, t: Throwable) {
-        showError(detailMessage, t.localizedMessage)
+        showError(detailMessage, t.localizedMessage ?: t.toString())
     }
 
     /**

@@ -36,6 +36,7 @@ public class BuddyPersister {
 		if (buddy != null && !TextUtils.isEmpty(buddy.name)) {
 			ContentValues values = new ContentValues();
 			values.put(Buddies.UPDATED, updateTime);
+			values.put(Buddies.UPDATED_LIST, updateTime);
 			int oldSyncHashCode = ResolverUtils.queryInt(context.getContentResolver(), Buddies.buildBuddyUri(buddy.name), Buddies.SYNC_HASH_CODE);
 			int newSyncHashCode = generateSyncHashCode(buddy);
 			if (oldSyncHashCode != newSyncHashCode) {

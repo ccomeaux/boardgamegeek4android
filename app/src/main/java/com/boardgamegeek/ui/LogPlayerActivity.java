@@ -184,6 +184,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		ButterKnife.bind(this);
 
 		nameView.setOnItemClickListener(nameClickListener());
+		usernameView.setOnItemClickListener(userNameClickListener());
 
 		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 
@@ -272,6 +273,16 @@ public class LogPlayerActivity extends AppCompatActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				usernameView.setText((String) view.getTag());
+			}
+		};
+	}
+
+	@DebugLog
+	private OnItemClickListener userNameClickListener() {
+		return new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				nameView.setText((String) view.getTag());
 			}
 		};
 	}

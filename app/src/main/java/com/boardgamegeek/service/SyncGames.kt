@@ -7,11 +7,11 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.persister.GamePersister
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.service.model.GameList
+import com.boardgamegeek.use
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
-
 
 abstract class SyncGames(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
 
@@ -151,9 +151,9 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
                 selection,
                 null,
                 "games.${Games.UPDATED_LIST} LIMIT $gamesPerFetch")
-        cursor?.use { c ->
-            while (c.moveToNext()) {
-                list.addGame(c.getInt(0), c.getString(1))
+        cursor?.use {
+            while (it.moveToNext()) {
+                list.addGame(it.getInt(0), it.getString(1))
             }
         }
         return list

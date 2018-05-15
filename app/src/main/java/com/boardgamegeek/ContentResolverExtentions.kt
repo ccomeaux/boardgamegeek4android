@@ -2,7 +2,6 @@ package com.boardgamegeek
 
 import android.content.ContentResolver
 import android.net.Uri
-import java.util.*
 
 fun ContentResolver.queryStrings(
         uri: Uri, columnName: String,
@@ -10,11 +9,11 @@ fun ContentResolver.queryStrings(
         selectionArgs: Array<String>? = null,
         sortOrder: String? = null
 ): List<String> {
-    val list = ArrayList<String>()
+    val list = arrayListOf<String>()
     val cursor = query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)
-    cursor?.use { c ->
-        while (c.moveToNext()) {
-            list.add(c.getString(0))
+    cursor?.use {
+        while (it.moveToNext()) {
+            list.add(it.getString(0))
         }
     }
     return list
@@ -26,11 +25,11 @@ fun ContentResolver.queryInts(
         selectionArgs: Array<String>? = null,
         sortOrder: String? = null
 ): List<Int> {
-    val list = ArrayList<Int>()
+    val list = arrayListOf<Int>()
     val cursor = query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)
-    cursor?.use { c ->
-        while (c.moveToNext()) {
-            list.add(c.getInt(0))
+    cursor?.use {
+        while (it.moveToNext()) {
+            list.add(it.getInt(0))
         }
     }
     return list
@@ -45,11 +44,14 @@ fun ContentResolver.queryInt(
         sortOrder: String? = null
 ): Int {
     val cursor = query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)
-    cursor?.use { c ->
-        val count = c.count
+    cursor?.use {
+        val count = it.count
         if (count != 1) return defaultValue
-        c.moveToFirst()
-        return cursor.getInt(0)
+        return if (it.moveToFirst()) {
+            it.getInt(0)
+        } else {
+            defaultValue
+        }
     }
     return defaultValue
 }

@@ -65,7 +65,7 @@
 	</plurals>
 	<plurals name="sync_notification_plays_delete_increment">
 		<item quantity="one">Deleting %,d of %,d play</item>
-		<item quantity="other">Deleting %, of %,d plays</item>
+		<item quantity="other">Deleting %,d of %,d plays</item>
 	</plurals>
 	<plurals name="sync_notification_games">
 		<item quantity="one">Syncing %1$,d game: %2$s</item>

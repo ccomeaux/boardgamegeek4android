@@ -3,9 +3,8 @@ package com.boardgamegeek.tasks
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
-
 import com.boardgamegeek.provider.BggContract.Collection
-
+import com.boardgamegeek.use
 import hugo.weaving.DebugLog
 import timber.log.Timber
 
@@ -35,17 +34,17 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
         }
     }
 
-    data class Item(
-            val text: String
-    ) {
+    data class Item(val text: String) {
         companion object {
             fun fromResolver(contentResolver: ContentResolver, internalId: Long, columnName: String): Item? {
-                val cursor = contentResolver.query(Collection.buildUri(internalId), arrayOf(columnName), null, null, null)
-                cursor.use { c ->
-                    if (c.moveToFirst()) {
-                        return Item(
-                                c.getString(0) ?: ""
-                        )
+                val cursor = contentResolver.query(Collection.buildUri(internalId),
+                        arrayOf(columnName),
+                        null,
+                        null,
+                        null)
+                cursor?.use {
+                    if (it.moveToFirst()) {
+                        return Item(it.getString(0) ?: "")
                     }
                 }
                 return null

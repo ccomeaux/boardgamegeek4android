@@ -17,17 +17,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionViewRequestedEvent;
@@ -35,6 +31,7 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
+import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -97,7 +94,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
-	protected void readIntent(Intent intent) {
+	protected void readIntent(@NonNull Intent intent) {
 		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 	}
 
@@ -109,7 +106,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		spinner = findViewById(R.id.menu_spinner);
 		bindSpinner();
@@ -136,6 +133,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		}
 	}
 
+	@NonNull
 	@Override
 	@DebugLog
 	protected Fragment onCreatePane() {
@@ -237,7 +235,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 					CollectionFragment fragment = (CollectionFragment) getFragment();
-					long oldId = fragment.getViewId();
+					long oldId = fragment != null ? fragment.getViewId() : id;
 					if (id != oldId) {
 						Answers.getInstance().logCustom(new CustomEvent("CollectionViewSelected"));
 						viewId = id;
@@ -280,78 +278,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			}
 		}
 		return index;
-	}
-
-	private static class CollectionViewAdapter extends SimpleCursorAdapter {
-		@Nullable private final LayoutInflater inflater;
-
-		public CollectionViewAdapter(@NonNull Context context, Cursor cursor) {
-			super(context,
-				R.layout.actionbar_spinner_item,
-				cursor,
-				new String[] { CollectionViews._ID, CollectionViews.NAME },
-				new int[] { 0, android.R.id.text1 },
-				0);
-			setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-			inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-
-		@Override
-		public int getCount() {
-			return super.getCount() + 1;
-		}
-
-		@Nullable
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			if (position == 0) {
-				return createDefaultItem(convertView, parent, R.layout.actionbar_spinner_item);
-			} else {
-				try {
-					return super.getView(position - 1, convertView, parent);
-				} catch (IllegalStateException e) {
-					return createDefaultItem(convertView, parent, R.layout.actionbar_spinner_item);
-				}
-			}
-		}
-
-		@Nullable
-		@Override
-		public View getDropDownView(int position, View convertView, ViewGroup parent) {
-			if (position == 0) {
-				return createDefaultItem(convertView, parent, R.layout.support_simple_spinner_dropdown_item);
-			} else {
-				return super.getDropDownView(position - 1, convertView, parent);
-			}
-		}
-
-		@Nullable
-		private View createDefaultItem(@Nullable View convertView, ViewGroup parent, int layout) {
-			View v;
-			if (convertView == null && inflater != null) {
-				v = inflater.inflate(layout, parent, false);
-			} else {
-				v = convertView;
-			}
-			if (v != null)
-				((TextView) v).setText(R.string.title_collection);
-			return v;
-		}
-
-		@Nullable
-		@Override
-		public Object getItem(int position) {
-			if (position == 0) return null;
-			return super.getItem(position - 1);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			if (position == 0) {
-				return PreferencesUtils.VIEW_ID_COLLECTION;
-			}
-			return super.getItemId(position - 1);
-		}
 	}
 
 	private interface Query {
