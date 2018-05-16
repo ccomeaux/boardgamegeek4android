@@ -6,7 +6,6 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import android.text.TextUtils
 import com.boardgamegeek.applyBatch
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.provider.BggContract
@@ -27,7 +26,7 @@ class GameDao(private val context: Context) {
 
     fun save(game: GameEntity) {
         // TODO return the internal ID
-        if (TextUtils.isEmpty(game.name)) {
+        if (game.name.isBlank()) {
             Timber.w("Missing name from game ID=%s", game.id)
             return
         }

@@ -3,7 +3,8 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.model.Constants
 import com.boardgamegeek.model.Game
-import com.boardgamegeek.util.StringUtils
+import com.boardgamegeek.replaceHtmlLineFeeds
+import com.boardgamegeek.sortName
 
 class GameMapper {
     fun map(from: Game, updateTime: Long = System.currentTimeMillis()): GameEntity {
@@ -12,11 +13,11 @@ class GameMapper {
             id = from.id
             val (primaryName, sortIndex) = findPrimaryName(from)
             name = primaryName
-            sortName = StringUtils.createSortName(primaryName, sortIndex)
-            imageUrl = from.image
-            thumbnailUrl = from.thumbnail
-            description = StringUtils.replaceHtmlLineFeeds(from.description).trim()
-            subtype = from.type
+            sortName = primaryName.sortName(sortIndex)
+            imageUrl = from.image ?: ""
+            thumbnailUrl = from.thumbnail ?: ""
+            description = from.description.replaceHtmlLineFeeds().trim()
+            subtype = from.type ?: ""
             yearPublished = from.yearpublished?.toIntOrNull() ?: Constants.YEAR_UNKNOWN
             minPlayers = from.minplayers?.toIntOrNull() ?: 0
             maxPlayers = from.maxplayers?.toIntOrNull() ?: 0
@@ -66,14 +67,8 @@ class GameMapper {
     }
 
     private fun findPrimaryName(from: Game): Pair<String, Int> {
-        if (from.names != null) {
-            for (name in from.names) {
-                if ("primary" == name.type) {
-                    return name.value to name.sortindex
-                }
-            }
-        }
-        return "" to 0
+        return from.names?.find { "primary" == it.type }?.let { it.value to it.sortindex }
+                ?: from.names?.firstOrNull()?.let { it.value to it.sortindex } ?: "" to 0
     }
 
     private fun createRanks(from: Game): List<GameEntity.Rank> {
