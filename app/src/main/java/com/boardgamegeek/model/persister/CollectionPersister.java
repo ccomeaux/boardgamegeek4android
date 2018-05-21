@@ -1,7 +1,5 @@
 package com.boardgamegeek.model.persister;
 
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -31,7 +29,6 @@ import timber.log.Timber;
 
 public class CollectionPersister {
 	private static final int NOT_DIRTY = 0;
-	private final Context context;
 	private final ContentResolver resolver;
 	private long timestamp;
 	private final boolean isBriefSync;
@@ -135,12 +132,11 @@ public class CollectionPersister {
 
 	@DebugLog
 	private CollectionPersister(Context context, boolean isBriefSync, boolean includePrivateInfo, boolean includeStats, List<String> statusesToSync) {
-		this.context = context;
 		this.isBriefSync = isBriefSync;
 		this.includePrivateInfo = includePrivateInfo;
 		this.includeStats = includeStats;
 		this.statusesToSync = statusesToSync;
-		resolver = this.context.getContentResolver();
+		resolver = context.getContentResolver();
 		timestamp = System.currentTimeMillis();
 	}
 
@@ -172,13 +168,11 @@ public class CollectionPersister {
 		}
 		// remove them
 		if (collectionIdsToDelete.size() > 0) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			for (Integer collectionId : collectionIdsToDelete) {
-				batch.add(ContentProviderOperation.newDelete(Collection.CONTENT_URI)
-					.withSelection(Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collectionId) })
-					.build());
+				resolver.delete(Collection.CONTENT_URI,
+					Collection.COLLECTION_ID + "=?",
+					new String[] { String.valueOf(collectionId) });
 			}
-			ResolverUtils.applyBatch(context, batch);
 		}
 
 		return collectionIdsToDelete.size();
@@ -188,37 +182,37 @@ public class CollectionPersister {
 	public SaveResults save(List<CollectionItem> items) {
 		SaveResults saveResults = new SaveResults();
 		if (items != null && items.size() > 0) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+			final CollectionItemMapper mapper = new CollectionItemMapper();
 			for (CollectionItem item : items) {
-				CollectionItemEntity cie = new CollectionItemMapper().map(item);
-				batch.clear();
-				if (isItemStatusSetToSync(cie)) {
-					SyncCandidate candidate = SyncCandidate.find(resolver, cie.getCollectionId(), cie.getGameId());
-					if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
-						Timber.i("Local play is dirty, skipping sync.");
-						saveResults.addDirtyCollectionId(cie.getCollectionId());
-					} else {
-						if (saveResults.hasGameBeenSaved(cie.getGameId())) {
-							Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", cie.getGameName(), cie.getGameId());
-						} else {
-							addGameToBatch(cie, batch);
-							saveResults.addSavedGameId(cie.getGameId());
-						}
-						addItemToBatch(cie, batch, candidate);
-						ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
-						Timber.d("Saved a batch of %,d record(s)", results.length);
-
-						saveResults.increaseRecordCount(results.length);
-						saveResults.addSavedCollectionId(cie.getCollectionId());
-						Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", cie.getGameName(), cie.getGameId(), cie.getCollectionId());
-					}
-				} else {
-					Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", cie.getGameName(), cie.getGameId(), cie.getCollectionId());
-				}
+				saveItem(mapper.map(item), saveResults);
 			}
 			Timber.i("Processed %,d collection item(s)", items.size());
 		}
 		return saveResults;
+	}
+
+	private void saveItem(CollectionItemEntity item, SaveResults saveResults) {
+		if (isItemStatusSetToSync(item)) {
+			SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
+			if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
+				Timber.i("Local play is dirty, skipping sync.");
+				saveResults.addDirtyCollectionId(item.getCollectionId());
+			} else {
+				if (saveResults.hasGameBeenSaved(item.getGameId())) {
+					Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", item.getGameName(), item.getGameId());
+				} else {
+					upsertGame(item);
+					saveResults.addSavedGameId(item.getGameId());
+				}
+				upsertItem(item, candidate);
+
+				saveResults.increaseRecordCount(1);
+				saveResults.addSavedCollectionId(item.getCollectionId());
+				Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.getGameName(), item.getGameId(), item.getCollectionId());
+			}
+		} else {
+			Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", item.getGameName(), item.getGameId(), item.getCollectionId());
+		}
 	}
 
 	@DebugLog
@@ -312,38 +306,28 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void addGameToBatch(CollectionItemEntity item, ArrayList<ContentProviderOperation> batch) {
-		ContentProviderOperation.Builder cpo;
-		Uri uri = Games.buildGameUri(item.getGameId());
+	private void upsertGame(CollectionItemEntity item) {
 		ContentValues values = toGameValues(item);
+		Uri uri = Games.buildGameUri(item.getGameId());
 		if (ResolverUtils.rowExists(resolver, uri)) {
 			values.remove(Games.GAME_ID);
-			cpo = ContentProviderOperation.newUpdate(uri);
+			resolver.update(uri, values, null, null);
 		} else {
-			cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
+			resolver.insert(Games.CONTENT_URI, values);
 		}
-		batch.add(cpo.withValues(values).build());
 	}
 
 	@DebugLog
-	private void addItemToBatch(CollectionItemEntity item, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
+	private void upsertItem(CollectionItemEntity item, SyncCandidate candidate) {
 		ContentValues values = toCollectionValues(item);
-		ContentProviderOperation.Builder cpo;
 		if (candidate.getInternalId() != BggContract.INVALID_ID) {
-			cpo = createUpdateOperation(values, batch, candidate);
+			removeDirtyValues(values, candidate);
+			Uri uri = Collection.buildUri(candidate.getInternalId());
+			maybeDeleteThumbnail(values, uri);
+			resolver.update(uri, values, null, null);
 		} else {
-			cpo = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
+			resolver.insert(Collection.CONTENT_URI, values);
 		}
-		batch.add(cpo.withValues(values).build());
-	}
-
-	@DebugLog
-	private ContentProviderOperation.Builder createUpdateOperation(ContentValues values, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
-		removeDirtyValues(values, candidate);
-		Uri uri = Collection.buildUri(candidate.getInternalId());
-		ContentProviderOperation.Builder operation = ContentProviderOperation.newUpdate(uri);
-		maybeDeleteThumbnail(values, uri, batch);
-		return operation;
 	}
 
 	@DebugLog
@@ -376,7 +360,16 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void maybeDeleteThumbnail(ContentValues values, Uri uri, ArrayList<ContentProviderOperation> batch) {
+	private void removeValuesIfDirty(ContentValues values, long dirtyFlag, String... columns) {
+		if (dirtyFlag != NOT_DIRTY) {
+			for (String column : columns) {
+				values.remove(column);
+			}
+		}
+	}
+
+	@DebugLog
+	private void maybeDeleteThumbnail(ContentValues values, Uri uri) {
 		if (isBriefSync) {
 			// thumbnail not returned in brief mode
 			return;
@@ -395,16 +388,7 @@ public class CollectionPersister {
 
 		String thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl);
 		if (!TextUtils.isEmpty(thumbnailFileName)) {
-			batch.add(ContentProviderOperation.newDelete(Thumbnails.buildUri(thumbnailFileName)).build());
-		}
-	}
-
-	@DebugLog
-	private void removeValuesIfDirty(ContentValues values, long dirtyFlag, String... columns) {
-		if (dirtyFlag != NOT_DIRTY) {
-			for (String column : columns) {
-				values.remove(column);
-			}
+			resolver.delete(Thumbnails.buildUri(thumbnailFileName), null, null);
 		}
 	}
 
