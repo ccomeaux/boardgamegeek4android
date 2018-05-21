@@ -72,10 +72,10 @@ class GameCollectionRepository(val application: BggApplication) {
                     .includeStats()
                     .build()
 
-            val results = persister.save(item.items)
+            val collectionIds = persister.save(item.items)
             Timber.i("Synced %,d collection item(s) for game '%s'", if (item.items == null) 0 else item.items.size, gameId)
 
-            val deleteCount = persister.delete(gameId, results.savedCollectionIds)
+            val deleteCount = persister.delete(gameId, collectionIds)
             Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
         }
     }

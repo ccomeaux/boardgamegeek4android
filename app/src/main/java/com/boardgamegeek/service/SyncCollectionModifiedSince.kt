@@ -7,6 +7,7 @@ import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.PreferencesUtils
@@ -102,9 +103,12 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 val body = response.body()
                 if (body != null && body.itemCount > 0) {
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_since_saving, body.itemCount, subtypeDescription, formattedDateTime))
-                    val count = persister.save(body.items).recordCount
-                    syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d records for %,d collection %s", count, body.itemCount, subtypeDescription)
+                    val mapper = CollectionItemMapper()
+                    for (item in body.items) {
+                        persister.saveItem(mapper.map(item))
+                    }
+                    syncResult.stats.numUpdates += body.items.size.toLong()
+                    Timber.i("...saved %,d collection %s", body.items.size, subtypeDescription)
                     SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.timestamp)
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)

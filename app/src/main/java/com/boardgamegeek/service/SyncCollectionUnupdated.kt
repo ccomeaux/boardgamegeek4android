@@ -6,6 +6,7 @@ import android.content.SyncResult
 import android.support.v4.util.ArrayMap
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.service.model.GameList
@@ -123,9 +124,12 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
             if (response.isSuccessful) {
                 val body = response.body()
                 return if (body != null && body.itemCount > 0) {
-                    val count = persister.save(body.items).recordCount
-                    syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d records for %,d collection items", count, body.itemCount)
+                    val mapper = CollectionItemMapper()
+                    for (item in body.items) {
+                        persister.saveItem(mapper.map(item))
+                    }
+                    syncResult.stats.numUpdates += body.items.size.toLong()
+                    Timber.i("...saved %,d collection items", body.items.size)
                     body.itemCount
                 } else {
                     Timber.i("...no collection items found for these games")

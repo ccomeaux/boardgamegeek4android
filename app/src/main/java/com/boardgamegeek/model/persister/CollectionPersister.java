@@ -88,48 +88,6 @@ public class CollectionPersister {
 		}
 	}
 
-	public static class SaveResults {
-		private int recordCount;
-		private final List<Integer> savedCollectionIds;
-		private final List<Integer> savedGameIds;
-		private final List<Integer> dirtyCollectionIds;
-
-		public SaveResults() {
-			recordCount = 0;
-			savedCollectionIds = new ArrayList<>();
-			savedGameIds = new ArrayList<>();
-			dirtyCollectionIds = new ArrayList<>();
-		}
-
-		public void increaseRecordCount(int count) {
-			recordCount += count;
-		}
-
-		public void addSavedCollectionId(int id) {
-			savedCollectionIds.add(id);
-		}
-
-		public void addSavedGameId(int id) {
-			savedGameIds.add(id);
-		}
-
-		public void addDirtyCollectionId(int id) {
-			dirtyCollectionIds.add(id);
-		}
-
-		public boolean hasGameBeenSaved(int gameId) {
-			return savedGameIds.contains(gameId);
-		}
-
-		public int getRecordCount() {
-			return recordCount;
-		}
-
-		public List<Integer> getSavedCollectionIds() {
-			return savedCollectionIds;
-		}
-	}
-
 	@DebugLog
 	private CollectionPersister(Context context, boolean isBriefSync, boolean includePrivateInfo, boolean includeStats, List<String> statusesToSync) {
 		this.isBriefSync = isBriefSync;
@@ -179,40 +137,34 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	public SaveResults save(List<CollectionItem> items) {
-		SaveResults saveResults = new SaveResults();
+	public List<Integer> save(List<CollectionItem> items) {
+		List<Integer> saveResults = new ArrayList<>();
 		if (items != null && items.size() > 0) {
 			final CollectionItemMapper mapper = new CollectionItemMapper();
 			for (CollectionItem item : items) {
-				saveItem(mapper.map(item), saveResults);
+				int id = saveItem(mapper.map(item));
+				saveResults.add(id);
 			}
 			Timber.i("Processed %,d collection item(s)", items.size());
 		}
 		return saveResults;
 	}
 
-	private void saveItem(CollectionItemEntity item, SaveResults saveResults) {
+	public int saveItem(CollectionItemEntity item) {
 		if (isItemStatusSetToSync(item)) {
 			SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
 			if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
-				Timber.i("Local play is dirty, skipping sync.");
-				saveResults.addDirtyCollectionId(item.getCollectionId());
+				Timber.i("Local copy of the collection item is dirty, skipping sync.");
 			} else {
-				if (saveResults.hasGameBeenSaved(item.getGameId())) {
-					Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", item.getGameName(), item.getGameId());
-				} else {
-					upsertGame(item);
-					saveResults.addSavedGameId(item.getGameId());
-				}
+				upsertGame(item);
 				upsertItem(item, candidate);
-
-				saveResults.increaseRecordCount(1);
-				saveResults.addSavedCollectionId(item.getCollectionId());
 				Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.getGameName(), item.getGameId(), item.getCollectionId());
+				return item.getCollectionId();
 			}
 		} else {
 			Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", item.getGameName(), item.getGameId(), item.getCollectionId());
 		}
+		return BggContract.INVALID_ID;
 	}
 
 	@DebugLog

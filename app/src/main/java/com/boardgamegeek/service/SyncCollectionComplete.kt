@@ -7,6 +7,7 @@ import android.support.v4.util.ArrayMap
 import android.text.TextUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Collection
@@ -149,10 +150,13 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
                 val body = response.body()
                 if (body != null && body.itemCount > 0) {
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, body.itemCount, statusDescription, subtypeDescription))
-                    val count = persister.save(body.items).recordCount
+                    val mapper = CollectionItemMapper()
+                    for (item in body.items) {
+                        persister.saveItem(mapper.map(item))
+                    }
                     SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, persister.timestamp)
                     syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d records for %,d collection $subtypeDescription", count, body.itemCount)
+                    Timber.i("...saved %,d collection $subtypeDescription", body.itemCount)
                 } else {
                     Timber.i("...no collection $subtypeDescription found for these games")
                 }
