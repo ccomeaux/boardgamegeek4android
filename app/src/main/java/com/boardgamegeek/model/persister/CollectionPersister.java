@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.boardgamegeek.entities.CollectionItemEntity;
+import com.boardgamegeek.mappers.CollectionItemMapper;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -51,14 +53,14 @@ public class CollectionPersister {
 
 		@DebugLog
 		public Builder brief() {
-			isBriefSync = true;
+			isBriefSync = true; // should disable private info
 			validStatusesOnly = false; // requires non-brief sync to fetch number of plays
 			return this;
 		}
 
 		@DebugLog
 		public Builder includePrivateInfo() {
-			includePrivateInfo = true;
+			includePrivateInfo = true; // should disable brief
 			return this;
 		}
 
@@ -188,29 +190,30 @@ public class CollectionPersister {
 		if (items != null && items.size() > 0) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			for (CollectionItem item : items) {
+				CollectionItemEntity cie = new CollectionItemMapper().map(item);
 				batch.clear();
-				if (isItemStatusSetToSync(item)) {
-					SyncCandidate candidate = SyncCandidate.find(resolver, item.collectionId(), item.gameId);
+				if (isItemStatusSetToSync(cie)) {
+					SyncCandidate candidate = SyncCandidate.find(resolver, cie.getCollectionId(), cie.getGameId());
 					if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
 						Timber.i("Local play is dirty, skipping sync.");
-						saveResults.addDirtyCollectionId(item.collectionId());
+						saveResults.addDirtyCollectionId(cie.getCollectionId());
 					} else {
-						if (saveResults.hasGameBeenSaved(item.gameId)) {
-							Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", item.gameName(), item.gameId);
+						if (saveResults.hasGameBeenSaved(cie.getGameId())) {
+							Timber.i("Already saved game '%s' [ID=%s] during this sync; skipping save", cie.getGameName(), cie.getGameId());
 						} else {
-							addGameToBatch(item, batch);
-							saveResults.addSavedGameId(item.gameId);
+							addGameToBatch(cie, batch);
+							saveResults.addSavedGameId(cie.getGameId());
 						}
-						addItemToBatch(item, batch, candidate);
+						addItemToBatch(cie, batch, candidate);
 						ContentProviderResult[] results = ResolverUtils.applyBatch(context, batch);
 						Timber.d("Saved a batch of %,d record(s)", results.length);
 
 						saveResults.increaseRecordCount(results.length);
-						saveResults.addSavedCollectionId(item.collectionId());
-						Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.gameName(), item.gameId, item.collectionId());
+						saveResults.addSavedCollectionId(cie.getCollectionId());
+						Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", cie.getGameName(), cie.getGameId(), cie.getCollectionId());
 					}
 				} else {
-					Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", item.gameName(), item.gameId, item.collectionId());
+					Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", cie.getGameName(), cie.getGameId(), cie.getCollectionId());
 				}
 			}
 			Timber.i("Processed %,d collection item(s)", items.size());
@@ -219,99 +222,99 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private boolean isItemStatusSetToSync(CollectionItem item) {
+	private boolean isItemStatusSetToSync(CollectionItemEntity item) {
 		if (statusesToSync == null) return true; // null means we should always sync
-		if (isStatusSetToSync(item.own, "own")) return true;
-		if (isStatusSetToSync(item.prevowned, "prevowned")) return true;
-		if (isStatusSetToSync(item.fortrade, "fortrade")) return true;
-		if (isStatusSetToSync(item.want, "want")) return true;
-		if (isStatusSetToSync(item.wanttoplay, "wanttoplay")) return true;
-		if (isStatusSetToSync(item.wanttobuy, "wanttobuy")) return true;
-		if (isStatusSetToSync(item.wishlist, "wishlist")) return true;
-		if (isStatusSetToSync(item.preordered, "preordered")) return true;
+		if (isStatusSetToSync(item.getOwn(), "own")) return true;
+		if (isStatusSetToSync(item.getPreviouslyOwned(), "prevowned")) return true;
+		if (isStatusSetToSync(item.getForTrade(), "fortrade")) return true;
+		if (isStatusSetToSync(item.getWant(), "want")) return true;
+		if (isStatusSetToSync(item.getWantToPlay(), "wanttoplay")) return true;
+		if (isStatusSetToSync(item.getWantToBuy(), "wanttobuy")) return true;
+		if (isStatusSetToSync(item.getWishList(), "wishlist")) return true;
+		if (isStatusSetToSync(item.getPreOrdered(), "preordered")) return true;
 		//noinspection RedundantIfStatement
-		if (item.numplays > 0 && statusesToSync.contains("played")) return true;
+		if (item.getNumberOfPlays() > 0 && statusesToSync.contains("played")) return true;
 		return false;
 	}
 
-	private boolean isStatusSetToSync(String status, String setting) {
-		return status.equals("1") && statusesToSync.contains(setting);
+	private boolean isStatusSetToSync(boolean status, String setting) {
+		return status && statusesToSync.contains(setting);
 	}
 
 	@DebugLog
-	private ContentValues toGameValues(CollectionItem item) {
+	private ContentValues toGameValues(CollectionItemEntity item) {
 		ContentValues values = new ContentValues();
 		values.put(Games.UPDATED_LIST, timestamp);
-		values.put(Games.GAME_ID, item.gameId);
-		values.put(Games.GAME_NAME, item.gameName());
-		values.put(Games.GAME_SORT_NAME, item.gameSortName());
+		values.put(Games.GAME_ID, item.getGameId());
+		values.put(Games.GAME_NAME, item.getGameName());
+		values.put(Games.GAME_SORT_NAME, item.getSortName());
 		if (!isBriefSync) {
-			values.put(Games.NUM_PLAYS, item.numplays);
+			values.put(Games.NUM_PLAYS, item.getNumberOfPlays());
 		}
 		if (includeStats) {
-			values.put(Games.MIN_PLAYERS, item.statistics.minplayers);
-			values.put(Games.MAX_PLAYERS, item.statistics.maxplayers);
-			values.put(Games.PLAYING_TIME, item.statistics.playingtime);
-			values.put(Games.MIN_PLAYING_TIME, item.statistics.minplaytime);
-			values.put(Games.MAX_PLAYING_TIME, item.statistics.maxplaytime);
-			values.put(Games.STATS_NUMBER_OWNED, item.statistics.numberOwned());
+			values.put(Games.MIN_PLAYERS, item.getMinNumberOfPlayers());
+			values.put(Games.MAX_PLAYERS, item.getMaxNumberOfPlayers());
+			values.put(Games.PLAYING_TIME, item.getPlayingTime());
+			values.put(Games.MIN_PLAYING_TIME, item.getMinPlayingTime());
+			values.put(Games.MAX_PLAYING_TIME, item.getMaxPlayingTime());
+			values.put(Games.STATS_NUMBER_OWNED, item.getNumberOwned());
 		}
 		return values;
 	}
 
 	@DebugLog
-	private ContentValues toCollectionValues(CollectionItem item) {
+	private ContentValues toCollectionValues(CollectionItemEntity item) {
 		ContentValues values = new ContentValues();
 		if (!isBriefSync && includePrivateInfo && includeStats) {
 			values.put(Collection.UPDATED, timestamp);
 		}
 		values.put(Collection.UPDATED_LIST, timestamp);
-		values.put(Collection.GAME_ID, item.gameId);
-		if (item.collectionId() != BggContract.INVALID_ID) {
-			values.put(Collection.COLLECTION_ID, item.collectionId());
+		values.put(Collection.GAME_ID, item.getGameId());
+		if (item.getCollectionId() != BggContract.INVALID_ID) {
+			values.put(Collection.COLLECTION_ID, item.getCollectionId());
 		}
-		values.put(Collection.COLLECTION_NAME, item.collectionName());
-		values.put(Collection.COLLECTION_SORT_NAME, item.collectionSortName());
-		values.put(Collection.STATUS_OWN, item.own);
-		values.put(Collection.STATUS_PREVIOUSLY_OWNED, item.prevowned);
-		values.put(Collection.STATUS_FOR_TRADE, item.fortrade);
-		values.put(Collection.STATUS_WANT, item.want);
-		values.put(Collection.STATUS_WANT_TO_PLAY, item.wanttoplay);
-		values.put(Collection.STATUS_WANT_TO_BUY, item.wanttobuy);
-		values.put(Collection.STATUS_WISHLIST, item.wishlist);
-		values.put(Collection.STATUS_WISHLIST_PRIORITY, item.wishlistpriority);
-		values.put(Collection.STATUS_PREORDERED, item.preordered);
-		values.put(Collection.LAST_MODIFIED, item.lastModifiedDate());
+		values.put(Collection.COLLECTION_NAME, item.getCollectionName());
+		values.put(Collection.COLLECTION_SORT_NAME, item.getSortName());
+		values.put(Collection.STATUS_OWN, item.getOwn());
+		values.put(Collection.STATUS_PREVIOUSLY_OWNED, item.getPreviouslyOwned());
+		values.put(Collection.STATUS_FOR_TRADE, item.getForTrade());
+		values.put(Collection.STATUS_WANT, item.getWant());
+		values.put(Collection.STATUS_WANT_TO_PLAY, item.getWantToPlay());
+		values.put(Collection.STATUS_WANT_TO_BUY, item.getWantToBuy());
+		values.put(Collection.STATUS_WISHLIST, item.getWishList());
+		values.put(Collection.STATUS_WISHLIST_PRIORITY, item.getWishListPriority());
+		values.put(Collection.STATUS_PREORDERED, item.getPreOrdered());
+		values.put(Collection.LAST_MODIFIED, item.getLastModifiedDate());
 		if (!isBriefSync) {
-			values.put(Collection.COLLECTION_YEAR_PUBLISHED, item.yearpublished);
-			values.put(Collection.COLLECTION_IMAGE_URL, item.image);
-			values.put(Collection.COLLECTION_THUMBNAIL_URL, item.thumbnail);
-			values.put(Collection.COMMENT, item.comment);
-			values.put(Collection.WANTPARTS_LIST, item.wantpartslist);
-			values.put(Collection.CONDITION, item.conditiontext);
-			values.put(Collection.HASPARTS_LIST, item.haspartslist);
-			values.put(Collection.WISHLIST_COMMENT, item.wishlistcomment);
+			values.put(Collection.COLLECTION_YEAR_PUBLISHED, item.getYearPublished());
+			values.put(Collection.COLLECTION_IMAGE_URL, item.getImageUrl());
+			values.put(Collection.COLLECTION_THUMBNAIL_URL, item.getThumbnailUrl());
+			values.put(Collection.COMMENT, item.getComment());
+			values.put(Collection.CONDITION, item.getConditionText());
+			values.put(Collection.WANTPARTS_LIST, item.getWantPartsList());
+			values.put(Collection.HASPARTS_LIST, item.getHasPartsList());
+			values.put(Collection.WISHLIST_COMMENT, item.getWishListComment());
 		}
 		if (includePrivateInfo) {
-			values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.pricePaidCurrency);
-			values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.pricePaid());
-			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.currentValueCurrency);
-			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.currentValue());
+			values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.getPricePaidCurrency());
+			values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.getPricePaid());
+			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.getCurrentValueCurrency());
+			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.getCurrentValue());
 			values.put(Collection.PRIVATE_INFO_QUANTITY, item.getQuantity());
-			values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate);
-			values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom);
-			values.put(Collection.PRIVATE_INFO_COMMENT, item.privatecomment);
+			values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.getAcquisitionDate());
+			values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.getAcquiredFrom());
+			values.put(Collection.PRIVATE_INFO_COMMENT, item.getPrivateComment());
 		}
 		if (includeStats) {
-			values.put(Collection.RATING, item.statistics.getRating());
+			values.put(Collection.RATING, item.getRating());
 		}
 		return values;
 	}
 
 	@DebugLog
-	private void addGameToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch) {
+	private void addGameToBatch(CollectionItemEntity item, ArrayList<ContentProviderOperation> batch) {
 		ContentProviderOperation.Builder cpo;
-		Uri uri = Games.buildGameUri(item.gameId);
+		Uri uri = Games.buildGameUri(item.getGameId());
 		ContentValues values = toGameValues(item);
 		if (ResolverUtils.rowExists(resolver, uri)) {
 			values.remove(Games.GAME_ID);
@@ -323,7 +326,7 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void addItemToBatch(CollectionItem item, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
+	private void addItemToBatch(CollectionItemEntity item, ArrayList<ContentProviderOperation> batch, SyncCandidate candidate) {
 		ContentValues values = toCollectionValues(item);
 		ContentProviderOperation.Builder cpo;
 		if (candidate.getInternalId() != BggContract.INVALID_ID) {

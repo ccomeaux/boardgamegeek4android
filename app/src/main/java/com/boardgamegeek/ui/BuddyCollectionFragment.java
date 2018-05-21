@@ -19,9 +19,11 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.CollectionItemEntity;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.mappers.CollectionItemMapper;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -148,9 +150,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		} else if (id == R.id.menu_collection_random_game) {
 			final int index = RandomUtils.getRandom().nextInt(adapter.getCount());
 			if (index < adapter.getCount()) {
-				CollectionItem ci = adapter.getItem(index);
+				CollectionItemEntity ci = adapter.getItem(index);
 				if (ci != null) {
-					GameActivity.start(getContext(), ci.gameId, ci.gameName(), ci.image, ci.thumbnail, "");
+					GameActivity.start(getContext(), ci.getGameId(), ci.getGameName(), ci.getImageUrl(), ci.getThumbnailUrl(), "");
 					return true;
 				}
 				return false;
@@ -187,11 +189,15 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	@Override
 	public void onLoadFinished(Loader<SafeResponse<CollectionResponse>> loader, SafeResponse<CollectionResponse> data) {
 		if (getActivity() == null) return;
-
-		List<CollectionItem> list = (data == null || data.getBody() == null) ?
-			new ArrayList<CollectionItem>() :
-			data.getBody().items;
-		if (list == null) list = new ArrayList<>();
+		ArrayList<CollectionItemEntity> list = new ArrayList<>();
+		if (data != null &&
+			data.getBody() != null &&
+			data.getBody().items != null) {
+			CollectionItemMapper mapper = new CollectionItemMapper();
+			for (CollectionItem item : data.getBody().items) {
+				list.add(mapper.map(item));
+			}
+		}
 
 		if (adapter == null) {
 			adapter = new BuddyCollectionAdapter(getActivity(), list);
@@ -242,15 +248,15 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 	}
 
-	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItem> implements StickyListHeadersAdapter {
+	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItemEntity> implements StickyListHeadersAdapter {
 		private final LayoutInflater inflater;
 
-		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
+		public BuddyCollectionAdapter(Activity activity, List<CollectionItemEntity> collection) {
 			super(activity, R.layout.row_text_2, collection);
 			inflater = activity.getLayoutInflater();
 		}
 
-		public void setCollection(List<CollectionItem> games) {
+		public void setCollection(List<CollectionItemEntity> games) {
 			clear();
 			addAll(games);
 			notifyDataSetChanged();
@@ -268,18 +274,18 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 				holder = (BuddyGameViewHolder) convertView.getTag();
 			}
 
-			CollectionItem game;
+			CollectionItemEntity item;
 			try {
-				game = getItem(position);
+				item = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
-			if (game != null) {
-				holder.title.setText(game.gameName());
-				holder.text.setText(String.valueOf(game.gameId));
+			if (item != null) {
+				holder.title.setText(item.getGameName());
+				holder.text.setText(String.valueOf(item.getGameId()));
 
-				convertView.setTag(R.id.id, game.gameId);
-				convertView.setTag(R.id.game_name, game.gameName());
+				convertView.setTag(R.id.id, item.getGameId());
+				convertView.setTag(R.id.game_name, item.getGameName());
 			}
 			return convertView;
 		}
@@ -306,9 +312,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		private String getHeaderText(int position) {
 			if (position < getCount()) {
-				CollectionItem game = getItem(position);
-				if (game != null) {
-					return game.gameSortName().substring(0, 1);
+				CollectionItemEntity item = getItem(position);
+				if (item != null) {
+					return item.getSortName().substring(0, 1);
 				}
 			}
 			return "-";
