@@ -69,7 +69,7 @@ class GameCollectionRepository(val application: BggApplication) {
         }
 
         override fun saveCallResult(result: CollectionResponse) {
-            val persister = CollectionPersister.Builder(application).build()
+            val persister = CollectionPersister(application)
 
             val mapper = CollectionItemMapper()
             val collectionIds = arrayListOf<Int>()

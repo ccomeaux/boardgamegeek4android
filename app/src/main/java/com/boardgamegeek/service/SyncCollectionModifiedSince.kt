@@ -6,10 +6,12 @@ import android.content.SyncResult
 import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
@@ -20,15 +22,11 @@ import java.util.*
  * Syncs the user's collection modified since the date stored in the sync service.
  */
 class SyncCollectionModifiedSince(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
-    private val persister = CollectionPersister.Builder(context)
-            .validStatusesOnly()
-            .build()
+    private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
+    private val statusesToSync = PreferencesUtils.getSyncStatuses(context) ?: arrayListOf<String>()
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
-
     override val notificationSummaryMessageId = R.string.sync_notification_collection_partial
-
-    private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
 
     override fun execute() {
         try {
@@ -93,7 +91,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
         options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = modifiedSince
         if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
 
-        persister.resetTimestamp()
+        val persister = CollectionPersister(context)
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
@@ -102,15 +100,22 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 if (items != null && items.size > 0) {
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_since_saving, items.size, subtypeDescription, formattedDateTime))
                     val mapper = CollectionItemMapper()
+                    var count = 0
                     for (item in items) {
-                        persister.saveItem(mapper.map(item), true, true, false)
+                        val entity = mapper.map(item)
+                        if (isItemStatusSetToSync(entity)) {
+                            val collectionId = persister.saveItem(entity, true, true, false)
+                            if (collectionId != BggContract.INVALID_ID) count++
+                        } else {
+                            Timber.i("Skipped collection item '${entity.gameName}' [ID=${entity.gameId}, collection ID=${entity.collectionId}] - collection status not synced")
+                        }
                     }
-                    syncResult.stats.numUpdates += items.size.toLong()
-                    Timber.i("...saved %,d collection %s", items.size, subtypeDescription)
-                    SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.timestamp)
+                    syncResult.stats.numUpdates += count.toLong()
+                    Timber.i("...saved %,d collection %s", count, subtypeDescription)
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)
                 }
+                SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.timestamp)
             } else {
                 showError(context.getString(R.string.sync_notification_collection_since, subtypeDescription, formattedDateTime), response.code())
                 syncResult.stats.numIoExceptions++
@@ -121,5 +126,17 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
             syncResult.stats.numIoExceptions++
             cancel()
         }
+    }
+
+    private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
+        if (item.own && "own" in statusesToSync) return true
+        if (item.previouslyOwned && "prevowned" in statusesToSync) return true
+        if (item.forTrade && "fortrade" in statusesToSync) return true
+        if (item.want && "want" in statusesToSync) return true
+        if (item.wantToPlay && "wanttoplay" in statusesToSync) return true
+        if (item.wantToBuy && "wanttobuy" in statusesToSync) return true
+        if (item.wishList && "wishlist" in statusesToSync) return true
+        if (item.preOrdered && "preordered" in statusesToSync) return true
+        return item.numberOfPlays > 0 && "played" in statusesToSync
     }
 }

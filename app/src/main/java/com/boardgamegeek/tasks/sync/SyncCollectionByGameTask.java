@@ -34,7 +34,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 		super(context);
 		this.gameId = gameId;
 		username = AccountUtils.getUsername(context);
-		persister = new CollectionPersister.Builder(context).build();
+		persister = new CollectionPersister(context);
 	}
 
 	@Override

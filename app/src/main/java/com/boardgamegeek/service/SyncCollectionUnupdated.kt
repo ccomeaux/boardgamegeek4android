@@ -36,7 +36,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
         Timber.i("Syncing unupdated collection list...")
         try {
             var numberOfFetches = 0
-            val persister = CollectionPersister.Builder(context).build()
+            val persister = CollectionPersister(context)
             val options = ArrayMap<String, String>()
             options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
             options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"

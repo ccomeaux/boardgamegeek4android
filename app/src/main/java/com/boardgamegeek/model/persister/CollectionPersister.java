@@ -14,13 +14,10 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.FileUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -30,51 +27,16 @@ import timber.log.Timber;
 public class CollectionPersister {
 	private static final int NOT_DIRTY = 0;
 	private final ContentResolver resolver;
-	private long timestamp;
-	private final List<String> statusesToSync;
-
-	public static class Builder {
-		private final Context context;
-		private boolean validStatusesOnly;
-
-		@DebugLog
-		public Builder(Context context) {
-			this.context = context;
-		}
-
-		@DebugLog
-		public Builder validStatusesOnly() {
-			validStatusesOnly = true;
-			return this;
-		}
-
-		@DebugLog
-		public CollectionPersister build() {
-			List<String> statuses = null;
-			if (validStatusesOnly) {
-				statuses = new ArrayList<>();
-				final Set<String> syncStatuses = PreferencesUtils.getSyncStatuses(context);
-				if (syncStatuses != null) {
-					statuses.addAll(syncStatuses);
-				}
-			}
-			return new CollectionPersister(context, statuses);
-		}
-	}
+	private final long timestamp;
 
 	@DebugLog
-	private CollectionPersister(Context context, List<String> statusesToSync) {
-		this.statusesToSync = statusesToSync;
+	public CollectionPersister(Context context) {
 		resolver = context.getContentResolver();
 		timestamp = System.currentTimeMillis();
 	}
 
 	public long getTimestamp() {
 		return timestamp;
-	}
-
-	public void resetTimestamp() {
-		timestamp = System.currentTimeMillis();
 	}
 
 	/**
@@ -108,40 +70,15 @@ public class CollectionPersister {
 	}
 
 	public int saveItem(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
-		if (isItemStatusSetToSync(item)) {
-			SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
-			if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
-				Timber.i("Local copy of the collection item is dirty, skipping sync.");
-			} else {
-				upsertGame(item, includeStats, isBrief);
-				upsertItem(item, candidate, includeStats, includePrivateInfo, isBrief);
-				Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.getGameName(), item.getGameId(), item.getCollectionId());
-				return item.getCollectionId();
-			}
+		SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
+		if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
+			Timber.i("Local copy of the collection item is dirty, skipping sync.");
 		} else {
-			Timber.i("Skipped collection item '%s' [ID=%s, collection ID=%s] - collection status not synced", item.getGameName(), item.getGameId(), item.getCollectionId());
+			upsertGame(item, includeStats, isBrief);
+			upsertItem(item, candidate, includeStats, includePrivateInfo, isBrief);
+			Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.getGameName(), item.getGameId(), item.getCollectionId());
 		}
-		return BggContract.INVALID_ID;
-	}
-
-	@DebugLog
-	private boolean isItemStatusSetToSync(CollectionItemEntity item) {
-		if (statusesToSync == null) return true; // null means we should always sync
-		if (isStatusSetToSync(item.getOwn(), "own")) return true;
-		if (isStatusSetToSync(item.getPreviouslyOwned(), "prevowned")) return true;
-		if (isStatusSetToSync(item.getForTrade(), "fortrade")) return true;
-		if (isStatusSetToSync(item.getWant(), "want")) return true;
-		if (isStatusSetToSync(item.getWantToPlay(), "wanttoplay")) return true;
-		if (isStatusSetToSync(item.getWantToBuy(), "wanttobuy")) return true;
-		if (isStatusSetToSync(item.getWishList(), "wishlist")) return true;
-		if (isStatusSetToSync(item.getPreOrdered(), "preordered")) return true;
-		//noinspection RedundantIfStatement
-		if (item.getNumberOfPlays() > 0 && statusesToSync.contains("played")) return true;
-		return false;
-	}
-
-	private boolean isStatusSetToSync(boolean status, String setting) {
-		return status && statusesToSync.contains(setting);
+		return item.getCollectionId();
 	}
 
 	@DebugLog

@@ -29,7 +29,6 @@ import kotlin.collections.set
 class SyncCollectionComplete(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
     private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
     private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
-    private val persister = CollectionPersister.Builder(context).build()
 
     private val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
 
@@ -139,7 +138,7 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
         options[status] = "1"
         for (excludedStatus in excludedStatuses) options[excludedStatus] = "0"
 
-        persister.resetTimestamp()
+        val persister = CollectionPersister(context)
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
