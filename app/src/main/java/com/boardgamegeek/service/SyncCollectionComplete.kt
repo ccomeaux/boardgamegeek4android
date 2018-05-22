@@ -6,9 +6,9 @@ import android.content.SyncResult
 import android.support.v4.util.ArrayMap
 import android.text.TextUtils
 import com.boardgamegeek.R
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.DateTimeUtils
@@ -138,7 +138,7 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
         options[status] = "1"
         for (excludedStatus in excludedStatuses) options[excludedStatus] = "0"
 
-        val persister = CollectionPersister(context)
+        val dao = CollectionDao(context)
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
@@ -148,9 +148,9 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        persister.saveItem(mapper.map(item), true, true, false)
+                        dao.saveItem(mapper.map(item), true, true, false)
                     }
-                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, persister.timestamp)
+                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, dao.timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection $subtypeDescription", items.size)
                 } else {

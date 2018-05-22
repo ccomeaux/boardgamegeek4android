@@ -1,4 +1,4 @@
-package com.boardgamegeek.model.persister;
+package com.boardgamegeek.db;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -24,13 +24,12 @@ import javax.annotation.Nullable;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class CollectionPersister {
+public class CollectionDao {
 	private static final int NOT_DIRTY = 0;
 	private final ContentResolver resolver;
 	private final long timestamp;
 
-	@DebugLog
-	public CollectionPersister(Context context) {
+	public CollectionDao(Context context) {
 		resolver = context.getContentResolver();
 		timestamp = System.currentTimeMillis();
 	}
@@ -69,6 +68,7 @@ public class CollectionPersister {
 		return collectionIdsToDelete.size();
 	}
 
+	@DebugLog
 	public int saveItem(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
 		SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
 		if (candidate.getDirtyTimestamp() != NOT_DIRTY) {

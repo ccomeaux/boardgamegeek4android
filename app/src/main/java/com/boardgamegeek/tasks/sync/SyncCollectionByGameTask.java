@@ -9,12 +9,12 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.db.CollectionDao;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.model.CollectionItem;
 import com.boardgamegeek.io.model.CollectionResponse;
 import com.boardgamegeek.mappers.CollectionItemMapper;
-import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
 
@@ -27,14 +27,14 @@ import timber.log.Timber;
 public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, CompletedEvent> {
 	private final int gameId;
 	private final String username;
-	private final CollectionPersister persister;
+	private final CollectionDao dao;
 	private final List<Integer> results = new ArrayList<>();
 
 	public SyncCollectionByGameTask(Context context, int gameId) {
 		super(context);
 		this.gameId = gameId;
 		username = AccountUtils.getUsername(context);
-		persister = new CollectionPersister(context);
+		dao = new CollectionDao(context);
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 		if (body != null && body.items != null) {
 			CollectionItemMapper mapper = new CollectionItemMapper();
 			for (CollectionItem item : body.items) {
-				int collectionId = persister.saveItem(mapper.map(item), true, true, false);
+				int collectionId = dao.saveItem(mapper.map(item), true, true, false);
 				results.add(collectionId);
 			}
 			Timber.i("Synced %,d collection item(s) for game '%s'", body.items.size(), gameId);
@@ -81,7 +81,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 
 	@Override
 	protected void finishSync() {
-		int deleteCount = persister.delete(gameId, results);
+		int deleteCount = dao.delete(gameId, results);
 		Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId);
 	}
 

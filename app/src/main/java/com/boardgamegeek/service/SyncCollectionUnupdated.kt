@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.SyncResult
 import android.support.v4.util.ArrayMap
 import com.boardgamegeek.R
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.service.model.GameList
 import com.boardgamegeek.use
@@ -36,7 +36,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
         Timber.i("Syncing unupdated collection list...")
         try {
             var numberOfFetches = 0
-            val persister = CollectionPersister(context)
+            val dao = CollectionDao(context)
             val options = ArrayMap<String, String>()
             options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
             options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
@@ -65,7 +65,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
 
                     options[BggService.COLLECTION_QUERY_KEY_ID] = gameIds.ids
                     options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE)
-                    val itemCount = requestAndPersist(account.name, persister, options)
+                    val itemCount = requestAndPersist(account.name, dao, options)
 
                     if (itemCount < 0) {
                         Timber.i("...unsuccessful sync; breaking out of fetch loop")
@@ -74,7 +74,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
                     }
 
                     options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
-                    val accessoryCount = requestAndPersist(account.name, persister, options)
+                    val accessoryCount = requestAndPersist(account.name, dao, options)
 
                     if (accessoryCount < 0) {
                         Timber.i("...unsuccessful sync; breaking out of fetch loop")
@@ -112,7 +112,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
     }
 
 
-    private fun requestAndPersist(username: String, persister: CollectionPersister, options: ArrayMap<String, String>): Int {
+    private fun requestAndPersist(username: String, dao: CollectionDao, options: ArrayMap<String, String>): Int {
         Timber.i("..requesting collection items with options %s", options)
 
         val call = service.collection(username, options)
@@ -123,7 +123,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
                 return if (items != null && items.size > 0) {
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        persister.saveItem(mapper.map(item), true, true, false)
+                        dao.saveItem(mapper.map(item), true, true, false)
                     }
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection items", items.size)

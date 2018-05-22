@@ -6,10 +6,10 @@ import android.content.SyncResult
 import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
 import com.boardgamegeek.R
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.PreferencesUtils
@@ -91,7 +91,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
         options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = modifiedSince
         if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
 
-        val persister = CollectionPersister(context)
+        val dao = CollectionDao(context)
         val call = service.collection(account.name, options)
         try {
             val response = call.execute()
@@ -104,7 +104,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                     for (item in items) {
                         val entity = mapper.map(item)
                         if (isItemStatusSetToSync(entity)) {
-                            val collectionId = persister.saveItem(entity, true, true, false)
+                            val collectionId = dao.saveItem(entity, true, true, false)
                             if (collectionId != BggContract.INVALID_ID) count++
                         } else {
                             Timber.i("Skipped collection item '${entity.gameName}' [ID=${entity.gameId}, collection ID=${entity.collectionId}] - collection status not synced")
@@ -115,7 +115,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)
                 }
-                SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.timestamp)
+                SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, dao.timestamp)
             } else {
                 showError(context.getString(R.string.sync_notification_collection_since, subtypeDescription, formattedDateTime), response.code())
                 syncResult.stats.numIoExceptions++

@@ -6,13 +6,13 @@ import android.support.v4.util.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
 import com.boardgamegeek.livedata.GameCollectionLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.GameCollectionItem
 import com.boardgamegeek.ui.model.RefreshableResource
@@ -69,17 +69,17 @@ class GameCollectionRepository(val application: BggApplication) {
         }
 
         override fun saveCallResult(result: CollectionResponse) {
-            val persister = CollectionPersister(application)
-
+            val dao = CollectionDao(application)
             val mapper = CollectionItemMapper()
             val collectionIds = arrayListOf<Int>()
+
             for (item in result.items) {
-                val collectionId = persister.saveItem(mapper.map(item), true, true, false)
+                val collectionId = dao.saveItem(mapper.map(item), true, true, false)
                 collectionIds.add(collectionId)
             }
             Timber.i("Synced %,d collection item(s) for game '%s'", if (result.items == null) 0 else result.items.size, gameId)
 
-            val deleteCount = persister.delete(gameId, collectionIds)
+            val deleteCount = dao.delete(gameId, collectionIds)
             Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
         }
     }
