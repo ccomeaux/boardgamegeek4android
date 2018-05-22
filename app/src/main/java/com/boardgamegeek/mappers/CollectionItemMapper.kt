@@ -1,7 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.io.model.CollectionItem
 import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sortName

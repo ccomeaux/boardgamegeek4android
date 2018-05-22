@@ -1,4 +1,4 @@
-package com.boardgamegeek.model;
+package com.boardgamegeek.io.model;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;

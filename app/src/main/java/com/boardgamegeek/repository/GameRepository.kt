@@ -8,10 +8,10 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.GameLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
-import com.boardgamegeek.model.ThingResponse
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.RefreshableResource

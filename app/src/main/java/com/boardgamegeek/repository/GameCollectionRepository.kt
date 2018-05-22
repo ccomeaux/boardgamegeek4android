@@ -8,10 +8,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.model.CollectionResponse
 import com.boardgamegeek.livedata.GameCollectionLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.model.CollectionResponse
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.GameCollectionItem

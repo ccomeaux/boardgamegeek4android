@@ -1,4 +1,4 @@
-package com.boardgamegeek.model;
+package com.boardgamegeek.io.model;
 
 import com.boardgamegeek.util.StringUtils;
 

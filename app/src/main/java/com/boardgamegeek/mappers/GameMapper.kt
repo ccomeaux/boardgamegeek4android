@@ -1,8 +1,8 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.model.Constants
-import com.boardgamegeek.model.Game
 import com.boardgamegeek.replaceHtmlLineFeeds
 import com.boardgamegeek.sortName
 
