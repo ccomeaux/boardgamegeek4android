@@ -36,10 +36,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
         Timber.i("Syncing unupdated collection list...")
         try {
             var numberOfFetches = 0
-            val persister = CollectionPersister.Builder(context)
-                    .includePrivateInfo()
-                    .includeStats()
-                    .build()
+            val persister = CollectionPersister.Builder(context).build()
             val options = ArrayMap<String, String>()
             options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
             options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
@@ -122,15 +119,15 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
         try {
             val response = call.execute()
             if (response.isSuccessful) {
-                val body = response.body()
-                return if (body != null && body.itemCount > 0) {
+                val items = response.body()?.items
+                return if (items != null && items.size > 0) {
                     val mapper = CollectionItemMapper()
-                    for (item in body.items) {
-                        persister.saveItem(mapper.map(item))
+                    for (item in items) {
+                        persister.saveItem(mapper.map(item), true, true)
                     }
-                    syncResult.stats.numUpdates += body.items.size.toLong()
-                    Timber.i("...saved %,d collection items", body.items.size)
-                    body.itemCount
+                    syncResult.stats.numUpdates += items.size.toLong()
+                    Timber.i("...saved %,d collection items", items.size)
+                    items.size
                 } else {
                     Timber.i("...no collection items found for these games")
                     0

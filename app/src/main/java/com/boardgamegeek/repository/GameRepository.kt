@@ -97,9 +97,9 @@ class GameRepository(val application: BggApplication) {
 
         override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)
 
-        override fun saveCallResult(item: ThingResponse) {
+        override fun saveCallResult(result: ThingResponse) {
             val dao = GameDao(application)
-            for (game in item.games) {
+            for (game in result.games) {
                 dao.save(GameMapper().map(game))
                 Timber.i("Synced game '$gameId'")
             }

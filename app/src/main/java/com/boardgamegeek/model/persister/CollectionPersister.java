@@ -8,8 +8,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.entities.CollectionItemEntity;
-import com.boardgamegeek.mappers.CollectionItemMapper;
-import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -24,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -32,15 +32,11 @@ public class CollectionPersister {
 	private final ContentResolver resolver;
 	private long timestamp;
 	private final boolean isBriefSync;
-	private final boolean includePrivateInfo;
-	private final boolean includeStats;
 	private final List<String> statusesToSync;
 
 	public static class Builder {
 		private final Context context;
 		private boolean isBriefSync;
-		private boolean includePrivateInfo;
-		private boolean includeStats;
 		private boolean validStatusesOnly;
 
 		@DebugLog
@@ -52,18 +48,6 @@ public class CollectionPersister {
 		public Builder brief() {
 			isBriefSync = true; // should disable private info
 			validStatusesOnly = false; // requires non-brief sync to fetch number of plays
-			return this;
-		}
-
-		@DebugLog
-		public Builder includePrivateInfo() {
-			includePrivateInfo = true; // should disable brief
-			return this;
-		}
-
-		@DebugLog
-		public Builder includeStats() {
-			includeStats = true;
 			return this;
 		}
 
@@ -84,15 +68,13 @@ public class CollectionPersister {
 					statuses.addAll(syncStatuses);
 				}
 			}
-			return new CollectionPersister(context, isBriefSync, includePrivateInfo, includeStats, statuses);
+			return new CollectionPersister(context, isBriefSync, statuses);
 		}
 	}
 
 	@DebugLog
-	private CollectionPersister(Context context, boolean isBriefSync, boolean includePrivateInfo, boolean includeStats, List<String> statusesToSync) {
+	private CollectionPersister(Context context, boolean isBriefSync, List<String> statusesToSync) {
 		this.isBriefSync = isBriefSync;
-		this.includePrivateInfo = includePrivateInfo;
-		this.includeStats = includeStats;
 		this.statusesToSync = statusesToSync;
 		resolver = context.getContentResolver();
 		timestamp = System.currentTimeMillis();
@@ -114,7 +96,7 @@ public class CollectionPersister {
 	 * @return the number or rows deleted.
 	 */
 	@DebugLog
-	public int delete(int gameId, List<Integer> protectedCollectionIds) {
+	public int delete(int gameId, @Nullable List<Integer> protectedCollectionIds) {
 		// determine the collection IDs that are no longer in the collection
 		List<Integer> collectionIdsToDelete = ResolverUtils.queryInts(resolver,
 			Collection.CONTENT_URI,
@@ -136,28 +118,14 @@ public class CollectionPersister {
 		return collectionIdsToDelete.size();
 	}
 
-	@DebugLog
-	public List<Integer> save(List<CollectionItem> items) {
-		List<Integer> saveResults = new ArrayList<>();
-		if (items != null && items.size() > 0) {
-			final CollectionItemMapper mapper = new CollectionItemMapper();
-			for (CollectionItem item : items) {
-				int id = saveItem(mapper.map(item));
-				saveResults.add(id);
-			}
-			Timber.i("Processed %,d collection item(s)", items.size());
-		}
-		return saveResults;
-	}
-
-	public int saveItem(CollectionItemEntity item) {
+	public int saveItem(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo) {
 		if (isItemStatusSetToSync(item)) {
 			SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
 			if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
 				Timber.i("Local copy of the collection item is dirty, skipping sync.");
 			} else {
-				upsertGame(item);
-				upsertItem(item, candidate);
+				upsertGame(item, includeStats);
+				upsertItem(item, candidate, includeStats, includePrivateInfo);
 				Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.getGameName(), item.getGameId(), item.getCollectionId());
 				return item.getCollectionId();
 			}
@@ -188,7 +156,7 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private ContentValues toGameValues(CollectionItemEntity item) {
+	private ContentValues toGameValues(CollectionItemEntity item, boolean includeStats) {
 		ContentValues values = new ContentValues();
 		values.put(Games.UPDATED_LIST, timestamp);
 		values.put(Games.GAME_ID, item.getGameId());
@@ -209,7 +177,7 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private ContentValues toCollectionValues(CollectionItemEntity item) {
+	private ContentValues toCollectionValues(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo) {
 		ContentValues values = new ContentValues();
 		if (!isBriefSync && includePrivateInfo && includeStats) {
 			values.put(Collection.UPDATED, timestamp);
@@ -258,8 +226,8 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void upsertGame(CollectionItemEntity item) {
-		ContentValues values = toGameValues(item);
+	private void upsertGame(CollectionItemEntity item, boolean includeStats) {
+		ContentValues values = toGameValues(item, includeStats);
 		Uri uri = Games.buildGameUri(item.getGameId());
 		if (ResolverUtils.rowExists(resolver, uri)) {
 			values.remove(Games.GAME_ID);
@@ -270,8 +238,8 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void upsertItem(CollectionItemEntity item, SyncCandidate candidate) {
-		ContentValues values = toCollectionValues(item);
+	private void upsertItem(CollectionItemEntity item, SyncCandidate candidate, boolean includeStats, boolean includePrivateInfo) {
+		ContentValues values = toCollectionValues(item, includeStats, includePrivateInfo);
 		if (candidate.getInternalId() != BggContract.INVALID_ID) {
 			removeDirtyValues(values, candidate);
 			Uri uri = Collection.buildUri(candidate.getInternalId());

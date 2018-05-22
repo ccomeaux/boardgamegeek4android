@@ -29,10 +29,7 @@ import kotlin.collections.set
 class SyncCollectionComplete(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
     private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
     private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
-    private val persister = CollectionPersister.Builder(context)
-            .includePrivateInfo()
-            .includeStats()
-            .build()
+    private val persister = CollectionPersister.Builder(context).build()
 
     private val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
 
@@ -147,16 +144,16 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
         try {
             val response = call.execute()
             if (response.code() == 200) {
-                val body = response.body()
-                if (body != null && body.itemCount > 0) {
-                    updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, body.itemCount, statusDescription, subtypeDescription))
+                val items = response.body()?.items
+                if (items != null && items.size > 0) {
+                    updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
                     val mapper = CollectionItemMapper()
-                    for (item in body.items) {
-                        persister.saveItem(mapper.map(item))
+                    for (item in items) {
+                        persister.saveItem(mapper.map(item), true, true)
                     }
                     SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, persister.timestamp)
-                    syncResult.stats.numUpdates += body.itemCount.toLong()
-                    Timber.i("...saved %,d collection $subtypeDescription", body.itemCount)
+                    syncResult.stats.numUpdates += items.size.toLong()
+                    Timber.i("...saved %,d collection $subtypeDescription", items.size)
                 } else {
                     Timber.i("...no collection $subtypeDescription found for these games")
                 }

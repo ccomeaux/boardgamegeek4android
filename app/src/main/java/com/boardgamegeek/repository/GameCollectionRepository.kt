@@ -10,6 +10,7 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.livedata.GameCollectionLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
+import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.model.CollectionResponse
 import com.boardgamegeek.model.persister.CollectionPersister
 import com.boardgamegeek.provider.BggContract
@@ -22,8 +23,9 @@ import timber.log.Timber
 private const val AGE_IN_DAYS_TO_REFRESH = 3
 
 class GameCollectionRepository(val application: BggApplication) {
-    private var loader: GameCollectionLoader = GameCollectionLoader(application)
+    private val loader: GameCollectionLoader = GameCollectionLoader(application)
     private var gameId: Int = BggContract.INVALID_ID
+
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
     }
@@ -66,14 +68,16 @@ class GameCollectionRepository(val application: BggApplication) {
 
         }
 
-        override fun saveCallResult(item: CollectionResponse) {
-            val persister = CollectionPersister.Builder(application)
-                    .includePrivateInfo()
-                    .includeStats()
-                    .build()
+        override fun saveCallResult(result: CollectionResponse) {
+            val persister = CollectionPersister.Builder(application).build()
 
-            val collectionIds = persister.save(item.items)
-            Timber.i("Synced %,d collection item(s) for game '%s'", if (item.items == null) 0 else item.items.size, gameId)
+            val mapper = CollectionItemMapper()
+            val collectionIds = arrayListOf<Int>()
+            for (item in result.items) {
+                val collectionId = persister.saveItem(mapper.map(item), true, true)
+                collectionIds.add(collectionId)
+            }
+            Timber.i("Synced %,d collection item(s) for game '%s'", if (result.items == null) 0 else result.items.size, gameId)
 
             val deleteCount = persister.delete(gameId, collectionIds)
             Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)

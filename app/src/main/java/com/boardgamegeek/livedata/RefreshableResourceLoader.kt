@@ -109,5 +109,5 @@ abstract class RefreshableResourceLoader<T, U>(val context: Context) {
     }
 
     @WorkerThread
-    protected abstract fun saveCallResult(item: U)
+    protected abstract fun saveCallResult(result: U)
 }

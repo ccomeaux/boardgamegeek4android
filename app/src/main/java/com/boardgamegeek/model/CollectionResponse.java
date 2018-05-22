@@ -9,8 +9,4 @@ public class CollectionResponse {
 	@Attribute(required = false) public int totalitems;
 	@Attribute(required = false) private String pubdate;
 	@ElementList(inline = true, required = false) public List<CollectionItem> items;
-
-	public int getItemCount() {
-		return items == null ? 0 : items.size();
-	}
 }

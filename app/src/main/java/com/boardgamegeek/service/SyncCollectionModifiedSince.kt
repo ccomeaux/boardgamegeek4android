@@ -21,8 +21,6 @@ import java.util.*
  */
 class SyncCollectionModifiedSince(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
     private val persister = CollectionPersister.Builder(context)
-            .includeStats()
-            .includePrivateInfo()
             .validStatusesOnly()
             .build()
 
@@ -100,15 +98,15 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
         try {
             val response = call.execute()
             if (response.code() == 200) {
-                val body = response.body()
-                if (body != null && body.itemCount > 0) {
-                    updateProgressNotification(context.getString(R.string.sync_notification_collection_since_saving, body.itemCount, subtypeDescription, formattedDateTime))
+                val items = response.body()?.items
+                if (items != null && items.size > 0) {
+                    updateProgressNotification(context.getString(R.string.sync_notification_collection_since_saving, items.size, subtypeDescription, formattedDateTime))
                     val mapper = CollectionItemMapper()
-                    for (item in body.items) {
-                        persister.saveItem(mapper.map(item))
+                    for (item in items) {
+                        persister.saveItem(mapper.map(item), true, true)
                     }
-                    syncResult.stats.numUpdates += body.items.size.toLong()
-                    Timber.i("...saved %,d collection %s", body.items.size, subtypeDescription)
+                    syncResult.stats.numUpdates += items.size.toLong()
+                    Timber.i("...saved %,d collection %s", items.size, subtypeDescription)
                     SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, persister.timestamp)
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)
