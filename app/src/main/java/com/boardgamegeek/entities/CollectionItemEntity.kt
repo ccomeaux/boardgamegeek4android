@@ -8,8 +8,6 @@ class CollectionItemEntity {
     var gameName = ""
     var collectionId = BggContract.INVALID_ID
     var collectionName = ""
-
-    // non-brief
     var sortName = ""
     var yearPublished = YEAR_UNKNOWN
     var imageUrl: String = ""
@@ -17,19 +15,19 @@ class CollectionItemEntity {
 
     //stats
     var hasStatistics = false
-    var minNumberOfPlayers = 0 // non-brief
-    var maxNumberOfPlayers = 0 // non-brief
-    var minPlayingTime = 0 // non-brief
-    var maxPlayingTime = 0 // non-brief
-    var playingTime = 0 // non-brief
-    var numberOwned = 0 // non-brief
+    var minNumberOfPlayers = 0
+    var maxNumberOfPlayers = 0
+    var minPlayingTime = 0
+    var maxPlayingTime = 0
+    var playingTime = 0
+    var numberOwned = 0
     var rating = 0.0
     var numberOfUsersRated = 0 // non-brief
     var average = 0.0
     var bayesAverage = 0.0
     var standardDeviation = 0.0 // non-brief
     var median = 0.0 // non-brief
-    // ranks
+    // ranks - non-brief
 
     var own = false
     var previouslyOwned = false
@@ -54,7 +52,6 @@ class CollectionItemEntity {
     var acquiredFrom = ""
     var privateComment = ""
 
-    // non-brief
     var comment = ""
     var conditionText = ""
     var wantPartsList = ""

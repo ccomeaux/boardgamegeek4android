@@ -103,7 +103,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_since_saving, items.size, subtypeDescription, formattedDateTime))
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        persister.saveItem(mapper.map(item), true, true)
+                        persister.saveItem(mapper.map(item), true, true, false)
                     }
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection %s", items.size, subtypeDescription)

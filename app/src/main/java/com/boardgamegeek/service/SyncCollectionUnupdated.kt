@@ -123,7 +123,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
                 return if (items != null && items.size > 0) {
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        persister.saveItem(mapper.map(item), true, true)
+                        persister.saveItem(mapper.map(item), true, true, false)
                     }
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection items", items.size)

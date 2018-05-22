@@ -74,7 +74,7 @@ class GameCollectionRepository(val application: BggApplication) {
             val mapper = CollectionItemMapper()
             val collectionIds = arrayListOf<Int>()
             for (item in result.items) {
-                val collectionId = persister.saveItem(mapper.map(item), true, true)
+                val collectionId = persister.saveItem(mapper.map(item), true, true, false)
                 collectionIds.add(collectionId)
             }
             Timber.i("Synced %,d collection item(s) for game '%s'", if (result.items == null) 0 else result.items.size, gameId)

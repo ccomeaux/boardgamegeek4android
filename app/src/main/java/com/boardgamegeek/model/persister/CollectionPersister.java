@@ -31,12 +31,10 @@ public class CollectionPersister {
 	private static final int NOT_DIRTY = 0;
 	private final ContentResolver resolver;
 	private long timestamp;
-	private final boolean isBriefSync;
 	private final List<String> statusesToSync;
 
 	public static class Builder {
 		private final Context context;
-		private boolean isBriefSync;
 		private boolean validStatusesOnly;
 
 		@DebugLog
@@ -45,16 +43,8 @@ public class CollectionPersister {
 		}
 
 		@DebugLog
-		public Builder brief() {
-			isBriefSync = true; // should disable private info
-			validStatusesOnly = false; // requires non-brief sync to fetch number of plays
-			return this;
-		}
-
-		@DebugLog
 		public Builder validStatusesOnly() {
 			validStatusesOnly = true;
-			isBriefSync = false; // we need to fetch the number of plays
 			return this;
 		}
 
@@ -68,13 +58,12 @@ public class CollectionPersister {
 					statuses.addAll(syncStatuses);
 				}
 			}
-			return new CollectionPersister(context, isBriefSync, statuses);
+			return new CollectionPersister(context, statuses);
 		}
 	}
 
 	@DebugLog
-	private CollectionPersister(Context context, boolean isBriefSync, List<String> statusesToSync) {
-		this.isBriefSync = isBriefSync;
+	private CollectionPersister(Context context, List<String> statusesToSync) {
 		this.statusesToSync = statusesToSync;
 		resolver = context.getContentResolver();
 		timestamp = System.currentTimeMillis();
@@ -118,14 +107,14 @@ public class CollectionPersister {
 		return collectionIdsToDelete.size();
 	}
 
-	public int saveItem(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo) {
+	public int saveItem(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
 		if (isItemStatusSetToSync(item)) {
 			SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
 			if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
 				Timber.i("Local copy of the collection item is dirty, skipping sync.");
 			} else {
-				upsertGame(item, includeStats);
-				upsertItem(item, candidate, includeStats, includePrivateInfo);
+				upsertGame(item, includeStats, isBrief);
+				upsertItem(item, candidate, includeStats, includePrivateInfo, isBrief);
 				Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.getGameName(), item.getGameId(), item.getCollectionId());
 				return item.getCollectionId();
 			}
@@ -156,13 +145,13 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private ContentValues toGameValues(CollectionItemEntity item, boolean includeStats) {
+	private ContentValues toGameValues(CollectionItemEntity item, boolean includeStats, boolean isBrief) {
 		ContentValues values = new ContentValues();
 		values.put(Games.UPDATED_LIST, timestamp);
 		values.put(Games.GAME_ID, item.getGameId());
 		values.put(Games.GAME_NAME, item.getGameName());
 		values.put(Games.GAME_SORT_NAME, item.getSortName());
-		if (!isBriefSync) {
+		if (!isBrief) {
 			values.put(Games.NUM_PLAYS, item.getNumberOfPlays());
 		}
 		if (includeStats) {
@@ -177,9 +166,9 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private ContentValues toCollectionValues(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo) {
+	private ContentValues toCollectionValues(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
 		ContentValues values = new ContentValues();
-		if (!isBriefSync && includePrivateInfo && includeStats) {
+		if (!isBrief && includePrivateInfo && includeStats) {
 			values.put(Collection.UPDATED, timestamp);
 		}
 		values.put(Collection.UPDATED_LIST, timestamp);
@@ -199,7 +188,7 @@ public class CollectionPersister {
 		values.put(Collection.STATUS_WISHLIST_PRIORITY, item.getWishListPriority());
 		values.put(Collection.STATUS_PREORDERED, item.getPreOrdered());
 		values.put(Collection.LAST_MODIFIED, item.getLastModifiedDate());
-		if (!isBriefSync) {
+		if (!isBrief) {
 			values.put(Collection.COLLECTION_YEAR_PUBLISHED, item.getYearPublished());
 			values.put(Collection.COLLECTION_IMAGE_URL, item.getImageUrl());
 			values.put(Collection.COLLECTION_THUMBNAIL_URL, item.getThumbnailUrl());
@@ -208,16 +197,16 @@ public class CollectionPersister {
 			values.put(Collection.WANTPARTS_LIST, item.getWantPartsList());
 			values.put(Collection.HASPARTS_LIST, item.getHasPartsList());
 			values.put(Collection.WISHLIST_COMMENT, item.getWishListComment());
-		}
-		if (includePrivateInfo) {
-			values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.getPricePaidCurrency());
-			values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.getPricePaid());
-			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.getCurrentValueCurrency());
-			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.getCurrentValue());
-			values.put(Collection.PRIVATE_INFO_QUANTITY, item.getQuantity());
-			values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.getAcquisitionDate());
-			values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.getAcquiredFrom());
-			values.put(Collection.PRIVATE_INFO_COMMENT, item.getPrivateComment());
+			if (includePrivateInfo) {
+				values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.getPricePaidCurrency());
+				values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.getPricePaid());
+				values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.getCurrentValueCurrency());
+				values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.getCurrentValue());
+				values.put(Collection.PRIVATE_INFO_QUANTITY, item.getQuantity());
+				values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.getAcquisitionDate());
+				values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.getAcquiredFrom());
+				values.put(Collection.PRIVATE_INFO_COMMENT, item.getPrivateComment());
+			}
 		}
 		if (includeStats) {
 			values.put(Collection.RATING, item.getRating());
@@ -226,8 +215,8 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void upsertGame(CollectionItemEntity item, boolean includeStats) {
-		ContentValues values = toGameValues(item, includeStats);
+	private void upsertGame(CollectionItemEntity item, boolean includeStats, boolean isBrief) {
+		ContentValues values = toGameValues(item, includeStats, isBrief);
 		Uri uri = Games.buildGameUri(item.getGameId());
 		if (ResolverUtils.rowExists(resolver, uri)) {
 			values.remove(Games.GAME_ID);
@@ -238,12 +227,14 @@ public class CollectionPersister {
 	}
 
 	@DebugLog
-	private void upsertItem(CollectionItemEntity item, SyncCandidate candidate, boolean includeStats, boolean includePrivateInfo) {
-		ContentValues values = toCollectionValues(item, includeStats, includePrivateInfo);
+	private void upsertItem(CollectionItemEntity item, SyncCandidate candidate, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
+		ContentValues values = toCollectionValues(item, includeStats, includePrivateInfo, isBrief);
 		if (candidate.getInternalId() != BggContract.INVALID_ID) {
 			removeDirtyValues(values, candidate);
 			Uri uri = Collection.buildUri(candidate.getInternalId());
-			maybeDeleteThumbnail(values, uri);
+			if (!isBrief) {
+				maybeDeleteThumbnail(values, uri);
+			}
 			resolver.update(uri, values, null, null);
 		} else {
 			resolver.insert(Collection.CONTENT_URI, values);
@@ -290,11 +281,6 @@ public class CollectionPersister {
 
 	@DebugLog
 	private void maybeDeleteThumbnail(ContentValues values, Uri uri) {
-		if (isBriefSync) {
-			// thumbnail not returned in brief mode
-			return;
-		}
-
 		String newThumbnailUrl = values.getAsString(Collection.COLLECTION_THUMBNAIL_URL);
 		if (newThumbnailUrl == null) {
 			newThumbnailUrl = "";

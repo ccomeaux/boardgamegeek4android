@@ -25,27 +25,12 @@ class CollectionItemMapper {
             yearPublished = from.yearpublished?.toIntOrNull() ?: Constants.YEAR_UNKNOWN
             imageUrl = from.image ?: ""
             thumbnailUrl = from.thumbnail ?: ""
-
-            // stats
-            if (from.stats != null) {
-                hasStatistics = true
-                // non-brief
-                minNumberOfPlayers = from.stats.minplayers
-                maxNumberOfPlayers = from.stats.maxplayers
-                minPlayingTime = from.stats.minplaytime
-                maxPlayingTime = from.stats.maxplaytime
-                playingTime = from.stats.playingtime
-                numberOwned = from.stats.numowned.toIntOrNull() ?: 0
-                numberOfUsersRated = from.stats.usersrated.toIntOrNull() ?: 0
-                // brief
-                rating = from.stats.rating.toDoubleOrNull() ?: 0.0
-                average = from.stats.average.toDoubleOrNull() ?: 0.0
-                bayesAverage = from.stats.bayesaverage.toDoubleOrNull() ?: 0.0
-                // non-brief
-                standardDeviation = from.stats.stddev.toDoubleOrNull() ?: 0.0
-                median = from.stats.median.toDoubleOrNull() ?: 0.0
-                // TODO: ranks?
-            }
+            numberOfPlays = from.numplays
+            comment = from.comment ?: ""
+            wantPartsList = from.wantpartslist ?: ""
+            conditionText = from.conditiontext ?: ""
+            hasPartsList = from.haspartslist ?: ""
+            wishListComment = from.wishlistcomment ?: ""
 
             // status
             own = from.own?.equals("1") ?: false
@@ -59,6 +44,24 @@ class CollectionItemMapper {
             preOrdered = from.preordered?.equals("1") ?: false
             lastModifiedDate = DateTimeUtils.tryParseDate(lastModifiedDate, from.lastmodified, FORMAT) // TODO improve
 
+            // stats
+            if (from.stats != null) {
+                hasStatistics = true
+                minNumberOfPlayers = from.stats.minplayers
+                maxNumberOfPlayers = from.stats.maxplayers
+                minPlayingTime = from.stats.minplaytime
+                maxPlayingTime = from.stats.maxplaytime
+                playingTime = from.stats.playingtime
+                numberOwned = from.stats.numowned.toIntOrNull() ?: 0
+                numberOfUsersRated = from.stats.usersrated.toIntOrNull() ?: 0
+                rating = from.stats.rating.toDoubleOrNull() ?: 0.0
+                average = from.stats.average.toDoubleOrNull() ?: 0.0
+                bayesAverage = from.stats.bayesaverage.toDoubleOrNull() ?: 0.0
+                standardDeviation = from.stats.stddev.toDoubleOrNull() ?: 0.0
+                median = from.stats.median.toDoubleOrNull() ?: 0.0
+                // TODO: ranks?
+            }
+
             // private info
             pricePaidCurrency = from.pp_currency ?: ""
             pricePaid = from.pricepaid?.toDoubleOrNull() ?: 0.0
@@ -68,14 +71,6 @@ class CollectionItemMapper {
             acquisitionDate = from.acquisitiondate ?: ""
             acquiredFrom = from.acquiredfrom ?: ""
             privateComment = from.privatecomment ?: ""
-
-            // non-brief
-            numberOfPlays = from.numplays
-            comment = from.comment ?: ""
-            wantPartsList = from.wantpartslist ?: ""
-            conditionText = from.conditiontext ?: ""
-            hasPartsList = from.haspartslist ?: ""
-            wishListComment = from.wishlistcomment ?: ""
         }
         return item
     }

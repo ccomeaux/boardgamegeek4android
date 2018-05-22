@@ -70,7 +70,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 		if (body != null && body.items != null) {
 			CollectionItemMapper mapper = new CollectionItemMapper();
 			for (CollectionItem item : body.items) {
-				int collectionId = persister.saveItem(mapper.map(item), true, true);
+				int collectionId = persister.saveItem(mapper.map(item), true, true, false);
 				results.add(collectionId);
 			}
 			Timber.i("Synced %,d collection item(s) for game '%s'", body.items.size(), gameId);
