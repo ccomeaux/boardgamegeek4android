@@ -117,13 +117,14 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
 
         val call = service.collection(username, options)
         try {
+            val timestamp = System.currentTimeMillis()
             val response = call.execute()
             if (response.isSuccessful) {
                 val items = response.body()?.items
                 return if (items != null && items.size > 0) {
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        dao.saveItem(mapper.map(item), true, true, false)
+                        dao.saveItem(mapper.map(item), true, true, false, timestamp)
                     }
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection items", items.size)

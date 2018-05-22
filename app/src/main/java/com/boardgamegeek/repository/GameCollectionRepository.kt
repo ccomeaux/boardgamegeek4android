@@ -25,6 +25,7 @@ private const val AGE_IN_DAYS_TO_REFRESH = 3
 class GameCollectionRepository(val application: BggApplication) {
     private val loader: GameCollectionLoader = GameCollectionLoader(application)
     private var gameId: Int = BggContract.INVALID_ID
+    private var timestamp = 0L
 
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
@@ -60,12 +61,12 @@ class GameCollectionRepository(val application: BggApplication) {
         }
 
         override fun createCall(): Call<CollectionResponse> {
+            timestamp = System.currentTimeMillis()
             val options = ArrayMap<String, String>()
             options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
             options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
             options[BggService.COLLECTION_QUERY_KEY_ID] = gameId.toString()
             return Adapter.createForXmlWithAuth(context).collection(username, options)
-
         }
 
         override fun saveCallResult(result: CollectionResponse) {
@@ -74,7 +75,7 @@ class GameCollectionRepository(val application: BggApplication) {
             val collectionIds = arrayListOf<Int>()
 
             for (item in result.items) {
-                val collectionId = dao.saveItem(mapper.map(item), true, true, false)
+                val collectionId = dao.saveItem(mapper.map(item), true, true, false, timestamp)
                 collectionIds.add(collectionId)
             }
             Timber.i("Synced %,d collection item(s) for game '%s'", if (result.items == null) 0 else result.items.size, gameId)

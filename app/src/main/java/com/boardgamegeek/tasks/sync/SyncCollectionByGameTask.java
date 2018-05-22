@@ -29,6 +29,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 	private final String username;
 	private final CollectionDao dao;
 	private final List<Integer> results = new ArrayList<>();
+	private long timestamp;
 
 	public SyncCollectionByGameTask(Context context, int gameId) {
 		super(context);
@@ -50,6 +51,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 
 	@Override
 	protected Call<CollectionResponse> createCall() {
+		timestamp = System.currentTimeMillis();
 		ArrayMap<String, String> options = new ArrayMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
@@ -70,7 +72,7 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 		if (body != null && body.items != null) {
 			CollectionItemMapper mapper = new CollectionItemMapper();
 			for (CollectionItem item : body.items) {
-				int collectionId = dao.saveItem(mapper.map(item), true, true, false);
+				int collectionId = dao.saveItem(mapper.map(item), true, true, false, timestamp);
 				results.add(collectionId);
 			}
 			Timber.i("Synced %,d collection item(s) for game '%s'", body.items.size(), gameId);

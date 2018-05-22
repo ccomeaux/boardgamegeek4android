@@ -141,6 +141,7 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
         val dao = CollectionDao(context)
         val call = service.collection(account.name, options)
         try {
+            val timestamp = System.currentTimeMillis()
             val response = call.execute()
             if (response.code() == 200) {
                 val items = response.body()?.items
@@ -148,9 +149,9 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        dao.saveItem(mapper.map(item), true, true, false)
+                        dao.saveItem(mapper.map(item), true, true, false, timestamp)
                     }
-                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, dao.timestamp)
+                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection $subtypeDescription", items.size)
                 } else {

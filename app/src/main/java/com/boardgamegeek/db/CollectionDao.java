@@ -27,15 +27,9 @@ import timber.log.Timber;
 public class CollectionDao {
 	private static final int NOT_DIRTY = 0;
 	private final ContentResolver resolver;
-	private final long timestamp;
 
 	public CollectionDao(Context context) {
 		resolver = context.getContentResolver();
-		timestamp = System.currentTimeMillis();
-	}
-
-	public long getTimestamp() {
-		return timestamp;
 	}
 
 	/**
@@ -69,20 +63,20 @@ public class CollectionDao {
 	}
 
 	@DebugLog
-	public int saveItem(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
+	public int saveItem(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief, long timestamp) {
 		SyncCandidate candidate = SyncCandidate.find(resolver, item.getCollectionId(), item.getGameId());
 		if (candidate.getDirtyTimestamp() != NOT_DIRTY) {
 			Timber.i("Local copy of the collection item is dirty, skipping sync.");
 		} else {
-			upsertGame(item, includeStats, isBrief);
-			upsertItem(item, candidate, includeStats, includePrivateInfo, isBrief);
+			upsertGame(item, includeStats, isBrief, timestamp);
+			upsertItem(item, candidate, includeStats, includePrivateInfo, isBrief, timestamp);
 			Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.getGameName(), item.getGameId(), item.getCollectionId());
 		}
 		return item.getCollectionId();
 	}
 
 	@DebugLog
-	private ContentValues toGameValues(CollectionItemEntity item, boolean includeStats, boolean isBrief) {
+	private ContentValues toGameValues(CollectionItemEntity item, boolean includeStats, boolean isBrief, long timestamp) {
 		ContentValues values = new ContentValues();
 		values.put(Games.UPDATED_LIST, timestamp);
 		values.put(Games.GAME_ID, item.getGameId());
@@ -103,7 +97,7 @@ public class CollectionDao {
 	}
 
 	@DebugLog
-	private ContentValues toCollectionValues(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
+	private ContentValues toCollectionValues(CollectionItemEntity item, boolean includeStats, boolean includePrivateInfo, boolean isBrief, long timestamp) {
 		ContentValues values = new ContentValues();
 		if (!isBrief && includePrivateInfo && includeStats) {
 			values.put(Collection.UPDATED, timestamp);
@@ -152,8 +146,8 @@ public class CollectionDao {
 	}
 
 	@DebugLog
-	private void upsertGame(CollectionItemEntity item, boolean includeStats, boolean isBrief) {
-		ContentValues values = toGameValues(item, includeStats, isBrief);
+	private void upsertGame(CollectionItemEntity item, boolean includeStats, boolean isBrief, long timestamp) {
+		ContentValues values = toGameValues(item, includeStats, isBrief, timestamp);
 		Uri uri = Games.buildGameUri(item.getGameId());
 		if (ResolverUtils.rowExists(resolver, uri)) {
 			values.remove(Games.GAME_ID);
@@ -164,8 +158,8 @@ public class CollectionDao {
 	}
 
 	@DebugLog
-	private void upsertItem(CollectionItemEntity item, SyncCandidate candidate, boolean includeStats, boolean includePrivateInfo, boolean isBrief) {
-		ContentValues values = toCollectionValues(item, includeStats, includePrivateInfo, isBrief);
+	private void upsertItem(CollectionItemEntity item, SyncCandidate candidate, boolean includeStats, boolean includePrivateInfo, boolean isBrief, long timestamp) {
+		ContentValues values = toCollectionValues(item, includeStats, includePrivateInfo, isBrief, timestamp);
 		if (candidate.getInternalId() != BggContract.INVALID_ID) {
 			removeDirtyValues(values, candidate);
 			Uri uri = Collection.buildUri(candidate.getInternalId());

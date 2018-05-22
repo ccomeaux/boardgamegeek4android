@@ -94,6 +94,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
         val dao = CollectionDao(context)
         val call = service.collection(account.name, options)
         try {
+            val timestamp = System.currentTimeMillis()
             val response = call.execute()
             if (response.code() == 200) {
                 val items = response.body()?.items
@@ -104,7 +105,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                     for (item in items) {
                         val entity = mapper.map(item)
                         if (isItemStatusSetToSync(entity)) {
-                            val collectionId = dao.saveItem(entity, true, true, false)
+                            val collectionId = dao.saveItem(entity, true, true, false, timestamp)
                             if (collectionId != BggContract.INVALID_ID) count++
                         } else {
                             Timber.i("Skipped collection item '${entity.gameName}' [ID=${entity.gameId}, collection ID=${entity.collectionId}] - collection status not synced")
@@ -115,7 +116,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)
                 }
-                SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, dao.timestamp)
+                SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, timestamp)
             } else {
                 showError(context.getString(R.string.sync_notification_collection_since, subtypeDescription, formattedDateTime), response.code())
                 syncResult.stats.numIoExceptions++
