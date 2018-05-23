@@ -7,7 +7,7 @@ import com.boardgamegeek.replaceHtmlLineFeeds
 import com.boardgamegeek.sortName
 
 class GameMapper {
-    fun map(from: Game, updateTime: Long = System.currentTimeMillis()): GameEntity {
+    fun map(from: Game): GameEntity {
         val game = GameEntity()
         game.apply {
             id = from.id
@@ -59,9 +59,6 @@ class GameMapper {
                     }
                 }
             }
-
-            updated = updateTime
-            updatedList = updateTime
         }
         return game
     }
