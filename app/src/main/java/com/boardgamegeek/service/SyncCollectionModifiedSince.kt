@@ -105,7 +105,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
                     for (item in items) {
                         val entity = mapper.map(item)
                         if (isItemStatusSetToSync(entity)) {
-                            val collectionId = dao.saveItem(entity, true, true, false, timestamp)
+                            val collectionId = dao.saveItem(entity, timestamp)
                             if (collectionId != BggContract.INVALID_ID) count++
                         } else {
                             Timber.i("Skipped collection item '${entity.gameName}' [ID=${entity.gameId}, collection ID=${entity.collectionId}] - collection status not synced")

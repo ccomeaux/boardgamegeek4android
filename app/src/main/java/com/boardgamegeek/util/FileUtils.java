@@ -5,6 +5,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
@@ -21,6 +22,7 @@ public class FileUtils {
 	/**
 	 * Returns a usable filename from the specified URL.
 	 */
+	@Nullable
 	public static String getFileNameFromUrl(String url) {
 		if (!TextUtils.isEmpty(url) && !BggContract.INVALID_URL.equals(url)) {
 			int index = url.lastIndexOf('/');

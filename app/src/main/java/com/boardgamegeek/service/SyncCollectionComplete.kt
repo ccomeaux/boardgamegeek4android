@@ -149,7 +149,7 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        dao.saveItem(mapper.map(item), true, true, false, timestamp)
+                        dao.saveItem(mapper.map(item), timestamp)
                     }
                     SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()

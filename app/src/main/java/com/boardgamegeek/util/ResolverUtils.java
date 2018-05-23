@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.provider.BggContract;
 
@@ -224,6 +225,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a string from the specified column at the URI. Returns null if there's not
 	 * exactly one row at the URI.
 	 */
+	@Nullable
 	public static String queryString(ContentResolver resolver, Uri uri, String columnName) {
 		String value;
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, null, null, null);
