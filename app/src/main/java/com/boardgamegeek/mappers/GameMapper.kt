@@ -45,18 +45,16 @@ class GameMapper {
 
             polls.addAll(createPolls(from))
 
-            if (from.links != null && from.links.size > 0) {
-                for (link in from.links) {
-                    when (link.type) {
-                        "boardgamedesigner" -> designers.add(link.id to link.value)
-                        "boardgameartist" -> artists.add(link.id to link.value)
-                        "boardgamepublisher" -> publishers.add(link.id to link.value)
-                        "boardgamecategory" -> categories.add(link.id to link.value)
-                        "boardgamemechanic" -> mechanics.add(link.id to link.value)
-                        "boardgameexpansion" -> expansions.add(Triple(link.id, link.value, "true" == link.inbound))
-                        "boardgamefamily" -> families.add(link.id to link.value)
-                    // "boardgameimplementation"
-                    }
+            from.links?.forEach {
+                when (it.type) {
+                    "boardgamedesigner" -> designers.add(it.id to it.value)
+                    "boardgameartist" -> artists.add(it.id to it.value)
+                    "boardgamepublisher" -> publishers.add(it.id to it.value)
+                    "boardgamecategory" -> categories.add(it.id to it.value)
+                    "boardgamemechanic" -> mechanics.add(it.id to it.value)
+                    "boardgameexpansion" -> expansions.add(Triple(it.id, it.value, "true" == it.inbound))
+                    "boardgamefamily" -> families.add(it.id to it.value)
+                // "boardgameimplementation"
                 }
             }
         }
@@ -84,20 +82,20 @@ class GameMapper {
 
     private fun createPolls(from: Game): List<GameEntity.Poll> {
         val polls = mutableListOf<GameEntity.Poll>()
-        for (poll in from.polls) {
-            val p = GameEntity.Poll()
-            p.name = poll.name ?: ""
-            p.title = poll.title ?: ""
-            p.totalVotes = poll.totalvotes
-            for (results in poll.results) {
-                val r = GameEntity.Results()
-                r.numberOfPlayers = if (results.numplayers.isNullOrEmpty()) "X" else results.numplayers
-                for (result in results.result) {
-                    r.result.add(GameEntity.Result(result.level, result.value, result.numvotes))
+        from.polls?.mapTo(polls) {
+            GameEntity.Poll().apply {
+                name = it.name ?: ""
+                title = it.title ?: ""
+                totalVotes = it.totalvotes
+                it.results.forEach {
+                    results.add(GameEntity.Results().apply {
+                        numberOfPlayers = if (it.numplayers.isNullOrEmpty()) "X" else it.numplayers
+                        it.result.forEach {
+                            result.add(GameEntity.Result(it.level, it.value, it.numvotes))
+                        }
+                    })
                 }
-                p.results.add(r)
             }
-            polls.add(p)
         }
         return polls
     }
