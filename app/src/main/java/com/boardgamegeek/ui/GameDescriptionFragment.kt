@@ -39,13 +39,13 @@ class GameDescriptionFragment : Fragment() {
         game_info_id.text = gameId.toString()
         game_info_last_updated.timestamp = 0L
 
-        viewModel.getGame(gameId).observe(this, Observer { game ->
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = game?.status == Status.REFRESHING }
+        viewModel.getGame(gameId).observe(this, Observer {
+            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
-                game == null -> showError(getString(R.string.empty_game))
-                game.status == Status.ERROR && game.data == null -> showError(game.message)
-                game.data == null -> showError(getString(R.string.empty_game))
-                else -> showData(game.data)
+                it == null -> showError(getString(R.string.empty_game))
+                it.status == Status.ERROR && it.data == null -> showError(it.message)
+                it.data == null -> showError(getString(R.string.empty_game))
+                else -> showData(it.data)
             }
         })
     }

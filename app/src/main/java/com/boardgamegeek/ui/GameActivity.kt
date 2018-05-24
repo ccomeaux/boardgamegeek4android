@@ -66,14 +66,13 @@ class GameActivity : HeroTabActivity() {
                 intent.getStringExtra(KEY_THUMBNAIL_URL),
                 intent.getStringExtra(KEY_HERO_IMAGE_URL))
 
-        viewModel.getGame(gameId).observe(this, Observer { refreshableResource ->
+        viewModel.getGame(gameId).observe(this, Observer {
             when {
-                refreshableResource == null -> return@Observer
-                refreshableResource.status == Status.ERROR && !refreshableResource.message.isBlank() -> toast(refreshableResource.message)
-                refreshableResource.status == Status.ERROR -> toast("Error") //TODO
-                refreshableResource.data == null -> return@Observer
+                it == null -> return@Observer
+                it.status == Status.ERROR -> toast(if (it.message.isBlank()) getString(R.string.empty_game) else it.message)
+                it.data == null -> return@Observer
                 else -> {
-                    refreshableResource.data.apply {
+                    it.data.apply {
                         changeName(name)
                         changeImage(imageUrl, thumbnailUrl, heroImageUrl)
                         this@GameActivity.isFavorite = isFavorite

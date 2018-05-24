@@ -41,12 +41,12 @@ class GameCollectionFragment : Fragment() {
 
         syncTimestamp.timestamp = 0L
 
-        viewModel.getGameCollection().observe(this, Observer { items ->
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = items?.status == Status.REFRESHING }
+        viewModel.getGameCollection().observe(this, Observer {
+            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
-                items == null -> showError()
-                items.status == Status.ERROR -> showError(if (items.message.isNotBlank()) items.message else getString(R.string.empty_game_collection))
-                else -> showData(items.data)
+                it == null -> showError()
+                it.status == Status.ERROR -> showError(if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection))
+                else -> showData(it.data)
             }
         })
     }
