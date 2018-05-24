@@ -153,14 +153,6 @@ public class StringUtils {
 	/**
 	 * Formats a list of items with commas and ampersands where necessary.
 	 */
-	public static <E> String formatList(E[] list) {
-		if (list == null) return "";
-		return formatList(Arrays.asList(list), "&", ",");
-	}
-
-	/**
-	 * Formats a list of items with commas and ampersands where necessary.
-	 */
 	public static <E> String formatList(List<E> list) {
 		return formatList(list, "&", ",");
 	}

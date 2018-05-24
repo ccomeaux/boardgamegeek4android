@@ -7,6 +7,7 @@ import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.formatList
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.SyncPrefs
@@ -14,7 +15,6 @@ import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
-import com.boardgamegeek.util.StringUtils
 import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.io.IOException
@@ -114,7 +114,7 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
             return
         }
 
-        Timber.i("Syncing $statusDescription collection $subtypeDescription while excluding statuses [${StringUtils.formatList(excludedStatuses)}]")
+        Timber.i("Syncing $statusDescription collection $subtypeDescription while excluding statuses [${excludedStatuses.formatList()}]")
 
         updateProgressNotification(context.getString(R.string.sync_notification_collection_downloading, statusDescription, subtypeDescription))
 
