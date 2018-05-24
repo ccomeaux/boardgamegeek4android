@@ -343,12 +343,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				case R.id.menu_collection_view_save:
 					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
 					dialog.setOnViewSavedListener(CollectionFragment.this);
-					dialog.show(getFragmentManager(), "save_view");
+					DialogUtils.show(CollectionFragment.this, dialog, "save_view");
 					return true;
 				case R.id.menu_collection_view_delete:
 					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(getActivity());
 					ddf.setOnViewDeletedListener(CollectionFragment.this);
-					ddf.show(getFragmentManager(), "delete_view");
+					DialogUtils.show(CollectionFragment.this, ddf, "delete_view");
 					return true;
 				case R.id.menu_share:
 					shareCollection();
@@ -362,7 +362,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 							}
 						});
 					sortFragment.setSelection(sorter.getType());
-					DialogUtils.show(sortFragment, getFragmentManager(), "sort");
+					DialogUtils.show(CollectionFragment.this, sortFragment, "sort");
 					return true;
 				case R.id.menu_collection_filter:
 					final CollectionFilterDialogFragment filterFragment =
@@ -375,7 +375,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					for (CollectionFilterer filter : filters) {
 						filterFragment.addEnabledFilter(filter.getType());
 					}
-					DialogUtils.show(filterFragment, getFragmentManager(), "filter");
+					DialogUtils.show(CollectionFragment.this, filterFragment, "filter");
 					return true;
 			}
 			return launchFilterDialog(item.getItemId());

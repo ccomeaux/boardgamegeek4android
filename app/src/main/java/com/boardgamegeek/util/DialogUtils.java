@@ -32,10 +32,11 @@ public class DialogUtils {
 		return new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert);
 	}
 
-	public static void show(DialogFragment fragment, FragmentManager manager, String tag) {
-		FragmentTransaction ft = manager.beginTransaction();
-		ft.add(fragment, tag);
-		ft.commitAllowingStateLoss();
+	public static void show(Fragment fragment, DialogFragment dialog, String tag) {
+		final FragmentManager fragmentManager = fragment.getFragmentManager();
+		if (fragmentManager == null) return;
+		FragmentTransaction ft = fragmentManager.beginTransaction();
+		dialog.show(ft, tag);
 	}
 
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
@@ -48,8 +49,7 @@ public class DialogUtils {
 
 		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
 		dialog.setArguments(arguments);
-		ft.add(dialog, tag);
-		ft.commitAllowingStateLoss();
+		dialog.show(ft, tag);
 	}
 
 	public interface OnDiscardListener {
