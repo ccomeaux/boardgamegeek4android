@@ -25,19 +25,6 @@ public class StringUtils {
 	private StringUtils() {
 	}
 
-	public static String replaceHtmlLineFeeds(String text) {
-		if (TextUtils.isEmpty(text)) return "";
-		return text.replace("&#10;", "\n");
-	}
-
-	public static String createSortName(String name, int sortIndex) {
-		if (sortIndex <= 1 || sortIndex > name.length()) {
-			return name;
-		}
-		int i = sortIndex - 1;
-		return name.substring(i) + ", " + name.substring(0, i).trim();
-	}
-
 	/**
 	 * Parse a string to an int, returning 0 if it's not parsable.
 	 */
