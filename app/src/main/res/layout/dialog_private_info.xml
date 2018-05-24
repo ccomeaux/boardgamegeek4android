@@ -7,6 +7,7 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:importantForAutofill="noExcludeDescendants"
 		android:orientation="vertical"
 		android:paddingBottom="@dimen/material_margin_vertical"
 		android:paddingLeft="@dimen/material_margin_horizontal"
@@ -28,13 +29,13 @@
 				android:id="@+id/input_price"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:layout_weight="1">
+				android:layout_weight="1"
+				android:hint="@string/price">
 
 				<android.support.design.widget.TextInputEditText
 					android:id="@+id/price"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:hint="@string/price"
 					android:inputType="numberDecimal"
 					android:maxLines="1"/>
 			</android.support.design.widget.TextInputLayout>
@@ -54,13 +55,13 @@
 			<android.support.design.widget.TextInputLayout
 				android:id="@+id/input_current_value"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:hint="@string/current_value">
 
 				<android.support.design.widget.TextInputEditText
 					android:id="@+id/current_value"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:hint="@string/current_value"
 					android:inputType="numberDecimal"
 					android:maxLines="1"/>
 			</android.support.design.widget.TextInputLayout>
@@ -69,13 +70,13 @@
 		<android.support.design.widget.TextInputLayout
 			android:id="@+id/input_quantity"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:hint="@string/quantity">
 
 			<android.support.design.widget.TextInputEditText
 				android:id="@+id/quantity"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:hint="@string/quantity"
 				android:inputType="number"
 				android:maxLines="1"/>
 		</android.support.design.widget.TextInputLayout>
@@ -124,16 +125,15 @@
 		<android.support.design.widget.TextInputLayout
 			android:id="@+id/input_acquired_from"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:hint="@string/acquired_from">
 
 			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 				android:id="@+id/acquired_from"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:completionThreshold="1"
-				android:hint="@string/acquired_from"
 				android:imeOptions="actionNext"
-				android:importantForAutofill="noExcludeDescendants"
 				android:inputType="textCapWords"
 				android:textAppearance="@style/Text.Big"
 				android:textColor="#000"/>

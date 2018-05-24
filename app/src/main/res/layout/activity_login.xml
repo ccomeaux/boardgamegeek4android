@@ -36,6 +36,7 @@
 		android:id="@+id/login_form"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:importantForAutofill="noExcludeDescendants"
 		android:minWidth="240dp">
 
 		<LinearLayout
@@ -45,13 +46,13 @@
 			<android.support.design.widget.TextInputLayout
 				android:id="@+id/username_container"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:hint="@string/prompt_username">
 
 				<android.support.design.widget.TextInputEditText
 					android:id="@+id/username"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:hint="@string/prompt_username"
 					android:inputType="textNoSuggestions"
 					android:maxLines="1"/>
 			</android.support.design.widget.TextInputLayout>
@@ -60,13 +61,13 @@
 				android:id="@+id/password_container"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:hint="@string/prompt_password"
 				app:passwordToggleEnabled="true">
 
 				<android.support.design.widget.TextInputEditText
 					android:id="@+id/password"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:hint="@string/prompt_password"
 					android:imeActionId="@integer/login_action_id"
 					android:imeActionLabel="@string/action_sign_in"
 					android:imeOptions="actionUnspecified"
