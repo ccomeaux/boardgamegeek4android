@@ -97,36 +97,6 @@ public class StringUtils {
 	}
 
 	/**
-	 * Gets the ordinal (1st) for the given cardinal (1)
-	 *
-	 * @param cardinal The cardinal number (1, 2, 3)
-	 * @return The ordinal number (1st, 2nd, 3rd)
-	 */
-	public static String getOrdinal(int cardinal) {
-		if (cardinal < 0) {
-			return "-th";
-		}
-
-		String c = String.valueOf(cardinal);
-		String n = "0";
-		if (c.length() > 1) {
-			n = c.substring(c.length() - 2, c.length() - 1);
-		}
-		String l = c.substring(c.length() - 1);
-		if (!n.equals("1")) {
-			switch (l) {
-				case "1":
-					return c + "st";
-				case "2":
-					return c + "nd";
-				case "3":
-					return c + "rd";
-			}
-		}
-		return c + "th";
-	}
-
-	/**
 	 * Concatenates 2 arrays of strings into 1.
 	 */
 	public static String[] concatenate(String[] array1, String[] array2) {

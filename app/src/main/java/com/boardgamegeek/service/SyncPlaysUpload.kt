@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.toOrdinal
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayDeleteResponse
@@ -279,9 +280,9 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
 
     private fun getPlayCountDescription(count: Int, quantity: Int): String {
         return when (quantity) {
-            1 -> StringUtils.getOrdinal(count)
-            2 -> StringUtils.getOrdinal(count - 1) + " & " + StringUtils.getOrdinal(count)
-            else -> StringUtils.getOrdinal(count - quantity + 1) + " - " + StringUtils.getOrdinal(count)
+            1 -> count.toOrdinal()
+            2 -> "${(count - 1).toOrdinal()} & ${count.toOrdinal()}"
+            else -> "${(count - quantity + 1).toOrdinal()} - ${count.toOrdinal()}"
         }
     }
 
