@@ -14,7 +14,10 @@ import com.boardgamegeek.model.persister.BuddyPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Buddies
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.DateTimeUtils
+import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.util.PresentationUtils
+import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 
@@ -101,7 +104,7 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
 
         val buddies = user.buddies?.buddies ?: listOf<Buddy>()
         for (buddy in buddies) {
-            val userId = StringUtils.parseInt(buddy.id, BggContract.INVALID_ID)
+            val userId = buddy.id.toIntOrNull() ?: BggContract.INVALID_ID
             count += persister.saveBuddy(userId, buddy.name, true)
         }
 

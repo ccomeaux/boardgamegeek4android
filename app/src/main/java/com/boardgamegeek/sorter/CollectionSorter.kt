@@ -3,9 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import android.database.Cursor
 import android.support.annotation.StringRes
-
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.util.StringUtils
 
 abstract class CollectionSorter(context: Context) : Sorter(context) {
 
@@ -26,7 +24,7 @@ abstract class CollectionSorter(context: Context) : Sorter(context) {
         get() = 0
 
     override val type: Int
-        get() = StringUtils.parseInt(context.getString(typeResource), CollectionSorterFactory.TYPE_DEFAULT)
+        get() = context.getString(typeResource).toIntOrNull() ?: CollectionSorterFactory.TYPE_DEFAULT
 
     @get:StringRes
     protected abstract val typeResource: Int
