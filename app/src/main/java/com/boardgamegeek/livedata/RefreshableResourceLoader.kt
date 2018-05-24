@@ -2,10 +2,10 @@ package com.boardgamegeek.livedata
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
-import android.content.Context
 import android.support.annotation.MainThread
 import android.support.annotation.StringRes
 import android.support.annotation.WorkerThread
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.NetworkUtils
@@ -13,20 +13,24 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-abstract class RefreshableResourceLoader<T, U>(val context: Context) {
+abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) {
     private val result = MediatorLiveData<RefreshableResource<T>>()
 
     fun load(): LiveData<RefreshableResource<T>> {
         if (!isRequestParamsValid()) {
-            result.value = RefreshableResource.error(context.getString(com.boardgamegeek.R.string.msg_update_invalid_request, context.getString(typeDescriptionResId)))
+            result.value = RefreshableResource.error(application.getString(com.boardgamegeek.R.string.msg_update_invalid_request, application.getString(typeDescriptionResId)))
         } else {
-            val dbSource = loadFromDatabase()
-            result.addSource(dbSource) { data ->
-                result.removeSource(dbSource)
-                if (shouldRefresh(data)) {
-                    refresh(dbSource)
-                } else {
-                    result.addSource(dbSource) { newData -> result.setValue(RefreshableResource.success(newData)) }
+            application.appExecutors.diskIO.execute {
+                val dbSource = loadFromDatabase()
+                result.addSource(dbSource) { data ->
+                    application.appExecutors.mainThread.execute {
+                        result.removeSource(dbSource)
+                        if (shouldRefresh(data)) {
+                            refresh(dbSource)
+                        } else {
+                            result.addSource(dbSource) { newData -> result.setValue(RefreshableResource.success(newData)) }
+                        }
+                    }
                 }
             }
         }
@@ -47,31 +51,40 @@ abstract class RefreshableResourceLoader<T, U>(val context: Context) {
     protected abstract fun shouldRefresh(data: T?): Boolean
 
     fun refresh() {
-        refresh(loadFromDatabase())
+        application.appExecutors.diskIO.execute {
+            val dbSource = loadFromDatabase()
+            application.appExecutors.mainThread.execute {
+                refresh(dbSource)
+            }
+        }
     }
 
     private fun refresh(dbSource: LiveData<T>) {
         result.addSource(dbSource) { newData ->
-            if (NetworkUtils.isOffline(context)) {
-                result.value = RefreshableResource.error(context.getString(R.string.msg_offline), newData)
+            if (NetworkUtils.isOffline(application)) {
+                result.value = RefreshableResource.error(application.getString(R.string.msg_offline), newData)
             } else {
                 result.setValue(RefreshableResource.refreshing(newData))
             }
         }
-        if (NetworkUtils.isOffline(context)) return
+        if (NetworkUtils.isOffline(application)) return
         createCall().enqueue(object : Callback<U> {
             override fun onResponse(call: Call<U>?, response: Response<U>?) {
                 if (response?.isSuccessful == true) {
                     if (isResponseBodyValid(response.body())) {
-                        saveCallResult(response.body()!!)
-                        result.removeSource(dbSource)
-                        result.addSource(dbSource) { newData ->
-                            result.setValue(RefreshableResource.success(newData))
+                        application.appExecutors.diskIO.execute {
+                            saveCallResult(response.body()!!)
+                            application.appExecutors.mainThread.execute {
+                                result.removeSource(dbSource)
+                                result.addSource(dbSource) { newData ->
+                                    result.setValue(RefreshableResource.success(newData))
+                                }
+                            }
                         }
                     } else {
                         result.removeSource(dbSource)
                         result.addSource(dbSource) { newData ->
-                            result.setValue(RefreshableResource.error(context.getString(R.string.msg_update_invalid_response, context.getString(typeDescriptionResId)), newData))
+                            result.setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
                         }
                     }
                 } else {
@@ -105,7 +118,7 @@ abstract class RefreshableResourceLoader<T, U>(val context: Context) {
             httpCode == 429 -> R.string.msg_sync_response_429
             else -> R.string.msg_sync_error_http_code
         }
-        return context.getString(resId, httpCode.toString())
+        return application.getString(resId, httpCode.toString())
     }
 
     @WorkerThread

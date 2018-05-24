@@ -2,8 +2,6 @@ package com.boardgamegeek.repository
 
 import android.arch.lifecycle.LiveData
 import android.content.ContentValues
-import android.content.Context
-import android.os.Handler
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
@@ -41,53 +39,53 @@ class GameRepository(val application: BggApplication) {
     }
 
     fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
-        Handler().post({
-            val values = ContentValues()
-            values.put(BggContract.Games.LAST_VIEWED, lastViewed)
+        val values = ContentValues()
+        values.put(BggContract.Games.LAST_VIEWED, lastViewed)
+        application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
-        })
+        }
     }
 
     fun updateHeroImageUrl(url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
-        Handler().post {
-            if (url.isNotBlank() &&
-                    url != imageUrl &&
-                    url != thumbnailUrl &&
-                    url != heroImageUrl) {
-                val values = ContentValues()
-                values.put(BggContract.Games.HERO_IMAGE_URL, url)
+        if (url.isNotBlank() &&
+                url != imageUrl &&
+                url != thumbnailUrl &&
+                url != heroImageUrl) {
+            val values = ContentValues()
+            values.put(BggContract.Games.HERO_IMAGE_URL, url)
+            application.appExecutors.diskIO.execute {
                 application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
             }
         }
     }
 
     fun updateColors(iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
-        Handler().post {
-            val values = ContentValues(5)
-            values.put(BggContract.Games.ICON_COLOR, iconColor)
-            values.put(BggContract.Games.DARK_COLOR, darkColor)
-            values.put(BggContract.Games.WINS_COLOR, winsColor)
-            values.put(BggContract.Games.WINNABLE_PLAYS_COLOR, winnablePlaysColor)
-            values.put(BggContract.Games.ALL_PLAYS_COLOR, allPlaysColor)
+        val values = ContentValues(5)
+        values.put(BggContract.Games.ICON_COLOR, iconColor)
+        values.put(BggContract.Games.DARK_COLOR, darkColor)
+        values.put(BggContract.Games.WINS_COLOR, winsColor)
+        values.put(BggContract.Games.WINNABLE_PLAYS_COLOR, winnablePlaysColor)
+        values.put(BggContract.Games.ALL_PLAYS_COLOR, allPlaysColor)
+        application.appExecutors.diskIO.execute {
             val numberOfRowsModified = application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
             Timber.d(numberOfRowsModified.toString())
         }
     }
 
     fun updateFavorite(isFavorite: Boolean) {
-        Handler().post {
-            val values = ContentValues()
-            values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
+        val values = ContentValues()
+        values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
+        application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
         }
     }
 
-    inner class GameLoader(context: Context) : RefreshableResourceLoader<Game, ThingResponse>(context) {
+    inner class GameLoader(application: BggApplication) : RefreshableResourceLoader<Game, ThingResponse>(application) {
         override val typeDescriptionResId = R.string.title_game
 
         override fun isRequestParamsValid() = gameId != BggContract.INVALID_ID
 
-        override fun loadFromDatabase() = GameLiveData(context, gameId)
+        override fun loadFromDatabase() = GameLiveData(application, gameId)
 
         override fun shouldRefresh(data: Game?): Boolean {
             return data == null ||

@@ -35,10 +35,13 @@ import timber.log.Timber;
 import static timber.log.Timber.DebugTree;
 
 public class BggApplication extends MultiDexApplication {
+	private AppExecutors appExecutors;
+
 	@Override
 	@DebugLog
 	public void onCreate() {
 		super.onCreate();
+		appExecutors = new AppExecutors();
 		initializeFabric();
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
@@ -111,5 +114,9 @@ public class BggApplication extends MultiDexApplication {
 				PreferencesUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
 			}
 		}
+	}
+
+	public AppExecutors getAppExecutors() {
+		return appExecutors;
 	}
 }

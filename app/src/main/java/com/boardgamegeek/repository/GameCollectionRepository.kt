@@ -1,7 +1,6 @@
 package com.boardgamegeek.repository
 
 import android.arch.lifecycle.LiveData
-import android.content.Context
 import android.support.v4.util.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -46,14 +45,14 @@ class GameCollectionRepository(val application: BggApplication) {
         loader.refresh()
     }
 
-    inner class GameCollectionLoader(context: Context) : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(context) {
+    inner class GameCollectionLoader(application: BggApplication) : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
         override val typeDescriptionResId = R.string.title_collection
 
         override fun isRequestParamsValid(): Boolean {
             return gameId != BggContract.INVALID_ID && !username.isNullOrBlank()
         }
 
-        override fun loadFromDatabase() = GameCollectionLiveData(context, gameId)
+        override fun loadFromDatabase() = GameCollectionLiveData(application, gameId)
 
         override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
             val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
@@ -66,7 +65,7 @@ class GameCollectionRepository(val application: BggApplication) {
             options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
             options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
             options[BggService.COLLECTION_QUERY_KEY_ID] = gameId.toString()
-            return Adapter.createForXmlWithAuth(context).collection(username, options)
+            return Adapter.createForXmlWithAuth(application).collection(username, options)
         }
 
         override fun saveCallResult(result: CollectionResponse) {
