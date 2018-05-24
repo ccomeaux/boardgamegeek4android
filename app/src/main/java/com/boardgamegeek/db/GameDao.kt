@@ -47,10 +47,12 @@ class GameDao(private val context: Context) {
             ContentProviderOperation.newInsert(Games.CONTENT_URI)
         }
 
-        batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build())
         batch.addAll(createRanksBatch(game))
         batch.addAll(createPollsBatch(game, values))
         batch.addAll(createExpansionsBatch(game.id, game.expansions))
+
+        // this needs to be after the polls batch is created
+        batch.add(0, cpoBuilder.withValues(values).withYieldAllowed(true).build())
 
         saveReference(game.designers, Designers.CONTENT_URI, Designers.DESIGNER_ID, Designers.DESIGNER_NAME)
         saveReference(game.artists, Artists.CONTENT_URI, Artists.ARTIST_ID, Artists.ARTIST_NAME)
