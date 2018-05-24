@@ -24,17 +24,41 @@ class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncRes
 
     private val lastViewedAgeInHours = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_DELETE_VIEW_HOURS)
 
+    override fun execute() {
+        Timber.i("Removing games not in the collection...")
+        try {
+            val gameIds = fetchGameIds()
+            if (gameIds.isNotEmpty()) {
+                Timber.i("Found ${gameIds.size} games to delete: $gameIds")
+                updateProgressNotification(context.resources.getQuantityString(R.plurals.sync_notification_games_remove, gameIds.size, gameIds.size))
+
+                var count = 0
+                // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
+                for (gameId in gameIds) {
+                    Timber.i("Deleting game ID=$gameId")
+                    count += context.contentResolver.delete(Games.buildGameUri(gameId), null, null)
+                }
+                syncResult.stats.numDeletes += count.toLong()
+                Timber.i("Deleted $count games")
+            } else {
+                Timber.i("No games need deleting")
+            }
+        } finally {
+            Timber.i("Game removal complete!")
+        }
+    }
+
     /**
      * Get a list of games, sorted by least recently updated, that
      * 1. have no associated collection record
-     * 2. haven't been viewed in 72 hours
+     * 2. haven't been viewed in a configurable number of hours
      * 3. and have 0 plays (if plays are being synced
      */
     private fun fetchGameIds(): List<Int> {
         val hoursAgo = DateTimeUtils.hoursAgo(lastViewedAgeInHours)
 
         val date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME)
-        Timber.i("...not viewed since $date")
+        Timber.i("Fetching games that aren't in the collection and have not been viewed since $date")
 
         var selection = "collection.${Collection.GAME_ID} IS NULL AND games.${Games.LAST_VIEWED}<?"
         if (PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
@@ -46,29 +70,5 @@ class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncRes
                 selection,
                 arrayOf(hoursAgo.toString()),
                 "games.${Games.UPDATED}")
-    }
-
-    override fun execute() {
-        Timber.i("Removing games not in the collection...")
-        try {
-            val gameIds = fetchGameIds()
-            if (gameIds.isNotEmpty()) {
-                Timber.i("...found ${gameIds.size} games to delete")
-                updateProgressNotification(context.resources.getQuantityString(R.plurals.sync_notification_games_remove, gameIds.size, gameIds.size))
-
-                var count = 0
-                // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
-                for (gameId in gameIds) {
-                    Timber.i("...deleting game ID=$gameId")
-                    count += context.contentResolver.delete(Games.buildGameUri(gameId), null, null)
-                }
-                syncResult.stats.numDeletes += count.toLong()
-                Timber.i("...deleted $count games")
-            } else {
-                Timber.i("...no games need deleting")
-            }
-        } finally {
-            Timber.i("...complete!")
-        }
     }
 }

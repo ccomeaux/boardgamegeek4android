@@ -4,7 +4,7 @@ import android.accounts.Account
 import android.content.Context
 import android.content.SyncResult
 import android.support.v4.util.ArrayMap
-import android.text.TextUtils
+import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.BggService
@@ -48,20 +48,19 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
 
     @DebugLog
     override fun execute() {
-        Timber.i("Syncing full collection list...")
+        Timber.i("Syncing complete collection")
         try {
             if (isCancelled) {
-                Timber.i("...cancelled")
+                Timber.i("Complete collection sync task cancelled")
                 return
             }
 
             if (!PreferencesUtils.isCollectionSetToSync(context)) {
-                Timber.i("...collection not set to sync")
+                Timber.i("Collection sync not set in preferences")
                 return
             }
 
-            val currentSyncTimestamp = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
-            if (currentSyncTimestamp == 0L) {
+            if (SyncPrefs.getCurrentCollectionSyncTimestamp(context) == 0L) {
                 val lastCompleteSync = SyncPrefs.getLastCompleteCollectionTimestamp(context)
                 if (lastCompleteSync > 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < fetchIntervalInDays) {
                     Timber.i("Not currently syncing and it's been less than $fetchIntervalInDays days since we synced completely")
@@ -72,62 +71,50 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
 
             val statuses = syncableStatuses
             for (i in statuses.indices) {
+                val status = statuses[i]
                 if (i > 0) {
                     if (isCancelled) {
-                        Timber.i("...cancelled")
+                        Timber.i("Complete collection sync task cancelled before syncing $status")
                         return
                     }
                     if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
                 }
 
                 val excludedStatuses = (0 until i).map { statuses[it] }
-                syncByStatus("", statuses[i], *excludedStatuses.toTypedArray())
+                syncByStatus("", status, *excludedStatuses.toTypedArray())
 
                 if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
 
-                syncByStatus(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY, statuses[i], *excludedStatuses.toTypedArray())
+                syncByStatus(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY, status, *excludedStatuses.toTypedArray())
             }
 
             if (isCancelled) {
-                Timber.i("...cancelled")
+                Timber.i("Complete collection sync task cancelled before item deletion")
                 return
             }
 
             deleteUnusedItems()
             updateTimestamps()
         } finally {
-            Timber.i("...complete!")
+            Timber.i("Complete collection sync task completed")
         }
     }
 
     private fun syncByStatus(subtype: String = "", status: String, vararg excludedStatuses: String) {
-        if (isCancelled) {
-            Timber.i("...cancelled")
-            return
-        }
-
-        if (TextUtils.isEmpty(status)) {
-            Timber.i("...skipping blank status")
-            return
-        }
-
         val statusDescription = getStatusDescription(status)
-        val subtypeDescription = context.getString(when (subtype) {
-            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
-            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
-            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
-            else -> R.string.items
-        })
+        val subtypeDescription = getSubtypeDescription(subtype)
 
-        val lastCompleteSync = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
-        val lastStatusSync = SyncPrefs.getCompleteCollectionSyncTimestamp(context, subtype, status)
-        if (lastStatusSync > lastCompleteSync) {
-            Timber.i("'$statusDescription' $subtypeDescription have been synced in the current sync request.")
+        if (isCancelled) {
+            Timber.i("Complete collection sync task cancelled before status $statusDescription, subtype $subtypeDescription")
             return
         }
 
-        Timber.i("...syncing '$statusDescription' $subtypeDescription")
-        Timber.i("...while excluding statuses [%s]", StringUtils.formatList(excludedStatuses))
+        if (SyncPrefs.getCompleteCollectionSyncTimestamp(context, subtype, status) > SyncPrefs.getCurrentCollectionSyncTimestamp(context)) {
+            Timber.i("Skipping $statusDescription collection $subtypeDescription that have already been synced in the current sync request.")
+            return
+        }
+
+        Timber.i("Syncing $statusDescription collection $subtypeDescription while excluding statuses [${StringUtils.formatList(excludedStatuses)}]")
 
         updateProgressNotification(context.getString(R.string.sync_notification_collection_downloading, statusDescription, subtypeDescription))
 
@@ -153,9 +140,9 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
                     }
                     SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()
-                    Timber.i("...saved %,d collection $subtypeDescription", items.size)
+                    Timber.i("Saved ${items.size} $statusDescription collection $subtypeDescription")
                 } else {
-                    Timber.i("...no collection $subtypeDescription found for these games")
+                    Timber.i("No $statusDescription collection $subtypeDescription found")
                 }
             } else {
                 showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription), response.code())
@@ -180,13 +167,25 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
     }
 
     @DebugLog
+    private fun getSubtypeDescription(subtype: String): String {
+        return context.getString(when (subtype) {
+            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
+            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
+            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
+            else -> R.string.items
+        })
+    }
+
+    @DebugLog
     private fun deleteUnusedItems() {
-        Timber.i("...deleting old collection entries")
+        val timestamp = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
+        val formattedDateTime = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        Timber.i("Deleting collection items not updated since $formattedDateTime")
         val count = context.contentResolver.delete(
                 Collection.CONTENT_URI,
                 "${Collection.UPDATED_LIST}<?",
-                arrayOf(SyncPrefs.getCurrentCollectionSyncTimestamp(context).toString()))
-        Timber.i("...deleted $count old collection entries")
+                arrayOf(timestamp.toString()))
+        Timber.i("Deleted $count old collection items")
         // TODO: delete thumbnail images associated with this list (both collection and game)
     }
 
