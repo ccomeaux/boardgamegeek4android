@@ -74,11 +74,11 @@ class GameCollectionRepository(val application: BggApplication) {
             val mapper = CollectionItemMapper()
             val collectionIds = arrayListOf<Int>()
 
-            for (item in result.items) {
+            result.items?.forEach { item ->
                 val collectionId = dao.saveItem(mapper.map(item), timestamp)
                 collectionIds.add(collectionId)
             }
-            Timber.i("Synced %,d collection item(s) for game '%s'", if (result.items == null) 0 else result.items.size, gameId)
+            Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size ?: 0, gameId)
 
             val deleteCount = dao.delete(gameId, collectionIds)
             Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
