@@ -60,9 +60,8 @@ fun ContentResolver.rowExists(uri: Uri): Boolean {
 }
 
 fun ContentResolver.getCount(uri: Uri): Int {
-    val cursor = query(uri, arrayOf(BaseColumns._ID), null, null, null)
-    cursor?.use { c ->
-        if (c.moveToFirst()) return c.count
+    query(uri, arrayOf(BaseColumns._ID), null, null, null)?.use {
+        if (it.moveToFirst()) return it.count
     }
     return 0
 }
@@ -74,8 +73,7 @@ fun ContentResolver.queryStrings(
         sortOrder: String? = null
 ): List<String> {
     val list = arrayListOf<String>()
-    val cursor = query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)
-    cursor?.use {
+    query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         while (it.moveToNext()) {
             list.add(it.getString(0))
         }
@@ -91,8 +89,7 @@ fun ContentResolver.queryInts(
         sortOrder: String? = null
 ): List<Int> {
     val list = arrayListOf<Int>()
-    val cursor = query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)
-    cursor?.use {
+    query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         while (it.moveToNext()) {
             list.add(it.getInt(0))
         }
@@ -108,15 +105,9 @@ fun ContentResolver.queryInt(
         selectionArgs: Array<String>? = null,
         sortOrder: String? = null
 ): Int {
-    val cursor = query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)
-    cursor?.use {
-        val count = it.count
-        if (count != 1) return defaultValue
-        return if (it.moveToFirst()) {
-            it.getInt(0)
-        } else {
-            defaultValue
-        }
+    query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
+        if (it.count != 1) return defaultValue
+        if (it.moveToFirst()) return it.getInt(0)
     }
     return defaultValue
 }
