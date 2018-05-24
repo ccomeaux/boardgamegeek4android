@@ -27,20 +27,22 @@ public class CollectionProvider extends BasicProvider {
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		String having = uri.getQueryParameter(BggContract.QUERY_KEY_HAVING);
 
-		for (String column : projection) {
-			if (column.startsWith(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX)) {
-				String playerCount = Games.getRecommendedPlayerCountFromColumn(column);
-				if (!TextUtils.isEmpty(playerCount)) {
-					builder.map(Games.createRecommendedPlayerCountColumn(playerCount),
-						String.format("(SELECT %s FROM %s AS x WHERE %s.%s=x.%s AND x.player_count=%s)",
-							GameSuggestedPlayerCountPollPollResults.RECOMMENDATION,
-							Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS,
-							Tables.COLLECTION,
-							Collection.GAME_ID,
-							GameSuggestedPlayerCountPollPollResults.GAME_ID,
-							playerCount));
+		if (projection != null) {
+			for (String column : projection) {
+				if (column.startsWith(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX)) {
+					String playerCount = Games.getRecommendedPlayerCountFromColumn(column);
+					if (!TextUtils.isEmpty(playerCount)) {
+						builder.map(Games.createRecommendedPlayerCountColumn(playerCount),
+							String.format("(SELECT %s FROM %s AS x WHERE %s.%s=x.%s AND x.player_count=%s)",
+								GameSuggestedPlayerCountPollPollResults.RECOMMENDATION,
+								Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS,
+								Tables.COLLECTION,
+								Collection.GAME_ID,
+								GameSuggestedPlayerCountPollPollResults.GAME_ID,
+								playerCount));
+					}
+					if (TextUtils.isEmpty(groupBy)) groupBy = Collection.GAME_ID;
 				}
-				if (TextUtils.isEmpty(groupBy)) groupBy = Collection.GAME_ID;
 			}
 		}
 
