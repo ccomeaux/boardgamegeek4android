@@ -86,10 +86,21 @@ android {
     }
 
     buildTypes {
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                def branchName = gitBranchName().replace('/', "-")
+                if (branchName == "master") branchName = ""
+                outputFileName = output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + "_" + branchName + ".apk")
+            }
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (gitBranchName() != "master") {
+            if (gitBranchName() == "master") {
+                versionNameSuffix ""
+            } else if (gitBranchName().startsWith("feature")) {
+                versionNameSuffix " (${gitBranchName()})"
+            } else {
                 versionNameSuffix " RC${versionBuild}"
             }
         }
