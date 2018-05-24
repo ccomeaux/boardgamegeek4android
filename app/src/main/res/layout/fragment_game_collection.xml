@@ -13,30 +13,30 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:padding="@dimen/material_margin_horizontal"/>
+
+		<TextView
+			android:id="@+id/emptyMessage"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/material_margin_horizontal"
+			android:text="@string/empty_game_collection"
+			android:textAppearance="@style/Text.Empty"
+			android:visibility="gone"
+			tools:visibility="visible"/>
+
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
 			android:paddingTop="@dimen/padding_standard">
-
-			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-				android:id="@+id/progress"
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:gravity="center"
-				android:padding="@dimen/material_margin_horizontal"/>
-
-			<TextView
-				android:id="@+id/emptyMessage"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="@dimen/material_margin_horizontal"
-				android:text="@string/empty_game_collection"
-				android:textAppearance="@style/Text.Empty"
-				android:visibility="gone"
-				tools:visibility="visible"/>
 
 			<LinearLayout
 				android:id="@+id/collectionContainer"
