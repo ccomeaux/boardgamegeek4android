@@ -7,7 +7,6 @@ import android.content.SyncResult
 import android.support.annotation.PluralsRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.BigTextStyle
-import android.text.TextUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.NotificationUtils
@@ -80,7 +79,7 @@ abstract class SyncTask(protected val context: Context, protected val service: B
                 .setOngoing(true)
                 .setProgress(1, 0, true)
                 .addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi)
-        if (!TextUtils.isEmpty(detail)) {
+        if (!detail.isNullOrBlank()) {
             builder.setStyle(BigTextStyle().bigText(detail))
         }
         NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder)
@@ -122,7 +121,7 @@ abstract class SyncTask(protected val context: Context, protected val service: B
                 .setContentText(contentMessage)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
-        if (!TextUtils.isEmpty(bigText)) {
+        if (bigText.isNotBlank()) {
             builder.setStyle(BigTextStyle().bigText(bigText))
         }
 

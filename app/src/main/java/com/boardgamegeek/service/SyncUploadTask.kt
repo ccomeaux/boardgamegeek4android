@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
-import android.text.TextUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
@@ -110,7 +109,7 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
 
     @DebugLog
     protected fun notifyUploadError(errorMessage: CharSequence) {
-        if (TextUtils.isEmpty(errorMessage)) return
+        if (errorMessage.isBlank()) return
         Timber.e(errorMessage.toString())
         val builder = NotificationUtils
                 .createNotificationBuilder(context,

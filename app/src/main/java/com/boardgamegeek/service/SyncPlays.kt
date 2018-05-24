@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.accounts.Account
 import android.content.Context
 import android.content.SyncResult
-import android.text.TextUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.PlaysResponse
@@ -111,9 +110,9 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
 
     private fun formatNotificationMessage(minDate: String?, maxDate: String?, page: Int): String {
         val message = when {
-            TextUtils.isEmpty(minDate) && TextUtils.isEmpty(maxDate) -> context.getString(R.string.sync_notification_plays_all)
-            TextUtils.isEmpty(minDate) -> context.getString(R.string.sync_notification_plays_old, maxDate)
-            TextUtils.isEmpty(maxDate) -> context.getString(R.string.sync_notification_plays_new, minDate)
+            minDate.isNullOrBlank() && maxDate.isNullOrBlank() -> context.getString(R.string.sync_notification_plays_all)
+            minDate.isNullOrBlank() -> context.getString(R.string.sync_notification_plays_old, maxDate)
+            maxDate.isNullOrBlank() -> context.getString(R.string.sync_notification_plays_new, minDate)
             else -> context.getString(R.string.sync_notification_plays_between, minDate, maxDate)
         }
         return when {

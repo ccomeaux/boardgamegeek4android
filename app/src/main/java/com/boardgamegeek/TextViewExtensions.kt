@@ -1,7 +1,6 @@
 package com.boardgamegeek
 
 import android.text.Html
-import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
@@ -41,7 +40,7 @@ fun TextView.setTextMaybeHtml(text: String?) {
 
 private fun fixInternalLinks(html: String): String {
     // ensure internal, path-only links are complete with the hostname
-    if (TextUtils.isEmpty(html)) return ""
+    if (html.isBlank()) return ""
     var fixedText = html.replace("<a\\s+href=\"/".toRegex(), "<a href=\"https://www.boardgamegeek.com/")
     fixedText = fixedText.replace("<img\\s+src=\"//".toRegex(), "<img src=\"https://")
     return fixedText

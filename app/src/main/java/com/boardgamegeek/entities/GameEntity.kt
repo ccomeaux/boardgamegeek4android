@@ -1,6 +1,5 @@
 package com.boardgamegeek.entities
 
-import android.text.TextUtils
 import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
 
@@ -57,9 +56,7 @@ class GameEntity {
         var result = arrayListOf<Result>()
 
         val key: String
-            get() = if (TextUtils.isEmpty(numberOfPlayers)) {
-                "X"
-            } else numberOfPlayers
+            get() = if (numberOfPlayers.isBlank()) "X" else numberOfPlayers
 
         override fun toString(): String {
             return key
