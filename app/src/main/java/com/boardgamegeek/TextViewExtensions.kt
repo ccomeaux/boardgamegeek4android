@@ -30,6 +30,7 @@ fun TextView.setTextMaybeHtml(text: String?) {
             html = html.replace("\n".toRegex(), "<br/>")
             html = fixInternalLinks(html)
 
+            @Suppress("DEPRECATION")
             val spanned = Html.fromHtml(html)
             this.text = spanned
             this.movementMethod = LinkMovementMethod.getInstance()

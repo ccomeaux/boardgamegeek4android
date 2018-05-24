@@ -1,7 +1,7 @@
 package com.boardgamegeek
 
 fun String?.replaceHtmlLineFeeds(): String {
-    return if (this == null || this.isBlank()) "" else this.replace("&#10;", "\n")
+    return if (this == null || isBlank()) "" else replace("&#10;", "\n")
 }
 
 fun String?.sortName(sortIndex: Int): String {
