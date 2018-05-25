@@ -14,15 +14,37 @@ import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.queryInts
 import com.boardgamegeek.queryStrings
 import com.boardgamegeek.rowExists
+import com.boardgamegeek.ui.model.GameRank
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.PlayerCountRecommendation
 import timber.log.Timber
-import java.util.*
 
 class GameDao(private val context: Context) {
     private val resolver: ContentResolver = context.contentResolver
     private val updateTime: Long = System.currentTimeMillis()
+
+    fun loadRanks(gameId: Int): ArrayList<GameRank> {
+        val ranks = arrayListOf<GameRank>()
+        val cursor = context.contentResolver.query(
+                Games.buildRanksUri(gameId),
+                arrayOf(GameRanks.GAME_RANK_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE),
+                null,
+                null,
+                null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                do {
+                    ranks.add(GameRank(
+                            name = it.getString(0) ?: "",
+                            rank = it.getInt(1),
+                            type = it.getString(2) ?: ""
+                    ))
+                } while (it.moveToNext())
+            }
+        }
+        return ranks;
+    }
 
     fun save(game: GameEntity) {
         // TODO return the internal ID

@@ -3,11 +3,14 @@ package com.boardgamegeek.livedata
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.database.ContentObserver
+import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.GameRank
 
-class GameRankLiveData(val context: Context, gameId: Int) : MutableLiveData<List<GameRank>>() {
+class GameRankLiveData(val context: Context, val gameId: Int) : MutableLiveData<List<GameRank>>() {
     private val contentObserver = Observer()
-    private val uri = GameRank.buildUri(gameId)
+    private val uri = BggContract.Games.buildRanksUri(gameId)
+    private val dao = GameDao(context)
 
     init {
         registerContentObserver()
@@ -29,23 +32,7 @@ class GameRankLiveData(val context: Context, gameId: Int) : MutableLiveData<List
     }
 
     private fun loadData() {
-        val cursor = context.contentResolver.query(
-                uri,
-                GameRank.PROJECTION,
-                null,
-                null,
-                null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val ranks = arrayListOf<GameRank>()
-                do {
-                    ranks.add(GameRank.fromCursor(it))
-                } while (it.moveToNext())
-                postValue(ranks)
-            } else {
-                postValue(null)
-            }
-        }
+        postValue(dao.loadRanks(gameId))
     }
 
     internal inner class Observer : ContentObserver(null) {
