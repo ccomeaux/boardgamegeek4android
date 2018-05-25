@@ -21,10 +21,10 @@ import com.boardgamegeek.util.TaskUtils
 
 class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
         FragmentPagerAdapter(fragmentManager) {
-    var currentPosition: Int = 0
-    var thumbnailUrl: String = ""
-    var imageUrl: String = ""
-    var heroImageUrl: String = ""
+    var currentPosition = 0
+    var thumbnailUrl = ""
+    var imageUrl = ""
+    var heroImageUrl = ""
     var arePlayersCustomSorted = false
     @ColorInt var iconColor = Color.TRANSPARENT
     private val tabs = arrayListOf<Tab>()
@@ -45,7 +45,6 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         updateTabs()
     }
 
-
     override fun getPageTitle(position: Int): CharSequence {
         @StringRes val resId = tabs.getOrNull(position)?.titleResId ?: INVALID_RES_ID
         return if (resId != INVALID_RES_ID) activity.getString(resId) else ""
@@ -57,6 +56,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
             R.string.title_info -> GameFragment.newInstance(gameId, gameName)
             R.string.title_collection -> GameCollectionFragment.newInstance(gameId)
             R.string.title_plays -> GamePlaysFragment.newInstance(gameId, gameName)
+            R.string.title_forums -> ForumsFragment.newInstance(gameId, gameName)
             R.string.links -> GameLinksFragment.newInstance(gameId, gameName, iconColor)
             else -> null
         }
@@ -80,6 +80,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
             tabs.add(Tab(R.string.title_plays, R.drawable.fab_log_play) {
                 onPlayFabClicked()
             })
+        tabs.add(Tab(R.string.title_forums))
         tabs.add(Tab(R.string.links))
     }
 

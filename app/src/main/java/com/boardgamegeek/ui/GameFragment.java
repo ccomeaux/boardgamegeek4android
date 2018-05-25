@@ -27,10 +27,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Forum;
-import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
@@ -80,9 +77,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import timber.log.Timber;
 
 import static android.view.View.GONE;
@@ -139,8 +133,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@BindView(R.id.game_ratings_votes) TextView ratingsVotes;
 
-	@BindView(R.id.forums_last_post_date) TimestampView forumsLastPostDateView;
-
 	@BindView(R.id.game_weight_message) TextView weightMessage;
 	@BindView(R.id.game_weight_score) TextView weightScore;
 	@BindView(R.id.game_weight_votes) TextView weightVotes;
@@ -170,7 +162,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		R.id.icon_play_time,
 		R.id.icon_number_of_players,
 		R.id.icon_player_age,
-		R.id.icon_forums,
 		R.id.icon_weight,
 		R.id.icon_language_dependence,
 		R.id.icon_users,
@@ -180,7 +171,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private String gameName;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
 	private ShowcaseViewWizard showcaseViewWizard;
-	private Call<ForumListResponse> call;
 	private GameViewModel viewModel;
 
 	public static GameFragment newInstance(int gameId, String gameName) {
@@ -237,7 +227,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				lm.restartLoader(MECHANIC_TOKEN, null, GameFragment.this);
 				lm.restartLoader(EXPANSION_TOKEN, null, GameFragment.this);
 				lm.restartLoader(BASE_GAME_TOKEN, null, GameFragment.this);
-				fetchForumInfo();
 				if (game == null || game.getData() == null) {
 					AnimationUtils.fadeOut(rootContainer);
 					AnimationUtils.fadeIn(emptyView);
@@ -261,12 +250,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		if (call != null) call.cancel();
 	}
 
 	@Override
@@ -394,36 +377,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				cursor.close();
 				break;
 		}
-	}
-
-	private void fetchForumInfo() {
-		if (forumsLastPostDateView.getVisibility() == VISIBLE) return;
-
-		BggService bggService = Adapter.createForXml();
-		call = bggService.forumList(BggService.FORUM_TYPE_THING, gameId);
-		call.enqueue(new Callback<ForumListResponse>() {
-			@Override
-			public void onResponse(@NonNull Call<ForumListResponse> call, @NonNull Response<ForumListResponse> response) {
-				if (response.isSuccessful() && forumsLastPostDateView != null) {
-					long lastPostDate = 0;
-					String title = "";
-					for (Forum forum : response.body().getForums()) {
-						if (forum.lastPostDate() > lastPostDate) {
-							lastPostDate = forum.lastPostDate();
-							title = forum.title;
-						}
-					}
-					forumsLastPostDateView.setFormatArg(title);
-					forumsLastPostDateView.setTimestamp(lastPostDate);
-				}
-			}
-
-			@Override
-			public void onFailure(@NonNull Call<ForumListResponse> call, @NonNull Throwable t) {
-				if (call.isCanceled()) return;
-				Timber.w("Failed fetching forum for game %s: %s", gameId, t.getMessage());
-			}
-		});
 	}
 
 	@Override
@@ -612,12 +565,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@DebugLog
 	public void onRankClick() {
 		RanksFragment.launch(this, gameId);
-	}
-
-	@OnClick(R.id.forums_root)
-	@DebugLog
-	public void onForumsClick() {
-		GameForumsActivity.start(getContext(), Games.buildGameUri(gameId), gameName);
 	}
 
 	@OnClick(R.id.language_dependence_root)

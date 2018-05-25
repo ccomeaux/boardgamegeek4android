@@ -11,7 +11,6 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -91,13 +90,13 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				if (gameId == BggContract.INVALID_ID) {
 					ForumsActivity.startUp(this);
 				} else {
-					GameForumsActivity.startUp(this, Games.buildGameUri(gameId), gameName);
+					GameActivity.startUp(this, gameId, gameName);
 				}
 				finish();
 				return true;

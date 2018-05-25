@@ -247,9 +247,6 @@
 			android:name=".ui.GameColorsActivity"
 			android:label="@string/title_colors"/>
 		<activity
-			android:name=".ui.GameForumsActivity"
-			android:label="@string/title_forums"/>
-		<activity
 			android:name=".ui.CommentsActivity"
 			android:label="@string/title_comments"/>
 		<activity

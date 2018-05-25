@@ -91,11 +91,6 @@
 						android:layout_height="wrap_content"/>
 
 					<include
-						layout="@layout/include_game_forums"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"/>
-
-					<include
 						layout="@layout/include_game_users"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"/>

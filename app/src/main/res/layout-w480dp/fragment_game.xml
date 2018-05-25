@@ -95,9 +95,6 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:orientation="horizontal">
-
-						<include layout="@layout/include_game_forums"/>
-
 						<include layout="@layout/include_game_users"/>
 					</LinearLayout>
 
