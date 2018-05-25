@@ -95,7 +95,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final int MECHANIC_TOKEN = 0x16;
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
-	private static final int RANK_TOKEN = 0x19;
 	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
 	private static final int SUGGESTED_AGE_TOKEN = 0x24;
 	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
@@ -219,6 +218,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		viewModel.getGame(gameId).observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
 			public void onChanged(@Nullable RefreshableResource<Game> game) {
+				viewModel.getGameRanks().observe(GameFragment.this, new Observer<List<GameRank>>() {
+					@Override
+					public void onChanged(@Nullable List<GameRank> gameRanks) {
+						onRankQueryComplete(gameRanks);
+					}
+				});
+
 				LoaderManager lm = getLoaderManager();
 				lm.restartLoader(DESIGNER_TOKEN, null, GameFragment.this);
 				lm.restartLoader(ARTIST_TOKEN, null, GameFragment.this);
@@ -243,7 +249,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 		});
 		LoaderManager lm = getLoaderManager();
-		lm.restartLoader(RANK_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_LANGUAGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_AGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
@@ -315,9 +320,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			case BASE_GAME_TOKEN:
 				loader = new CursorLoader(getActivity(), GameBaseGame.buildUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
-			case RANK_TOKEN:
-				loader = new CursorLoader(getActivity(), GameRank.buildUri(gameId), GameRank.PROJECTION, null, null, null);
-				break;
 			case SUGGESTED_LANGUAGE_TOKEN:
 				loader = new CursorLoader(getActivity(), GameSuggestedLanguage.buildUri(gameId), GameSuggestedLanguage.PROJECTION, null, null, GameSuggestedLanguage.SORT);
 				break;
@@ -360,9 +362,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				break;
 			case BASE_GAME_TOKEN:
 				onListQueryComplete(cursor, baseGamesView);
-				break;
-			case RANK_TOKEN:
-				onRankQueryComplete(cursor);
 				break;
 			case SUGGESTED_LANGUAGE_TOKEN:
 				onLanguagePollQueryComplete(cursor);
@@ -455,29 +454,23 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onRankQueryComplete(Cursor cursor) {
+	private void onRankQueryComplete(List<GameRank> gameRanks) {
 		if (typesView != null) {
-			if (cursor != null && cursor.getCount() > 0) {
+			if (gameRanks == null || gameRanks.isEmpty()) {
+				typesView.setVisibility(GONE);
+			} else {
 				CharSequence cs = null;
-				while (cursor.moveToNext()) {
-					GameRank rank = GameRank.fromCursor(cursor);
+				for (GameRank rank : gameRanks) {
 					if (rank.isFamilyType()) {
+						final CharSequence rankDescription = PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName());
 						if (cs != null) {
-							cs = PresentationUtils.getText(getContext(), R.string.rank_div, cs,
-								PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName()));
+							cs = PresentationUtils.getText(getContext(), R.string.rank_div, cs, rankDescription);
 						} else {
-							cs = PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName());
+							cs = rankDescription;
 						}
 					}
 				}
-				if (TextUtils.isEmpty(cs)) {
-					typesView.setVisibility(GONE);
-				} else {
-					typesView.setText(cs);
-					typesView.setVisibility(VISIBLE);
-				}
-			} else {
-				typesView.setVisibility(GONE);
+				PresentationUtils.setTextOrHide(typesView, cs);
 			}
 		}
 	}
