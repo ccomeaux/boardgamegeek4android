@@ -1,5 +1,7 @@
 package com.boardgamegeek.model;
 
+import android.support.annotation.NonNull;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
@@ -16,6 +18,7 @@ public class ForumListResponse {
 	@ElementList(inline = true)
 	private List<Forum> forums;
 
+	@NonNull
 	public List<Forum> getForums() {
 		if (forums == null) {
 			return new ArrayList<>();

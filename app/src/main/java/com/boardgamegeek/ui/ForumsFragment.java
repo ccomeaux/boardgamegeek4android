@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -67,7 +68,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
 		View rootView = inflater.inflate(R.layout.fragment_forums, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
@@ -94,6 +95,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		super.onDestroyView();
 	}
 
+	@NonNull
 	@Override
 	@DebugLog
 	public Loader<SafeResponse<ForumListResponse>> onCreateLoader(int id, Bundle data) {
@@ -102,12 +104,14 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<SafeResponse<ForumListResponse>> loader, SafeResponse<ForumListResponse> data) {
+	public void onLoadFinished(@NonNull Loader<SafeResponse<ForumListResponse>> loader, SafeResponse<ForumListResponse> data) {
 		if (getActivity() == null) return;
 
 		if (adapter == null) {
 			adapter = new ForumsRecyclerViewAdapter(getContext(), data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(), gameId, gameName);
 			recyclerView.setAdapter(adapter);
+		} else {
+			adapter.notifyDataSetChanged();
 		}
 
 		if (data.hasError()) {
@@ -124,8 +128,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	@DebugLog
-	public void onLoaderReset(Loader<SafeResponse<ForumListResponse>> loader) {
+	public void onLoaderReset(@NonNull Loader<SafeResponse<ForumListResponse>> loader) {
 	}
 
 	@DebugLog
@@ -135,7 +138,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
 		if (gameId == BggContract.INVALID_ID) {
 			recyclerView.setPadding(recyclerView.getPaddingLeft(), 0, recyclerView.getRight(), recyclerView.getBottom());
