@@ -39,43 +39,47 @@ class GameRepository(val application: BggApplication) {
     }
 
     fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
-        val values = ContentValues()
-        values.put(BggContract.Games.LAST_VIEWED, lastViewed)
+        if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
+            val values = ContentValues()
+            values.put(BggContract.Games.LAST_VIEWED, lastViewed)
             application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
         }
     }
 
     fun updateHeroImageUrl(url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
-        if (url.isNotBlank() &&
-                url != imageUrl &&
-                url != thumbnailUrl &&
-                url != heroImageUrl) {
-            val values = ContentValues()
-            values.put(BggContract.Games.HERO_IMAGE_URL, url)
-            application.appExecutors.diskIO.execute {
+        if (gameId == BggContract.INVALID_ID) return
+        application.appExecutors.diskIO.execute {
+            if (url.isNotBlank() &&
+                    url != imageUrl &&
+                    url != thumbnailUrl &&
+                    url != heroImageUrl) {
+                val values = ContentValues()
+                values.put(BggContract.Games.HERO_IMAGE_URL, url)
                 application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
             }
         }
     }
 
     fun updateColors(iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
-        val values = ContentValues(5)
-        values.put(BggContract.Games.ICON_COLOR, iconColor)
-        values.put(BggContract.Games.DARK_COLOR, darkColor)
-        values.put(BggContract.Games.WINS_COLOR, winsColor)
-        values.put(BggContract.Games.WINNABLE_PLAYS_COLOR, winnablePlaysColor)
-        values.put(BggContract.Games.ALL_PLAYS_COLOR, allPlaysColor)
+        if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
+            val values = ContentValues(5)
+            values.put(BggContract.Games.ICON_COLOR, iconColor)
+            values.put(BggContract.Games.DARK_COLOR, darkColor)
+            values.put(BggContract.Games.WINS_COLOR, winsColor)
+            values.put(BggContract.Games.WINNABLE_PLAYS_COLOR, winnablePlaysColor)
+            values.put(BggContract.Games.ALL_PLAYS_COLOR, allPlaysColor)
             val numberOfRowsModified = application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
             Timber.d(numberOfRowsModified.toString())
         }
     }
 
     fun updateFavorite(isFavorite: Boolean) {
-        val values = ContentValues()
-        values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
+        if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
+            val values = ContentValues()
+            values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
             application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
         }
     }
