@@ -52,7 +52,7 @@ class GameCollectionRepository(val application: BggApplication) {
             return gameId != BggContract.INVALID_ID && !username.isNullOrBlank()
         }
 
-        override fun loadFromDatabase() = GameCollectionLiveData(application, gameId)
+        override fun loadFromDatabase() = GameCollectionLiveData(application, gameId).load()
 
         override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
             val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L

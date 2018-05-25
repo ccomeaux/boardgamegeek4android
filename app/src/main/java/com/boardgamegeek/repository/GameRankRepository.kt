@@ -11,7 +11,7 @@ class GameRankRepository(val application: BggApplication) {
 
     fun getRanks(gameId: Int): LiveData<List<GameRank>> {
         application.appExecutors.diskIO.execute {
-            val dbSource = GameRankLiveData(application, gameId)
+            val dbSource = GameRankLiveData(application, gameId).load()
             result.addSource(dbSource) {
                 result.postValue(it)
             }

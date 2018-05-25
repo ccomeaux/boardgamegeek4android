@@ -89,7 +89,7 @@ class GameRepository(val application: BggApplication) {
 
         override fun isRequestParamsValid() = gameId != BggContract.INVALID_ID
 
-        override fun loadFromDatabase() = GameLiveData(application, gameId)
+        override fun loadFromDatabase() = GameLiveData(application, gameId).load()
 
         override fun shouldRefresh(data: Game?): Boolean {
             return data == null ||
