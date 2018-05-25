@@ -202,7 +202,7 @@ class CollectionDao(context: Context) {
     }
 
     internal class SyncCandidate(
-            val internalId: Long = 0,
+            val internalId: Long = BggContract.INVALID_ID.toLong(),
             val dirtyTimestamp: Long = 0,
             val statusDirtyTimestamp: Long = 0,
             val ratingDirtyTimestamp: Long = 0,
