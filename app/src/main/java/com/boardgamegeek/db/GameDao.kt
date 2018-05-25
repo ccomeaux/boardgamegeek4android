@@ -6,15 +6,12 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import com.boardgamegeek.applyBatch
+import com.boardgamegeek.*
 import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GameRank
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.*
-import com.boardgamegeek.queryInts
-import com.boardgamegeek.queryStrings
-import com.boardgamegeek.rowExists
-import com.boardgamegeek.ui.model.GameRank
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.PlayerCountRecommendation
@@ -28,7 +25,7 @@ class GameDao(private val context: Context) {
         val ranks = arrayListOf<GameRank>()
         val cursor = context.contentResolver.query(
                 Games.buildRanksUri(gameId),
-                arrayOf(GameRanks.GAME_RANK_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE),
+                null,
                 null,
                 null,
                 null)
@@ -36,9 +33,12 @@ class GameDao(private val context: Context) {
             if (it.moveToFirst()) {
                 do {
                     ranks.add(GameRank(
-                            name = it.getString(0) ?: "",
-                            rank = it.getInt(1),
-                            type = it.getString(2) ?: ""
+                            id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: BggContract.INVALID_ID,
+                            type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
+                            name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
+                            friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
+                            value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: GameRank.INVALID_RANK,
+                            bayesAverage = it.getDoubleOrNull(GameRanks.GAME_RANK_BAYES_AVERAGE) ?: 0.0
                     ))
                 } while (it.moveToNext())
             }

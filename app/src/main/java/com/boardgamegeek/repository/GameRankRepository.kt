@@ -3,8 +3,8 @@ package com.boardgamegeek.repository
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
+import com.boardgamegeek.entities.GameRank
 import com.boardgamegeek.livedata.GameRankLiveData
-import com.boardgamegeek.ui.model.GameRank
 
 class GameRankRepository(val application: BggApplication) {
     private val result = MediatorLiveData<List<GameRank>>()

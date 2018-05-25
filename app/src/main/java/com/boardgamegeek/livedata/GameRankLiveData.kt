@@ -4,8 +4,8 @@ import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.database.ContentObserver
 import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.entities.GameRank
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.model.GameRank
 
 class GameRankLiveData(val context: Context, val gameId: Int) : MutableLiveData<List<GameRank>>() {
     private val contentObserver = Observer()

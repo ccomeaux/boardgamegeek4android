@@ -32,7 +32,7 @@ class GameEntity {
     var numberOfUsersWeighting: Int = 0
     var averageWeight: Double = 0.0
     var overallRank: Int = Int.MAX_VALUE
-    var ranks = arrayListOf<Rank>()
+    var ranks = arrayListOf<GameRank>()
 
     val designers = arrayListOf<Pair<Int, String>>()
     val artists = arrayListOf<Pair<Int, String>>()
@@ -67,15 +67,6 @@ class GameEntity {
             var level: Int = 0,
             var value: String = "",
             var numberOfVotes: Int = 0
-    )
-
-    data class Rank(
-            val id: Int = 0,
-            val type: String = "",
-            val name: String = "",
-            val friendlyName: String = "",
-            val value: Int = 0,
-            val bayesAverage: Double = 0.0
     )
 
     override fun toString(): String = "$id: $name"

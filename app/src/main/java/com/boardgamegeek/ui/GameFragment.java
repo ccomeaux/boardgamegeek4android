@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.GameRank;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
@@ -43,7 +44,6 @@ import com.boardgamegeek.ui.model.GameExpansion;
 import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
 import com.boardgamegeek.ui.model.GamePublisher;
-import com.boardgamegeek.ui.model.GameRank;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
 import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
@@ -462,7 +462,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				CharSequence cs = null;
 				for (GameRank rank : gameRanks) {
 					if (rank.isFamilyType()) {
-						final CharSequence rankDescription = PresentationUtils.describeRank(getContext(), rank.getRank(), rank.getType(), rank.getName());
+						final CharSequence rankDescription = PresentationUtils.describeRank(getContext(), rank.getValue(), rank.getType(), rank.getName());
 						if (cs != null) {
 							cs = PresentationUtils.getText(getContext(), R.string.rank_div, cs, rankDescription);
 						} else {

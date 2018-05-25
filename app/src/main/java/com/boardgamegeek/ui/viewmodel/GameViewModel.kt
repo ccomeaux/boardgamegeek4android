@@ -5,13 +5,13 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.support.v7.graphics.Palette
+import com.boardgamegeek.entities.GameRank
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRankRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.GameCollectionItem
-import com.boardgamegeek.ui.model.GameRank
 import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.PaletteUtils
 
