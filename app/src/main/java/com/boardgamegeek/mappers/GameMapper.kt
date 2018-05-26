@@ -1,6 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GamePollResultEntity
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.model.Constants
@@ -92,7 +93,7 @@ class GameMapper {
                     results.add(GameEntity.Results().apply {
                         numberOfPlayers = if (it.numplayers.isNullOrEmpty()) "X" else it.numplayers
                         it.result.forEach {
-                            result.add(GameEntity.Result(it.level, it.value, it.numvotes))
+                            result.add(GamePollResultEntity(it.level, it.value, it.numvotes))
                         }
                     })
                 }

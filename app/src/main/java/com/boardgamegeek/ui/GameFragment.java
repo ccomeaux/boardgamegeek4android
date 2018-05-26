@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.GameRankEntity;
+import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
@@ -45,7 +46,6 @@ import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
 import com.boardgamegeek.ui.model.GamePublisher;
 import com.boardgamegeek.ui.model.GameSuggestedAge;
-import com.boardgamegeek.ui.model.GameSuggestedLanguage;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
 import com.boardgamegeek.ui.model.RefreshableResource;
 import com.boardgamegeek.ui.model.Status;
@@ -95,7 +95,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final int MECHANIC_TOKEN = 0x16;
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
-	private static final int SUGGESTED_LANGUAGE_TOKEN = 0x23;
 	private static final int SUGGESTED_AGE_TOKEN = 0x24;
 	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
 
@@ -225,6 +224,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 					}
 				});
 
+				viewModel.getLanguagePoll().observe(GameFragment.this, new Observer<GameSuggestedLanguagePollEntity>() {
+					@Override
+					public void onChanged(@Nullable GameSuggestedLanguagePollEntity gameSuggestedLanguagePollEntity) {
+						onLanguagePollQueryComplete(gameSuggestedLanguagePollEntity);
+					}
+				});
+
 				LoaderManager lm = getLoaderManager();
 				lm.restartLoader(DESIGNER_TOKEN, null, GameFragment.this);
 				lm.restartLoader(ARTIST_TOKEN, null, GameFragment.this);
@@ -249,7 +255,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 		});
 		LoaderManager lm = getLoaderManager();
-		lm.restartLoader(SUGGESTED_LANGUAGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_AGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
 
@@ -320,9 +325,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			case BASE_GAME_TOKEN:
 				loader = new CursorLoader(getActivity(), GameBaseGame.buildUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
-			case SUGGESTED_LANGUAGE_TOKEN:
-				loader = new CursorLoader(getActivity(), GameSuggestedLanguage.buildUri(gameId), GameSuggestedLanguage.PROJECTION, null, null, GameSuggestedLanguage.SORT);
-				break;
 			case SUGGESTED_AGE_TOKEN:
 				loader = new CursorLoader(getActivity(), GameSuggestedAge.buildUri(gameId), GameSuggestedAge.PROJECTION, null, null, GameSuggestedAge.SORT);
 				break;
@@ -362,9 +364,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				break;
 			case BASE_GAME_TOKEN:
 				onListQueryComplete(cursor, baseGamesView);
-				break;
-			case SUGGESTED_LANGUAGE_TOKEN:
-				onLanguagePollQueryComplete(cursor);
 				break;
 			case SUGGESTED_AGE_TOKEN:
 				onAgePollQueryComplete(cursor);
@@ -476,22 +475,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onLanguagePollQueryComplete(Cursor cursor) {
-		int totalVotes = 0;
-		int totalLevel = 0;
-		if (cursor != null) {
-			while (cursor.moveToNext()) {
-				GameSuggestedLanguage gsl = GameSuggestedLanguage.fromCursor(cursor);
-				totalVotes = Math.max(totalVotes, gsl.getTotalVotes());
-				totalLevel += gsl.getVotes() * gsl.getLevel();
-			}
-		}
-		double score = (double) totalLevel / totalVotes;
+	private void onLanguagePollQueryComplete(GameSuggestedLanguagePollEntity entity) {
+		Double score = entity.calculateScore();
 		languageDependenceMessage.setText(PresentationUtils.describeLanguageDependence(getContext(), score));
 		ColorUtils.setTextViewBackground(languageDependenceMessage, ColorUtils.getFiveStageColor(score));
 		PresentationUtils.setTextOrHide(languageDependenceScore, PresentationUtils.describeScore(getContext(), score));
 		PresentationUtils.setTextOrHide(languageDependenceVotes,
-			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, totalVotes, totalVotes));
+			PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, entity.getTotalVotes(), entity.getTotalVotes()));
 	}
 
 	@DebugLog

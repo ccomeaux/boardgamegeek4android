@@ -8,6 +8,7 @@ import android.content.Context
 import android.net.Uri
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GamePollResultEntity
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
@@ -43,7 +44,29 @@ class GameDao(private val context: Context) {
                 } while (it.moveToNext())
             }
         }
-        return ranks;
+        return ranks
+    }
+
+    fun loadPoll(gameId: Int): ArrayList<GamePollResultEntity> {
+        val results = arrayListOf<GamePollResultEntity>()
+        val cursor = context.contentResolver.query(
+                Games.buildPollResultsResultUri(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE),
+                null,
+                null,
+                null,
+                "${GamePollResultsResult.POLL_RESULTS_SORT_INDEX} ASC, ${GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX}")
+        cursor?.use {
+            if (it.moveToFirst()) {
+                do {
+                    val gameSuggestedPlayerLanguage = GamePollResultEntity(
+                            level = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL) ?: 0,
+                            value = it.getString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE),
+                            numberOfVotes = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES) ?: 0)
+                    results.add(gameSuggestedPlayerLanguage)
+                } while (it.moveToNext())
+            }
+        }
+        return results
     }
 
     fun save(game: GameEntity) {

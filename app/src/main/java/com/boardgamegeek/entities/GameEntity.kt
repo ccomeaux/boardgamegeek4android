@@ -53,7 +53,7 @@ class GameEntity {
 
     class Results {
         var numberOfPlayers: String = ""
-        var result = arrayListOf<Result>()
+        var result = arrayListOf<GamePollResultEntity>()
 
         val key: String
             get() = if (numberOfPlayers.isBlank()) "X" else numberOfPlayers
@@ -62,12 +62,6 @@ class GameEntity {
             return key
         }
     }
-
-    data class Result(
-            var level: Int = 0,
-            var value: String = "",
-            var numberOfVotes: Int = 0
-    )
 
     override fun toString(): String = "$id: $name"
 }
