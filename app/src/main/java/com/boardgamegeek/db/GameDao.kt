@@ -8,7 +8,7 @@ import android.content.Context
 import android.net.Uri
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GameRank
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.*
@@ -21,8 +21,8 @@ class GameDao(private val context: Context) {
     private val resolver: ContentResolver = context.contentResolver
     private val updateTime: Long = System.currentTimeMillis()
 
-    fun loadRanks(gameId: Int): ArrayList<GameRank> {
-        val ranks = arrayListOf<GameRank>()
+    fun loadRanks(gameId: Int): ArrayList<GameRankEntity> {
+        val ranks = arrayListOf<GameRankEntity>()
         val cursor = context.contentResolver.query(
                 Games.buildRanksUri(gameId),
                 null,
@@ -32,12 +32,12 @@ class GameDao(private val context: Context) {
         cursor?.use {
             if (it.moveToFirst()) {
                 do {
-                    ranks.add(GameRank(
+                    ranks.add(GameRankEntity(
                             id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: BggContract.INVALID_ID,
                             type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
                             name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
                             friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
-                            value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: GameRank.INVALID_RANK,
+                            value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: GameRankEntity.INVALID_RANK,
                             bayesAverage = it.getDoubleOrNull(GameRanks.GAME_RANK_BAYES_AVERAGE) ?: 0.0
                     ))
                 } while (it.moveToNext())

@@ -32,7 +32,7 @@ class GameEntity {
     var numberOfUsersWeighting: Int = 0
     var averageWeight: Double = 0.0
     var overallRank: Int = Int.MAX_VALUE
-    var ranks = arrayListOf<GameRank>()
+    var ranks = arrayListOf<GameRankEntity>()
 
     val designers = arrayListOf<Pair<Int, String>>()
     val artists = arrayListOf<Pair<Int, String>>()

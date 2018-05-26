@@ -26,7 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.entities.GameRank;
+import com.boardgamegeek.entities.GameRankEntity;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
@@ -218,9 +218,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		viewModel.getGame(gameId).observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
 			public void onChanged(@Nullable RefreshableResource<Game> game) {
-				viewModel.getGameRanks().observe(GameFragment.this, new Observer<List<GameRank>>() {
+				viewModel.getGameRanks().observe(GameFragment.this, new Observer<List<GameRankEntity>>() {
 					@Override
-					public void onChanged(@Nullable List<GameRank> gameRanks) {
+					public void onChanged(@Nullable List<GameRankEntity> gameRanks) {
 						onRankQueryComplete(gameRanks);
 					}
 				});
@@ -454,13 +454,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onRankQueryComplete(List<GameRank> gameRanks) {
+	private void onRankQueryComplete(List<GameRankEntity> gameRanks) {
 		if (typesView != null) {
 			if (gameRanks == null || gameRanks.isEmpty()) {
 				typesView.setVisibility(GONE);
 			} else {
 				CharSequence cs = null;
-				for (GameRank rank : gameRanks) {
+				for (GameRankEntity rank : gameRanks) {
 					if (rank.isFamilyType()) {
 						final CharSequence rankDescription = PresentationUtils.describeRank(getContext(), rank.getValue(), rank.getType(), rank.getName());
 						if (cs != null) {

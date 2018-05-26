@@ -2,7 +2,7 @@ package com.boardgamegeek.entities
 
 import com.boardgamegeek.io.BggService
 
-data class GameRank(
+data class GameRankEntity(
         val id: Int = 0,
         val type: String = "",
         val name: String = "",

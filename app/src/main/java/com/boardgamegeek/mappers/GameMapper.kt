@@ -1,7 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GameRank
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.model.Constants
 import com.boardgamegeek.replaceHtmlLineFeeds
@@ -67,10 +67,10 @@ class GameMapper {
                 ?: from.names?.firstOrNull()?.let { it.value to it.sortindex } ?: "" to 0
     }
 
-    private fun createRanks(from: Game): List<GameRank> {
-        val ranks = mutableListOf<GameRank>()
+    private fun createRanks(from: Game): List<GameRankEntity> {
+        val ranks = mutableListOf<GameRankEntity>()
         from.statistics?.ranks?.mapTo(ranks) {
-            GameRank(
+            GameRankEntity(
                     it.id,
                     it.type,
                     it.name,
