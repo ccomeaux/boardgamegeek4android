@@ -75,12 +75,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
-        gameRepository.updateLastViewed(lastViewed)
+        gameRepository.updateLastViewed(gameId, lastViewed)
     }
 
     fun updateHeroImageUrl(url: String) {
         val data = game.value?.data ?: return
-        gameRepository.updateHeroImageUrl(url, data.imageUrl, data.thumbnailUrl, data.heroImageUrl)
+        gameRepository.updateHeroImageUrl(gameId, url, data.imageUrl, data.thumbnailUrl, data.heroImageUrl)
     }
 
     fun updateColors(palette: Palette?) {
@@ -88,11 +88,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             val iconColor = PaletteUtils.getIconSwatch(palette).rgb
             val darkColor = PaletteUtils.getDarkSwatch(palette).rgb
             val playCountColors = PaletteUtils.getPlayCountColors(palette, getApplication())
-            gameRepository.updateColors(iconColor, darkColor, playCountColors[0], playCountColors[1], playCountColors[2])
+            gameRepository.updateColors(gameId, iconColor, darkColor, playCountColors[0], playCountColors[1], playCountColors[2])
         }
     }
 
     fun updateFavorite(isFavorite: Boolean) {
-        gameRepository.updateFavorite(isFavorite)
+        gameRepository.updateFavorite(gameId, isFavorite)
     }
 }

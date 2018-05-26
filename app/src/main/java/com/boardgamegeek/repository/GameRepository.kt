@@ -65,7 +65,7 @@ class GameRepository(val application: BggApplication) {
         loader.refresh()
     }
 
-    fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
+    fun updateLastViewed(gameId:Int, lastViewed: Long = System.currentTimeMillis()) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues()
@@ -74,7 +74,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateHeroImageUrl(url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
+    fun updateHeroImageUrl(gameId:Int, url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             if (url.isNotBlank() &&
@@ -88,7 +88,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateColors(iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
+    fun updateColors(gameId:Int, iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues(5)
@@ -102,7 +102,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateFavorite(isFavorite: Boolean) {
+    fun updateFavorite(gameId:Int, isFavorite: Boolean) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues()
