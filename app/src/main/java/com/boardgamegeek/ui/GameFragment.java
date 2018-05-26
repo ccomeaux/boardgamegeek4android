@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.GameRankEntity;
+import com.boardgamegeek.entities.GameSuggestedAgePollEntity;
 import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.io.BggService;
@@ -45,7 +46,6 @@ import com.boardgamegeek.ui.model.GameExpansion;
 import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
 import com.boardgamegeek.ui.model.GamePublisher;
-import com.boardgamegeek.ui.model.GameSuggestedAge;
 import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
 import com.boardgamegeek.ui.model.RefreshableResource;
 import com.boardgamegeek.ui.model.Status;
@@ -95,7 +95,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final int MECHANIC_TOKEN = 0x16;
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
-	private static final int SUGGESTED_AGE_TOKEN = 0x24;
 	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
 
 	private Unbinder unbinder;
@@ -231,6 +230,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 					}
 				});
 
+				viewModel.getAgePoll().observe(GameFragment.this, new Observer<GameSuggestedAgePollEntity>() {
+					@Override
+					public void onChanged(@Nullable GameSuggestedAgePollEntity gameSuggestedAgePollEntity) {
+						onAgePollQueryComplete(gameSuggestedAgePollEntity);
+					}
+				});
+
 				LoaderManager lm = getLoaderManager();
 				lm.restartLoader(DESIGNER_TOKEN, null, GameFragment.this);
 				lm.restartLoader(ARTIST_TOKEN, null, GameFragment.this);
@@ -255,7 +261,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 		});
 		LoaderManager lm = getLoaderManager();
-		lm.restartLoader(SUGGESTED_AGE_TOKEN, null, this);
 		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
@@ -325,9 +330,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			case BASE_GAME_TOKEN:
 				loader = new CursorLoader(getActivity(), GameBaseGame.buildUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
-			case SUGGESTED_AGE_TOKEN:
-				loader = new CursorLoader(getActivity(), GameSuggestedAge.buildUri(gameId), GameSuggestedAge.PROJECTION, null, null, GameSuggestedAge.SORT);
-				break;
 			case SUGGESTED_PLAYER_COUNT_TOKEN:
 				loader = new CursorLoader(getActivity(), GameSuggestedPlayerCount.buildUri(gameId), GameSuggestedPlayerCount.PROJECTION, null, null, null);
 				break;
@@ -364,9 +366,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				break;
 			case BASE_GAME_TOKEN:
 				onListQueryComplete(cursor, baseGamesView);
-				break;
-			case SUGGESTED_AGE_TOKEN:
-				onAgePollQueryComplete(cursor);
 				break;
 			case SUGGESTED_PLAYER_COUNT_TOKEN:
 				onPlayerCountQueryComplete(cursor);
@@ -485,23 +484,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onAgePollQueryComplete(Cursor cursor) {
-		String currentValue = "";
-		int maxVotes = 0;
-		int totalVotes = 0;
-		if (cursor != null && cursor.moveToFirst()) {
-			do {
-				GameSuggestedAge gsa = GameSuggestedAge.fromCursor(cursor);
-				totalVotes = Math.max(totalVotes, gsa.getTotalVotes());
-				if (gsa.getVotes() > maxVotes) {
-					maxVotes = gsa.getVotes();
-					currentValue = gsa.getValue();
-				}
-			} while (cursor.moveToNext());
-		}
-
-		if (!TextUtils.isEmpty(currentValue))
-			PresentationUtils.setTextOrHide(playerAgePoll, PresentationUtils.describePlayerAge(getContext(), currentValue));
+	private void onAgePollQueryComplete(GameSuggestedAgePollEntity entity) {
+		if (!TextUtils.isEmpty(entity.getModalValue()))
+			PresentationUtils.setTextOrHide(playerAgePoll, PresentationUtils.describePlayerAge(getContext(), entity.getModalValue()));
 	}
 
 	@DebugLog

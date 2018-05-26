@@ -6,10 +6,10 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.support.v7.graphics.Palette
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.GameSuggestedAgePollEntity
 import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
-import com.boardgamegeek.repository.GamePollRepository
 import com.boardgamegeek.repository.GameRankRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.ui.model.Game
@@ -22,12 +22,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val gameRepository = GameRepository(getApplication())
     private val gameRanksRepository = GameRankRepository(getApplication())
-    private val gamePollRepository = GamePollRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
 
     private var game: LiveData<RefreshableResource<Game>> = MutableLiveData<RefreshableResource<Game>>()
     private var gameRanks: LiveData<List<GameRankEntity>> = MutableLiveData<List<GameRankEntity>>()
     private var languagePoll: LiveData<GameSuggestedLanguagePollEntity> = MutableLiveData<GameSuggestedLanguagePollEntity>()
+    private var agePoll: LiveData<GameSuggestedAgePollEntity> = MutableLiveData<GameSuggestedAgePollEntity>()
     private var gameCollectionItems: LiveData<RefreshableResource<List<GameCollectionItem>>> = MutableLiveData<RefreshableResource<List<GameCollectionItem>>>()
 
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
@@ -38,18 +38,25 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return game
     }
 
+    fun getLanguagePoll(): LiveData<GameSuggestedLanguagePollEntity> {
+        if (this.gameId != BggContract.INVALID_ID) {
+            languagePoll = gameRepository.getLanguagePoll(gameId)
+        }
+        return languagePoll
+    }
+
+    fun getAgePoll(): LiveData<GameSuggestedAgePollEntity> {
+        if (this.gameId != BggContract.INVALID_ID) {
+            agePoll = gameRepository.getAgePoll(gameId)
+        }
+        return agePoll
+    }
+
     fun getGameRanks(): LiveData<List<GameRankEntity>> {
         if (this.gameId != BggContract.INVALID_ID) {
             gameRanks = gameRanksRepository.getRanks(gameId)
         }
         return gameRanks
-    }
-
-    fun getLanguagePoll(): LiveData<GameSuggestedLanguagePollEntity> {
-        if (this.gameId != BggContract.INVALID_ID) {
-            languagePoll = gamePollRepository.getLanguagePoll(gameId)
-        }
-        return languagePoll
     }
 
     fun getGameCollection(): LiveData<RefreshableResource<List<GameCollectionItem>>> {

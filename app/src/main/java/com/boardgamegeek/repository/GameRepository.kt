@@ -1,13 +1,18 @@
 package com.boardgamegeek.repository
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MediatorLiveData
 import android.content.ContentValues
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.entities.GameSuggestedAgePollEntity
+import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.GameLiveData
+import com.boardgamegeek.livedata.GameSuggestedAgePollLiveData
+import com.boardgamegeek.livedata.GameSuggestedLanguagePollLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
@@ -22,6 +27,8 @@ private const val AGE_IN_DAYS_TO_REFRESH = 3
 class GameRepository(val application: BggApplication) {
     private var loader: GameLoader = GameLoader(application)
     private var gameId: Int = BggContract.INVALID_ID
+    private val language = MediatorLiveData<GameSuggestedLanguagePollEntity>()
+    private val age = MediatorLiveData<GameSuggestedAgePollEntity>()
 
     /**
      * Get a game from the database and potentially refresh it from BGG.
@@ -29,6 +36,26 @@ class GameRepository(val application: BggApplication) {
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
         this.gameId = gameId
         return loader.load()
+    }
+
+    fun getLanguagePoll(gameId: Int): LiveData<GameSuggestedLanguagePollEntity> {
+        application.appExecutors.diskIO.execute {
+            val dbSource = GameSuggestedLanguagePollLiveData(application, gameId).load()
+            language.addSource(dbSource) {
+                language.postValue(it)
+            }
+        }
+        return language
+    }
+
+    fun getAgePoll(gameId: Int): LiveData<GameSuggestedAgePollEntity> {
+        application.appExecutors.diskIO.execute {
+            val dbSource = GameSuggestedAgePollLiveData(application, gameId).load()
+            age.addSource(dbSource) {
+                age.postValue(it)
+            }
+        }
+        return age
     }
 
     /**

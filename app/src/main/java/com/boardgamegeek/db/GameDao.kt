@@ -47,10 +47,10 @@ class GameDao(private val context: Context) {
         return ranks
     }
 
-    fun loadPoll(gameId: Int): ArrayList<GamePollResultEntity> {
+    fun loadPoll(gameId: Int, pollType: String): ArrayList<GamePollResultEntity> {
         val results = arrayListOf<GamePollResultEntity>()
         val cursor = context.contentResolver.query(
-                Games.buildPollResultsResultUri(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE),
+                Games.buildPollResultsResultUri(gameId, pollType),
                 null,
                 null,
                 null,
