@@ -1,7 +1,6 @@
 package com.boardgamegeek.repository
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
 import android.content.ContentValues
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -10,10 +9,7 @@ import com.boardgamegeek.entities.GameSuggestedAgePollEntity
 import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
-import com.boardgamegeek.livedata.GameLiveData
-import com.boardgamegeek.livedata.GameSuggestedAgePollLiveData
-import com.boardgamegeek.livedata.GameSuggestedLanguagePollLiveData
-import com.boardgamegeek.livedata.RefreshableResourceLoader
+import com.boardgamegeek.livedata.*
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
@@ -27,8 +23,6 @@ private const val AGE_IN_DAYS_TO_REFRESH = 3
 class GameRepository(val application: BggApplication) {
     private var loader: GameLoader = GameLoader(application)
     private var gameId: Int = BggContract.INVALID_ID
-    private val language = MediatorLiveData<GameSuggestedLanguagePollEntity>()
-    private val age = MediatorLiveData<GameSuggestedAgePollEntity>()
 
     /**
      * Get a game from the database and potentially refresh it from BGG.
@@ -39,23 +33,19 @@ class GameRepository(val application: BggApplication) {
     }
 
     fun getLanguagePoll(gameId: Int): LiveData<GameSuggestedLanguagePollEntity> {
-        application.appExecutors.diskIO.execute {
-            val dbSource = GameSuggestedLanguagePollLiveData(application, gameId).load()
-            language.addSource(dbSource) {
-                language.postValue(it)
+        return object : DatabaseResourceLoader<GameSuggestedLanguagePollEntity>(application) {
+            override fun loadFromDatabase(): LiveData<GameSuggestedLanguagePollEntity> {
+                return GameSuggestedLanguagePollLiveData(application, gameId).load()
             }
-        }
-        return language
+        }.asLiveData()
     }
 
     fun getAgePoll(gameId: Int): LiveData<GameSuggestedAgePollEntity> {
-        application.appExecutors.diskIO.execute {
-            val dbSource = GameSuggestedAgePollLiveData(application, gameId).load()
-            age.addSource(dbSource) {
-                age.postValue(it)
+        return object : DatabaseResourceLoader<GameSuggestedAgePollEntity>(application) {
+            override fun loadFromDatabase(): LiveData<GameSuggestedAgePollEntity> {
+                return GameSuggestedAgePollLiveData(application, gameId).load()
             }
-        }
-        return age
+        }.asLiveData()
     }
 
     /**
@@ -65,7 +55,7 @@ class GameRepository(val application: BggApplication) {
         loader.refresh()
     }
 
-    fun updateLastViewed(gameId:Int, lastViewed: Long = System.currentTimeMillis()) {
+    fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues()
@@ -74,7 +64,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateHeroImageUrl(gameId:Int, url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
+    fun updateHeroImageUrl(gameId: Int, url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             if (url.isNotBlank() &&
@@ -88,7 +78,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateColors(gameId:Int, iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
+    fun updateColors(gameId: Int, iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues(5)
@@ -102,7 +92,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateFavorite(gameId:Int, isFavorite: Boolean) {
+    fun updateFavorite(gameId: Int, isFavorite: Boolean) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues()
