@@ -825,7 +825,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
 
-		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
+		public static final String DEFAULT_SORT = POLL_RESULTS_SORT_INDEX + " ASC, " + POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
 	}
 
 	public static final class GameColors implements GameColorsColumns, GamesColumns, BaseColumns {

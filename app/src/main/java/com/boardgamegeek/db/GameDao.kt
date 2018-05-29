@@ -8,8 +8,10 @@ import android.content.Context
 import android.net.Uri
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GamePollResultEntity
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.*
@@ -47,26 +49,23 @@ class GameDao(private val context: Context) {
         return ranks
     }
 
-    fun loadPoll(gameId: Int, pollType: String): ArrayList<GamePollResultEntity> {
-        val results = arrayListOf<GamePollResultEntity>()
-        val cursor = context.contentResolver.query(
-                Games.buildPollResultsResultUri(gameId, pollType),
-                null,
-                null,
-                null,
-                "${GamePollResultsResult.POLL_RESULTS_SORT_INDEX} ASC, ${GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX}")
-        cursor?.use {
-            if (it.moveToFirst()) {
-                do {
-                    val gameSuggestedPlayerLanguage = GamePollResultEntity(
-                            level = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL) ?: 0,
-                            value = it.getString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE),
-                            numberOfVotes = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES) ?: 0)
-                    results.add(gameSuggestedPlayerLanguage)
-                } while (it.moveToNext())
+    fun loadPoll(gameId: Int, pollType: String): RegisteredLiveData<GamePollEntity> {
+        val uri = Games.buildPollResultsResultUri(gameId, pollType)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<GamePollResultEntity>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        val gameSuggestedPlayerLanguage = GamePollResultEntity(
+                                level = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL) ?: 0,
+                                value = it.getString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE),
+                                numberOfVotes = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES) ?: 0)
+                        results.add(gameSuggestedPlayerLanguage)
+                    } while (it.moveToNext())
+                }
             }
-        }
-        return results
+            return@RegisteredLiveData GamePollEntity(results)
+        })
     }
 
     fun save(game: GameEntity) {

@@ -8,7 +8,9 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
-import com.boardgamegeek.livedata.*
+import com.boardgamegeek.livedata.DatabaseResourceLoader
+import com.boardgamegeek.livedata.GameLiveData
+import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
@@ -20,8 +22,9 @@ import timber.log.Timber
 private const val AGE_IN_DAYS_TO_REFRESH = 3
 
 class GameRepository(val application: BggApplication) {
-    private var loader: GameLoader = GameLoader(application)
-    private var gameId: Int = BggContract.INVALID_ID
+    private var loader = GameLoader(application)
+    private var gameId = BggContract.INVALID_ID
+    private var dao = GameDao(application)
 
     /**
      * Get a game from the database and potentially refresh it from BGG.
@@ -34,7 +37,7 @@ class GameRepository(val application: BggApplication) {
     fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
         return object : DatabaseResourceLoader<GamePollEntity>(application) {
             override fun loadFromDatabase(): LiveData<GamePollEntity> {
-                return GamePollLiveData(application, gameId).load()
+                return dao.loadPoll(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)
             }
         }.asLiveData()
     }
@@ -42,7 +45,7 @@ class GameRepository(val application: BggApplication) {
     fun getAgePoll(gameId: Int): LiveData<GamePollEntity> {
         return object : DatabaseResourceLoader<GamePollEntity>(application) {
             override fun loadFromDatabase(): LiveData<GamePollEntity> {
-                return GamePollLiveData(application, gameId).load()
+                return dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
             }
         }.asLiveData()
     }

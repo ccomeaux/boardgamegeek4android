@@ -1,6 +1,7 @@
 package com.boardgamegeek
 
 import android.content.*
+import android.database.Cursor
 import android.net.Uri
 import android.os.RemoteException
 import android.provider.BaseColumns
@@ -8,6 +9,11 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.PreferencesUtils
 import timber.log.Timber
 import java.util.*
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun ContentResolver.load(uri: Uri, projection: Array<String>? = null, selection: String? = null, selectionArgs: Array<String>? = null, sortOrder: String? = null): Cursor? {
+    return this.query(uri, projection, selection, selectionArgs, sortOrder)
+}
 
 fun ContentResolver.applyBatch(context: Context, batch: ArrayList<ContentProviderOperation>?, debugMessage: String = ""): Array<ContentProviderResult> {
     if (batch != null && batch.size > 0) {
@@ -29,7 +35,6 @@ fun ContentResolver.applyBatch(context: Context, batch: ArrayList<ContentProvide
                 Timber.e(e, m)
                 throw RuntimeException(m, e)
             }
-
         }
     }
     return arrayOf()
