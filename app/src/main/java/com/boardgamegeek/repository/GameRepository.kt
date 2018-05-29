@@ -10,7 +10,6 @@ import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.DatabaseResourceLoader
-import com.boardgamegeek.livedata.GameLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
@@ -117,7 +116,7 @@ class GameRepository(val application: BggApplication) {
 
         override fun isRequestParamsValid() = gameId != BggContract.INVALID_ID
 
-        override fun loadFromDatabase() = GameLiveData(application, gameId).load()
+        override fun loadFromDatabase() = GameDao(application).load(gameId)
 
         override fun shouldRefresh(data: Game?): Boolean {
             return data == null ||
