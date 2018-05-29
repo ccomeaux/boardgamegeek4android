@@ -6,8 +6,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.support.v7.graphics.Palette
 import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.entities.GameSuggestedAgePollEntity
-import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity
+import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRankRepository
@@ -26,8 +25,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private var game: LiveData<RefreshableResource<Game>> = MutableLiveData<RefreshableResource<Game>>()
     private var gameRanks: LiveData<List<GameRankEntity>> = MutableLiveData<List<GameRankEntity>>()
-    private var languagePoll: LiveData<GameSuggestedLanguagePollEntity> = MutableLiveData<GameSuggestedLanguagePollEntity>()
-    private var agePoll: LiveData<GameSuggestedAgePollEntity> = MutableLiveData<GameSuggestedAgePollEntity>()
+    private var languagePoll: LiveData<GamePollEntity> = MutableLiveData<GamePollEntity>()
+    private var agePoll: LiveData<GamePollEntity> = MutableLiveData<GamePollEntity>()
     private var gameCollectionItems: LiveData<RefreshableResource<List<GameCollectionItem>>> = MutableLiveData<RefreshableResource<List<GameCollectionItem>>>()
 
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
@@ -38,14 +37,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return game
     }
 
-    fun getLanguagePoll(): LiveData<GameSuggestedLanguagePollEntity> {
+    fun getLanguagePoll(): LiveData<GamePollEntity> {
         if (this.gameId != BggContract.INVALID_ID) {
             languagePoll = gameRepository.getLanguagePoll(gameId)
         }
         return languagePoll
     }
 
-    fun getAgePoll(): LiveData<GameSuggestedAgePollEntity> {
+    fun getAgePoll(): LiveData<GamePollEntity> {
         if (this.gameId != BggContract.INVALID_ID) {
             agePoll = gameRepository.getAgePoll(gameId)
         }

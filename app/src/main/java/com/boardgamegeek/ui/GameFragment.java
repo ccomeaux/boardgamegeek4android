@@ -27,8 +27,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.GameRankEntity;
-import com.boardgamegeek.entities.GameSuggestedAgePollEntity;
-import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity;
+import com.boardgamegeek.entities.GamePollEntity;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
@@ -223,16 +222,16 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 					}
 				});
 
-				viewModel.getLanguagePoll().observe(GameFragment.this, new Observer<GameSuggestedLanguagePollEntity>() {
+				viewModel.getLanguagePoll().observe(GameFragment.this, new Observer<GamePollEntity>() {
 					@Override
-					public void onChanged(@Nullable GameSuggestedLanguagePollEntity gameSuggestedLanguagePollEntity) {
-						onLanguagePollQueryComplete(gameSuggestedLanguagePollEntity);
+					public void onChanged(@Nullable GamePollEntity gamePollEntity) {
+						onLanguagePollQueryComplete(gamePollEntity);
 					}
 				});
 
-				viewModel.getAgePoll().observe(GameFragment.this, new Observer<GameSuggestedAgePollEntity>() {
+				viewModel.getAgePoll().observe(GameFragment.this, new Observer<GamePollEntity>() {
 					@Override
-					public void onChanged(@Nullable GameSuggestedAgePollEntity gameSuggestedAgePollEntity) {
+					public void onChanged(@Nullable GamePollEntity gameSuggestedAgePollEntity) {
 						onAgePollQueryComplete(gameSuggestedAgePollEntity);
 					}
 				});
@@ -474,7 +473,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onLanguagePollQueryComplete(GameSuggestedLanguagePollEntity entity) {
+	private void onLanguagePollQueryComplete(GamePollEntity entity) {
 		Double score = entity.calculateScore();
 		languageDependenceMessage.setText(PresentationUtils.describeLanguageDependence(getContext(), score));
 		ColorUtils.setTextViewBackground(languageDependenceMessage, ColorUtils.getFiveStageColor(score));
@@ -484,7 +483,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onAgePollQueryComplete(GameSuggestedAgePollEntity entity) {
+	private void onAgePollQueryComplete(GamePollEntity entity) {
 		if (!TextUtils.isEmpty(entity.getModalValue()))
 			PresentationUtils.setTextOrHide(playerAgePoll, PresentationUtils.describePlayerAge(getContext(), entity.getModalValue()));
 	}

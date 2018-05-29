@@ -5,8 +5,7 @@ import android.content.ContentValues
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.entities.GameSuggestedAgePollEntity
-import com.boardgamegeek.entities.GameSuggestedLanguagePollEntity
+import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.*
@@ -32,18 +31,18 @@ class GameRepository(val application: BggApplication) {
         return loader.load()
     }
 
-    fun getLanguagePoll(gameId: Int): LiveData<GameSuggestedLanguagePollEntity> {
-        return object : DatabaseResourceLoader<GameSuggestedLanguagePollEntity>(application) {
-            override fun loadFromDatabase(): LiveData<GameSuggestedLanguagePollEntity> {
-                return GameSuggestedLanguagePollLiveData(application, gameId).load()
+    fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
+        return object : DatabaseResourceLoader<GamePollEntity>(application) {
+            override fun loadFromDatabase(): LiveData<GamePollEntity> {
+                return GamePollLiveData(application, gameId).load()
             }
         }.asLiveData()
     }
 
-    fun getAgePoll(gameId: Int): LiveData<GameSuggestedAgePollEntity> {
-        return object : DatabaseResourceLoader<GameSuggestedAgePollEntity>(application) {
-            override fun loadFromDatabase(): LiveData<GameSuggestedAgePollEntity> {
-                return GameSuggestedAgePollLiveData(application, gameId).load()
+    fun getAgePoll(gameId: Int): LiveData<GamePollEntity> {
+        return object : DatabaseResourceLoader<GamePollEntity>(application) {
+            override fun loadFromDatabase(): LiveData<GamePollEntity> {
+                return GamePollLiveData(application, gameId).load()
             }
         }.asLiveData()
     }
