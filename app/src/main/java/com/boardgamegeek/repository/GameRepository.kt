@@ -6,6 +6,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.GamePollEntity
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.DatabaseResourceLoader
@@ -46,6 +47,14 @@ class GameRepository(val application: BggApplication) {
         return object : DatabaseResourceLoader<GamePollEntity>(application) {
             override fun loadFromDatabase(): LiveData<GamePollEntity> {
                 return dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
+            }
+        }.asLiveData()
+    }
+
+    fun getRanks(gameId: Int): LiveData<List<GameRankEntity>> {
+        return object : DatabaseResourceLoader<List<GameRankEntity>>(application) {
+            override fun loadFromDatabase(): LiveData<List<GameRankEntity>> {
+                return dao.loadRanks(gameId)
             }
         }.asLiveData()
     }

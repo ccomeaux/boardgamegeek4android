@@ -5,11 +5,10 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.support.v7.graphics.Palette
-import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.entities.GamePollEntity
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
-import com.boardgamegeek.repository.GameRankRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.GameCollectionItem
@@ -20,7 +19,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private var gameId = BggContract.INVALID_ID
 
     private val gameRepository = GameRepository(getApplication())
-    private val gameRanksRepository = GameRankRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
 
     private var game: LiveData<RefreshableResource<Game>> = MutableLiveData<RefreshableResource<Game>>()
@@ -53,7 +51,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getGameRanks(): LiveData<List<GameRankEntity>> {
         if (this.gameId != BggContract.INVALID_ID) {
-            gameRanks = gameRanksRepository.getRanks(gameId)
+            gameRanks = gameRepository.getRanks(gameId)
         }
         return gameRanks
     }

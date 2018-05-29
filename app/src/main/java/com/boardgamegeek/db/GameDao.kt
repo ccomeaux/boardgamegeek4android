@@ -24,29 +24,26 @@ class GameDao(private val context: Context) {
     private val resolver: ContentResolver = context.contentResolver
     private val updateTime: Long = System.currentTimeMillis()
 
-    fun loadRanks(gameId: Int): ArrayList<GameRankEntity> {
-        val ranks = arrayListOf<GameRankEntity>()
-        val cursor = context.contentResolver.query(
-                Games.buildRanksUri(gameId),
-                null,
-                null,
-                null,
-                null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                do {
-                    ranks.add(GameRankEntity(
-                            id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: BggContract.INVALID_ID,
-                            type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
-                            name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
-                            friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
-                            value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: GameRankEntity.INVALID_RANK,
-                            bayesAverage = it.getDoubleOrNull(GameRanks.GAME_RANK_BAYES_AVERAGE) ?: 0.0
-                    ))
-                } while (it.moveToNext())
+    fun loadRanks(gameId: Int): RegisteredLiveData<List<GameRankEntity>> {
+        val uri = Games.buildRanksUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val ranks = arrayListOf<GameRankEntity>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        ranks.add(GameRankEntity(
+                                id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: BggContract.INVALID_ID,
+                                type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
+                                name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
+                                friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
+                                value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: GameRankEntity.INVALID_RANK,
+                                bayesAverage = it.getDoubleOrNull(GameRanks.GAME_RANK_BAYES_AVERAGE) ?: 0.0
+                        ))
+                    } while (it.moveToNext())
+                }
             }
-        }
-        return ranks
+            return@RegisteredLiveData ranks
+        })
     }
 
     fun loadPoll(gameId: Int, pollType: String): RegisteredLiveData<GamePollEntity> {
