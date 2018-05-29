@@ -26,8 +26,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.entities.GameRankEntity;
 import com.boardgamegeek.entities.GamePollEntity;
+import com.boardgamegeek.entities.GameRankEntity;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
@@ -212,30 +212,9 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		idView.setText(String.valueOf(gameId));
 		updatedView.setTimestamp(0);
 
-		viewModel.getGame(gameId).observe(this, new Observer<RefreshableResource<Game>>() {
+		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
 			public void onChanged(@Nullable RefreshableResource<Game> game) {
-				viewModel.getGameRanks().observe(GameFragment.this, new Observer<List<GameRankEntity>>() {
-					@Override
-					public void onChanged(@Nullable List<GameRankEntity> gameRanks) {
-						onRankQueryComplete(gameRanks);
-					}
-				});
-
-				viewModel.getLanguagePoll().observe(GameFragment.this, new Observer<GamePollEntity>() {
-					@Override
-					public void onChanged(@Nullable GamePollEntity gamePollEntity) {
-						onLanguagePollQueryComplete(gamePollEntity);
-					}
-				});
-
-				viewModel.getAgePoll().observe(GameFragment.this, new Observer<GamePollEntity>() {
-					@Override
-					public void onChanged(@Nullable GamePollEntity gameSuggestedAgePollEntity) {
-						onAgePollQueryComplete(gameSuggestedAgePollEntity);
-					}
-				});
-
 				LoaderManager lm = getLoaderManager();
 				lm.restartLoader(DESIGNER_TOKEN, null, GameFragment.this);
 				lm.restartLoader(ARTIST_TOKEN, null, GameFragment.this);
@@ -261,6 +240,27 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		});
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
+
+		viewModel.getRanks().observe(GameFragment.this, new Observer<List<GameRankEntity>>() {
+			@Override
+			public void onChanged(@Nullable List<GameRankEntity> gameRanks) {
+				onRankQueryComplete(gameRanks);
+			}
+		});
+
+		viewModel.getLanguagePoll().observe(GameFragment.this, new Observer<GamePollEntity>() {
+			@Override
+			public void onChanged(@Nullable GamePollEntity gamePollEntity) {
+				onLanguagePollQueryComplete(gamePollEntity);
+			}
+		});
+
+		viewModel.getAgePoll().observe(GameFragment.this, new Observer<GamePollEntity>() {
+			@Override
+			public void onChanged(@Nullable GamePollEntity gameSuggestedAgePollEntity) {
+				onAgePollQueryComplete(gameSuggestedAgePollEntity);
+			}
+		});
 
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();

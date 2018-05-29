@@ -4,9 +4,11 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Transformations
 import android.support.v7.graphics.Palette
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
@@ -16,51 +18,57 @@ import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.PaletteUtils
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
-    private var gameId = BggContract.INVALID_ID
+    private val _gameId = MutableLiveData<Int>()
+    val gameId: LiveData<Int>
+        get() = _gameId
 
     private val gameRepository = GameRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
 
-    private var game: LiveData<RefreshableResource<Game>> = MutableLiveData<RefreshableResource<Game>>()
-    private var gameRanks: LiveData<List<GameRankEntity>> = MutableLiveData<List<GameRankEntity>>()
-    private var languagePoll: LiveData<GamePollEntity> = MutableLiveData<GamePollEntity>()
-    private var agePoll: LiveData<GamePollEntity> = MutableLiveData<GamePollEntity>()
-    private var gameCollectionItems: LiveData<RefreshableResource<List<GameCollectionItem>>> = MutableLiveData<RefreshableResource<List<GameCollectionItem>>>()
-
-    fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
-        if (gameId != this.gameId) {
-            this.gameId = gameId
-            game = gameRepository.getGame(gameId)
+    fun setId(gameId: Int?) {
+        if (_gameId.value != gameId) {
+            _gameId.value = gameId
         }
-        return game
     }
 
-    fun getLanguagePoll(): LiveData<GamePollEntity> {
-        if (this.gameId != BggContract.INVALID_ID) {
-            languagePoll = gameRepository.getLanguagePoll(gameId)
+    val game: LiveData<RefreshableResource<Game>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getGame(gameId)
         }
-        return languagePoll
     }
 
-    fun getAgePoll(): LiveData<GamePollEntity> {
-        if (this.gameId != BggContract.INVALID_ID) {
-            agePoll = gameRepository.getAgePoll(gameId)
+    val languagePoll: LiveData<GamePollEntity> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getLanguagePoll(gameId)
         }
-        return agePoll
     }
 
-    fun getGameRanks(): LiveData<List<GameRankEntity>> {
-        if (this.gameId != BggContract.INVALID_ID) {
-            gameRanks = gameRepository.getRanks(gameId)
+    val agePoll: LiveData<GamePollEntity> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getAgePoll(gameId)
         }
-        return gameRanks
     }
 
-    fun getGameCollection(): LiveData<RefreshableResource<List<GameCollectionItem>>> {
-        if (this.gameId != BggContract.INVALID_ID) {
-            gameCollectionItems = gameCollectionRepository.getCollectionItems(gameId)
+    val ranks: LiveData<List<GameRankEntity>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getRanks(gameId)
         }
-        return gameCollectionItems
+    }
+
+    val collectionItems: LiveData<RefreshableResource<List<GameCollectionItem>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameCollectionRepository.getCollectionItems(gameId)
+        }
     }
 
     fun refreshGame() {
@@ -72,12 +80,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
-        gameRepository.updateLastViewed(gameId, lastViewed)
+        gameRepository.updateLastViewed(gameId.value ?: BggContract.INVALID_ID, lastViewed)
     }
 
     fun updateHeroImageUrl(url: String) {
         val data = game.value?.data ?: return
-        gameRepository.updateHeroImageUrl(gameId, url, data.imageUrl, data.thumbnailUrl, data.heroImageUrl)
+        gameRepository.updateHeroImageUrl(gameId.value
+                ?: BggContract.INVALID_ID, url, data.imageUrl, data.thumbnailUrl, data.heroImageUrl)
     }
 
     fun updateColors(palette: Palette?) {
@@ -85,11 +94,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             val iconColor = PaletteUtils.getIconSwatch(palette).rgb
             val darkColor = PaletteUtils.getDarkSwatch(palette).rgb
             val playCountColors = PaletteUtils.getPlayCountColors(palette, getApplication())
-            gameRepository.updateColors(gameId, iconColor, darkColor, playCountColors[0], playCountColors[1], playCountColors[2])
+            gameRepository.updateColors(gameId.value
+                    ?: BggContract.INVALID_ID, iconColor, darkColor, playCountColors[0], playCountColors[1], playCountColors[2])
         }
     }
 
     fun updateFavorite(isFavorite: Boolean) {
-        gameRepository.updateFavorite(gameId, isFavorite)
+        gameRepository.updateFavorite(gameId.value ?: BggContract.INVALID_ID, isFavorite)
     }
 }

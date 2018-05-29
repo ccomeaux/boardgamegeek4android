@@ -41,7 +41,7 @@ class GameCollectionFragment : Fragment() {
 
         syncTimestamp.timestamp = 0L
 
-        viewModel.getGameCollection().observe(this, Observer {
+        viewModel.collectionItems.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError()

@@ -66,7 +66,9 @@ class GameActivity : HeroTabActivity() {
                 intent.getStringExtra(KEY_THUMBNAIL_URL),
                 intent.getStringExtra(KEY_HERO_IMAGE_URL))
 
-        viewModel.getGame(gameId).observe(this, Observer {
+        viewModel.setId(gameId)
+
+        viewModel.game.observe(this, Observer {
             when {
                 it == null -> return@Observer
                 it.status == Status.ERROR -> toast(if (it.message.isBlank()) getString(R.string.empty_game) else it.message)

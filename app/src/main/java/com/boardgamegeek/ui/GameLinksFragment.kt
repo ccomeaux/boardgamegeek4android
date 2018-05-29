@@ -47,7 +47,7 @@ class GameLinksFragment : Fragment() {
         }
 
         colorize(arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT) ?: Color.TRANSPARENT)
-        viewModel.getGame(gameId).observe(this, Observer { game ->
+        viewModel.game.observe(this, Observer { game ->
             colorize(game?.data?.iconColor ?: Color.TRANSPARENT)
         })
     }

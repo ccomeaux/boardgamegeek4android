@@ -39,7 +39,7 @@ class GameDescriptionFragment : Fragment() {
         game_info_id.text = gameId.toString()
         game_info_last_updated.timestamp = 0L
 
-        viewModel.getGame(gameId).observe(this, Observer {
+        viewModel.game.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
