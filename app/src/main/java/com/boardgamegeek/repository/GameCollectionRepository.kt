@@ -9,7 +9,6 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
-import com.boardgamegeek.livedata.GameCollectionLiveData
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
@@ -52,7 +51,7 @@ class GameCollectionRepository(val application: BggApplication) {
             return gameId != BggContract.INVALID_ID && !username.isNullOrBlank()
         }
 
-        override fun loadFromDatabase() = GameCollectionLiveData(application, gameId).load()
+        override fun loadFromDatabase() = CollectionDao(application).load(gameId)
 
         override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
             val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L

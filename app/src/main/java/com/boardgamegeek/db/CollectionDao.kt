@@ -5,21 +5,96 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import com.boardgamegeek.*
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.livedata.RegisteredLiveData
+import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.util.CursorUtils
-import com.boardgamegeek.util.FileUtils
-import com.boardgamegeek.util.ResolverUtils
-import com.boardgamegeek.util.SelectionBuilder
+import com.boardgamegeek.ui.model.GameCollectionItem
+import com.boardgamegeek.util.*
 import hugo.weaving.DebugLog
 import timber.log.Timber
+import java.util.*
 
 private const val NOT_DIRTY = 0L
 
-class CollectionDao(context: Context) {
+class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
+
+    fun load(gameId: Int): RegisteredLiveData<List<GameCollectionItem>> {
+        val uri = Collection.CONTENT_URI
+        val projection = arrayOf(
+                Collection._ID,
+                Collection.COLLECTION_ID,
+                Collection.COLLECTION_NAME,
+                Collection.COLLECTION_YEAR_PUBLISHED,
+                Collection.COLLECTION_THUMBNAIL_URL,
+                Collection.COLLECTION_IMAGE_URL,
+                Collection.STATUS_OWN,
+                Collection.STATUS_PREVIOUSLY_OWNED,
+                Collection.STATUS_FOR_TRADE,
+                Collection.STATUS_WANT,
+                Collection.STATUS_WANT_TO_BUY,
+                Collection.STATUS_WISHLIST,
+                Collection.STATUS_WANT_TO_PLAY,
+                Collection.STATUS_PREORDERED,
+                Collection.STATUS_WISHLIST_PRIORITY,
+                Collection.NUM_PLAYS,
+                Collection.COMMENT,
+                Collection.YEAR_PUBLISHED,
+                Collection.RATING,
+                Collection.IMAGE_URL,
+                Collection.UPDATED,
+                Collection.GAME_NAME
+        )
+        val firstStatus = 6
+        val lastStatus = 13
+        val wishListStatus = 11
+        return RegisteredLiveData(context, uri, {
+            val list = arrayListOf<GameCollectionItem>()
+            resolver.load(
+                    uri,
+                    projection,
+                    "collection.${Collection.GAME_ID}=?",
+                    arrayOf(gameId.toString()))?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    do {
+                        val statuses = ArrayList<String>()
+                        (firstStatus..lastStatus)
+                                .filter { cursor.getInt(it) == 1 }
+                                .forEach {
+                                    if (it == wishListStatus) {
+                                        statuses.add(PresentationUtils.describeWishlist(context, cursor.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY)
+                                                ?: 0))
+                                    } else {
+                                        statuses.add(context.resources.getStringArray(R.array.collection_status_filter_entries)[it - firstStatus])
+                                    }
+                                }
+
+                        val item = GameCollectionItem(
+                                internalId = cursor.getLong(Collection._ID),
+                                collectionId = cursor.getInt(Collection.COLLECTION_ID),
+                                collectionName = cursor.getStringOrNull(Collection.COLLECTION_NAME) ?: "",
+                                gameName = cursor.getStringOrNull(Collection.GAME_NAME) ?: "",
+                                collectionYearPublished = cursor.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: Constants.YEAR_UNKNOWN,
+                                yearPublished = cursor.getIntOrNull(Collection.YEAR_PUBLISHED) ?: Constants.YEAR_UNKNOWN,
+                                imageUrl = cursor.getStringOrNull(Collection.COLLECTION_IMAGE_URL) ?: "",
+                                thumbnailUrl = cursor.getStringOrNull(Collection.COLLECTION_THUMBNAIL_URL) ?: "",
+                                comment = cursor.getStringOrNull(Collection.COMMENT) ?: "",
+                                numberOfPlays = cursor.getIntOrNull(Games.NUM_PLAYS) ?: 0,
+                                rating = cursor.getDoubleOrNull(Collection.RATING) ?: 0.0,
+                                syncTimestamp = cursor.getLongOrNull(Collection.UPDATED) ?: 0,
+                                statuses = statuses
+                        )
+                        list.add(item)
+                    } while (cursor.moveToNext())
+                }
+            }
+            return@RegisteredLiveData list
+        })
+    }
 
     /**
      * Remove all collection items belonging to a game, except the ones in the specified list.
