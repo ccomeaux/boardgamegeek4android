@@ -6,7 +6,7 @@ enum class Status {
     REFRESHING
 }
 
-class RefreshableResource<out T> private constructor(val status: Status, val data: T?, val message: String = "") {
+data class RefreshableResource<out T>(val status: Status, val data: T?, val message: String = "") {
     companion object {
         fun <T> success(data: T?): RefreshableResource<T> {
             return RefreshableResource(Status.SUCCESS, data)

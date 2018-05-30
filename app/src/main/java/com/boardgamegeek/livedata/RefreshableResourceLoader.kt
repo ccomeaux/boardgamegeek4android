@@ -35,6 +35,10 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     fun asLiveData() = result as LiveData<RefreshableResource<T>>
 
     @MainThread
+    private fun setValue(newValue: RefreshableResource<T>) {
+        if (result.value != newValue) {
+            result.value = newValue
+        }
     }
 
     protected abstract val typeDescriptionResId: Int
@@ -48,9 +52,9 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     private fun refresh(dbSource: LiveData<T>) {
         result.addSource(dbSource) { newData ->
             if (NetworkUtils.isOffline(application)) {
-                result.value = RefreshableResource.error(application.getString(R.string.msg_offline), newData)
+                setValue(RefreshableResource.error(application.getString(R.string.msg_offline), newData))
             } else {
-                result.setValue(RefreshableResource.refreshing(newData))
+                setValue(RefreshableResource.refreshing(newData))
             }
         }
         if (NetworkUtils.isOffline(application)) return
@@ -64,21 +68,20 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                             application.appExecutors.mainThread.execute {
                                 result.removeSource(dbSource)
                                 result.addSource(dbSource) { newData ->
-                                    result.setValue(RefreshableResource.success(newData))
+                                    setValue(RefreshableResource.success(newData))
                                 }
                             }
                         }
                     } else {
                         result.removeSource(dbSource)
                         result.addSource(dbSource) { newData ->
-                            result.setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
+                            setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
                         }
                     }
                 } else {
                     result.removeSource(dbSource)
                     result.addSource(dbSource) { newData ->
-                        result.setValue(RefreshableResource.error(getHttpErrorMessage(response?.code()
-                                ?: 500), newData))
+                        setValue(RefreshableResource.error(getHttpErrorMessage(response?.code() ?: 500), newData))
                     }
                 }
             }
@@ -86,7 +89,7 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
             override fun onFailure(call: Call<U>?, t: Throwable?) {
                 result.removeSource(dbSource)
                 result.addSource(dbSource) { newData ->
-                    result.setValue(RefreshableResource.error(t, newData))
+                    setValue(RefreshableResource.error(t, newData))
                 }
             }
         })
