@@ -30,42 +30,40 @@ class GameCollectionRepository(val application: BggApplication) {
      * Get a game from the database and potentially refresh it from BGG.
      */
     fun getCollectionItems(gameId: Int): LiveData<RefreshableResource<List<GameCollectionItem>>> {
-        return GameCollectionLoader(application, gameId).asLiveData()
-    }
+        return object : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
+            override val typeDescriptionResId = R.string.title_collection
 
-    inner class GameCollectionLoader(application: BggApplication, private val gameId: Int) : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
-        override val typeDescriptionResId = R.string.title_collection
+            override fun loadFromDatabase() = CollectionDao(application).load(gameId)
 
-        override fun loadFromDatabase() = CollectionDao(application).load(gameId)
-
-        override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
-            if (gameId == BggContract.INVALID_ID || username == null) return false
-            val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-            return data == null || DateTimeUtils.isOlderThan(syncTimestamp, 10, TimeUnit.MINUTES)
-        }
-
-        override fun createCall(): Call<CollectionResponse> {
-            timestamp = System.currentTimeMillis()
-            val options = ArrayMap<String, String>()
-            options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
-            options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
-            options[BggService.COLLECTION_QUERY_KEY_ID] = gameId.toString()
-            return Adapter.createForXmlWithAuth(application).collection(username, options)
-        }
-
-        override fun saveCallResult(result: CollectionResponse) {
-            val dao = CollectionDao(application)
-            val mapper = CollectionItemMapper()
-            val collectionIds = arrayListOf<Int>()
-
-            result.items?.forEach { item ->
-                val collectionId = dao.saveItem(mapper.map(item), timestamp)
-                collectionIds.add(collectionId)
+            override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
+                if (gameId == BggContract.INVALID_ID || username == null) return false
+                val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
+                return data == null || DateTimeUtils.isOlderThan(syncTimestamp, 10, TimeUnit.MINUTES)
             }
-            Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size ?: 0, gameId)
 
-            val deleteCount = dao.delete(gameId, collectionIds)
-            Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
-        }
+            override fun createCall(): Call<CollectionResponse> {
+                timestamp = System.currentTimeMillis()
+                val options = ArrayMap<String, String>()
+                options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
+                options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
+                options[BggService.COLLECTION_QUERY_KEY_ID] = gameId.toString()
+                return Adapter.createForXmlWithAuth(application).collection(username, options)
+            }
+
+            override fun saveCallResult(result: CollectionResponse) {
+                val dao = CollectionDao(application)
+                val mapper = CollectionItemMapper()
+                val collectionIds = arrayListOf<Int>()
+
+                result.items?.forEach { item ->
+                    val collectionId = dao.saveItem(mapper.map(item), timestamp)
+                    collectionIds.add(collectionId)
+                }
+                Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size ?: 0, gameId)
+
+                val deleteCount = dao.delete(gameId, collectionIds)
+                Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
+            }
+        }.asLiveData()
     }
 }

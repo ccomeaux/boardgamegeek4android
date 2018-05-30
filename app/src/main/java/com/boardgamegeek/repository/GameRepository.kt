@@ -27,7 +27,27 @@ class GameRepository(val application: BggApplication) {
      * Get a game from the database and potentially refresh it from BGG.
      */
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
-        return GameLoader(application, gameId).asLiveData()
+        return object : RefreshableResourceLoader<Game, ThingResponse>(application) {
+            override val typeDescriptionResId = R.string.title_game
+
+            override fun loadFromDatabase() = GameDao(application).load(gameId)
+
+            override fun shouldRefresh(data: Game?): Boolean {
+                if (gameId == BggContract.INVALID_ID) return false
+                return data == null || data.pollsVoteCount == 0 ||
+                        DateTimeUtils.isOlderThan(data.updated, 1, TimeUnit.MINUTES)
+            }
+
+            override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)
+
+            override fun saveCallResult(result: ThingResponse) {
+                val dao = GameDao(application)
+                for (game in result.games) {
+                    dao.save(GameMapper().map(game))
+                    Timber.i("Synced game '$gameId'")
+                }
+            }
+        }.asLiveData()
     }
 
     fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
@@ -97,28 +117,6 @@ class GameRepository(val application: BggApplication) {
             val values = ContentValues()
             values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
             application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
-        }
-    }
-
-    inner class GameLoader(application: BggApplication, private val gameId: Int) : RefreshableResourceLoader<Game, ThingResponse>(application) {
-        override val typeDescriptionResId = R.string.title_game
-
-        override fun loadFromDatabase() = GameDao(application).load(gameId)
-
-        override fun shouldRefresh(data: Game?): Boolean {
-            if (gameId == BggContract.INVALID_ID) return false
-            return data == null || data.pollsVoteCount == 0 ||
-                    DateTimeUtils.isOlderThan(data.updated, 1, TimeUnit.MINUTES)
-        }
-
-        override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)
-
-        override fun saveCallResult(result: ThingResponse) {
-            val dao = GameDao(application)
-            for (game in result.games) {
-                dao.save(GameMapper().map(game))
-                Timber.i("Synced game '$gameId'")
-            }
         }
     }
 }
