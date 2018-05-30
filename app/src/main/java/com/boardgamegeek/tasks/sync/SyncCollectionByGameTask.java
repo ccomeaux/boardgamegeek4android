@@ -1,12 +1,12 @@
 package com.boardgamegeek.tasks.sync;
 
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.db.CollectionDao;
@@ -31,11 +31,11 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 	private final List<Integer> results = new ArrayList<>();
 	private long timestamp;
 
-	public SyncCollectionByGameTask(Context context, int gameId) {
-		super(context);
+	public SyncCollectionByGameTask(BggApplication application, int gameId) {
+		super(application.getApplicationContext());
 		this.gameId = gameId;
 		username = AccountUtils.getUsername(context);
-		dao = new CollectionDao(context);
+		dao = new CollectionDao(application);
 	}
 
 	@Override

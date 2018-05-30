@@ -1,10 +1,10 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.Context
 import android.content.SyncResult
 import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
@@ -21,7 +21,7 @@ import java.util.*
 /**
  * Syncs the user's collection modified since the date stored in the sync service.
  */
-class SyncCollectionModifiedSince(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
+class SyncCollectionModifiedSince(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
     private val statusesToSync = PreferencesUtils.getSyncStatuses(context) ?: arrayListOf<String>()
 
@@ -91,7 +91,7 @@ class SyncCollectionModifiedSince(context: Context, service: BggService, syncRes
         options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = modifiedSince
         if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
 
-        val dao = CollectionDao(context)
+        val dao = CollectionDao(application)
         val call = service.collection(account.name, options)
         try {
             val timestamp = System.currentTimeMillis()

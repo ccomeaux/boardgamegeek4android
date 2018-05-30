@@ -1,12 +1,12 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.graphics.Bitmap
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
@@ -18,7 +18,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.util.*
 
-abstract class SyncUploadTask(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
+abstract class SyncUploadTask(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private val notificationMessages = ArrayList<CharSequence>()
 
     @get:StringRes

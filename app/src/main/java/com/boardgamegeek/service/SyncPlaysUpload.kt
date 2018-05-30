@@ -2,15 +2,14 @@ package com.boardgamegeek.service
 
 import android.app.PendingIntent
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.toOrdinal
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayDeleteResponse
@@ -22,6 +21,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
+import com.boardgamegeek.toOrdinal
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
@@ -34,7 +34,7 @@ import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
 import java.util.concurrent.TimeUnit
 
-class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
     private val persister = PlayPersister(context)
     private var currentPlay = PlayForNotification()

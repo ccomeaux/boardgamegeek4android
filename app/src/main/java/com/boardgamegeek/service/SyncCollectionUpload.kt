@@ -1,12 +1,12 @@
 package com.boardgamegeek.service
 
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.database.Cursor
 import android.support.annotation.PluralsRes
 import android.support.annotation.StringRes
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.io.BggService
@@ -28,7 +28,7 @@ import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SyncCollectionUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncCollectionUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
     private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
     private val deleteTask: CollectionDeleteTask
     private val addTask: CollectionAddTask
@@ -161,7 +161,7 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
         val contentValues = ContentValues()
         addTask.appendContentValues(contentValues)
         context.contentResolver.update(Collection.buildUri(item.internalId), contentValues, null, null)
-        TaskUtils.executeAsyncTask(SyncCollectionByGameTask(context, item.gameId))
+        TaskUtils.executeAsyncTask(SyncCollectionByGameTask(application, item.gameId))
         notifySuccess(item, item.gameId * -1, R.string.sync_notification_collection_added)
     }
 

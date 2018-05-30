@@ -3,7 +3,6 @@ package com.boardgamegeek.db
 import android.arch.lifecycle.LiveData
 import android.content.ContentResolver
 import android.content.ContentValues
-import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import com.boardgamegeek.*
@@ -22,7 +21,7 @@ import java.util.*
 
 private const val NOT_DIRTY = 0L
 
-class CollectionDao(private val context: Context) {
+class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
 
     fun load(gameId: Int): LiveData<List<GameCollectionItem>> {

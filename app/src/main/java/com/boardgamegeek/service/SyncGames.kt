@@ -1,7 +1,7 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.SyncResult
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.GameMapper
@@ -14,7 +14,7 @@ import timber.log.Timber
 import java.io.IOException
 import java.util.*
 
-abstract class SyncGames(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
+abstract class SyncGames(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
 
     protected open val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX)
 
@@ -52,7 +52,7 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
                             val body = response.body()
                             val games = body?.games ?: emptyList()
                             if (games.isNotEmpty()) {
-                                val dao = GameDao(context)
+                                val dao = GameDao(application)
                                 for (game in games) {
                                     dao.save(GameMapper().map(game))
                                 }
@@ -111,7 +111,7 @@ abstract class SyncGames(context: Context, service: BggService, syncResult: Sync
             if (response.isSuccessful) {
                 val games = if (response.body() == null) ArrayList(0) else response.body()!!.games
                 detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
-                val dao = GameDao(context)
+                val dao = GameDao(application)
                 for (game in games) {
                     dao.save(GameMapper().map(game))
                 }

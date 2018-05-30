@@ -17,17 +17,13 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     private val result = MediatorLiveData<RefreshableResource<T>>()
 
     init {
-        application.appExecutors.diskIO.execute {
-            val dbSource = loadFromDatabase()
-            result.addSource(dbSource) { data ->
-                application.appExecutors.mainThread.execute {
-                    result.removeSource(dbSource)
-                    if (shouldRefresh(data)) {
-                        refresh(dbSource)
-                    } else {
-                        result.addSource(dbSource) { newData -> setValue(RefreshableResource.success(newData)) }
-                    }
-                }
+        val dbSource = loadFromDatabase()
+        result.addSource(dbSource) { data ->
+            result.removeSource(dbSource)
+            if (shouldRefresh(data)) {
+                refresh(dbSource)
+            } else {
+                result.addSource(dbSource) { newData -> setValue(RefreshableResource.success(newData)) }
             }
         }
     }

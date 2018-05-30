@@ -1,9 +1,9 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.Context
 import android.content.SyncResult
 import android.support.annotation.StringRes
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
@@ -24,10 +24,10 @@ import java.io.IOException
 /**
  * Syncs the list of buddies. Only runs every few days.
  */
-class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
+class SyncBuddiesList(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     @StringRes
     private var currentDetailResId: Int = 0
-    private var persister = BuddyPersister(context)
+    private var persister = BuddyPersister(this.application)
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 

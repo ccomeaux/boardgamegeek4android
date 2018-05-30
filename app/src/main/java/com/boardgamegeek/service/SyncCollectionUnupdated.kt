@@ -1,9 +1,9 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.Context
 import android.content.SyncResult
 import android.support.v4.util.ArrayMap
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.BggService
@@ -19,7 +19,7 @@ import java.io.IOException
 /**
  * Syncs collection items that have not yet been updated completely with stats and private info (in batches).
  */
-class SyncCollectionUnupdated(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
+class SyncCollectionUnupdated(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private var detail: String = ""
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
@@ -36,7 +36,7 @@ class SyncCollectionUnupdated(context: Context, service: BggService, syncResult:
         Timber.i("Syncing unupdated collection list...")
         try {
             var numberOfFetches = 0
-            val dao = CollectionDao(context)
+            val dao = CollectionDao(application)
             val options = ArrayMap<String, String>()
             options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
             options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"

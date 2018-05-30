@@ -1,7 +1,7 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.SyncResult
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.User
@@ -11,7 +11,7 @@ import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 
-abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
+abstract class SyncBuddiesDetail(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private var notificationMessage: String = ""
 
     /**

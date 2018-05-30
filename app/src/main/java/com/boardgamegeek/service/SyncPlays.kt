@@ -1,8 +1,8 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.Context
 import android.content.SyncResult
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.PlaysResponse
@@ -14,7 +14,7 @@ import com.boardgamegeek.util.*
 import retrofit2.Response
 import timber.log.Timber
 
-class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
+class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
     private val persister: PlayPersister = PlayPersister(context)
 

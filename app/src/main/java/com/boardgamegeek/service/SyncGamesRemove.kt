@@ -1,8 +1,8 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.SyncResult
 import android.text.format.DateUtils
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
@@ -16,7 +16,7 @@ import timber.log.Timber
 /**
  * Removes games that aren't in the collection and haven't been viewed in 72 hours.
  */
-class SyncGamesRemove(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
+class SyncGamesRemove(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 

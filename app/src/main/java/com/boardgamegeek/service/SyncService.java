@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.NotificationUtils;
@@ -34,7 +35,7 @@ public class SyncService extends Service {
 	public void onCreate() {
 		synchronized (SYNC_ADAPTER_LOCK) {
 			if (syncAdapter == null) {
-				syncAdapter = new SyncAdapter(getApplicationContext());
+				syncAdapter = new SyncAdapter((BggApplication) getApplication());
 			}
 		}
 	}

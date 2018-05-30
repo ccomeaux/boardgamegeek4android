@@ -1,10 +1,10 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.Context
 import android.content.SyncResult
 import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.formatList
@@ -26,7 +26,7 @@ import kotlin.collections.set
  * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
  * database that weren't synced.
  */
-class SyncCollectionComplete(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
+class SyncCollectionComplete(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
     private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
 
@@ -125,7 +125,7 @@ class SyncCollectionComplete(context: Context, service: BggService, syncResult: 
         options[status] = "1"
         for (excludedStatus in excludedStatuses) options[excludedStatus] = "0"
 
-        val dao = CollectionDao(context)
+        val dao = CollectionDao(application)
         val call = service.collection(account.name, options)
         try {
             val timestamp = System.currentTimeMillis()

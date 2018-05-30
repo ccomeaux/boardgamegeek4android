@@ -5,7 +5,6 @@ import android.content.ContentProviderOperation
 import android.content.ContentProviderOperation.Builder
 import android.content.ContentResolver
 import android.content.ContentValues
-import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import com.boardgamegeek.*
@@ -25,53 +24,53 @@ import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.PlayerCountRecommendation
 import timber.log.Timber
 
-class GameDao(private val context: Context) {
+class GameDao(private val context: BggApplication) {
     private val resolver: ContentResolver = context.contentResolver
     private val updateTime: Long = System.currentTimeMillis()
 
     fun load(gameId: Int): LiveData<Game> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
-        val projection = arrayOf(
-                Games.GAME_ID,
-                Games.STATS_AVERAGE,
-                Games.YEAR_PUBLISHED,
-                Games.MIN_PLAYERS,
-                Games.MAX_PLAYERS,
-                Games.PLAYING_TIME,
-                Games.MINIMUM_AGE,
-                Games.DESCRIPTION,
-                Games.STATS_USERS_RATED,
-                Games.UPDATED,
-                Games.GAME_RANK,
-                Games.GAME_NAME,
-                Games.THUMBNAIL_URL,
-                Games.STATS_BAYES_AVERAGE,
-                Games.STATS_MEDIAN,
-                Games.STATS_STANDARD_DEVIATION,
-                Games.STATS_NUMBER_WEIGHTS,
-                Games.STATS_AVERAGE_WEIGHT,
-                Games.STATS_NUMBER_OWNED,
-                Games.STATS_NUMBER_TRADING,
-                Games.STATS_NUMBER_WANTING,
-                Games.STATS_NUMBER_WISHING,
-                Games.IMAGE_URL,
-                Games.SUBTYPE,
-                Games.CUSTOM_PLAYER_SORT,
-                Games.STATS_NUMBER_COMMENTS,
-                Games.MIN_PLAYING_TIME,
-                Games.MAX_PLAYING_TIME,
-                Games.STARRED,
-                Games.POLLS_COUNT,
-                Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                Games.HERO_IMAGE_URL,
-                Games.ICON_COLOR,
-                Games.DARK_COLOR,
-                Games.WINS_COLOR,
-                Games.WINNABLE_PLAYS_COLOR,
-                Games.ALL_PLAYS_COLOR
-        )
         val uri = Games.buildGameUri(gameId)
         return RegisteredLiveData(context, uri, {
+            val projection = arrayOf(
+                    Games.GAME_ID,
+                    Games.STATS_AVERAGE,
+                    Games.YEAR_PUBLISHED,
+                    Games.MIN_PLAYERS,
+                    Games.MAX_PLAYERS,
+                    Games.PLAYING_TIME,
+                    Games.MINIMUM_AGE,
+                    Games.DESCRIPTION,
+                    Games.STATS_USERS_RATED,
+                    Games.UPDATED,
+                    Games.GAME_RANK,
+                    Games.GAME_NAME,
+                    Games.THUMBNAIL_URL,
+                    Games.STATS_BAYES_AVERAGE,
+                    Games.STATS_MEDIAN,
+                    Games.STATS_STANDARD_DEVIATION,
+                    Games.STATS_NUMBER_WEIGHTS,
+                    Games.STATS_AVERAGE_WEIGHT,
+                    Games.STATS_NUMBER_OWNED,
+                    Games.STATS_NUMBER_TRADING,
+                    Games.STATS_NUMBER_WANTING,
+                    Games.STATS_NUMBER_WISHING,
+                    Games.IMAGE_URL,
+                    Games.SUBTYPE,
+                    Games.CUSTOM_PLAYER_SORT,
+                    Games.STATS_NUMBER_COMMENTS,
+                    Games.MIN_PLAYING_TIME,
+                    Games.MAX_PLAYING_TIME,
+                    Games.STARRED,
+                    Games.POLLS_COUNT,
+                    Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                    Games.HERO_IMAGE_URL,
+                    Games.ICON_COLOR,
+                    Games.DARK_COLOR,
+                    Games.WINS_COLOR,
+                    Games.WINNABLE_PLAYS_COLOR,
+                    Games.ALL_PLAYS_COLOR
+            )
             context.contentResolver.load(uri, projection)?.use {
                 if (it.moveToFirst()) {
                     return@RegisteredLiveData Game(
@@ -116,7 +115,8 @@ class GameDao(private val context: Context) {
         })
     }
 
-    fun loadRanks(gameId: Int): RegisteredLiveData<List<GameRankEntity>> {
+    fun loadRanks(gameId: Int): LiveData<List<GameRankEntity>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildRanksUri(gameId)
         return RegisteredLiveData(context, uri, {
             val ranks = arrayListOf<GameRankEntity>()
@@ -138,7 +138,9 @@ class GameDao(private val context: Context) {
         })
     }
 
-    fun loadPoll(gameId: Int, pollType: String): RegisteredLiveData<GamePollEntity> {
+    fun loadPoll(gameId: Int, pollType: String): LiveData<GamePollEntity> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (pollType !in arrayOf(BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)) return AbsentLiveData.create()
         val uri = Games.buildPollResultsResultUri(gameId, pollType)
         return RegisteredLiveData(context, uri, {
             val results = arrayListOf<GamePollResultEntity>()

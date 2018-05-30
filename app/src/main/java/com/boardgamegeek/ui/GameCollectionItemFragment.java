@@ -23,6 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
@@ -360,7 +361,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	public void onEvent(CollectionItemResetEvent event) {
 		if (event.getInternalId() == internalId) {
 			needsUploading = false;
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask((BggApplication) getActivity().getApplication(), gameId));
 		}
 	}
 
@@ -527,7 +528,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		mightNeedRefreshing = false;
 		if (!isRefreshing && gameId != BggContract.INVALID_ID) {
 			isRefreshing = true;
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask((BggApplication) getActivity().getApplication(), gameId));
 			return true;
 		}
 		return false;
