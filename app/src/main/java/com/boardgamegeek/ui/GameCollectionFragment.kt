@@ -36,7 +36,7 @@ class GameCollectionFragment : Fragment() {
         gameId = arguments?.getInt(ARG_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
 
-        swipeRefresh.setOnRefreshListener { viewModel.refreshCollectionItems() }
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh.setBggColors()
 
         syncTimestamp.timestamp = 0L

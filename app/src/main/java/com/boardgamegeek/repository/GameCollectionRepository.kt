@@ -17,12 +17,9 @@ import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.DateTimeUtils
 import retrofit2.Call
 import timber.log.Timber
-
-private const val AGE_IN_DAYS_TO_REFRESH = 3
+import java.util.concurrent.TimeUnit
 
 class GameCollectionRepository(val application: BggApplication) {
-    private val loader: GameCollectionLoader = GameCollectionLoader(application)
-    private var gameId: Int = BggContract.INVALID_ID
     private var timestamp = 0L
 
     private val username: String? by lazy {
@@ -33,18 +30,10 @@ class GameCollectionRepository(val application: BggApplication) {
      * Get a game from the database and potentially refresh it from BGG.
      */
     fun getCollectionItems(gameId: Int): LiveData<RefreshableResource<List<GameCollectionItem>>> {
-        this.gameId = gameId
-        return loader.load()
+        return GameCollectionLoader(application, gameId).load()
     }
 
-    /**
-     * Refresh the currently loaded game from BGG.
-     */
-    fun refresh() {
-        loader.refresh()
-    }
-
-    inner class GameCollectionLoader(application: BggApplication) : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
+    inner class GameCollectionLoader(application: BggApplication, private val gameId: Int) : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
         override val typeDescriptionResId = R.string.title_collection
 
         override fun isRequestParamsValid(): Boolean {
@@ -55,7 +44,7 @@ class GameCollectionRepository(val application: BggApplication) {
 
         override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
             val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-            return data == null || DateTimeUtils.howManyDaysOld(syncTimestamp) > AGE_IN_DAYS_TO_REFRESH
+            return data == null || DateTimeUtils.isOlderThan(syncTimestamp, 10, TimeUnit.MINUTES)
         }
 
         override fun createCall(): Call<CollectionResponse> {

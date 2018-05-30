@@ -50,15 +50,6 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     @MainThread
     protected abstract fun shouldRefresh(data: T?): Boolean
 
-    fun refresh() {
-        application.appExecutors.diskIO.execute {
-            val dbSource = loadFromDatabase()
-            application.appExecutors.mainThread.execute {
-                refresh(dbSource)
-            }
-        }
-    }
-
     private fun refresh(dbSource: LiveData<T>) {
         result.addSource(dbSource) { newData ->
             if (NetworkUtils.isOffline(application)) {

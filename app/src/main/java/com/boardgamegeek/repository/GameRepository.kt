@@ -18,20 +18,16 @@ import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.DateTimeUtils
 import retrofit2.Call
 import timber.log.Timber
-
-private const val AGE_IN_DAYS_TO_REFRESH = 3
+import java.util.concurrent.TimeUnit
 
 class GameRepository(val application: BggApplication) {
-    private var loader = GameLoader(application)
-    private var gameId = BggContract.INVALID_ID
     private var dao = GameDao(application)
 
     /**
      * Get a game from the database and potentially refresh it from BGG.
      */
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
-        this.gameId = gameId
-        return loader.load()
+        return GameLoader(application, gameId).load()
     }
 
     fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
@@ -56,13 +52,6 @@ class GameRepository(val application: BggApplication) {
                 return dao.loadRanks(gameId)
             }
         }.asLiveData()
-    }
-
-    /**
-     * Refresh the currently loaded game from BGG.
-     */
-    fun refreshGame() {
-        loader.refresh()
     }
 
     fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
@@ -111,7 +100,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    inner class GameLoader(application: BggApplication) : RefreshableResourceLoader<Game, ThingResponse>(application) {
+    inner class GameLoader(application: BggApplication, private val gameId: Int) : RefreshableResourceLoader<Game, ThingResponse>(application) {
         override val typeDescriptionResId = R.string.title_game
 
         override fun isRequestParamsValid() = gameId != BggContract.INVALID_ID
@@ -119,9 +108,8 @@ class GameRepository(val application: BggApplication) {
         override fun loadFromDatabase() = GameDao(application).load(gameId)
 
         override fun shouldRefresh(data: Game?): Boolean {
-            return data == null ||
-                    DateTimeUtils.howManyDaysOld(data.updated) > AGE_IN_DAYS_TO_REFRESH ||
-                    data.pollsVoteCount == 0
+            return data == null || data.pollsVoteCount == 0 ||
+                    DateTimeUtils.isOlderThan(data.updated, 1, TimeUnit.MINUTES)
         }
 
         override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)

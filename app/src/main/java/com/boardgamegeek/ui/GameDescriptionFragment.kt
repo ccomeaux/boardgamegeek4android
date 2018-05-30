@@ -33,7 +33,7 @@ class GameDescriptionFragment : Fragment() {
         gameId = arguments?.getInt(ARG_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
 
-        swipeRefresh.setOnRefreshListener { viewModel.refreshGame() }
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh.setBggColors()
 
         game_info_id.text = gameId.toString()

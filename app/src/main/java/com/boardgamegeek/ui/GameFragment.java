@@ -382,7 +382,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@Override
 	public void onRefresh() {
-		viewModel.refreshGame();
+		viewModel.refresh();
 	}
 
 	private void updateRefreshStatus(final boolean refreshing) {

@@ -71,12 +71,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun refreshGame() {
-        gameRepository.refreshGame()
-    }
-
-    fun refreshCollectionItems() {
-        gameCollectionRepository.refresh()
+    fun refresh() {
+        _gameId.value?.let {
+            _gameId.value = it
+        }
     }
 
     fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
