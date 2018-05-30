@@ -16,33 +16,28 @@ import retrofit2.Response
 abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) {
     private val result = MediatorLiveData<RefreshableResource<T>>()
 
-    fun load(): LiveData<RefreshableResource<T>> {
-        if (!isRequestParamsValid()) {
-            result.value = RefreshableResource.error(application.getString(com.boardgamegeek.R.string.msg_update_invalid_request, application.getString(typeDescriptionResId)))
-        } else {
-            application.appExecutors.diskIO.execute {
-                val dbSource = loadFromDatabase()
-                result.addSource(dbSource) { data ->
-                    application.appExecutors.mainThread.execute {
-                        result.removeSource(dbSource)
-                        if (shouldRefresh(data)) {
-                            refresh(dbSource)
-                        } else {
-                            result.addSource(dbSource) { newData -> result.setValue(RefreshableResource.success(newData)) }
-                        }
+    init {
+        application.appExecutors.diskIO.execute {
+            val dbSource = loadFromDatabase()
+            result.addSource(dbSource) { data ->
+                application.appExecutors.mainThread.execute {
+                    result.removeSource(dbSource)
+                    if (shouldRefresh(data)) {
+                        refresh(dbSource)
+                    } else {
+                        result.addSource(dbSource) { newData -> setValue(RefreshableResource.success(newData)) }
                     }
                 }
             }
         }
-        return result
+    }
+
+    fun asLiveData() = result as LiveData<RefreshableResource<T>>
+
+    @MainThread
     }
 
     protected abstract val typeDescriptionResId: Int
-
-    @MainThread
-    protected open fun isRequestParamsValid(): Boolean {
-        return true
-    }
 
     @MainThread
     protected abstract fun loadFromDatabase(): LiveData<T>
@@ -62,9 +57,10 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
         createCall().enqueue(object : Callback<U> {
             override fun onResponse(call: Call<U>?, response: Response<U>?) {
                 if (response?.isSuccessful == true) {
-                    if (isResponseBodyValid(response.body())) {
+                    val body = response.body()
+                    if (body != null) {
                         application.appExecutors.diskIO.execute {
-                            saveCallResult(response.body()!!)
+                            saveCallResult(body)
                             application.appExecutors.mainThread.execute {
                                 result.removeSource(dbSource)
                                 result.addSource(dbSource) { newData ->
@@ -79,8 +75,8 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                         }
                     }
                 } else {
+                    result.removeSource(dbSource)
                     result.addSource(dbSource) { newData ->
-                        result.removeSource(dbSource)
                         result.setValue(RefreshableResource.error(getHttpErrorMessage(response?.code()
                                 ?: 500), newData))
                     }
@@ -99,9 +95,8 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     @MainThread
     protected abstract fun createCall(): Call<U>
 
-    protected fun isResponseBodyValid(body: U?): Boolean {
-        return body != null
-    }
+    @WorkerThread
+    protected abstract fun saveCallResult(result: U)
 
     private fun getHttpErrorMessage(httpCode: Int): String {
         @StringRes val resId: Int = when {
@@ -111,7 +106,4 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
         }
         return application.getString(resId, httpCode.toString())
     }
-
-    @WorkerThread
-    protected abstract fun saveCallResult(result: U)
 }

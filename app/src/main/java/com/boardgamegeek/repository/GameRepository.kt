@@ -27,7 +27,7 @@ class GameRepository(val application: BggApplication) {
      * Get a game from the database and potentially refresh it from BGG.
      */
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
-        return GameLoader(application, gameId).load()
+        return GameLoader(application, gameId).asLiveData()
     }
 
     fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
@@ -103,11 +103,10 @@ class GameRepository(val application: BggApplication) {
     inner class GameLoader(application: BggApplication, private val gameId: Int) : RefreshableResourceLoader<Game, ThingResponse>(application) {
         override val typeDescriptionResId = R.string.title_game
 
-        override fun isRequestParamsValid() = gameId != BggContract.INVALID_ID
-
         override fun loadFromDatabase() = GameDao(application).load(gameId)
 
         override fun shouldRefresh(data: Game?): Boolean {
+            if (gameId == BggContract.INVALID_ID) return false
             return data == null || data.pollsVoteCount == 0 ||
                     DateTimeUtils.isOlderThan(data.updated, 1, TimeUnit.MINUTES)
         }

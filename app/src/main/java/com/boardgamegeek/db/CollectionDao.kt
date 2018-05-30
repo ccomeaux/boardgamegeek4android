@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import android.arch.lifecycle.LiveData
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
@@ -7,6 +8,7 @@ import android.database.Cursor
 import android.net.Uri
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
@@ -23,7 +25,8 @@ private const val NOT_DIRTY = 0L
 class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
 
-    fun load(gameId: Int): RegisteredLiveData<List<GameCollectionItem>> {
+    fun load(gameId: Int): LiveData<List<GameCollectionItem>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Collection.CONTENT_URI
         val projection = arrayOf(
                 Collection._ID,

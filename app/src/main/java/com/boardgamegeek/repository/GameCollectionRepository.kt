@@ -30,19 +30,16 @@ class GameCollectionRepository(val application: BggApplication) {
      * Get a game from the database and potentially refresh it from BGG.
      */
     fun getCollectionItems(gameId: Int): LiveData<RefreshableResource<List<GameCollectionItem>>> {
-        return GameCollectionLoader(application, gameId).load()
+        return GameCollectionLoader(application, gameId).asLiveData()
     }
 
     inner class GameCollectionLoader(application: BggApplication, private val gameId: Int) : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
         override val typeDescriptionResId = R.string.title_collection
 
-        override fun isRequestParamsValid(): Boolean {
-            return gameId != BggContract.INVALID_ID && !username.isNullOrBlank()
-        }
-
         override fun loadFromDatabase() = CollectionDao(application).load(gameId)
 
         override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
+            if (gameId == BggContract.INVALID_ID || username == null) return false
             val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
             return data == null || DateTimeUtils.isOlderThan(syncTimestamp, 10, TimeUnit.MINUTES)
         }

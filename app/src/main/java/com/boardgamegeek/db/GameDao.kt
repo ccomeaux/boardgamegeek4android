@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import android.arch.lifecycle.LiveData
 import android.content.ContentProviderOperation
 import android.content.ContentProviderOperation.Builder
 import android.content.ContentResolver
@@ -12,6 +13,7 @@ import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GamePollResultEntity
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
@@ -27,7 +29,8 @@ class GameDao(private val context: Context) {
     private val resolver: ContentResolver = context.contentResolver
     private val updateTime: Long = System.currentTimeMillis()
 
-    fun load(gameId: Int): RegisteredLiveData<Game> {
+    fun load(gameId: Int): LiveData<Game> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val projection = arrayOf(
                 Games.GAME_ID,
                 Games.STATS_AVERAGE,
