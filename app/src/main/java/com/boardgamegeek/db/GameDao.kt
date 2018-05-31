@@ -8,10 +8,7 @@ import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
 import com.boardgamegeek.*
-import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GamePollEntity
-import com.boardgamegeek.entities.GamePollResultEntity
-import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.model.Constants
@@ -147,15 +144,37 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
                     do {
-                        val gameSuggestedPlayerLanguage = GamePollResultEntity(
+                        results.add(GamePollResultEntity(
                                 level = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL) ?: 0,
                                 value = it.getString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE),
-                                numberOfVotes = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES) ?: 0)
-                        results.add(gameSuggestedPlayerLanguage)
+                                numberOfVotes = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES) ?: 0))
                     } while (it.moveToNext())
                 }
             }
             return@RegisteredLiveData GamePollEntity(results)
+        })
+    }
+
+    fun loadPlayerPoll(gameId: Int): LiveData<List<GamePlayerPollEntity>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<GamePlayerPollEntity>()
+            val projection = arrayOf(
+                    GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                    GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)
+            context.contentResolver.load(uri, projection)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(GamePlayerPollEntity(
+                                totalVotes = it.getInt(GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL),
+                                playerCount = it.getInt(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT),
+                                recommendation = it.getInt(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
         })
     }
 

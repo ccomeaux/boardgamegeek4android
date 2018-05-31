@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.support.v7.graphics.Palette
+import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.livedata.AbsentLiveData
@@ -60,6 +61,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             AbsentLiveData.create()
         } else {
             gameRepository.getRanks(gameId)
+        }
+    }
+
+    val playerPoll: LiveData<List<GamePlayerPollEntity>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getPlayerPoll(gameId)
         }
     }
 

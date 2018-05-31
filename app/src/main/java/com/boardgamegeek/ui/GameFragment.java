@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.GamePlayerPollEntity;
 import com.boardgamegeek.entities.GamePollEntity;
 import com.boardgamegeek.entities.GameRankEntity;
 import com.boardgamegeek.events.CollectionItemAddedEvent;
@@ -45,7 +46,6 @@ import com.boardgamegeek.ui.model.GameExpansion;
 import com.boardgamegeek.ui.model.GameList;
 import com.boardgamegeek.ui.model.GameMechanic;
 import com.boardgamegeek.ui.model.GamePublisher;
-import com.boardgamegeek.ui.model.GameSuggestedPlayerCount;
 import com.boardgamegeek.ui.model.RefreshableResource;
 import com.boardgamegeek.ui.model.Status;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
@@ -94,7 +94,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final int MECHANIC_TOKEN = 0x16;
 	private static final int EXPANSION_TOKEN = 0x17;
 	private static final int BASE_GAME_TOKEN = 0x18;
-	private static final int SUGGESTED_PLAYER_COUNT_TOKEN = 0x25;
 
 	private Unbinder unbinder;
 
@@ -238,8 +237,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				progressBar.hide();
 			}
 		});
-		LoaderManager lm = getLoaderManager();
-		lm.restartLoader(SUGGESTED_PLAYER_COUNT_TOKEN, null, this);
 
 		viewModel.getRanks().observe(GameFragment.this, new Observer<List<GameRankEntity>>() {
 			@Override
@@ -259,6 +256,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			@Override
 			public void onChanged(@Nullable GamePollEntity gameSuggestedAgePollEntity) {
 				onAgePollQueryComplete(gameSuggestedAgePollEntity);
+			}
+		});
+
+		viewModel.getPlayerPoll().observe(GameFragment.this, new Observer<List<GamePlayerPollEntity>>() {
+			@Override
+			public void onChanged(@Nullable List<GamePlayerPollEntity> gamePlayerPollEntities) {
+				onPlayerCountQueryComplete(gamePlayerPollEntities);
 			}
 		});
 
@@ -329,9 +333,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			case BASE_GAME_TOKEN:
 				loader = new CursorLoader(getActivity(), GameBaseGame.buildUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
 				break;
-			case SUGGESTED_PLAYER_COUNT_TOKEN:
-				loader = new CursorLoader(getActivity(), GameSuggestedPlayerCount.buildUri(gameId), GameSuggestedPlayerCount.PROJECTION, null, null, null);
-				break;
 			default:
 				Timber.w("Invalid query token=%s", id);
 				break;
@@ -365,9 +366,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				break;
 			case BASE_GAME_TOKEN:
 				onListQueryComplete(cursor, baseGamesView);
-				break;
-			case SUGGESTED_PLAYER_COUNT_TOKEN:
-				onPlayerCountQueryComplete(cursor);
 				break;
 			default:
 				cursor.close();
@@ -489,13 +487,12 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onPlayerCountQueryComplete(Cursor cursor) {
+	private void onPlayerCountQueryComplete(List<GamePlayerPollEntity> list) {
 		int totalVotes = 0;
-		if (cursor != null && cursor.moveToFirst()) {
+		if (list != null) {
 			List<Integer> bestCounts = new ArrayList<>();
 			List<Integer> recommendedCounts = new ArrayList<>();
-			do {
-				GameSuggestedPlayerCount suggestedPlayerCount = GameSuggestedPlayerCount.fromCursor(cursor);
+			for (GamePlayerPollEntity suggestedPlayerCount : list) {
 				totalVotes = Math.max(totalVotes, suggestedPlayerCount.getTotalVotes());
 				if (suggestedPlayerCount.getRecommendation() == PlayerCountRecommendation.BEST) {
 					bestCounts.add(suggestedPlayerCount.getPlayerCount());
@@ -503,7 +500,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				} else if (suggestedPlayerCount.getRecommendation() == PlayerCountRecommendation.RECOMMENDED) {
 					recommendedCounts.add(suggestedPlayerCount.getPlayerCount());
 				}
-			} while (cursor.moveToNext());
+			}
 
 			CharSequence communityText = "";
 			if (bestCounts.size() > 0) {

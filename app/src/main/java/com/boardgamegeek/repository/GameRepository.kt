@@ -5,6 +5,7 @@ import android.content.ContentValues
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.Adapter
@@ -59,6 +60,10 @@ class GameRepository(val application: BggApplication) {
 
     fun getRanks(gameId: Int): LiveData<List<GameRankEntity>> {
         return dao.loadRanks(gameId)
+    }
+
+    fun getPlayerPoll(gameId: Int): LiveData<List<GamePlayerPollEntity>> {
+        return dao.loadPlayerPoll(gameId)
     }
 
     fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {

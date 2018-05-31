@@ -1,7 +1,7 @@
 package com.boardgamegeek.entities
 
 data class GamePollResultEntity(
-        var level: Int = 0,
-        var value: String = "",
-        var numberOfVotes: Int = 0
+        val level: Int = 0,
+        val value: String = "",
+        val numberOfVotes: Int = 0
 )
