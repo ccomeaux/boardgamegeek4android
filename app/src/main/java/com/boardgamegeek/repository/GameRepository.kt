@@ -9,7 +9,6 @@ import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
-import com.boardgamegeek.livedata.DatabaseResourceLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
@@ -51,27 +50,15 @@ class GameRepository(val application: BggApplication) {
     }
 
     fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
-        return object : DatabaseResourceLoader<GamePollEntity>(application) {
-            override fun loadFromDatabase(): LiveData<GamePollEntity> {
-                return dao.loadPoll(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)
-            }
-        }.asLiveData()
+        return dao.loadPoll(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)
     }
 
     fun getAgePoll(gameId: Int): LiveData<GamePollEntity> {
-        return object : DatabaseResourceLoader<GamePollEntity>(application) {
-            override fun loadFromDatabase(): LiveData<GamePollEntity> {
-                return dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
-            }
-        }.asLiveData()
+        return dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
     }
 
     fun getRanks(gameId: Int): LiveData<List<GameRankEntity>> {
-        return object : DatabaseResourceLoader<List<GameRankEntity>>(application) {
-            override fun loadFromDatabase(): LiveData<List<GameRankEntity>> {
-                return dao.loadRanks(gameId)
-            }
-        }.asLiveData()
+        return dao.loadRanks(gameId)
     }
 
     fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
