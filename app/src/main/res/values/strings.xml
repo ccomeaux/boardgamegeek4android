@@ -785,4 +785,8 @@
 		<item quantity="one">%1$s with %2$,d player</item>
 		<item quantity="other">%1$s with %2$,d players</item>
 	</plurals>
+	<plurals name="more">
+		<item quantity="one">%,d more</item>
+		<item quantity="other">%,d more</item>
+	</plurals>
 </resources>

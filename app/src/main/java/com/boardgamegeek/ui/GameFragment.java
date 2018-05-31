@@ -66,7 +66,6 @@ import hugo.weaving.DebugLog;
 import kotlin.Pair;
 
 import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 public class GameFragment extends Fragment implements OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
@@ -348,7 +347,7 @@ public class GameFragment extends Fragment implements OnRefreshListener {
 		if (!isAdded()) return;
 
 		if (iconColor != Color.TRANSPARENT) {
-			if (colorizedRows != null) ButterKnife.apply(colorizedRows, GameDetailRow.rgbIconSetter, iconColor);
+			if (colorizedRows != null) ButterKnife.apply(colorizedRows, GameDetailRow.getRgbIconSetter(), iconColor);
 			if (colorizedIcons != null) ButterKnife.apply(colorizedIcons, PaletteUtils.getRgbIconSetter(), iconColor);
 		}
 	}
@@ -388,13 +387,7 @@ public class GameFragment extends Fragment implements OnRefreshListener {
 
 	@DebugLog
 	private void onListQueryComplete(List<Pair<Integer, String>> list, GameDetailRow view) {
-		if (list == null || list.size() == 0) {
-			view.setVisibility(GONE);
-			view.clear();
-		} else {
-			view.setVisibility(VISIBLE);
-			view.bindData(gameId, gameName, list);
-		}
+		view.bindData(gameId, gameName, list);
 	}
 
 	@DebugLog
